@@ -23,6 +23,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bAutorunEnabled = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
+	float PlayerRespawnDelaySeconds = 5.0f;
+
 	virtual void PlayerTick(float DeltaTime) override;
 
 protected:
@@ -31,6 +34,9 @@ protected:
 
 	UFUNCTION()
 	void HandleControlledCharacterDied();
+
+	UFUNCTION()
+	void RespawnControlledCharacter();
 
 	void OnLeftMousePressed();
 	void OnLeftMouseReleased();
@@ -55,6 +61,8 @@ protected:
 private:
 	bool bLeftMouseDown = false;
 	bool bRightMouseDown = false;
+	FTransform ControlledSpawnTransform;
+	FTimerHandle PlayerRespawnTimerHandle;
 
 	AEmbermereCharacter* GetEmbermereCharacter() const;
 	bool InteractWithNearestActor();

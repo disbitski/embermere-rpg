@@ -10,6 +10,7 @@
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/EmbermereTargetable.h"
+#include "TimerManager.h"
 
 AEmbermerePlayerController::AEmbermerePlayerController()
 {
@@ -50,6 +51,7 @@ void AEmbermerePlayerController::OnPossess(APawn* InPawn)
 
 	if (AEmbermereCharacter* Character = Cast<AEmbermereCharacter>(InPawn))
 	{
+		ControlledSpawnTransform = Character->GetActorTransform();
 		if (Character->Stats)
 		{
 			Character->Stats->OnDied.AddUniqueDynamic(this, &AEmbermerePlayerController::HandleControlledCharacterDied);
@@ -73,6 +75,7 @@ void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 void AEmbermerePlayerController::HandleControlledCharacterDied()
 {
 	bAutorunEnabled = false;
+	SetIgnoreMoveInput(true);
 
 	if (GEngine)
 	{
@@ -80,7 +83,40 @@ void AEmbermerePlayerController::HandleControlledCharacterDied()
 			-1,
 			5.0f,
 			FColor::Red,
-			TEXT("You have fallen. Player respawn is next on the prototype list."));
+			TEXT("You have fallen."));
+	}
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(
+			PlayerRespawnTimerHandle,
+			this,
+			&AEmbermerePlayerController::RespawnControlledCharacter,
+			FMath::Max(0.1f, PlayerRespawnDelaySeconds),
+			false);
+	}
+}
+
+void AEmbermerePlayerController::RespawnControlledCharacter()
+{
+	AEmbermereCharacter* Character = GetEmbermereCharacter();
+	if (!Character || !Character->Stats)
+	{
+		SetIgnoreMoveInput(false);
+		return;
+	}
+
+	Character->SetActorTransform(ControlledSpawnTransform);
+	Character->Stats->InitializeVitals();
+	SetIgnoreMoveInput(false);
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			4.0f,
+			FColor::Green,
+			TEXT("You recover at the village."));
 	}
 }
 
