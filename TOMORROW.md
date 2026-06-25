@@ -2,6 +2,10 @@
 
 ## Build The First Play Loop
 
+- Fix the control regression from the first live playtest:
+  - `W`/`S` should cancel autorun, but currently only pressing `Q` again stops it.
+  - `Ctrl+M` should toggle mouse Y inversion and show a message, but currently does not fire in PIE.
+  - Likely next fix: add explicit input action mappings or move the checks into the pawn/controller path that is definitely receiving live input.
 - Restart Unreal after C++ changes, then run the editor smoke test in [Docs/PLAYTESTING.md](Docs/PLAYTESTING.md).
 - Create Blueprint or UMG child widgets for:
   - character creation
