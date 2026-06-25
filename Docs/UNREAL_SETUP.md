@@ -54,6 +54,15 @@ Epic's default MCP port is `8000`; this project uses `8123` to avoid common loca
 
 The config generator writes the correct client config for the named agent. JSON clients such as Claude Code use `.mcp.json`; Epic's docs note that Codex uses a TOML config and that stale Codex configs may need to be removed manually before regenerating. After the config exists, Codex can connect to Unreal MCP from this workspace.
 
+For this project, verify `.codex/config.toml` points to:
+
+```toml
+[mcp_servers.unreal-mcp]
+url = "http://127.0.0.1:8123/mcp"
+```
+
+If it points to `8000`, update it to `8123`. Port `8000` is a common conflict point and may be used by unrelated local dev servers.
+
 Useful MCP console commands from Epic's docs:
 
 ```text

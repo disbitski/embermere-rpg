@@ -81,6 +81,14 @@ fi
 
 if [[ -f "$ROOT_DIR/.mcp.json" || -f "$ROOT_DIR/.codex/config.toml" || -f "$ROOT_DIR/codex.toml" ]]; then
   echo "[ok] Found a generated MCP client config"
+  if [[ -f "$ROOT_DIR/.codex/config.toml" ]]; then
+    MCP_URL="$(grep -E '^[[:space:]]*url[[:space:]]*=' "$ROOT_DIR/.codex/config.toml" | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')"
+    if [[ "$MCP_URL" == "http://127.0.0.1:8123/mcp" ]]; then
+      echo "[ok] Codex MCP config points at $MCP_URL"
+    else
+      echo "[missing] Codex MCP config points at '$MCP_URL' but this project expects http://127.0.0.1:8123/mcp"
+    fi
+  fi
 else
   echo "[todo] MCP client config not found yet. Generate it inside Unreal with: ModelContextProtocol.GenerateClientConfig Codex"
   echo "       Note: JSON clients commonly use .mcp.json; Codex may generate a TOML config."
