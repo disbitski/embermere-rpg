@@ -38,6 +38,7 @@ Official MCP docs: https://dev.epicgames.com/documentation/unreal-engine/unreal-
    - AllToolsets
    - PythonScriptPlugin
    - Enhanced Input
+   These may already be enabled because `Embermere.uproject` requests them.
 13. Restart the editor if prompted.
 
 ## Start MCP
