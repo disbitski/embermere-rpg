@@ -80,6 +80,8 @@ We are starting Unreal-first with Fab and Marketplace assets, then replacing or 
 
 See [Docs/ASSET_STRATEGY.md](Docs/ASSET_STRATEGY.md).
 
+The current pack-by-pack shopping and import plan lives in [Docs/FAB_ASSET_PLAN.md](Docs/FAB_ASSET_PLAN.md).
+
 ## Unreal And MCP Setup
 
 The project targets Unreal Engine 5.8 and includes plugin configuration for:
@@ -110,9 +112,10 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 - [JOURNEY.md](JOURNEY.md) tracks decisions, milestones, and lessons.
 - [TOMORROW.md](TOMORROW.md) keeps the immediate next steps visible.
+- [Docs/PLAYTESTING.md](Docs/PLAYTESTING.md) tracks the current editor smoke test.
 
 ## Status
 
 Early Unreal prototype scaffold with MCP connected and the first starter-zone blockout saved.
 
-Next milestone: wire the first playable loop: character creation data, hotbar abilities, tab target combat, starter enemies, dialogue, quest progress, XP, and loot.
+Next milestone: turn the current greybox combat-and-quest slice into a visible UI-driven loop with target frame, hotbar, quest tracker, loot, and first Fab art replacements.

@@ -2,8 +2,7 @@
 
 ## Build The First Play Loop
 
-- Flesh out `DA_EmbermereRules` with the starting races/classes and starter abilities.
-- Create first item and quest data assets.
+- Restart Unreal after C++ changes, then run the editor smoke test in [Docs/PLAYTESTING.md](Docs/PLAYTESTING.md).
 - Create Blueprint or UMG child widgets for:
   - character creation
   - target frame
@@ -11,8 +10,9 @@
   - dialogue
   - quest tracker
   - loot popup
-- Wire the starter quest into the village quest NPC placeholder.
-- Make the three starter enemies attack, die, respawn, and grant quest progress.
+- Make starter enemies attack the player.
+- Add loot popup and visible inventory reward feedback.
+- Replace temporary debug text with first-pass UI widgets.
 
 ## Keep MCP Running
 
@@ -51,3 +51,5 @@ Start with free Unreal/Fab assets:
 - fantasy UI/icons
 - simple fantasy enemy or creature pack
 - weapon pack for sword, shield, staff, and bow
+
+Track candidates and install notes in [Docs/FAB_ASSET_PLAN.md](Docs/FAB_ASSET_PLAN.md).

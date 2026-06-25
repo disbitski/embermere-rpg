@@ -75,6 +75,15 @@ First map pass:
 - Placed a `PlayerStart`, quest/vendor/trainer placeholders, three `BP_StarterEnemy` instances, visible enemy markers, and lighting.
 - Added `Scripts/setup_prototype_level.py` so the blockout can be rebuilt from Unreal's Python console.
 
+First playable loop hooks:
+
+- Added a first quest giver Blueprint, starter quest data, and starter reward item data.
+- Wired `F` as a prototype interaction fallback when the tenth hotbar slot is empty.
+- Added temporary on-screen messages for dialogue, quest acceptance/progress/completion, and ability hits.
+- Added a race/class automation test for the starting matrix, including Dwarf Ranger and Bullywug Wizard restrictions.
+- Added prototype enemy defeat and respawn behavior so the wilderness pocket can be tested repeatedly.
+- Added the Fab asset plan and editor playtest checklist.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
