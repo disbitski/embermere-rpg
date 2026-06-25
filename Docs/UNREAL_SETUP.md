@@ -9,15 +9,27 @@ Official MCP docs: https://dev.epicgames.com/documentation/unreal-engine/unreal-
 1. Download Epic Games Launcher from the official Unreal page: https://www.unrealengine.com/download
 2. Install Epic Games Launcher.
 3. Create or log in to your Epic Games account.
-4. Install Unreal Engine 5.8 from the Launcher's Unreal Engine tab.
-5. Open `Embermere.uproject`.
-6. If Unreal asks to rebuild modules, allow it.
-7. Enable or confirm these plugins:
+4. Install Xcode from Apple and make sure it lives at `/Applications/Xcode.app`:
+   - Apple Xcode page: https://developer.apple.com/xcode/
+   - Mac App Store listing: https://apps.apple.com/us/app/xcode/id497799835
+5. Open Xcode once after installation so it can finish installing required components.
+6. If macOS asks for license/toolchain confirmation, accept it.
+7. Select full Xcode for command-line tools:
+
+   ```bash
+   sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+   sudo xcodebuild -license accept
+   ```
+
+8. Install Unreal Engine 5.8 from the Launcher's Unreal Engine tab.
+9. Open `Embermere.uproject`.
+10. If Unreal asks to rebuild modules, allow it.
+11. Enable or confirm these plugins:
    - Model Context Protocol / Unreal MCP
    - AllToolsets
    - PythonScriptPlugin
    - Enhanced Input
-8. Restart the editor if prompted.
+12. Restart the editor if prompted.
 
 ## Start MCP
 

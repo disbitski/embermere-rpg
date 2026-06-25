@@ -20,6 +20,25 @@ else
   echo "[missing] Epic Games Launcher not found in /Applications or ~/Applications"
 fi
 
+if [[ -d "/Applications/Xcode.app" ]]; then
+  echo "[ok] Found /Applications/Xcode.app"
+else
+  echo "[missing] Full Xcode not found at /Applications/Xcode.app"
+fi
+
+DEVELOPER_DIR="$(xcode-select -p 2>/dev/null || true)"
+if [[ "$DEVELOPER_DIR" == "/Applications/Xcode.app/Contents/Developer" ]]; then
+  echo "[ok] xcode-select points at full Xcode"
+else
+  echo "[missing] xcode-select is '$DEVELOPER_DIR' but Unreal expects /Applications/Xcode.app/Contents/Developer"
+fi
+
+if xcrun --find metal >/dev/null 2>&1; then
+  echo "[ok] Metal compiler is available"
+else
+  echo "[missing] Metal compiler not available yet"
+fi
+
 UE_CANDIDATES=(
   "/Users/Shared/Epic Games/UE_5.8/Engine/Binaries/Mac/UnrealEditor.app"
   "/Users/Shared/Epic Games/UE_5.8/Engine/Binaries/Mac/UnrealEditor"
