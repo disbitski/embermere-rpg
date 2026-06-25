@@ -33,10 +33,11 @@ else
   echo "[missing] xcode-select is '$DEVELOPER_DIR' but Unreal expects /Applications/Xcode.app/Contents/Developer"
 fi
 
-if xcrun --find metal >/dev/null 2>&1; then
-  echo "[ok] Metal compiler is available"
+if xcrun metal -v >/dev/null 2>&1; then
+  echo "[ok] Metal compiler executes"
 else
-  echo "[missing] Metal compiler not available yet"
+  echo "[missing] Metal compiler cannot execute yet"
+  echo "          Run from normal Terminal: xcodebuild -downloadComponent MetalToolchain"
 fi
 
 UE_CANDIDATES=(

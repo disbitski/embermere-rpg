@@ -21,15 +21,24 @@ Official MCP docs: https://dev.epicgames.com/documentation/unreal-engine/unreal-
    sudo xcodebuild -license accept
    ```
 
-8. Install Unreal Engine 5.8 from the Launcher's Unreal Engine tab.
-9. Open `Embermere.uproject`.
-10. If Unreal asks to rebuild modules, allow it.
-11. Enable or confirm these plugins:
+8. Install Xcode's Metal Toolchain component from a normal macOS Terminal session:
+
+   ```bash
+   xcodebuild -downloadComponent MetalToolchain
+   xcrun metal -v
+   ```
+
+   Unreal may show `cannot execute tool 'metal' due to missing Metal Toolchain` until this component is installed. If `xcrun metal -v` still reports a missing Metal Toolchain after download, quit and reopen Xcode/Unreal, then rerun the command from Terminal rather than from inside Codex.
+
+9. Install Unreal Engine 5.8 from the Launcher's Unreal Engine tab.
+10. Open `Embermere.uproject`.
+11. If Unreal asks to rebuild modules, allow it.
+12. Enable or confirm these plugins:
    - Model Context Protocol / Unreal MCP
    - AllToolsets
    - PythonScriptPlugin
    - Enhanced Input
-12. Restart the editor if prompted.
+13. Restart the editor if prompted.
 
 ## Start MCP
 
@@ -64,7 +73,7 @@ zsh Scripts/check_unreal_setup.sh
 The expected milestone states are:
 
 - Before installing tools: project/plugin checks pass, while Epic, Xcode, Unreal, and MCP config are missing.
-- After installing Epic, Xcode, and Unreal: all local toolchain checks pass, while MCP config is still pending.
+- After installing Epic, Xcode, Unreal, and the Metal Toolchain: all local toolchain checks pass, while MCP config is still pending.
 - After opening the project and running `ModelContextProtocol.GenerateClientConfig Codex`: the MCP config check should pass too.
 
 ## MCP Notes
