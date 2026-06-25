@@ -8,6 +8,12 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
 3. Confirm the map shows the greybox village, road markers, wilderness pocket, ruin, quest giver, and three starter enemies.
 
+## Finding Mara
+
+Mara is the quest giver actor named `Quest_Giver_Mara_Fenwatch`.
+
+From the village spawn, move mostly straight ahead and slightly right toward the center of the circular village safe-area marker. In world coordinates, the player starts around `(-2400, -1200)` and Mara is nearby at `(-2050, -850)`, between the village blockout buildings.
+
 ## Current Play Loop
 
 1. Press Play.

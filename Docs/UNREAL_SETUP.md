@@ -86,6 +86,16 @@ The expected milestone states are:
 - After installing Epic, Xcode, Unreal, and the Metal Toolchain: all local toolchain checks pass, while MCP config is still pending.
 - After opening the project and running `ModelContextProtocol.GenerateClientConfig Codex`: the MCP config check should pass too.
 
+## Saving Editor Changes
+
+It is safe to use `File > Save All` before quitting Unreal, especially when a level or asset tab shows an asterisk. Unreal may also rewrite project config or binary asset packages while saving, so check `git status` afterward and only commit intentional files.
+
+After restarting Unreal, start MCP again from the Unreal console when Codex needs editor access:
+
+```text
+ModelContextProtocol.StartServer 8123
+```
+
 ## Manual Rebuild
 
 If Unreal shows `Embermere could not be compiled. Try rebuilding from source manually.`, run:
