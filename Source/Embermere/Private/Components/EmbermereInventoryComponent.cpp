@@ -1,4 +1,5 @@
 #include "Components/EmbermereInventoryComponent.h"
+#include "Engine/Engine.h"
 
 UEmbermereInventoryComponent::UEmbermereInventoryComponent()
 {
@@ -12,6 +13,8 @@ bool UEmbermereInventoryComponent::AddItem(UEmbermereItemData* Item, int32 Quant
 		return false;
 	}
 
+	const int32 RequestedQuantity = Quantity;
+
 	for (FEmbermereInventoryStack& Stack : Stacks)
 	{
 		if (Stack.Item == Item && Stack.Quantity < Item->MaxStack)
@@ -23,6 +26,15 @@ bool UEmbermereInventoryComponent::AddItem(UEmbermereItemData* Item, int32 Quant
 			if (Quantity <= 0)
 			{
 				OnInventoryChanged.Broadcast();
+				OnItemAdded.Broadcast(Item, RequestedQuantity);
+				if (GEngine)
+				{
+					GEngine->AddOnScreenDebugMessage(
+						-1,
+						4.0f,
+						FColor(80, 220, 120),
+						FString::Printf(TEXT("Received: %s x%d"), *Item->DisplayName.ToString(), RequestedQuantity));
+				}
 				return true;
 			}
 		}
@@ -38,7 +50,20 @@ bool UEmbermereInventoryComponent::AddItem(UEmbermereItemData* Item, int32 Quant
 	}
 
 	const bool bAddedAll = Quantity <= 0;
-	OnInventoryChanged.Broadcast();
+	const int32 AddedQuantity = RequestedQuantity - Quantity;
+	if (AddedQuantity > 0)
+	{
+		OnInventoryChanged.Broadcast();
+		OnItemAdded.Broadcast(Item, AddedQuantity);
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				4.0f,
+				FColor(80, 220, 120),
+				FString::Printf(TEXT("Received: %s x%d"), *Item->DisplayName.ToString(), AddedQuantity));
+		}
+	}
 	return bAddedAll;
 }
 

@@ -18,6 +18,7 @@ struct FEmbermereInventoryStack
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEmbermereInventoryChangedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEmbermereItemAddedSignature, UEmbermereItemData*, Item, int32, Quantity);
 
 UCLASS(ClassGroup = (Embermere), meta = (BlueprintSpawnableComponent))
 class EMBERMERE_API UEmbermereInventoryComponent : public UActorComponent
@@ -35,6 +36,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FEmbermereInventoryChangedSignature OnInventoryChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FEmbermereItemAddedSignature OnItemAdded;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Inventory")
 	bool AddItem(UEmbermereItemData* Item, int32 Quantity = 1);

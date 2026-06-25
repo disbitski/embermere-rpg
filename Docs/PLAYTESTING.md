@@ -33,12 +33,12 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 - Enemies show red on-screen hit messages when they melee the player.
 - Defeating starter enemies advances `StarterEnemyDefeated`.
 - Defeated enemies hide and respawn after a short prototype delay.
-- Completing the quest shows an on-screen completion/reward message.
+- Completing the quest shows on-screen completion, XP, and reward item messages.
 
 ## Known Prototype Gaps
 
 - The UI is still mostly temporary on-screen debug text.
 - Enemy movement and attacks are deliberately simple prototype behavior.
-- Loot popup and inventory reward presentation are not visible yet.
+- Loot popup and inventory presentation are not real widgets yet.
 - Nameplates, target frame, quest tracker, and hotbar widgets still need visual UMG child widgets.
 - Art is still greybox until Fab/Marketplace assets are imported.
