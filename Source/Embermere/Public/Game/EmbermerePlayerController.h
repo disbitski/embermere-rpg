@@ -17,6 +17,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	float MouseTurnRate = 1.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	bool bInvertMouseY = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float InteractionRadius = 350.0f;
 
@@ -43,6 +46,8 @@ protected:
 	void OnRightMousePressed();
 	void OnRightMouseReleased();
 	void ToggleAutorun();
+	void ToggleInvertMouseY();
+	void HandleManualMoveForward(float Value);
 	void CycleTarget();
 	void Turn(float Value);
 	void LookUp(float Value);

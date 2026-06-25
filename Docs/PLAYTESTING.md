@@ -15,20 +15,24 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 3. Hold right mouse to rotate the camera and character facing together.
 4. Hold left mouse to rotate the camera only.
 5. Hold both mouse buttons to move forward.
-6. Press `Q` to toggle autorun.
-7. Walk near Mara Ashwick in the village and press `F`.
-8. Watch for the temporary quest/dialogue message.
-9. Move toward the ruin and enemy pocket.
-10. Press `Tab` to target a nearby hostile.
-11. Watch for the temporary target message with name, HP, and range state.
-12. Press `1` to use the first starter ability.
-13. Expect nearby enemies to chase and melee you when you enter their aggro radius.
-14. Defeat three starter enemies.
-15. Return to Mara and press `F` to complete the quest.
+6. Mouse Y starts inverted by default; press `Ctrl+M` to toggle normal/inverted.
+7. Press `Q` to toggle autorun.
+8. Press `W` or `S` while autorunning to stop autorun.
+9. Walk near Mara Ashwick in the village and press `F`.
+10. Watch for the temporary quest/dialogue message.
+11. Move toward the ruin and enemy pocket.
+12. Press `Tab` to target a nearby hostile.
+13. Watch for the temporary target message with name, HP, and range state.
+14. Press `1` to use the first starter ability.
+15. Expect nearby enemies to chase and melee you when you enter their aggro radius.
+16. Defeat three starter enemies.
+17. Return to Mara and press `F` to complete the quest.
 
 ## Expected Temporary Feedback
 
 - Interacting with Mara shows a dialogue line.
+- `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
+- `Ctrl+M` toggles mouse Y inversion and shows a temporary message.
 - Accepting the quest shows an on-screen quest accepted message.
 - Tab targeting shows the selected target name, HP, and first-ability range state.
 - Ability use shows an on-screen hit message.

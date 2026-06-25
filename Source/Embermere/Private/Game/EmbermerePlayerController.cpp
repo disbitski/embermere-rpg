@@ -8,7 +8,9 @@
 #include "Components/InputComponent.h"
 #include "Engine/Engine.h"
 #include "EngineUtils.h"
+#include "Framework/Commands/InputChord.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "InputCoreTypes.h"
 #include "Interfaces/EmbermereTargetable.h"
 #include "TimerManager.h"
 
@@ -25,6 +27,7 @@ void AEmbermerePlayerController::SetupInputComponent()
 
 	InputComponent->BindAxis("Turn", this, &AEmbermerePlayerController::Turn);
 	InputComponent->BindAxis("LookUp", this, &AEmbermerePlayerController::LookUp);
+	InputComponent->BindAxis("MoveForward", this, &AEmbermerePlayerController::HandleManualMoveForward);
 
 	InputComponent->BindAction("LeftMouse", IE_Pressed, this, &AEmbermerePlayerController::OnLeftMousePressed);
 	InputComponent->BindAction("LeftMouse", IE_Released, this, &AEmbermerePlayerController::OnLeftMouseReleased);
@@ -43,6 +46,12 @@ void AEmbermerePlayerController::SetupInputComponent()
 	InputComponent->BindAction("Hotbar8", IE_Pressed, this, &AEmbermerePlayerController::ActivateHotbar8);
 	InputComponent->BindAction("Hotbar9", IE_Pressed, this, &AEmbermerePlayerController::ActivateHotbar9);
 	InputComponent->BindAction("Hotbar10", IE_Pressed, this, &AEmbermerePlayerController::ActivateHotbar10);
+
+	InputComponent->BindKey(
+		FInputChord(EKeys::M, false, true, false, false),
+		IE_Pressed,
+		this,
+		&AEmbermerePlayerController::ToggleInvertMouseY);
 }
 
 void AEmbermerePlayerController::OnPossess(APawn* InPawn)
@@ -149,6 +158,28 @@ void AEmbermerePlayerController::ToggleAutorun()
 	bAutorunEnabled = !bAutorunEnabled;
 }
 
+void AEmbermerePlayerController::ToggleInvertMouseY()
+{
+	bInvertMouseY = !bInvertMouseY;
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			2.5f,
+			FColor::Silver,
+			bInvertMouseY ? TEXT("Mouse Y inverted") : TEXT("Mouse Y normal"));
+	}
+}
+
+void AEmbermerePlayerController::HandleManualMoveForward(float Value)
+{
+	if (bAutorunEnabled && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
+	{
+		bAutorunEnabled = false;
+	}
+}
+
 void AEmbermerePlayerController::CycleTarget()
 {
 	if (AEmbermereCharacter* Character = GetEmbermereCharacter())
@@ -172,7 +203,7 @@ void AEmbermerePlayerController::LookUp(float Value)
 {
 	if ((bLeftMouseDown || bRightMouseDown) && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
 	{
-		AddPitchInput(Value * MouseTurnRate);
+		AddPitchInput(Value * MouseTurnRate * (bInvertMouseY ? -1.0f : 1.0f));
 	}
 }
 
