@@ -1,6 +1,6 @@
 # Unreal And MCP Setup
 
-This repo is ready for Unreal, but this machine still needs Unreal installed before the editor/MCP pieces can run.
+This repo is ready for Unreal. The local machine needs Epic Games Launcher, Unreal Engine 5.8, full Xcode, and an Unreal-generated MCP client config before Codex can drive the editor.
 
 Official MCP docs: https://dev.epicgames.com/documentation/unreal-engine/unreal-mcp-in-unreal-editor
 
@@ -61,7 +61,11 @@ From this repo:
 zsh Scripts/check_unreal_setup.sh
 ```
 
-The expected first-pass result before installing Unreal is that the project/plugin checks pass, while Unreal/Epic/MCP config are missing.
+The expected milestone states are:
+
+- Before installing tools: project/plugin checks pass, while Epic, Xcode, Unreal, and MCP config are missing.
+- After installing Epic, Xcode, and Unreal: all local toolchain checks pass, while MCP config is still pending.
+- After opening the project and running `ModelContextProtocol.GenerateClientConfig Codex`: the MCP config check should pass too.
 
 ## MCP Notes
 
