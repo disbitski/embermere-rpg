@@ -29,7 +29,7 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 	}
 
 	UEmbermereStatsComponent* OwnerStats = Owner->FindComponentByClass<UEmbermereStatsComponent>();
-	if (!OwnerStats || !OwnerStats->SpendMana(Ability.ManaCost))
+	if (!OwnerStats)
 	{
 		return false;
 	}
@@ -52,6 +52,11 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 		{
 			return false;
 		}
+	}
+
+	if (!OwnerStats->SpendMana(Ability.ManaCost))
+	{
+		return false;
 	}
 
 	float EffectAmount = 0.0f;

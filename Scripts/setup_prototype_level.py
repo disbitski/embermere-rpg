@@ -82,7 +82,7 @@ def build_level():
 
     # Spawn point and village placeholders.
     spawn_class("/Script/Engine.PlayerStart", "PlayerStart_Embermere_Village", (-2400, -1200, 95), "01_Village", yaw=35, tags=blockout_tag)
-    spawn_asset("/Engine/BasicShapes/Cube", "Quest_NPC_Placeholder", (-2050, -850, 110), "01_Village/NPCs", (0.65, 0.65, 2.2), tags=blockout_tag + ["QuestNPC"])
+    spawn_asset("/Game/Blueprints/BP_QuestGiver", "Quest_Giver_Mara_Fenwatch", (-2050, -850, 0), "01_Village/NPCs", yaw=35, tags=blockout_tag + ["QuestNPC"])
     spawn_asset("/Engine/BasicShapes/Cube", "Vendor_Placeholder", (-1550, -1120, 95), "01_Village/NPCs", (0.75, 0.75, 1.9), tags=blockout_tag + ["Vendor"])
     spawn_asset("/Engine/BasicShapes/Cube", "Trainer_Placeholder", (-1450, -610, 95), "01_Village/NPCs", (0.75, 0.75, 1.9), tags=blockout_tag + ["Trainer"])
     spawn_asset("/Engine/BasicShapes/Cube", "Village_Hall_Blockout", (-1850, -1350, 150), "01_Village/Buildings", (5, 3, 2.2), yaw=12, tags=blockout_tag)
