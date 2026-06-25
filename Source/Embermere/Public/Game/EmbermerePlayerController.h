@@ -17,6 +17,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	float MouseTurnRate = 1.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	float InteractionRadius = 350.0f;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bAutorunEnabled = false;
 
@@ -50,5 +53,6 @@ private:
 	bool bRightMouseDown = false;
 
 	AEmbermereCharacter* GetEmbermereCharacter() const;
+	bool InteractWithNearestActor();
 	void UpdateClassicMouseCameraMode();
 };

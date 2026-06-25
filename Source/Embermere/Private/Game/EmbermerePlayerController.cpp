@@ -1,8 +1,10 @@
 #include "Game/EmbermerePlayerController.h"
 #include "Characters/EmbermereCharacter.h"
 #include "Components/EmbermereHotbarComponent.h"
+#include "Components/EmbermereInteractableComponent.h"
 #include "Components/EmbermereTargetingComponent.h"
 #include "Components/InputComponent.h"
+#include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AEmbermerePlayerController::AEmbermerePlayerController()
@@ -113,7 +115,11 @@ void AEmbermerePlayerController::ActivateHotbarSlot(int32 SlotIndex)
 	{
 		if (Character->Hotbar)
 		{
-			Character->Hotbar->ActivateSlot(SlotIndex);
+			const bool bActivatedAbility = Character->Hotbar->ActivateSlot(SlotIndex);
+			if (!bActivatedAbility && SlotIndex == 9)
+			{
+				InteractWithNearestActor();
+			}
 		}
 	}
 }
@@ -132,6 +138,49 @@ void AEmbermerePlayerController::ActivateHotbar10() { ActivateHotbarSlot(9); }
 AEmbermereCharacter* AEmbermerePlayerController::GetEmbermereCharacter() const
 {
 	return Cast<AEmbermereCharacter>(GetPawn());
+}
+
+bool AEmbermerePlayerController::InteractWithNearestActor()
+{
+	AEmbermereCharacter* Character = GetEmbermereCharacter();
+	if (!Character)
+	{
+		return false;
+	}
+
+	UEmbermereInteractableComponent* BestInteractable = nullptr;
+	float BestDistanceSquared = FMath::Square(InteractionRadius);
+	const FVector CharacterLocation = Character->GetActorLocation();
+
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		AActor* Candidate = *It;
+		if (!Candidate || Candidate == Character)
+		{
+			continue;
+		}
+
+		UEmbermereInteractableComponent* Interactable = Candidate->FindComponentByClass<UEmbermereInteractableComponent>();
+		if (!Interactable)
+		{
+			continue;
+		}
+
+		const float DistanceSquared = FVector::DistSquared(CharacterLocation, Candidate->GetActorLocation());
+		if (DistanceSquared <= BestDistanceSquared)
+		{
+			BestDistanceSquared = DistanceSquared;
+			BestInteractable = Interactable;
+		}
+	}
+
+	if (!BestInteractable)
+	{
+		return false;
+	}
+
+	BestInteractable->Interact(Character);
+	return true;
 }
 
 void AEmbermerePlayerController::UpdateClassicMouseCameraMode()
