@@ -1,0 +1,6 @@
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+.mcp.json
+.DS_Store

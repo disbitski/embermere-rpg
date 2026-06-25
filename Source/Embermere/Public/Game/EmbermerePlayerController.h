@@ -1,0 +1,54 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/PlayerController.h"
+#include "EmbermerePlayerController.generated.h"
+
+class AEmbermereCharacter;
+
+UCLASS()
+class EMBERMERE_API AEmbermerePlayerController : public APlayerController
+{
+	GENERATED_BODY()
+
+public:
+	AEmbermerePlayerController();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float MouseTurnRate = 1.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	bool bAutorunEnabled = false;
+
+	virtual void PlayerTick(float DeltaTime) override;
+
+protected:
+	virtual void SetupInputComponent() override;
+
+	void OnLeftMousePressed();
+	void OnLeftMouseReleased();
+	void OnRightMousePressed();
+	void OnRightMouseReleased();
+	void ToggleAutorun();
+	void CycleTarget();
+	void Turn(float Value);
+	void LookUp(float Value);
+	void ActivateHotbarSlot(int32 SlotIndex);
+	void ActivateHotbar1();
+	void ActivateHotbar2();
+	void ActivateHotbar3();
+	void ActivateHotbar4();
+	void ActivateHotbar5();
+	void ActivateHotbar6();
+	void ActivateHotbar7();
+	void ActivateHotbar8();
+	void ActivateHotbar9();
+	void ActivateHotbar10();
+
+private:
+	bool bLeftMouseDown = false;
+	bool bRightMouseDown = false;
+
+	AEmbermereCharacter* GetEmbermereCharacter() const;
+	void UpdateClassicMouseCameraMode();
+};
