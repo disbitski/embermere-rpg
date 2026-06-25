@@ -4,6 +4,10 @@
 
 This project is also a build journal. We are learning Unreal Engine 5.8 in public, using Codex and GPT-5.5 as a development partner, and experimenting with Unreal MCP as a way to let AI help drive editor workflows, scene building, iteration, and QA.
 
+![Embermere art direction: stylized classic, realistic dark fantasy, and painterly nostalgic fantasy concepts](Docs/Media/embermere-art-direction-triptych.png)
+
+The current visual north star is the left side of this concept: **Stylized Classic** high fantasy with readable shapes, warm village light, chunky silhouettes, colorful wilderness, and a clear sense of where the adventure begins.
+
 ## The Game We Want To Build
 
 The first playable slice is intentionally small:
@@ -15,6 +19,21 @@ The first playable slice is intentionally small:
 - tab-target combat with nameplates, target frame, hotbar abilities, loot, XP, and quest progress
 
 The long-term dream is a cozy-but-dangerous fantasy RPG that captures the social, exploratory, slightly mysterious feel of early online worlds while staying achievable for a small, AI-assisted build.
+
+## The World Idea
+
+Embermere begins at the edge of the known road: a lantern-lit village tucked against old woods, broken stone, marsh paths, and ruins that predate everyone living there. The first zone should feel friendly from the inn door and dangerous ten steps past the last fence.
+
+The world tone we are chasing:
+
+- classic high fantasy rather than grimdark
+- inviting villages, readable roads, and landmarks you can navigate by memory
+- wilderness that feels magical, old, and a little unsafe
+- ruins that hint at deeper history without lore-dumping
+- races and classes with strong silhouettes and tabletop-style identity
+- combat that feels tactical and readable through tab targeting, hotbars, cooldowns, and clear enemy feedback
+
+The starter zone is not meant to be huge. It is meant to be dense with promise: a place where one quest giver, one ruined tower, and a handful of hostile creatures can make the player feel like a bigger world is waiting.
 
 ## Current Prototype Foundation
 
