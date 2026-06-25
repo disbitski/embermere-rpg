@@ -50,8 +50,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - player/enemy character classes
 - UMG base classes for character creation and HUD widgets
 - Unreal MCP setup notes and a local setup validator
-
-Unreal Engine is still being installed on the target machine, so editor-created assets such as maps, Blueprints, widgets, imported Fab assets, and MCP-driven level work are next.
+- first editor-created Blueprints and rules data asset
+- the saved starter-zone map `L_Embermere_Prototype`
+- a greybox village, wilderness combat pocket, road, ruin landmark, PlayerStart, NPC placeholders, and starter enemy placements
 
 ## Starting Races
 
@@ -112,6 +113,6 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 ## Status
 
-Early prototype scaffold. Not playable yet.
+Early Unreal prototype scaffold with MCP connected and the first starter-zone blockout saved.
 
-Next milestone: finish Unreal installation, open the project, generate the MCP config, create the first map and Blueprints, then start building the tiny Embermere starter zone.
+Next milestone: wire the first playable loop: character creation data, hotbar abilities, tab target combat, starter enemies, dialogue, quest progress, XP, and loot.

@@ -1,18 +1,20 @@
-# Tomorrow Checklist
+# Next Checklist
 
-## Finish Unreal Setup
+## Build The First Play Loop
 
-- Confirm Unreal Engine 5.8 finished downloading.
-- Open `/Users/wizard/Documents/Unreal Game/Embermere.uproject`.
-- Allow Unreal to rebuild project modules if prompted.
-- Confirm plugins are enabled:
-  - Unreal MCP / `ModelContextProtocol`
-  - `AllToolsets`
-  - `PythonScriptPlugin`
-  - `EnhancedInput`
-- Restart Unreal if prompted.
+- Flesh out `DA_EmbermereRules` with the starting races/classes and starter abilities.
+- Create first item and quest data assets.
+- Create Blueprint or UMG child widgets for:
+  - character creation
+  - target frame
+  - hotbar
+  - dialogue
+  - quest tracker
+  - loot popup
+- Wire the starter quest into the village quest NPC placeholder.
+- Make the three starter enemies attack, die, respawn, and grant quest progress.
 
-## Start MCP
+## Keep MCP Running
 
 In the Unreal console:
 
@@ -27,24 +29,17 @@ Then run:
 zsh Scripts/check_unreal_setup.sh
 ```
 
-## First Editor Pass
+## Starter Map
 
-- Create `/Game/Maps/L_Embermere_Prototype`.
-- Create Blueprint children for:
-  - `AEmbermereCharacter`
-  - `AEmbermereEnemyCharacter`
-  - `AEmbermereGameMode`
-- Create `/Game/Data/DA_EmbermereRules`.
-- Create first item and quest data assets.
-- Create a tiny greybox village, wilderness pocket, and ruin.
+- Open `/Game/Maps/L_Embermere_Prototype`.
+- Rebuild the greybox if needed:
 
-## GitHub Decision
+```text
+py exec(open('/Users/wizard/Documents/Unreal Game/Scripts/setup_prototype_level.py').read())
+```
 
-- Pick repo visibility:
-  - private while learning and experimenting
-  - public if we want to share the journey from day one
-- Recommended repo name: `embermere-rpg`.
-- First commit should include the current scaffold, docs, and setup scripts.
+- Replace blockout buildings, NPCs, enemies, and ruin pieces as Fab assets arrive.
+- Keep the village, path, wilderness pocket, and ruin readable from the default camera.
 
 ## Asset Hunt
 

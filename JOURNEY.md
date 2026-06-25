@@ -56,9 +56,24 @@ Initial implementation:
 - Added UMG base classes for character creation and HUD widgets.
 - Added Unreal/MCP setup docs and validator script.
 
-Current blocker:
+## 2026-06-25 - Unreal MCP Online
 
-- Unreal Engine is downloading/installing. Editor-created assets, maps, Blueprints, widgets, Fab imports, and MCP connection validation happen after Unreal 5.8 is installed.
+Unreal Engine 5.8 is installed and the project opens on macOS after finishing the Xcode and Metal Toolchain setup. We started Unreal MCP on port `8123`, generated the Codex client config, and confirmed Codex can call Unreal editor toolsets.
+
+First editor-created assets:
+
+- `/Game/Blueprints/BP_EmbermereCharacter`
+- `/Game/Blueprints/BP_StarterEnemy`
+- `/Game/Blueprints/BP_EmbermereGameMode`
+- `/Game/Data/DA_EmbermereRules`
+- `/Game/Maps/L_Embermere_Prototype`
+
+First map pass:
+
+- Saved the starter map as `L_Embermere_Prototype`.
+- Built a greybox village safe area, wilderness combat pocket, road markers, and ruin landmark.
+- Placed a `PlayerStart`, quest/vendor/trainer placeholders, three `BP_StarterEnemy` instances, visible enemy markers, and lighting.
+- Added `Scripts/setup_prototype_level.py` so the blockout can be rebuilt from Unreal's Python console.
 
 ## Principles
 
