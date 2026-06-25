@@ -21,14 +21,16 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 9. Move toward the ruin and enemy pocket.
 10. Press `Tab` to target a nearby hostile.
 11. Press `1` to use the first starter ability.
-12. Defeat three starter enemies.
-13. Return to Mara and press `F` to complete the quest.
+12. Expect nearby enemies to chase and melee you when you enter their aggro radius.
+13. Defeat three starter enemies.
+14. Return to Mara and press `F` to complete the quest.
 
 ## Expected Temporary Feedback
 
 - Interacting with Mara shows a dialogue line.
 - Accepting the quest shows an on-screen quest accepted message.
 - Ability use shows an on-screen hit message.
+- Enemies show red on-screen hit messages when they melee the player.
 - Defeating starter enemies advances `StarterEnemyDefeated`.
 - Defeated enemies hide and respawn after a short prototype delay.
 - Completing the quest shows an on-screen completion/reward message.
@@ -36,7 +38,7 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 ## Known Prototype Gaps
 
 - The UI is still mostly temporary on-screen debug text.
-- Enemies do not attack yet.
+- Enemy movement and attacks are deliberately simple prototype behavior.
 - Loot popup and inventory reward presentation are not visible yet.
 - Nameplates, target frame, quest tracker, and hotbar widgets still need visual UMG child widgets.
 - Art is still greybox until Fab/Marketplace assets are imported.

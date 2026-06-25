@@ -10,7 +10,7 @@
   - dialogue
   - quest tracker
   - loot popup
-- Make starter enemies attack the player.
+- Tune starter enemy aggro, movement speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Add loot popup and visible inventory reward feedback.
 - Replace temporary debug text with first-pass UI widgets.
 
