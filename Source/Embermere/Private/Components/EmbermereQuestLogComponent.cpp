@@ -1,6 +1,7 @@
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereStatsComponent.h"
+#include "Engine/Engine.h"
 
 UEmbermereQuestLogComponent::UEmbermereQuestLogComponent()
 {
@@ -18,6 +19,14 @@ bool UEmbermereQuestLogComponent::AcceptQuest(UEmbermereQuestData* Quest)
 	ActiveQuest.CurrentObjectiveCount = 0;
 	ActiveQuest.bCompleted = false;
 	OnQuestStateChanged.Broadcast(ActiveQuest);
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			4.0f,
+			FColor::Yellow,
+			FString::Printf(TEXT("Quest accepted: %s"), *Quest->Title.ToString()));
+	}
 	return true;
 }
 
@@ -33,6 +42,18 @@ bool UEmbermereQuestLogComponent::AddObjectiveProgress(FName ObjectiveId, int32 
 		0,
 		ActiveQuest.Quest->RequiredObjectiveCount);
 	OnQuestStateChanged.Broadcast(ActiveQuest);
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			3.0f,
+			FColor::Cyan,
+			FString::Printf(
+				TEXT("%s: %d/%d"),
+				*ActiveQuest.Quest->Title.ToString(),
+				ActiveQuest.CurrentObjectiveCount,
+				ActiveQuest.Quest->RequiredObjectiveCount));
+	}
 	return true;
 }
 
@@ -63,5 +84,13 @@ bool UEmbermereQuestLogComponent::TryCompleteActiveQuest()
 
 	ActiveQuest.bCompleted = true;
 	OnQuestStateChanged.Broadcast(ActiveQuest);
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			5.0f,
+			FColor::Green,
+			FString::Printf(TEXT("Quest complete: %s"), *ActiveQuest.Quest->Title.ToString()));
+	}
 	return true;
 }

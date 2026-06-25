@@ -1,6 +1,7 @@
 #include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
+#include "Engine/Engine.h"
 #include "Interfaces/EmbermereTargetable.h"
 
 UEmbermereCombatComponent::UEmbermereCombatComponent()
@@ -80,6 +81,17 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 	}
 
 	OnAbilityUsed.Broadcast(Ability.AbilityId, TargetActor, EffectAmount);
+	if (GEngine && EffectAmount > 0.0f)
+	{
+		const FText TargetName = TargetActor->GetClass()->ImplementsInterface(UEmbermereTargetable::StaticClass())
+			? IEmbermereTargetable::Execute_GetTargetDisplayName(TargetActor)
+			: FText::FromString(TargetActor->GetActorLabel());
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			2.5f,
+			FColor::Orange,
+			FString::Printf(TEXT("%s hit %s for %.0f"), *Ability.DisplayName.ToString(), *TargetName.ToString(), EffectAmount));
+	}
 	return EffectAmount > 0.0f || Ability.TargetKind == EEmbermereAbilityTargetKind::Self;
 }
 
