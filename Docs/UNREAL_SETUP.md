@@ -76,6 +76,16 @@ The expected milestone states are:
 - After installing Epic, Xcode, Unreal, and the Metal Toolchain: all local toolchain checks pass, while MCP config is still pending.
 - After opening the project and running `ModelContextProtocol.GenerateClientConfig Codex`: the MCP config check should pass too.
 
+## Manual Rebuild
+
+If Unreal shows `Embermere could not be compiled. Try rebuilding from source manually.`, run:
+
+```bash
+"/Users/Shared/Epic Games/UE_5.8/Engine/Build/BatchFiles/Mac/Build.sh" EmbermereEditor Mac Development -Project="/Users/wizard/Documents/Unreal Game/Embermere.uproject" -WaitMutex
+```
+
+Then reopen the project from Epic Games Launcher or by double-clicking `Embermere.uproject`.
+
 ## MCP Notes
 
 - Unreal MCP is experimental.

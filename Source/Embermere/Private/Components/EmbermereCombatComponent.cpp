@@ -34,7 +34,7 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 		return false;
 	}
 
-	AActor* TargetActor = Ability.TargetKind == EEmbermereAbilityTargetKind::Self ? Owner : CurrentTarget;
+	AActor* TargetActor = Ability.TargetKind == EEmbermereAbilityTargetKind::Self ? Owner : CurrentTarget.Get();
 	if (!TargetActor)
 	{
 		return false;

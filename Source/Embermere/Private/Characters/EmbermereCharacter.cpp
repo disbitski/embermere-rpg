@@ -56,7 +56,7 @@ void AEmbermereCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 void AEmbermereCharacter::ApplyRaceAndClass(EEmbermereRace NewRace, EEmbermereClass NewClass)
 {
-	UEmbermereRulesData* EffectiveRules = RulesData ? RulesData : NewObject<UEmbermereRulesData>(this);
+	UEmbermereRulesData* EffectiveRules = RulesData.Get() ? RulesData.Get() : NewObject<UEmbermereRulesData>(this);
 	if (!EffectiveRules || !EffectiveRules->IsClassAllowed(NewRace, NewClass))
 	{
 		return;
@@ -107,7 +107,7 @@ void AEmbermereCharacter::PrimeStarterHotbar()
 		return;
 	}
 
-	UEmbermereRulesData* EffectiveRules = RulesData ? RulesData : NewObject<UEmbermereRulesData>(this);
+	UEmbermereRulesData* EffectiveRules = RulesData.Get() ? RulesData.Get() : NewObject<UEmbermereRulesData>(this);
 	if (!EffectiveRules)
 	{
 		return;

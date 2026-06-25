@@ -4,7 +4,7 @@
 
 bool UEmbermereCharacterCreationWidget::SetRaceAndClass(EEmbermereRace Race, EEmbermereClass Class)
 {
-	UEmbermereRulesData* EffectiveRules = RulesData ? RulesData : NewObject<UEmbermereRulesData>(this);
+	UEmbermereRulesData* EffectiveRules = RulesData.Get() ? RulesData.Get() : NewObject<UEmbermereRulesData>(this);
 	if (!EffectiveRules || !EffectiveRules->IsClassAllowed(Race, Class))
 	{
 		return false;
