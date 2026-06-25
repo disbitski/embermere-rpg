@@ -1,5 +1,11 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
+#include "Characters/EmbermereCharacter.h"
+#include "Components/EmbermereInventoryComponent.h"
+#include "Components/EmbermereQuestLogComponent.h"
+#include "Components/EmbermereStatsComponent.h"
+#include "Data/EmbermereItemData.h"
+#include "Data/EmbermereQuestData.h"
 #include "Data/EmbermereRulesData.h"
 #include "Misc/AutomationTest.h"
 
@@ -41,6 +47,63 @@ bool FEmbermereRaceClassRulesTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Strike ability definition exists"), Rules->GetAbilityDefinition("Strike", StrikeDefinition));
 	TestEqual(TEXT("Strike belongs to Warrior"), StrikeDefinition.OwningClass, EEmbermereClass::Warrior);
 	TestEqual(TEXT("Strike targets enemies"), StrikeDefinition.TargetKind, EEmbermereAbilityTargetKind::Enemy);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereQuestRewardTest,
+	"Embermere.Quests.CompletionRewards",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereQuestRewardTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	TestNotNull(TEXT("Character can be created"), Character);
+	if (!Character)
+	{
+		return false;
+	}
+
+	TestNotNull(TEXT("Character has stats"), Character->Stats.Get());
+	TestNotNull(TEXT("Character has inventory"), Character->Inventory.Get());
+	TestNotNull(TEXT("Character has quest log"), Character->QuestLog.Get());
+	if (!Character->Stats || !Character->Inventory || !Character->QuestLog)
+	{
+		return false;
+	}
+
+	UEmbermereItemData* RewardItem = NewObject<UEmbermereItemData>();
+	RewardItem->ItemId = "RecruitPack";
+	RewardItem->DisplayName = FText::FromString(TEXT("Recruit Pack"));
+	RewardItem->MaxStack = 5;
+
+	UEmbermereQuestData* Quest = NewObject<UEmbermereQuestData>();
+	Quest->QuestId = "FirstSignsAtTheRuin";
+	Quest->Title = FText::FromString(TEXT("First Signs at the Ruin"));
+	Quest->ObjectiveId = "StarterEnemyDefeated";
+	Quest->RequiredObjectiveCount = 2;
+	Quest->RewardExperience = 75;
+	Quest->RewardItem = RewardItem;
+
+	Character->Stats->InitializeVitals();
+
+	TestTrue(TEXT("Quest can be accepted"), Character->QuestLog->AcceptQuest(Quest));
+	TestTrue(TEXT("First objective progress is accepted"), Character->QuestLog->AddObjectiveProgress("StarterEnemyDefeated", 1));
+	TestFalse(TEXT("Quest cannot complete early"), Character->QuestLog->TryCompleteActiveQuest());
+	TestTrue(TEXT("Second objective progress is accepted"), Character->QuestLog->AddObjectiveProgress("StarterEnemyDefeated", 1));
+	TestTrue(TEXT("Quest completes when objective count is met"), Character->QuestLog->TryCompleteActiveQuest());
+
+	TestTrue(TEXT("Quest state is completed"), Character->QuestLog->ActiveQuest.bCompleted);
+	TestEqual(TEXT("XP reward is granted"), Character->Stats->CurrentExperience, 75);
+	TestEqual(TEXT("Reward item creates one inventory stack"), Character->Inventory->Stacks.Num(), 1);
+	if (Character->Inventory->Stacks.Num() > 0)
+	{
+		TestTrue(TEXT("Reward stack contains reward item"), Character->Inventory->Stacks[0].Item == RewardItem);
+		TestEqual(TEXT("Reward stack quantity is one"), Character->Inventory->Stacks[0].Quantity, 1);
+	}
+
+	TestFalse(TEXT("Completed quest cannot complete again"), Character->QuestLog->TryCompleteActiveQuest());
 
 	return true;
 }

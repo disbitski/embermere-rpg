@@ -87,6 +87,7 @@ First playable loop hooks:
 - Added temporary target feedback for selected enemy name, HP, and range state.
 - Added temporary player death feedback and autorun shutdown when the controlled character dies.
 - Added prototype player respawn at the spawn point after a short delay.
+- Added an automation test proving quest completion grants XP and the reward item.
 - Added the Fab asset plan and editor playtest checklist.
 
 ## Principles

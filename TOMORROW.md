@@ -14,6 +14,7 @@
 - Tune player respawn and recovery rules after in-editor playtesting.
 - Add real loot popup and inventory reward widgets.
 - Replace temporary debug text with first-pass UI widgets.
+- Keep automation coverage growing around quest rewards, death/respawn, targeting, and hotbar behavior.
 
 ## Keep MCP Running
 
