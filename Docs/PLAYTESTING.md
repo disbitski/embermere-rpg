@@ -20,15 +20,17 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 8. Watch for the temporary quest/dialogue message.
 9. Move toward the ruin and enemy pocket.
 10. Press `Tab` to target a nearby hostile.
-11. Press `1` to use the first starter ability.
-12. Expect nearby enemies to chase and melee you when you enter their aggro radius.
-13. Defeat three starter enemies.
-14. Return to Mara and press `F` to complete the quest.
+11. Watch for the temporary target message with name, HP, and range state.
+12. Press `1` to use the first starter ability.
+13. Expect nearby enemies to chase and melee you when you enter their aggro radius.
+14. Defeat three starter enemies.
+15. Return to Mara and press `F` to complete the quest.
 
 ## Expected Temporary Feedback
 
 - Interacting with Mara shows a dialogue line.
 - Accepting the quest shows an on-screen quest accepted message.
+- Tab targeting shows the selected target name, HP, and first-ability range state.
 - Ability use shows an on-screen hit message.
 - Enemies show red on-screen hit messages when they melee the player.
 - Defeating starter enemies advances `StarterEnemyDefeated`.

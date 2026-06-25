@@ -84,6 +84,7 @@ First playable loop hooks:
 - Added prototype enemy defeat and respawn behavior so the wilderness pocket can be tested repeatedly.
 - Added first-pass enemy aggro, chase, and melee attack behavior for the greybox wilderness pocket.
 - Added temporary XP and reward item messages so quest completion has visible payoff before the real loot UI exists.
+- Added temporary target feedback for selected enemy name, HP, and range state.
 - Added the Fab asset plan and editor playtest checklist.
 
 ## Principles

@@ -1,11 +1,15 @@
 #include "Game/EmbermerePlayerController.h"
 #include "Characters/EmbermereCharacter.h"
+#include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereHotbarComponent.h"
 #include "Components/EmbermereInteractableComponent.h"
+#include "Components/EmbermereStatsComponent.h"
 #include "Components/EmbermereTargetingComponent.h"
 #include "Components/InputComponent.h"
+#include "Engine/Engine.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Interfaces/EmbermereTargetable.h"
 
 AEmbermerePlayerController::AEmbermerePlayerController()
 {
@@ -88,7 +92,7 @@ void AEmbermerePlayerController::CycleTarget()
 	{
 		if (Character->Targeting)
 		{
-			Character->Targeting->CycleTarget();
+			ShowTargetFeedback(Character->Targeting->CycleTarget());
 		}
 	}
 }
@@ -181,6 +185,55 @@ bool AEmbermerePlayerController::InteractWithNearestActor()
 
 	BestInteractable->Interact(Character);
 	return true;
+}
+
+void AEmbermerePlayerController::ShowTargetFeedback(AActor* TargetActor) const
+{
+	if (!GEngine)
+	{
+		return;
+	}
+
+	if (!TargetActor)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Silver, TEXT("No hostile target"));
+		return;
+	}
+
+	const AEmbermereCharacter* Character = GetEmbermereCharacter();
+	const FText TargetName = TargetActor->GetClass()->ImplementsInterface(UEmbermereTargetable::StaticClass())
+		? IEmbermereTargetable::Execute_GetTargetDisplayName(TargetActor)
+		: FText::FromString(TargetActor->GetActorLabel());
+
+	FString HealthText = TEXT("");
+	if (const UEmbermereStatsComponent* TargetStats = TargetActor->FindComponentByClass<UEmbermereStatsComponent>())
+	{
+		HealthText = FString::Printf(TEXT(" %.0f/%.0f HP"), TargetStats->CurrentHealth, TargetStats->MaxHealth);
+	}
+
+	FString RangeText = TEXT("");
+	if (Character && Character->Hotbar)
+	{
+		for (const FEmbermereAbilityDefinition& Ability : Character->Hotbar->Slots)
+		{
+			if (!Ability.AbilityId.IsNone() && Ability.TargetKind == EEmbermereAbilityTargetKind::Enemy)
+			{
+				const bool bInRange = FVector::DistSquared(Character->GetActorLocation(), TargetActor->GetActorLocation()) <=
+					FMath::Square(Ability.Range);
+				RangeText = FString::Printf(
+					TEXT(" - %s for %s"),
+					bInRange ? TEXT("in range") : TEXT("out of range"),
+					*Ability.DisplayName.ToString());
+				break;
+			}
+		}
+	}
+
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		3.0f,
+		FColor::Cyan,
+		FString::Printf(TEXT("Target: %s%s%s"), *TargetName.ToString(), *HealthText, *RangeText));
 }
 
 void AEmbermerePlayerController::UpdateClassicMouseCameraMode()

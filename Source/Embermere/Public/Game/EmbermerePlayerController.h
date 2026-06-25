@@ -54,5 +54,6 @@ private:
 
 	AEmbermereCharacter* GetEmbermereCharacter() const;
 	bool InteractWithNearestActor();
+	void ShowTargetFeedback(AActor* TargetActor) const;
 	void UpdateClassicMouseCameraMode();
 };
