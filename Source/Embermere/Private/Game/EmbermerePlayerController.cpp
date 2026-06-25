@@ -44,6 +44,19 @@ void AEmbermerePlayerController::SetupInputComponent()
 	InputComponent->BindAction("Hotbar10", IE_Pressed, this, &AEmbermerePlayerController::ActivateHotbar10);
 }
 
+void AEmbermerePlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	if (AEmbermereCharacter* Character = Cast<AEmbermereCharacter>(InPawn))
+	{
+		if (Character->Stats)
+		{
+			Character->Stats->OnDied.AddUniqueDynamic(this, &AEmbermerePlayerController::HandleControlledCharacterDied);
+		}
+	}
+}
+
 void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
@@ -54,6 +67,20 @@ void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 		{
 			Character->MoveForward(1.0f);
 		}
+	}
+}
+
+void AEmbermerePlayerController::HandleControlledCharacterDied()
+{
+	bAutorunEnabled = false;
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			5.0f,
+			FColor::Red,
+			TEXT("You have fallen. Player respawn is next on the prototype list."));
 	}
 }
 

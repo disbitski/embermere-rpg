@@ -33,6 +33,7 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 - Tab targeting shows the selected target name, HP, and first-ability range state.
 - Ability use shows an on-screen hit message.
 - Enemies show red on-screen hit messages when they melee the player.
+- If the player dies, autorun turns off and a temporary death message appears.
 - Defeating starter enemies advances `StarterEnemyDefeated`.
 - Defeated enemies hide and respawn after a short prototype delay.
 - Completing the quest shows on-screen completion, XP, and reward item messages.
@@ -41,6 +42,7 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 
 - The UI is still mostly temporary on-screen debug text.
 - Enemy movement and attacks are deliberately simple prototype behavior.
+- Player respawn is not implemented yet.
 - Loot popup and inventory presentation are not real widgets yet.
 - Nameplates, target frame, quest tracker, and hotbar widgets still need visual UMG child widgets.
 - Art is still greybox until Fab/Marketplace assets are imported.

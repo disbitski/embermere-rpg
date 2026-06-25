@@ -85,6 +85,7 @@ First playable loop hooks:
 - Added first-pass enemy aggro, chase, and melee attack behavior for the greybox wilderness pocket.
 - Added temporary XP and reward item messages so quest completion has visible payoff before the real loot UI exists.
 - Added temporary target feedback for selected enemy name, HP, and range state.
+- Added temporary player death feedback and autorun shutdown when the controlled character dies.
 - Added the Fab asset plan and editor playtest checklist.
 
 ## Principles

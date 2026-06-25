@@ -11,6 +11,7 @@
   - quest tracker
   - loot popup
 - Tune starter enemy aggro, movement speed, attack range, damage, and respawn timing after in-editor playtesting.
+- Add player respawn and recovery rules.
 - Add real loot popup and inventory reward widgets.
 - Replace temporary debug text with first-pass UI widgets.
 

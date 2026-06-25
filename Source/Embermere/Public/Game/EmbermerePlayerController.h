@@ -26,7 +26,11 @@ public:
 	virtual void PlayerTick(float DeltaTime) override;
 
 protected:
+	virtual void OnPossess(APawn* InPawn) override;
 	virtual void SetupInputComponent() override;
+
+	UFUNCTION()
+	void HandleControlledCharacterDied();
 
 	void OnLeftMousePressed();
 	void OnLeftMouseReleased();
