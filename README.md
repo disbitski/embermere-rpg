@@ -111,7 +111,7 @@ zsh Scripts/check_unreal_setup.sh
 This is not just a code repo. It is the record of building a fantasy RPG from zero Unreal experience into a playable prototype with modern AI-assisted development.
 
 - [JOURNEY.md](JOURNEY.md) tracks decisions, milestones, and lessons.
-- [TOMORROW.md](TOMORROW.md) keeps the immediate next steps visible.
+- [TODO.md](TODO.md) keeps the daily next steps and automation handoff visible.
 - [Docs/PLAYTESTING.md](Docs/PLAYTESTING.md) tracks the current editor smoke test.
 
 ## Status

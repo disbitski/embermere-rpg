@@ -29,6 +29,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
 	float PlayerRespawnDelaySeconds = 5.0f;
 
+	void NotifyManualMoveForwardInput(float Value);
+
 	virtual void PlayerTick(float DeltaTime) override;
 
 protected:
@@ -47,7 +49,6 @@ protected:
 	void OnRightMouseReleased();
 	void ToggleAutorun();
 	void ToggleInvertMouseY();
-	void HandleManualMoveForward(float Value);
 	void CycleTarget();
 	void Turn(float Value);
 	void LookUp(float Value);
@@ -66,6 +67,7 @@ protected:
 private:
 	bool bLeftMouseDown = false;
 	bool bRightMouseDown = false;
+	bool bApplyingAutomaticForwardMovement = false;
 	FTransform ControlledSpawnTransform;
 	FTimerHandle PlayerRespawnTimerHandle;
 

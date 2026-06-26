@@ -8,6 +8,7 @@
 #include "Components/EmbermereTargetingComponent.h"
 #include "Components/InputComponent.h"
 #include "Data/EmbermereRulesData.h"
+#include "Game/EmbermerePlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -71,6 +72,11 @@ void AEmbermereCharacter::MoveForward(float Value)
 {
 	if (Controller && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
 	{
+		if (AEmbermerePlayerController* EmbermereController = Cast<AEmbermerePlayerController>(Controller))
+		{
+			EmbermereController->NotifyManualMoveForwardInput(Value);
+		}
+
 		const FRotator YawRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
 		AddMovementInput(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X), Value);
 	}
