@@ -91,6 +91,16 @@ First playable loop hooks:
 - Updated classic controls so `W`/`S` cancel autorun and mouse Y starts inverted with `Ctrl+M` as the toggle.
 - Added the Fab asset plan and editor playtest checklist.
 
+## 2026-06-27 - Daily Build Cadence
+
+We created a daily automation rhythm around `TODO.md`: start with the handoff, build as much as the Pro window reasonably allows, verify with builds/tests/PIE where possible, commit/push intentional work, and leave the next starting point documented.
+
+First presentation/readability pass:
+
+- Added a runtime world marker for interactable actors.
+- Quest givers now show a temporary gold `!` and name marker above them in Play In Editor, making Mara easier to find without committing the dirty saved map package.
+- Verified the project builds, the two Embermere automation tests pass, and PIE boots cleanly after the marker change.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

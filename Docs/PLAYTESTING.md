@@ -14,6 +14,8 @@ Mara is the quest giver actor named `Quest_Giver_Mara_Fenwatch`.
 
 From the village spawn, move mostly straight ahead and slightly right toward the center of the circular village safe-area marker. In world coordinates, the player starts around `(-2400, -1200)` and Mara is nearby at `(-2050, -850)`, between the village blockout buildings.
 
+In Play In Editor, quest givers show a temporary gold `!` and name marker above them.
+
 ## Current Play Loop
 
 1. Press Play.
@@ -37,6 +39,7 @@ From the village spawn, move mostly straight ahead and slightly right toward the
 ## Expected Temporary Feedback
 
 - Interacting with Mara shows a dialogue line.
+- Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
 - `Ctrl+M` toggles mouse Y inversion and shows a temporary message.
 - Accepting the quest shows an on-screen quest accepted message.

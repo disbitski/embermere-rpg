@@ -4,11 +4,13 @@ This is the daily handoff file for Codex work. Each session should start here, c
 
 ## Start Here
 
-- Verify the live control fix in PIE:
+- Manually verify the live control fix in PIE:
   - `W`/`S` should cancel autorun.
   - `Ctrl+M` should toggle mouse Y inversion and show a temporary message.
   - The fix now runs through the pawn/controller path known to receive live movement input, and the project builds successfully.
-- Restart Unreal after C++ changes, then run the editor smoke test in [Docs/PLAYTESTING.md](Docs/PLAYTESTING.md).
+- Manually verify the new Mara marker in PIE:
+  - Mara should show a temporary gold `!` and name marker above her.
+- Run the editor smoke test in [Docs/PLAYTESTING.md](Docs/PLAYTESTING.md).
 - If Codex needs editor access, start MCP inside Unreal:
 
 ```text
@@ -25,6 +27,7 @@ Embermere has a working greybox starter slice:
 - first quest giver, quest data, and reward item data;
 - hostile starter enemies that aggro, chase, attack, die, and respawn;
 - temporary on-screen feedback for targeting, combat, death, respawn, quest progress, XP, and rewards;
+- temporary in-world interactable markers, including a gold quest marker for Mara;
 - automation coverage for the race/class matrix and quest completion rewards.
 
 ## How Far We Have To Go
@@ -33,7 +36,6 @@ The prototype foundation is alive, but it is still early. The next meaningful ga
 
 ## Next Work
 
-- Make Mara visually obvious in the level with a temporary marker/nameplate.
 - Create first-pass UMG widgets for:
   - target frame;
   - hotbar;
@@ -43,6 +45,15 @@ The prototype foundation is alive, but it is still early. The next meaningful ga
 - Tune starter enemy aggro, movement speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Tune player respawn and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around death/respawn, targeting, and hotbar behavior.
+
+## Last Completed
+
+- Added runtime interactable world markers.
+- Quest givers now get a temporary gold `!` plus display-name marker in PIE.
+- Built successfully.
+- Ran Embermere automation tests: 2 passed, 0 failed.
+- Ran PIE boot smoke through MCP; no gameplay or Blueprint errors found.
+- Manual visual/feel checks remain for marker readability, autorun cancel, and `Ctrl+M`.
 
 ## Asset Hunt
 

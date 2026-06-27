@@ -24,9 +24,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quest")
 	TObjectPtr<UEmbermereQuestData> QuestToOffer;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Marker")
+	bool bShowWorldMarker = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Marker")
+	float MarkerHeight = 185.0f;
+
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FEmbermereInteractedSignature OnInteracted;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Interaction")
 	void Interact(AActor* Interactor);
+
+protected:
+	virtual void BeginPlay() override;
+
+private:
+	UPROPERTY(Transient)
+	TObjectPtr<class UTextRenderComponent> WorldMarkerText;
+
+	void CreateWorldMarker();
 };
