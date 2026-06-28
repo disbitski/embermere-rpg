@@ -11,8 +11,9 @@ class UEmbermereHotbarComponent;
 class UEmbermereInventoryComponent;
 class UEmbermereQuestLogComponent;
 class UEmbermereStatsComponent;
+class UTextBlock;
 
-UCLASS(Abstract, Blueprintable)
+UCLASS(Blueprintable)
 class EMBERMERE_API UEmbermerePlayerHudWidget : public UUserWidget
 {
 	GENERATED_BODY()
@@ -47,4 +48,24 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Embermere|HUD")
 	void ShowDialogue(const FText& SpeakerName, const FText& DialogueText);
+
+protected:
+	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+private:
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> PlayerStatusText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> TargetText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> HotbarText;
+
+	void BuildDefaultLayout();
+	void RefreshHudText();
 };

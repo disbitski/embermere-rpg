@@ -4,6 +4,12 @@ This is the daily handoff file for Codex work. Each session should start here, c
 
 ## Start Here
 
+- Restart Unreal before manual PIE if the editor has been open since the C++ HUD build, so it loads the newest module without hot-reload noise.
+- Manually verify the first-pass HUD in PIE:
+  - player HP, mana, and XP are visible;
+  - target text updates after `Tab`;
+  - quest progress updates after accepting Mara's quest and defeating enemies;
+  - hotbar slots `1`-`4` show the starter ability names.
 - Manually verify the live control fix in PIE:
   - `W`/`S` should cancel autorun.
   - `Ctrl+M` should toggle mouse Y inversion and show a temporary message.
@@ -28,19 +34,21 @@ Embermere has a working greybox starter slice:
 - hostile starter enemies that aggro, chase, attack, die, and respawn;
 - temporary on-screen feedback for targeting, combat, death, respawn, quest progress, XP, and rewards;
 - temporary in-world interactable markers, including a gold quest marker for Mara;
+- first-pass native HUD overlay for player status, target, quest progress, and hotbar labels;
 - automation coverage for the race/class matrix and quest completion rewards.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The next meaningful gap is presentation: replacing temporary debug text and greybox shapes with first-pass UI and readable in-world markers. After that, we start bringing in Fab/Marketplace art while keeping gameplay systems asset-agnostic.
+The prototype foundation is alive, but it is still early. The next meaningful gap is turning the first-pass HUD into proper styled widgets, then adding dialogue and loot/reward popups. After that, we start bringing in Fab/Marketplace art while keeping gameplay systems asset-agnostic.
 
 ## Next Work
 
-- Create first-pass UMG widgets for:
+- Replace the temporary text HUD with styled UMG sections for:
   - target frame;
   - hotbar;
+  - quest tracker.
+- Create first-pass UMG widgets for:
   - dialogue;
-  - quest tracker;
   - loot/reward popup.
 - Tune starter enemy aggro, movement speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Tune player respawn and recovery rules after in-editor playtesting.
@@ -48,12 +56,11 @@ The prototype foundation is alive, but it is still early. The next meaningful ga
 
 ## Last Completed
 
-- Added runtime interactable world markers.
-- Quest givers now get a temporary gold `!` plus display-name marker in PIE.
+- Added a native first-pass HUD overlay for player status, target, quest progress, and starter hotbar labels.
 - Built successfully.
 - Ran Embermere automation tests: 2 passed, 0 failed.
 - Ran PIE boot smoke through MCP; no gameplay or Blueprint errors found.
-- Manual visual/feel checks remain for marker readability, autorun cancel, and `Ctrl+M`.
+- Manual visual/feel checks remain for HUD readability, marker readability, autorun cancel, and `Ctrl+M`.
 
 ## Asset Hunt
 

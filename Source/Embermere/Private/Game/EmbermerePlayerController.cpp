@@ -12,12 +12,19 @@
 #include "InputCoreTypes.h"
 #include "Interfaces/EmbermereTargetable.h"
 #include "TimerManager.h"
+#include "UI/EmbermerePlayerHudWidget.h"
 
 AEmbermerePlayerController::AEmbermerePlayerController()
 {
 	bShowMouseCursor = false;
 	bEnableClickEvents = false;
 	bEnableMouseOverEvents = false;
+}
+
+void AEmbermerePlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	EnsurePlayerHud();
 }
 
 void AEmbermerePlayerController::SetupInputComponent()
@@ -56,6 +63,12 @@ void AEmbermerePlayerController::OnPossess(APawn* InPawn)
 		if (Character->Stats)
 		{
 			Character->Stats->OnDied.AddUniqueDynamic(this, &AEmbermerePlayerController::HandleControlledCharacterDied);
+		}
+
+		EnsurePlayerHud();
+		if (PlayerHudWidget)
+		{
+			PlayerHudWidget->BindToCharacter(Character);
 		}
 	}
 }
@@ -279,6 +292,33 @@ bool AEmbermerePlayerController::InteractWithNearestActor()
 
 	BestInteractable->Interact(Character);
 	return true;
+}
+
+void AEmbermerePlayerController::EnsurePlayerHud()
+{
+	if (PlayerHudWidget)
+	{
+		return;
+	}
+
+	TSubclassOf<UEmbermerePlayerHudWidget> EffectiveHudClass = PlayerHudWidgetClass;
+	if (!EffectiveHudClass)
+	{
+		EffectiveHudClass = UEmbermerePlayerHudWidget::StaticClass();
+	}
+	if (!EffectiveHudClass)
+	{
+		return;
+	}
+
+	PlayerHudWidget = CreateWidget<UEmbermerePlayerHudWidget>(this, EffectiveHudClass);
+	if (!PlayerHudWidget)
+	{
+		return;
+	}
+
+	PlayerHudWidget->AddToViewport();
+	PlayerHudWidget->BindToCharacter(GetEmbermereCharacter());
 }
 
 void AEmbermerePlayerController::ShowTargetFeedback(AActor* TargetActor) const

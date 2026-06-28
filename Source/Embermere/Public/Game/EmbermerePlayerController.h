@@ -5,6 +5,7 @@
 #include "EmbermerePlayerController.generated.h"
 
 class AEmbermereCharacter;
+class UEmbermerePlayerHudWidget;
 
 UCLASS()
 class EMBERMERE_API AEmbermerePlayerController : public APlayerController
@@ -29,11 +30,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
 	float PlayerRespawnDelaySeconds = 5.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UEmbermerePlayerHudWidget> PlayerHudWidgetClass;
+
 	void NotifyManualMoveForwardInput(float Value);
 
 	virtual void PlayerTick(float DeltaTime) override;
 
 protected:
+	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void SetupInputComponent() override;
 
@@ -70,9 +75,11 @@ private:
 	bool bApplyingAutomaticForwardMovement = false;
 	FTransform ControlledSpawnTransform;
 	FTimerHandle PlayerRespawnTimerHandle;
+	TObjectPtr<UEmbermerePlayerHudWidget> PlayerHudWidget;
 
 	AEmbermereCharacter* GetEmbermereCharacter() const;
 	bool InteractWithNearestActor();
+	void EnsurePlayerHud();
 	void ShowTargetFeedback(AActor* TargetActor) const;
 	void UpdateClassicMouseCameraMode();
 };

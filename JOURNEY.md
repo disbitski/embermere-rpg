@@ -101,6 +101,24 @@ First presentation/readability pass:
 - Quest givers now show a temporary gold `!` and name marker above them in Play In Editor, making Mara easier to find without committing the dirty saved map package.
 - Verified the project builds, the two Embermere automation tests pass, and PIE boots cleanly after the marker change.
 
+## 2026-06-28 - First HUD Overlay
+
+The prototype now creates a native first-pass player HUD at runtime. It is intentionally simple and data-bound so we can see core MMO state before investing in final UI art.
+
+HUD pass:
+
+- Shows player HP, mana, and XP in the viewport.
+- Shows the current tab target and target HP when a target is selected.
+- Shows active quest title and objective progress.
+- Shows the first four hotbar slots plus the `F` interact reminder.
+- Builds from C++ by default, while still allowing a future Blueprint HUD class override.
+
+Verification:
+
+- Built the project successfully after the HUD changes.
+- Ran the Embermere quest reward and race/class matrix automation tests: 2 passed, 0 failed.
+- Booted PIE through MCP and confirmed the starter map, game mode, and Enhanced Input initialized without gameplay or Blueprint errors.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

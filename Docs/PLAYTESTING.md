@@ -38,6 +38,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 
 ## Expected Temporary Feedback
 
+- A first-pass HUD overlay shows player HP, mana, XP, current target, quest progress, and the first four hotbar slots.
 - Interacting with Mara shows a dialogue line.
 - Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
@@ -53,9 +54,9 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 
 ## Known Prototype Gaps
 
-- The UI is still mostly temporary on-screen debug text.
+- The UI has a native first-pass HUD overlay, but dialogue, target frame styling, quest tracker styling, loot popup, and inventory presentation are still temporary.
 - Enemy movement and attacks are deliberately simple prototype behavior.
 - Player respawn is a simple prototype reset to the spawn point.
 - Loot popup and inventory presentation are not real widgets yet.
-- Nameplates, target frame, quest tracker, and hotbar widgets still need visual UMG child widgets.
+- Nameplates, target frame, quest tracker, and hotbar widgets still need polished visual UMG child widgets.
 - Art is still greybox until Fab/Marketplace assets are imported.
