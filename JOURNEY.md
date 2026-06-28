@@ -138,6 +138,10 @@ Verification:
 - Ran the Embermere automation tests again: 2 passed, 0 failed.
 - Booted PIE through MCP after the UI changes; the map, game mode, and Enhanced Input initialized cleanly with no UMG/runtime errors in the log.
 
+Lesson learned:
+
+- Pure C++ `UUserWidget` layouts need their widget tree built during `RebuildWidget()`, not only in `NativeConstruct()`. The HUD object can exist and PIE can boot cleanly while the visible Slate tree is still empty. We captured the long-term note in [Docs/UNREAL_LESSONS.md](Docs/UNREAL_LESSONS.md).
+
 ## Principles
 
 - Make the first slice playable before making it huge.
