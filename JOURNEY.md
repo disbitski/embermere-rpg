@@ -119,6 +119,25 @@ Verification:
 - Ran the Embermere quest reward and race/class matrix automation tests: 2 passed, 0 failed.
 - Booted PIE through MCP and confirmed the starter map, game mode, and Enhanced Input initialized without gameplay or Blueprint errors.
 
+## 2026-06-28 - Styled HUD Panels
+
+We pushed the HUD from raw text toward a playable early-MMO layout. It is still programmer art, but the screen now has stable panels and clearer combat/quest feedback.
+
+UI pass:
+
+- Added fixed status, target, quest, dialogue, loot, and hotbar sections.
+- Added health/mana/target HP progress bars.
+- Expanded the hotbar to show all configured prototype slots: `1`, `2`, `3`, `4`, `Alt+R`, `Alt+E`, `R`, `X`, `E`, and `F`.
+- Added target range state for the first hostile ability.
+- Routed Mara dialogue into a temporary dialogue panel.
+- Routed inventory reward events into a temporary loot popup.
+
+Verification:
+
+- Built successfully after the richer native UMG layout.
+- Ran the Embermere automation tests again: 2 passed, 0 failed.
+- Booted PIE through MCP after the UI changes; the map, game mode, and Enhanced Input initialized cleanly with no UMG/runtime errors in the log.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

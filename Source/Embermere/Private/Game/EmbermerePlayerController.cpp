@@ -290,6 +290,11 @@ bool AEmbermerePlayerController::InteractWithNearestActor()
 		return false;
 	}
 
+	if (PlayerHudWidget && !BestInteractable->DialogueText.IsEmpty())
+	{
+		PlayerHudWidget->ShowDialogue(BestInteractable->DisplayName, BestInteractable->DialogueText);
+	}
+
 	BestInteractable->Interact(Character);
 	return true;
 }

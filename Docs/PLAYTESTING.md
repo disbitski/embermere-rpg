@@ -38,8 +38,8 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 
 ## Expected Temporary Feedback
 
-- A first-pass HUD overlay shows player HP, mana, XP, current target, quest progress, and the first four hotbar slots.
-- Interacting with Mara shows a dialogue line.
+- A styled first-pass HUD overlay shows player HP, mana, XP, current target, target HP, range state, quest progress, and all hotbar slots.
+- Interacting with Mara shows a temporary bottom-screen dialogue panel.
 - Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
 - `Ctrl+M` toggles mouse Y inversion and shows a temporary message.
@@ -50,13 +50,13 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - If the player dies, autorun turns off, a temporary death message appears, and the player respawns after a short delay.
 - Defeating starter enemies advances `StarterEnemyDefeated`.
 - Defeated enemies hide and respawn after a short prototype delay.
-- Completing the quest shows on-screen completion, XP, and reward item messages.
+- Completing the quest shows on-screen completion, XP, and a temporary loot/reward popup.
 
 ## Known Prototype Gaps
 
-- The UI has a native first-pass HUD overlay, but dialogue, target frame styling, quest tracker styling, loot popup, and inventory presentation are still temporary.
+- The UI has native first-pass HUD panels, but styling is still programmer-art and needs a proper fantasy skin.
 - Enemy movement and attacks are deliberately simple prototype behavior.
 - Player respawn is a simple prototype reset to the spawn point.
-- Loot popup and inventory presentation are not real widgets yet.
-- Nameplates, target frame, quest tracker, and hotbar widgets still need polished visual UMG child widgets.
+- Inventory presentation is not a real widget yet.
+- Nameplates and selected-target world highlighting still need dedicated visual treatment.
 - Art is still greybox until Fab/Marketplace assets are imported.

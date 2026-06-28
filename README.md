@@ -49,6 +49,7 @@ The repo currently contains the C++ gameplay scaffold for:
 - inventory, quest log, interactables, stats, combat, targeting, and hotbar components
 - player/enemy character classes
 - UMG base classes for character creation and HUD widgets
+- native first-pass HUD panels for status, target, range state, quest tracking, dialogue, loot, and hotbar labels
 - Unreal MCP setup notes and a local setup validator
 - first editor-created Blueprints and rules data asset
 - the saved starter-zone map `L_Embermere_Prototype`
@@ -118,4 +119,4 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 Early Unreal prototype scaffold with MCP connected and the first starter-zone blockout saved.
 
-Next milestone: turn the current greybox combat-and-quest slice into a visible UI-driven loop with target frame, hotbar, quest tracker, loot, and first Fab art replacements.
+Next milestone: improve selected-target/nameplate readability in the world, add inventory presentation, and begin the first Fab art replacement pass.

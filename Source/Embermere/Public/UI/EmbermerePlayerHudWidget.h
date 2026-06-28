@@ -11,6 +11,9 @@ class UEmbermereHotbarComponent;
 class UEmbermereInventoryComponent;
 class UEmbermereQuestLogComponent;
 class UEmbermereStatsComponent;
+class UBorder;
+class UHorizontalBox;
+class UProgressBar;
 class UTextBlock;
 
 UCLASS(Blueprintable)
@@ -43,10 +46,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Embermere|HUD")
 	void OnTargetChanged(AActor* NewTarget);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Embermere|HUD")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Embermere|HUD")
 	void ShowLootPopup(const FText& LootText);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Embermere|HUD")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Embermere|HUD")
 	void ShowDialogue(const FText& SpeakerName, const FText& DialogueText);
 
 protected:
@@ -58,14 +61,54 @@ private:
 	TObjectPtr<UTextBlock> PlayerStatusText;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UProgressBar> HealthBar;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UProgressBar> ManaBar;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UBorder> TargetPanel;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> TargetText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> TargetRangeText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UProgressBar> TargetHealthBar;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UBorder> QuestPanel;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> QuestText;
 
 	UPROPERTY(Transient)
-	TObjectPtr<UTextBlock> HotbarText;
+	TObjectPtr<UHorizontalBox> HotbarRow;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UTextBlock>> HotbarSlotTexts;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UBorder> DialoguePanel;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> DialogueTextBlock;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UBorder> LootPanel;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> LootTextBlock;
+
+	float DialogueHideTimeSeconds = 0.0f;
+	float LootHideTimeSeconds = 0.0f;
 
 	void BuildDefaultLayout();
 	void RefreshHudText();
+	void BindComponentEvents();
+
+	UFUNCTION()
+	void HandleItemAdded(class UEmbermereItemData* Item, int32 Quantity);
 };
