@@ -114,6 +114,12 @@ void UEmbermerePlayerHudWidget::BindToCharacter(AEmbermereCharacter* Character)
 	RefreshHudText();
 }
 
+TSharedRef<SWidget> UEmbermerePlayerHudWidget::RebuildWidget()
+{
+	BuildDefaultLayout();
+	return Super::RebuildWidget();
+}
+
 void UEmbermerePlayerHudWidget::NativeConstruct()
 {
 	Super::NativeConstruct();

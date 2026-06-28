@@ -53,6 +53,7 @@ public:
 	void ShowDialogue(const FText& SpeakerName, const FText& DialogueText);
 
 protected:
+	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
