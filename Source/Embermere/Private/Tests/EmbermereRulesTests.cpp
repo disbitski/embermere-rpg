@@ -1,12 +1,15 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
 #include "Characters/EmbermereCharacter.h"
+#include "Characters/EmbermereEnemyCharacter.h"
+#include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
 #include "Data/EmbermereRulesData.h"
+#include "Engine/World.h"
 #include "Misc/AutomationTest.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -48,6 +51,64 @@ bool FEmbermereRaceClassRulesTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Strike belongs to Warrior"), StrikeDefinition.OwningClass, EEmbermereClass::Warrior);
 	TestEqual(TEXT("Strike targets enemies"), StrikeDefinition.TargetKind, EEmbermereAbilityTargetKind::Enemy);
 
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereCombatTargetSelectionPresentationTest,
+	"Embermere.Combat.TargetSelectionPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Parameters)
+{
+	UWorld* TestWorld = UWorld::CreateWorld(EWorldType::Game, false);
+	TestNotNull(TEXT("Test world can be created"), TestWorld);
+	if (!TestWorld)
+	{
+		return false;
+	}
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParameters.ObjectFlags |= RF_Transient;
+
+	AEmbermereCharacter* Character = TestWorld->SpawnActor<AEmbermereCharacter>(FVector::ZeroVector, FRotator::ZeroRotator, SpawnParameters);
+	AEmbermereEnemyCharacter* FirstEnemy = TestWorld->SpawnActor<AEmbermereEnemyCharacter>(FVector(100.0f, 0.0f, 0.0f), FRotator::ZeroRotator, SpawnParameters);
+	AEmbermereEnemyCharacter* SecondEnemy = TestWorld->SpawnActor<AEmbermereEnemyCharacter>(FVector(200.0f, 0.0f, 0.0f), FRotator::ZeroRotator, SpawnParameters);
+	TestNotNull(TEXT("Character can be created"), Character);
+	TestNotNull(TEXT("First enemy can be created"), FirstEnemy);
+	TestNotNull(TEXT("Second enemy can be created"), SecondEnemy);
+	if (!Character || !FirstEnemy || !SecondEnemy)
+	{
+		TestWorld->DestroyWorld(false);
+		return false;
+	}
+
+	TestNotNull(TEXT("Character has combat"), Character->Combat.Get());
+	if (!Character->Combat)
+	{
+		TestWorld->DestroyWorld(false);
+		return false;
+	}
+
+	TestFalse(TEXT("First enemy starts unselected"), FirstEnemy->IsSelectedByPlayer());
+	TestFalse(TEXT("Second enemy starts unselected"), SecondEnemy->IsSelectedByPlayer());
+
+	Character->Combat->SetTarget(FirstEnemy);
+	TestTrue(TEXT("First enemy becomes current target"), Character->Combat->CurrentTarget == FirstEnemy);
+	TestTrue(TEXT("First enemy presentation is selected"), FirstEnemy->IsSelectedByPlayer());
+	TestFalse(TEXT("Second enemy remains unselected"), SecondEnemy->IsSelectedByPlayer());
+
+	Character->Combat->SetTarget(SecondEnemy);
+	TestTrue(TEXT("Second enemy becomes current target"), Character->Combat->CurrentTarget == SecondEnemy);
+	TestFalse(TEXT("First enemy presentation clears when target changes"), FirstEnemy->IsSelectedByPlayer());
+	TestTrue(TEXT("Second enemy presentation is selected"), SecondEnemy->IsSelectedByPlayer());
+
+	Character->Combat->SetTarget(nullptr);
+	TestNull(TEXT("Current target clears when target is cleared"), Character->Combat->CurrentTarget.Get());
+	TestFalse(TEXT("Second enemy presentation clears when target clears"), SecondEnemy->IsSelectedByPlayer());
+
+	TestWorld->DestroyWorld(false);
 	return true;
 }
 

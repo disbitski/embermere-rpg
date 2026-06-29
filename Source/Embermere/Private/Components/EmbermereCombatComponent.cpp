@@ -4,6 +4,28 @@
 #include "Engine/Engine.h"
 #include "Interfaces/EmbermereTargetable.h"
 
+namespace
+{
+void SetTargetedByPlayer(AActor* Target, bool bIsTargeted)
+{
+	if (!Target)
+	{
+		return;
+	}
+
+	if (IEmbermereTargetable* NativeTargetable = Cast<IEmbermereTargetable>(Target))
+	{
+		NativeTargetable->SetTargetedByPlayer_Implementation(bIsTargeted);
+		return;
+	}
+
+	if (Target->GetClass()->ImplementsInterface(UEmbermereTargetable::StaticClass()))
+	{
+		IEmbermereTargetable::Execute_SetTargetedByPlayer(Target, bIsTargeted);
+	}
+}
+}
+
 UEmbermereCombatComponent::UEmbermereCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -17,7 +39,11 @@ void UEmbermereCombatComponent::SetTarget(AActor* NewTarget)
 	}
 
 	AActor* OldTarget = CurrentTarget;
+	SetTargetedByPlayer(OldTarget, false);
+
 	CurrentTarget = NewTarget;
+	SetTargetedByPlayer(CurrentTarget.Get(), true);
+
 	OnTargetChanged.Broadcast(CurrentTarget, OldTarget);
 }
 
@@ -61,6 +87,7 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 	}
 
 	float EffectAmount = 0.0f;
+	bool bTargetDiedAfterEffect = false;
 	if (Ability.TargetKind == EEmbermereAbilityTargetKind::Self || Ability.TargetKind == EEmbermereAbilityTargetKind::Ally)
 	{
 		if (UEmbermereStatsComponent* TargetStats = TargetActor->FindComponentByClass<UEmbermereStatsComponent>())
@@ -73,6 +100,7 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 		EffectAmount = TargetStats->ApplyDamage(Ability.Power + OwnerStats->AttackPower);
 		if (TargetStats->IsDead())
 		{
+			bTargetDiedAfterEffect = true;
 			if (UEmbermereQuestLogComponent* QuestLog = Owner->FindComponentByClass<UEmbermereQuestLogComponent>())
 			{
 				QuestLog->AddObjectiveProgress("StarterEnemyDefeated", 1);
@@ -91,6 +119,10 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 			2.5f,
 			FColor::Orange,
 			FString::Printf(TEXT("%s hit %s for %.0f"), *Ability.DisplayName.ToString(), *TargetName.ToString(), EffectAmount));
+	}
+	if (bTargetDiedAfterEffect)
+	{
+		SetTarget(nullptr);
 	}
 	return EffectAmount > 0.0f || Ability.TargetKind == EEmbermereAbilityTargetKind::Self;
 }

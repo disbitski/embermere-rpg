@@ -190,6 +190,15 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	QuestText = MakeHudText(WidgetTree, TEXT("QuestText"), FLinearColor(0.72f, 0.9f, 1.0f, 1.0f), 15.0f);
 	AddStackChild(QuestStack, QuestText, 0.0f);
 
+	InventoryPanel = MakePanel(WidgetTree, TEXT("InventoryPanel"), FLinearColor(0.035f, 0.035f, 0.025f, 0.78f));
+	UVerticalBox* InventoryStack = MakePanelStack(WidgetTree, InventoryPanel, TEXT("InventoryStack"));
+	InventoryText = MakeHudText(WidgetTree, TEXT("InventoryText"), FLinearColor(0.92f, 0.86f, 0.62f, 1.0f), 14.0f);
+	if (InventoryText)
+	{
+		InventoryText->SetAutoWrapText(true);
+	}
+	AddStackChild(InventoryStack, InventoryText, 0.0f);
+
 	AddStackChild(LeftStack, StatusPanel, 10.0f);
 	AddStackChild(LeftStack, TargetPanel, 10.0f);
 	AddStackChild(LeftStack, QuestPanel, 0.0f);
@@ -250,6 +259,17 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		LeftSlot->SetAlignment(FVector2D(0.0f, 0.0f));
 		LeftSlot->SetPosition(FVector2D(24.0f, 24.0f));
 		LeftSlot->SetAutoSize(true);
+	}
+
+	if (InventoryPanel)
+	{
+		if (UCanvasPanelSlot* InventorySlot = RootCanvas->AddChildToCanvas(InventoryPanel))
+		{
+			InventorySlot->SetAnchors(FAnchors(1.0f, 0.0f, 1.0f, 0.0f));
+			InventorySlot->SetAlignment(FVector2D(1.0f, 0.0f));
+			InventorySlot->SetPosition(FVector2D(-24.0f, 24.0f));
+			InventorySlot->SetSize(FVector2D(280.0f, 118.0f));
+		}
 	}
 
 	if (DialoguePanel)
@@ -410,6 +430,32 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 				QuestPanel->SetVisibility(ESlateVisibility::Collapsed);
 			}
 		}
+	}
+
+	if (InventoryText)
+	{
+		FString InventoryLine = TEXT("Inventory\nEmpty");
+		if (Inventory && Inventory->Stacks.Num() > 0)
+		{
+			InventoryLine = TEXT("Inventory");
+			const int32 MaxDisplayedStacks = FMath::Min(Inventory->Stacks.Num(), 4);
+			for (int32 StackIndex = 0; StackIndex < MaxDisplayedStacks; ++StackIndex)
+			{
+				const FEmbermereInventoryStack& Stack = Inventory->Stacks[StackIndex];
+				if (Stack.Item && Stack.Quantity > 0)
+				{
+					InventoryLine += FString::Printf(
+						TEXT("\n%s x%d"),
+						*Stack.Item->DisplayName.ToString(),
+						Stack.Quantity);
+				}
+			}
+			if (Inventory->Stacks.Num() > MaxDisplayedStacks)
+			{
+				InventoryLine += FString::Printf(TEXT("\n+%d more"), Inventory->Stacks.Num() - MaxDisplayedStacks);
+			}
+		}
+		InventoryText->SetText(FText::FromString(InventoryLine));
 	}
 
 	static const TCHAR* HotbarKeys[] = { TEXT("1"), TEXT("2"), TEXT("3"), TEXT("4"), TEXT("Alt+R"), TEXT("Alt+E"), TEXT("R"), TEXT("X"), TEXT("E"), TEXT("F") };

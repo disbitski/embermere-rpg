@@ -72,10 +72,12 @@ public:
 	virtual bool IsAlive_Implementation() const override;
 	virtual bool IsHostileTo_Implementation(const AActor* Viewer) const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
+	virtual void SetTargetedByPlayer_Implementation(bool bIsTargeted) override;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	virtual void HandleTargetedByPlayer(bool bIsTargeted);
 	void PrimeStarterHotbar();
 };

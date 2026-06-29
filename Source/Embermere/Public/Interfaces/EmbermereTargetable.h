@@ -23,4 +23,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Embermere|Targeting")
 	FText GetTargetDisplayName() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Embermere|Targeting")
+	void SetTargetedByPlayer(bool bIsTargeted);
 };

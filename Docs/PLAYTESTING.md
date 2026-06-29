@@ -30,7 +30,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 10. Watch for the temporary quest/dialogue message.
 11. Move toward the ruin and enemy pocket.
 12. Press `Tab` to target a nearby hostile.
-13. Watch for the temporary target message with name, HP, and range state.
+13. Watch for the selected enemy's overhead `TARGET` marker, name, HP, and the HUD target panel range state.
 14. Press `1` to use the first starter ability.
 15. Expect nearby enemies to chase and melee you when you enter their aggro radius.
 16. Defeat three starter enemies.
@@ -39,24 +39,26 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 ## Expected Temporary Feedback
 
 - A styled first-pass HUD overlay shows player HP, mana, XP, current target, target HP, range state, quest progress, and all hotbar slots.
+- A first-pass inventory HUD panel appears in the top-right and starts as `Empty`.
 - Interacting with Mara shows a temporary bottom-screen dialogue panel.
 - Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
 - `Ctrl+M` toggles mouse Y inversion and shows a temporary message.
 - Accepting the quest shows an on-screen quest accepted message.
-- Tab targeting shows the selected target name, HP, and first-ability range state.
+- Tab targeting shows the selected target name, HP, first-ability range state, and a temporary overhead target marker/nameplate.
 - Ability use shows an on-screen hit message.
 - Enemies show red on-screen hit messages when they melee the player.
 - If the player dies, autorun turns off, a temporary death message appears, and the player respawns after a short delay.
 - Defeating starter enemies advances `StarterEnemyDefeated`.
 - Defeated enemies hide and respawn after a short prototype delay.
-- Completing the quest shows on-screen completion, XP, and a temporary loot/reward popup.
+- Completing the quest shows on-screen completion, XP, a temporary loot/reward popup, and the reward item in the inventory panel.
 
 ## Known Prototype Gaps
 
 - The UI has native first-pass HUD panels, but styling is still programmer-art and needs a proper fantasy skin.
 - Enemy movement and attacks are deliberately simple prototype behavior.
 - Player respawn is a simple prototype reset to the spawn point.
-- Inventory presentation is not a real widget yet.
-- Nameplates and selected-target world highlighting still need dedicated visual treatment.
+- Inventory presentation is a minimal always-visible HUD panel, not a full inventory screen yet.
+- Nameplates and selected-target world highlighting are temporary text render components and still need dedicated visual treatment.
+- If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.
 - Art is still greybox until Fab/Marketplace assets are imported.

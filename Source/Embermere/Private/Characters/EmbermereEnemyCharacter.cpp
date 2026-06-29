@@ -1,6 +1,7 @@
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/EmbermereStatsComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "Engine/Engine.h"
 #include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
@@ -10,6 +11,28 @@ AEmbermereEnemyCharacter::AEmbermereEnemyCharacter()
 {
 	EnemyName = FText::FromString(TEXT("Marsh Prowler"));
 	Tags.AddUnique("Hostile");
+
+	NameplateText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("SelectedTargetNameplate"));
+	NameplateText->SetupAttachment(RootComponent);
+	NameplateText->SetRelativeLocation(FVector(0.0f, 0.0f, NameplateHeight));
+	NameplateText->SetText(FText::FromString(TEXT("Marsh Prowler\n100/100 HP")));
+	NameplateText->SetTextRenderColor(FColor(255, 92, 82));
+	NameplateText->SetHorizontalAlignment(EHTA_Center);
+	NameplateText->SetVerticalAlignment(EVRTA_TextCenter);
+	NameplateText->SetWorldSize(28.0f);
+	NameplateText->SetCastShadow(false);
+	NameplateText->SetVisibility(false);
+
+	TargetMarkerText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("SelectedTargetMarker"));
+	TargetMarkerText->SetupAttachment(RootComponent);
+	TargetMarkerText->SetRelativeLocation(FVector(0.0f, 0.0f, TargetMarkerHeight));
+	TargetMarkerText->SetText(FText::FromString(TEXT("TARGET")));
+	TargetMarkerText->SetTextRenderColor(FColor(255, 226, 76));
+	TargetMarkerText->SetHorizontalAlignment(EHTA_Center);
+	TargetMarkerText->SetVerticalAlignment(EVRTA_TextCenter);
+	TargetMarkerText->SetWorldSize(34.0f);
+	TargetMarkerText->SetCastShadow(false);
+	TargetMarkerText->SetVisibility(false);
 }
 
 void AEmbermereEnemyCharacter::BeginPlay()
@@ -21,13 +44,17 @@ void AEmbermereEnemyCharacter::BeginPlay()
 	if (Stats)
 	{
 		Stats->OnDied.AddDynamic(this, &AEmbermereEnemyCharacter::HandleDeath);
+		Stats->OnHealthChanged.AddDynamic(this, &AEmbermereEnemyCharacter::HandleHealthChanged);
 	}
+
+	UpdatePrototypeTargetPresentation();
 }
 
 void AEmbermereEnemyCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	UpdatePrototypeAi(DeltaSeconds);
+	UpdatePrototypeTargetPresentation();
 }
 
 bool AEmbermereEnemyCharacter::IsHostileTo_Implementation(const AActor* Viewer) const
@@ -40,9 +67,22 @@ FText AEmbermereEnemyCharacter::GetTargetDisplayName_Implementation() const
 	return EnemyName;
 }
 
+void AEmbermereEnemyCharacter::HandleTargetedByPlayer(bool bIsTargeted)
+{
+	bSelectedByPlayer = bIsTargeted;
+	UpdatePrototypeTargetPresentation();
+}
+
+bool AEmbermereEnemyCharacter::IsSelectedByPlayer() const
+{
+	return bSelectedByPlayer;
+}
+
 void AEmbermereEnemyCharacter::HandleDeath()
 {
 	AggroTarget.Reset();
+	bSelectedByPlayer = false;
+	UpdatePrototypeTargetPresentation();
 
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
@@ -68,6 +108,11 @@ void AEmbermereEnemyCharacter::HandleDeath()
 	}
 }
 
+void AEmbermereEnemyCharacter::HandleHealthChanged(float CurrentHealth, float MaxHealth)
+{
+	UpdatePrototypeTargetPresentation();
+}
+
 void AEmbermereEnemyCharacter::Respawn()
 {
 	SetActorTransform(SpawnTransform);
@@ -80,6 +125,7 @@ void AEmbermereEnemyCharacter::Respawn()
 	{
 		Stats->InitializeVitals();
 	}
+	UpdatePrototypeTargetPresentation();
 
 	if (GEngine)
 	{
@@ -126,6 +172,51 @@ void AEmbermereEnemyCharacter::UpdatePrototypeAi(float DeltaSeconds)
 	else
 	{
 		TryAttackTarget(Target);
+	}
+}
+
+void AEmbermereEnemyCharacter::UpdatePrototypeTargetPresentation()
+{
+	const bool bShowTargetPresentation = bSelectedByPlayer && Stats && !Stats->IsDead() && !IsHidden();
+
+	if (NameplateText)
+	{
+		NameplateText->SetRelativeLocation(FVector(0.0f, 0.0f, NameplateHeight));
+		if (Stats)
+		{
+			NameplateText->SetText(FText::FromString(FString::Printf(
+				TEXT("%s\n%.0f/%.0f HP"),
+				*EnemyName.ToString(),
+				Stats->CurrentHealth,
+				Stats->MaxHealth)));
+		}
+		NameplateText->SetVisibility(bShowTargetPresentation);
+	}
+
+	if (TargetMarkerText)
+	{
+		TargetMarkerText->SetRelativeLocation(FVector(0.0f, 0.0f, TargetMarkerHeight));
+		TargetMarkerText->SetVisibility(bShowTargetPresentation);
+	}
+
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+	if (bShowTargetPresentation && PlayerPawn)
+	{
+		const FVector PresentationLocation = NameplateText ? NameplateText->GetComponentLocation() : GetActorLocation();
+		FVector DirectionToPlayer = PlayerPawn->GetActorLocation() - PresentationLocation;
+		DirectionToPlayer.Z = 0.0f;
+		if (!DirectionToPlayer.IsNearlyZero())
+		{
+			const FRotator FacingRotation(0.0f, DirectionToPlayer.Rotation().Yaw + 180.0f, 0.0f);
+			if (NameplateText)
+			{
+				NameplateText->SetWorldRotation(FacingRotation);
+			}
+			if (TargetMarkerText)
+			{
+				TargetMarkerText->SetWorldRotation(FacingRotation);
+			}
+		}
 	}
 }
 

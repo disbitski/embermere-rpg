@@ -4,14 +4,23 @@ This is the daily handoff file for Codex work. Each session should start here, c
 
 ## Start Here
 
-- Restart Unreal before manual PIE if the editor has been open since the C++ HUD build, so it loads the newest module without hot-reload noise.
+- Restart Unreal before manual PIE. The 2026-06-29 work changed C++ interface dispatch and automation tests; the already-running editor can keep stale hot-reload registrations.
+- After restart, run these automation tests:
+  - `Embermere.Combat.TargetSelectionPresentation`
+  - `Embermere.Quests.CompletionRewards`
+  - `Embermere.Rules.RaceClassMatrix`
 - Manually verify the styled first-pass HUD in PIE:
   - player HP, mana, XP, health bar, and mana bar are visible;
   - target panel appears after `Tab` and shows target HP plus range state;
   - quest progress updates after accepting Mara's quest and defeating enemies;
   - all hotbar slots show stable labels for `1`, `2`, `3`, `4`, `Alt+R`, `Alt+E`, `R`, `X`, `E`, and `F`;
   - Mara interaction shows the dialogue panel;
-  - quest completion/reward shows the loot popup.
+  - inventory panel starts as `Empty`;
+  - quest completion/reward shows the loot popup and the inventory panel lists the reward item.
+- Manually verify selected-target world readability in PIE:
+  - `Tab` shows the selected enemy's overhead `TARGET` marker, name, and HP;
+  - switching targets clears the old enemy marker;
+  - killing the selected enemy clears the target and marker.
 - Manually verify the live control fix in PIE:
   - `W`/`S` should cancel autorun.
   - `Ctrl+M` should toggle mouse Y inversion and show a temporary message.
@@ -37,19 +46,24 @@ Embermere has a working greybox starter slice:
 - temporary on-screen feedback for targeting, combat, death, respawn, quest progress, XP, and rewards;
 - temporary in-world interactable markers, including a gold quest marker for Mara;
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
-- automation coverage for the race/class matrix and quest completion rewards.
+- first-pass inventory HUD panel showing empty state and reward item stacks;
+- first-pass selected-target overhead marker/name/HP presentation;
+- automation coverage for the race/class matrix, quest completion rewards, and selected-target presentation.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The next meaningful presentation gap is selected-target/nameplate readability in the 3D world, followed by inventory presentation and the first Fab/Marketplace art import. The HUD is now good enough to playtest the loop, but it still needs a real fantasy skin later.
+The prototype foundation is alive, but it is still early. The biggest presentation gaps are now visual quality and asset replacement: the HUD, inventory panel, target marker, and nameplate are functional programmer-art. The next meaningful step is a first Fab/Marketplace import pass, then replacing temporary text markers with proper fantasy UI/billboard treatment.
 
 ## Next Work
 
-- Add selected-target world readability:
-  - visible selected target marker or ring;
-  - enemy nameplate/health readout treatment;
-  - clear target lost/dead behavior.
-- Add first-pass inventory panel or reward history so the starter item is inspectable after quest completion.
+- Replace temporary selected-target text with better world readability:
+  - selected target ring or decal;
+  - cleaner enemy nameplate/health readout treatment;
+  - final clear target lost/dead behavior after restart verification.
+- Improve inventory presentation:
+  - optional toggle key;
+  - item details for reward inspection;
+  - cleaner empty/reward states.
 - Start the first asset import pass from [Docs/FAB_ASSET_PLAN.md](Docs/FAB_ASSET_PLAN.md), beginning with free stylized environment/UI packs.
 - Tune starter enemy aggro, movement speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Tune player respawn and recovery rules after in-editor playtesting.
@@ -57,11 +71,15 @@ The prototype foundation is alive, but it is still early. The next meaningful pr
 
 ## Last Completed
 
-- Upgraded the native HUD into styled panels for player status, target HP/range, quest tracker, dialogue, loot popup, and all hotbar labels.
+- Added selected-target presentation plumbing:
+  - targetables receive selected/unselected notifications;
+  - Marsh Prowlers show a temporary overhead `TARGET`, name, and HP readout when selected;
+  - target presentation clears when the target changes, dies, or is cleared.
+- Added a native inventory HUD panel with empty state and item stack display.
+- Added automation coverage for selected-target presentation. The source builds cleanly, but the live editor kept stale hot-reload state during this run; restart Unreal before trusting this new test in MCP.
 - Built successfully.
-- Ran Embermere automation tests: 2 passed, 0 failed.
-- Ran PIE boot smoke through MCP; no gameplay or Blueprint errors found.
-- Manual visual/feel checks remain for HUD readability, marker readability, autorun cancel, and `Ctrl+M`.
+- Ran stable Embermere automation tests: 2 passed, 0 failed.
+- Ran PIE HUD smoke through MCP and verified `Level 1`, `Inventory`, and `Alt+R`/full hotbar text were visible.
 
 ## Asset Hunt
 

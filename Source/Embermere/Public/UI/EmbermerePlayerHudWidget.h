@@ -86,6 +86,12 @@ private:
 	TObjectPtr<UTextBlock> QuestText;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UBorder> InventoryPanel;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> InventoryText;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UHorizontalBox> HotbarRow;
 
 	UPROPERTY(Transient)

@@ -106,6 +106,15 @@ FText AEmbermereCharacter::GetTargetDisplayName_Implementation() const
 	return CharacterName;
 }
 
+void AEmbermereCharacter::SetTargetedByPlayer_Implementation(bool bIsTargeted)
+{
+	HandleTargetedByPlayer(bIsTargeted);
+}
+
+void AEmbermereCharacter::HandleTargetedByPlayer(bool bIsTargeted)
+{
+}
+
 void AEmbermereCharacter::PrimeStarterHotbar()
 {
 	if (!Hotbar)

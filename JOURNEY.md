@@ -142,6 +142,31 @@ Lesson learned:
 
 - Pure C++ `UUserWidget` layouts need their widget tree built during `RebuildWidget()`, not only in `NativeConstruct()`. The HUD object can exist and PIE can boot cleanly while the visible Slate tree is still empty. We captured the long-term note in [Docs/UNREAL_LESSONS.md](Docs/UNREAL_LESSONS.md).
 
+## 2026-06-29 - Target Readability And Inventory Panel
+
+The prototype gained two more pieces of MMO readability: selected enemies are easier to identify in the world, and quest rewards are inspectable without relying only on temporary debug text.
+
+Targeting pass:
+
+- Extended targetables with selected/unselected notifications.
+- Added native C++ dispatch for target selection so C++ targetables do not depend on Blueprint interface event routing.
+- Marsh Prowlers now show a temporary overhead `TARGET` marker plus name and HP text when selected.
+- Target presentation clears when switching targets, clearing the target, or killing the selected enemy.
+- Added automation coverage for selected-target presentation.
+
+Inventory pass:
+
+- Added a top-right native HUD inventory panel.
+- The panel starts as `Inventory / Empty`.
+- Reward item stacks now appear in the panel after quest completion.
+
+Verification:
+
+- Built the project successfully after the targeting and inventory changes.
+- Ran stable automation tests through MCP: race/class matrix and quest completion rewards passed.
+- Ran PIE HUD smoke through MCP and confirmed visible `Level 1`, `Inventory`, and full hotbar text including `Alt+R`.
+- The new target-presentation automation test was added, but the already-running editor retained stale hot-reload state during the daily run. Next verification should restart Unreal before running `Embermere.Combat.TargetSelectionPresentation`.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
