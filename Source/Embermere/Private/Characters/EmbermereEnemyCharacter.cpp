@@ -2,6 +2,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "DrawDebugHelpers.h"
 #include "Engine/Engine.h"
 #include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
@@ -184,11 +185,13 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetPresentation()
 		NameplateText->SetRelativeLocation(FVector(0.0f, 0.0f, NameplateHeight));
 		if (Stats)
 		{
+			const float HealthPercent = Stats->MaxHealth > 0.0f ? Stats->CurrentHealth / Stats->MaxHealth : 0.0f;
 			NameplateText->SetText(FText::FromString(FString::Printf(
 				TEXT("%s\n%.0f/%.0f HP"),
 				*EnemyName.ToString(),
 				Stats->CurrentHealth,
 				Stats->MaxHealth)));
+			NameplateText->SetTextRenderColor(HealthPercent <= 0.35f ? FColor(255, 96, 72) : FColor(255, 210, 118));
 		}
 		NameplateText->SetVisibility(bShowTargetPresentation);
 	}
@@ -197,6 +200,11 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetPresentation()
 	{
 		TargetMarkerText->SetRelativeLocation(FVector(0.0f, 0.0f, TargetMarkerHeight));
 		TargetMarkerText->SetVisibility(bShowTargetPresentation);
+	}
+
+	if (bShowTargetPresentation)
+	{
+		DrawPrototypeTargetRing();
 	}
 
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
@@ -218,6 +226,30 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetPresentation()
 			}
 		}
 	}
+}
+
+void AEmbermereEnemyCharacter::DrawPrototypeTargetRing() const
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	const FVector RingCenter = GetActorLocation() + FVector(0.0f, 0.0f, TargetRingHeightOffset);
+	DrawDebugCircle(
+		World,
+		RingCenter,
+		FMath::Max(16.0f, TargetRingRadius),
+		48,
+		FColor(255, 214, 64),
+		false,
+		0.08f,
+		0,
+		4.0f,
+		FVector::ForwardVector,
+		FVector::RightVector,
+		false);
 }
 
 AActor* AEmbermereEnemyCharacter::FindAggroTarget() const

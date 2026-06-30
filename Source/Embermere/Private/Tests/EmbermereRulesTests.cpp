@@ -9,8 +9,8 @@
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
 #include "Data/EmbermereRulesData.h"
-#include "Engine/World.h"
 #include "Misc/AutomationTest.h"
+#include "UI/EmbermerePlayerHudWidget.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereRaceClassRulesTest,
@@ -61,33 +61,20 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Parameters)
 {
-	UWorld* TestWorld = UWorld::CreateWorld(EWorldType::Game, false);
-	TestNotNull(TEXT("Test world can be created"), TestWorld);
-	if (!TestWorld)
-	{
-		return false;
-	}
-
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParameters.ObjectFlags |= RF_Transient;
-
-	AEmbermereCharacter* Character = TestWorld->SpawnActor<AEmbermereCharacter>(FVector::ZeroVector, FRotator::ZeroRotator, SpawnParameters);
-	AEmbermereEnemyCharacter* FirstEnemy = TestWorld->SpawnActor<AEmbermereEnemyCharacter>(FVector(100.0f, 0.0f, 0.0f), FRotator::ZeroRotator, SpawnParameters);
-	AEmbermereEnemyCharacter* SecondEnemy = TestWorld->SpawnActor<AEmbermereEnemyCharacter>(FVector(200.0f, 0.0f, 0.0f), FRotator::ZeroRotator, SpawnParameters);
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	AEmbermereEnemyCharacter* FirstEnemy = NewObject<AEmbermereEnemyCharacter>();
+	AEmbermereEnemyCharacter* SecondEnemy = NewObject<AEmbermereEnemyCharacter>();
 	TestNotNull(TEXT("Character can be created"), Character);
 	TestNotNull(TEXT("First enemy can be created"), FirstEnemy);
 	TestNotNull(TEXT("Second enemy can be created"), SecondEnemy);
 	if (!Character || !FirstEnemy || !SecondEnemy)
 	{
-		TestWorld->DestroyWorld(false);
 		return false;
 	}
 
 	TestNotNull(TEXT("Character has combat"), Character->Combat.Get());
 	if (!Character->Combat)
 	{
-		TestWorld->DestroyWorld(false);
 		return false;
 	}
 
@@ -108,7 +95,29 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 	TestNull(TEXT("Current target clears when target is cleared"), Character->Combat->CurrentTarget.Get());
 	TestFalse(TEXT("Second enemy presentation clears when target clears"), SecondEnemy->IsSelectedByPlayer());
 
-	TestWorld->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereInventoryHudToggleTest,
+	"Embermere.UI.InventoryToggle",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* HudWidget = NewObject<UEmbermerePlayerHudWidget>();
+	TestNotNull(TEXT("HUD widget can be created"), HudWidget);
+	if (!HudWidget)
+	{
+		return false;
+	}
+
+	TestTrue(TEXT("Inventory panel starts visible"), HudWidget->IsInventoryPanelVisible());
+	TestFalse(TEXT("First toggle hides inventory"), HudWidget->ToggleInventoryPanel());
+	TestFalse(TEXT("Inventory panel reports hidden"), HudWidget->IsInventoryPanelVisible());
+	TestTrue(TEXT("Second toggle shows inventory"), HudWidget->ToggleInventoryPanel());
+	TestTrue(TEXT("Inventory panel reports visible"), HudWidget->IsInventoryPanelVisible());
+
 	return true;
 }
 

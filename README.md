@@ -50,8 +50,8 @@ The repo currently contains the C++ gameplay scaffold for:
 - player/enemy character classes
 - UMG base classes for character creation and HUD widgets
 - native first-pass HUD panels for status, target, range state, quest tracking, dialogue, loot, and hotbar labels
-- native inventory HUD panel with empty and reward-item stack states
-- selected enemy overhead target marker, name, and HP readout
+- native inventory HUD panel with empty and reward-item stack states plus an `I` show/hide toggle
+- selected enemy overhead target marker, name, HP readout, and prototype ground target ring
 - Unreal MCP setup notes and a local setup validator
 - first editor-created Blueprints and rules data asset
 - the saved starter-zone map `L_Embermere_Prototype`
@@ -120,6 +120,6 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 ## Status
 
-Early playable Unreal prototype scaffold with MCP connected, a greybox starter-zone loop, tab-target combat, native HUD panels, first quest reward flow, inventory readout, and temporary selected-target nameplate/marker feedback.
+Early playable Unreal prototype scaffold with MCP connected, a greybox starter-zone loop, tab-target combat, native HUD panels, first quest reward flow, inventory readout/toggle, and temporary selected-target nameplate/marker/ring feedback.
 
-Next milestone: restart Unreal to verify the new targeting automation cleanly, then begin the first Fab art replacement pass and upgrade temporary target/inventory presentation into real fantasy UI treatment.
+Next milestone: restart Unreal to verify the hot-reload-sensitive targeting automation cleanly, then begin the first Fab art replacement pass and upgrade temporary target/inventory presentation into real fantasy UI treatment.

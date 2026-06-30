@@ -82,6 +82,10 @@ void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 	{
 		ToggleInvertMouseY();
 	}
+	if (WasInputKeyJustPressed(EKeys::I))
+	{
+		ToggleInventoryPanel();
+	}
 
 	if (AEmbermereCharacter* Character = GetEmbermereCharacter())
 	{
@@ -190,6 +194,24 @@ void AEmbermerePlayerController::ToggleInvertMouseY()
 			2.5f,
 			FColor::Silver,
 			bInvertMouseY ? TEXT("Mouse Y inverted") : TEXT("Mouse Y normal"));
+	}
+}
+
+void AEmbermerePlayerController::ToggleInventoryPanel()
+{
+	if (!PlayerHudWidget)
+	{
+		return;
+	}
+
+	const bool bNowVisible = PlayerHudWidget->ToggleInventoryPanel();
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			2.0f,
+			FColor::Silver,
+			bNowVisible ? TEXT("Inventory shown") : TEXT("Inventory hidden"));
 	}
 }
 

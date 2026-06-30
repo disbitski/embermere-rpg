@@ -167,6 +167,38 @@ Verification:
 - Ran PIE HUD smoke through MCP and confirmed visible `Level 1`, `Inventory`, and full hotbar text including `Alt+R`.
 - The new target-presentation automation test was added, but the already-running editor retained stale hot-reload state during the daily run. Next verification should restart Unreal before running `Embermere.Combat.TargetSelectionPresentation`.
 
+## 2026-06-30 - Target Ring And Inventory Toggle
+
+We verified the previous target-presentation work in a fresh editor session, then tightened the next layer of playability without importing art yet.
+
+Verification:
+
+- Rediscovered the Embermere automation tests in Unreal MCP.
+- Confirmed the stale `Embermere.Combat.TargetClearsOnDeath` registration was gone.
+- Ran the current pre-change test set: target presentation, quest reward completion, and race/class matrix all passed.
+
+Target readability pass:
+
+- Added a prototype selected-target ground ring under selected enemies.
+- Kept the overhead `TARGET`, name, and HP text, but added HP-aware nameplate coloring.
+- Left the ground ring intentionally asset-light for now; the next art pass should replace it with a real decal/mesh/material.
+
+Inventory pass:
+
+- Added `I` as a show/hide toggle for the native inventory panel.
+- Added the `Inventory (I)` hint to the panel header.
+- Added automation coverage for inventory toggle state.
+
+Test hardening:
+
+- Changed the target-presentation automation test to use transient objects instead of spawning hot-reloaded actors in a transient world. This preserves the selection contract coverage while avoiding an Unreal hot-reload component registration failure.
+
+Verification after changes:
+
+- Built successfully.
+- In the already-open editor after hot reload, quest reward, race/class matrix, and inventory toggle tests passed. The target-presentation test still hit Unreal's hot-reloaded actor registration path in that live editor session, so the next run should restart Unreal before treating that test result as authoritative.
+- PIE HUD smoke verified visible `Level 1`, `Inventory (I)`, and full hotbar text including `Alt+R`.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

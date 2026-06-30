@@ -4,21 +4,23 @@ This is the daily handoff file for Codex work. Each session should start here, c
 
 ## Start Here
 
-- Restart Unreal before manual PIE. The 2026-06-29 work changed C++ interface dispatch and automation tests; the already-running editor can keep stale hot-reload registrations.
+- Restart Unreal before manual PIE. The 2026-06-30 work changed enemy components and C++ automation tests; the already-running editor can keep stale hot-reload registrations.
 - After restart, run these automation tests:
   - `Embermere.Combat.TargetSelectionPresentation`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
+  - `Embermere.UI.InventoryToggle`
 - Manually verify the styled first-pass HUD in PIE:
   - player HP, mana, XP, health bar, and mana bar are visible;
   - target panel appears after `Tab` and shows target HP plus range state;
   - quest progress updates after accepting Mara's quest and defeating enemies;
   - all hotbar slots show stable labels for `1`, `2`, `3`, `4`, `Alt+R`, `Alt+E`, `R`, `X`, `E`, and `F`;
   - Mara interaction shows the dialogue panel;
-  - inventory panel starts as `Empty`;
+  - inventory panel starts as `Empty` and shows the `I` toggle hint;
+  - pressing `I` hides/shows the inventory panel;
   - quest completion/reward shows the loot popup and the inventory panel lists the reward item.
 - Manually verify selected-target world readability in PIE:
-  - `Tab` shows the selected enemy's overhead `TARGET` marker, name, and HP;
+  - `Tab` shows the selected enemy's overhead `TARGET` marker, name, HP, and ground target ring;
   - switching targets clears the old enemy marker;
   - killing the selected enemy clears the target and marker.
 - Manually verify the live control fix in PIE:
@@ -46,22 +48,21 @@ Embermere has a working greybox starter slice:
 - temporary on-screen feedback for targeting, combat, death, respawn, quest progress, XP, and rewards;
 - temporary in-world interactable markers, including a gold quest marker for Mara;
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
-- first-pass inventory HUD panel showing empty state and reward item stacks;
-- first-pass selected-target overhead marker/name/HP presentation;
-- automation coverage for the race/class matrix, quest completion rewards, and selected-target presentation.
+- first-pass inventory HUD panel showing empty state, reward item stacks, and `I` show/hide toggle;
+- first-pass selected-target overhead marker/name/HP presentation plus a prototype ground target ring;
+- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, and inventory toggle.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The biggest presentation gaps are now visual quality and asset replacement: the HUD, inventory panel, target marker, and nameplate are functional programmer-art. The next meaningful step is a first Fab/Marketplace import pass, then replacing temporary text markers with proper fantasy UI/billboard treatment.
+The prototype foundation is alive, but it is still early. The biggest presentation gaps are now visual quality and asset replacement: the HUD, inventory panel, target marker, ground ring, and nameplate are functional programmer-art. The next meaningful step is a first Fab/Marketplace import pass, then replacing temporary/debug visuals with proper fantasy UI/billboard/decal treatment.
 
 ## Next Work
 
 - Replace temporary selected-target text with better world readability:
-  - selected target ring or decal;
+  - replace the debug-drawn selected target ring with a real decal/mesh/material;
   - cleaner enemy nameplate/health readout treatment;
   - final clear target lost/dead behavior after restart verification.
 - Improve inventory presentation:
-  - optional toggle key;
   - item details for reward inspection;
   - cleaner empty/reward states.
 - Start the first asset import pass from [Docs/FAB_ASSET_PLAN.md](Docs/FAB_ASSET_PLAN.md), beginning with free stylized environment/UI packs.
@@ -71,15 +72,14 @@ The prototype foundation is alive, but it is still early. The biggest presentati
 
 ## Last Completed
 
-- Added selected-target presentation plumbing:
-  - targetables receive selected/unselected notifications;
-  - Marsh Prowlers show a temporary overhead `TARGET`, name, and HP readout when selected;
-  - target presentation clears when the target changes, dies, or is cleared.
-- Added a native inventory HUD panel with empty state and item stack display.
-- Added automation coverage for selected-target presentation. The source builds cleanly, but the live editor kept stale hot-reload state during this run; restart Unreal before trusting this new test in MCP.
-- Built successfully.
-- Ran stable Embermere automation tests: 2 passed, 0 failed.
-- Ran PIE HUD smoke through MCP and verified `Level 1`, `Inventory`, and `Alt+R`/full hotbar text were visible.
+- Verified the fresh editor test registry no longer included stale `TargetClearsOnDeath`.
+- Ran the current pre-change Embermere automation tests: 3 passed, 0 failed.
+- Added a prototype selected-target ground ring and HP-aware nameplate color for selected Marsh Prowlers.
+- Added `I` inventory show/hide support without touching `DefaultInput.ini`.
+- Added `Embermere.UI.InventoryToggle` automation coverage and hardened the target-presentation test to avoid transient actor registration under hot reload.
+- Built successfully after the 2026-06-30 changes.
+- In the already-open editor after hot reload, tests were 3 passed and 1 failed; the failure was the known hot-reload actor registration path for `Embermere.Combat.TargetSelectionPresentation`. Restart Unreal before treating that result as authoritative.
+- Ran PIE HUD smoke through MCP and verified `Level 1`, `Inventory (I)`, and `Alt+R`/full hotbar text were visible.
 
 ## Asset Hunt
 

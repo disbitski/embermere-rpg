@@ -39,10 +39,12 @@ Practical rule:
 
 - after interface-heavy C++ changes or automation test renames, restart Unreal before treating MCP automation failures as authoritative;
 - keep the test name and C++ test class name aligned to reduce stale-registration confusion;
+- prefer `NewObject` object-level tests over transient `UWorld::SpawnActor` tests when the behavior under test does not require registered components or world ticking;
 - record whether a test ran in a fresh editor or an already-open editor in the daily handoff.
 
 Embermere example:
 
 - selected-target presentation added `Embermere.Combat.TargetSelectionPresentation`;
 - the open editor still listed the old `Embermere.Combat.TargetClearsOnDeath` registration during the same session;
+- after adding target ring components, the open editor could still execute a hot-reloaded actor registration path for the target test;
 - the next reliable validation should restart Unreal, rediscover tests, and run the current test set.

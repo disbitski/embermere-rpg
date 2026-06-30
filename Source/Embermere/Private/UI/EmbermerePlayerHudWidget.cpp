@@ -146,6 +146,18 @@ void UEmbermerePlayerHudWidget::NativeTick(const FGeometry& MyGeometry, float In
 	}
 }
 
+bool UEmbermerePlayerHudWidget::ToggleInventoryPanel()
+{
+	bInventoryPanelVisible = !bInventoryPanelVisible;
+	UpdateInventoryPanelVisibility();
+	return bInventoryPanelVisible;
+}
+
+bool UEmbermerePlayerHudWidget::IsInventoryPanelVisible() const
+{
+	return bInventoryPanelVisible;
+}
+
 void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 {
 	if (!WidgetTree || WidgetTree->RootWidget)
@@ -198,6 +210,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		InventoryText->SetAutoWrapText(true);
 	}
 	AddStackChild(InventoryStack, InventoryText, 0.0f);
+	UpdateInventoryPanelVisibility();
 
 	AddStackChild(LeftStack, StatusPanel, 10.0f);
 	AddStackChild(LeftStack, TargetPanel, 10.0f);
@@ -434,10 +447,10 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 
 	if (InventoryText)
 	{
-		FString InventoryLine = TEXT("Inventory\nEmpty");
+		FString InventoryLine = TEXT("Inventory (I)\nEmpty");
 		if (Inventory && Inventory->Stacks.Num() > 0)
 		{
-			InventoryLine = TEXT("Inventory");
+			InventoryLine = TEXT("Inventory (I)");
 			const int32 MaxDisplayedStacks = FMath::Min(Inventory->Stacks.Num(), 4);
 			for (int32 StackIndex = 0; StackIndex < MaxDisplayedStacks; ++StackIndex)
 			{
@@ -479,6 +492,14 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 		}
 
 		SlotText->SetText(FText::FromString(FString::Printf(TEXT("%s\n%s"), *KeyText, *AbilityText)));
+	}
+}
+
+void UEmbermerePlayerHudWidget::UpdateInventoryPanelVisibility()
+{
+	if (InventoryPanel)
+	{
+		InventoryPanel->SetVisibility(bInventoryPanelVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 	}
 }
 

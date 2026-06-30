@@ -52,6 +52,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Embermere|HUD")
 	void ShowDialogue(const FText& SpeakerName, const FText& DialogueText);
 
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
+	bool ToggleInventoryPanel();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	bool IsInventoryPanelVisible() const;
+
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void NativeConstruct() override;
@@ -111,10 +117,12 @@ private:
 
 	float DialogueHideTimeSeconds = 0.0f;
 	float LootHideTimeSeconds = 0.0f;
+	bool bInventoryPanelVisible = true;
 
 	void BuildDefaultLayout();
 	void RefreshHudText();
 	void BindComponentEvents();
+	void UpdateInventoryPanelVisibility();
 
 	UFUNCTION()
 	void HandleItemAdded(class UEmbermereItemData* Item, int32 Quantity);

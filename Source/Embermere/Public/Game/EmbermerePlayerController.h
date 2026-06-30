@@ -54,6 +54,7 @@ protected:
 	void OnRightMouseReleased();
 	void ToggleAutorun();
 	void ToggleInvertMouseY();
+	void ToggleInventoryPanel();
 	void CycleTarget();
 	void Turn(float Value);
 	void LookUp(float Value);

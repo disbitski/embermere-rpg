@@ -41,6 +41,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	float TargetMarkerHeight = 292.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
+	float TargetRingRadius = 96.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
+	float TargetRingHeightOffset = -86.0f;
+
 	virtual bool IsHostileTo_Implementation(const AActor* Viewer) const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
 
@@ -75,6 +81,7 @@ private:
 
 	void UpdatePrototypeAi(float DeltaSeconds);
 	void UpdatePrototypeTargetPresentation();
+	void DrawPrototypeTargetRing() const;
 	AActor* FindAggroTarget() const;
 	bool IsValidAggroTarget(const AActor* Candidate) const;
 	void FaceTarget(const AActor* Target);
