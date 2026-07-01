@@ -199,6 +199,33 @@ Verification after changes:
 - In the already-open editor after hot reload, quest reward, race/class matrix, and inventory toggle tests passed. The target-presentation test still hit Unreal's hot-reloaded actor registration path in that live editor session, so the next run should restart Unreal before treating that test result as authoritative.
 - PIE HUD smoke verified visible `Level 1`, `Inventory (I)`, and full hotbar text including `Alt+R`.
 
+## 2026-07-01 - Mesh Target Ring And Inventory Details
+
+We started by validating the previous day's hot-reload-sensitive target work in MCP.
+
+Verification:
+
+- Rediscovered the current Embermere automation tests.
+- Ran target presentation, quest reward completion, race/class matrix, and inventory toggle: 4 passed, 0 failed.
+- After today's C++ build, the same four tests still passed. The already-open editor emitted no-world warnings from the hot-reloaded target test path, so a clean restart remains the best way to confirm warning-free automation.
+
+Target readability pass:
+
+- Replaced the debug-drawn target ring with actual static mesh segment components attached to the enemy.
+- Kept the implementation asset-light by using engine basic cube meshes and an engine debug material.
+- The ring remains replaceable: later Fab/decal/material work can swap this component treatment without touching targeting logic.
+
+Inventory pass:
+
+- Expanded the inventory panel slightly.
+- Added detail text for the first visible inventory stack, using item description when available or stack limit as a fallback.
+
+Verification after changes:
+
+- Built successfully.
+- PIE HUD smoke verified visible `Level 1`, `Inventory (I)`, and full hotbar text including `Alt+R`.
+- Log scan found no current gameplay or Blueprint errors.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

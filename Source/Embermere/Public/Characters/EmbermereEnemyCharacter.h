@@ -5,6 +5,7 @@
 #include "EmbermereEnemyCharacter.generated.h"
 
 class UTextRenderComponent;
+class UStaticMeshComponent;
 
 UCLASS()
 class EMBERMERE_API AEmbermereEnemyCharacter : public AEmbermereCharacter
@@ -47,6 +48,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	float TargetRingHeightOffset = -86.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
+	float TargetRingThickness = 8.0f;
+
 	virtual bool IsHostileTo_Implementation(const AActor* Viewer) const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
 
@@ -73,6 +77,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Enemy|Targeting")
 	TObjectPtr<UTextRenderComponent> TargetMarkerText;
 
+	UPROPERTY(VisibleAnywhere, Category = "Enemy|Targeting")
+	TArray<TObjectPtr<UStaticMeshComponent>> TargetRingSegments;
+
 	FTransform SpawnTransform;
 	FTimerHandle RespawnTimerHandle;
 	TWeakObjectPtr<AActor> AggroTarget;
@@ -81,7 +88,7 @@ private:
 
 	void UpdatePrototypeAi(float DeltaSeconds);
 	void UpdatePrototypeTargetPresentation();
-	void DrawPrototypeTargetRing() const;
+	void UpdatePrototypeTargetRing(bool bIsVisible);
 	AActor* FindAggroTarget() const;
 	bool IsValidAggroTarget(const AActor* Candidate) const;
 	void FaceTarget(const AActor* Target);

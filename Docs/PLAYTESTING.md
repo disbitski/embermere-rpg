@@ -31,7 +31,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 11. Watch for the temporary quest/dialogue message.
 12. Move toward the ruin and enemy pocket.
 13. Press `Tab` to target a nearby hostile.
-14. Watch for the selected enemy's overhead `TARGET` marker, name, HP, ground ring, and the HUD target panel range state.
+14. Watch for the selected enemy's overhead `TARGET` marker, name, HP, segmented ground ring, and the HUD target panel range state.
 15. Press `1` to use the first starter ability.
 16. Expect nearby enemies to chase and melee you when you enter their aggro radius.
 17. Defeat three starter enemies.
@@ -40,13 +40,13 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 ## Expected Temporary Feedback
 
 - A styled first-pass HUD overlay shows player HP, mana, XP, current target, target HP, range state, quest progress, and all hotbar slots.
-- A first-pass inventory HUD panel appears in the top-right, starts as `Empty`, and toggles with `I`.
+- A first-pass inventory HUD panel appears in the top-right, starts as `Empty`, shows item detail text when an item is present, and toggles with `I`.
 - Interacting with Mara shows a temporary bottom-screen dialogue panel.
 - Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
 - `Ctrl+M` toggles mouse Y inversion and shows a temporary message.
 - Accepting the quest shows an on-screen quest accepted message.
-- Tab targeting shows the selected target name, HP, first-ability range state, a temporary overhead target marker/nameplate, and a prototype ground ring.
+- Tab targeting shows the selected target name, HP, first-ability range state, a temporary overhead target marker/nameplate, and a segmented mesh ground ring.
 - Ability use shows an on-screen hit message.
 - Enemies show red on-screen hit messages when they melee the player.
 - If the player dies, autorun turns off, a temporary death message appears, and the player respawns after a short delay.
@@ -60,6 +60,6 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Enemy movement and attacks are deliberately simple prototype behavior.
 - Player respawn is a simple prototype reset to the spawn point.
 - Inventory presentation is a minimal HUD panel, not a full inventory screen yet.
-- Nameplates and selected-target world highlighting are temporary text/debug render components and still need dedicated visual treatment.
+- Nameplates and selected-target world highlighting are temporary text/basic-mesh components and still need dedicated visual treatment.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.
 - Art is still greybox until Fab/Marketplace assets are imported.

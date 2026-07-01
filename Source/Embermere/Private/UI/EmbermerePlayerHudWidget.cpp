@@ -281,7 +281,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			InventorySlot->SetAnchors(FAnchors(1.0f, 0.0f, 1.0f, 0.0f));
 			InventorySlot->SetAlignment(FVector2D(1.0f, 0.0f));
 			InventorySlot->SetPosition(FVector2D(-24.0f, 24.0f));
-			InventorySlot->SetSize(FVector2D(280.0f, 118.0f));
+			InventorySlot->SetSize(FVector2D(320.0f, 154.0f));
 		}
 	}
 
@@ -452,11 +452,16 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 		{
 			InventoryLine = TEXT("Inventory (I)");
 			const int32 MaxDisplayedStacks = FMath::Min(Inventory->Stacks.Num(), 4);
+			const FEmbermereInventoryStack* FirstDisplayedStack = nullptr;
 			for (int32 StackIndex = 0; StackIndex < MaxDisplayedStacks; ++StackIndex)
 			{
 				const FEmbermereInventoryStack& Stack = Inventory->Stacks[StackIndex];
 				if (Stack.Item && Stack.Quantity > 0)
 				{
+					if (!FirstDisplayedStack)
+					{
+						FirstDisplayedStack = &Stack;
+					}
 					InventoryLine += FString::Printf(
 						TEXT("\n%s x%d"),
 						*Stack.Item->DisplayName.ToString(),
@@ -466,6 +471,13 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 			if (Inventory->Stacks.Num() > MaxDisplayedStacks)
 			{
 				InventoryLine += FString::Printf(TEXT("\n+%d more"), Inventory->Stacks.Num() - MaxDisplayedStacks);
+			}
+			if (FirstDisplayedStack && FirstDisplayedStack->Item)
+			{
+				const FString Description = FirstDisplayedStack->Item->Description.IsEmpty()
+					? FString::Printf(TEXT("Stack limit: %d"), FirstDisplayedStack->Item->MaxStack)
+					: FirstDisplayedStack->Item->Description.ToString();
+				InventoryLine += FString::Printf(TEXT("\n\n%s"), *Description);
 			}
 		}
 		InventoryText->SetText(FText::FromString(InventoryLine));
