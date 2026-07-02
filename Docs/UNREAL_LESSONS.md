@@ -48,3 +48,17 @@ Embermere example:
 - the open editor still listed the old `Embermere.Combat.TargetClearsOnDeath` registration during the same session;
 - after adding target ring components, the open editor could still execute a hot-reloaded actor registration path for the target test;
 - the next reliable validation should restart Unreal, rediscover tests, and run the current test set.
+
+## Xcode Metal Toolchain MobileAsset State
+
+On macOS, `xcodebuild -downloadComponent MetalToolchain` can successfully download and mount the Metal Toolchain while Xcode's default `metal` wrapper still reports it as missing.
+
+Quick diagnosis:
+
+- run `xcrun metal -v`;
+- confirm full Xcode is selected with `xcode-select -p`;
+- confirm first launch is complete with `xcodebuild -checkFirstLaunchStatus`;
+- check for a mounted Metal toolchain under `/private/var/run/com.apple.security.cryptexd/mnt`;
+- run the mounted `Metal.xctoolchain/usr/metal/current/bin/metal -v` directly.
+
+If the direct mounted compiler works but `xcrun metal -v` still fails, the download itself is not the real problem anymore. Reboot macOS before reinstalling Xcode or Unreal; the likely stale piece is Xcode's MobileAsset/cryptex lookup state.

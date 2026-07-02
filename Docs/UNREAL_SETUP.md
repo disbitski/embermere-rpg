@@ -28,7 +28,7 @@ Official MCP docs: https://dev.epicgames.com/documentation/unreal-engine/unreal-
    xcrun metal -v
    ```
 
-   Unreal may show `cannot execute tool 'metal' due to missing Metal Toolchain` until this component is installed. If `xcrun metal -v` still reports a missing Metal Toolchain after download, quit and reopen Xcode/Unreal, then rerun the command from Terminal rather than from inside Codex.
+   Unreal may show `cannot execute tool 'metal' due to missing Metal Toolchain` until this component is installed. If `xcrun metal -v` still reports a missing Metal Toolchain after download, quit and reopen Xcode/Unreal, then rerun the command from Terminal rather than from inside Codex. If the downloaded toolchain is mounted under `/private/var/run/com.apple.security.cryptexd/mnt` and its direct `metal -v` binary works but `xcrun metal -v` still fails, reboot macOS so Xcode's wrapper refreshes its MobileAsset/cryptex state.
 
 9. Install Unreal Engine 5.8 from the Launcher's Unreal Engine tab.
 10. Open `Embermere.uproject`.
