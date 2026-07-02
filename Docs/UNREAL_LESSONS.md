@@ -62,3 +62,21 @@ Quick diagnosis:
 - run the mounted `Metal.xctoolchain/usr/metal/current/bin/metal -v` directly.
 
 If the direct mounted compiler works but `xcrun metal -v` still fails, the download itself is not the real problem anymore. Reboot macOS before reinstalling Xcode or Unreal; the likely stale piece is Xcode's MobileAsset/cryptex lookup state.
+
+## Direct Unreal MCP Over HTTP
+
+If Codex does not expose Unreal MCP as first-class tools after the editor server is running, the server can still be reached directly at the generated config URL, currently `http://127.0.0.1:8123/mcp`.
+
+Useful pattern:
+
+- send a JSON-RPC `initialize` request;
+- read the `Mcp-Session-Id` response header;
+- include that session header on later requests;
+- call top-level `list_toolsets`, `describe_toolset`, and `call_tool`;
+- expect server-sent-event responses for long-running calls, especially automation and PIE commands.
+
+Embermere example:
+
+- `AutomationTestToolset.AutomationTestToolset` can discover and run the current test suite;
+- `EditorToolset.EditorAppToolset` can start/stop PIE;
+- viewport capture can return a very large inline PNG payload through raw MCP, so use it carefully or route it to a file instead of dumping it into the terminal.

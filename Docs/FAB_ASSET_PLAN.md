@@ -30,6 +30,25 @@ Sources:
 
 ## First Asset Lanes
 
+## First Practical Import Order
+
+For the first import pass, prefer a tiny, reversible slice over a broad art dump:
+
+1. Pick one free stylized environment/village pack and import it under `/Game/ThirdParty/Fab/<PackName>`.
+2. Duplicate one or two useful meshes into `/Game/Art/Embermere/Environment/PrototypeVillage`.
+3. Replace only one blockout building and a few road props in `L_Embermere_Prototype`.
+4. Pick one simple UI/icon or VFX candidate only after the environment import proves scale, collision, and performance are healthy.
+5. Record the pack name, Fab URL, license, install date, and caveats in this file before committing the asset pass.
+
+Good first replacements:
+
+- `Village_Hall_Blockout`
+- `Inn_Blockout`
+- `Road_Marker_*`
+- `Ruin_Broken_Arch_*`
+
+Avoid importing creature packs first unless they include animation clips for idle, walk/run, attack, hit, and death. A static environment kit gives us faster visual payoff with less gameplay risk.
+
 ### Village Kit
 
 Search terms:

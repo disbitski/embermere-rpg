@@ -7,6 +7,7 @@
 #include "Engine/StaticMesh.h"
 #include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 #include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
@@ -24,27 +25,27 @@ AEmbermereEnemyCharacter::AEmbermereEnemyCharacter()
 	NameplateText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("SelectedTargetNameplate"));
 	NameplateText->SetupAttachment(RootComponent);
 	NameplateText->SetRelativeLocation(FVector(0.0f, 0.0f, NameplateHeight));
-	NameplateText->SetText(FText::FromString(TEXT("Marsh Prowler\n100/100 HP")));
-	NameplateText->SetTextRenderColor(FColor(255, 92, 82));
+	NameplateText->SetText(FText::FromString(TEXT("Marsh Prowler\nHP 100/100")));
+	NameplateText->SetTextRenderColor(FColor(255, 210, 118));
 	NameplateText->SetHorizontalAlignment(EHTA_Center);
 	NameplateText->SetVerticalAlignment(EVRTA_TextCenter);
-	NameplateText->SetWorldSize(28.0f);
+	NameplateText->SetWorldSize(24.0f);
 	NameplateText->SetCastShadow(false);
 	NameplateText->SetVisibility(false);
 
 	TargetMarkerText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("SelectedTargetMarker"));
 	TargetMarkerText->SetupAttachment(RootComponent);
 	TargetMarkerText->SetRelativeLocation(FVector(0.0f, 0.0f, TargetMarkerHeight));
-	TargetMarkerText->SetText(FText::FromString(TEXT("TARGET")));
+	TargetMarkerText->SetText(FText::FromString(TEXT("v")));
 	TargetMarkerText->SetTextRenderColor(FColor(255, 226, 76));
 	TargetMarkerText->SetHorizontalAlignment(EHTA_Center);
 	TargetMarkerText->SetVerticalAlignment(EVRTA_TextCenter);
-	TargetMarkerText->SetWorldSize(34.0f);
+	TargetMarkerText->SetWorldSize(42.0f);
 	TargetMarkerText->SetCastShadow(false);
 	TargetMarkerText->SetVisibility(false);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMeshFinder(TEXT("/Engine/BasicShapes/Cube.Cube"));
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> RingMaterialFinder(TEXT("/Engine/EngineDebugMaterials/DebugMeshMaterial.DebugMeshMaterial"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> RingMaterialFinder(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
 	for (int32 SegmentIndex = 0; SegmentIndex < TargetRingSegmentCount; ++SegmentIndex)
 	{
 		UStaticMeshComponent* Segment = CreateDefaultSubobject<UStaticMeshComponent>(
@@ -108,6 +109,39 @@ void AEmbermereEnemyCharacter::HandleTargetedByPlayer(bool bIsTargeted)
 bool AEmbermereEnemyCharacter::IsSelectedByPlayer() const
 {
 	return bSelectedByPlayer;
+}
+
+FText AEmbermereEnemyCharacter::GetTargetPresentationText() const
+{
+	if (!Stats)
+	{
+		return EnemyName;
+	}
+
+	return FText::FromString(FString::Printf(
+		TEXT("%s\nHP %.0f/%.0f"),
+		*EnemyName.ToString(),
+		Stats->CurrentHealth,
+		Stats->MaxHealth));
+}
+
+FLinearColor AEmbermereEnemyCharacter::GetTargetPresentationColor() const
+{
+	if (!Stats || Stats->MaxHealth <= 0.0f)
+	{
+		return FLinearColor(1.0f, 0.82f, 0.46f, 1.0f);
+	}
+
+	const float HealthPercent = Stats->CurrentHealth / Stats->MaxHealth;
+	if (HealthPercent <= 0.25f)
+	{
+		return FLinearColor(1.0f, 0.28f, 0.18f, 1.0f);
+	}
+	if (HealthPercent <= 0.55f)
+	{
+		return FLinearColor(1.0f, 0.72f, 0.24f, 1.0f);
+	}
+	return FLinearColor(1.0f, 0.82f, 0.46f, 1.0f);
 }
 
 void AEmbermereEnemyCharacter::HandleDeath()
@@ -214,16 +248,8 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetPresentation()
 	if (NameplateText)
 	{
 		NameplateText->SetRelativeLocation(FVector(0.0f, 0.0f, NameplateHeight));
-		if (Stats)
-		{
-			const float HealthPercent = Stats->MaxHealth > 0.0f ? Stats->CurrentHealth / Stats->MaxHealth : 0.0f;
-			NameplateText->SetText(FText::FromString(FString::Printf(
-				TEXT("%s\n%.0f/%.0f HP"),
-				*EnemyName.ToString(),
-				Stats->CurrentHealth,
-				Stats->MaxHealth)));
-			NameplateText->SetTextRenderColor(HealthPercent <= 0.35f ? FColor(255, 96, 72) : FColor(255, 210, 118));
-		}
+		NameplateText->SetText(GetTargetPresentationText());
+		NameplateText->SetTextRenderColor(GetTargetPresentationColor().ToFColor(true));
 		NameplateText->SetVisibility(bShowTargetPresentation);
 	}
 
@@ -235,7 +261,8 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetPresentation()
 
 	UpdatePrototypeTargetRing(bShowTargetPresentation);
 
-	APawn* PlayerPawn = GetWorld() ? UGameplayStatics::GetPlayerPawn(this, 0) : nullptr;
+	UWorld* World = GetWorld();
+	APawn* PlayerPawn = World ? UGameplayStatics::GetPlayerPawn(World, 0) : nullptr;
 	if (bShowTargetPresentation && PlayerPawn)
 	{
 		const FVector PresentationLocation = NameplateText ? NameplateText->GetComponentLocation() : GetActorLocation();
@@ -265,7 +292,7 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetRing(bool bIsVisible)
 
 	const float RingRadius = FMath::Max(16.0f, TargetRingRadius);
 	const float SegmentThickness = FMath::Max(2.0f, TargetRingThickness);
-	const float SegmentLength = 2.0f * RingRadius * FMath::Tan(PI / static_cast<float>(TargetRingSegmentCount)) * 0.82f;
+	const float SegmentLength = 2.0f * RingRadius * FMath::Tan(PI / static_cast<float>(TargetRingSegmentCount)) * 0.68f;
 
 	for (int32 SegmentIndex = 0; SegmentIndex < TargetRingSegments.Num(); ++SegmentIndex)
 	{
@@ -282,6 +309,24 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetRing(bool bIsVisible)
 			continue;
 		}
 
+		if (!TargetRingMaterials.IsValidIndex(SegmentIndex) || !TargetRingMaterials[SegmentIndex])
+		{
+			UMaterialInstanceDynamic* DynamicMaterial = Segment->CreateDynamicMaterialInstance(0);
+			if (DynamicMaterial)
+			{
+				if (!TargetRingMaterials.IsValidIndex(SegmentIndex))
+				{
+					TargetRingMaterials.SetNum(TargetRingSegments.Num());
+				}
+				TargetRingMaterials[SegmentIndex] = DynamicMaterial;
+			}
+		}
+		if (TargetRingMaterials.IsValidIndex(SegmentIndex) && TargetRingMaterials[SegmentIndex])
+		{
+			TargetRingMaterials[SegmentIndex]->SetVectorParameterValue(TEXT("Color"), TargetRingColor);
+			TargetRingMaterials[SegmentIndex]->SetVectorParameterValue(TEXT("BaseColor"), TargetRingColor);
+		}
+
 		const float AngleRadians = (2.0f * PI * static_cast<float>(SegmentIndex)) / static_cast<float>(TargetRingSegments.Num());
 		const FVector SegmentLocation(
 			FMath::Cos(AngleRadians) * RingRadius,
@@ -291,13 +336,14 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetRing(bool bIsVisible)
 
 		Segment->SetRelativeLocation(SegmentLocation);
 		Segment->SetRelativeRotation(FRotator(0.0f, TangentYawDegrees, 0.0f));
-		Segment->SetRelativeScale3D(FVector(SegmentLength / 100.0f, SegmentThickness / 100.0f, 0.018f));
+		Segment->SetRelativeScale3D(FVector(SegmentLength / 100.0f, SegmentThickness / 100.0f, 0.01f));
 	}
 }
 
 AActor* AEmbermereEnemyCharacter::FindAggroTarget() const
 {
-	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+	UWorld* World = GetWorld();
+	APawn* PlayerPawn = World ? UGameplayStatics::GetPlayerPawn(World, 0) : nullptr;
 	if (IsValidAggroTarget(PlayerPawn) &&
 		FVector::DistSquared(GetActorLocation(), PlayerPawn->GetActorLocation()) <= FMath::Square(AggroRadius))
 	{

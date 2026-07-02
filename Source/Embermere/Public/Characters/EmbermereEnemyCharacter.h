@@ -6,6 +6,7 @@
 
 class UTextRenderComponent;
 class UStaticMeshComponent;
+class UMaterialInstanceDynamic;
 
 UCLASS()
 class EMBERMERE_API AEmbermereEnemyCharacter : public AEmbermereCharacter
@@ -51,11 +52,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	float TargetRingThickness = 8.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
+	FLinearColor TargetRingColor = FLinearColor(1.0f, 0.68f, 0.18f, 1.0f);
+
 	virtual bool IsHostileTo_Implementation(const AActor* Viewer) const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
 	bool IsSelectedByPlayer() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
+	FText GetTargetPresentationText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
+	FLinearColor GetTargetPresentationColor() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -79,6 +89,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Enemy|Targeting")
 	TArray<TObjectPtr<UStaticMeshComponent>> TargetRingSegments;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UMaterialInstanceDynamic>> TargetRingMaterials;
 
 	FTransform SpawnTransform;
 	FTimerHandle RespawnTimerHandle;

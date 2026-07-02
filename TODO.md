@@ -4,7 +4,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
 
 ## Start Here
 
-- Restart Unreal before manual PIE if the editor has been open since the 2026-07-01 C++ build. The current tests pass under MCP, but hot-reloaded target tests can still emit no-world warnings until a clean editor process reloads the module.
+- Restart Unreal before manual PIE if the editor has been open since the 2026-07-02 C++ build. The current tests pass under MCP, but the already-open editor still emits hot-reload no-world warnings from the transient target-presentation test path.
 - Run these automation tests:
   - `Embermere.Combat.TargetSelectionPresentation`
   - `Embermere.Quests.CompletionRewards`
@@ -20,7 +20,8 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - pressing `I` hides/shows the inventory panel;
   - quest completion/reward shows the loot popup and the inventory panel lists the reward item.
 - Manually verify selected-target world readability in PIE:
-  - `Tab` shows the selected enemy's overhead `TARGET` marker, name, HP, and segmented mesh target ring;
+  - `Tab` shows the selected enemy's overhead selected marker, name, HP, and gold segmented mesh target ring;
+  - the nameplate changes toward red/orange as enemy HP falls;
   - switching targets clears the old enemy marker;
   - killing the selected enemy clears the target and marker.
 - Manually verify the live control fix in PIE:
@@ -48,22 +49,23 @@ Embermere has a working greybox starter slice:
 - temporary on-screen feedback for targeting, combat, death, respawn, quest progress, XP, and rewards;
 - temporary in-world interactable markers, including a gold quest marker for Mara;
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
-- first-pass inventory HUD panel showing empty state, reward item stacks, item detail text, and `I` show/hide toggle;
-- first-pass selected-target overhead marker/name/HP presentation plus a prototype segmented mesh target ring;
+- first-pass inventory HUD panel showing empty state, reward item stacks, richer first-item inspection text, and `I` show/hide toggle;
+- first-pass selected-target overhead marker/name/HP presentation plus a gold segmented mesh target ring;
 - automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, and inventory toggle.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The biggest presentation gaps are now visual quality and asset replacement: the HUD, inventory panel, target marker, target ring, and nameplate are functional programmer-art. The next meaningful step is a first Fab/Marketplace import pass, then replacing temporary mesh/text visuals with proper fantasy UI/billboard/decal treatment.
+The prototype foundation is alive, but it is still early. The biggest presentation gaps are now visual quality and asset replacement: the HUD, inventory panel, target marker, target ring, and nameplate are functional first-pass programmer art. The next meaningful step is a first Fab/Marketplace import pass, then replacing temporary mesh/text visuals with proper fantasy UI/billboard/decal treatment.
 
 ## Next Work
 
 - Replace temporary selected-target text with better world readability:
-  - replace the segmented engine-cube target ring with a real decal/mesh/material;
-  - cleaner enemy nameplate/health readout treatment;
-  - final clear target lost/dead behavior after restart verification.
+  - verify the new selected marker, gold ring material, and HP-aware nameplate color in a clean editor restart;
+  - replace the segmented engine-cube target ring with a real decal/mesh/material asset;
+  - cleaner enemy nameplate/health readout treatment using a widget/billboard instead of text render.
 - Improve inventory presentation:
-  - richer item details for reward inspection;
+  - verify the richer item details for reward inspection in PIE;
+  - add selected item cycling once inventory has multiple reward stacks;
   - cleaner empty/reward states.
 - Start the first asset import pass from [Docs/FAB_ASSET_PLAN.md](Docs/FAB_ASSET_PLAN.md), beginning with free stylized environment/UI packs.
 - Tune starter enemy aggro, movement speed, attack range, damage, and respawn timing after in-editor playtesting.
@@ -72,12 +74,13 @@ The prototype foundation is alive, but it is still early. The biggest presentati
 
 ## Last Completed
 
-- Verified the current Embermere automation suite in MCP: 4 passed, 0 failed.
-- Replaced the debug-drawn target ring with a segmented static-mesh target ring component on enemies.
-- Added item detail text to the inventory panel for the first visible inventory stack.
-- Built successfully after the 2026-07-01 changes.
-- Re-ran the four-test suite after build: 4 passed, 0 failed. The hot-reloaded editor still emitted no-world warnings from the target test; restart Unreal before treating warning absence as authoritative.
-- Ran PIE HUD smoke through MCP and verified `Level 1`, `Inventory (I)`, and `Alt+R`/full hotbar text were visible with no current gameplay or Blueprint errors.
+- 2026-07-02: built successfully after target/inventory polish.
+- Replaced the loud overhead `TARGET` text with a smaller selected marker and routed target nameplate text/color through reusable C++ helpers.
+- Swapped the target ring off the engine debug material and onto a gold-tinted basic material path.
+- Added automation assertions for selected-target presentation text and low-health color behavior.
+- Expanded inventory reward inspection text to show the inspected item name and stack count.
+- Ran the four-test suite after build through MCP: 4 passed, 0 failed. The already-open editor still emitted hot-reload no-world warnings from the transient target test; restart Unreal before treating warning absence as authoritative.
+- Started and stopped PIE through MCP after the build. PIE started successfully, but full visual verification should be done after a clean editor restart because this run followed a live C++ build.
 
 ## Asset Hunt
 

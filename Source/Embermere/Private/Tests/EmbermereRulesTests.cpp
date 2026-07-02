@@ -80,6 +80,14 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 
 	TestFalse(TEXT("First enemy starts unselected"), FirstEnemy->IsSelectedByPlayer());
 	TestFalse(TEXT("Second enemy starts unselected"), SecondEnemy->IsSelectedByPlayer());
+	TestTrue(
+		TEXT("Enemy target presentation includes name and HP"),
+		FirstEnemy->GetTargetPresentationText().ToString().Contains(TEXT("Marsh Prowler\nHP 100/100")));
+	const FLinearColor HealthyPresentationColor = FirstEnemy->GetTargetPresentationColor();
+	FirstEnemy->Stats->ApplyDamage(80.0f);
+	const FLinearColor LowHealthPresentationColor = FirstEnemy->GetTargetPresentationColor();
+	TestTrue(TEXT("Enemy target presentation color changes at low health"), LowHealthPresentationColor.R >= HealthyPresentationColor.R);
+	TestTrue(TEXT("Enemy low-health presentation color has less green"), LowHealthPresentationColor.G < HealthyPresentationColor.G);
 
 	Character->Combat->SetTarget(FirstEnemy);
 	TestTrue(TEXT("First enemy becomes current target"), Character->Combat->CurrentTarget == FirstEnemy);

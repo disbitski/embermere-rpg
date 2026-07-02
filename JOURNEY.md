@@ -226,6 +226,29 @@ Verification after changes:
 - PIE HUD smoke verified visible `Level 1`, `Inventory (I)`, and full hotbar text including `Alt+R`.
 - Log scan found no current gameplay or Blueprint errors.
 
+## 2026-07-02 - Target Marker Polish And Inventory Inspection
+
+We tightened the first-pass selected-target and inventory presentation while keeping the systems asset-agnostic.
+
+Target readability pass:
+
+- Replaced the loud overhead `TARGET` text with a smaller selected marker.
+- Routed selected-target nameplate text through a reusable helper: enemy name plus `HP current/max`.
+- Added HP-aware presentation color so wounded enemies shift toward orange/red.
+- Swapped the segmented target ring off the engine debug material and onto a gold-tinted basic material path.
+- Added automation assertions for target presentation text and low-health color behavior.
+
+Inventory pass:
+
+- Expanded the inventory panel footprint.
+- Changed reward inspection from description-only text to a clearer first-item inspection block with item name and stack count.
+
+Verification:
+
+- Built successfully after the C++ changes.
+- Ran the four current Embermere automation tests through Unreal MCP: target presentation, quest reward completion, race/class matrix, and inventory toggle all passed.
+- Started and stopped PIE through MCP after the build. Because the editor stayed open through multiple C++ builds, the target test still reported hot-reload no-world warnings; the next visual/manual pass should restart Unreal before treating warning absence as authoritative.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

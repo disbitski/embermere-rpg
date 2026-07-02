@@ -31,7 +31,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 11. Watch for the temporary quest/dialogue message.
 12. Move toward the ruin and enemy pocket.
 13. Press `Tab` to target a nearby hostile.
-14. Watch for the selected enemy's overhead `TARGET` marker, name, HP, segmented ground ring, and the HUD target panel range state.
+14. Watch for the selected enemy's overhead selected marker, name, HP, gold segmented ground ring, and the HUD target panel range state.
 15. Press `1` to use the first starter ability.
 16. Expect nearby enemies to chase and melee you when you enter their aggro radius.
 17. Defeat three starter enemies.
@@ -46,7 +46,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
 - `Ctrl+M` toggles mouse Y inversion and shows a temporary message.
 - Accepting the quest shows an on-screen quest accepted message.
-- Tab targeting shows the selected target name, HP, first-ability range state, a temporary overhead target marker/nameplate, and a segmented mesh ground ring.
+- Tab targeting shows the selected target name, HP, first-ability range state, a temporary overhead selected marker/nameplate, HP-aware nameplate coloring, and a gold segmented mesh ground ring.
 - Ability use shows an on-screen hit message.
 - Enemies show red on-screen hit messages when they melee the player.
 - If the player dies, autorun turns off, a temporary death message appears, and the player respawns after a short delay.
@@ -59,7 +59,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - The UI has native first-pass HUD panels, but styling is still programmer-art and needs a proper fantasy skin.
 - Enemy movement and attacks are deliberately simple prototype behavior.
 - Player respawn is a simple prototype reset to the spawn point.
-- Inventory presentation is a minimal HUD panel, not a full inventory screen yet.
-- Nameplates and selected-target world highlighting are temporary text/basic-mesh components and still need dedicated visual treatment.
+- Inventory presentation is a minimal HUD panel with first-item inspection, not a full inventory screen yet.
+- Nameplates and selected-target world highlighting are temporary text/basic-mesh components and still need dedicated visual treatment from real UI/decal/material assets.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.
 - Art is still greybox until Fab/Marketplace assets are imported.

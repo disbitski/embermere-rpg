@@ -281,7 +281,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			InventorySlot->SetAnchors(FAnchors(1.0f, 0.0f, 1.0f, 0.0f));
 			InventorySlot->SetAlignment(FVector2D(1.0f, 0.0f));
 			InventorySlot->SetPosition(FVector2D(-24.0f, 24.0f));
-			InventorySlot->SetSize(FVector2D(320.0f, 154.0f));
+			InventorySlot->SetSize(FVector2D(340.0f, 224.0f));
 		}
 	}
 
@@ -474,10 +474,16 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 			}
 			if (FirstDisplayedStack && FirstDisplayedStack->Item)
 			{
-				const FString Description = FirstDisplayedStack->Item->Description.IsEmpty()
-					? FString::Printf(TEXT("Stack limit: %d"), FirstDisplayedStack->Item->MaxStack)
-					: FirstDisplayedStack->Item->Description.ToString();
-				InventoryLine += FString::Printf(TEXT("\n\n%s"), *Description);
+				const UEmbermereItemData* Item = FirstDisplayedStack->Item;
+				InventoryLine += FString::Printf(
+					TEXT("\n\nInspecting: %s\nStack: %d / %d"),
+					*Item->DisplayName.ToString(),
+					FirstDisplayedStack->Quantity,
+					Item->MaxStack);
+				if (!Item->Description.IsEmpty())
+				{
+					InventoryLine += FString::Printf(TEXT("\n%s"), *Item->Description.ToString());
+				}
 			}
 		}
 		InventoryText->SetText(FText::FromString(InventoryLine));
