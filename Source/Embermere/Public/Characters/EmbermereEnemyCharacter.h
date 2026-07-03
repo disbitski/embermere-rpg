@@ -7,6 +7,7 @@
 class UTextRenderComponent;
 class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
+class UWidgetComponent;
 
 UCLASS()
 class EMBERMERE_API AEmbermereEnemyCharacter : public AEmbermereCharacter
@@ -67,6 +68,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
 	FLinearColor GetTargetPresentationColor() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
+	bool HasNameplateWidget() const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
@@ -86,6 +90,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Enemy|Targeting")
 	TObjectPtr<UTextRenderComponent> TargetMarkerText;
+
+	UPROPERTY(VisibleAnywhere, Category = "Enemy|Targeting")
+	TObjectPtr<UWidgetComponent> NameplateWidgetComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = "Enemy|Targeting")
 	TArray<TObjectPtr<UStaticMeshComponent>> TargetRingSegments;

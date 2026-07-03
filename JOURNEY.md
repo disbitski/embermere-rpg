@@ -249,6 +249,29 @@ Verification:
 - Ran the four current Embermere automation tests through Unreal MCP: target presentation, quest reward completion, race/class matrix, and inventory toggle all passed.
 - Started and stopped PIE through MCP after the build. Because the editor stayed open through multiple C++ builds, the target test still reported hot-reload no-world warnings; the next visual/manual pass should restart Unreal before treating warning absence as authoritative.
 
+## 2026-07-03 - Native Enemy Nameplate Widget
+
+We moved selected enemy presentation another step away from text-render programmer art and toward proper MMO UI.
+
+Target readability pass:
+
+- Added `UEmbermereEnemyNameplateWidget`, a native UMG widget for selected enemies.
+- Mounted the nameplate on enemies with a screen-space `UWidgetComponent`.
+- The widget shows a selected marker, enemy name, HP text, and an HP progress bar.
+- HP-aware accent coloring now drives the UMG nameplate and health bar.
+- Kept the old text-render nameplate/marker components as fallback if the widget path is unavailable.
+
+Verification:
+
+- Built successfully after adding the widget component.
+- Ran the current MCP automation suite: target presentation, quest reward completion, race/class matrix, enemy nameplate widget, and inventory toggle all passed with no warnings.
+- Booted and stopped PIE through MCP. Log scan found no current Embermere gameplay or Blueprint errors; only old engine self-test log strings and the macOS audio sample-rate warning appeared.
+
+Asset pass note:
+
+- Direct unauthenticated Fab search/API calls from terminal automation hit Cloudflare security checks.
+- The first real asset import should use the signed-in Unreal Fab window or Epic Games Launcher, then Codex can inspect and integrate the imported content.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

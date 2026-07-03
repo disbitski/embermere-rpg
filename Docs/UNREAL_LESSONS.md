@@ -80,3 +80,13 @@ Embermere example:
 - `AutomationTestToolset.AutomationTestToolset` can discover and run the current test suite;
 - `EditorToolset.EditorAppToolset` can start/stop PIE;
 - viewport capture can return a very large inline PNG payload through raw MCP, so use it carefully or route it to a file instead of dumping it into the terminal.
+
+## Fab Search And Import Reality
+
+Fab's public website and listing endpoints can trigger Cloudflare checks from terminal automation. Do not assume Codex can choose and download Fab assets directly from unauthenticated shell or web requests.
+
+Practical rule:
+
+- use the signed-in Unreal Fab window or Epic Games Launcher for the actual add-to-library/import step;
+- import third-party packs under `/Game/ThirdParty/Fab/<PackName>`;
+- once assets exist locally, Codex can inspect paths, duplicate project-specific variants into `/Game/Art/Embermere`, replace blockout actors, run PIE, and commit intentional project files.

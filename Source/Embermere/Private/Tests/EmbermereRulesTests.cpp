@@ -10,6 +10,7 @@
 #include "Data/EmbermereQuestData.h"
 #include "Data/EmbermereRulesData.h"
 #include "Misc/AutomationTest.h"
+#include "UI/EmbermereEnemyNameplateWidget.h"
 #include "UI/EmbermerePlayerHudWidget.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -80,6 +81,7 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 
 	TestFalse(TEXT("First enemy starts unselected"), FirstEnemy->IsSelectedByPlayer());
 	TestFalse(TEXT("Second enemy starts unselected"), SecondEnemy->IsSelectedByPlayer());
+	TestTrue(TEXT("First enemy has a widget nameplate component"), FirstEnemy->HasNameplateWidget());
 	TestTrue(
 		TEXT("Enemy target presentation includes name and HP"),
 		FirstEnemy->GetTargetPresentationText().ToString().Contains(TEXT("Marsh Prowler\nHP 100/100")));
@@ -102,6 +104,40 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 	Character->Combat->SetTarget(nullptr);
 	TestNull(TEXT("Current target clears when target is cleared"), Character->Combat->CurrentTarget.Get());
 	TestFalse(TEXT("Second enemy presentation clears when target clears"), SecondEnemy->IsSelectedByPlayer());
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereEnemyNameplateWidgetTest,
+	"Embermere.UI.EnemyNameplateWidget",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereEnemyNameplateWidgetTest::RunTest(const FString& Parameters)
+{
+	UEmbermereEnemyNameplateWidget* NameplateWidget = NewObject<UEmbermereEnemyNameplateWidget>();
+	TestNotNull(TEXT("Enemy nameplate widget can be created"), NameplateWidget);
+	if (!NameplateWidget)
+	{
+		return false;
+	}
+
+	TestFalse(TEXT("Nameplate starts unselected"), NameplateWidget->IsNameplateSelected());
+	NameplateWidget->SetNameplateState(
+		FText::FromString(TEXT("Marsh Prowler")),
+		45.0f,
+		100.0f,
+		FLinearColor(1.0f, 0.72f, 0.24f, 1.0f),
+		true);
+	TestTrue(TEXT("Nameplate reports selected after selected state"), NameplateWidget->IsNameplateSelected());
+
+	NameplateWidget->SetNameplateState(
+		FText::FromString(TEXT("Marsh Prowler")),
+		0.0f,
+		100.0f,
+		FLinearColor(1.0f, 0.28f, 0.18f, 1.0f),
+		false);
+	TestFalse(TEXT("Nameplate reports unselected after hidden state"), NameplateWidget->IsNameplateSelected());
 
 	return true;
 }

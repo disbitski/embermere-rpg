@@ -23,12 +23,12 @@ In Unreal 5.8:
 6. Import into the project under a vendor folder, for example `/Game/ThirdParty/Fab/<PackName>`.
 7. Place art into the level by replacing blockout actors, not by moving gameplay logic into vendor folders.
 
+2026-07-03 note: direct unauthenticated Fab search/API access from terminal automation is Cloudflare-gated. Use the signed-in Unreal Fab window or Epic Games Launcher for the first real import, then let Codex inspect and wire the imported assets once they are present in `/Game/ThirdParty/Fab/<PackName>`.
+
 Sources:
 
 - Fab purchasing/downloading docs: https://dev.epicgames.com/documentation/en-us/fab/purchasing-and-downloading-assets-in-fab
 - Fab launcher export docs: https://dev.epicgames.com/documentation/en-us/fab/exporting-assets-from-fab-in-launcher
-
-## First Asset Lanes
 
 ## First Practical Import Order
 
@@ -48,6 +48,8 @@ Good first replacements:
 - `Ruin_Broken_Arch_*`
 
 Avoid importing creature packs first unless they include animation clips for idle, walk/run, attack, hit, and death. A static environment kit gives us faster visual payoff with less gameplay risk.
+
+## First Asset Lanes
 
 ### Village Kit
 

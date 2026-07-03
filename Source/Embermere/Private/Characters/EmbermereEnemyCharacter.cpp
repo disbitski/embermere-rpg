@@ -3,6 +3,7 @@
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/StaticMesh.h"
 #include "GameFramework/Pawn.h"
@@ -10,6 +11,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 #include "TimerManager.h"
+#include "UI/EmbermereEnemyNameplateWidget.h"
 #include "UObject/ConstructorHelpers.h"
 
 namespace
@@ -43,6 +45,18 @@ AEmbermereEnemyCharacter::AEmbermereEnemyCharacter()
 	TargetMarkerText->SetWorldSize(42.0f);
 	TargetMarkerText->SetCastShadow(false);
 	TargetMarkerText->SetVisibility(false);
+
+	NameplateWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("SelectedTargetWidgetNameplate"));
+	NameplateWidgetComponent->SetupAttachment(RootComponent);
+	NameplateWidgetComponent->SetRelativeLocation(FVector(0.0f, 0.0f, NameplateHeight));
+	NameplateWidgetComponent->SetWidgetClass(UEmbermereEnemyNameplateWidget::StaticClass());
+	NameplateWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	NameplateWidgetComponent->SetDrawSize(FVector2D(196.0f, 78.0f));
+	NameplateWidgetComponent->SetPivot(FVector2D(0.5f, 0.5f));
+	NameplateWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	NameplateWidgetComponent->SetCanEverAffectNavigation(false);
+	NameplateWidgetComponent->SetVisibility(false);
+	NameplateWidgetComponent->SetHiddenInGame(true);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMeshFinder(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> RingMaterialFinder(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
@@ -109,6 +123,11 @@ void AEmbermereEnemyCharacter::HandleTargetedByPlayer(bool bIsTargeted)
 bool AEmbermereEnemyCharacter::IsSelectedByPlayer() const
 {
 	return bSelectedByPlayer;
+}
+
+bool AEmbermereEnemyCharacter::HasNameplateWidget() const
+{
+	return NameplateWidgetComponent != nullptr;
 }
 
 FText AEmbermereEnemyCharacter::GetTargetPresentationText() const
@@ -244,19 +263,37 @@ void AEmbermereEnemyCharacter::UpdatePrototypeAi(float DeltaSeconds)
 void AEmbermereEnemyCharacter::UpdatePrototypeTargetPresentation()
 {
 	const bool bShowTargetPresentation = bSelectedByPlayer && Stats && !Stats->IsDead() && !IsHidden();
+	const bool bUseWidgetNameplate = NameplateWidgetComponent != nullptr;
+
+	if (NameplateWidgetComponent)
+	{
+		NameplateWidgetComponent->SetRelativeLocation(FVector(0.0f, 0.0f, NameplateHeight));
+		NameplateWidgetComponent->SetVisibility(bShowTargetPresentation);
+		NameplateWidgetComponent->SetHiddenInGame(!bShowTargetPresentation);
+
+		if (UEmbermereEnemyNameplateWidget* NameplateWidget = Cast<UEmbermereEnemyNameplateWidget>(NameplateWidgetComponent->GetUserWidgetObject()))
+		{
+			NameplateWidget->SetNameplateState(
+				EnemyName,
+				Stats ? Stats->CurrentHealth : 0.0f,
+				Stats ? Stats->MaxHealth : 0.0f,
+				GetTargetPresentationColor(),
+				bShowTargetPresentation);
+		}
+	}
 
 	if (NameplateText)
 	{
 		NameplateText->SetRelativeLocation(FVector(0.0f, 0.0f, NameplateHeight));
 		NameplateText->SetText(GetTargetPresentationText());
 		NameplateText->SetTextRenderColor(GetTargetPresentationColor().ToFColor(true));
-		NameplateText->SetVisibility(bShowTargetPresentation);
+		NameplateText->SetVisibility(bShowTargetPresentation && !bUseWidgetNameplate);
 	}
 
 	if (TargetMarkerText)
 	{
 		TargetMarkerText->SetRelativeLocation(FVector(0.0f, 0.0f, TargetMarkerHeight));
-		TargetMarkerText->SetVisibility(bShowTargetPresentation);
+		TargetMarkerText->SetVisibility(bShowTargetPresentation && !bUseWidgetNameplate);
 	}
 
 	UpdatePrototypeTargetRing(bShowTargetPresentation);
@@ -265,7 +302,9 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetPresentation()
 	APawn* PlayerPawn = World ? UGameplayStatics::GetPlayerPawn(World, 0) : nullptr;
 	if (bShowTargetPresentation && PlayerPawn)
 	{
-		const FVector PresentationLocation = NameplateText ? NameplateText->GetComponentLocation() : GetActorLocation();
+		const FVector PresentationLocation = NameplateWidgetComponent
+			? NameplateWidgetComponent->GetComponentLocation()
+			: (NameplateText ? NameplateText->GetComponentLocation() : GetActorLocation());
 		FVector DirectionToPlayer = PlayerPawn->GetActorLocation() - PresentationLocation;
 		DirectionToPlayer.Z = 0.0f;
 		if (!DirectionToPlayer.IsNearlyZero())

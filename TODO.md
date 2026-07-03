@@ -9,6 +9,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - `Embermere.Combat.TargetSelectionPresentation`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
+  - `Embermere.UI.EnemyNameplateWidget`
   - `Embermere.UI.InventoryToggle`
 - Manually verify the styled first-pass HUD in PIE:
   - player HP, mana, XP, health bar, and mana bar are visible;
@@ -20,8 +21,8 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - pressing `I` hides/shows the inventory panel;
   - quest completion/reward shows the loot popup and the inventory panel lists the reward item.
 - Manually verify selected-target world readability in PIE:
-  - `Tab` shows the selected enemy's overhead selected marker, name, HP, and gold segmented mesh target ring;
-  - the nameplate changes toward red/orange as enemy HP falls;
+  - `Tab` shows the selected enemy's UMG nameplate, selected marker, HP text, HP bar, and gold segmented mesh target ring;
+  - the nameplate accent/HP bar changes toward red/orange as enemy HP falls;
   - switching targets clears the old enemy marker;
   - killing the selected enemy clears the target and marker.
 - Manually verify the live control fix in PIE:
@@ -50,24 +51,24 @@ Embermere has a working greybox starter slice:
 - temporary in-world interactable markers, including a gold quest marker for Mara;
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
 - first-pass inventory HUD panel showing empty state, reward item stacks, richer first-item inspection text, and `I` show/hide toggle;
-- first-pass selected-target overhead marker/name/HP presentation plus a gold segmented mesh target ring;
-- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, and inventory toggle.
+- first-pass selected-target UMG nameplate widget plus a gold segmented mesh target ring;
+- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, enemy nameplate widget, and inventory toggle.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The biggest presentation gaps are now visual quality and asset replacement: the HUD, inventory panel, target marker, target ring, and nameplate are functional first-pass programmer art. The next meaningful step is a first Fab/Marketplace import pass, then replacing temporary mesh/text visuals with proper fantasy UI/billboard/decal treatment.
+The prototype foundation is alive, but it is still early. The biggest presentation gaps are now visual quality and asset replacement: the HUD, inventory panel, target ring, and nameplate are functional first-pass programmer art. The next meaningful step is a first Fab/Marketplace import pass, then replacing temporary mesh/ring visuals with proper fantasy assets and materials.
 
 ## Next Work
 
 - Replace temporary selected-target text with better world readability:
-  - verify the new selected marker, gold ring material, and HP-aware nameplate color in a clean editor restart;
+  - manually verify the new UMG nameplate widget, selected marker, HP bar, and HP-aware accent color in PIE;
   - replace the segmented engine-cube target ring with a real decal/mesh/material asset;
-  - cleaner enemy nameplate/health readout treatment using a widget/billboard instead of text render.
+  - tune screen-space widget size/height against camera distance.
 - Improve inventory presentation:
   - verify the richer item details for reward inspection in PIE;
   - add selected item cycling once inventory has multiple reward stacks;
   - cleaner empty/reward states.
-- Start the first asset import pass from [Docs/FAB_ASSET_PLAN.md](Docs/FAB_ASSET_PLAN.md), beginning with free stylized environment/UI packs.
+- Start the first asset import pass from [Docs/FAB_ASSET_PLAN.md](Docs/FAB_ASSET_PLAN.md), beginning with a free stylized environment or village pack through the signed-in Unreal Fab window.
 - Tune starter enemy aggro, movement speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Tune player respawn and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around death/respawn, targeting, and hotbar behavior.
@@ -81,6 +82,11 @@ The prototype foundation is alive, but it is still early. The biggest presentati
 - Expanded inventory reward inspection text to show the inspected item name and stack count.
 - Ran the four-test suite after build through MCP: 4 passed, 0 failed. The already-open editor still emitted hot-reload no-world warnings from the transient target test; restart Unreal before treating warning absence as authoritative.
 - Started and stopped PIE through MCP after the build. PIE started successfully, but full visual verification should be done after a clean editor restart because this run followed a live C++ build.
+- 2026-07-03: added a native `UEmbermereEnemyNameplateWidget` and mounted it on enemies through a screen-space `UWidgetComponent`.
+- The legacy text-render nameplate/marker remains as fallback, but selected enemies now use UMG for name, selected marker, HP text, and HP bar.
+- Added `Embermere.UI.EnemyNameplateWidget`; MCP automation suite now runs 5 tests, all passing with 0 warnings.
+- Built successfully after the nameplate widget work and booted/stopped PIE through MCP with no current Embermere gameplay or Blueprint errors.
+- Direct unauthenticated Fab search/API access is Cloudflare-gated from terminal automation; first asset import should happen through the signed-in Unreal Fab window or Epic Launcher.
 
 ## Asset Hunt
 
