@@ -4,11 +4,12 @@ This is the daily handoff file for Codex work. Each session should start here, c
 
 ## Start Here
 
-- Restart Unreal before manual PIE if the editor has been open since the 2026-07-02 C++ build. The current tests pass under MCP, but the already-open editor still emits hot-reload no-world warnings from the transient target-presentation test path.
+- Restart Unreal before manual PIE if the editor has been open since the 2026-07-03 C++ build. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI checks after C++ HUD work.
 - Run these automation tests:
   - `Embermere.Combat.TargetSelectionPresentation`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
+  - `Embermere.UI.ChatLog`
   - `Embermere.UI.EnemyNameplateWidget`
   - `Embermere.UI.InventoryToggle`
 - Manually verify the styled first-pass HUD in PIE:
@@ -19,7 +20,8 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - Mara interaction shows the dialogue panel;
   - inventory panel starts as `Empty` and shows the `I` toggle hint;
   - pressing `I` hides/shows the inventory panel;
-  - quest completion/reward shows the loot popup and the inventory panel lists the reward item.
+  - quest completion/reward shows the loot popup and the inventory panel lists the reward item;
+  - combat, target, quest, XP, inventory, mouse, and death/recovery messages appear in the bottom-left chat/combat log instead of overlapping the top-left player status panel.
 - Manually verify selected-target world readability in PIE:
   - `Tab` shows the selected enemy's UMG nameplate, selected marker, HP text, HP bar, and gold segmented mesh target ring;
   - the nameplate accent/HP bar changes toward red/orange as enemy HP falls;
@@ -47,12 +49,12 @@ Embermere has a working greybox starter slice:
 - `WASD`, `Q` autorun, tab target, and hotbar ability input;
 - first quest giver, quest data, and reward item data;
 - hostile starter enemies that aggro, chase, attack, die, and respawn;
-- temporary on-screen feedback for targeting, combat, death, respawn, quest progress, XP, and rewards;
+- bottom-left chat/combat log feedback for targeting, combat, death, respawn, quest progress, XP, inventory, and rewards;
 - temporary in-world interactable markers, including a gold quest marker for Mara;
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
 - first-pass inventory HUD panel showing empty state, reward item stacks, richer first-item inspection text, and `I` show/hide toggle;
 - first-pass selected-target UMG nameplate widget plus a gold segmented mesh target ring;
-- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, enemy nameplate widget, and inventory toggle.
+- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, enemy nameplate widget, chat log, and inventory toggle.
 
 ## How Far We Have To Go
 
@@ -87,6 +89,9 @@ The prototype foundation is alive, but it is still early. The biggest presentati
 - Added `Embermere.UI.EnemyNameplateWidget`; MCP automation suite now runs 5 tests, all passing with 0 warnings.
 - Built successfully after the nameplate widget work and booted/stopped PIE through MCP with no current Embermere gameplay or Blueprint errors.
 - Direct unauthenticated Fab search/API access is Cloudflare-gated from terminal automation; first asset import should happen through the signed-in Unreal Fab window or Epic Launcher.
+- 2026-07-03: moved gameplay feedback out of Unreal's top-left debug overlay and into a native bottom-left chat/combat log.
+- Routed player, target, combat, quest, XP, inventory reward, dialogue, enemy attack, death, and respawn messages through the HUD log.
+- Added `Embermere.UI.ChatLog`; headless automation now runs 6 tests, all passing with 0 warnings.
 
 ## Asset Hunt
 

@@ -2,6 +2,7 @@
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Engine/Engine.h"
+#include "UI/EmbermereGameplayMessageLibrary.h"
 
 UEmbermereQuestLogComponent::UEmbermereQuestLogComponent()
 {
@@ -19,14 +20,10 @@ bool UEmbermereQuestLogComponent::AcceptQuest(UEmbermereQuestData* Quest)
 	ActiveQuest.CurrentObjectiveCount = 0;
 	ActiveQuest.bCompleted = false;
 	OnQuestStateChanged.Broadcast(ActiveQuest);
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			4.0f,
-			FColor::Yellow,
-			FString::Printf(TEXT("Quest accepted: %s"), *Quest->Title.ToString()));
-	}
+	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+		this,
+		FText::FromString(FString::Printf(TEXT("Quest accepted: %s"), *Quest->Title.ToString())),
+		FLinearColor(1.0f, 0.86f, 0.22f, 1.0f));
 	return true;
 }
 
@@ -42,18 +39,14 @@ bool UEmbermereQuestLogComponent::AddObjectiveProgress(FName ObjectiveId, int32 
 		0,
 		ActiveQuest.Quest->RequiredObjectiveCount);
 	OnQuestStateChanged.Broadcast(ActiveQuest);
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			3.0f,
-			FColor::Cyan,
-			FString::Printf(
-				TEXT("%s: %d/%d"),
-				*ActiveQuest.Quest->Title.ToString(),
-				ActiveQuest.CurrentObjectiveCount,
-				ActiveQuest.Quest->RequiredObjectiveCount));
-	}
+	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+		this,
+		FText::FromString(FString::Printf(
+			TEXT("%s: %d/%d"),
+			*ActiveQuest.Quest->Title.ToString(),
+			ActiveQuest.CurrentObjectiveCount,
+			ActiveQuest.Quest->RequiredObjectiveCount)),
+		FLinearColor(0.46f, 0.95f, 1.0f, 1.0f));
 	return true;
 }
 
@@ -84,13 +77,9 @@ bool UEmbermereQuestLogComponent::TryCompleteActiveQuest()
 
 	ActiveQuest.bCompleted = true;
 	OnQuestStateChanged.Broadcast(ActiveQuest);
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			5.0f,
-			FColor::Green,
-			FString::Printf(TEXT("Quest complete: %s"), *ActiveQuest.Quest->Title.ToString()));
-	}
+	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+		this,
+		FText::FromString(FString::Printf(TEXT("Quest complete: %s"), *ActiveQuest.Quest->Title.ToString())),
+		FLinearColor(0.42f, 1.0f, 0.48f, 1.0f));
 	return true;
 }

@@ -27,14 +27,6 @@ bool UEmbermereInventoryComponent::AddItem(UEmbermereItemData* Item, int32 Quant
 			{
 				OnInventoryChanged.Broadcast();
 				OnItemAdded.Broadcast(Item, RequestedQuantity);
-				if (GEngine)
-				{
-					GEngine->AddOnScreenDebugMessage(
-						-1,
-						4.0f,
-						FColor(80, 220, 120),
-						FString::Printf(TEXT("Received: %s x%d"), *Item->DisplayName.ToString(), RequestedQuantity));
-				}
 				return true;
 			}
 		}
@@ -55,14 +47,6 @@ bool UEmbermereInventoryComponent::AddItem(UEmbermereItemData* Item, int32 Quant
 	{
 		OnInventoryChanged.Broadcast();
 		OnItemAdded.Broadcast(Item, AddedQuantity);
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				4.0f,
-				FColor(80, 220, 120),
-				FString::Printf(TEXT("Received: %s x%d"), *Item->DisplayName.ToString(), AddedQuantity));
-		}
 	}
 	return bAddedAll;
 }

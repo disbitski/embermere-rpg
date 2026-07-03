@@ -12,6 +12,7 @@
 #include "Materials/MaterialInterface.h"
 #include "TimerManager.h"
 #include "UI/EmbermereEnemyNameplateWidget.h"
+#include "UI/EmbermereGameplayMessageLibrary.h"
 #include "UObject/ConstructorHelpers.h"
 
 namespace
@@ -173,14 +174,10 @@ void AEmbermereEnemyCharacter::HandleDeath()
 	SetActorEnableCollision(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			2.5f,
-			FColor::Silver,
-			FString::Printf(TEXT("%s defeated"), *EnemyName.ToString()));
-	}
+	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+		this,
+		FText::FromString(FString::Printf(TEXT("%s defeated"), *EnemyName.ToString())),
+		FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
 
 	if (UWorld* World = GetWorld())
 	{
@@ -212,14 +209,10 @@ void AEmbermereEnemyCharacter::Respawn()
 	}
 	UpdatePrototypeTargetPresentation();
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			2.5f,
-			FColor::Silver,
-			FString::Printf(TEXT("%s respawned"), *EnemyName.ToString()));
-	}
+	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+		this,
+		FText::FromString(FString::Printf(TEXT("%s respawned"), *EnemyName.ToString())),
+		FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
 }
 
 void AEmbermereEnemyCharacter::UpdatePrototypeAi(float DeltaSeconds)
@@ -466,12 +459,11 @@ void AEmbermereEnemyCharacter::TryAttackTarget(AActor* Target)
 	const float AppliedDamage = TargetStats->ApplyDamage(AttackDamage);
 	LastAttackTimeSeconds = CurrentTimeSeconds;
 
-	if (GEngine && AppliedDamage > 0.0f)
+	if (AppliedDamage > 0.0f)
 	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			2.5f,
-			FColor::Red,
-			FString::Printf(TEXT("%s hits you for %.0f"), *EnemyName.ToString(), AppliedDamage));
+		UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+			this,
+			FText::FromString(FString::Printf(TEXT("%s hits you for %.0f"), *EnemyName.ToString(), AppliedDamage)),
+			FLinearColor(1.0f, 0.18f, 0.12f, 1.0f));
 	}
 }

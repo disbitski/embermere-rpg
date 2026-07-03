@@ -15,6 +15,7 @@ class UBorder;
 class UHorizontalBox;
 class UProgressBar;
 class UTextBlock;
+class UVerticalBox;
 
 UCLASS(Blueprintable)
 class EMBERMERE_API UEmbermerePlayerHudWidget : public UUserWidget
@@ -51,6 +52,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Embermere|HUD")
 	void ShowDialogue(const FText& SpeakerName, const FText& DialogueText);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
+	void AddChatMessage(const FText& Message, FLinearColor MessageColor);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	int32 GetChatMessageCount() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool ToggleInventoryPanel();
@@ -98,6 +105,15 @@ private:
 	TObjectPtr<UTextBlock> InventoryText;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UBorder> ChatPanel;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UVerticalBox> ChatMessageStack;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UTextBlock>> ChatMessageTexts;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UHorizontalBox> HotbarRow;
 
 	UPROPERTY(Transient)
@@ -118,11 +134,13 @@ private:
 	float DialogueHideTimeSeconds = 0.0f;
 	float LootHideTimeSeconds = 0.0f;
 	bool bInventoryPanelVisible = true;
+	TArray<TPair<FText, FLinearColor>> ChatMessages;
 
 	void BuildDefaultLayout();
 	void RefreshHudText();
 	void BindComponentEvents();
 	void UpdateInventoryPanelVisibility();
+	void RefreshChatMessages();
 
 	UFUNCTION()
 	void HandleItemAdded(class UEmbermereItemData* Item, int32 Quantity);

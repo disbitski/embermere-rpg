@@ -3,6 +3,7 @@
 #include "Components/TextRenderComponent.h"
 #include "Engine/Engine.h"
 #include "GameFramework/Actor.h"
+#include "UI/EmbermereGameplayMessageLibrary.h"
 
 UEmbermereInteractableComponent::UEmbermereInteractableComponent()
 {
@@ -18,13 +19,12 @@ void UEmbermereInteractableComponent::BeginPlay()
 
 void UEmbermereInteractableComponent::Interact(AActor* Interactor)
 {
-	if (GEngine && !DialogueText.IsEmpty())
+	if (!DialogueText.IsEmpty())
 	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			5.0f,
-			FColor::White,
-			FString::Printf(TEXT("%s: %s"), *DisplayName.ToString(), *DialogueText.ToString()));
+		UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+			this,
+			FText::FromString(FString::Printf(TEXT("%s: %s"), *DisplayName.ToString(), *DialogueText.ToString())),
+			FLinearColor(0.92f, 0.92f, 0.88f, 1.0f));
 	}
 
 	if (Interactor && QuestToOffer)

@@ -111,14 +111,7 @@ void AEmbermerePlayerController::HandleControlledCharacterDied()
 	bAutorunEnabled = false;
 	SetIgnoreMoveInput(true);
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			5.0f,
-			FColor::Red,
-			TEXT("You have fallen."));
-	}
+	AddHudMessage(FText::FromString(TEXT("You have fallen.")), FLinearColor(1.0f, 0.18f, 0.12f, 1.0f));
 
 	if (UWorld* World = GetWorld())
 	{
@@ -144,14 +137,7 @@ void AEmbermerePlayerController::RespawnControlledCharacter()
 	Character->Stats->InitializeVitals();
 	SetIgnoreMoveInput(false);
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			4.0f,
-			FColor::Green,
-			TEXT("You recover at the village."));
-	}
+	AddHudMessage(FText::FromString(TEXT("You recover at the village.")), FLinearColor(0.42f, 1.0f, 0.48f, 1.0f));
 }
 
 void AEmbermerePlayerController::OnLeftMousePressed()
@@ -187,14 +173,9 @@ void AEmbermerePlayerController::ToggleInvertMouseY()
 {
 	bInvertMouseY = !bInvertMouseY;
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			2.5f,
-			FColor::Silver,
-			bInvertMouseY ? TEXT("Mouse Y inverted") : TEXT("Mouse Y normal"));
-	}
+	AddHudMessage(
+		FText::FromString(bInvertMouseY ? TEXT("Mouse Y inverted") : TEXT("Mouse Y normal")),
+		FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
 }
 
 void AEmbermerePlayerController::ToggleInventoryPanel()
@@ -205,14 +186,9 @@ void AEmbermerePlayerController::ToggleInventoryPanel()
 	}
 
 	const bool bNowVisible = PlayerHudWidget->ToggleInventoryPanel();
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			2.0f,
-			FColor::Silver,
-			bNowVisible ? TEXT("Inventory shown") : TEXT("Inventory hidden"));
-	}
+	AddHudMessage(
+		FText::FromString(bNowVisible ? TEXT("Inventory shown") : TEXT("Inventory hidden")),
+		FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
 }
 
 void AEmbermerePlayerController::CycleTarget()
@@ -348,16 +324,26 @@ void AEmbermerePlayerController::EnsurePlayerHud()
 	PlayerHudWidget->BindToCharacter(GetEmbermereCharacter());
 }
 
-void AEmbermerePlayerController::ShowTargetFeedback(AActor* TargetActor) const
+void AEmbermerePlayerController::AddHudMessage(const FText& Message, FLinearColor MessageColor) const
 {
-	if (!GEngine)
+	if (PlayerHudWidget)
 	{
+		PlayerHudWidget->AddChatMessage(Message, MessageColor);
 		return;
 	}
 
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, MessageColor.ToFColor(true), Message.ToString());
+	}
+}
+
+void AEmbermerePlayerController::ShowTargetFeedback(AActor* TargetActor) const
+{
+
 	if (!TargetActor)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Silver, TEXT("No hostile target"));
+		AddHudMessage(FText::FromString(TEXT("No hostile target")), FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
 		return;
 	}
 
@@ -390,11 +376,9 @@ void AEmbermerePlayerController::ShowTargetFeedback(AActor* TargetActor) const
 		}
 	}
 
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		3.0f,
-		FColor::Cyan,
-		FString::Printf(TEXT("Target: %s%s%s"), *TargetName.ToString(), *HealthText, *RangeText));
+	AddHudMessage(
+		FText::FromString(FString::Printf(TEXT("Target: %s%s%s"), *TargetName.ToString(), *HealthText, *RangeText)),
+		FLinearColor(0.46f, 0.95f, 1.0f, 1.0f));
 }
 
 void AEmbermerePlayerController::UpdateClassicMouseCameraMode()

@@ -158,6 +158,27 @@ bool UEmbermerePlayerHudWidget::IsInventoryPanelVisible() const
 	return bInventoryPanelVisible;
 }
 
+void UEmbermerePlayerHudWidget::AddChatMessage(const FText& Message, FLinearColor MessageColor)
+{
+	if (Message.IsEmpty())
+	{
+		return;
+	}
+
+	static constexpr int32 MaxChatMessages = 7;
+	ChatMessages.Add(TPair<FText, FLinearColor>(Message, MessageColor));
+	while (ChatMessages.Num() > MaxChatMessages)
+	{
+		ChatMessages.RemoveAt(0);
+	}
+	RefreshChatMessages();
+}
+
+int32 UEmbermerePlayerHudWidget::GetChatMessageCount() const
+{
+	return ChatMessages.Num();
+}
+
 void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 {
 	if (!WidgetTree || WidgetTree->RootWidget)
@@ -211,6 +232,33 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	}
 	AddStackChild(InventoryStack, InventoryText, 0.0f);
 	UpdateInventoryPanelVisibility();
+
+	ChatPanel = MakePanel(WidgetTree, TEXT("ChatPanel"), FLinearColor(0.015f, 0.018f, 0.022f, 0.76f));
+	ChatMessageStack = MakePanelStack(WidgetTree, ChatPanel, TEXT("ChatMessageStack"));
+	if (ChatPanel)
+	{
+		ChatPanel->SetPadding(FMargin(10.0f, 8.0f));
+		ChatPanel->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	ChatMessageTexts.Reset();
+	for (int32 MessageIndex = 0; MessageIndex < 7; ++MessageIndex)
+	{
+		UTextBlock* MessageText = MakeHudText(
+			WidgetTree,
+			*FString::Printf(TEXT("ChatMessageText_%d"), MessageIndex),
+			FLinearColor(0.88f, 0.9f, 0.86f, 1.0f),
+			13.0f);
+		if (!MessageText)
+		{
+			continue;
+		}
+
+		MessageText->SetAutoWrapText(true);
+		MessageText->SetVisibility(ESlateVisibility::Collapsed);
+		ChatMessageTexts.Add(MessageText);
+		AddStackChild(ChatMessageStack, MessageText, 2.0f);
+	}
+	RefreshChatMessages();
 
 	AddStackChild(LeftStack, StatusPanel, 10.0f);
 	AddStackChild(LeftStack, TargetPanel, 10.0f);
@@ -304,6 +352,17 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			LootSlot->SetAlignment(FVector2D(0.5f, 0.0f));
 			LootSlot->SetPosition(FVector2D(0.0f, 24.0f));
 			LootSlot->SetSize(FVector2D(420.0f, 52.0f));
+		}
+	}
+
+	if (ChatPanel)
+	{
+		if (UCanvasPanelSlot* ChatSlot = RootCanvas->AddChildToCanvas(ChatPanel))
+		{
+			ChatSlot->SetAnchors(FAnchors(0.0f, 1.0f, 0.0f, 1.0f));
+			ChatSlot->SetAlignment(FVector2D(0.0f, 1.0f));
+			ChatSlot->SetPosition(FVector2D(24.0f, -112.0f));
+			ChatSlot->SetSize(FVector2D(520.0f, 156.0f));
 		}
 	}
 
@@ -521,6 +580,35 @@ void UEmbermerePlayerHudWidget::UpdateInventoryPanelVisibility()
 	}
 }
 
+void UEmbermerePlayerHudWidget::RefreshChatMessages()
+{
+	if (ChatPanel)
+	{
+		ChatPanel->SetVisibility(ChatMessages.Num() > 0 ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+	}
+
+	for (int32 MessageIndex = 0; MessageIndex < ChatMessageTexts.Num(); ++MessageIndex)
+	{
+		UTextBlock* MessageText = ChatMessageTexts[MessageIndex];
+		if (!MessageText)
+		{
+			continue;
+		}
+
+		if (!ChatMessages.IsValidIndex(MessageIndex))
+		{
+			MessageText->SetText(FText::GetEmpty());
+			MessageText->SetVisibility(ESlateVisibility::Collapsed);
+			continue;
+		}
+
+		const TPair<FText, FLinearColor>& Message = ChatMessages[MessageIndex];
+		MessageText->SetText(Message.Key);
+		MessageText->SetColorAndOpacity(FSlateColor(Message.Value));
+		MessageText->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
+}
+
 void UEmbermerePlayerHudWidget::ShowLootPopup_Implementation(const FText& LootText)
 {
 	if (!LootPanel || !LootTextBlock)
@@ -567,4 +655,7 @@ void UEmbermerePlayerHudWidget::HandleItemAdded(UEmbermereItemData* Item, int32 
 	}
 
 	ShowLootPopup(FText::FromString(FString::Printf(TEXT("Received: %s x%d"), *Item->DisplayName.ToString(), Quantity)));
+	AddChatMessage(
+		FText::FromString(FString::Printf(TEXT("Received: %s x%d"), *Item->DisplayName.ToString(), Quantity)),
+		FLinearColor(0.58f, 1.0f, 0.62f, 1.0f));
 }

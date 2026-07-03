@@ -33,9 +33,10 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 13. Press `Tab` to target a nearby hostile.
 14. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP bar, gold segmented ground ring, and the HUD target panel range state.
 15. Press `1` to use the first starter ability.
-16. Expect nearby enemies to chase and melee you when you enter their aggro radius.
-17. Defeat three starter enemies.
-18. Return to Mara and press `F` to complete the quest.
+16. Confirm combat, target, quest, XP, inventory, mouse, and death/recovery messages appear in the bottom-left chat/combat log rather than overlapping the player status panel.
+17. Expect nearby enemies to chase and melee you when you enter their aggro radius.
+18. Defeat three starter enemies.
+19. Return to Mara and press `F` to complete the quest.
 
 ## Expected Temporary Feedback
 
@@ -44,15 +45,15 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Interacting with Mara shows a temporary bottom-screen dialogue panel.
 - Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
-- `Ctrl+M` toggles mouse Y inversion and shows a temporary message.
-- Accepting the quest shows an on-screen quest accepted message.
+- `Ctrl+M` toggles mouse Y inversion and posts a bottom-left chat/combat log message.
+- Accepting the quest posts a bottom-left quest accepted message.
 - Tab targeting shows the selected target name, HP, first-ability range state, a temporary screen-space UMG nameplate, HP-aware accent/health bar coloring, and a gold segmented mesh ground ring.
-- Ability use shows an on-screen hit message.
-- Enemies show red on-screen hit messages when they melee the player.
-- If the player dies, autorun turns off, a temporary death message appears, and the player respawns after a short delay.
+- Ability use posts a bottom-left hit message.
+- Enemies show red bottom-left combat log messages when they melee the player.
+- If the player dies, autorun turns off, a bottom-left death message appears, and the player respawns after a short delay.
 - Defeating starter enemies advances `StarterEnemyDefeated`.
 - Defeated enemies hide and respawn after a short prototype delay.
-- Completing the quest shows on-screen completion, XP, a temporary loot/reward popup, and the reward item in the inventory panel.
+- Completing the quest shows bottom-left completion/XP messages, a temporary loot/reward popup, and the reward item in the inventory panel.
 
 ## Known Prototype Gaps
 

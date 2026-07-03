@@ -272,6 +272,23 @@ Asset pass note:
 - Direct unauthenticated Fab search/API calls from terminal automation hit Cloudflare security checks.
 - The first real asset import should use the signed-in Unreal Fab window or Epic Games Launcher, then Codex can inspect and integrate the imported content.
 
+## 2026-07-03 - Bottom-Left Chat And Combat Log
+
+We moved gameplay feedback away from Unreal's top-left debug overlay so it no longer collides with the player status panel.
+
+HUD pass:
+
+- Added a native bottom-left chat/combat log panel to `UEmbermerePlayerHudWidget`.
+- The log keeps the seven most recent lines visible near the lower-left of the screen, above the hotbar.
+- Routed target, combat, quest, XP, inventory reward, dialogue, mouse inversion, death, recovery, enemy defeat, and enemy respawn messages through the HUD log.
+- Kept the engine debug overlay only as a fallback if the HUD is unavailable.
+
+Verification:
+
+- Built successfully after the HUD message routing.
+- Ran clean headless automation for the full Embermere suite: 6 passed, 0 failed, 0 warnings.
+- Live MCP automation in the already-open editor still saw stale hot-reloaded registrations and only listed the older four-test set, so the next manual PIE check should restart Unreal before judging the new chat log visually.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

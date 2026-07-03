@@ -1,5 +1,6 @@
 #include "Components/EmbermereStatsComponent.h"
 #include "Engine/Engine.h"
+#include "UI/EmbermereGameplayMessageLibrary.h"
 
 UEmbermereStatsComponent::UEmbermereStatsComponent()
 {
@@ -89,14 +90,10 @@ void UEmbermereStatsComponent::AddExperience(int32 ExperienceAmount)
 
 	CurrentExperience += ExperienceAmount;
 	OnExperienceChanged.Broadcast(CurrentExperience);
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			4.0f,
-			FColor::Yellow,
-			FString::Printf(TEXT("Gained %d XP (Total: %d)"), ExperienceAmount, CurrentExperience));
-	}
+	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+		this,
+		FText::FromString(FString::Printf(TEXT("Gained %d XP (Total: %d)"), ExperienceAmount, CurrentExperience)),
+		FLinearColor(1.0f, 0.86f, 0.22f, 1.0f));
 }
 
 bool UEmbermereStatsComponent::IsDead() const

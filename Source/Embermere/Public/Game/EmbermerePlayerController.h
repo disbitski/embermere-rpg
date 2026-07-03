@@ -34,6 +34,7 @@ public:
 	TSubclassOf<UEmbermerePlayerHudWidget> PlayerHudWidgetClass;
 
 	void NotifyManualMoveForwardInput(float Value);
+	void AddHudMessage(const FText& Message, FLinearColor MessageColor) const;
 
 	virtual void PlayerTick(float DeltaTime) override;
 

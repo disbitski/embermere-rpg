@@ -166,6 +166,33 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereHudChatLogTest,
+	"Embermere.UI.ChatLog",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereHudChatLogTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* HudWidget = NewObject<UEmbermerePlayerHudWidget>();
+	TestNotNull(TEXT("HUD widget can be created"), HudWidget);
+	if (!HudWidget)
+	{
+		return false;
+	}
+
+	TestEqual(TEXT("Chat log starts empty"), HudWidget->GetChatMessageCount(), 0);
+	HudWidget->AddChatMessage(FText::FromString(TEXT("Marsh Prowler hits you for 4")), FLinearColor::Red);
+	TestEqual(TEXT("Chat log stores a posted combat line"), HudWidget->GetChatMessageCount(), 1);
+
+	for (int32 Index = 0; Index < 10; ++Index)
+	{
+		HudWidget->AddChatMessage(FText::FromString(FString::Printf(TEXT("Message %d"), Index)), FLinearColor::White);
+	}
+	TestEqual(TEXT("Chat log keeps the most recent seven messages"), HudWidget->GetChatMessageCount(), 7);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereQuestRewardTest,
 	"Embermere.Quests.CompletionRewards",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
