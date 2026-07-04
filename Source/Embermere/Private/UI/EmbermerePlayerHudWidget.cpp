@@ -21,6 +21,9 @@
 
 namespace
 {
+	constexpr int32 ChatMessageLimit = 6;
+	constexpr float ChatMessageWrapTextAt = 492.0f;
+
 	UTextBlock* MakeHudText(UWidgetTree* WidgetTree, const FName Name, const FLinearColor Color, const float FontSize)
 	{
 		UTextBlock* TextBlock = WidgetTree ? WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), Name) : nullptr;
@@ -165,9 +168,8 @@ void UEmbermerePlayerHudWidget::AddChatMessage(const FText& Message, FLinearColo
 		return;
 	}
 
-	static constexpr int32 MaxChatMessages = 7;
 	ChatMessages.Add(TPair<FText, FLinearColor>(Message, MessageColor));
-	while (ChatMessages.Num() > MaxChatMessages)
+	while (ChatMessages.Num() > ChatMessageLimit)
 	{
 		ChatMessages.RemoveAt(0);
 	}
@@ -177,6 +179,11 @@ void UEmbermerePlayerHudWidget::AddChatMessage(const FText& Message, FLinearColo
 int32 UEmbermerePlayerHudWidget::GetChatMessageCount() const
 {
 	return ChatMessages.Num();
+}
+
+int32 UEmbermerePlayerHudWidget::GetChatMessageLimit() const
+{
+	return ChatMessageLimit;
 }
 
 void UEmbermerePlayerHudWidget::BuildDefaultLayout()
@@ -238,10 +245,15 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	if (ChatPanel)
 	{
 		ChatPanel->SetPadding(FMargin(10.0f, 8.0f));
+		ChatPanel->SetClipping(EWidgetClipping::ClipToBoundsAlways);
 		ChatPanel->SetVisibility(ESlateVisibility::Collapsed);
 	}
+	if (ChatMessageStack)
+	{
+		ChatMessageStack->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+	}
 	ChatMessageTexts.Reset();
-	for (int32 MessageIndex = 0; MessageIndex < 7; ++MessageIndex)
+	for (int32 MessageIndex = 0; MessageIndex < ChatMessageLimit; ++MessageIndex)
 	{
 		UTextBlock* MessageText = MakeHudText(
 			WidgetTree,
@@ -254,6 +266,8 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		}
 
 		MessageText->SetAutoWrapText(true);
+		MessageText->SetWrapTextAt(ChatMessageWrapTextAt);
+		MessageText->SetClipping(EWidgetClipping::ClipToBounds);
 		MessageText->SetVisibility(ESlateVisibility::Collapsed);
 		ChatMessageTexts.Add(MessageText);
 		AddStackChild(ChatMessageStack, MessageText, 2.0f);

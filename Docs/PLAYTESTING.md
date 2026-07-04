@@ -33,7 +33,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 13. Press `Tab` to target a nearby hostile.
 14. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP bar, gold segmented ground ring, and the HUD target panel range state.
 15. Press `1` to use the first starter ability.
-16. Confirm combat, target, quest, XP, inventory, mouse, and death/recovery messages appear in the bottom-left chat/combat log rather than overlapping the player status panel.
+16. Confirm combat, target, quest, XP, inventory, mouse, and death/recovery messages appear clipped inside the bottom-left chat/combat log rather than overlapping the player status panel or spilling beyond the chat panel border.
 17. Expect nearby enemies to chase and melee you when you enter their aggro radius.
 18. Defeat three starter enemies.
 19. Return to Mara and press `F` to complete the quest.
@@ -48,8 +48,8 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - `Ctrl+M` toggles mouse Y inversion and posts a bottom-left chat/combat log message.
 - Accepting the quest posts a bottom-left quest accepted message.
 - Tab targeting shows the selected target name, HP, first-ability range state, a temporary screen-space UMG nameplate, HP-aware accent/health bar coloring, and a gold segmented mesh ground ring.
-- Ability use posts a bottom-left hit message.
-- Enemies show red bottom-left combat log messages when they melee the player.
+- Ability use posts a bottom-left hit message clipped inside the shaded chat panel.
+- Enemies show red bottom-left combat log messages clipped inside the shaded chat panel when they melee the player.
 - If the player dies, autorun turns off, a bottom-left death message appears, and the player respawns after a short delay.
 - Defeating starter enemies advances `StarterEnemyDefeated`.
 - Defeated enemies hide and respawn after a short prototype delay.
@@ -62,5 +62,6 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Player respawn is a simple prototype reset to the spawn point.
 - Inventory presentation is a minimal HUD panel with first-item inspection, not a full inventory screen yet.
 - Nameplates now use a first native UMG widget component, but selected-target world highlighting still needs dedicated decal/material art.
+- The bottom-left chat/combat log is clipped inside its shaded panel, but the height, line count, and final styling still need a proper fantasy UI pass.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.
 - Art is still greybox until Fab/Marketplace assets are imported.

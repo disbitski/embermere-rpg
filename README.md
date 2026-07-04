@@ -50,6 +50,7 @@ The repo currently contains the C++ gameplay scaffold for:
 - player/enemy character classes
 - UMG base classes for character creation and HUD widgets
 - native first-pass HUD panels for status, target, range state, quest tracking, dialogue, loot, and hotbar labels
+- bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback
 - native inventory HUD panel with empty, reward-item stack, item-detail, and `I` show/hide states
 - selected enemy UMG nameplate widget, HP bar/readout, and segmented mesh target ring
 - Unreal MCP setup notes and a local setup validator
@@ -120,6 +121,6 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 ## Status
 
-Early playable Unreal prototype scaffold with MCP connected, a greybox starter-zone loop, tab-target combat, native HUD panels, first quest reward flow, inventory readout/toggle/detail text, and first native selected-target nameplate/ring feedback.
+Early playable Unreal prototype scaffold with MCP connected, a greybox starter-zone loop, tab-target combat, native HUD panels, bottom-left chat/combat feedback, first quest reward flow, inventory readout/toggle/detail text, and first native selected-target nameplate/ring feedback.
 
 Next milestone: begin the first Fab art replacement pass and continue upgrading temporary target/inventory presentation into real fantasy UI treatment.

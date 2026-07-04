@@ -289,6 +289,28 @@ Verification:
 - Ran clean headless automation for the full Embermere suite: 6 passed, 0 failed, 0 warnings.
 - Live MCP automation in the already-open editor still saw stale hot-reloaded registrations and only listed the older four-test set, so the next manual PIE check should restart Unreal before judging the new chat log visually.
 
+## 2026-07-04 - Chat Log Clipping
+
+We tightened the first-pass chat/combat log after playtesting showed text could spill below the shaded panel border.
+
+HUD pass:
+
+- Added explicit clipping to the chat panel, message stack, and individual chat text rows.
+- Reduced visible chat history to the configured message limit.
+- Set a fixed wrap width for chat rows so long combat lines wrap inside the shaded panel.
+- Kept the panel intentionally WIP; final height, line count, and fantasy styling still belong to a later UI art pass.
+
+Verification:
+
+- Built successfully after the clipping change.
+- Ran clean headless automation for the full Embermere suite: 6 passed, 0 failed, 0 warnings.
+- MCP was reachable, but because this was a fresh C++ build, visual PIE verification should happen after restarting Unreal.
+
+Asset pass note:
+
+- No local `/Game/ThirdParty/Fab` import was present during this run, so there was nothing for Codex to integrate yet.
+- The next asset step remains a signed-in Fab/Epic Launcher import of one small stylized environment or village pack.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

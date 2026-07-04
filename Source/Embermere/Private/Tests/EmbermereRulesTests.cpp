@@ -187,7 +187,7 @@ bool FEmbermereHudChatLogTest::RunTest(const FString& Parameters)
 	{
 		HudWidget->AddChatMessage(FText::FromString(FString::Printf(TEXT("Message %d"), Index)), FLinearColor::White);
 	}
-	TestEqual(TEXT("Chat log keeps the most recent seven messages"), HudWidget->GetChatMessageCount(), 7);
+	TestEqual(TEXT("Chat log keeps the configured number of recent messages"), HudWidget->GetChatMessageCount(), HudWidget->GetChatMessageLimit());
 
 	return true;
 }

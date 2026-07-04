@@ -59,6 +59,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	int32 GetChatMessageCount() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	int32 GetChatMessageLimit() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool ToggleInventoryPanel();
 

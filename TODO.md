@@ -4,7 +4,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
 
 ## Start Here
 
-- Restart Unreal before manual PIE if the editor has been open since the 2026-07-03 C++ build. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI checks after C++ HUD work.
+- Restart Unreal before manual PIE if the editor has been open since the 2026-07-04 C++ build. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI checks after C++ HUD work.
 - Run these automation tests:
   - `Embermere.Combat.TargetSelectionPresentation`
   - `Embermere.Quests.CompletionRewards`
@@ -21,7 +21,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - inventory panel starts as `Empty` and shows the `I` toggle hint;
   - pressing `I` hides/shows the inventory panel;
   - quest completion/reward shows the loot popup and the inventory panel lists the reward item;
-  - combat, target, quest, XP, inventory, mouse, and death/recovery messages appear in the bottom-left chat/combat log instead of overlapping the top-left player status panel.
+  - combat, target, quest, XP, inventory, mouse, and death/recovery messages appear clipped inside the bottom-left chat/combat log instead of overlapping the top-left player status panel or spilling beyond the chat panel border.
 - Manually verify selected-target world readability in PIE:
   - `Tab` shows the selected enemy's UMG nameplate, selected marker, HP text, HP bar, and gold segmented mesh target ring;
   - the nameplate accent/HP bar changes toward red/orange as enemy HP falls;
@@ -70,6 +70,9 @@ The prototype foundation is alive, but it is still early. The biggest presentati
   - verify the richer item details for reward inspection in PIE;
   - add selected item cycling once inventory has multiple reward stacks;
   - cleaner empty/reward states.
+- Clean up WIP HUD layout issues:
+  - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
+  - continue tuning chat panel height/line count against the hotbar and common desktop viewport sizes.
 - Start the first asset import pass from [Docs/FAB_ASSET_PLAN.md](Docs/FAB_ASSET_PLAN.md), beginning with a free stylized environment or village pack through the signed-in Unreal Fab window.
 - Tune starter enemy aggro, movement speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Tune player respawn and recovery rules after in-editor playtesting.
@@ -92,6 +95,10 @@ The prototype foundation is alive, but it is still early. The biggest presentati
 - 2026-07-03: moved gameplay feedback out of Unreal's top-left debug overlay and into a native bottom-left chat/combat log.
 - Routed player, target, combat, quest, XP, inventory reward, dialogue, enemy attack, death, and respawn messages through the HUD log.
 - Added `Embermere.UI.ChatLog`; headless automation now runs 6 tests, all passing with 0 warnings.
+- 2026-07-04: tightened the bottom-left chat/combat log so its text is clipped inside the shaded panel.
+- Reduced visible chat history to the configured message limit, set a fixed wrap width, and added explicit widget clipping to the panel, stack, and text rows.
+- Built successfully and ran clean headless automation: 6 passed, 0 failed, 0 warnings.
+- No local `/Game/ThirdParty/Fab` import was present yet, so the first asset pass still needs the signed-in Unreal Fab/Epic Launcher import step before Codex can wire assets into the level.
 
 ## Asset Hunt
 
