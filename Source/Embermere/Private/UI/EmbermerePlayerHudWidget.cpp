@@ -161,6 +161,25 @@ bool UEmbermerePlayerHudWidget::IsInventoryPanelVisible() const
 	return bInventoryPanelVisible;
 }
 
+bool UEmbermerePlayerHudWidget::SelectNextInventoryItem(int32 Direction)
+{
+	if (!Inventory || Inventory->Stacks.Num() <= 1 || Direction == 0)
+	{
+		return false;
+	}
+
+	const int32 StackCount = Inventory->Stacks.Num();
+	const int32 Step = Direction > 0 ? 1 : -1;
+	SelectedInventoryStackIndex = (SelectedInventoryStackIndex + Step + StackCount) % StackCount;
+	RefreshHudText();
+	return true;
+}
+
+int32 UEmbermerePlayerHudWidget::GetSelectedInventoryStackIndex() const
+{
+	return SelectedInventoryStackIndex;
+}
+
 void UEmbermerePlayerHudWidget::AddChatMessage(const FText& Message, FLinearColor MessageColor)
 {
 	if (Message.IsEmpty())
@@ -520,42 +539,57 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 
 	if (InventoryText)
 	{
-		FString InventoryLine = TEXT("Inventory (I)\nEmpty");
+		ClampSelectedInventoryStackIndex();
+		FString InventoryLine = TEXT("Inventory (I)  [ ]\nEmpty");
 		if (Inventory && Inventory->Stacks.Num() > 0)
 		{
-			InventoryLine = TEXT("Inventory (I)");
-			const int32 MaxDisplayedStacks = FMath::Min(Inventory->Stacks.Num(), 4);
-			const FEmbermereInventoryStack* FirstDisplayedStack = nullptr;
-			for (int32 StackIndex = 0; StackIndex < MaxDisplayedStacks; ++StackIndex)
+			const int32 StackCount = Inventory->Stacks.Num();
+			const int32 MaxDisplayedStacks = FMath::Min(StackCount, 4);
+			int32 FirstDisplayedIndex = FMath::Clamp(
+				SelectedInventoryStackIndex - MaxDisplayedStacks + 1,
+				0,
+				FMath::Max(0, StackCount - MaxDisplayedStacks));
+			const int32 LastDisplayedIndex = FMath::Min(StackCount, FirstDisplayedIndex + MaxDisplayedStacks);
+			InventoryLine = FString::Printf(
+				TEXT("Inventory (I)  [ ]\nInspecting %d/%d"),
+				SelectedInventoryStackIndex + 1,
+				StackCount);
+
+			if (FirstDisplayedIndex > 0)
+			{
+				InventoryLine += TEXT("\n...");
+			}
+			for (int32 StackIndex = FirstDisplayedIndex; StackIndex < LastDisplayedIndex; ++StackIndex)
 			{
 				const FEmbermereInventoryStack& Stack = Inventory->Stacks[StackIndex];
 				if (Stack.Item && Stack.Quantity > 0)
 				{
-					if (!FirstDisplayedStack)
-					{
-						FirstDisplayedStack = &Stack;
-					}
 					InventoryLine += FString::Printf(
-						TEXT("\n%s x%d"),
+						TEXT("\n%s %s x%d"),
+						StackIndex == SelectedInventoryStackIndex ? TEXT(">") : TEXT(" "),
 						*Stack.Item->DisplayName.ToString(),
 						Stack.Quantity);
 				}
 			}
-			if (Inventory->Stacks.Num() > MaxDisplayedStacks)
+			if (LastDisplayedIndex < StackCount)
 			{
-				InventoryLine += FString::Printf(TEXT("\n+%d more"), Inventory->Stacks.Num() - MaxDisplayedStacks);
+				InventoryLine += FString::Printf(TEXT("\n+%d more"), StackCount - LastDisplayedIndex);
 			}
-			if (FirstDisplayedStack && FirstDisplayedStack->Item)
+			if (Inventory->Stacks.IsValidIndex(SelectedInventoryStackIndex))
 			{
-				const UEmbermereItemData* Item = FirstDisplayedStack->Item;
-				InventoryLine += FString::Printf(
-					TEXT("\n\nInspecting: %s\nStack: %d / %d"),
-					*Item->DisplayName.ToString(),
-					FirstDisplayedStack->Quantity,
-					Item->MaxStack);
-				if (!Item->Description.IsEmpty())
+				const FEmbermereInventoryStack& SelectedStack = Inventory->Stacks[SelectedInventoryStackIndex];
+				if (SelectedStack.Item)
 				{
-					InventoryLine += FString::Printf(TEXT("\n%s"), *Item->Description.ToString());
+					const UEmbermereItemData* Item = SelectedStack.Item;
+					InventoryLine += FString::Printf(
+						TEXT("\n\n%s\nStack: %d / %d"),
+						*Item->DisplayName.ToString(),
+						SelectedStack.Quantity,
+						Item->MaxStack);
+					if (!Item->Description.IsEmpty())
+					{
+						InventoryLine += FString::Printf(TEXT("\n%s"), *Item->Description.ToString());
+					}
 				}
 			}
 		}
@@ -592,6 +626,17 @@ void UEmbermerePlayerHudWidget::UpdateInventoryPanelVisibility()
 	{
 		InventoryPanel->SetVisibility(bInventoryPanelVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 	}
+}
+
+void UEmbermerePlayerHudWidget::ClampSelectedInventoryStackIndex()
+{
+	if (!Inventory || Inventory->Stacks.Num() <= 0)
+	{
+		SelectedInventoryStackIndex = 0;
+		return;
+	}
+
+	SelectedInventoryStackIndex = FMath::Clamp(SelectedInventoryStackIndex, 0, Inventory->Stacks.Num() - 1);
 }
 
 void UEmbermerePlayerHudWidget::RefreshChatMessages()

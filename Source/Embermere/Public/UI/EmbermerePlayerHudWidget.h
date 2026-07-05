@@ -68,6 +68,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	bool IsInventoryPanelVisible() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
+	bool SelectNextInventoryItem(int32 Direction);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	int32 GetSelectedInventoryStackIndex() const;
+
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void NativeConstruct() override;
@@ -137,6 +143,7 @@ private:
 	float DialogueHideTimeSeconds = 0.0f;
 	float LootHideTimeSeconds = 0.0f;
 	bool bInventoryPanelVisible = true;
+	int32 SelectedInventoryStackIndex = 0;
 	TArray<TPair<FText, FLinearColor>> ChatMessages;
 
 	void BuildDefaultLayout();
@@ -144,6 +151,7 @@ private:
 	void BindComponentEvents();
 	void UpdateInventoryPanelVisibility();
 	void RefreshChatMessages();
+	void ClampSelectedInventoryStackIndex();
 
 	UFUNCTION()
 	void HandleItemAdded(class UEmbermereItemData* Item, int32 Quantity);

@@ -86,6 +86,14 @@ void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 	{
 		ToggleInventoryPanel();
 	}
+	if (WasInputKeyJustPressed(EKeys::LeftBracket))
+	{
+		SelectPreviousInventoryItem();
+	}
+	if (WasInputKeyJustPressed(EKeys::RightBracket))
+	{
+		SelectNextInventoryItem();
+	}
 
 	if (AEmbermereCharacter* Character = GetEmbermereCharacter())
 	{
@@ -189,6 +197,22 @@ void AEmbermerePlayerController::ToggleInventoryPanel()
 	AddHudMessage(
 		FText::FromString(bNowVisible ? TEXT("Inventory shown") : TEXT("Inventory hidden")),
 		FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
+}
+
+void AEmbermerePlayerController::SelectPreviousInventoryItem()
+{
+	if (PlayerHudWidget && PlayerHudWidget->SelectNextInventoryItem(-1))
+	{
+		AddHudMessage(FText::FromString(TEXT("Inventory inspect previous")), FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
+	}
+}
+
+void AEmbermerePlayerController::SelectNextInventoryItem()
+{
+	if (PlayerHudWidget && PlayerHudWidget->SelectNextInventoryItem(1))
+	{
+		AddHudMessage(FText::FromString(TEXT("Inventory inspect next")), FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
+	}
 }
 
 void AEmbermerePlayerController::CycleTarget()

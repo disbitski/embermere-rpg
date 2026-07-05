@@ -311,6 +311,23 @@ Asset pass note:
 - No local `/Game/ThirdParty/Fab` import was present during this run, so there was nothing for Codex to integrate yet.
 - The next asset step remains a signed-in Fab/Epic Launcher import of one small stylized environment or village pack.
 
+## 2026-07-05 - Inventory Inspection Cycling
+
+We made the top-right inventory panel more useful before the full inventory screen exists.
+
+Inventory pass:
+
+- Added bracket-key inspection cycling with `[` and `]`.
+- The inventory panel now shows `Inspecting X/Y` and marks the selected stack with `>`.
+- Selection wraps forward and backward across multiple stacks.
+- The panel still stays compact and programmer-art, but it now supports more than a single reward item.
+
+Verification:
+
+- Built successfully after the inventory cycling change.
+- Expanded `Embermere.UI.InventoryToggle` to cover selection advance and wraparound.
+- Ran clean headless automation for the full Embermere suite: 6 passed, 0 failed, 0 warnings.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

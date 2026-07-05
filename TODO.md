@@ -4,7 +4,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
 
 ## Start Here
 
-- Restart Unreal before manual PIE if the editor has been open since the 2026-07-04 C++ build. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI checks after C++ HUD work.
+- Restart Unreal before manual PIE if the editor has been open since the 2026-07-05 C++ build. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI checks after C++ HUD/inventory work.
 - Run these automation tests:
   - `Embermere.Combat.TargetSelectionPresentation`
   - `Embermere.Quests.CompletionRewards`
@@ -20,6 +20,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - Mara interaction shows the dialogue panel;
   - inventory panel starts as `Empty` and shows the `I` toggle hint;
   - pressing `I` hides/shows the inventory panel;
+  - pressing `[` and `]` cycles the inspected inventory stack after multiple stacks exist;
   - quest completion/reward shows the loot popup and the inventory panel lists the reward item;
   - combat, target, quest, XP, inventory, mouse, and death/recovery messages appear clipped inside the bottom-left chat/combat log instead of overlapping the top-left player status panel or spilling beyond the chat panel border.
 - Manually verify selected-target world readability in PIE:
@@ -52,7 +53,7 @@ Embermere has a working greybox starter slice:
 - bottom-left chat/combat log feedback for targeting, combat, death, respawn, quest progress, XP, inventory, and rewards;
 - temporary in-world interactable markers, including a gold quest marker for Mara;
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
-- first-pass inventory HUD panel showing empty state, reward item stacks, richer first-item inspection text, and `I` show/hide toggle;
+- first-pass inventory HUD panel showing empty state, reward item stacks, richer item inspection text, `[`/`]` inspection cycling, and `I` show/hide toggle;
 - first-pass selected-target UMG nameplate widget plus a gold segmented mesh target ring;
 - automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, enemy nameplate widget, chat log, and inventory toggle.
 
@@ -68,7 +69,7 @@ The prototype foundation is alive, but it is still early. The biggest presentati
   - tune screen-space widget size/height against camera distance.
 - Improve inventory presentation:
   - verify the richer item details for reward inspection in PIE;
-  - add selected item cycling once inventory has multiple reward stacks;
+  - manually verify bracket-key item cycling once inventory has multiple reward stacks;
   - cleaner empty/reward states.
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
@@ -99,6 +100,10 @@ The prototype foundation is alive, but it is still early. The biggest presentati
 - Reduced visible chat history to the configured message limit, set a fixed wrap width, and added explicit widget clipping to the panel, stack, and text rows.
 - Built successfully and ran clean headless automation: 6 passed, 0 failed, 0 warnings.
 - No local `/Game/ThirdParty/Fab` import was present yet, so the first asset pass still needs the signed-in Unreal Fab/Epic Launcher import step before Codex can wire assets into the level.
+- 2026-07-05: added bracket-key inventory inspection cycling for multi-stack inventories.
+- The top-right inventory panel now marks the selected stack, shows `Inspecting X/Y`, and uses `[`/`]` to wrap between stacks.
+- Expanded `Embermere.UI.InventoryToggle` coverage to verify inventory selection advances and wraps in both directions.
+- Built successfully and ran clean headless automation: 6 passed, 0 failed, 0 warnings.
 
 ## Asset Hunt
 

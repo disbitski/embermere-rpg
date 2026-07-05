@@ -56,6 +56,8 @@ protected:
 	void ToggleAutorun();
 	void ToggleInvertMouseY();
 	void ToggleInventoryPanel();
+	void SelectPreviousInventoryItem();
+	void SelectNextInventoryItem();
 	void CycleTarget();
 	void Turn(float Value);
 	void LookUp(float Value);

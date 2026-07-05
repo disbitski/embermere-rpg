@@ -27,21 +27,22 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 7. Press `Q` to toggle autorun.
 8. Press `W` or `S` while autorunning to stop autorun.
 9. Press `I` to hide/show the inventory panel.
-10. Walk near Mara Ashwick in the village and press `F`.
-11. Watch for the temporary quest/dialogue message.
-12. Move toward the ruin and enemy pocket.
-13. Press `Tab` to target a nearby hostile.
-14. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP bar, gold segmented ground ring, and the HUD target panel range state.
-15. Press `1` to use the first starter ability.
-16. Confirm combat, target, quest, XP, inventory, mouse, and death/recovery messages appear clipped inside the bottom-left chat/combat log rather than overlapping the player status panel or spilling beyond the chat panel border.
-17. Expect nearby enemies to chase and melee you when you enter their aggro radius.
-18. Defeat three starter enemies.
-19. Return to Mara and press `F` to complete the quest.
+10. Press `[` and `]` after inventory has multiple stacks to cycle the inspected item.
+11. Walk near Mara Ashwick in the village and press `F`.
+12. Watch for the temporary quest/dialogue message.
+13. Move toward the ruin and enemy pocket.
+14. Press `Tab` to target a nearby hostile.
+15. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP bar, gold segmented ground ring, and the HUD target panel range state.
+16. Press `1` to use the first starter ability.
+17. Confirm combat, target, quest, XP, inventory, mouse, and death/recovery messages appear clipped inside the bottom-left chat/combat log rather than overlapping the player status panel or spilling beyond the chat panel border.
+18. Expect nearby enemies to chase and melee you when you enter their aggro radius.
+19. Defeat three starter enemies.
+20. Return to Mara and press `F` to complete the quest.
 
 ## Expected Temporary Feedback
 
 - A styled first-pass HUD overlay shows player HP, mana, XP, current target, target HP, range state, quest progress, and all hotbar slots.
-- A first-pass inventory HUD panel appears in the top-right, starts as `Empty`, shows item detail text when an item is present, and toggles with `I`.
+- A first-pass inventory HUD panel appears in the top-right, starts as `Empty`, shows item detail text when an item is present, cycles inspected stacks with `[` and `]`, and toggles with `I`.
 - Interacting with Mara shows a temporary bottom-screen dialogue panel.
 - Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
@@ -60,7 +61,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - The UI has native first-pass HUD panels, but styling is still programmer-art and needs a proper fantasy skin.
 - Enemy movement and attacks are deliberately simple prototype behavior.
 - Player respawn is a simple prototype reset to the spawn point.
-- Inventory presentation is a minimal HUD panel with first-item inspection, not a full inventory screen yet.
+- Inventory presentation is a minimal HUD panel with bracket-key stack inspection, not a full inventory screen yet.
 - Nameplates now use a first native UMG widget component, but selected-target world highlighting still needs dedicated decal/material art.
 - The bottom-left chat/combat log is clipped inside its shaded panel, but the height, line count, and final styling still need a proper fantasy UI pass.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.

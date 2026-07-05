@@ -162,6 +162,34 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Second toggle shows inventory"), HudWidget->ToggleInventoryPanel());
 	TestTrue(TEXT("Inventory panel reports visible"), HudWidget->IsInventoryPanelVisible());
 
+	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	TestNotNull(TEXT("Inventory component can be created"), Inventory);
+	if (!Inventory)
+	{
+		return false;
+	}
+
+	UEmbermereItemData* FirstItem = NewObject<UEmbermereItemData>();
+	FirstItem->ItemId = "RecruitPack";
+	FirstItem->DisplayName = FText::FromString(TEXT("Recruit Pack"));
+	FirstItem->MaxStack = 5;
+
+	UEmbermereItemData* SecondItem = NewObject<UEmbermereItemData>();
+	SecondItem->ItemId = "MarshReed";
+	SecondItem->DisplayName = FText::FromString(TEXT("Marsh Reed"));
+	SecondItem->MaxStack = 10;
+
+	HudWidget->Inventory = Inventory;
+	TestTrue(TEXT("First inventory item can be added"), Inventory->AddItem(FirstItem, 1));
+	TestTrue(TEXT("Second inventory item can be added"), Inventory->AddItem(SecondItem, 1));
+	TestEqual(TEXT("Inventory selection starts at the first stack"), HudWidget->GetSelectedInventoryStackIndex(), 0);
+	TestTrue(TEXT("Inventory selection advances to the next stack"), HudWidget->SelectNextInventoryItem(1));
+	TestEqual(TEXT("Inventory selection reports second stack"), HudWidget->GetSelectedInventoryStackIndex(), 1);
+	TestTrue(TEXT("Inventory selection wraps forward"), HudWidget->SelectNextInventoryItem(1));
+	TestEqual(TEXT("Inventory selection wraps to first stack"), HudWidget->GetSelectedInventoryStackIndex(), 0);
+	TestTrue(TEXT("Inventory selection wraps backward"), HudWidget->SelectNextInventoryItem(-1));
+	TestEqual(TEXT("Inventory selection wraps to last stack"), HudWidget->GetSelectedInventoryStackIndex(), 1);
+
 	return true;
 }
 
