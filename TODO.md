@@ -4,7 +4,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
 
 ## Start Here
 
-- Restart Unreal before manual PIE if the editor has been open since the 2026-07-05 C++ build or the 2026-07-05 Fab/Epic environment placement pass. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI and map-art checks after C++ HUD/inventory work or large asset imports.
+- Restart Unreal before manual PIE if the editor has been open since the 2026-07-06 C++ build or the 2026-07-05 Fab/Epic environment placement pass. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI and map-art checks after C++ HUD/inventory/combat work or large asset imports.
 - Confirm the local Fab/Epic folders are present but ignored by Git:
   - `Content/KiteDemo/`
   - `Content/SoulCave/`
@@ -12,6 +12,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - `Content/Scifi_desert_city/`
 - Run these automation tests:
   - `Embermere.Combat.TargetSelectionPresentation`
+  - `Embermere.Combat.DeadCasterRejected`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
   - `Embermere.UI.ChatLog`
@@ -27,7 +28,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - pressing `I` hides/shows the inventory panel;
   - pressing `[` and `]` cycles the inspected inventory stack after multiple stacks exist;
   - quest completion/reward shows the loot popup and the inventory panel lists the reward item;
-  - combat, target, quest, XP, inventory, mouse, and death/recovery messages appear clipped inside the bottom-left chat/combat log instead of overlapping the top-left player status panel or spilling beyond the chat panel border.
+  - combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log instead of overlapping the top-left player status panel or spilling beyond the chat panel border.
 - Manually verify selected-target world readability in PIE:
   - `Tab` shows the selected enemy's UMG nameplate, selected marker, HP text, HP bar, and gold segmented mesh target ring;
   - the nameplate accent/HP bar changes toward red/orange as enemy HP falls;
@@ -37,6 +38,10 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - `W`/`S` should cancel autorun.
   - `Ctrl+M` should toggle mouse Y inversion and show a temporary message.
   - The fix now runs through the pawn/controller path known to receive live movement input, and the project builds successfully.
+- Manually verify hotbar cooldown feedback in PIE:
+  - Press `1` to use `Strike`.
+  - Press `1` again before cooldown expires and confirm the bottom-left chat/combat log shows a ready-time message.
+  - Confirm non-empty failed hotbar activations show an `Unable to use ...` message instead of silently failing.
 - Manually verify the new Mara marker in PIE:
   - Mara should show a temporary gold `!` and name marker above her.
 - Manually verify the first `FabPass_` environment layer in PIE:
@@ -66,8 +71,9 @@ Embermere has a working first-pass starter slice:
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
 - first-pass inventory HUD panel showing empty state, reward item stacks, richer item inspection text, `[`/`]` inspection cycling, and `I` show/hide toggle;
 - first-pass selected-target UMG nameplate widget plus a gold segmented mesh target ring;
+- first-pass hotbar cooldown enforcement and ready-time feedback;
 - first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
-- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, enemy nameplate widget, chat log, and inventory toggle.
+- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy nameplate widget, chat log, and inventory toggle.
 
 ## How Far We Have To Go
 
@@ -95,7 +101,7 @@ The prototype foundation is alive, but it is still early. The first local enviro
 - Replace placeholder sci-fi village shells with a better stylized fantasy village kit once a suitable UE-compatible pack is found.
 - Tune starter enemy aggro, movement speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Tune player respawn and recovery rules after in-editor playtesting.
-- Keep automation coverage growing around death/respawn, targeting, and hotbar behavior.
+- Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
 
 ## Last Completed
 
@@ -128,6 +134,11 @@ The prototype foundation is alive, but it is still early. The first local enviro
 - Saved `L_Embermere_Prototype` with 68 created `FabPass_` actors after removing the old visual-only greybox village, road, and ruin markers.
 - Built successfully, passed the headless FabPass map validator, and ran clean headless automation: 6 passed, 0 failed, 0 warnings.
 - Manual PIE verification is still needed after restarting Unreal because MCP dropped during the first heavy asset compile pass.
+- 2026-07-06: added hotbar cooldown enforcement and ready-time feedback.
+- Combat now rejects abilities from dead characters, and `Embermere.Combat.DeadCasterRejected` covers that death/recovery contract.
+- The bottom-left chat/combat log now uses clipped single-line rows to avoid wrapping below the shaded panel border.
+- Built successfully with `-NoHotReloadFromIDE` and ran clean headless automation: 7 passed, 0 failed, 0 warnings.
+- Captured the no-hot-reload build lesson in `Docs/UNREAL_LESSONS.md`; restart Unreal before manual PIE so the editor loads the relinked base module.
 
 ## Asset Hunt
 

@@ -34,10 +34,11 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 14. Press `Tab` to target a nearby hostile.
 15. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP bar, gold segmented ground ring, and the HUD target panel range state.
 16. Press `1` to use the first starter ability.
-17. Confirm combat, target, quest, XP, inventory, mouse, and death/recovery messages appear clipped inside the bottom-left chat/combat log rather than overlapping the player status panel or spilling beyond the chat panel border.
-18. Expect nearby enemies to chase and melee you when you enter their aggro radius.
-19. Defeat three starter enemies.
-20. Return to Mara and press `F` to complete the quest.
+17. Press `1` again before the cooldown finishes and confirm the bottom-left log reports the ability ready time.
+18. Confirm combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log rather than overlapping the player status panel or spilling beyond the chat panel border.
+19. Expect nearby enemies to chase and melee you when you enter their aggro radius.
+20. Defeat three starter enemies.
+21. Return to Mara and press `F` to complete the quest.
 
 ## Expected Temporary Feedback
 
@@ -50,6 +51,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Accepting the quest posts a bottom-left quest accepted message.
 - Tab targeting shows the selected target name, HP, first-ability range state, a temporary screen-space UMG nameplate, HP-aware accent/health bar coloring, and a gold segmented mesh ground ring.
 - Ability use posts a bottom-left hit message clipped inside the shaded chat panel.
+- Reusing an ability before its cooldown finishes posts a bottom-left ready-time message.
 - Enemies show red bottom-left combat log messages clipped inside the shaded chat panel when they melee the player.
 - If the player dies, autorun turns off, a bottom-left death message appears, and the player respawns after a short delay.
 - Defeating starter enemies advances `StarterEnemyDefeated`.
@@ -63,7 +65,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Player respawn is a simple prototype reset to the spawn point.
 - Inventory presentation is a minimal HUD panel with bracket-key stack inspection, not a full inventory screen yet.
 - Nameplates now use a first native UMG widget component, but selected-target world highlighting still needs dedicated decal/material art.
-- The bottom-left chat/combat log is clipped inside its shaded panel, but the height, line count, and final styling still need a proper fantasy UI pass.
+- The bottom-left chat/combat log is clipped inside its shaded panel and currently uses single-line rows; final chat history, scrolling, and fantasy styling still need a proper UI pass.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.
 - The first local Fab/Epic environment pass is in place, but collision, scale, route readability, and style cohesion still need manual PIE review.
 - Raw Fab/Epic asset folders are local-only and ignored by Git, so missing local imports will make the art layer show missing references.

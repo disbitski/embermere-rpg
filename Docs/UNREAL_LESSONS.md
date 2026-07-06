@@ -49,6 +49,30 @@ Embermere example:
 - after adding target ring components, the open editor could still execute a hot-reloaded actor registration path for the target test;
 - the next reliable validation should restart Unreal, rediscover tests, and run the current test set.
 
+## Commandlet Tests And Numbered Hot-Reload Libraries
+
+When Unreal Editor is open, command-line C++ builds can produce numbered hot-reload libraries such as `libUnrealEditor-Embermere-0029.dylib`. A separate `UnrealEditor-Cmd` automation run may still load the base module and execute stale automation test code.
+
+Symptoms:
+
+- source and a numbered hot-reload library include the latest test text;
+- commandlet automation reports old assertion messages from a prior version of the test;
+- rebuilding appears successful, but the report stays stale.
+
+Practical rule:
+
+- when running headless automation after C++ test changes, prefer a build with `-NoHotReloadFromIDE`;
+- this lets UnrealBuildTool clean numbered hot-reload libraries and relink the base `libUnrealEditor-Embermere.dylib`;
+- still restart the interactive editor before manual PIE after this kind of build, because the open editor may have been using one of the cleaned hot-reload libraries.
+
+Embermere example:
+
+```bash
+"/Users/Shared/Epic Games/UE_5.8/Engine/Build/BatchFiles/Mac/Build.sh" EmbermereEditor Mac Development -Project="/Users/wizard/Documents/Unreal Game/Embermere.uproject" -NoHotReloadFromIDE
+```
+
+After the no-hot-reload build, the new `Embermere.Combat.DeadCasterRejected` test ran from the current source and passed in commandlet automation.
+
 ## Xcode Metal Toolchain MobileAsset State
 
 On macOS, `xcodebuild -downloadComponent MetalToolchain` can successfully download and mount the Metal Toolchain while Xcode's default `metal` wrapper still reports it as missing.

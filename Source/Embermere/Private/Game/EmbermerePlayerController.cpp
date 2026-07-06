@@ -248,10 +248,31 @@ void AEmbermerePlayerController::ActivateHotbarSlot(int32 SlotIndex)
 	{
 		if (Character->Hotbar)
 		{
+			if (Character->Hotbar->Slots.IsValidIndex(SlotIndex) && !Character->Hotbar->Slots[SlotIndex].AbilityId.IsNone())
+			{
+				const float CooldownRemaining = Character->Hotbar->GetSlotCooldownRemaining(SlotIndex);
+				if (CooldownRemaining > 0.05f)
+				{
+					AddHudMessage(
+						FText::FromString(FString::Printf(
+							TEXT("%s ready in %.1fs"),
+							*Character->Hotbar->Slots[SlotIndex].DisplayName.ToString(),
+							CooldownRemaining)),
+						FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
+					return;
+				}
+			}
+
 			const bool bActivatedAbility = Character->Hotbar->ActivateSlot(SlotIndex);
 			if (!bActivatedAbility && SlotIndex == 9)
 			{
 				InteractWithNearestActor();
+			}
+			else if (!bActivatedAbility && Character->Hotbar->Slots.IsValidIndex(SlotIndex) && !Character->Hotbar->Slots[SlotIndex].AbilityId.IsNone())
+			{
+				AddHudMessage(
+					FText::FromString(FString::Printf(TEXT("Unable to use %s"), *Character->Hotbar->Slots[SlotIndex].DisplayName.ToString())),
+					FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
 			}
 		}
 	}

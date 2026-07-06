@@ -109,6 +109,43 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereCombatDeadCasterRejectedTest,
+	"Embermere.Combat.DeadCasterRejected",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereCombatDeadCasterRejectedTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	TestNotNull(TEXT("Character can be created"), Character);
+	if (!Character || !Character->Combat || !Character->Stats)
+	{
+		return false;
+	}
+
+	FEmbermereAbilityDefinition RecoveryFocus;
+	RecoveryFocus.AbilityId = "RecoveryFocus";
+	RecoveryFocus.DisplayName = FText::FromString(TEXT("Recovery Focus"));
+	RecoveryFocus.TargetKind = EEmbermereAbilityTargetKind::Self;
+	RecoveryFocus.Power = 1.0f;
+	RecoveryFocus.ManaCost = 5.0f;
+	RecoveryFocus.Cooldown = 1.0f;
+
+	Character->Stats->InitializeVitals();
+	const float ManaBeforeDeadCast = Character->Stats->CurrentMana;
+	Character->Stats->ApplyDamage(Character->Stats->MaxHealth);
+	TestTrue(TEXT("Character is dead before rejected cast"), Character->Stats->IsDead());
+	TestFalse(TEXT("Dead character cannot execute a self ability"), Character->Combat->ExecuteAbility(RecoveryFocus));
+	TestEqual(TEXT("Dead character does not spend mana"), Character->Stats->CurrentMana, ManaBeforeDeadCast);
+
+	Character->Stats->InitializeVitals();
+	TestFalse(TEXT("Character is alive after recovery"), Character->Stats->IsDead());
+	TestTrue(TEXT("Recovered character can execute a self ability"), Character->Combat->ExecuteAbility(RecoveryFocus));
+	TestEqual(TEXT("Recovered character spends mana"), Character->Stats->CurrentMana, Character->Stats->MaxMana - RecoveryFocus.ManaCost);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereEnemyNameplateWidgetTest,
 	"Embermere.UI.EnemyNameplateWidget",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

@@ -5,6 +5,7 @@ UEmbermereHotbarComponent::UEmbermereHotbarComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	Slots.SetNum(10);
+	SlotReadyTimeSeconds.SetNum(10);
 }
 
 void UEmbermereHotbarComponent::SetAbilityInSlot(int32 SlotIndex, const FEmbermereAbilityDefinition& Ability)
@@ -24,11 +25,49 @@ bool UEmbermereHotbarComponent::ActivateSlot(int32 SlotIndex)
 	{
 		return false;
 	}
-
-	if (UEmbermereCombatComponent* Combat = GetOwner()->FindComponentByClass<UEmbermereCombatComponent>())
+	if (GetSlotCooldownRemaining(SlotIndex) > 0.0f)
 	{
-		return Combat->ExecuteAbility(Slots[SlotIndex]);
+		return false;
+	}
+
+	AActor* Owner = GetOwner();
+	if (!Owner)
+	{
+		return false;
+	}
+
+	if (UEmbermereCombatComponent* Combat = Owner->FindComponentByClass<UEmbermereCombatComponent>())
+	{
+		const bool bActivated = Combat->ExecuteAbility(Slots[SlotIndex]);
+		if (bActivated)
+		{
+			if (!SlotReadyTimeSeconds.IsValidIndex(SlotIndex))
+			{
+				SlotReadyTimeSeconds.SetNum(Slots.Num());
+			}
+			if (const UWorld* World = GetWorld())
+			{
+				SlotReadyTimeSeconds[SlotIndex] = World->GetTimeSeconds() + FMath::Max(0.0f, Slots[SlotIndex].Cooldown);
+			}
+		}
+		return bActivated;
 	}
 
 	return false;
+}
+
+float UEmbermereHotbarComponent::GetSlotCooldownRemaining(int32 SlotIndex) const
+{
+	if (!SlotReadyTimeSeconds.IsValidIndex(SlotIndex))
+	{
+		return 0.0f;
+	}
+
+	const UWorld* World = GetWorld();
+	if (!World)
+	{
+		return 0.0f;
+	}
+
+	return FMath::Max(0.0f, static_cast<float>(SlotReadyTimeSeconds[SlotIndex] - World->GetTimeSeconds()));
 }

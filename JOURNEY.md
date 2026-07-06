@@ -356,6 +356,37 @@ Verification:
 - Built successfully and ran clean headless automation for the full Embermere suite: 6 passed, 0 failed, 0 warnings.
 - Manual PIE still needs a fresh editor restart and local asset load check before treating collision, scale, and style cohesion as final.
 
+## 2026-07-06 - Cooldowns, Death Safety, And Test Hygiene
+
+We tightened the core combat loop before doing more map-art polish.
+
+Combat pass:
+
+- Combat execution now rejects abilities from dead characters.
+- Hotbar slots now track ability cooldowns after successful activation.
+- Reusing a cooling-down hotbar ability posts a bottom-left ready-time message instead of silently doing nothing.
+- Failed non-empty hotbar activation now posts an `Unable to use ...` message, which should help early playtests distinguish cooldown, range, target, and mana issues.
+
+HUD pass:
+
+- The bottom-left chat/combat log now uses clipped single-line rows, so long combat lines should stay inside the shaded panel instead of wrapping below its border.
+
+Automation pass:
+
+- Added `Embermere.Combat.DeadCasterRejected` to cover the death/recovery combat contract.
+- The full headless Embermere suite now has 7 tests.
+
+Build lesson:
+
+- Commandlet automation was initially loading stale assertion text from an older hot-reload module while the editor was open.
+- Building with `-NoHotReloadFromIDE` cleaned numbered hot-reload dylibs and relinked the base module, after which the current tests ran correctly.
+
+Verification:
+
+- Built successfully with `-NoHotReloadFromIDE`.
+- Ran clean headless automation for the full Embermere suite: 7 passed, 0 failed, 0 warnings.
+- Manual PIE still needs a fresh editor restart before verifying the FabPass layer, cooldown message, chat row clipping, and live UI behavior.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

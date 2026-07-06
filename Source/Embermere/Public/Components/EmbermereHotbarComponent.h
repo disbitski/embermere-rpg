@@ -26,4 +26,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Hotbar")
 	bool ActivateSlot(int32 SlotIndex);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Hotbar")
+	float GetSlotCooldownRemaining(int32 SlotIndex) const;
+
+private:
+	UPROPERTY(Transient)
+	TArray<double> SlotReadyTimeSeconds;
 };

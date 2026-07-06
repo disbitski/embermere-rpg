@@ -22,7 +22,6 @@
 namespace
 {
 	constexpr int32 ChatMessageLimit = 6;
-	constexpr float ChatMessageWrapTextAt = 492.0f;
 
 	UTextBlock* MakeHudText(UWidgetTree* WidgetTree, const FName Name, const FLinearColor Color, const float FontSize)
 	{
@@ -284,8 +283,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			continue;
 		}
 
-		MessageText->SetAutoWrapText(true);
-		MessageText->SetWrapTextAt(ChatMessageWrapTextAt);
+		MessageText->SetAutoWrapText(false);
 		MessageText->SetClipping(EWidgetClipping::ClipToBounds);
 		MessageText->SetVisibility(ESlateVisibility::Collapsed);
 		ChatMessageTexts.Add(MessageText);

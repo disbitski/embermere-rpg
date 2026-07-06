@@ -61,6 +61,10 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 	{
 		return false;
 	}
+	if (OwnerStats->IsDead())
+	{
+		return false;
+	}
 
 	AActor* TargetActor = Ability.TargetKind == EEmbermereAbilityTargetKind::Self ? Owner : CurrentTarget.Get();
 	if (!TargetActor)
