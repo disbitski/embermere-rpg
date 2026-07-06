@@ -6,13 +6,13 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
-3. Confirm the map shows the greybox village, road markers, wilderness pocket, ruin, quest giver, and three starter enemies.
+3. Confirm the map shows the `FabPass_` village, dressed road, wilderness pocket, upgraded ruin, quest giver, and three starter enemies.
 
 ## Finding Mara
 
 Mara is the quest giver actor named `Quest_Giver_Mara_Fenwatch`.
 
-From the village spawn, move mostly straight ahead and slightly right toward the center of the circular village safe-area marker. In world coordinates, the player starts around `(-2400, -1200)` and Mara is nearby at `(-2050, -850)`, between the village blockout buildings.
+From the village spawn, move mostly straight ahead and slightly right toward the center of the starter village. In world coordinates, the player starts around `(-2400, -1200)` and Mara is nearby at `(-2050, -850)`, near the village props and stone backdrop.
 
 In Play In Editor, quest givers show a temporary gold `!` and name marker above them.
 
@@ -65,4 +65,5 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Nameplates now use a first native UMG widget component, but selected-target world highlighting still needs dedicated decal/material art.
 - The bottom-left chat/combat log is clipped inside its shaded panel, but the height, line count, and final styling still need a proper fantasy UI pass.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.
-- Art is still greybox until Fab/Marketplace assets are imported.
+- The first local Fab/Epic environment pass is in place, but collision, scale, route readability, and style cohesion still need manual PIE review.
+- Raw Fab/Epic asset folders are local-only and ignored by Git, so missing local imports will make the art layer show missing references.

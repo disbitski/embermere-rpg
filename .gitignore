@@ -4,3 +4,14 @@ Intermediate/
 Saved/
 .mcp.json
 .DS_Store
+__pycache__/
+Scripts/__pycache__/
+
+# Local Fab/Epic asset imports. Do not publish raw marketplace packs in the
+# public repository; keep docs listing the required local imports instead.
+Content/KiteDemo/
+Content/Lighting/
+Content/ParagonProps/
+Content/SampleMap/
+Content/Scifi_desert_city/
+Content/SoulCave/

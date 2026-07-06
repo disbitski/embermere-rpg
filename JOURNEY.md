@@ -328,6 +328,34 @@ Verification:
 - Expanded `Embermere.UI.InventoryToggle` to cover selection advance and wraparound.
 - Ran clean headless automation for the full Embermere suite: 6 passed, 0 failed, 0 warnings.
 
+## 2026-07-05 - First Local Fab Zone Pass
+
+We moved the starter zone out of pure greybox for the first time.
+
+Art pass:
+
+- Integrated the locally imported Epic/Fab packs already installed in the project: KiteDemo, SoulCave, ParagonProps, and Scifi_desert_city.
+- Added `.gitignore` rules so raw marketplace asset folders stay local and are not redistributed through the public repo.
+- Added reusable placement scripts for a tagged `FabPass_` environment layer.
+- Replaced the old visual-only village blockout buildings, road markers, and ruin blockout props with 68 placed environment actors.
+- Used Paragon and Soul Cave assets for ruins, stone, roots, fog/water accents, and high-fantasy landmark shapes.
+- Used Kite/Soul nature assets for road and wilderness dressing.
+- Used the sci-fi desert kit sparingly for neutral prototype village shells, crates, fabric, lamps, fences, tables, and stools.
+- Kept gameplay actors in place: PlayerStart, Mara, starter enemies, quest flow, HUD, inventory, target UI, and combat logic were not intentionally moved.
+
+Implementation note:
+
+- The first MCP placement attempt kicked off heavy one-time mesh/texture compilation and the MCP listener dropped before returning a result.
+- A fallback Unreal Python commandlet path completed the pass and saved the map.
+- Some Kite pine/bush assets exist on disk but did not resolve cleanly through the UE 5.8 headless asset registry, so the placement script currently uses confirmed-working substitutes.
+
+Verification:
+
+- The fallback placement completed with 68 created `FabPass_` actors and 0 skipped actors.
+- The headless map validator passed with 68 `FabPass_` actors and required gameplay anchors intact.
+- Built successfully and ran clean headless automation for the full Embermere suite: 6 passed, 0 failed, 0 warnings.
+- Manual PIE still needs a fresh editor restart and local asset load check before treating collision, scale, and style cohesion as final.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -56,7 +56,7 @@ The repo currently contains the C++ gameplay scaffold for:
 - Unreal MCP setup notes and a local setup validator
 - first editor-created Blueprints and rules data asset
 - the saved starter-zone map `L_Embermere_Prototype`
-- a greybox village, wilderness combat pocket, road, ruin landmark, PlayerStart, NPC placeholders, and starter enemy placements
+- a first local Fab/Epic art pass over the starter village, road, wilderness pocket, and ruin landmark, while keeping PlayerStart, NPC placeholders, and starter enemy placements intact
 
 ## Starting Races
 
@@ -81,6 +81,8 @@ The repo currently contains the C++ gameplay scaffold for:
 The working visual north star is **Stylized Classic**: colorful high fantasy, readable silhouettes, lighter performance, and enough charm to avoid generic asset soup.
 
 We are starting Unreal-first with Fab and Marketplace assets, then replacing or upgrading packs as the game identity sharpens. Gameplay systems are designed to stay asset-agnostic so art, VFX, icons, characters, and environments can be swapped without rewriting core mechanics.
+
+The public repository intentionally ignores raw Fab/Epic marketplace asset folders. The saved map can reference locally imported packs, but the source asset packs themselves should be installed through Fab/Epic Launcher on each development machine rather than redistributed through GitHub.
 
 See [Docs/ASSET_STRATEGY.md](Docs/ASSET_STRATEGY.md).
 

@@ -4,7 +4,12 @@ This is the daily handoff file for Codex work. Each session should start here, c
 
 ## Start Here
 
-- Restart Unreal before manual PIE if the editor has been open since the 2026-07-05 C++ build. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI checks after C++ HUD/inventory work.
+- Restart Unreal before manual PIE if the editor has been open since the 2026-07-05 C++ build or the 2026-07-05 Fab/Epic environment placement pass. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI and map-art checks after C++ HUD/inventory work or large asset imports.
+- Confirm the local Fab/Epic folders are present but ignored by Git:
+  - `Content/KiteDemo/`
+  - `Content/SoulCave/`
+  - `Content/ParagonProps/`
+  - `Content/Scifi_desert_city/`
 - Run these automation tests:
   - `Embermere.Combat.TargetSelectionPresentation`
   - `Embermere.Quests.CompletionRewards`
@@ -34,6 +39,12 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - The fix now runs through the pawn/controller path known to receive live movement input, and the project builds successfully.
 - Manually verify the new Mara marker in PIE:
   - Mara should show a temporary gold `!` and name marker above her.
+- Manually verify the first `FabPass_` environment layer in PIE:
+  - village props leave Mara, PlayerStart, and the quest interaction route readable;
+  - the road dressing points naturally from the village toward the wilderness pocket;
+  - foliage and rocks frame the enemy pocket without hiding enemies, target rings, or nameplates;
+  - the upgraded ruin reads as a landmark and does not trap the player;
+  - any sci-fi-kit props that read too futuristic are noted for replacement.
 - Run the editor smoke test in [Docs/PLAYTESTING.md](Docs/PLAYTESTING.md).
 - If Codex needs editor access, start MCP inside Unreal:
 
@@ -43,7 +54,7 @@ ModelContextProtocol.StartServer 8123
 
 ## Current Prototype Status
 
-Embermere has a working greybox starter slice:
+Embermere has a working first-pass starter slice:
 
 - player spawn in `L_Embermere_Prototype`;
 - classic mouse camera behavior;
@@ -55,11 +66,12 @@ Embermere has a working greybox starter slice:
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
 - first-pass inventory HUD panel showing empty state, reward item stacks, richer item inspection text, `[`/`]` inspection cycling, and `I` show/hide toggle;
 - first-pass selected-target UMG nameplate widget plus a gold segmented mesh target ring;
+- first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
 - automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, enemy nameplate widget, chat log, and inventory toggle.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The biggest presentation gaps are now visual quality and asset replacement: the HUD, inventory panel, target ring, and nameplate are functional first-pass programmer art. The next meaningful step is a first Fab/Marketplace import pass, then replacing temporary mesh/ring visuals with proper fantasy assets and materials.
+The prototype foundation is alive, but it is still early. The first local environment art pass is in place, but it needs manual PIE review for collision, scale, route readability, and style cohesion. The HUD, inventory panel, target ring, and nameplate are still functional first-pass programmer art.
 
 ## Next Work
 
@@ -74,7 +86,13 @@ The prototype foundation is alive, but it is still early. The biggest presentati
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
   - continue tuning chat panel height/line count against the hotbar and common desktop viewport sizes.
-- Start the first asset import pass from [Docs/FAB_ASSET_PLAN.md](Docs/FAB_ASSET_PLAN.md), beginning with a free stylized environment or village pack through the signed-in Unreal Fab window.
+- Manually review the first Fab/Epic environment pass in PIE:
+  - confirm the `FabPass_` village shells and props do not block Mara or the player spawn;
+  - confirm the dressed road still leads clearly from spawn to Mara and the enemy pocket;
+  - confirm the wilderness foliage/rocks do not hide starter enemies or target nameplates;
+  - confirm the upgraded ruin reads better than the old greybox and does not trap the player;
+  - identify any sci-fi props that look too off-theme for the starter village.
+- Replace placeholder sci-fi village shells with a better stylized fantasy village kit once a suitable UE-compatible pack is found.
 - Tune starter enemy aggro, movement speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Tune player respawn and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around death/respawn, targeting, and hotbar behavior.
@@ -104,6 +122,12 @@ The prototype foundation is alive, but it is still early. The biggest presentati
 - The top-right inventory panel now marks the selected stack, shows `Inspecting X/Y`, and uses `[`/`]` to wrap between stacks.
 - Expanded `Embermere.UI.InventoryToggle` coverage to verify inventory selection advances and wraps in both directions.
 - Built successfully and ran clean headless automation: 6 passed, 0 failed, 0 warnings.
+- 2026-07-05: added the first local Fab/Epic environment pass for the starter zone.
+- Ignored raw local marketplace asset folders in Git so the public repo does not redistribute vendor content.
+- Added reusable placement and validation scripts for the tagged `FabPass_` art layer.
+- Saved `L_Embermere_Prototype` with 68 created `FabPass_` actors after removing the old visual-only greybox village, road, and ruin markers.
+- Built successfully, passed the headless FabPass map validator, and ran clean headless automation: 6 passed, 0 failed, 0 warnings.
+- Manual PIE verification is still needed after restarting Unreal because MCP dropped during the first heavy asset compile pass.
 
 ## Asset Hunt
 

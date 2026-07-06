@@ -1,13 +1,31 @@
 # Fab Asset Plan
 
-Embermere does not have final high-fantasy art assets installed yet. The current map is a greybox made from Unreal basic shapes plus project Blueprints. This document tracks what to add from Fab/Marketplace and how to keep those assets replaceable.
+Embermere does not have final high-fantasy art assets installed yet. The current map now has a first local Fab/Epic art pass layered over the original greybox gameplay shell. This document tracks what to add from Fab/Marketplace and how to keep those assets replaceable.
 
 ## Current State
 
-- We have a playable blockout map: `/Game/Maps/L_Embermere_Prototype`.
+- We have a playable starter map: `/Game/Maps/L_Embermere_Prototype`.
 - We have gameplay Blueprints for player, enemies, game mode, and a quest giver.
-- We do not yet have production-ready fantasy buildings, foliage, creatures, weapons, icons, VFX, or UI art.
+- We have a first local environment pass using imported Epic/Fab packs, but we do not yet have production-ready fantasy buildings, creatures, weapons, icons, VFX, or UI art.
 - We should start with free assets, then buy focused paid packs only when they clearly save time or improve cohesion.
+
+## Imported Local Packs
+
+These packs are installed locally through Fab/Epic and referenced by the map. They are intentionally ignored by Git so the public repository does not redistribute raw marketplace content.
+
+- `Content/KiteDemo/`: Open World Demo Collection; used for working outdoor foliage/rocks where the assets resolve cleanly in UE 5.8.
+- `Content/SoulCave/`: Soul: Cave; used for stone, roots, cave/ruin mood pieces, fog/water accents, and fallback foliage.
+- `Content/ParagonProps/`: Paragon Agora/Monolith props; used for ruins, rocks, portals, pillars, and high-fantasy landmark silhouettes.
+- `Content/Scifi_desert_city/`: Science Fiction Desert City Kit; used sparingly for neutral prototype village shells, crates, fabric, lamps, fences, tables, and stools.
+- `Content/SampleMap/` and `Content/Lighting/`: supporting content imported with Paragon sample assets.
+
+First local placement pass:
+
+- `Scripts/place_fab_zone_pass.py` stores the idempotent placement list for the `FabPass_` art layer.
+- `Scripts/place_fab_zone_pass_unreal.py` runs that placement list through Unreal Python and saves `/Game/Maps/L_Embermere_Prototype`.
+- `Scripts/validate_fab_zone_pass_unreal.py` loads the saved map and verifies the `FabPass_` actor count plus required gameplay anchors.
+- The pass removes the old visual-only village blockout buildings, road markers, and ruin blockout pieces, then creates 68 tagged `EmbermereFabPass` actors in `04_Fab_Zone_Pass` outliner folders.
+- The script keeps gameplay actors intact: Mara, PlayerStart, starter enemies, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring are not moved.
 
 ## How To Install Assets
 
@@ -34,11 +52,11 @@ Sources:
 
 For the first import pass, prefer a tiny, reversible slice over a broad art dump:
 
-1. Pick one free stylized environment/village pack and import it under `/Game/ThirdParty/Fab/<PackName>`.
-2. Duplicate one or two useful meshes into `/Game/Art/Embermere/Environment/PrototypeVillage`.
-3. Replace only one blockout building and a few road props in `L_Embermere_Prototype`.
-4. Pick one simple UI/icon or VFX candidate only after the environment import proves scale, collision, and performance are healthy.
-5. Record the pack name, Fab URL, license, install date, and caveats in this file before committing the asset pass.
+1. Keep the current first-pass art layer focused and playable.
+2. Verify scale, collision, nameplate readability, and route readability in PIE.
+3. Replace the placeholder sci-fi village shells with a better UE-compatible stylized fantasy village pack when we find one.
+4. Pick one simple UI/icon or VFX candidate only after the environment pass proves scale, collision, and performance are healthy.
+5. Record future pack names, Fab URLs, licenses, install dates, and caveats in this file before committing map references.
 
 Good first replacements:
 
@@ -178,6 +196,7 @@ Use in project:
 - Keep Embermere gameplay assets under `/Game/Blueprints`, `/Game/Data`, `/Game/UI`, `/Game/Maps`, and later `/Game/Art/Embermere`.
 - Never edit vendor assets directly unless the change is trivial. Duplicate into `/Game/Art/Embermere` for project-specific variants.
 - Add a short note in this file when we commit to a pack: name, source URL, license, install date, intended use, and any caveats.
+- Do not commit raw marketplace/Fab asset folders to this public repo. Commit scripts, map references, and documentation; require developers to install the packs locally.
 
 ## Buy Later Criteria
 
