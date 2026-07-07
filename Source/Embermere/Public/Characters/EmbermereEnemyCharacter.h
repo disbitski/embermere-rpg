@@ -38,6 +38,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Prototype AI")
 	float MoveSpeedCmPerSecond = 165.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Prototype AI")
+	float LeashRadius = 1500.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Prototype AI")
+	float ReturnHomeRadius = 80.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Prototype AI")
+	float ReturnHomeSpeedCmPerSecond = 260.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	float NameplateHeight = 225.0f;
 
@@ -70,6 +79,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
 	bool HasNameplateWidget() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|AI")
+	bool IsLocationOutsideLeashRadius(const FVector& Location) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|AI")
+	bool ShouldReturnHomeFromLocation(const FVector& Location) const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -105,12 +120,16 @@ private:
 	TWeakObjectPtr<AActor> AggroTarget;
 	double LastAttackTimeSeconds = -1000.0;
 	bool bSelectedByPlayer = false;
+	bool bReturningHome = false;
 
 	void UpdatePrototypeAi(float DeltaSeconds);
 	void UpdatePrototypeTargetPresentation();
 	void UpdatePrototypeTargetRing(bool bIsVisible);
 	AActor* FindAggroTarget() const;
 	bool IsValidAggroTarget(const AActor* Candidate) const;
+	bool ShouldLeashFromTarget(const AActor* Target) const;
+	void DropAggroAndReturnHome();
+	void UpdateReturnHome(float DeltaSeconds);
 	void FaceTarget(const AActor* Target);
 	void MoveTowardTarget(AActor* Target, float DeltaSeconds);
 	void TryAttackTarget(AActor* Target);

@@ -180,6 +180,31 @@ bool FEmbermereEnemyNameplateWidgetTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereEnemyLeashRulesTest,
+	"Embermere.Enemy.LeashRules",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereEnemyLeashRulesTest::RunTest(const FString& Parameters)
+{
+	AEmbermereEnemyCharacter* Enemy = NewObject<AEmbermereEnemyCharacter>();
+	TestNotNull(TEXT("Enemy can be created"), Enemy);
+	if (!Enemy)
+	{
+		return false;
+	}
+
+	Enemy->LeashRadius = 1000.0f;
+	Enemy->ReturnHomeRadius = 120.0f;
+
+	TestFalse(TEXT("Enemy location inside leash stays valid"), Enemy->IsLocationOutsideLeashRadius(FVector(500.0f, 0.0f, 0.0f)));
+	TestTrue(TEXT("Enemy location outside leash is detected"), Enemy->IsLocationOutsideLeashRadius(FVector(1200.0f, 0.0f, 0.0f)));
+	TestFalse(TEXT("Enemy at home does not need return"), Enemy->ShouldReturnHomeFromLocation(FVector(80.0f, 0.0f, 0.0f)));
+	TestTrue(TEXT("Enemy away from home should return"), Enemy->ShouldReturnHomeFromLocation(FVector(180.0f, 0.0f, 0.0f)));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereInventoryHudToggleTest,
 	"Embermere.UI.InventoryToggle",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

@@ -131,6 +131,16 @@ bool AEmbermereEnemyCharacter::HasNameplateWidget() const
 	return NameplateWidgetComponent != nullptr;
 }
 
+bool AEmbermereEnemyCharacter::IsLocationOutsideLeashRadius(const FVector& Location) const
+{
+	return FVector::DistSquared(SpawnTransform.GetLocation(), Location) > FMath::Square(FMath::Max(0.0f, LeashRadius));
+}
+
+bool AEmbermereEnemyCharacter::ShouldReturnHomeFromLocation(const FVector& Location) const
+{
+	return FVector::DistSquared(SpawnTransform.GetLocation(), Location) > FMath::Square(FMath::Max(0.0f, ReturnHomeRadius));
+}
+
 FText AEmbermereEnemyCharacter::GetTargetPresentationText() const
 {
 	if (!Stats)
@@ -167,6 +177,7 @@ FLinearColor AEmbermereEnemyCharacter::GetTargetPresentationColor() const
 void AEmbermereEnemyCharacter::HandleDeath()
 {
 	AggroTarget.Reset();
+	bReturningHome = false;
 	bSelectedByPlayer = false;
 	UpdatePrototypeTargetPresentation();
 
@@ -201,6 +212,8 @@ void AEmbermereEnemyCharacter::Respawn()
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	AggroTarget.Reset();
+	bReturningHome = false;
 	LastAttackTimeSeconds = -1000.0;
 
 	if (Stats)
@@ -222,6 +235,12 @@ void AEmbermereEnemyCharacter::UpdatePrototypeAi(float DeltaSeconds)
 		return;
 	}
 
+	if (bReturningHome)
+	{
+		UpdateReturnHome(DeltaSeconds);
+		return;
+	}
+
 	AActor* Target = AggroTarget.Get();
 	if (!IsValidAggroTarget(Target))
 	{
@@ -231,13 +250,18 @@ void AEmbermereEnemyCharacter::UpdatePrototypeAi(float DeltaSeconds)
 
 	if (!Target)
 	{
+		if (ShouldReturnHomeFromLocation(GetActorLocation()))
+		{
+			bReturningHome = true;
+			UpdateReturnHome(DeltaSeconds);
+		}
 		return;
 	}
 
 	const float DistanceSquared = FVector::DistSquared(GetActorLocation(), Target->GetActorLocation());
-	if (DistanceSquared > FMath::Square(AggroRadius * 1.35f))
+	if (ShouldLeashFromTarget(Target) || DistanceSquared > FMath::Square(AggroRadius * 1.35f))
 	{
-		AggroTarget.Reset();
+		DropAggroAndReturnHome();
 		return;
 	}
 
@@ -394,6 +418,51 @@ bool AEmbermereEnemyCharacter::IsValidAggroTarget(const AActor* Candidate) const
 
 	const UEmbermereStatsComponent* CandidateStats = Candidate->FindComponentByClass<UEmbermereStatsComponent>();
 	return CandidateStats && !CandidateStats->IsDead();
+}
+
+bool AEmbermereEnemyCharacter::ShouldLeashFromTarget(const AActor* Target) const
+{
+	return IsLocationOutsideLeashRadius(GetActorLocation()) ||
+		(Target && IsLocationOutsideLeashRadius(Target->GetActorLocation()));
+}
+
+void AEmbermereEnemyCharacter::DropAggroAndReturnHome()
+{
+	AggroTarget.Reset();
+	bReturningHome = ShouldReturnHomeFromLocation(GetActorLocation());
+}
+
+void AEmbermereEnemyCharacter::UpdateReturnHome(float DeltaSeconds)
+{
+	const FVector HomeLocation = SpawnTransform.GetLocation();
+	if (!ShouldReturnHomeFromLocation(GetActorLocation()))
+	{
+		SetActorLocation(HomeLocation, true);
+		SetActorRotation(SpawnTransform.GetRotation());
+		bReturningHome = false;
+		return;
+	}
+
+	if (DeltaSeconds <= 0.0f)
+	{
+		return;
+	}
+
+	FVector Direction = HomeLocation - GetActorLocation();
+	Direction.Z = 0.0f;
+	const float DistanceToHome = Direction.Size();
+	if (DistanceToHome <= KINDA_SMALL_NUMBER || !Direction.Normalize())
+	{
+		SetActorLocation(HomeLocation, true);
+		SetActorRotation(SpawnTransform.GetRotation());
+		bReturningHome = false;
+		return;
+	}
+
+	SetActorRotation(Direction.Rotation());
+	const float ReturnSpeed = FMath::Max(0.0f, ReturnHomeSpeedCmPerSecond);
+	const float StepDistance = FMath::Min(DistanceToHome, ReturnSpeed * DeltaSeconds);
+	SetActorLocation(GetActorLocation() + Direction * StepDistance, true);
 }
 
 void AEmbermereEnemyCharacter::FaceTarget(const AActor* Target)

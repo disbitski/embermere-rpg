@@ -52,6 +52,7 @@ The repo currently contains the C++ gameplay scaffold for:
 - native first-pass HUD panels for status, target, range state, quest tracking, dialogue, loot, and hotbar labels
 - bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback
 - first hotbar cooldown enforcement and ready-time feedback
+- starter enemy aggro, leash, return-home, attack, death, and respawn behavior
 - native inventory HUD panel with empty, reward-item stack, item-detail, `[`/`]` inspection cycling, and `I` show/hide states
 - selected enemy UMG nameplate widget, HP bar/readout, and segmented mesh target ring
 - Unreal MCP setup notes and a local setup validator

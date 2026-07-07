@@ -13,6 +13,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
 - Run these automation tests:
   - `Embermere.Combat.TargetSelectionPresentation`
   - `Embermere.Combat.DeadCasterRejected`
+  - `Embermere.Enemy.LeashRules`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
   - `Embermere.UI.ChatLog`
@@ -50,6 +51,10 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - foliage and rocks frame the enemy pocket without hiding enemies, target rings, or nameplates;
   - the upgraded ruin reads as a landmark and does not trap the player;
   - any sci-fi-kit props that read too futuristic are noted for replacement.
+- Manually verify starter enemy leash behavior in PIE:
+  - pull a Marsh Prowler away from the wilderness pocket;
+  - confirm it drops aggro and returns home instead of chasing indefinitely into the village;
+  - tune `LeashRadius`, `ReturnHomeRadius`, and `ReturnHomeSpeedCmPerSecond` if it feels too abrupt or too permissive.
 - Run the editor smoke test in [Docs/PLAYTESTING.md](Docs/PLAYTESTING.md).
 - If Codex needs editor access, start MCP inside Unreal:
 
@@ -66,6 +71,7 @@ Embermere has a working first-pass starter slice:
 - `WASD`, `Q` autorun, tab target, and hotbar ability input;
 - first quest giver, quest data, and reward item data;
 - hostile starter enemies that aggro, chase, attack, die, and respawn;
+- starter enemy leash and return-home behavior for safer village/wilderness boundaries;
 - bottom-left chat/combat log feedback for targeting, combat, death, respawn, quest progress, XP, inventory, and rewards;
 - temporary in-world interactable markers, including a gold quest marker for Mara;
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
@@ -73,7 +79,7 @@ Embermere has a working first-pass starter slice:
 - first-pass selected-target UMG nameplate widget plus a gold segmented mesh target ring;
 - first-pass hotbar cooldown enforcement and ready-time feedback;
 - first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
-- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy nameplate widget, chat log, and inventory toggle.
+- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash rules, enemy nameplate widget, chat log, and inventory toggle.
 
 ## How Far We Have To Go
 
@@ -99,7 +105,7 @@ The prototype foundation is alive, but it is still early. The first local enviro
   - confirm the upgraded ruin reads better than the old greybox and does not trap the player;
   - identify any sci-fi props that look too off-theme for the starter village.
 - Replace placeholder sci-fi village shells with a better stylized fantasy village kit once a suitable UE-compatible pack is found.
-- Tune starter enemy aggro, movement speed, attack range, damage, and respawn timing after in-editor playtesting.
+- Tune starter enemy aggro, leash radius, return-home speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Tune player respawn and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
 
@@ -139,6 +145,11 @@ The prototype foundation is alive, but it is still early. The first local enviro
 - The bottom-left chat/combat log now uses clipped single-line rows to avoid wrapping below the shaded panel border.
 - Built successfully with `-NoHotReloadFromIDE` and ran clean headless automation: 7 passed, 0 failed, 0 warnings.
 - Captured the no-hot-reload build lesson in `Docs/UNREAL_LESSONS.md`; restart Unreal before manual PIE so the editor loads the relinked base module.
+- 2026-07-07: added first-pass starter enemy leash and return-home behavior.
+- Added `LeashRadius`, `ReturnHomeRadius`, and `ReturnHomeSpeedCmPerSecond` so enemies can drop aggro and return home if pulled too far from their wilderness pocket.
+- Added `Embermere.Enemy.LeashRules`; headless automation now runs 8 tests.
+- Built successfully with `-NoHotReloadFromIDE` and ran clean headless automation: 8 passed, 0 failed, 0 warnings.
+- FabPass validator exited successfully when run sequentially. Do not run Unreal commandlets in parallel because they can race on shared UBT trace/log files.
 
 ## Asset Hunt
 

@@ -387,6 +387,35 @@ Verification:
 - Ran clean headless automation for the full Embermere suite: 7 passed, 0 failed, 0 warnings.
 - Manual PIE still needs a fresh editor restart before verifying the FabPass layer, cooldown message, chat row clipping, and live UI behavior.
 
+## 2026-07-07 - Enemy Leashing
+
+We tightened starter enemy behavior for the dressed FabPass zone.
+
+Enemy AI pass:
+
+- Added configurable enemy leash radius, return-home radius, and return-home speed.
+- Enemies now drop aggro and return toward their spawn when pulled too far from their home pocket.
+- Idle enemies that drift away can return home instead of staying displaced.
+- Enemy death and respawn now clear the return-home state.
+
+Automation pass:
+
+- Added `Embermere.Enemy.LeashRules` to cover leash and return-home distance thresholds.
+- The full headless Embermere suite now has 8 tests.
+
+Build lesson:
+
+- Running multiple Unreal commandlets in parallel caused a shared UBT `Trace.uba` race.
+- Added a lesson to keep `UnrealEditor-Cmd` build/test/validation runs sequential.
+
+Verification:
+
+- Confirmed local Fab/Epic folders are present: KiteDemo, SoulCave, ParagonProps, and Scifi_desert_city.
+- Built successfully with `-NoHotReloadFromIDE`.
+- Ran clean headless automation for the full Embermere suite: 8 passed, 0 failed, 0 warnings.
+- Reran the FabPass validator sequentially after the parallel commandlet race; it exited successfully.
+- Manual PIE still needs a fresh editor restart before validating leash feel, collision, scale, route readability, and UI behavior in the actual FabPass level.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

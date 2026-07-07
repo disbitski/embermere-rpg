@@ -73,6 +73,21 @@ Embermere example:
 
 After the no-hot-reload build, the new `Embermere.Combat.DeadCasterRejected` test ran from the current source and passed in commandlet automation.
 
+## Do Not Parallelize Unreal Commandlets
+
+Unreal commandlets can share UnrealBuildTool log and trace files under `~/Library/Application Support/Epic/UnrealBuildTool`. Running two `UnrealEditor-Cmd` jobs at the same time can make one commandlet fail while trying to rotate or move `Trace.uba`.
+
+Practical rule:
+
+- run build, automation, and map-validation commandlets sequentially;
+- parallelize normal file reads and lightweight shell inspection, but not `UnrealEditor-Cmd` invocations;
+- if a commandlet fails with a missing or locked UBT trace/log file while another commandlet is running, rerun it by itself before treating the failure as a project issue.
+
+Embermere example:
+
+- running the automation suite and FabPass validator at the same time caused one commandlet to fail on `Trace.uba`;
+- rerunning the FabPass validator alone exited successfully.
+
 ## Xcode Metal Toolchain MobileAsset State
 
 On macOS, `xcodebuild -downloadComponent MetalToolchain` can successfully download and mount the Metal Toolchain while Xcode's default `metal` wrapper still reports it as missing.
