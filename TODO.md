@@ -4,7 +4,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
 
 ## Start Here
 
-- Restart Unreal before manual PIE if the editor has been open since the 2026-07-06 C++ build or the 2026-07-05 Fab/Epic environment placement pass. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI and map-art checks after C++ HUD/inventory/combat work or large asset imports.
+- Restart Unreal before manual PIE if the editor has been open since the 2026-07-08 C++ build or the 2026-07-05 Fab/Epic environment placement pass. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI and map-art checks after C++ HUD/inventory/combat work or large asset imports.
 - Confirm the local Fab/Epic folders are present but ignored by Git:
   - `Content/KiteDemo/`
   - `Content/SoulCave/`
@@ -16,6 +16,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - `Embermere.Enemy.LeashRules`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
+  - `Embermere.Stats.DamageImmunity`
   - `Embermere.UI.ChatLog`
   - `Embermere.UI.EnemyNameplateWidget`
   - `Embermere.UI.InventoryToggle`
@@ -55,6 +56,10 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - pull a Marsh Prowler away from the wilderness pocket;
   - confirm it drops aggro and returns home instead of chasing indefinitely into the village;
   - tune `LeashRadius`, `ReturnHomeRadius`, and `ReturnHomeSpeedCmPerSecond` if it feels too abrupt or too permissive.
+- Manually verify player respawn protection in PIE:
+  - let the player die near the enemy pocket;
+  - confirm the recovery message mentions the short protection window;
+  - confirm immediate follow-up enemy damage is blocked during the protection window.
 - Run the editor smoke test in [Docs/PLAYTESTING.md](Docs/PLAYTESTING.md).
 - If Codex needs editor access, start MCP inside Unreal:
 
@@ -72,6 +77,7 @@ Embermere has a working first-pass starter slice:
 - first quest giver, quest data, and reward item data;
 - hostile starter enemies that aggro, chase, attack, die, and respawn;
 - starter enemy leash and return-home behavior for safer village/wilderness boundaries;
+- player respawn protection for safer recovery during prototype combat;
 - bottom-left chat/combat log feedback for targeting, combat, death, respawn, quest progress, XP, inventory, and rewards;
 - temporary in-world interactable markers, including a gold quest marker for Mara;
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
@@ -79,7 +85,7 @@ Embermere has a working first-pass starter slice:
 - first-pass selected-target UMG nameplate widget plus a gold segmented mesh target ring;
 - first-pass hotbar cooldown enforcement and ready-time feedback;
 - first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
-- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash rules, enemy nameplate widget, chat log, and inventory toggle.
+- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash rules, damage immunity, enemy nameplate widget, chat log, and inventory toggle.
 
 ## How Far We Have To Go
 
@@ -106,7 +112,7 @@ The prototype foundation is alive, but it is still early. The first local enviro
   - identify any sci-fi props that look too off-theme for the starter village.
 - Replace placeholder sci-fi village shells with a better stylized fantasy village kit once a suitable UE-compatible pack is found.
 - Tune starter enemy aggro, leash radius, return-home speed, attack range, damage, and respawn timing after in-editor playtesting.
-- Tune player respawn and recovery rules after in-editor playtesting.
+- Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
 
 ## Last Completed
@@ -150,6 +156,10 @@ The prototype foundation is alive, but it is still early. The first local enviro
 - Added `Embermere.Enemy.LeashRules`; headless automation now runs 8 tests.
 - Built successfully with `-NoHotReloadFromIDE` and ran clean headless automation: 8 passed, 0 failed, 0 warnings.
 - FabPass validator exited successfully when run sequentially. Do not run Unreal commandlets in parallel because they can race on shared UBT trace/log files.
+- 2026-07-08: added short player respawn damage protection.
+- `UEmbermereStatsComponent` now supports temporary damage immunity, and player respawn grants a configurable protection window.
+- Added `Embermere.Stats.DamageImmunity`; headless automation now runs 9 tests.
+- Build/test/validator remain clean when run sequentially. Manual PIE should verify the recovery message and damage-protection feel after restarting Unreal.
 
 ## Asset Hunt
 

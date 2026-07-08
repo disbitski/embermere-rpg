@@ -30,6 +30,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
 	float PlayerRespawnDelaySeconds = 5.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
+	float PlayerRespawnProtectionSeconds = 3.0f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UEmbermerePlayerHudWidget> PlayerHudWidgetClass;
 

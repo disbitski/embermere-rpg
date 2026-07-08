@@ -55,7 +55,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Reusing an ability before its cooldown finishes posts a bottom-left ready-time message.
 - Enemies show red bottom-left combat log messages clipped inside the shaded chat panel when they melee the player.
 - Enemies leash and return home if pulled too far from their spawn area.
-- If the player dies, autorun turns off, a bottom-left death message appears, and the player respawns after a short delay.
+- If the player dies, autorun turns off, a bottom-left death message appears, and the player respawns after a short delay with a brief damage-protection message.
 - Defeating starter enemies advances `StarterEnemyDefeated`.
 - Defeated enemies hide and respawn after a short prototype delay.
 - Completing the quest shows bottom-left completion/XP messages, a temporary loot/reward popup, and the reward item in the inventory panel.
@@ -65,7 +65,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - The UI has native first-pass HUD panels, but styling is still programmer-art and needs a proper fantasy skin.
 - Enemy movement and attacks are deliberately simple prototype behavior.
 - Enemy leash/return-home behavior is first-pass and still needs tuning against the dressed FabPass terrain.
-- Player respawn is a simple prototype reset to the spawn point.
+- Player respawn is a simple prototype reset to the spawn point with short damage protection, not a full corpse run or revive system.
 - Inventory presentation is a minimal HUD panel with bracket-key stack inspection, not a full inventory screen yet.
 - Nameplates now use a first native UMG widget component, but selected-target world highlighting still needs dedicated decal/material art.
 - The bottom-left chat/combat log is clipped inside its shaded panel and currently uses single-line rows; final chat history, scrolling, and fantasy styling still need a proper UI pass.

@@ -416,6 +416,33 @@ Verification:
 - Reran the FabPass validator sequentially after the parallel commandlet race; it exited successfully.
 - Manual PIE still needs a fresh editor restart before validating leash feel, collision, scale, route readability, and UI behavior in the actual FabPass level.
 
+## 2026-07-08 - Respawn Protection
+
+We added a small recovery safety pass for the prototype death loop.
+
+Stats pass:
+
+- Added temporary damage immunity to `UEmbermereStatsComponent`.
+- Damage immunity blocks `ApplyDamage()` while active and can be cleared explicitly.
+- `InitializeVitals()` clears any previous immunity, so respawn/recovery starts from a known state.
+
+Respawn pass:
+
+- Player respawn now grants a short configurable protection window.
+- The recovery chat message now states the protection duration.
+
+Automation pass:
+
+- Added `Embermere.Stats.DamageImmunity`.
+- The full headless Embermere suite now has 9 tests.
+
+Verification:
+
+- Built successfully with `-NoHotReloadFromIDE`.
+- Ran clean headless automation for the full Embermere suite: 9 passed, 0 failed, 0 warnings.
+- FabPass validator still exits successfully when run sequentially.
+- Manual PIE still needs a fresh editor restart before validating the recovery message, actual damage protection feel, leash behavior, and FabPass collision/readability.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

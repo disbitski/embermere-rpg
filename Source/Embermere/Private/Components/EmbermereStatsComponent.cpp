@@ -15,6 +15,7 @@ void UEmbermereStatsComponent::BeginPlay()
 
 void UEmbermereStatsComponent::InitializeVitals()
 {
+	ClearDamageImmunity();
 	CurrentHealth = MaxHealth;
 	CurrentMana = MaxMana;
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
@@ -23,7 +24,7 @@ void UEmbermereStatsComponent::InitializeVitals()
 
 float UEmbermereStatsComponent::ApplyDamage(float DamageAmount)
 {
-	if (DamageAmount <= 0.0f || IsDead())
+	if (DamageAmount <= 0.0f || IsDead() || IsDamageImmune())
 	{
 		return 0.0f;
 	}
@@ -38,6 +39,44 @@ float UEmbermereStatsComponent::ApplyDamage(float DamageAmount)
 	}
 
 	return PreviousHealth - CurrentHealth;
+}
+
+void UEmbermereStatsComponent::GrantDamageImmunity(float DurationSeconds)
+{
+	if (DurationSeconds <= 0.0f)
+	{
+		ClearDamageImmunity();
+		return;
+	}
+
+	if (const UWorld* World = GetWorld())
+	{
+		DamageImmunityEndTimeSeconds = World->GetTimeSeconds() + DurationSeconds;
+	}
+	else
+	{
+		DamageImmunityEndTimeSeconds = DurationSeconds;
+	}
+}
+
+void UEmbermereStatsComponent::ClearDamageImmunity()
+{
+	DamageImmunityEndTimeSeconds = -1.0f;
+}
+
+bool UEmbermereStatsComponent::IsDamageImmune() const
+{
+	if (DamageImmunityEndTimeSeconds <= 0.0f)
+	{
+		return false;
+	}
+
+	if (const UWorld* World = GetWorld())
+	{
+		return World->GetTimeSeconds() < DamageImmunityEndTimeSeconds;
+	}
+
+	return true;
 }
 
 float UEmbermereStatsComponent::Heal(float HealAmount)

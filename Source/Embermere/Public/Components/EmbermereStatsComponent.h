@@ -57,6 +57,15 @@ public:
 	float ApplyDamage(float DamageAmount);
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
+	void GrantDamageImmunity(float DurationSeconds);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
+	void ClearDamageImmunity();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats")
+	bool IsDamageImmune() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
 	float Heal(float HealAmount);
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
@@ -73,4 +82,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+private:
+	float DamageImmunityEndTimeSeconds = -1.0f;
 };

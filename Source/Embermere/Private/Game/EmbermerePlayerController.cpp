@@ -143,9 +143,19 @@ void AEmbermerePlayerController::RespawnControlledCharacter()
 
 	Character->SetActorTransform(ControlledSpawnTransform);
 	Character->Stats->InitializeVitals();
+	Character->Stats->GrantDamageImmunity(PlayerRespawnProtectionSeconds);
 	SetIgnoreMoveInput(false);
 
-	AddHudMessage(FText::FromString(TEXT("You recover at the village.")), FLinearColor(0.42f, 1.0f, 0.48f, 1.0f));
+	if (PlayerRespawnProtectionSeconds > 0.0f)
+	{
+		AddHudMessage(
+			FText::FromString(FString::Printf(TEXT("You recover at the village. Protected for %.0fs."), PlayerRespawnProtectionSeconds)),
+			FLinearColor(0.42f, 1.0f, 0.48f, 1.0f));
+	}
+	else
+	{
+		AddHudMessage(FText::FromString(TEXT("You recover at the village.")), FLinearColor(0.42f, 1.0f, 0.48f, 1.0f));
+	}
 }
 
 void AEmbermerePlayerController::OnLeftMousePressed()

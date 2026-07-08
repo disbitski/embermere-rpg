@@ -146,6 +146,39 @@ bool FEmbermereCombatDeadCasterRejectedTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereStatsDamageImmunityTest,
+	"Embermere.Stats.DamageImmunity",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereStatsDamageImmunityTest::RunTest(const FString& Parameters)
+{
+	UEmbermereStatsComponent* Stats = NewObject<UEmbermereStatsComponent>();
+	TestNotNull(TEXT("Stats component can be created"), Stats);
+	if (!Stats)
+	{
+		return false;
+	}
+
+	Stats->InitializeVitals();
+	Stats->GrantDamageImmunity(3.0f);
+	TestTrue(TEXT("Damage immunity is active after grant"), Stats->IsDamageImmune());
+	TestEqual(TEXT("Damage immunity prevents damage"), Stats->ApplyDamage(25.0f), 0.0f);
+	TestEqual(TEXT("Health stays full during immunity"), Stats->CurrentHealth, Stats->MaxHealth);
+
+	Stats->ClearDamageImmunity();
+	TestFalse(TEXT("Damage immunity clears"), Stats->IsDamageImmune());
+	TestEqual(TEXT("Damage applies after immunity clears"), Stats->ApplyDamage(25.0f), 25.0f);
+	TestEqual(TEXT("Health changes after immunity clears"), Stats->CurrentHealth, Stats->MaxHealth - 25.0f);
+
+	Stats->GrantDamageImmunity(3.0f);
+	TestTrue(TEXT("Damage immunity can be granted again"), Stats->IsDamageImmune());
+	Stats->InitializeVitals();
+	TestFalse(TEXT("InitializeVitals clears old immunity"), Stats->IsDamageImmune());
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereEnemyNameplateWidgetTest,
 	"Embermere.UI.EnemyNameplateWidget",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
