@@ -103,6 +103,10 @@ The project targets Unreal Engine 5.8 and includes plugin configuration for:
 
 Setup notes live in [Docs/UNREAL_SETUP.md](Docs/UNREAL_SETUP.md).
 
+Continuing from a fresh Codex task? Start with
+[Docs/THREAD_HANDOFF.md](Docs/THREAD_HANDOFF.md), then follow the live priorities
+in [TODO.md](TODO.md).
+
 After opening the project in Unreal, the intended MCP startup commands are:
 
 ```text

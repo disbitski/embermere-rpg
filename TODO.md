@@ -2,6 +2,8 @@
 
 This is the daily handoff file for Codex work. Each session should start here, compare against the broader project plan in `README.md`, `JOURNEY.md`, and `Docs/PLAYTESTING.md`, then update this file before stopping.
 
+For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THREAD_HANDOFF.md) before this daily file.
+
 ## Start Here
 
 - Restart Unreal before manual PIE if the editor has been open since the 2026-07-09 structured-inventory, hotbar-cooldown, target-ring C++ build or the corrected Fab/Epic environment save. The current source builds and headless automation passes, but the open editor still has the pre-build module loaded.
