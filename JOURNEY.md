@@ -443,6 +443,30 @@ Verification:
 - FabPass validator still exits successfully when run sequentially.
 - Manual PIE still needs a fresh editor restart before validating the recovery message, actual damage protection feel, leash behavior, and FabPass collision/readability.
 
+## 2026-07-09 - Inventory Empty And Reward States
+
+We tightened the first-pass inventory HUD so the reward flow is clearer before building a full inventory screen.
+
+Inventory pass:
+
+- Added `GetInventoryDisplayText()` as a reusable HUD API.
+- The live inventory panel and automation now share the same text-building path.
+- Empty inventory now explicitly says quest rewards appear there.
+- Multi-stack inventory now includes the bracket-key inspection hint in the generated display text.
+- Selected stack details still show item name, quantity, stack limit, and description.
+
+Automation pass:
+
+- Expanded `Embermere.UI.InventoryToggle` to assert empty-state text, selected stack labels, stack quantities, max-stack display, item descriptions, and the bracket-key inspection hint.
+- The full headless Embermere suite remains at 9 tests, with stronger inventory assertions.
+
+Verification:
+
+- Built successfully with `-NoHotReloadFromIDE`.
+- Ran clean headless automation for the full Embermere suite: 9 passed, 0 failed, 0 warnings.
+- FabPass validator still exits successfully when run sequentially.
+- Direct MCP initialized, but raw `tools/call` streaming did not return usable editor-control output in this session. Manual PIE still needs a fresh editor restart before validating the live inventory panel, recovery behavior, leash feel, and FabPass collision/readability.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

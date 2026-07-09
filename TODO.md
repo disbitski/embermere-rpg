@@ -4,7 +4,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
 
 ## Start Here
 
-- Restart Unreal before manual PIE if the editor has been open since the 2026-07-08 C++ build or the 2026-07-05 Fab/Epic environment placement pass. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI and map-art checks after C++ HUD/inventory/combat work or large asset imports.
+- Restart Unreal before manual PIE if the editor has been open since the 2026-07-09 C++ build or the 2026-07-05 Fab/Epic environment placement pass. The current source builds and headless automation passes, but a clean editor restart is still the reliable path for visual UI and map-art checks after C++ HUD/inventory/combat work or large asset imports.
 - Confirm the local Fab/Epic folders are present but ignored by Git:
   - `Content/KiteDemo/`
   - `Content/SoulCave/`
@@ -26,7 +26,7 @@ This is the daily handoff file for Codex work. Each session should start here, c
   - quest progress updates after accepting Mara's quest and defeating enemies;
   - all hotbar slots show stable labels for `1`, `2`, `3`, `4`, `Alt+R`, `Alt+E`, `R`, `X`, `E`, and `F`;
   - Mara interaction shows the dialogue panel;
-  - inventory panel starts as `Empty` and shows the `I` toggle hint;
+  - inventory panel starts as `Empty`, shows the `I` toggle hint, and says quest rewards will appear there;
   - pressing `I` hides/shows the inventory panel;
   - pressing `[` and `]` cycles the inspected inventory stack after multiple stacks exist;
   - quest completion/reward shows the loot popup and the inventory panel lists the reward item;
@@ -98,9 +98,9 @@ The prototype foundation is alive, but it is still early. The first local enviro
   - replace the segmented engine-cube target ring with a real decal/mesh/material asset;
   - tune screen-space widget size/height against camera distance.
 - Improve inventory presentation:
-  - verify the richer item details for reward inspection in PIE;
+  - verify the richer empty state and item details for reward inspection in PIE;
   - manually verify bracket-key item cycling once inventory has multiple reward stacks;
-  - cleaner empty/reward states.
+  - start a real inventory window design after the prototype HUD panel has been playtested.
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
   - continue tuning chat panel height/line count against the hotbar and common desktop viewport sizes.
@@ -160,6 +160,12 @@ The prototype foundation is alive, but it is still early. The first local enviro
 - `UEmbermereStatsComponent` now supports temporary damage immunity, and player respawn grants a configurable protection window.
 - Added `Embermere.Stats.DamageImmunity`; headless automation now runs 9 tests.
 - Build/test/validator remain clean when run sequentially. Manual PIE should verify the recovery message and damage-protection feel after restarting Unreal.
+- 2026-07-09: tightened the inventory HUD empty/reward-state presentation.
+- Added `GetInventoryDisplayText()` as a reusable/testable HUD API, so the live panel and automation use the same inventory text path.
+- Empty inventory now explicitly says quest rewards appear there, and multi-stack inventory shows the bracket-key inspection hint.
+- Expanded `Embermere.UI.InventoryToggle` coverage to assert empty text, selected stack text, stack quantities, stack limits, item descriptions, and bracket-key hint text.
+- Built successfully with `-NoHotReloadFromIDE`, ran clean headless automation: 9 passed, 0 failed, 0 warnings, and reran the FabPass validator successfully.
+- Direct MCP initialized, but raw `tools/call` streaming did not return usable output in this session. Manual PIE still needs a clean editor restart before validating the live UI and FabPass feel.
 
 ## Asset Hunt
 

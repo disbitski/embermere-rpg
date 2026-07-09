@@ -179,6 +179,72 @@ int32 UEmbermerePlayerHudWidget::GetSelectedInventoryStackIndex() const
 	return SelectedInventoryStackIndex;
 }
 
+FText UEmbermerePlayerHudWidget::GetInventoryDisplayText() const
+{
+	if (!Inventory || Inventory->Stacks.Num() <= 0)
+	{
+		return FText::FromString(TEXT("Inventory (I)  [ ]\nEmpty\nQuest rewards appear here."));
+	}
+
+	const int32 StackCount = Inventory->Stacks.Num();
+	const int32 ClampedSelectedIndex = FMath::Clamp(SelectedInventoryStackIndex, 0, StackCount - 1);
+	const int32 MaxDisplayedStacks = FMath::Min(StackCount, 4);
+	int32 FirstDisplayedIndex = FMath::Clamp(
+		ClampedSelectedIndex - MaxDisplayedStacks + 1,
+		0,
+		FMath::Max(0, StackCount - MaxDisplayedStacks));
+	const int32 LastDisplayedIndex = FMath::Min(StackCount, FirstDisplayedIndex + MaxDisplayedStacks);
+
+	FString InventoryLine = FString::Printf(
+		TEXT("Inventory (I)  [ ]\nInspecting %d/%d"),
+		ClampedSelectedIndex + 1,
+		StackCount);
+
+	if (StackCount > 1)
+	{
+		InventoryLine += TEXT("\nUse [ ] to inspect");
+	}
+	if (FirstDisplayedIndex > 0)
+	{
+		InventoryLine += TEXT("\n...");
+	}
+	for (int32 StackIndex = FirstDisplayedIndex; StackIndex < LastDisplayedIndex; ++StackIndex)
+	{
+		const FEmbermereInventoryStack& Stack = Inventory->Stacks[StackIndex];
+		if (Stack.Item && Stack.Quantity > 0)
+		{
+			InventoryLine += FString::Printf(
+				TEXT("\n%s %s x%d"),
+				StackIndex == ClampedSelectedIndex ? TEXT(">") : TEXT(" "),
+				*Stack.Item->DisplayName.ToString(),
+				Stack.Quantity);
+		}
+	}
+	if (LastDisplayedIndex < StackCount)
+	{
+		InventoryLine += FString::Printf(TEXT("\n+%d more"), StackCount - LastDisplayedIndex);
+	}
+	if (Inventory->Stacks.IsValidIndex(ClampedSelectedIndex))
+	{
+		const FEmbermereInventoryStack& SelectedStack = Inventory->Stacks[ClampedSelectedIndex];
+		if (SelectedStack.Item)
+		{
+			const UEmbermereItemData* Item = SelectedStack.Item;
+			InventoryLine += FString::Printf(
+				TEXT("\n\n%s\nStack: %d / %d"),
+				*Item->DisplayName.ToString(),
+				SelectedStack.Quantity,
+				Item->MaxStack);
+			if (!Item->Description.IsEmpty())
+			{
+				InventoryLine += FString::Printf(TEXT("\n%s"), *Item->Description.ToString());
+			}
+		}
+	}
+
+	return FText::FromString(InventoryLine);
+}
+
 void UEmbermerePlayerHudWidget::AddChatMessage(const FText& Message, FLinearColor MessageColor)
 {
 	if (Message.IsEmpty())
@@ -538,60 +604,7 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 	if (InventoryText)
 	{
 		ClampSelectedInventoryStackIndex();
-		FString InventoryLine = TEXT("Inventory (I)  [ ]\nEmpty");
-		if (Inventory && Inventory->Stacks.Num() > 0)
-		{
-			const int32 StackCount = Inventory->Stacks.Num();
-			const int32 MaxDisplayedStacks = FMath::Min(StackCount, 4);
-			int32 FirstDisplayedIndex = FMath::Clamp(
-				SelectedInventoryStackIndex - MaxDisplayedStacks + 1,
-				0,
-				FMath::Max(0, StackCount - MaxDisplayedStacks));
-			const int32 LastDisplayedIndex = FMath::Min(StackCount, FirstDisplayedIndex + MaxDisplayedStacks);
-			InventoryLine = FString::Printf(
-				TEXT("Inventory (I)  [ ]\nInspecting %d/%d"),
-				SelectedInventoryStackIndex + 1,
-				StackCount);
-
-			if (FirstDisplayedIndex > 0)
-			{
-				InventoryLine += TEXT("\n...");
-			}
-			for (int32 StackIndex = FirstDisplayedIndex; StackIndex < LastDisplayedIndex; ++StackIndex)
-			{
-				const FEmbermereInventoryStack& Stack = Inventory->Stacks[StackIndex];
-				if (Stack.Item && Stack.Quantity > 0)
-				{
-					InventoryLine += FString::Printf(
-						TEXT("\n%s %s x%d"),
-						StackIndex == SelectedInventoryStackIndex ? TEXT(">") : TEXT(" "),
-						*Stack.Item->DisplayName.ToString(),
-						Stack.Quantity);
-				}
-			}
-			if (LastDisplayedIndex < StackCount)
-			{
-				InventoryLine += FString::Printf(TEXT("\n+%d more"), StackCount - LastDisplayedIndex);
-			}
-			if (Inventory->Stacks.IsValidIndex(SelectedInventoryStackIndex))
-			{
-				const FEmbermereInventoryStack& SelectedStack = Inventory->Stacks[SelectedInventoryStackIndex];
-				if (SelectedStack.Item)
-				{
-					const UEmbermereItemData* Item = SelectedStack.Item;
-					InventoryLine += FString::Printf(
-						TEXT("\n\n%s\nStack: %d / %d"),
-						*Item->DisplayName.ToString(),
-						SelectedStack.Quantity,
-						Item->MaxStack);
-					if (!Item->Description.IsEmpty())
-					{
-						InventoryLine += FString::Printf(TEXT("\n%s"), *Item->Description.ToString());
-					}
-				}
-			}
-		}
-		InventoryText->SetText(FText::FromString(InventoryLine));
+		InventoryText->SetText(GetInventoryDisplayText());
 	}
 
 	static const TCHAR* HotbarKeys[] = { TEXT("1"), TEXT("2"), TEXT("3"), TEXT("4"), TEXT("Alt+R"), TEXT("Alt+E"), TEXT("R"), TEXT("X"), TEXT("E"), TEXT("F") };

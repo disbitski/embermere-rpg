@@ -44,7 +44,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 ## Expected Temporary Feedback
 
 - A styled first-pass HUD overlay shows player HP, mana, XP, current target, target HP, range state, quest progress, and all hotbar slots.
-- A first-pass inventory HUD panel appears in the top-right, starts as `Empty`, shows item detail text when an item is present, cycles inspected stacks with `[` and `]`, and toggles with `I`.
+- A first-pass inventory HUD panel appears in the top-right, starts as `Empty` with a quest-reward hint, shows item detail text when an item is present, cycles inspected stacks with `[` and `]`, and toggles with `I`.
 - Interacting with Mara shows a temporary bottom-screen dialogue panel.
 - Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.

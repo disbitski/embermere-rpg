@@ -256,6 +256,9 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	TestFalse(TEXT("Inventory panel reports hidden"), HudWidget->IsInventoryPanelVisible());
 	TestTrue(TEXT("Second toggle shows inventory"), HudWidget->ToggleInventoryPanel());
 	TestTrue(TEXT("Inventory panel reports visible"), HudWidget->IsInventoryPanelVisible());
+	const FString EmptyInventoryText = HudWidget->GetInventoryDisplayText().ToString();
+	TestTrue(TEXT("Inventory empty state is explicit"), EmptyInventoryText.Contains(TEXT("Empty")));
+	TestTrue(TEXT("Inventory empty state points rewards into the panel"), EmptyInventoryText.Contains(TEXT("Quest rewards appear here")));
 
 	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
 	TestNotNull(TEXT("Inventory component can be created"), Inventory);
@@ -267,19 +270,31 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	UEmbermereItemData* FirstItem = NewObject<UEmbermereItemData>();
 	FirstItem->ItemId = "RecruitPack";
 	FirstItem->DisplayName = FText::FromString(TEXT("Recruit Pack"));
+	FirstItem->Description = FText::FromString(TEXT("A small bundle for new Embermere adventurers."));
 	FirstItem->MaxStack = 5;
 
 	UEmbermereItemData* SecondItem = NewObject<UEmbermereItemData>();
 	SecondItem->ItemId = "MarshReed";
 	SecondItem->DisplayName = FText::FromString(TEXT("Marsh Reed"));
+	SecondItem->Description = FText::FromString(TEXT("A damp reed gathered near the prowler marsh."));
 	SecondItem->MaxStack = 10;
 
 	HudWidget->Inventory = Inventory;
 	TestTrue(TEXT("First inventory item can be added"), Inventory->AddItem(FirstItem, 1));
-	TestTrue(TEXT("Second inventory item can be added"), Inventory->AddItem(SecondItem, 1));
+	TestTrue(TEXT("Second inventory item can be added"), Inventory->AddItem(SecondItem, 2));
 	TestEqual(TEXT("Inventory selection starts at the first stack"), HudWidget->GetSelectedInventoryStackIndex(), 0);
+	FString FirstItemDisplayText = HudWidget->GetInventoryDisplayText().ToString();
+	TestTrue(TEXT("Inventory display shows first stack position"), FirstItemDisplayText.Contains(TEXT("Inspecting 1/2")));
+	TestTrue(TEXT("Inventory display marks selected first stack"), FirstItemDisplayText.Contains(TEXT("> Recruit Pack x1")));
+	TestTrue(TEXT("Inventory display shows first item stack detail"), FirstItemDisplayText.Contains(TEXT("Stack: 1 / 5")));
+	TestTrue(TEXT("Inventory display shows first item description"), FirstItemDisplayText.Contains(TEXT("new Embermere adventurers")));
 	TestTrue(TEXT("Inventory selection advances to the next stack"), HudWidget->SelectNextInventoryItem(1));
 	TestEqual(TEXT("Inventory selection reports second stack"), HudWidget->GetSelectedInventoryStackIndex(), 1);
+	FString SecondItemDisplayText = HudWidget->GetInventoryDisplayText().ToString();
+	TestTrue(TEXT("Inventory display shows second stack position"), SecondItemDisplayText.Contains(TEXT("Inspecting 2/2")));
+	TestTrue(TEXT("Inventory display marks selected second stack"), SecondItemDisplayText.Contains(TEXT("> Marsh Reed x2")));
+	TestTrue(TEXT("Inventory display shows second item stack detail"), SecondItemDisplayText.Contains(TEXT("Stack: 2 / 10")));
+	TestTrue(TEXT("Inventory display shows bracket cycling hint for multiple stacks"), SecondItemDisplayText.Contains(TEXT("Use [ ] to inspect")));
 	TestTrue(TEXT("Inventory selection wraps forward"), HudWidget->SelectNextInventoryItem(1));
 	TestEqual(TEXT("Inventory selection wraps to first stack"), HudWidget->GetSelectedInventoryStackIndex(), 0);
 	TestTrue(TEXT("Inventory selection wraps backward"), HudWidget->SelectNextInventoryItem(-1));
