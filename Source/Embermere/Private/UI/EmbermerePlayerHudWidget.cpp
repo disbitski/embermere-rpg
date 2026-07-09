@@ -22,6 +22,7 @@
 namespace
 {
 	constexpr int32 ChatMessageLimit = 6;
+	constexpr int32 InventoryVisibleRowCount = 8;
 
 	UTextBlock* MakeHudText(UWidgetTree* WidgetTree, const FName Name, const FLinearColor Color, const float FontSize)
 	{
@@ -183,7 +184,10 @@ FText UEmbermerePlayerHudWidget::GetInventoryDisplayText() const
 {
 	if (!Inventory || Inventory->Stacks.Num() <= 0)
 	{
-		return FText::FromString(TEXT("Inventory (I)  [ ]\nEmpty\nQuest rewards appear here."));
+		const int32 MaxSlots = Inventory ? Inventory->MaxSlots : 24;
+		return FText::FromString(FString::Printf(
+			TEXT("Inventory\nSlots 0 / %d\nEmpty\nQuest rewards appear here.\nI Close"),
+			MaxSlots));
 	}
 
 	const int32 StackCount = Inventory->Stacks.Num();
@@ -196,7 +200,9 @@ FText UEmbermerePlayerHudWidget::GetInventoryDisplayText() const
 	const int32 LastDisplayedIndex = FMath::Min(StackCount, FirstDisplayedIndex + MaxDisplayedStacks);
 
 	FString InventoryLine = FString::Printf(
-		TEXT("Inventory (I)  [ ]\nInspecting %d/%d"),
+		TEXT("Inventory\nSlots %d / %d\nInspecting %d/%d"),
+		StackCount,
+		Inventory->MaxSlots,
 		ClampedSelectedIndex + 1,
 		StackCount);
 
@@ -243,6 +249,32 @@ FText UEmbermerePlayerHudWidget::GetInventoryDisplayText() const
 	}
 
 	return FText::FromString(InventoryLine);
+}
+
+FText UEmbermerePlayerHudWidget::GetHotbarSlotDisplayText(int32 SlotIndex, float CooldownRemainingSeconds) const
+{
+	static const TCHAR* HotbarKeys[] = { TEXT("1"), TEXT("2"), TEXT("3"), TEXT("4"), TEXT("Alt+R"), TEXT("Alt+E"), TEXT("R"), TEXT("X"), TEXT("E"), TEXT("F") };
+	const FString KeyText = SlotIndex >= 0 && SlotIndex < UE_ARRAY_COUNT(HotbarKeys) ? HotbarKeys[SlotIndex] : TEXT("?");
+	FString AbilityText = TEXT("-");
+	if (Hotbar && Hotbar->Slots.IsValidIndex(SlotIndex) && !Hotbar->Slots[SlotIndex].AbilityId.IsNone())
+	{
+		AbilityText = Hotbar->Slots[SlotIndex].DisplayName.ToString();
+	}
+	else if (SlotIndex == 9)
+	{
+		AbilityText = TEXT("Interact");
+	}
+
+	if (CooldownRemainingSeconds > 0.05f)
+	{
+		return FText::FromString(FString::Printf(
+			TEXT("%s\n%s\n%.1fs"),
+			*KeyText,
+			*AbilityText,
+			CooldownRemainingSeconds));
+	}
+
+	return FText::FromString(FString::Printf(TEXT("%s\n%s"), *KeyText, *AbilityText));
 }
 
 void UEmbermerePlayerHudWidget::AddChatMessage(const FText& Message, FLinearColor MessageColor)
@@ -314,15 +346,96 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	QuestText = MakeHudText(WidgetTree, TEXT("QuestText"), FLinearColor(0.72f, 0.9f, 1.0f, 1.0f), 15.0f);
 	AddStackChild(QuestStack, QuestText, 0.0f);
 
-	InventoryPanel = MakePanel(WidgetTree, TEXT("InventoryPanel"), FLinearColor(0.035f, 0.035f, 0.025f, 0.78f));
+	InventoryPanel = MakePanel(WidgetTree, TEXT("InventoryPanel"), FLinearColor(0.025f, 0.028f, 0.024f, 0.94f));
 	UVerticalBox* InventoryStack = MakePanelStack(WidgetTree, InventoryPanel, TEXT("InventoryStack"));
-	InventoryText = MakeHudText(WidgetTree, TEXT("InventoryText"), FLinearColor(0.92f, 0.86f, 0.62f, 1.0f), 14.0f);
+	InventoryText = MakeHudText(WidgetTree, TEXT("InventoryTitleText"), FLinearColor(1.0f, 0.82f, 0.38f, 1.0f), 18.0f);
+	InventoryCapacityText = MakeHudText(WidgetTree, TEXT("InventoryCapacityText"), FLinearColor(0.68f, 0.72f, 0.66f, 1.0f), 12.0f);
+	InventoryFooterText = MakeHudText(WidgetTree, TEXT("InventoryFooterText"), FLinearColor(0.72f, 0.75f, 0.68f, 1.0f), 11.0f);
 	if (InventoryText)
 	{
-		InventoryText->SetAutoWrapText(true);
+		InventoryText->SetText(FText::FromString(TEXT("Inventory")));
 	}
-	AddStackChild(InventoryStack, InventoryText, 0.0f);
+	if (InventoryCapacityText)
+	{
+		InventoryCapacityText->SetJustification(ETextJustify::Right);
+	}
+	if (InventoryFooterText)
+	{
+		InventoryFooterText->SetText(FText::FromString(TEXT("[ / ] Inspect   |   I Close")));
+		InventoryFooterText->SetJustification(ETextJustify::Center);
+	}
+
+	UHorizontalBox* InventoryHeader = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("InventoryHeader"));
+	if (InventoryHeader)
+	{
+		USizeBox* TitleSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("InventoryTitleSize"));
+		USizeBox* CapacitySize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("InventoryCapacitySize"));
+		if (TitleSize && InventoryText)
+		{
+			TitleSize->SetWidthOverride(300.0f);
+			TitleSize->AddChild(InventoryText);
+			InventoryHeader->AddChildToHorizontalBox(TitleSize);
+		}
+		if (CapacitySize && InventoryCapacityText)
+		{
+			CapacitySize->SetWidthOverride(170.0f);
+			CapacitySize->AddChild(InventoryCapacityText);
+			InventoryHeader->AddChildToHorizontalBox(CapacitySize);
+		}
+	}
+	AddStackChild(InventoryStack, InventoryHeader, 8.0f);
+
+	UHorizontalBox* InventoryBody = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("InventoryBody"));
+	UVerticalBox* InventoryListStack = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("InventoryListStack"));
+	UVerticalBox* InventoryDetailStack = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("InventoryDetailStack"));
+	InventoryRowTexts.Reset();
+	for (int32 RowIndex = 0; RowIndex < InventoryVisibleRowCount; ++RowIndex)
+	{
+		UTextBlock* RowText = MakeHudText(
+			WidgetTree,
+			*FString::Printf(TEXT("InventoryRowText_%d"), RowIndex),
+			FLinearColor(0.82f, 0.84f, 0.78f, 1.0f),
+			13.0f);
+		if (!RowText)
+		{
+			continue;
+		}
+
+		RowText->SetAutoWrapText(false);
+		RowText->SetClipping(EWidgetClipping::ClipToBounds);
+		InventoryRowTexts.Add(RowText);
+		AddStackChild(InventoryListStack, RowText, 5.0f);
+	}
+
+	InventoryDetailNameText = MakeHudText(WidgetTree, TEXT("InventoryDetailNameText"), FLinearColor(1.0f, 0.84f, 0.44f, 1.0f), 16.0f);
+	InventoryDetailMetaText = MakeHudText(WidgetTree, TEXT("InventoryDetailMetaText"), FLinearColor(0.7f, 0.82f, 0.72f, 1.0f), 12.0f);
+	InventoryDetailDescriptionText = MakeHudText(WidgetTree, TEXT("InventoryDetailDescriptionText"), FLinearColor(0.84f, 0.83f, 0.76f, 1.0f), 13.0f);
+	if (InventoryDetailDescriptionText)
+	{
+		InventoryDetailDescriptionText->SetAutoWrapText(true);
+	}
+	AddStackChild(InventoryDetailStack, InventoryDetailNameText, 8.0f);
+	AddStackChild(InventoryDetailStack, InventoryDetailMetaText, 12.0f);
+	AddStackChild(InventoryDetailStack, InventoryDetailDescriptionText, 0.0f);
+
+	if (InventoryBody)
+	{
+		USizeBox* ListSize = MakeSizedWidget(WidgetTree, InventoryListStack, TEXT("InventoryListSize"), 220.0f, 206.0f);
+		USizeBox* DetailSize = MakeSizedWidget(WidgetTree, InventoryDetailStack, TEXT("InventoryDetailSize"), 250.0f, 206.0f);
+		if (UHorizontalBoxSlot* ListSlot = InventoryBody->AddChildToHorizontalBox(ListSize))
+		{
+			ListSlot->SetPadding(FMargin(0.0f, 0.0f, 14.0f, 0.0f));
+		}
+		InventoryBody->AddChildToHorizontalBox(DetailSize);
+	}
+	AddStackChild(InventoryStack, InventoryBody, 8.0f);
+	AddStackChild(InventoryStack, InventoryFooterText, 0.0f);
+	if (InventoryPanel)
+	{
+		InventoryPanel->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+	}
 	UpdateInventoryPanelVisibility();
+	RefreshInventoryWindow();
 
 	ChatPanel = MakePanel(WidgetTree, TEXT("ChatPanel"), FLinearColor(0.015f, 0.018f, 0.022f, 0.76f));
 	ChatMessageStack = MakePanelStack(WidgetTree, ChatPanel, TEXT("ChatMessageStack"));
@@ -375,7 +488,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		}
 
 		SlotSize->SetWidthOverride(92.0f);
-		SlotSize->SetHeightOverride(52.0f);
+		SlotSize->SetHeightOverride(64.0f);
 		SlotText->SetJustification(ETextJustify::Center);
 		SlotText->SetAutoWrapText(true);
 		SlotText->SetText(FText::FromString(FString::Printf(TEXT("%s\n-"), HotbarKeys[SlotIndex])));
@@ -426,7 +539,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			InventorySlot->SetAnchors(FAnchors(1.0f, 0.0f, 1.0f, 0.0f));
 			InventorySlot->SetAlignment(FVector2D(1.0f, 0.0f));
 			InventorySlot->SetPosition(FVector2D(-24.0f, 24.0f));
-			InventorySlot->SetSize(FVector2D(340.0f, 224.0f));
+			InventorySlot->SetSize(FVector2D(510.0f, 292.0f));
 		}
 	}
 
@@ -601,13 +714,9 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 		}
 	}
 
-	if (InventoryText)
-	{
-		ClampSelectedInventoryStackIndex();
-		InventoryText->SetText(GetInventoryDisplayText());
-	}
+	ClampSelectedInventoryStackIndex();
+	RefreshInventoryWindow();
 
-	static const TCHAR* HotbarKeys[] = { TEXT("1"), TEXT("2"), TEXT("3"), TEXT("4"), TEXT("Alt+R"), TEXT("Alt+E"), TEXT("R"), TEXT("X"), TEXT("E"), TEXT("F") };
 	for (int32 SlotIndex = 0; SlotIndex < HotbarSlotTexts.Num(); ++SlotIndex)
 	{
 		UTextBlock* SlotText = HotbarSlotTexts[SlotIndex];
@@ -616,18 +725,12 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 			continue;
 		}
 
-		const FString KeyText = SlotIndex < UE_ARRAY_COUNT(HotbarKeys) ? HotbarKeys[SlotIndex] : TEXT("?");
-		FString AbilityText = TEXT("-");
-		if (Hotbar && Hotbar->Slots.IsValidIndex(SlotIndex) && !Hotbar->Slots[SlotIndex].AbilityId.IsNone())
-		{
-			AbilityText = Hotbar->Slots[SlotIndex].DisplayName.ToString();
-		}
-		else if (SlotIndex == 9)
-		{
-			AbilityText = TEXT("Interact");
-		}
-
-		SlotText->SetText(FText::FromString(FString::Printf(TEXT("%s\n%s"), *KeyText, *AbilityText)));
+		const float CooldownRemaining = Hotbar ? Hotbar->GetSlotCooldownRemaining(SlotIndex) : 0.0f;
+		SlotText->SetText(GetHotbarSlotDisplayText(SlotIndex, CooldownRemaining));
+		SlotText->SetColorAndOpacity(FSlateColor(
+			CooldownRemaining > 0.05f
+				? FLinearColor(0.58f, 0.62f, 0.68f, 1.0f)
+				: FLinearColor(0.92f, 0.96f, 1.0f, 1.0f)));
 	}
 }
 
@@ -636,6 +739,106 @@ void UEmbermerePlayerHudWidget::UpdateInventoryPanelVisibility()
 	if (InventoryPanel)
 	{
 		InventoryPanel->SetVisibility(bInventoryPanelVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
+}
+
+void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
+{
+	const int32 StackCount = Inventory ? Inventory->Stacks.Num() : 0;
+	const int32 MaxSlots = Inventory ? Inventory->MaxSlots : 24;
+	if (InventoryCapacityText)
+	{
+		InventoryCapacityText->SetText(FText::FromString(FString::Printf(TEXT("Slots %d / %d"), StackCount, MaxSlots)));
+	}
+
+	for (UTextBlock* RowText : InventoryRowTexts)
+	{
+		if (RowText)
+		{
+			RowText->SetText(FText::GetEmpty());
+			RowText->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+
+	if (!Inventory || StackCount <= 0)
+	{
+		if (InventoryRowTexts.IsValidIndex(0) && InventoryRowTexts[0])
+		{
+			InventoryRowTexts[0]->SetText(FText::FromString(TEXT("Empty")));
+			InventoryRowTexts[0]->SetColorAndOpacity(FSlateColor(FLinearColor(0.62f, 0.64f, 0.6f, 1.0f)));
+			InventoryRowTexts[0]->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
+		if (InventoryDetailNameText)
+		{
+			InventoryDetailNameText->SetText(FText::FromString(TEXT("No item selected")));
+		}
+		if (InventoryDetailMetaText)
+		{
+			InventoryDetailMetaText->SetText(FText::FromString(TEXT("Complete quests and defeat enemies")));
+		}
+		if (InventoryDetailDescriptionText)
+		{
+			InventoryDetailDescriptionText->SetText(FText::FromString(TEXT("Quest rewards and recovered items will appear in this window.")));
+		}
+		return;
+	}
+
+	const int32 SelectedIndex = FMath::Clamp(SelectedInventoryStackIndex, 0, StackCount - 1);
+	const int32 FirstDisplayedIndex = FMath::Clamp(
+		SelectedIndex - InventoryVisibleRowCount + 1,
+		0,
+		FMath::Max(0, StackCount - InventoryVisibleRowCount));
+	for (int32 RowIndex = 0; RowIndex < InventoryRowTexts.Num(); ++RowIndex)
+	{
+		const int32 StackIndex = FirstDisplayedIndex + RowIndex;
+		UTextBlock* RowText = InventoryRowTexts[RowIndex];
+		if (!RowText || !Inventory->Stacks.IsValidIndex(StackIndex))
+		{
+			continue;
+		}
+
+		const FEmbermereInventoryStack& Stack = Inventory->Stacks[StackIndex];
+		if (!Stack.Item || Stack.Quantity <= 0)
+		{
+			continue;
+		}
+
+		const bool bSelected = StackIndex == SelectedIndex;
+		RowText->SetText(FText::FromString(FString::Printf(
+			TEXT("%s %s  x%d"),
+			bSelected ? TEXT(">") : TEXT(" "),
+			*Stack.Item->DisplayName.ToString(),
+			Stack.Quantity)));
+		RowText->SetColorAndOpacity(FSlateColor(
+			bSelected
+				? FLinearColor(1.0f, 0.8f, 0.3f, 1.0f)
+				: FLinearColor(0.82f, 0.84f, 0.78f, 1.0f)));
+		RowText->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
+
+	const FEmbermereInventoryStack& SelectedStack = Inventory->Stacks[SelectedIndex];
+	if (SelectedStack.Item)
+	{
+		if (InventoryDetailNameText)
+		{
+			InventoryDetailNameText->SetText(SelectedStack.Item->DisplayName);
+		}
+		if (InventoryDetailMetaText)
+		{
+			InventoryDetailMetaText->SetText(FText::FromString(FString::Printf(
+				TEXT("Quantity %d\nStack limit %d\nItem %d of %d"),
+				SelectedStack.Quantity,
+				SelectedStack.Item->MaxStack,
+				SelectedIndex + 1,
+				StackCount)));
+		}
+		if (InventoryDetailDescriptionText)
+		{
+			InventoryDetailDescriptionText->SetText(
+				SelectedStack.Item->Description.IsEmpty()
+					? FText::FromString(TEXT("No description available."))
+					: SelectedStack.Item->Description);
+		}
 	}
 }
 

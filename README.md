@@ -54,12 +54,13 @@ The repo currently contains the C++ gameplay scaffold for:
 - first hotbar cooldown enforcement and ready-time feedback
 - starter enemy aggro, leash, return-home, attack, death, and respawn behavior
 - player respawn with short damage protection for recovery safety
-- native inventory HUD panel with empty, reward-item stack, item-detail, `[`/`]` inspection cycling, and `I` show/hide states
-- selected enemy UMG nameplate widget, HP bar/readout, and segmented mesh target ring
+- structured inventory window with capacity, item rows, selected-item details, empty/reward states, `[`/`]` inspection cycling, and `I` show/hide behavior
+- selected enemy UMG nameplate widget, HP bar/readout, and a flat animated 24-segment target ring
+- live hotbar cooldown countdowns with unavailable-state dimming
 - Unreal MCP setup notes and a local setup validator
 - first editor-created Blueprints and rules data asset
 - the saved starter-zone map `L_Embermere_Prototype`
-- a first local Fab/Epic art pass over the starter village, road, wilderness pocket, and ruin landmark, while keeping PlayerStart, NPC placeholders, and starter enemy placements intact
+- a corrected 65-actor local Fab/Epic art pass over the starter village, road, wilderness pocket, and ruin landmark, with upright rotations and an unobstructed PlayerStart/Mara route
 
 ## Starting Races
 

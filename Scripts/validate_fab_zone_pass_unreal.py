@@ -4,7 +4,7 @@ import unreal
 
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
-EXPECTED_FABPASS_COUNT = 68
+EXPECTED_FABPASS_COUNT = 65
 
 REQUIRED_LABELS = {
     "PlayerStart_Embermere_Village",
@@ -44,7 +44,8 @@ def fail(message):
 
 def main():
     unreal.EditorLevelLibrary.load_level(LEVEL_PATH)
-    labels = {actor_label(actor) for actor in unreal.EditorLevelLibrary.get_all_level_actors()}
+    actors = list(unreal.EditorLevelLibrary.get_all_level_actors())
+    labels = {actor_label(actor) for actor in actors}
     fabpass_labels = [label for label in labels if label.startswith("FabPass_")]
 
     if len(fabpass_labels) != EXPECTED_FABPASS_COUNT:
@@ -58,7 +59,24 @@ def main():
     if lingering_greybox:
         fail("old visual greybox actors still present {}".format(lingering_greybox))
 
-    unreal.log("Embermere Fab zone validation passed: {} FabPass actors, required gameplay anchors intact".format(len(fabpass_labels)))
+    tilted_fabpass = []
+    for actor in actors:
+        label = actor_label(actor)
+        if not label.startswith("FabPass_"):
+            continue
+
+        rotation = actor.get_actor_rotation()
+        if abs(rotation.pitch) > 0.1 or abs(rotation.roll) > 0.1:
+            tilted_fabpass.append({
+                "label": label,
+                "pitch": round(rotation.pitch, 2),
+                "roll": round(rotation.roll, 2),
+            })
+
+    if tilted_fabpass:
+        fail("FabPass actors must stay upright; found {}".format(tilted_fabpass))
+
+    unreal.log("Embermere Fab zone validation passed: {} upright FabPass actors, required gameplay anchors intact".format(len(fabpass_labels)))
 
 
 if __name__ == "__main__":

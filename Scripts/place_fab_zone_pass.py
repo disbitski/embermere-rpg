@@ -128,10 +128,8 @@ SCI_STOOL = "/Game/Scifi_desert_city/Meshes/Stool/SM_stool"
 
 
 PLACEMENTS = [
-    # Village silhouettes and safe-area dressing.
-    {"name": FAB_PREFIX + "Village_Hall_Shell", "asset": SCI_HOUSE, "x": -1850, "y": -1370, "z": 20, "yaw": 12, "scale": 1.6, "folder": "04_Fab_Zone_Pass/01_Village"},
-    {"name": FAB_PREFIX + "Village_Inn_Shell", "asset": SCI_HOUSE_2, "x": -2260, "y": -475, "z": 20, "yaw": -32, "scale": 1.35, "folder": "04_Fab_Zone_Pass/01_Village"},
-    {"name": FAB_PREFIX + "Blacksmith_Round_Shell", "asset": SCI_ROUND_BUILDING, "x": -1185, "y": -960, "z": 20, "yaw": 24, "scale": 1.15, "folder": "04_Fab_Zone_Pass/01_Village"},
+    # Village safe-area dressing. Full sci-fi building shells were removed after
+    # PIE showed that their scale and collision obscured PlayerStart and Mara.
     {"name": FAB_PREFIX + "Mara_Stone_Backdrop", "asset": PARAGON_AGORA_PORTAL, "x": -2150, "y": -1025, "z": 20, "yaw": 35, "scale": 0.34, "folder": "04_Fab_Zone_Pass/01_Village"},
     {"name": FAB_PREFIX + "Village_Market_Cover", "asset": SCI_FABRIC, "x": -1740, "y": -820, "z": 20, "yaw": 8, "scale": 1.25, "folder": "04_Fab_Zone_Pass/01_Village"},
     {"name": FAB_PREFIX + "Village_Table", "asset": SCI_TABLE, "x": -1705, "y": -760, "z": 20, "yaw": -18, "scale": 1.0, "folder": "04_Fab_Zone_Pass/01_Village"},

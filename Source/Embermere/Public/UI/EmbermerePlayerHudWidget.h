@@ -77,6 +77,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	FText GetInventoryDisplayText() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	FText GetHotbarSlotDisplayText(int32 SlotIndex, float CooldownRemainingSeconds = 0.0f) const;
+
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void NativeConstruct() override;
@@ -117,6 +120,24 @@ private:
 	TObjectPtr<UTextBlock> InventoryText;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> InventoryCapacityText;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UTextBlock>> InventoryRowTexts;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> InventoryDetailNameText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> InventoryDetailMetaText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> InventoryDetailDescriptionText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> InventoryFooterText;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UBorder> ChatPanel;
 
 	UPROPERTY(Transient)
@@ -153,6 +174,7 @@ private:
 	void RefreshHudText();
 	void BindComponentEvents();
 	void UpdateInventoryPanelVisibility();
+	void RefreshInventoryWindow();
 	void RefreshChatMessages();
 	void ClampSelectedInventoryStackIndex();
 

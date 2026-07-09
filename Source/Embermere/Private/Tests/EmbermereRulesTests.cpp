@@ -3,6 +3,7 @@
 #include "Characters/EmbermereCharacter.h"
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Components/EmbermereCombatComponent.h"
+#include "Components/EmbermereHotbarComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
@@ -82,6 +83,7 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 	TestFalse(TEXT("First enemy starts unselected"), FirstEnemy->IsSelectedByPlayer());
 	TestFalse(TEXT("Second enemy starts unselected"), SecondEnemy->IsSelectedByPlayer());
 	TestTrue(TEXT("First enemy has a widget nameplate component"), FirstEnemy->HasNameplateWidget());
+	TestEqual(TEXT("Enemy uses a smooth 24-segment target ring"), FirstEnemy->GetTargetRingSegmentCount(), 24);
 	TestTrue(
 		TEXT("Enemy target presentation includes name and HP"),
 		FirstEnemy->GetTargetPresentationText().ToString().Contains(TEXT("Marsh Prowler\nHP 100/100")));
@@ -259,6 +261,8 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	const FString EmptyInventoryText = HudWidget->GetInventoryDisplayText().ToString();
 	TestTrue(TEXT("Inventory empty state is explicit"), EmptyInventoryText.Contains(TEXT("Empty")));
 	TestTrue(TEXT("Inventory empty state points rewards into the panel"), EmptyInventoryText.Contains(TEXT("Quest rewards appear here")));
+	TestTrue(TEXT("Inventory empty state reports slot capacity"), EmptyInventoryText.Contains(TEXT("Slots 0 / 24")));
+	TestTrue(TEXT("Inventory empty state includes close control"), EmptyInventoryText.Contains(TEXT("I Close")));
 
 	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
 	TestNotNull(TEXT("Inventory component can be created"), Inventory);
@@ -284,6 +288,7 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Second inventory item can be added"), Inventory->AddItem(SecondItem, 2));
 	TestEqual(TEXT("Inventory selection starts at the first stack"), HudWidget->GetSelectedInventoryStackIndex(), 0);
 	FString FirstItemDisplayText = HudWidget->GetInventoryDisplayText().ToString();
+	TestTrue(TEXT("Inventory display reports occupied slot capacity"), FirstItemDisplayText.Contains(TEXT("Slots 2 / 24")));
 	TestTrue(TEXT("Inventory display shows first stack position"), FirstItemDisplayText.Contains(TEXT("Inspecting 1/2")));
 	TestTrue(TEXT("Inventory display marks selected first stack"), FirstItemDisplayText.Contains(TEXT("> Recruit Pack x1")));
 	TestTrue(TEXT("Inventory display shows first item stack detail"), FirstItemDisplayText.Contains(TEXT("Stack: 1 / 5")));
@@ -299,6 +304,40 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Inventory selection wraps to first stack"), HudWidget->GetSelectedInventoryStackIndex(), 0);
 	TestTrue(TEXT("Inventory selection wraps backward"), HudWidget->SelectNextInventoryItem(-1));
 	TestEqual(TEXT("Inventory selection wraps to last stack"), HudWidget->GetSelectedInventoryStackIndex(), 1);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereHotbarCooldownDisplayTest,
+	"Embermere.UI.HotbarCooldownDisplay",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereHotbarCooldownDisplayTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* HudWidget = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereHotbarComponent* Hotbar = NewObject<UEmbermereHotbarComponent>();
+	TestNotNull(TEXT("HUD widget can be created for hotbar display"), HudWidget);
+	TestNotNull(TEXT("Hotbar component can be created for display"), Hotbar);
+	if (!HudWidget || !Hotbar)
+	{
+		return false;
+	}
+
+	FEmbermereAbilityDefinition Strike;
+	Strike.AbilityId = "Strike";
+	Strike.DisplayName = FText::FromString(TEXT("Strike"));
+	Hotbar->SetAbilityInSlot(0, Strike);
+	HudWidget->Hotbar = Hotbar;
+
+	const FString ReadyText = HudWidget->GetHotbarSlotDisplayText(0, 0.0f).ToString();
+	TestTrue(TEXT("Ready hotbar text includes key and ability"), ReadyText.Contains(TEXT("1\nStrike")));
+	TestEqual(TEXT("Ready hotbar text has no countdown line"), ReadyText, FString(TEXT("1\nStrike")));
+
+	const FString CoolingText = HudWidget->GetHotbarSlotDisplayText(0, 1.26f).ToString();
+	TestTrue(TEXT("Cooling hotbar text keeps ability label"), CoolingText.Contains(TEXT("Strike")));
+	TestTrue(TEXT("Cooling hotbar text rounds countdown for display"), CoolingText.Contains(TEXT("1.3s")));
+	TestTrue(TEXT("Interact slot keeps its command label"), HudWidget->GetHotbarSlotDisplayText(9, 0.0f).ToString().Contains(TEXT("F\nInteract")));
 
 	return true;
 }

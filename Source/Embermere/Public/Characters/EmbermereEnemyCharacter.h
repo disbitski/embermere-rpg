@@ -65,6 +65,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	FLinearColor TargetRingColor = FLinearColor(1.0f, 0.68f, 0.18f, 1.0f);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
+	float TargetRingRotationSpeedDegreesPerSecond = 12.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting", meta = (ClampMin = "0.0", ClampMax = "0.25"))
+	float TargetRingPulseAmount = 0.08f;
+
 	virtual bool IsHostileTo_Implementation(const AActor* Viewer) const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
 
@@ -79,6 +85,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
 	bool HasNameplateWidget() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
+	int32 GetTargetRingSegmentCount() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|AI")
 	bool IsLocationOutsideLeashRadius(const FVector& Location) const;

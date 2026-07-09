@@ -120,6 +120,41 @@ Embermere example:
 - `EditorToolset.EditorAppToolset` can start/stop PIE;
 - viewport capture can return a very large inline PNG payload through raw MCP, so use it carefully or route it to a file instead of dumping it into the terminal.
 
+Prefer first-class Unreal MCP tools when the ChatGPT/Codex app exposes them. The tool-search path (`list_toolsets`, `describe_toolset`, `call_tool`) keeps discovery small while still reaching editor, automation, Slate, scene, actor, asset, material, and UMG capabilities. Keep direct HTTP as a fallback, not the default path.
+
+## Unreal Python Rotator Argument Order
+
+Do not rely on positional `unreal.Rotator(...)` arguments in project placement scripts. In the first Fab zone pass, the positional constructor mapped every intended yaw value into pitch, tilting buildings, trees, rocks, fences, and ruins.
+
+Use explicit fields instead:
+
+```python
+rotation = unreal.Rotator()
+rotation.pitch = 0.0
+rotation.yaw = float(yaw)
+rotation.roll = 0.0
+```
+
+Also validate saved actor rotations from a fresh commandlet. Euler normalization can make values beyond 90 degrees appear as combined pitch/yaw/roll, so prevention is safer than reconstructing intent after placement.
+
+## Slate Input Is Not Asset Persistence
+
+`SlateInspectorToolset.PressKey` can successfully deliver `Cmd+S` while PIE or the viewport has focus without saving the dirty map package. A successful input result proves the key event was accepted, not that the asset reached disk.
+
+Practical rule:
+
+- use Slate input for UI interaction and gameplay keys;
+- use `AssetTools.save_assets` for intentional map/asset persistence;
+- confirm the editor no longer reports the package dirty;
+- run a fresh headless validator that reloads the map from disk.
+
+Embermere example:
+
+- the live editor showed 65 actors after removing three oversized shells;
+- a headless validator still found the old 68-actor map after simulated `Cmd+S`;
+- `save_assets(["/Game/Maps/L_Embermere_Prototype"])` persisted the map;
+- the next fresh validator found 65 upright actors and passed.
+
 ## Fab Search And Import Reality
 
 Fab's public website and listing endpoints can trigger Cloudflare checks from terminal automation. Do not assume Codex can choose and download Fab assets directly from unauthenticated shell or web requests.

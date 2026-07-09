@@ -22,7 +22,11 @@ def vec(data):
 
 
 def rot(yaw):
-    return unreal.Rotator(0.0, float(yaw), 0.0)
+    rotation = unreal.Rotator()
+    rotation.pitch = 0.0
+    rotation.yaw = float(yaw)
+    rotation.roll = 0.0
+    return rotation
 
 
 def scale_value(value):

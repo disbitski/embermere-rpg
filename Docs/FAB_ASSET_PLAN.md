@@ -16,7 +16,7 @@ These packs are installed locally through Fab/Epic and referenced by the map. Th
 - `Content/KiteDemo/`: Open World Demo Collection; used for working outdoor foliage/rocks where the assets resolve cleanly in UE 5.8.
 - `Content/SoulCave/`: Soul: Cave; used for stone, roots, cave/ruin mood pieces, fog/water accents, and fallback foliage.
 - `Content/ParagonProps/`: Paragon Agora/Monolith props; used for ruins, rocks, portals, pillars, and high-fantasy landmark silhouettes.
-- `Content/Scifi_desert_city/`: Science Fiction Desert City Kit; used sparingly for neutral prototype village shells, crates, fabric, lamps, fences, tables, and stools.
+- `Content/Scifi_desert_city/`: Science Fiction Desert City Kit; now limited to neutral crates, fabric, lamps, fences, tables, and stools. The three full building shells were removed after blocking PlayerStart/Mara readability.
 - `Content/SampleMap/` and `Content/Lighting/`: supporting content imported with Paragon sample assets.
 
 First local placement pass:
@@ -24,8 +24,10 @@ First local placement pass:
 - `Scripts/place_fab_zone_pass.py` stores the idempotent placement list for the `FabPass_` art layer.
 - `Scripts/place_fab_zone_pass_unreal.py` runs that placement list through Unreal Python and saves `/Game/Maps/L_Embermere_Prototype`.
 - `Scripts/validate_fab_zone_pass_unreal.py` loads the saved map and verifies the `FabPass_` actor count plus required gameplay anchors.
-- The pass removes the old visual-only village blockout buildings, road markers, and ruin blockout pieces, then creates 68 tagged `EmbermereFabPass` actors in `04_Fab_Zone_Pass` outliner folders.
+- The pass removes the old visual-only village blockout buildings, road markers, and ruin blockout pieces, then creates 65 tagged `EmbermereFabPass` actors in `04_Fab_Zone_Pass` outliner folders.
 - The script keeps gameplay actors intact: Mara, PlayerStart, starter enemies, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring are not moved.
+- The Unreal Python helper assigns rotation fields by name. Do not use positional `unreal.Rotator(...)` arguments here; the first pass mapped intended yaw into pitch and tilted the environment.
+- Validation rejects any `FabPass_` actor with meaningful pitch or roll.
 
 ## How To Install Assets
 

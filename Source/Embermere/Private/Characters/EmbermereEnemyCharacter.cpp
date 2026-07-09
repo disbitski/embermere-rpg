@@ -17,7 +17,7 @@
 
 namespace
 {
-constexpr int32 TargetRingSegmentCount = 18;
+constexpr int32 TargetRingSegmentCount = 24;
 }
 
 AEmbermereEnemyCharacter::AEmbermereEnemyCharacter()
@@ -59,16 +59,16 @@ AEmbermereEnemyCharacter::AEmbermereEnemyCharacter()
 	NameplateWidgetComponent->SetVisibility(false);
 	NameplateWidgetComponent->SetHiddenInGame(true);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMeshFinder(TEXT("/Engine/BasicShapes/Cube.Cube"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> RingSegmentMeshFinder(TEXT("/Engine/BasicShapes/Plane.Plane"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> RingMaterialFinder(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
 	for (int32 SegmentIndex = 0; SegmentIndex < TargetRingSegmentCount; ++SegmentIndex)
 	{
 		UStaticMeshComponent* Segment = CreateDefaultSubobject<UStaticMeshComponent>(
 			*FString::Printf(TEXT("SelectedTargetRingSegment_%02d"), SegmentIndex));
 		Segment->SetupAttachment(RootComponent);
-		if (CubeMeshFinder.Succeeded())
+		if (RingSegmentMeshFinder.Succeeded())
 		{
-			Segment->SetStaticMesh(CubeMeshFinder.Object);
+			Segment->SetStaticMesh(RingSegmentMeshFinder.Object);
 		}
 		if (RingMaterialFinder.Succeeded())
 		{
@@ -129,6 +129,11 @@ bool AEmbermereEnemyCharacter::IsSelectedByPlayer() const
 bool AEmbermereEnemyCharacter::HasNameplateWidget() const
 {
 	return NameplateWidgetComponent != nullptr;
+}
+
+int32 AEmbermereEnemyCharacter::GetTargetRingSegmentCount() const
+{
+	return TargetRingSegments.Num();
 }
 
 bool AEmbermereEnemyCharacter::IsLocationOutsideLeashRadius(const FVector& Location) const
@@ -348,7 +353,17 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetRing(bool bIsVisible)
 
 	const float RingRadius = FMath::Max(16.0f, TargetRingRadius);
 	const float SegmentThickness = FMath::Max(2.0f, TargetRingThickness);
-	const float SegmentLength = 2.0f * RingRadius * FMath::Tan(PI / static_cast<float>(TargetRingSegmentCount)) * 0.68f;
+	const float SegmentLength = 2.0f * RingRadius * FMath::Tan(PI / static_cast<float>(TargetRingSegmentCount)) * 0.82f;
+	const UWorld* World = GetWorld();
+	const float TimeSeconds = World ? World->GetTimeSeconds() : 0.0f;
+	const float RotationOffsetDegrees = TimeSeconds * TargetRingRotationSpeedDegreesPerSecond;
+	const float PulseAlpha = 0.5f + 0.5f * FMath::Sin(TimeSeconds * 2.4f);
+	const float PulseScale = 1.0f + FMath::Max(0.0f, TargetRingPulseAmount) * PulseAlpha;
+	FLinearColor AnimatedRingColor = TargetRingColor;
+	const float Brightness = 0.82f + 0.18f * PulseAlpha;
+	AnimatedRingColor.R *= Brightness;
+	AnimatedRingColor.G *= Brightness;
+	AnimatedRingColor.B *= Brightness;
 
 	for (int32 SegmentIndex = 0; SegmentIndex < TargetRingSegments.Num(); ++SegmentIndex)
 	{
@@ -379,20 +394,22 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetRing(bool bIsVisible)
 		}
 		if (TargetRingMaterials.IsValidIndex(SegmentIndex) && TargetRingMaterials[SegmentIndex])
 		{
-			TargetRingMaterials[SegmentIndex]->SetVectorParameterValue(TEXT("Color"), TargetRingColor);
-			TargetRingMaterials[SegmentIndex]->SetVectorParameterValue(TEXT("BaseColor"), TargetRingColor);
+			TargetRingMaterials[SegmentIndex]->SetVectorParameterValue(TEXT("Color"), AnimatedRingColor);
+			TargetRingMaterials[SegmentIndex]->SetVectorParameterValue(TEXT("BaseColor"), AnimatedRingColor);
 		}
 
-		const float AngleRadians = (2.0f * PI * static_cast<float>(SegmentIndex)) / static_cast<float>(TargetRingSegments.Num());
+		const float AngleDegrees =
+			(360.0f * static_cast<float>(SegmentIndex)) / static_cast<float>(TargetRingSegments.Num()) + RotationOffsetDegrees;
+		const float AngleRadians = FMath::DegreesToRadians(AngleDegrees);
 		const FVector SegmentLocation(
-			FMath::Cos(AngleRadians) * RingRadius,
-			FMath::Sin(AngleRadians) * RingRadius,
+			FMath::Cos(AngleRadians) * RingRadius * PulseScale,
+			FMath::Sin(AngleRadians) * RingRadius * PulseScale,
 			TargetRingHeightOffset);
-		const float TangentYawDegrees = FMath::RadiansToDegrees(AngleRadians) + 90.0f;
+		const float TangentYawDegrees = AngleDegrees + 90.0f;
 
 		Segment->SetRelativeLocation(SegmentLocation);
 		Segment->SetRelativeRotation(FRotator(0.0f, TangentYawDegrees, 0.0f));
-		Segment->SetRelativeScale3D(FVector(SegmentLength / 100.0f, SegmentThickness / 100.0f, 0.01f));
+		Segment->SetRelativeScale3D(FVector(SegmentLength / 100.0f, SegmentThickness / 100.0f, 1.0f));
 	}
 }
 

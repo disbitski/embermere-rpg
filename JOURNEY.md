@@ -467,6 +467,41 @@ Verification:
 - FabPass validator still exits successfully when run sequentially.
 - Direct MCP initialized, but raw `tools/call` streaming did not return usable editor-control output in this session. Manual PIE still needs a fresh editor restart before validating the live inventory panel, recovery behavior, leash feel, and FabPass collision/readability.
 
+## 2026-07-09 - Native MCP, Upright World, And Real Inventory
+
+The refreshed ChatGPT desktop app loaded Unreal MCP as first-class tools, turning the editor workflow from a direct-HTTP fallback into a live inspect/change/verify loop.
+
+Environment recovery:
+
+- Ran the existing nine-test baseline through Unreal MCP: 9 passed, 0 failed, 0 warnings.
+- Used Slate screenshots to discover that PlayerStart was buried behind oversized, tilted Fab architecture.
+- Traced the cause to positional `unreal.Rotator` construction mapping intended yaw values into pitch.
+- Corrected all 68 placed actor rotations, including three Euler-normalized values above 90 degrees.
+- Removed the three oversized sci-fi building shells and restored PlayerStart's readable route toward Mara.
+- Updated the placement helper to assign named pitch/yaw/roll fields.
+- Strengthened the map validator and saved the level through Unreal's asset API.
+- Fresh headless validation passed with 65 upright Fab actors and required gameplay anchors intact.
+
+Player-facing UI and targeting:
+
+- Replaced the compact inventory text block with a structured MMO-style inventory window: capacity header, eight visible item rows, selected-item detail pane, description, empty/reward state, and keyboard footer.
+- Preserved `I` show/hide and `[`/`]` selection cycling.
+- Changed the selected-target ground ring from 18 chunky cube segments to 24 flat plane segments with subtle rotation and pulse.
+- Added live hotbar cooldown countdowns and dimmed cooling slots.
+- Added `Embermere.UI.HotbarCooldownDisplay`; the full headless suite now contains 10 tests.
+
+Verification:
+
+- Built successfully with `-NoHotReloadFromIDE`.
+- Ran the final suite: 10 passed, 0 failed, 0 warnings.
+- Reran the corrected Fab map validator successfully.
+- The interactive editor still needs one clean restart before final visual PIE review of the newly linked inventory, hotbar, and target-ring code.
+
+Knowledge loop:
+
+- Published [When Unreal MCP Started Feeling Native](https://github.com/disbitski/real-world-ai-lab/blob/main/field-notes/2026-07-09-unreal-mcp-feels-native.md) with two flashcards.
+- Added a private LinkedIn draft that separates observed end-to-end improvement from unproven model-only attribution.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
