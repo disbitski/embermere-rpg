@@ -204,6 +204,7 @@ void AEmbermerePlayerController::ToggleInventoryPanel()
 	}
 
 	const bool bNowVisible = PlayerHudWidget->ToggleInventoryPanel();
+	UpdateInventoryInputMode(bNowVisible);
 	AddHudMessage(
 		FText::FromString(bNowVisible ? TEXT("Inventory shown") : TEXT("Inventory hidden")),
 		FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
@@ -377,6 +378,7 @@ void AEmbermerePlayerController::EnsurePlayerHud()
 
 	PlayerHudWidget->AddToViewport();
 	PlayerHudWidget->BindToCharacter(GetEmbermereCharacter());
+	UpdateInventoryInputMode(PlayerHudWidget->IsInventoryPanelVisible());
 }
 
 void AEmbermerePlayerController::AddHudMessage(const FText& Message, FLinearColor MessageColor) const
@@ -446,4 +448,26 @@ void AEmbermerePlayerController::UpdateClassicMouseCameraMode()
 			Movement->bOrientRotationToMovement = !bRightMouseDown;
 		}
 	}
+}
+
+void AEmbermerePlayerController::UpdateInventoryInputMode(bool bInventoryVisible)
+{
+	bShowMouseCursor = bInventoryVisible;
+	bEnableClickEvents = bInventoryVisible;
+	bEnableMouseOverEvents = bInventoryVisible;
+
+	if (bInventoryVisible && PlayerHudWidget)
+	{
+		FInputModeGameAndUI InputMode;
+		InputMode.SetWidgetToFocus(PlayerHudWidget->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+		SetInputMode(InputMode);
+		return;
+	}
+
+	bLeftMouseDown = false;
+	bRightMouseDown = false;
+	UpdateClassicMouseCameraMode();
+	SetInputMode(FInputModeGameOnly());
 }

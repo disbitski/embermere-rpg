@@ -85,6 +85,9 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 	TestTrue(TEXT("First enemy has a widget nameplate component"), FirstEnemy->HasNameplateWidget());
 	TestEqual(TEXT("Enemy uses a smooth 24-segment target ring"), FirstEnemy->GetTargetRingSegmentCount(), 24);
 	TestTrue(
+		TEXT("Enemy target ring uses the Embermere emissive material"),
+		FirstEnemy->GetTargetRingMaterialPath().Contains(TEXT("M_EmbermereTargetRing")));
+	TestTrue(
 		TEXT("Enemy target presentation includes name and HP"),
 		FirstEnemy->GetTargetPresentationText().ToString().Contains(TEXT("Marsh Prowler\nHP 100/100")));
 	const FLinearColor HealthyPresentationColor = FirstEnemy->GetTargetPresentationColor();
@@ -304,6 +307,10 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Inventory selection wraps to first stack"), HudWidget->GetSelectedInventoryStackIndex(), 0);
 	TestTrue(TEXT("Inventory selection wraps backward"), HudWidget->SelectNextInventoryItem(-1));
 	TestEqual(TEXT("Inventory selection wraps to last stack"), HudWidget->GetSelectedInventoryStackIndex(), 1);
+	TestTrue(TEXT("Direct inventory selection supports mouse-driven rows"), HudWidget->SelectInventoryItem(0));
+	TestEqual(TEXT("Direct inventory selection updates the inspected stack"), HudWidget->GetSelectedInventoryStackIndex(), 0);
+	TestFalse(TEXT("Direct inventory selection rejects an invalid row"), HudWidget->SelectInventoryItem(Inventory->Stacks.Num()));
+	TestEqual(TEXT("Invalid direct selection preserves the inspected stack"), HudWidget->GetSelectedInventoryStackIndex(), 0);
 
 	return true;
 }

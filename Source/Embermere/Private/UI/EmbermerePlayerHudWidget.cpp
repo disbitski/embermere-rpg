@@ -6,8 +6,10 @@
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Data/EmbermereItemData.h"
+#include "UI/EmbermereInventoryRowButton.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
+#include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/HorizontalBox.h"
@@ -171,6 +173,18 @@ bool UEmbermerePlayerHudWidget::SelectNextInventoryItem(int32 Direction)
 	const int32 StackCount = Inventory->Stacks.Num();
 	const int32 Step = Direction > 0 ? 1 : -1;
 	SelectedInventoryStackIndex = (SelectedInventoryStackIndex + Step + StackCount) % StackCount;
+	RefreshHudText();
+	return true;
+}
+
+bool UEmbermerePlayerHudWidget::SelectInventoryItem(int32 StackIndex)
+{
+	if (!Inventory || !Inventory->Stacks.IsValidIndex(StackIndex))
+	{
+		return false;
+	}
+
+	SelectedInventoryStackIndex = StackIndex;
 	RefreshHudText();
 	return true;
 }
@@ -361,7 +375,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	}
 	if (InventoryFooterText)
 	{
-		InventoryFooterText->SetText(FText::FromString(TEXT("[ / ] Inspect   |   I Close")));
+		InventoryFooterText->SetText(FText::FromString(TEXT("Click item or [ / ] inspect   |   I Close")));
 		InventoryFooterText->SetJustification(ETextJustify::Center);
 	}
 
@@ -389,22 +403,40 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	UVerticalBox* InventoryListStack = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("InventoryListStack"));
 	UVerticalBox* InventoryDetailStack = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("InventoryDetailStack"));
 	InventoryRowTexts.Reset();
+	InventoryRowButtons.Reset();
 	for (int32 RowIndex = 0; RowIndex < InventoryVisibleRowCount; ++RowIndex)
 	{
+		UEmbermereInventoryRowButton* RowButton = WidgetTree->ConstructWidget<UEmbermereInventoryRowButton>(
+			UEmbermereInventoryRowButton::StaticClass(),
+			*FString::Printf(TEXT("InventoryRowButton_%d"), RowIndex));
 		UTextBlock* RowText = MakeHudText(
 			WidgetTree,
 			*FString::Printf(TEXT("InventoryRowText_%d"), RowIndex),
 			FLinearColor(0.82f, 0.84f, 0.78f, 1.0f),
 			13.0f);
-		if (!RowText)
+		if (!RowButton || !RowText)
 		{
 			continue;
 		}
 
+		RowButton->SetVisibleRowIndex(RowIndex);
+		RowButton->OnInventoryRowClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleInventoryRowClicked);
+		RowButton->SetBackgroundColor(FLinearColor(0.08f, 0.085f, 0.075f, 0.72f));
 		RowText->SetAutoWrapText(false);
 		RowText->SetClipping(EWidgetClipping::ClipToBounds);
+		RowText->SetMargin(FMargin(7.0f, 2.0f));
+		RowButton->AddChild(RowText);
+		InventoryRowButtons.Add(RowButton);
 		InventoryRowTexts.Add(RowText);
-		AddStackChild(InventoryListStack, RowText, 5.0f);
+		AddStackChild(
+			InventoryListStack,
+			MakeSizedWidget(
+				WidgetTree,
+				RowButton,
+				*FString::Printf(TEXT("InventoryRowSize_%d"), RowIndex),
+				220.0f,
+				23.0f),
+			3.0f);
 	}
 
 	InventoryDetailNameText = MakeHudText(WidgetTree, TEXT("InventoryDetailNameText"), FLinearColor(1.0f, 0.84f, 0.44f, 1.0f), 16.0f);
@@ -751,22 +783,36 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 		InventoryCapacityText->SetText(FText::FromString(FString::Printf(TEXT("Slots %d / %d"), StackCount, MaxSlots)));
 	}
 
-	for (UTextBlock* RowText : InventoryRowTexts)
+	for (int32 RowIndex = 0; RowIndex < InventoryRowTexts.Num(); ++RowIndex)
 	{
+		UEmbermereInventoryRowButton* RowButton = InventoryRowButtons.IsValidIndex(RowIndex)
+			? InventoryRowButtons[RowIndex]
+			: nullptr;
+		if (RowButton)
+		{
+			RowButton->SetIsEnabled(false);
+			RowButton->SetVisibility(ESlateVisibility::Collapsed);
+			RowButton->SetBackgroundColor(FLinearColor(0.08f, 0.085f, 0.075f, 0.72f));
+		}
+
+		UTextBlock* RowText = InventoryRowTexts[RowIndex];
 		if (RowText)
 		{
 			RowText->SetText(FText::GetEmpty());
-			RowText->SetVisibility(ESlateVisibility::Collapsed);
+			RowText->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 	}
 
 	if (!Inventory || StackCount <= 0)
 	{
+		if (InventoryRowButtons.IsValidIndex(0) && InventoryRowButtons[0])
+		{
+			InventoryRowButtons[0]->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
 		if (InventoryRowTexts.IsValidIndex(0) && InventoryRowTexts[0])
 		{
 			InventoryRowTexts[0]->SetText(FText::FromString(TEXT("Empty")));
 			InventoryRowTexts[0]->SetColorAndOpacity(FSlateColor(FLinearColor(0.62f, 0.64f, 0.6f, 1.0f)));
-			InventoryRowTexts[0]->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 		if (InventoryDetailNameText)
 		{
@@ -784,15 +830,18 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 	}
 
 	const int32 SelectedIndex = FMath::Clamp(SelectedInventoryStackIndex, 0, StackCount - 1);
-	const int32 FirstDisplayedIndex = FMath::Clamp(
+	FirstDisplayedInventoryStackIndex = FMath::Clamp(
 		SelectedIndex - InventoryVisibleRowCount + 1,
 		0,
 		FMath::Max(0, StackCount - InventoryVisibleRowCount));
 	for (int32 RowIndex = 0; RowIndex < InventoryRowTexts.Num(); ++RowIndex)
 	{
-		const int32 StackIndex = FirstDisplayedIndex + RowIndex;
+		const int32 StackIndex = FirstDisplayedInventoryStackIndex + RowIndex;
+		UEmbermereInventoryRowButton* RowButton = InventoryRowButtons.IsValidIndex(RowIndex)
+			? InventoryRowButtons[RowIndex]
+			: nullptr;
 		UTextBlock* RowText = InventoryRowTexts[RowIndex];
-		if (!RowText || !Inventory->Stacks.IsValidIndex(StackIndex))
+		if (!RowButton || !RowText || !Inventory->Stacks.IsValidIndex(StackIndex))
 		{
 			continue;
 		}
@@ -804,16 +853,20 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 		}
 
 		const bool bSelected = StackIndex == SelectedIndex;
+		RowButton->SetIsEnabled(true);
+		RowButton->SetVisibility(ESlateVisibility::Visible);
+		RowButton->SetBackgroundColor(
+			bSelected
+				? FLinearColor(0.28f, 0.19f, 0.055f, 0.92f)
+				: FLinearColor(0.08f, 0.085f, 0.075f, 0.72f));
 		RowText->SetText(FText::FromString(FString::Printf(
-			TEXT("%s %s  x%d"),
-			bSelected ? TEXT(">") : TEXT(" "),
+			TEXT("%s  x%d"),
 			*Stack.Item->DisplayName.ToString(),
 			Stack.Quantity)));
 		RowText->SetColorAndOpacity(FSlateColor(
 			bSelected
 				? FLinearColor(1.0f, 0.8f, 0.3f, 1.0f)
 				: FLinearColor(0.82f, 0.84f, 0.78f, 1.0f)));
-		RowText->SetVisibility(ESlateVisibility::HitTestInvisible);
 	}
 
 	const FEmbermereInventoryStack& SelectedStack = Inventory->Stacks[SelectedIndex];
@@ -840,6 +893,11 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 					: SelectedStack.Item->Description);
 		}
 	}
+}
+
+void UEmbermerePlayerHudWidget::HandleInventoryRowClicked(int32 VisibleRowIndex)
+{
+	SelectInventoryItem(FirstDisplayedInventoryStackIndex + VisibleRowIndex);
 }
 
 void UEmbermerePlayerHudWidget::ClampSelectedInventoryStackIndex()

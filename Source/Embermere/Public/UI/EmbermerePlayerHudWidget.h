@@ -8,6 +8,7 @@ class AActor;
 class AEmbermereCharacter;
 class UEmbermereCombatComponent;
 class UEmbermereHotbarComponent;
+class UEmbermereInventoryRowButton;
 class UEmbermereInventoryComponent;
 class UEmbermereQuestLogComponent;
 class UEmbermereStatsComponent;
@@ -71,6 +72,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool SelectNextInventoryItem(int32 Direction);
 
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
+	bool SelectInventoryItem(int32 StackIndex);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	int32 GetSelectedInventoryStackIndex() const;
 
@@ -126,6 +130,9 @@ private:
 	TArray<TObjectPtr<UTextBlock>> InventoryRowTexts;
 
 	UPROPERTY(Transient)
+	TArray<TObjectPtr<UEmbermereInventoryRowButton>> InventoryRowButtons;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> InventoryDetailNameText;
 
 	UPROPERTY(Transient)
@@ -168,6 +175,7 @@ private:
 	float LootHideTimeSeconds = 0.0f;
 	bool bInventoryPanelVisible = true;
 	int32 SelectedInventoryStackIndex = 0;
+	int32 FirstDisplayedInventoryStackIndex = 0;
 	TArray<TPair<FText, FLinearColor>> ChatMessages;
 
 	void BuildDefaultLayout();
@@ -180,4 +188,7 @@ private:
 
 	UFUNCTION()
 	void HandleItemAdded(class UEmbermereItemData* Item, int32 Quantity);
+
+	UFUNCTION()
+	void HandleInventoryRowClicked(int32 VisibleRowIndex);
 };

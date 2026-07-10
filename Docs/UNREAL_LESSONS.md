@@ -137,6 +137,41 @@ rotation.roll = 0.0
 
 Also validate saved actor rotations from a fresh commandlet. Euler normalization can make values beyond 90 degrees appear as combined pitch/yaw/roll, so prevention is safer than reconstructing intent after placement.
 
+The same rule applies to foundational rebuild scripts, not only one-off art placement helpers. `Scripts/setup_prototype_level.py` also used the positional constructor and was corrected before the next level rebuild could reintroduce tilted actors.
+
+## A Sun And Skylight Do Not Guarantee A Readable Sky
+
+A prototype map can contain a directional light, skylight, and height fog yet still render with a black sky and nearly black shadowed assets.
+
+Embermere's first Fab pass had three compounding causes:
+
+- no `SkyAtmosphere` actor;
+- a stationary captured-scene skylight that had captured black surroundings;
+- black lower-hemisphere and height-fog inscattering colors.
+
+The first Mac-friendly correction was deliberately small:
+
+- add `SkyAtmosphere`;
+- make the skylight movable with real-time capture;
+- provide restrained cool ambient/lower-hemisphere fill;
+- reduce the heavy black fog and add subtle cool/warm inscattering;
+- keep the existing directional sun instead of compensating with excessive direct-light intensity.
+
+Verify this visually in PIE and persist it through the map asset API. Also put the atmosphere actor in the rebuild script and require it in the fresh-process map validator so regeneration cannot silently restore the black-sky state.
+
+## Clickable HUD Windows Need An Explicit Input Mode
+
+Adding `UButton` rows to a runtime UMG inventory is not enough by itself. A classic game-only controller can keep the cursor hidden and prevent the player from reaching those rows.
+
+For Embermere's first mouse-driven inventory pass:
+
+- opening the inventory enables the cursor, click events, mouse-over events, and `FInputModeGameAndUI`;
+- closing it restores `FInputModeGameOnly`, hides the cursor, clears held mouse-button state, and restores classic camera-facing behavior;
+- inventory row buttons are non-focusable so clicking an item does not turn WASD into UI keyboard navigation;
+- bracket-key selection remains available as a full keyboard path.
+
+Automation can cover direct selection and invalid indices, but a clean-restart PIE pass still needs to verify real cursor capture and right-mouse camera behavior against the live viewport.
+
 ## Slate Input Is Not Asset Persistence
 
 `SlateInspectorToolset.PressKey` can successfully deliver `Cmd+S` while PIE or the viewport has focus without saving the dirty map package. A successful input result proves the key event was accepted, not that the asset reached disk.

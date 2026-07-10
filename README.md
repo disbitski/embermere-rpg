@@ -2,7 +2,7 @@
 
 **Embermere** is a classic high-fantasy RPG prototype inspired by the feeling of early EverQuest and World of Warcraft: tab targeting, hotbar combat, readable fantasy silhouettes, dangerous wilderness just outside town, and that old-school sense that a tiny village can open into a much bigger world.
 
-This project is also a build journal. We are learning Unreal Engine 5.8 in public, using Codex and GPT-5.5 as a development partner, and experimenting with Unreal MCP as a way to let AI help drive editor workflows, scene building, iteration, and QA.
+This project is also a build journal. We are learning Unreal Engine 5.8 in public, using ChatGPT Codex as a development partner, and experimenting with Unreal MCP as a way to let AI help drive editor workflows, scene building, iteration, and QA.
 
 ![Embermere art direction: stylized classic, realistic dark fantasy, and painterly nostalgic fantasy concepts](Docs/Media/embermere-art-direction-triptych.png)
 
@@ -54,13 +54,13 @@ The repo currently contains the C++ gameplay scaffold for:
 - first hotbar cooldown enforcement and ready-time feedback
 - starter enemy aggro, leash, return-home, attack, death, and respawn behavior
 - player respawn with short damage protection for recovery safety
-- structured inventory window with capacity, item rows, selected-item details, empty/reward states, `[`/`]` inspection cycling, and `I` show/hide behavior
-- selected enemy UMG nameplate widget, HP bar/readout, and a flat animated 24-segment target ring
+- structured inventory window with clickable item rows, cursor-aware game/UI input, capacity, selected-item details, empty/reward states, `[`/`]` inspection cycling, and `I` show/hide behavior
+- selected enemy UMG nameplate widget, HP bar/readout, and a flat animated 24-segment target ring using a dedicated emissive Embermere material
 - live hotbar cooldown countdowns with unavailable-state dimming
 - Unreal MCP setup notes and a local setup validator
 - first editor-created Blueprints and rules data asset
 - the saved starter-zone map `L_Embermere_Prototype`
-- a corrected 65-actor local Fab/Epic art pass over the starter village, road, wilderness pocket, and ruin landmark, with upright rotations and an unobstructed PlayerStart/Mara route
+- a corrected 65-actor local Fab/Epic art pass over the starter village, road, wilderness pocket, and ruin landmark, with upright rotations, an unobstructed PlayerStart/Mara route, and a Mac-friendly daylight/atmosphere baseline
 
 ## Starting Races
 
@@ -131,6 +131,6 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 ## Status
 
-Early playable Unreal prototype scaffold with MCP connected, a Fab-dressed starter-zone loop, tab-target combat, hotbar cooldown feedback, native HUD panels, bottom-left chat/combat feedback, first quest reward flow, inventory readout/toggle/detail text with bracket-key inspection cycling, and first native selected-target nameplate/ring feedback.
+Early playable Unreal prototype scaffold with MCP connected, a daylight Fab-dressed starter-zone loop, tab-target combat, hotbar cooldown feedback, native HUD panels, bottom-left chat/combat feedback, first quest reward flow, clickable inventory rows plus keyboard inspection, and native selected-target nameplate/emissive-ring feedback.
 
-Next milestone: begin the first Fab art replacement pass and continue upgrading temporary target/inventory presentation into real fantasy UI treatment.
+Next milestone: clean-restart PIE verification, first item actions/equipment data, starter-enemy tuning, and replacing the remaining temporary village silhouettes with a cohesive stylized fantasy architecture kit.

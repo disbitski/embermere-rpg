@@ -9,6 +9,7 @@ EXPECTED_FABPASS_COUNT = 65
 REQUIRED_LABELS = {
     "PlayerStart_Embermere_Village",
     "Quest_Giver_Mara_Fenwatch",
+    "Sky Atmosphere",
     "Starter_Enemy_01",
     "Starter_Enemy_02",
     "Starter_Enemy_03",

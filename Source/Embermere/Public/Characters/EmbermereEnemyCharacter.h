@@ -89,6 +89,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
 	int32 GetTargetRingSegmentCount() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
+	FString GetTargetRingMaterialPath() const;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|AI")
 	bool IsLocationOutsideLeashRadius(const FVector& Location) const;
 

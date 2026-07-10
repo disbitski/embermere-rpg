@@ -60,7 +60,10 @@ AEmbermereEnemyCharacter::AEmbermereEnemyCharacter()
 	NameplateWidgetComponent->SetHiddenInGame(true);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> RingSegmentMeshFinder(TEXT("/Engine/BasicShapes/Plane.Plane"));
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> RingMaterialFinder(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> RingMaterialFinder(
+		TEXT("/Game/Art/Embermere/Targeting/M_EmbermereTargetRing.M_EmbermereTargetRing"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> FallbackRingMaterialFinder(
+		TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
 	for (int32 SegmentIndex = 0; SegmentIndex < TargetRingSegmentCount; ++SegmentIndex)
 	{
 		UStaticMeshComponent* Segment = CreateDefaultSubobject<UStaticMeshComponent>(
@@ -73,6 +76,10 @@ AEmbermereEnemyCharacter::AEmbermereEnemyCharacter()
 		if (RingMaterialFinder.Succeeded())
 		{
 			Segment->SetMaterial(0, RingMaterialFinder.Object);
+		}
+		else if (FallbackRingMaterialFinder.Succeeded())
+		{
+			Segment->SetMaterial(0, FallbackRingMaterialFinder.Object);
 		}
 		Segment->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Segment->SetCanEverAffectNavigation(false);
@@ -134,6 +141,17 @@ bool AEmbermereEnemyCharacter::HasNameplateWidget() const
 int32 AEmbermereEnemyCharacter::GetTargetRingSegmentCount() const
 {
 	return TargetRingSegments.Num();
+}
+
+FString AEmbermereEnemyCharacter::GetTargetRingMaterialPath() const
+{
+	if (TargetRingSegments.Num() <= 0 || !TargetRingSegments[0])
+	{
+		return FString();
+	}
+
+	const UMaterialInterface* RingMaterial = TargetRingSegments[0]->GetMaterial(0);
+	return RingMaterial ? RingMaterial->GetPathName() : FString();
 }
 
 bool AEmbermereEnemyCharacter::IsLocationOutsideLeashRadius(const FVector& Location) const

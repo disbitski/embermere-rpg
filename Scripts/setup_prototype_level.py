@@ -17,7 +17,11 @@ def vec(x, y, z):
 
 
 def rot(pitch=0, yaw=0, roll=0):
-    return unreal.Rotator(float(pitch), float(yaw), float(roll))
+    rotation = unreal.Rotator()
+    rotation.pitch = float(pitch)
+    rotation.yaw = float(yaw)
+    rotation.roll = float(roll)
+    return rotation
 
 
 def load_asset(path):
@@ -78,6 +82,7 @@ def build_level():
     # Lighting and atmosphere.
     spawn_class("/Script/Engine.DirectionalLight", "Sun_Key_Light", (-900, -1200, 1200), "00_World/Lighting", yaw=-35, tags=blockout_tag)
     spawn_class("/Script/Engine.SkyLight", "Sky_Ambient_Light", (0, 0, 500), "00_World/Lighting", tags=blockout_tag)
+    spawn_class("/Script/Engine.SkyAtmosphere", "Sky Atmosphere", (0, 0, 0), "00_World/Lighting", tags=blockout_tag)
     spawn_class("/Script/Engine.ExponentialHeightFog", "Light_Mist_Fog", (0, 0, 0), "00_World/Lighting", tags=blockout_tag)
 
     # Spawn point and village placeholders.

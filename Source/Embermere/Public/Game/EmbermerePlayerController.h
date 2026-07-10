@@ -89,4 +89,5 @@ private:
 	void EnsurePlayerHud();
 	void ShowTargetFeedback(AActor* TargetActor) const;
 	void UpdateClassicMouseCameraMode();
+	void UpdateInventoryInputMode(bool bInventoryVisible);
 };

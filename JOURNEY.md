@@ -502,6 +502,46 @@ Knowledge loop:
 - Published [When Unreal MCP Started Feeling Native](https://github.com/disbitski/real-world-ai-lab/blob/main/field-notes/2026-07-09-unreal-mcp-feels-native.md) with two flashcards.
 - Added a private LinkedIn draft that separates observed end-to-end improvement from unproven model-only attribution.
 
+## 2026-07-10 - Daylight, Mouse Inventory, And A Real Ring Material
+
+We used the clean first-class Unreal MCP connection to verify yesterday's baseline and then pushed three visible prototype systems forward.
+
+Live verification:
+
+- Rediscovered and ran all ten Embermere tests in the restarted editor: 10 passed with zero warnings.
+- Captured the running HUD and confirmed the structured inventory and corrected 65-actor Fab layer were present.
+- Confirmed the map's largest readability problem was environmental rather than UI: it had no atmospheric sky, its captured skylight was black, and its fog inscattering was black.
+
+Lighting pass:
+
+- Added `SkyAtmosphere` to the saved prototype map and foundational level rebuild helper.
+- Changed the skylight to movable real-time capture with soft lower-hemisphere fill.
+- Reduced the heavy black fog and added restrained cool ambient plus warm directional inscattering.
+- Preserved the existing directional sun and Mac-friendly rendering path.
+- Captured PIE again and confirmed a blue sky plus materially better village/route readability.
+- Extended the fresh-process Fab validator to require the atmosphere actor; it still passes with 65 upright actors and all gameplay anchors intact.
+
+Inventory pass:
+
+- Replaced passive inventory text rows with real non-focusable buttons.
+- Clicking a populated row now selects that stack and refreshes the detail pane.
+- Selected rows receive a restrained gold background while empty/invalid rows cannot be clicked.
+- Inventory visibility now switches the controller between cursor-aware game/UI input and classic game-only mouse input.
+- Preserved `I` show/hide plus `[`/`]` keyboard inspection and added direct-selection automation assertions.
+
+Targeting pass:
+
+- Created `/Game/Art/Embermere/Targeting/M_EmbermereTargetRing`, a tracked unlit additive gold material with runtime `Color` and authoring-time `EmissiveStrength` parameters.
+- Wired enemy ring segments to the Embermere material with the engine basic material retained as a fallback.
+- Added automation coverage proving enemies resolve the dedicated material.
+
+Verification:
+
+- Built successfully with `-NoHotReloadFromIDE` after the UI/controller/material wiring.
+- Ran final clean headless automation: 10 passed, 0 failed, 0 warnings.
+- Reran the saved-map validator after the atmosphere requirement; it passed.
+- The interactive editor must be restarted once more before visual PIE verification of the newly linked clickable rows and emissive target ring.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

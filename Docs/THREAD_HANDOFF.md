@@ -2,7 +2,8 @@
 
 Last updated: 2026-07-09
 
-Repository baseline: `4ae9d0a` (`Repair Fab zone and expand RPG HUD`)
+Repository baseline: public `main`; inspect `git log -1` for the current pushed
+handoff commit rather than relying on a self-referential hash in this file.
 
 Workspace: `/Users/wizard/Documents/Unreal Game`
 Repository: https://github.com/disbitski/embermere-rpg
@@ -42,13 +43,15 @@ The project currently includes:
 - hostile enemy aggro, chase, attack, leash, return-home, death, and respawn;
 - player death, respawn, and short recovery damage immunity;
 - a styled native HUD with player/target status, quest tracker, hotbar,
-  inventory, dialogue, loot feedback, nameplates, target ring, and chat log;
-- a first local Fab/Epic art pass with 65 upright environment actors;
+  clickable inventory rows, dialogue, loot feedback, nameplates, an emissive
+  target ring, and chat log;
+- a first local Fab/Epic art pass with 65 upright environment actors plus a
+  Mac-friendly atmospheric daylight baseline;
 - 10 passing Unreal automation tests and a headless Fab map validator.
 
-This is still prototype art. The scene is dark, mixed in style, and missing a
-cohesive fantasy village kit, final characters, animations, weapons, icons,
-VFX, audio, and final UI art.
+This is still prototype art. The first black-sky problem is corrected, but the
+scene remains mixed in style and is missing a cohesive fantasy village kit,
+final characters, animations, weapons, icons, VFX, audio, and final UI art.
 
 ## Game Vision
 
@@ -124,8 +127,8 @@ The matrix is data-driven. Preserve these explicit product decisions:
 | `Ctrl+M` | Toggle inverted/normal mouse Y; inverted is the prototype default |
 | `1`, `2`, `3`, `4` | First four class abilities |
 | `Alt+R`, `Alt+E`, `R`, `X`, `E`, `F` | Remaining hotbar slots; `F` is Interact |
-| `I` | Show/hide inventory |
-| `[` and `]` | Cycle the inspected inventory stack |
+| `I` | Show/hide inventory and switch cursor/game input mode |
+| Mouse click or `[` and `]` | Select/cycle the inspected inventory stack |
 
 The desired camera feel is early EverQuest/WoW third person. Do not replace it
 with a modern over-the-shoulder action camera.
@@ -168,14 +171,16 @@ Implemented presentation includes:
 - Mara's temporary gold quest marker;
 - native screen-space UMG enemy nameplate with selected marker, name, HP text,
   HP bar, and health-aware color;
-- flat 24-segment rotating/pulsing gold target ring;
+- flat 24-segment rotating/pulsing target ring using the tracked unlit additive
+  `M_EmbermereTargetRing` material;
 - 510x292 structured inventory window with `Slots X / 24`, eight visible rows,
   selected-item details, quantity, stack limit, description, empty/reward state,
-  keyboard footer, `I` toggle, and bracket cycling.
+  clickable highlighted rows, cursor-aware input mode, keyboard footer, `I`
+  toggle, and bracket cycling.
 
 These systems are functional programmer art. Dedicated fantasy UI materials,
-icons, mouse-driven inventory selection, equipment presentation, item actions,
-chat scrolling, and final responsive layout remain future work.
+icons, equipment presentation, item actions, chat scrolling, and final
+responsive layout remain future work.
 
 ## Source Architecture
 
@@ -364,12 +369,15 @@ Current automation tests:
 9. `Embermere.UI.ChatLog`
 10. `Embermere.Quests.CompletionRewards`
 
-Latest verified baseline:
+Latest verified baseline (2026-07-10):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
 - automation passed 10/10 with zero errors and zero warnings;
-- headless Fab validator passed with 65 upright `FabPass_` actors and required
-  gameplay anchors intact.
+- headless Fab validator passed with 65 upright `FabPass_` actors, required
+  gameplay anchors, and the saved atmosphere actor intact;
+- live pre-relink PIE confirmed the black sky was replaced by a blue atmospheric
+  sky with readable ambient fill. Restart before testing final clickable-row and
+  emissive-ring code.
 
 ## Critical Unreal Lessons
 
@@ -394,7 +402,8 @@ Read `Docs/UNREAL_LESSONS.md` for the full record. The highest-risk lessons are:
 
 ## Known Workspace State
 
-At this handoff, `main` and `origin/main` point to `4ae9d0a`.
+At a completed daily handoff, `main` and `origin/main` should point to the same
+latest intentional commit.
 
 The worktree intentionally still shows:
 
@@ -422,23 +431,26 @@ First fresh-session checks:
 2. Start MCP on port `8123` and wait briefly for tool discovery.
 3. Run/discover all 10 tests.
 4. Start PIE and verify:
-   - structured inventory layout, empty state, reward inspection, `I`, `[`/`]`;
+   - structured inventory layout, empty state, reward inspection, clickable row
+     selection, selected-row highlight, `I`, `[`/`]`, and cursor capture/release;
    - hotbar dimming and live cooldown countdown;
    - native nameplate and health-aware color;
-   - flat rotating/pulsing 24-segment target ring;
+   - flat rotating/pulsing 24-segment emissive target ring;
    - W/S autorun cancel and `Ctrl+M` inversion feedback;
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
    - 65 upright Fab actors, clear spawn/Mara route, readable road/enemy pocket,
-     and a ruin that does not trap the player.
-5. Assess the very dark sky/ground and make a Mac-friendly lighting/readability
-   pass when the current presentation is confirmed.
+     a ruin that does not trap the player, and balanced daylight/fog under the
+     new atmospheric sky.
+5. If the first daylight balance survives manual play, add precise saved-light
+   property assertions to the map validator.
 
 High-value milestones after that:
 
-- mouse-based inventory selection, item actions, and equipment planning;
-- dedicated fantasy target-ring decal/material art;
+- first item actions and equipment data/paper-doll planning;
+- optional rune/soft-edge texture treatment for the dedicated target-ring
+  material;
 - proper Stylized Classic fantasy village buildings from a suitable signed-in
   UE-compatible pack;
 - enemy aggro/leash/attack/damage/respawn tuning from real PIE feel;
@@ -495,7 +507,7 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of the structured inventory, hotbar cooldown countdown, native enemy nameplate, animated 24-segment target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, and corrected 65-actor Fab environment. Then continue into the highest-value next milestone when the path is clear.
+Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of clickable inventory rows and cursor mode, hotbar cooldown countdown, native enemy nameplate, emissive animated 24-segment target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight balance, and the corrected 65-actor Fab environment. Then continue into item actions/equipment data and the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

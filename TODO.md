@@ -6,7 +6,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Restart Unreal before manual PIE if the editor has been open since the 2026-07-09 structured-inventory, hotbar-cooldown, target-ring C++ build or the corrected Fab/Epic environment save. The current source builds and headless automation passes, but the open editor still has the pre-build module loaded.
+- Restart Unreal before manual PIE if the editor has been open since the 2026-07-10 clickable-inventory and dedicated target-ring-material C++ build. The current source builds and headless automation passes, but the open editor still has the pre-build module loaded.
 - Confirm the local Fab/Epic folders are present but ignored by Git:
   - `Content/KiteDemo/`
   - `Content/SoulCave/`
@@ -29,13 +29,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - quest progress updates after accepting Mara's quest and defeating enemies;
   - all hotbar slots show stable labels for `1`, `2`, `3`, `4`, `Alt+R`, `Alt+E`, `R`, `X`, `E`, and `F`;
   - Mara interaction shows the dialogue panel;
-  - the structured inventory window starts empty and shows its title, `Slots 0 / 24`, item list, selected-item detail pane, quest-reward hint, and keyboard footer;
-  - pressing `I` hides/shows the inventory panel;
-  - pressing `[` and `]` cycles the inspected inventory stack after multiple stacks exist;
+  - the structured inventory window starts empty and shows its title, `Slots 0 / 24`, clickable item list, selected-item detail pane, quest-reward hint, and keyboard/mouse footer;
+  - the inventory starts in cursor-aware game/UI mode; pressing `I` hides it, hides the cursor, and restores classic game-only mouse input;
+  - clicking a populated row or pressing `[` and `]` changes the inspected inventory stack after multiple stacks exist;
   - quest completion/reward shows the loot popup and the inventory panel lists the reward item;
   - combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log instead of overlapping the top-left player status panel or spilling beyond the chat panel border.
 - Manually verify selected-target world readability in PIE:
-  - `Tab` shows the selected enemy's UMG nameplate, selected marker, HP text, HP bar, and gold segmented mesh target ring;
+  - `Tab` shows the selected enemy's UMG nameplate, selected marker, HP text, HP bar, and emissive gold segmented mesh target ring;
   - the nameplate accent/HP bar changes toward red/orange as enemy HP falls;
   - switching targets clears the old enemy marker;
   - killing the selected enemy clears the target and marker.
@@ -51,6 +51,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 - Manually verify the new Mara marker in PIE:
   - Mara should show a temporary gold `!` and name marker above her.
 - Manually verify the first `FabPass_` environment layer in PIE:
+  - the map has a blue atmospheric sky and readable ambient fill instead of the previous black sky/black shadow presentation;
   - all 65 remaining art-pass actors stand upright instead of inheriting intended yaw as pitch;
   - the three oversized sci-fi building shells are gone and PlayerStart has an unobstructed view toward Mara;
   - village props leave Mara, PlayerStart, and the quest interaction route readable;
@@ -88,30 +89,33 @@ Embermere has a working first-pass starter slice:
 - temporary in-world interactable markers, including a gold quest marker for Mara;
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
 - structured first-pass inventory window with capacity header, item rows, selected-item details, empty/reward states, `[`/`]` inspection cycling, and `I` show/hide toggle;
-- first-pass selected-target UMG nameplate widget plus a flat 24-segment rotating/pulsing gold target ring;
+- mouse-clickable inventory rows and cursor-aware game/UI input while the inventory is open;
+- first-pass selected-target UMG nameplate widget plus a flat 24-segment rotating/pulsing emissive gold target ring;
 - first-pass hotbar cooldown enforcement and ready-time feedback;
 - live hotbar slot countdown and unavailable-state dimming;
 - first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
+- first Mac-friendly sky, ambient fill, and fog-readability correction;
 - automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash rules, damage immunity, enemy nameplate widget, chat log, hotbar cooldown display, and inventory toggle.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The corrected local environment art pass is upright and spawn-safe, but it remains very dark, stylistically mixed, and incomplete without real fantasy village buildings. The structured inventory window, animated target ring, and nameplate still need visual PIE review after a clean editor restart.
+The prototype foundation is alive, but it is still early. The corrected local environment art pass is upright and spawn-safe, and its black-sky problem has a first daylight fix, but it remains stylistically mixed and incomplete without real fantasy village buildings. The clickable inventory rows and dedicated emissive target-ring material still need visual PIE review after a clean editor restart.
 
 ## Next Work
 
 - Replace temporary selected-target text with better world readability:
   - manually verify the new UMG nameplate widget, selected marker, HP bar, and HP-aware accent color in PIE;
-  - visually verify the flat animated 24-segment target ring, then replace it with a dedicated fantasy decal/material asset;
+  - visually verify the flat animated 24-segment ring using `M_EmbermereTargetRing`, then decide whether rune/soft-edge texture art warrants a decal revision;
   - tune screen-space widget size/height against camera distance.
 - Improve inventory presentation:
   - verify the structured inventory list/detail layout, richer empty state, and reward inspection in PIE;
-  - manually verify bracket-key item cycling once inventory has multiple reward stacks;
-  - add mouse selection, item actions, and an equipment-paper-doll plan after the structured window has been playtested.
+  - manually verify mouse row selection, cursor capture/release, and bracket-key item cycling once inventory has multiple reward stacks;
+  - define first item actions and an equipment-paper-doll/data plan after the clickable window has been playtested.
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
   - continue tuning chat panel height/line count against the hotbar and common desktop viewport sizes.
 - Manually review the first Fab/Epic environment pass in PIE:
+  - verify the atmospheric sky, ambient fill, and fog balance on the Mac viewport;
   - confirm the removal of the oversized sci-fi shells leaves Mara and PlayerStart readable;
   - improve sky/ambient lighting and ground readability without regressing Mac performance;
   - confirm the dressed road still leads clearly from spawn to Mara and the enemy pocket;
@@ -122,6 +126,7 @@ The prototype foundation is alive, but it is still early. The corrected local en
 - Tune starter enemy aggro, leash radius, return-home speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
+- Add a validator assertion for the saved lighting settings if the current visual balance survives manual PIE.
 
 ## Last Completed
 
@@ -183,6 +188,15 @@ The prototype foundation is alive, but it is still early. The corrected local en
 - Added live hotbar cooldown countdown text and unavailable-state dimming plus `Embermere.UI.HotbarCooldownDisplay`.
 - Built successfully with `-NoHotReloadFromIDE`; the expanded suite passed 10/10 with zero warnings.
 - Published the related Real World AI Lab field note, `When Unreal MCP Started Feeling Native`, plus flashcards and a private LinkedIn draft.
+- 2026-07-10: verified the fresh live MCP baseline: 10 tests passed with zero warnings, and the structured HUD plus corrected Fab layer were present in PIE.
+- Added `SkyAtmosphere`, movable real-time skylight fill, and restrained fog color/density; PIE now shows a blue sky and readable village route instead of the prior black-sky presentation.
+- Added the atmosphere actor to `setup_prototype_level.py`, corrected that foundational helper's positional `unreal.Rotator` bug, and made the fresh-process Fab validator require the atmosphere.
+- Replaced passive inventory rows with non-focusable clickable buttons, direct stack selection, selected-row highlighting, and controller input-mode/cursor switching while the inventory is open.
+- Preserved `I` and `[`/`]` keyboard behavior and expanded `Embermere.UI.InventoryToggle` with direct-selection and invalid-index assertions.
+- Created and saved `/Game/Art/Embermere/Targeting/M_EmbermereTargetRing`, an unlit additive parameterized gold material, and wired the 24 ring segments to it with an engine-material fallback.
+- Added a target-presentation assertion proving the dedicated material resolves.
+- Final no-hot-reload build succeeded; headless automation passed 10/10 with zero warnings; the saved-map validator passed with 65 upright Fab actors, required gameplay anchors, and the atmosphere present.
+- Restart the interactive editor before manually validating row clicks/cursor behavior and the emissive ring, because the current editor predates the final C++ relink.
 
 ## Asset Hunt
 
