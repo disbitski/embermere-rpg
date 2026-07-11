@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-07-09
+Last updated: 2026-07-11
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,7 +39,7 @@ The project currently includes:
 
 - classic MMO movement, camera, autorun, mouse inversion, and tab targeting;
 - data-driven race/class restrictions and starter abilities;
-- quest, inventory, stats, combat, targeting, interactable, and hotbar systems;
+- quest, inventory, equipment, stats, combat, targeting, interactable, and hotbar systems;
 - hostile enemy aggro, chase, attack, leash, return-home, death, and respawn;
 - player death, respawn, and short recovery damage immunity;
 - a styled native HUD with player/target status, quest tracker, hotbar,
@@ -47,7 +47,7 @@ The project currently includes:
   target ring, and chat log;
 - a first local Fab/Epic art pass with 65 upright environment actors plus a
   Mac-friendly atmospheric daylight baseline;
-- 10 passing Unreal automation tests and a headless Fab map validator.
+- 11 passing Unreal automation tests and a headless Fab/map/lighting validator.
 
 This is still prototype art. The first black-sky problem is corrected, but the
 scene remains mixed in style and is missing a cohesive fantasy village kit,
@@ -129,6 +129,7 @@ The matrix is data-driven. Preserve these explicit product decisions:
 | `Alt+R`, `Alt+E`, `R`, `X`, `E`, `F` | Remaining hotbar slots; `F` is Interact |
 | `I` | Show/hide inventory and switch cursor/game input mode |
 | Mouse click or `[` and `]` | Select/cycle the inspected inventory stack |
+| Inventory action button | Equip or unequip the selected eligible item |
 
 The desired camera feel is early EverQuest/WoW third person. Do not replace it
 with a modern over-the-shoulder action camera.
@@ -144,6 +145,8 @@ Important gameplay actors/assets:
 - Three starter Marsh Prowlers in the wilderness pocket.
 - A village-to-road-to-wilderness route and an upgraded ruin landmark.
 - Starter quest and reward item data assets.
+- The tracked Recruit Pack reward is configured as level-1 Back-slot armor so
+  the first Equip/Unequip action is reachable through the normal quest loop.
 - Blueprint children/wrappers for the C++ player, enemy, game mode, and quest
   giver systems.
 
@@ -171,16 +174,16 @@ Implemented presentation includes:
 - Mara's temporary gold quest marker;
 - native screen-space UMG enemy nameplate with selected marker, name, HP text,
   HP bar, and health-aware color;
-- flat 24-segment rotating/pulsing target ring using the tracked unlit additive
+- flat 24-segment rotating/pulsing target ring using the tracked unlit opaque-emissive
   `M_EmbermereTargetRing` material;
-- 510x292 structured inventory window with `Slots X / 24`, eight visible rows,
+- 510x330 structured inventory window with `Slots X / 24`, eight visible rows,
   selected-item details, quantity, stack limit, description, empty/reward state,
   clickable highlighted rows, cursor-aware input mode, keyboard footer, `I`
-  toggle, and bracket cycling.
+  toggle, bracket cycling, category/slot/level metadata, and an Equip/Unequip action.
 
 These systems are functional programmer art. Dedicated fantasy UI materials,
-icons, equipment presentation, item actions, chat scrolling, and final
-responsive layout remain future work.
+icons, a visible equipment paper doll, consumable actions, chat scrolling, and
+final responsive layout remain future work.
 
 ## Source Architecture
 
@@ -202,15 +205,17 @@ Components:
 - `EmbermereTargetingComponent`: tab-target selection/cycling.
 - `EmbermereStatsComponent`: HP/mana/XP, damage, death, immunity.
 - `EmbermereInventoryComponent`: item stacks and capacity.
+- `EmbermereEquipmentComponent`: slot eligibility, equip/replace/unequip state.
 - `EmbermereQuestLogComponent`: quest state and completion.
 - `EmbermereInteractableComponent`: interaction range/behavior.
 
 Data and types:
 
 - `Data/EmbermereRulesData.*`: data-driven races, classes, and rules.
-- `Data/EmbermereItemData.h`: item definition.
+- `Data/EmbermereItemData.*`: item identity, category, equipment slot, level requirement, and stat bonuses.
 - `Data/EmbermereQuestData.h`: quest definition.
-- `Types/EmbermereTypes.h`: shared enums/structs.
+- `Types/EmbermereTypes.h`: shared gameplay enums/structs.
+- `Types/EmbermereItemTypes.h`: item categories, equipment slots, and stat bonuses.
 - `Interfaces/EmbermereTargetable.h`: targetable contract.
 
 UI:
@@ -248,7 +253,10 @@ Environment scripts:
 - `Scripts/place_fab_zone_pass_unreal.py`: executes placement through Unreal
   Python and saves the map.
 - `Scripts/validate_fab_zone_pass_unreal.py`: reloads and validates the saved
-  map, actor count, upright rotations, and gameplay anchors.
+  map, actor count, upright rotations, gameplay anchors, moss foundation, and
+  exact Mac-friendly daylight values.
+- `Scripts/configure_starter_items.py`: idempotently migrates tracked starter
+  item assets, currently the level-1 Back-slot Recruit Pack reward.
 
 The three oversized sci-fi building shells were removed because they blocked
 PlayerStart and Mara readability. The current zone still needs proper Stylized
@@ -368,16 +376,17 @@ Current automation tests:
 8. `Embermere.UI.HotbarCooldownDisplay`
 9. `Embermere.UI.ChatLog`
 10. `Embermere.Quests.CompletionRewards`
+11. `Embermere.Equipment.SlotRules`
 
-Latest verified baseline (2026-07-10):
+Latest verified baseline (2026-07-11):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- automation passed 10/10 with zero errors and zero warnings;
+- automation passed 11/11 with zero errors and zero warnings;
 - headless Fab validator passed with 65 upright `FabPass_` actors, required
-  gameplay anchors, and the saved atmosphere actor intact;
-- live pre-relink PIE confirmed the black sky was replaced by a blue atmospheric
-  sky with readable ambient fill. Restart before testing final clickable-row and
-  emissive-ring code.
+  gameplay anchors, moss-ground overrides, and exact saved sun/skylight/fog values;
+- live pre-relink PIE confirmed the blue atmospheric sky, readable ambient fill,
+  muted moss ground, inventory show/hide, target/nameplate, and chat clipping;
+- restart before testing the final Equip/Unequip button and raised target ring.
 
 ## Critical Unreal Lessons
 
@@ -395,9 +404,11 @@ Read `Docs/UNREAL_LESSONS.md` for the full record. The highest-risk lessons are:
    `.yaw`, and `.roll` by name.
 6. **Slate input is not persistence:** save through asset APIs and verify from a
    fresh process.
-7. **Fab access:** unauthenticated terminal/API search is Cloudflare-gated.
+7. **World indicator clearance:** inspect both indicator and layered walkable
+   surface Z values; visible components can still be buried inside a platform.
+8. **Fab access:** unauthenticated terminal/API search is Cloudflare-gated.
    Asset acquisition happens through the signed-in Fab window/Launcher.
-8. **Marketplace licensing:** use assets in the project, but never commit or
+9. **Marketplace licensing:** use assets in the project, but never commit or
    redistribute raw vendor packs in the public repository.
 
 ## Known Workspace State
@@ -429,26 +440,26 @@ First fresh-session checks:
 
 1. Restart Unreal and open `L_Embermere_Prototype`.
 2. Start MCP on port `8123` and wait briefly for tool discovery.
-3. Run/discover all 10 tests.
+3. Run/discover all 11 tests.
 4. Start PIE and verify:
    - structured inventory layout, empty state, reward inspection, clickable row
-     selection, selected-row highlight, `I`, `[`/`]`, and cursor capture/release;
+     selection, selected-row highlight, Equip/Unequip action, `I`, `[`/`]`, and cursor capture/release;
    - hotbar dimming and live cooldown countdown;
    - native nameplate and health-aware color;
-   - flat rotating/pulsing 24-segment emissive target ring;
+   - flat rotating/pulsing 24-segment emissive target ring clearing the raised combat platform;
    - W/S autorun cancel and `Ctrl+M` inversion feedback;
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
    - 65 upright Fab actors, clear spawn/Mara route, readable road/enemy pocket,
-     a ruin that does not trap the player, and balanced daylight/fog under the
-     new atmospheric sky.
-5. If the first daylight balance survives manual play, add precise saved-light
-   property assertions to the map validator.
+     a ruin that does not trap the player, muted moss ground, and balanced
+     daylight/fog under the atmospheric sky.
+5. Confirm the already-added precise daylight and moss-ground validator
+   assertions still match the clean-restart visual result.
 
 High-value milestones after that:
 
-- first item actions and equipment data/paper-doll planning;
+- visible paper-doll/equipment state, equipped-stat application, and consumable actions;
 - optional rune/soft-edge texture treatment for the dedicated target-ring
   material;
 - proper Stylized Classic fantasy village buildings from a suitable signed-in
@@ -507,7 +518,7 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of clickable inventory rows and cursor mode, hotbar cooldown countdown, native enemy nameplate, emissive animated 24-segment target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight balance, and the corrected 65-actor Fab environment. Then continue into item actions/equipment data and the highest-value next milestone when the path is clear.
+Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of clickable inventory rows, Equip/Unequip action, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised emissive animated 24-segment target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, and the corrected 65-actor Fab environment. Then continue into visible paper-doll equipment state, stat application, consumable actions, and the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

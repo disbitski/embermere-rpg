@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class UEmbermereCombatComponent;
+class UEmbermereEquipmentComponent;
 class UEmbermereHotbarComponent;
 class UEmbermereInventoryComponent;
 class UEmbermereQuestLogComponent;
@@ -44,6 +45,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UEmbermereInventoryComponent> Inventory;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UEmbermereEquipmentComponent> Equipment;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UEmbermereQuestLogComponent> QuestLog;

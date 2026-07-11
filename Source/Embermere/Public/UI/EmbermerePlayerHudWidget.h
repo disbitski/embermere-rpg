@@ -7,12 +7,14 @@
 class AActor;
 class AEmbermereCharacter;
 class UEmbermereCombatComponent;
+class UEmbermereEquipmentComponent;
 class UEmbermereHotbarComponent;
 class UEmbermereInventoryRowButton;
 class UEmbermereInventoryComponent;
 class UEmbermereQuestLogComponent;
 class UEmbermereStatsComponent;
 class UBorder;
+class UButton;
 class UHorizontalBox;
 class UProgressBar;
 class UTextBlock;
@@ -41,6 +43,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Embermere|HUD")
 	TObjectPtr<UEmbermereInventoryComponent> Inventory;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Embermere|HUD")
+	TObjectPtr<UEmbermereEquipmentComponent> Equipment;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	void BindToCharacter(AEmbermereCharacter* Character);
@@ -80,6 +85,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	FText GetInventoryDisplayText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	FText GetSelectedInventoryActionLabel() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
+	bool ActivateSelectedInventoryItem();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	FText GetHotbarSlotDisplayText(int32 SlotIndex, float CooldownRemainingSeconds = 0.0f) const;
@@ -142,6 +153,12 @@ private:
 	TObjectPtr<UTextBlock> InventoryDetailDescriptionText;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UButton> InventoryActionButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> InventoryActionText;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> InventoryFooterText;
 
 	UPROPERTY(Transient)
@@ -191,4 +208,7 @@ private:
 
 	UFUNCTION()
 	void HandleInventoryRowClicked(int32 VisibleRowIndex);
+
+	UFUNCTION()
+	void HandleInventoryActionClicked();
 };

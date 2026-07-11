@@ -57,7 +57,7 @@ public:
 	float TargetRingRadius = 96.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
-	float TargetRingHeightOffset = -86.0f;
+	float TargetRingHeightOffset = -79.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	float TargetRingThickness = 8.0f;

@@ -542,6 +542,37 @@ Verification:
 - Reran the saved-map validator after the atmosphere requirement; it passed.
 - The interactive editor must be restarted once more before visual PIE verification of the newly linked clickable rows and emissive target ring.
 
+## 2026-07-11 - Moss Ground, Equipment Rules, And First Item Actions
+
+We started in the live editor, ran the existing ten-test suite through first-class Unreal MCP, and used PIE plus object inspection to close several presentation gaps.
+
+World and targeting pass:
+
+- Replaced the nearly white prototype foundation with `/Game/Art/Embermere/Environment/M_EmbermereGround`, a tracked muted-moss material applied to the zone plane and both raised area platforms.
+- Changed the target-ring material from additive to opaque unlit/emissive so gold survives bright outdoor surfaces.
+- Traced the missing ring to geometry rather than visibility: its constructor offset placed the segments inside the raised combat-pocket cylinder.
+- Raised the source default for future enemy constructions and documented the layered-surface diagnostic.
+- Added ground-material assignment to the level rebuild script and fresh-process validator.
+
+Equipment and item-action foundation:
+
+- Added data-driven item categories, paper-doll slots, level requirements, and health/mana/armor/power bonus fields.
+- Added `UEmbermereEquipmentComponent` with equip eligibility, one-item-per-slot replacement, query, and unequip rules.
+- Mounted equipment state on Embermere characters without coupling it to vendor meshes or marketplace assets.
+- Expanded inventory inspection with category, primary action, slot, and required-level text.
+- Added a real inventory action button that equips or unequips the selected eligible item and posts the result to the bottom-left chat log.
+- Migrated Mara's tracked Recruit Pack reward to level-1 Back armor so the action is reachable through the normal quest loop.
+- Added `Embermere.Equipment.SlotRules` and expanded inventory automation around level gating and Equip/Unequip state.
+
+Durability and verification:
+
+- Recorded the exact successful daylight values in the rebuild script.
+- Strengthened saved-map validation to assert sun, skylight, fog, moss ground, 65 upright Fab actors, and gameplay anchors.
+- Built successfully with `-NoHotReloadFromIDE`.
+- Ran the final suite: 11 passed, 0 failed, 0 warnings.
+- Fresh-process map validation passed with the complete daylight and ground baseline.
+- The desktop safety layer correctly refused to close the live Unreal session without explicit confirmation, so the new C++ ring clearance and Equip/Unequip button still need a clean-restart PIE visual check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -59,6 +59,36 @@ def spawn_class(class_path, label, location, folder, scale=(1, 1, 1), yaw=0, tag
     return set_common(actor, label, folder, tags, scale)
 
 
+def apply_material_override(actor, material_path):
+    material = load_asset(material_path)
+    component = actor.get_component_by_class(unreal.StaticMeshComponent)
+    if not component:
+        raise RuntimeError(f"Actor has no static mesh component: {actor.get_actor_label()}")
+    component.set_material(0, material)
+
+
+def configure_daylight(sun, skylight, fog):
+    sun_component = sun.get_component_by_class(unreal.DirectionalLightComponent)
+    sky_component = skylight.get_component_by_class(unreal.SkyLightComponent)
+    fog_component = fog.get_component_by_class(unreal.ExponentialHeightFogComponent)
+    if not sun_component or not sky_component or not fog_component:
+        raise RuntimeError("Could not resolve one or more daylight components")
+
+    sun_component.set_editor_property("intensity", 10.0)
+    sun_component.set_editor_property("atmosphere_sun_light", True)
+    sun_component.set_editor_property("mobility", unreal.ComponentMobility.STATIONARY)
+
+    sky_component.set_editor_property("intensity", 1.35)
+    sky_component.set_editor_property("real_time_capture", True)
+    sky_component.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
+
+    fog_component.set_editor_property("fog_density", 0.008)
+    fog_component.set_editor_property("fog_height_falloff", 0.25)
+    fog_component.set_editor_property("fog_inscattering_luminance", unreal.LinearColor(0.08, 0.12, 0.18, 1.0))
+    fog_component.set_editor_property("enable_volumetric_fog", False)
+    fog_component.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
+
+
 def clear_existing_blockout():
     keep_labels = set()
     for actor in ACTOR_SUBSYSTEM.get_all_level_actors():
@@ -75,15 +105,19 @@ def build_level():
     blockout_tag = ["EmbermereBlockout"]
 
     # World foundation and navigation read.
-    spawn_asset("/Engine/BasicShapes/Plane", "Zone_Ground_Embermere_Glen", (0, 0, 0), "00_World", (90, 90, 1), tags=blockout_tag)
-    spawn_asset("/Engine/BasicShapes/Cylinder", "Safe_Area_Ring", (-1800, -850, 8), "01_Village", (8, 8, 0.08), tags=blockout_tag)
-    spawn_asset("/Engine/BasicShapes/Cylinder", "Combat_Pocket_Ring", (1900, 850, 8), "03_Wilderness", (9, 9, 0.08), tags=blockout_tag)
+    ground_material_path = "/Game/Art/Embermere/Environment/M_EmbermereGround"
+    ground = spawn_asset("/Engine/BasicShapes/Plane", "Zone_Ground_Embermere_Glen", (0, 0, 0), "00_World", (90, 90, 1), tags=blockout_tag)
+    safe_area = spawn_asset("/Engine/BasicShapes/Cylinder", "Safe_Area_Ring", (-1800, -850, 8), "01_Village", (8, 8, 0.08), tags=blockout_tag)
+    combat_pocket = spawn_asset("/Engine/BasicShapes/Cylinder", "Combat_Pocket_Ring", (1900, 850, 8), "03_Wilderness", (9, 9, 0.08), tags=blockout_tag)
+    for foundation_actor in (ground, safe_area, combat_pocket):
+        apply_material_override(foundation_actor, ground_material_path)
 
     # Lighting and atmosphere.
-    spawn_class("/Script/Engine.DirectionalLight", "Sun_Key_Light", (-900, -1200, 1200), "00_World/Lighting", yaw=-35, tags=blockout_tag)
-    spawn_class("/Script/Engine.SkyLight", "Sky_Ambient_Light", (0, 0, 500), "00_World/Lighting", tags=blockout_tag)
+    sun = spawn_class("/Script/Engine.DirectionalLight", "Sun_Key_Light", (-900, -1200, 1200), "00_World/Lighting", yaw=-35, tags=blockout_tag)
+    skylight = spawn_class("/Script/Engine.SkyLight", "Sky_Ambient_Light", (0, 0, 500), "00_World/Lighting", tags=blockout_tag)
     spawn_class("/Script/Engine.SkyAtmosphere", "Sky Atmosphere", (0, 0, 0), "00_World/Lighting", tags=blockout_tag)
-    spawn_class("/Script/Engine.ExponentialHeightFog", "Light_Mist_Fog", (0, 0, 0), "00_World/Lighting", tags=blockout_tag)
+    fog = spawn_class("/Script/Engine.ExponentialHeightFog", "Light_Mist_Fog", (0, 0, 0), "00_World/Lighting", tags=blockout_tag)
+    configure_daylight(sun, skylight, fog)
 
     # Spawn point and village placeholders.
     spawn_class("/Script/Engine.PlayerStart", "PlayerStart_Embermere_Village", (-2400, -1200, 95), "01_Village", yaw=35, tags=blockout_tag)

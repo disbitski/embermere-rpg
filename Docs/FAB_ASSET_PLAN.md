@@ -23,12 +23,13 @@ First local placement pass:
 
 - `Scripts/place_fab_zone_pass.py` stores the idempotent placement list for the `FabPass_` art layer.
 - `Scripts/place_fab_zone_pass_unreal.py` runs that placement list through Unreal Python and saves `/Game/Maps/L_Embermere_Prototype`.
-- `Scripts/validate_fab_zone_pass_unreal.py` loads the saved map and verifies the `FabPass_` actor count plus required gameplay anchors.
+- `Scripts/validate_fab_zone_pass_unreal.py` loads the saved map and verifies the `FabPass_` actor count, required gameplay anchors, moss foundation material, and exact Mac-friendly daylight settings.
 - The pass removes the old visual-only village blockout buildings, road markers, and ruin blockout pieces, then creates 65 tagged `EmbermereFabPass` actors in `04_Fab_Zone_Pass` outliner folders.
 - The script keeps gameplay actors intact: Mara, PlayerStart, starter enemies, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring are not moved.
 - The Unreal Python helper assigns rotation fields by name. Do not use positional `unreal.Rotator(...)` arguments here; the first pass mapped intended yaw into pitch and tilted the environment.
 - Validation rejects any `FabPass_` actor with meaningful pitch or roll.
-- The map now includes a first Mac-friendly daylight baseline: `SkyAtmosphere`, real-time movable skylight fill, and restrained height-fog color/density. The validator requires the atmosphere actor so rebuilt maps do not regress to the previous black-sky state.
+- The map now includes a first Mac-friendly daylight baseline: `SkyAtmosphere`, real-time movable skylight fill, and restrained height-fog color/density. The validator asserts the sun, skylight, fog, and atmosphere settings so rebuilt maps do not regress to the previous black-sky state.
+- `/Game/Art/Embermere/Environment/M_EmbermereGround` gives the zone plane and both prototype area platforms a muted moss color. The setup script reapplies it and validation rejects missing overrides.
 
 ## How To Install Assets
 

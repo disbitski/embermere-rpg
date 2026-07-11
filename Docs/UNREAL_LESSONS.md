@@ -190,6 +190,25 @@ Embermere example:
 - `save_assets(["/Game/Maps/L_Embermere_Prototype"])` persisted the map;
 - the next fresh validator found 65 upright actors and passed.
 
+## World-Space Indicators Must Clear Every Visual Layer
+
+A target ring can be visible, unhidden, correctly materialed, and still disappear because its component height was authored against the character capsule rather than the actual surface beneath the enemy. Embermere's combat-pocket cylinder sits above the zone plane, so the original ring height placed all 24 segments inside that platform.
+
+Practical rule:
+
+- inspect the actor, indicator component, and supporting surface world Z values separately;
+- account for raised blockout platforms, decals, terrain, and future mesh swaps;
+- leave a small clearance above the highest expected walkable surface;
+- verify again after a clean C++ reload because constructor-created component offsets do not update when only the source default changes.
+
+Also avoid assuming additive is always the most readable blend mode. The gold ring washed out over the prototype's very bright ground, so the first material pass now uses an opaque unlit/emissive treatment while the ground itself uses a muted moss material.
+
+## Visual Baselines Belong In Rebuild Scripts And Validators
+
+A successful one-off lighting or material edit is fragile if the foundational level script can regenerate older defaults. After the first blue-sky and moss-ground pass survived PIE review, Embermere copied the exact values into `setup_prototype_level.py` and asserted them from a fresh process.
+
+The validator now checks sun intensity and atmosphere role, skylight intensity and real-time capture, fog density/falloff/color, the Mac-friendly volumetric-fog choice, and all three ground-material overrides. For Unreal asset paths, remember that `get_path_name()` returns the full object path such as `/Game/Path/Asset.Asset`, not only the package path.
+
 ## Fab Search And Import Reality
 
 Fab's public website and listing endpoints can trigger Cloudflare checks from terminal automation. Do not assume Codex can choose and download Fab assets directly from unauthenticated shell or web requests.

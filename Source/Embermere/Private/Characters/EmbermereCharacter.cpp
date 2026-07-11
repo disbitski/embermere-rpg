@@ -1,6 +1,7 @@
 #include "Characters/EmbermereCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/EmbermereCombatComponent.h"
+#include "Components/EmbermereEquipmentComponent.h"
 #include "Components/EmbermereHotbarComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
@@ -37,6 +38,7 @@ AEmbermereCharacter::AEmbermereCharacter()
 	Targeting = CreateDefaultSubobject<UEmbermereTargetingComponent>(TEXT("Targeting"));
 	Hotbar = CreateDefaultSubobject<UEmbermereHotbarComponent>(TEXT("Hotbar"));
 	Inventory = CreateDefaultSubobject<UEmbermereInventoryComponent>(TEXT("Inventory"));
+	Equipment = CreateDefaultSubobject<UEmbermereEquipmentComponent>(TEXT("Equipment"));
 	QuestLog = CreateDefaultSubobject<UEmbermereQuestLogComponent>(TEXT("QuestLog"));
 
 	CharacterName = FText::FromString(TEXT("Embermere Adventurer"));

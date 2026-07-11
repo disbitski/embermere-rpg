@@ -3,6 +3,7 @@
 #include "Characters/EmbermereCharacter.h"
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Components/EmbermereCombatComponent.h"
+#include "Components/EmbermereEquipmentComponent.h"
 #include "Components/EmbermereHotbarComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
@@ -268,8 +269,12 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Inventory empty state includes close control"), EmptyInventoryText.Contains(TEXT("I Close")));
 
 	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereEquipmentComponent* Equipment = NewObject<UEmbermereEquipmentComponent>();
+	UEmbermereStatsComponent* InventoryOwnerStats = NewObject<UEmbermereStatsComponent>();
 	TestNotNull(TEXT("Inventory component can be created"), Inventory);
-	if (!Inventory)
+	TestNotNull(TEXT("Equipment component can be created for inventory actions"), Equipment);
+	TestNotNull(TEXT("Stats component can be created for inventory actions"), InventoryOwnerStats);
+	if (!Inventory || !Equipment || !InventoryOwnerStats)
 	{
 		return false;
 	}
@@ -279,6 +284,9 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	FirstItem->DisplayName = FText::FromString(TEXT("Recruit Pack"));
 	FirstItem->Description = FText::FromString(TEXT("A small bundle for new Embermere adventurers."));
 	FirstItem->MaxStack = 5;
+	FirstItem->Category = EEmbermereItemCategory::Armor;
+	FirstItem->EquipmentSlot = EEmbermereEquipmentSlot::Back;
+	FirstItem->RequiredLevel = 2;
 
 	UEmbermereItemData* SecondItem = NewObject<UEmbermereItemData>();
 	SecondItem->ItemId = "MarshReed";
@@ -287,6 +295,8 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	SecondItem->MaxStack = 10;
 
 	HudWidget->Inventory = Inventory;
+	HudWidget->Equipment = Equipment;
+	HudWidget->Stats = InventoryOwnerStats;
 	TestTrue(TEXT("First inventory item can be added"), Inventory->AddItem(FirstItem, 1));
 	TestTrue(TEXT("Second inventory item can be added"), Inventory->AddItem(SecondItem, 2));
 	TestEqual(TEXT("Inventory selection starts at the first stack"), HudWidget->GetSelectedInventoryStackIndex(), 0);
@@ -296,6 +306,10 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Inventory display marks selected first stack"), FirstItemDisplayText.Contains(TEXT("> Recruit Pack x1")));
 	TestTrue(TEXT("Inventory display shows first item stack detail"), FirstItemDisplayText.Contains(TEXT("Stack: 1 / 5")));
 	TestTrue(TEXT("Inventory display shows first item description"), FirstItemDisplayText.Contains(TEXT("new Embermere adventurers")));
+	TestTrue(TEXT("Inventory display shows item category"), FirstItemDisplayText.Contains(TEXT("Armor")));
+	TestTrue(TEXT("Inventory display shows primary action"), FirstItemDisplayText.Contains(TEXT("Action: Equip")));
+	TestTrue(TEXT("Inventory display shows equipment slot"), FirstItemDisplayText.Contains(TEXT("Slot: Back")));
+	TestTrue(TEXT("Inventory display shows required level"), FirstItemDisplayText.Contains(TEXT("Required level: 2")));
 	TestTrue(TEXT("Inventory selection advances to the next stack"), HudWidget->SelectNextInventoryItem(1));
 	TestEqual(TEXT("Inventory selection reports second stack"), HudWidget->GetSelectedInventoryStackIndex(), 1);
 	FString SecondItemDisplayText = HudWidget->GetInventoryDisplayText().ToString();
@@ -311,6 +325,64 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Direct inventory selection updates the inspected stack"), HudWidget->GetSelectedInventoryStackIndex(), 0);
 	TestFalse(TEXT("Direct inventory selection rejects an invalid row"), HudWidget->SelectInventoryItem(Inventory->Stacks.Num()));
 	TestEqual(TEXT("Invalid direct selection preserves the inspected stack"), HudWidget->GetSelectedInventoryStackIndex(), 0);
+	TestFalse(TEXT("Equip action respects item level requirement"), HudWidget->ActivateSelectedInventoryItem());
+	InventoryOwnerStats->Level = 2;
+	TestTrue(TEXT("Eligible selected item can be equipped"), HudWidget->ActivateSelectedInventoryItem());
+	TestTrue(TEXT("Inventory action equips selected item"), Equipment->IsItemEquipped(FirstItem));
+	TestEqual(TEXT("Equipped item action changes to Unequip"), HudWidget->GetSelectedInventoryActionLabel().ToString(), FString(TEXT("Unequip")));
+	TestTrue(TEXT("Selected equipped item can be unequipped"), HudWidget->ActivateSelectedInventoryItem());
+	TestFalse(TEXT("Inventory action clears equipped state"), Equipment->IsItemEquipped(FirstItem));
+	TestEqual(TEXT("Unequipped item action returns to Equip"), HudWidget->GetSelectedInventoryActionLabel().ToString(), FString(TEXT("Equip")));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereEquipmentSlotRulesTest,
+	"Embermere.Equipment.SlotRules",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereEquipmentSlotRulesTest::RunTest(const FString& Parameters)
+{
+	UEmbermereEquipmentComponent* Equipment = NewObject<UEmbermereEquipmentComponent>();
+	UEmbermereItemData* RecruitBlade = NewObject<UEmbermereItemData>();
+	UEmbermereItemData* MarshBlade = NewObject<UEmbermereItemData>();
+	UEmbermereItemData* MarshReed = NewObject<UEmbermereItemData>();
+	TestNotNull(TEXT("Equipment component can be created"), Equipment);
+	if (!Equipment || !RecruitBlade || !MarshBlade || !MarshReed)
+	{
+		return false;
+	}
+
+	RecruitBlade->DisplayName = FText::FromString(TEXT("Recruit Blade"));
+	RecruitBlade->Category = EEmbermereItemCategory::Weapon;
+	RecruitBlade->EquipmentSlot = EEmbermereEquipmentSlot::MainHand;
+	RecruitBlade->RequiredLevel = 2;
+	RecruitBlade->StatBonuses.Power = 3.0f;
+
+	MarshBlade->DisplayName = FText::FromString(TEXT("Marsh Blade"));
+	MarshBlade->Category = EEmbermereItemCategory::Weapon;
+	MarshBlade->EquipmentSlot = EEmbermereEquipmentSlot::MainHand;
+
+	MarshReed->DisplayName = FText::FromString(TEXT("Marsh Reed"));
+	MarshReed->Category = EEmbermereItemCategory::Misc;
+
+	TestTrue(TEXT("Weapon data reports equippable"), RecruitBlade->IsEquippable());
+	TestEqual(TEXT("Weapon primary action is Equip"), RecruitBlade->GetPrimaryActionLabel().ToString(), FString(TEXT("Equip")));
+	TestFalse(TEXT("Level requirement rejects low-level character"), Equipment->CanEquip(RecruitBlade, 1));
+	TestTrue(TEXT("Level requirement accepts eligible character"), Equipment->CanEquip(RecruitBlade, 2));
+	TestFalse(TEXT("Low-level equip attempt fails"), Equipment->EquipItem(RecruitBlade, 1));
+	TestTrue(TEXT("Eligible equip attempt succeeds"), Equipment->EquipItem(RecruitBlade, 2));
+	TestTrue(TEXT("Main-hand slot stores equipped weapon"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::MainHand) == RecruitBlade);
+	TestTrue(TEXT("Equipped item query finds weapon"), Equipment->IsItemEquipped(RecruitBlade));
+
+	TestTrue(TEXT("Equipping a replacement weapon succeeds"), Equipment->EquipItem(MarshBlade, 2));
+	TestTrue(TEXT("Replacement occupies the same slot"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::MainHand) == MarshBlade);
+	TestFalse(TEXT("Replaced weapon is no longer equipped"), Equipment->IsItemEquipped(RecruitBlade));
+	TestFalse(TEXT("Miscellaneous item cannot be equipped"), Equipment->EquipItem(MarshReed, 2));
+	TestTrue(TEXT("Unequip returns the removed weapon"), Equipment->UnequipItem(EEmbermereEquipmentSlot::MainHand) == MarshBlade);
+	TestNull(TEXT("Main-hand slot clears after unequip"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::MainHand));
+	TestNull(TEXT("Unequipping an empty slot is harmless"), Equipment->UnequipItem(EEmbermereEquipmentSlot::MainHand));
 
 	return true;
 }
