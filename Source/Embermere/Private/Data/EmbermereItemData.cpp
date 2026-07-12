@@ -6,6 +6,12 @@ bool UEmbermereItemData::IsEquippable() const
 		(Category == EEmbermereItemCategory::Weapon || Category == EEmbermereItemCategory::Armor);
 }
 
+bool UEmbermereItemData::IsConsumable() const
+{
+	return Category == EEmbermereItemCategory::Consumable &&
+		(ConsumableEffects.HealHealth > 0.0f || ConsumableEffects.RestoreMana > 0.0f);
+}
+
 FText UEmbermereItemData::GetCategoryDisplayName() const
 {
 	switch (Category)
@@ -63,4 +69,41 @@ FText UEmbermereItemData::GetPrimaryActionLabel() const
 		return FText::FromString(TEXT("Use"));
 	}
 	return FText::FromString(TEXT("Inspect"));
+}
+
+FText UEmbermereItemData::GetEffectSummary() const
+{
+	TArray<FString> Effects;
+	if (IsEquippable())
+	{
+		if (!FMath::IsNearlyZero(StatBonuses.MaxHealth))
+		{
+			Effects.Add(FString::Printf(TEXT("%+.0f HP"), StatBonuses.MaxHealth));
+		}
+		if (!FMath::IsNearlyZero(StatBonuses.MaxMana))
+		{
+			Effects.Add(FString::Printf(TEXT("%+.0f Mana"), StatBonuses.MaxMana));
+		}
+		if (!FMath::IsNearlyZero(StatBonuses.Armor))
+		{
+			Effects.Add(FString::Printf(TEXT("%+.0f Armor"), StatBonuses.Armor));
+		}
+		if (!FMath::IsNearlyZero(StatBonuses.Power))
+		{
+			Effects.Add(FString::Printf(TEXT("%+.0f Power"), StatBonuses.Power));
+		}
+	}
+	else if (IsConsumable())
+	{
+		if (ConsumableEffects.HealHealth > 0.0f)
+		{
+			Effects.Add(FString::Printf(TEXT("Restores %.0f HP"), ConsumableEffects.HealHealth));
+		}
+		if (ConsumableEffects.RestoreMana > 0.0f)
+		{
+			Effects.Add(FString::Printf(TEXT("Restores %.0f Mana"), ConsumableEffects.RestoreMana));
+		}
+	}
+
+	return FText::FromString(Effects.Num() > 0 ? FString::Join(Effects, TEXT(", ")) : TEXT("No gameplay effects"));
 }

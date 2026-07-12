@@ -7,6 +7,7 @@
 class UTextRenderComponent;
 class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
+class UEmbermereItemData;
 class UWidgetComponent;
 
 UCLASS()
@@ -22,6 +23,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
 	float RespawnDelaySeconds = 12.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Loot")
+	TSoftObjectPtr<UEmbermereItemData> LootItem;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Loot", meta = (ClampMin = "0"))
+	int32 LootQuantity = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Loot", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float LootDropChance = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Prototype AI")
 	float AggroRadius = 900.0f;
@@ -63,7 +73,7 @@ public:
 	float TargetRingThickness = 8.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
-	FLinearColor TargetRingColor = FLinearColor(1.0f, 0.68f, 0.18f, 1.0f);
+	FLinearColor TargetRingColor = FLinearColor(1.0f, 0.32f, 0.015f, 1.0f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	float TargetRingRotationSpeedDegreesPerSecond = 12.0f;
@@ -97,6 +107,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|AI")
 	bool ShouldReturnHomeFromLocation(const FVector& Location) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Loot")
+	bool ShouldDropLoot(float RandomRoll) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Loot")
+	bool GrantLootTo(AActor* Recipient);
 
 protected:
 	virtual void BeginPlay() override;

@@ -6,7 +6,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Restart Unreal before manual PIE if the editor has been open since the 2026-07-11 equipment/action and target-ring-clearance C++ build. The current source builds and headless automation passes, but the open editor still has the pre-build module loaded.
+- Restart Unreal before manual PIE if the editor has been open since the 2026-07-12 paper-doll, equipment-stat, Marsh Tonic loot/use, and target-ring-color C++ build. The current source builds and headless automation passes, but the open editor still has the pre-build module loaded.
 - Confirm the local Fab/Epic folders are present but ignored by Git:
   - `Content/KiteDemo/`
   - `Content/SoulCave/`
@@ -16,7 +16,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.Combat.TargetSelectionPresentation`
   - `Embermere.Combat.DeadCasterRejected`
   - `Embermere.Enemy.LeashRules`
+  - `Embermere.Enemy.LootRules`
   - `Embermere.Equipment.SlotRules`
+  - `Embermere.Equipment.StatApplication`
+  - `Embermere.Inventory.ConsumableUse`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
   - `Embermere.Stats.DamageImmunity`
@@ -33,11 +36,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - the structured inventory window starts empty and shows its title, `Slots 0 / 24`, clickable item list, selected-item detail pane, quest-reward hint, and keyboard/mouse footer;
   - the inventory starts in cursor-aware game/UI mode; pressing `I` hides it, hides the cursor, and restores classic game-only mouse input;
   - clicking a populated row or pressing `[` and `]` changes the inspected inventory stack after multiple stacks exist;
-  - Mara's Recruit Pack reward identifies as level-1 Back armor; its details show category, slot, required level, and an enabled `Equip`/`Unequip` button; activating it changes equipment state and posts to chat;
+  - Mara's Recruit Pack identifies as level-1 Back armor with `+5 HP, +1 Armor`; equipping it updates the Back slot, bonus totals, HP to `105/105`, the `[E]` bag marker, action label, and chat, while unequipping cleanly restores base stats;
+  - the 700x330 inventory/equipment window keeps all three columns and its footer inside the shaded panel without overlapping the hotbar;
+  - defeating a Marsh Prowler drops one stackable Marsh Tonic, posts a loot message, and adds it to inventory;
+  - after taking damage, selecting Marsh Tonic and clicking `Use` restores up to 25 health and 10 mana and consumes one tonic, while full resources disable use and preserve inventory;
   - quest completion/reward shows the loot popup and the inventory panel lists the reward item;
   - combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log instead of overlapping the top-left player status panel or spilling beyond the chat panel border.
 - Manually verify selected-target world readability in PIE:
-  - `Tab` shows the selected enemy's UMG nameplate, selected marker, HP text, HP bar, and emissive gold segmented mesh target ring above the raised combat platform rather than buried inside it;
+  - `Tab` shows the selected enemy's UMG nameplate, selected marker, HP text, HP bar, and saturated orange-gold segmented mesh target ring above the raised combat platform rather than buried inside it;
   - the nameplate accent/HP bar changes toward red/orange as enemy HP falls;
   - switching targets clears the old enemy marker;
   - killing the selected enemy clears the target and marker.
@@ -93,16 +99,18 @@ Embermere has a working first-pass starter slice:
 - structured first-pass inventory window with capacity header, item rows, selected-item details, empty/reward states, `[`/`]` inspection cycling, and `I` show/hide toggle;
 - mouse-clickable inventory rows and cursor-aware game/UI input while the inventory is open;
 - data-driven item categories, paper-doll equipment slots, level requirements, stat-bonus fields, and a first Equip/Unequip inventory action;
+- visible equipment slot/bonus pane, idempotent health/mana/armor/power application, equipped-row markers, armor mitigation, and safe consumable depletion;
+- data-driven Marsh Tonic consumables dropped by starter enemies so recovery is reachable through the normal combat loop;
 - first-pass selected-target UMG nameplate widget plus a flat 24-segment rotating/pulsing emissive gold target ring;
 - first-pass hotbar cooldown enforcement and ready-time feedback;
 - live hotbar slot countdown and unavailable-state dimming;
 - first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
 - first Mac-friendly sky, ambient fill, fog-readability correction, and muted moss foundation material;
-- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash rules, equipment slot rules, damage immunity, enemy nameplate widget, chat log, hotbar cooldown display, and inventory toggle.
+- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash and loot rules, equipment slot/stat rules, consumable use, damage immunity, enemy nameplate widget, chat log, hotbar cooldown display, and inventory toggle.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The corrected local environment art pass is upright, spawn-safe, and much more readable with validated daylight and moss ground, but it remains stylistically mixed and incomplete without real fantasy village buildings. The first Equip/Unequip button and raised opaque-emissive target ring still need visual PIE review after a clean editor restart.
+The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has meaningful RPG rules rather than display-only slots. Starter combat now feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. The newly linked 700px paper-doll pane, live stat changes, loot/use flow, and saturated target ring still need visual PIE review after a clean editor restart. The world remains stylistically mixed without real fantasy village buildings or final character art.
 
 ## Next Work
 
@@ -111,9 +119,11 @@ The prototype foundation is alive, but it is still early. The corrected local en
   - visually verify the flat animated 24-segment ring using `M_EmbermereTargetRing`, then decide whether rune/soft-edge texture art warrants a decal revision;
   - tune screen-space widget size/height against camera distance.
 - Improve inventory presentation:
-  - verify the structured inventory list/detail layout, richer empty state, reward inspection, and Equip/Unequip button in PIE;
-  - manually verify mouse row selection, action-button clicks, cursor capture/release, and bracket-key item cycling once inventory has multiple reward stacks;
-  - add a visible paper-doll/equipment panel, apply equipped stat bonuses, and define consumable `Use` behavior without conflicting with classic camera controls.
+  - verify the 700x330 bag/detail/equipment layout, Recruit Pack stat changes, `[E]` marker, and Equip/Unequip action in PIE;
+  - manually verify mouse row/action clicks, cursor capture/release, and bracket-key item cycling once inventory has multiple stacks;
+  - verify Marsh Prowler deaths grant Marsh Tonic, repeated drops stack, and `Use` heals damaged players without wasting a full-resource tonic;
+  - decide whether equipped gear should remain represented in the bag or move through a full inventory/equipment transaction model;
+  - add richer graphical slot controls after the three-column text paper doll survives PIE.
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
   - continue tuning chat panel height/line count against the hotbar and common desktop viewport sizes.
@@ -129,7 +139,7 @@ The prototype foundation is alive, but it is still early. The corrected local en
 - Tune starter enemy aggro, leash radius, return-home speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
-- Add automation around equipment stat application, consumable actions, and inventory/equipment transactions.
+- Add graphical body-slot art or individual slot controls after the text paper doll survives PIE.
 
 ## Last Completed
 
@@ -209,6 +219,17 @@ The prototype foundation is alive, but it is still early. The corrected local en
 - Made the level rebuild script reproduce the moss ground and exact successful daylight settings.
 - Strengthened fresh-process map validation for the ground overrides, sun, real-time skylight, fog baseline, 65 upright Fab actors, and gameplay anchors; validation passed.
 - Clean-restart PIE still needs to verify the newly linked Equip/Unequip button and target-ring clearance because safely closing the live editor requires explicit user confirmation.
+- 2026-07-12: clean-restart MCP discovered and passed all 11 existing tests, and PIE verified daylight/moss terrain, Mara quest acceptance, the inventory shell, target/nameplate, chat clipping, and target-ring platform clearance.
+- Lowered target-ring emissive strength from `2.5` to `0.75` and changed the runtime default to a more saturated orange-gold so outdoor exposure preserves its color.
+- Expanded inventory to a 700x330 three-column bag/detail/equipment layout with visible slots, aggregate bonuses, item effect summaries, and `[E]` markers.
+- Added idempotent equipment stat application for maximum health/mana, power, and armor plus missing-resource preservation and armor mitigation.
+- Added data-driven consumable recovery and transactional `Use`: inventory decrements only after health or mana actually increases.
+- Updated the Recruit Pack asset to grant `+5 HP` and `+1 Armor`.
+- Added the stackable Marsh Tonic data asset with `+25 Health` and `+10 Mana` recovery and wired Marsh Prowlers to grant one on death.
+- Added editable enemy loot item, quantity, and drop-chance rules plus player inventory/chat delivery.
+- Added `Embermere.Equipment.StatApplication`, `Embermere.Inventory.ConsumableUse`, and `Embermere.Enemy.LootRules`; final headless automation passed 14/14 with zero warnings.
+- Re-ran the saved-map validator: all 65 upright FabPass actors, gameplay anchors, moss ground, and daylight baseline remain intact.
+- Restart Unreal before visually verifying today's newly linked equipment pane, stat changes, Marsh Tonic drop/use flow, and ring color.
 
 ## Asset Hunt
 

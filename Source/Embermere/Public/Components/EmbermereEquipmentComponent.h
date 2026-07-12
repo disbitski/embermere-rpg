@@ -47,4 +47,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Equipment")
 	bool IsItemEquipped(const UEmbermereItemData* Item) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Equipment")
+	FEmbermereItemStatBonuses GetTotalStatBonuses() const;
 };

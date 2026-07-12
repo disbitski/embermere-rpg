@@ -573,6 +573,43 @@ Durability and verification:
 - Fresh-process map validation passed with the complete daylight and ground baseline.
 - The desktop safety layer correctly refused to close the live Unreal session without explicit confirmation, so the new C++ ring clearance and Equip/Unequip button still need a clean-restart PIE visual check.
 
+## 2026-07-12 - Paper Doll, Real Gear Stats, And Safe Consumables
+
+We opened with a clean editor/MCP baseline, discovered the newly linked equipment suite, and passed all eleven existing tests live before touching source.
+
+Clean PIE verification:
+
+- Confirmed the blue atmospheric sky, muted moss ground, corrected 65-actor environment, and unclipped 510x330 inventory shell.
+- Accepted Mara's quest through Slate input and verified quest tracker, dialogue/chat feedback, and cursor-aware UI mode.
+- Teleported to the combat pocket through MCP, selected a Marsh Prowler, and confirmed the native nameplate and target ring now clear the raised platform.
+- Tuned the runtime ring toward a more saturated orange-gold and lowered material emissive strength from `2.5` to `0.75` so outdoor exposure preserves color instead of washing it white.
+
+Equipment and stats:
+
+- Expanded the inventory to a 700x330 three-column layout with bag rows, selected-item details/actions, and a visible equipment slot plus aggregate-bonus pane.
+- Added aggregate equipment stat calculation and character-driven refresh on every equipment change.
+- Applied health, mana, armor, and power bonuses idempotently by replacing the previous aggregate instead of stacking repeated updates.
+- Preserved missing health/mana when maximums change and added a bounded armor-mitigation curve.
+- Updated the Recruit Pack to grant `+5 HP` and `+1 Armor`, with effect text and an equipped bag-row marker.
+
+Consumables:
+
+- Added data-driven health/mana recovery effects and a real `Use` action path.
+- Successful use applies recovery, consumes exactly one item, refreshes selection, and posts to chat.
+- Full-resource use is rejected without consuming inventory.
+- Added effect summaries for both gear and consumables.
+
+Verification:
+
+- Added `Embermere.Equipment.StatApplication` and `Embermere.Inventory.ConsumableUse`.
+- Built successfully with `-NoHotReloadFromIDE`.
+- Added a stackable Marsh Tonic data asset that restores up to 25 health and 10 mana.
+- Wired Marsh Prowlers to editable loot item, quantity, and drop-chance settings; their death now grants the tonic to player inventory and posts a loot message.
+- Added `Embermere.Enemy.LootRules` for deterministic drop policy, stack delivery, and no-drop behavior.
+- Final headless automation passed 14/14 with zero warnings.
+- Fresh saved-map/Fab/daylight validation remained green.
+- The editor now predates the final C++ relink, so the new 700px paper-doll pane, stat changes, Marsh Tonic drop/use flow, and saturated ring need one clean-restart PIE pass tomorrow.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

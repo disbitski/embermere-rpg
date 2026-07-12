@@ -54,12 +54,14 @@ The repo currently contains the C++ gameplay scaffold for:
 - first hotbar cooldown enforcement and ready-time feedback
 - starter enemy aggro, leash, return-home, attack, death, and respawn behavior
 - player respawn with short damage protection for recovery safety
-- structured inventory window with clickable item rows, cursor-aware game/UI input, capacity, selected-item details, empty/reward states, `[`/`]` inspection cycling, `I` show/hide behavior, and a first Equip/Unequip action
+- structured inventory/equipment window with clickable item rows, visible paper-doll slots and aggregate bonuses, cursor-aware game/UI input, capacity, selected-item effects, empty/reward states, `[`/`]` inspection cycling, `I` show/hide behavior, Equip/Unequip, and consumable Use actions
+- idempotent equipment stat application for health, mana, armor mitigation, and power
 - selected enemy UMG nameplate widget, HP bar/readout, and a flat animated 24-segment target ring using a dedicated emissive Embermere material
 - live hotbar cooldown countdowns with unavailable-state dimming
 - Unreal MCP setup notes and a local setup validator
 - first editor-created Blueprints and rules data asset
 - a tracked level-1 Back-slot Recruit Pack quest reward for the first equipment action
+- stackable Marsh Tonic recovery items dropped by Marsh Prowlers, connecting combat loot to the inventory `Use` action
 - the saved starter-zone map `L_Embermere_Prototype`
 - a corrected 65-actor local Fab/Epic art pass over the starter village, road, wilderness pocket, and ruin landmark, with upright rotations, an unobstructed PlayerStart/Mara route, a muted moss foundation material, and a validated Mac-friendly daylight/atmosphere baseline
 
@@ -132,6 +134,6 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 ## Status
 
-Early playable Unreal prototype scaffold with MCP connected, a daylight Fab-dressed starter-zone loop, tab-target combat, hotbar cooldown feedback, native HUD panels, bottom-left chat/combat feedback, first quest reward flow, clickable inventory rows plus keyboard inspection and Equip/Unequip actions, and native selected-target nameplate/emissive-ring feedback.
+Early playable Unreal prototype scaffold with MCP connected, a daylight Fab-dressed starter-zone loop, tab-target combat, hotbar cooldown feedback, native HUD panels, bottom-left chat/combat feedback, first quest reward and starter-enemy loot flow, a visible equipment/inventory window with Equip/Unequip and safe consumable actions, and native selected-target nameplate/emissive-ring feedback.
 
-Next milestone: clean-restart PIE verification, visible paper-doll/equipment state and stat application, consumable actions, starter-enemy tuning, and replacing the remaining temporary village silhouettes with a cohesive stylized fantasy architecture kit.
+Next milestone: clean-restart PIE verification of the expanded equipment window and Marsh Tonic loot/use loop, richer equipment-slot interaction, starter-enemy tuning, and replacing the remaining temporary village silhouettes with a cohesive stylized fantasy architecture kit.

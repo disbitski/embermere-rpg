@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Types/EmbermereItemTypes.h"
 #include "EmbermereStatsComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEmbermereHealthChangedSignature, float, CurrentHealth, float, MaxHealth);
@@ -37,6 +38,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
 	float AttackPower = 10.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	float Armor = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	FEmbermereItemStatBonuses EquipmentBonuses;
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FEmbermereHealthChangedSignature OnHealthChanged;
@@ -79,6 +86,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats")
 	bool IsDead() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
+	void ApplyEquipmentBonuses(const FEmbermereItemStatBonuses& NewBonuses);
 
 protected:
 	virtual void BeginPlay() override;

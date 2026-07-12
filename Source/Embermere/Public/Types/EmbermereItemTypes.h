@@ -46,3 +46,15 @@ struct FEmbermereItemStatBonuses
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
 	float Power = 0.0f;
 };
+
+USTRUCT(BlueprintType)
+struct FEmbermereConsumableEffects
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Consumable")
+	float HealHealth = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Consumable")
+	float RestoreMana = 0.0f;
+};

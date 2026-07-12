@@ -73,3 +73,21 @@ bool UEmbermereEquipmentComponent::IsItemEquipped(const UEmbermereItemData* Item
 {
 	return Item && GetEquippedItem(Item->EquipmentSlot) == Item;
 }
+
+FEmbermereItemStatBonuses UEmbermereEquipmentComponent::GetTotalStatBonuses() const
+{
+	FEmbermereItemStatBonuses Total;
+	for (const FEmbermereEquippedItem& EquippedItem : EquippedItems)
+	{
+		if (!EquippedItem.Item)
+		{
+			continue;
+		}
+
+		Total.MaxHealth += EquippedItem.Item->StatBonuses.MaxHealth;
+		Total.MaxMana += EquippedItem.Item->StatBonuses.MaxMana;
+		Total.Armor += EquippedItem.Item->StatBonuses.Armor;
+		Total.Power += EquippedItem.Item->StatBonuses.Power;
+	}
+	return Total;
+}

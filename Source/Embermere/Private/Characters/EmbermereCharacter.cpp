@@ -47,6 +47,11 @@ AEmbermereCharacter::AEmbermereCharacter()
 void AEmbermereCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	if (Equipment)
+	{
+		Equipment->OnEquipmentChanged.AddUniqueDynamic(this, &AEmbermereCharacter::HandleEquipmentChanged);
+	}
+	RefreshEquipmentStats();
 	PrimeStarterHotbar();
 }
 
@@ -115,6 +120,19 @@ void AEmbermereCharacter::SetTargetedByPlayer_Implementation(bool bIsTargeted)
 
 void AEmbermereCharacter::HandleTargetedByPlayer(bool bIsTargeted)
 {
+}
+
+void AEmbermereCharacter::HandleEquipmentChanged()
+{
+	RefreshEquipmentStats();
+}
+
+void AEmbermereCharacter::RefreshEquipmentStats()
+{
+	if (Stats && Equipment)
+	{
+		Stats->ApplyEquipmentBonuses(Equipment->GetTotalStatBonuses());
+	}
 }
 
 void AEmbermereCharacter::PrimeStarterHotbar()

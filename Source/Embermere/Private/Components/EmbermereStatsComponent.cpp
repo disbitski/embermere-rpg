@@ -29,8 +29,9 @@ float UEmbermereStatsComponent::ApplyDamage(float DamageAmount)
 		return 0.0f;
 	}
 
+	const float EffectiveDamage = DamageAmount * (100.0f / (100.0f + FMath::Max(0.0f, Armor)));
 	const float PreviousHealth = CurrentHealth;
-	CurrentHealth = FMath::Clamp(CurrentHealth - DamageAmount, 0.0f, MaxHealth);
+	CurrentHealth = FMath::Clamp(CurrentHealth - EffectiveDamage, 0.0f, MaxHealth);
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
 
 	if (CurrentHealth <= 0.0f && PreviousHealth > 0.0f)
@@ -138,4 +139,22 @@ void UEmbermereStatsComponent::AddExperience(int32 ExperienceAmount)
 bool UEmbermereStatsComponent::IsDead() const
 {
 	return CurrentHealth <= 0.0f;
+}
+
+void UEmbermereStatsComponent::ApplyEquipmentBonuses(const FEmbermereItemStatBonuses& NewBonuses)
+{
+	const bool bWasDead = IsDead();
+	const float MissingHealth = FMath::Max(0.0f, MaxHealth - CurrentHealth);
+	const float MissingMana = FMath::Max(0.0f, MaxMana - CurrentMana);
+
+	MaxHealth = FMath::Max(1.0f, MaxHealth - EquipmentBonuses.MaxHealth + NewBonuses.MaxHealth);
+	MaxMana = FMath::Max(0.0f, MaxMana - EquipmentBonuses.MaxMana + NewBonuses.MaxMana);
+	AttackPower = FMath::Max(0.0f, AttackPower - EquipmentBonuses.Power + NewBonuses.Power);
+	Armor = FMath::Max(0.0f, Armor - EquipmentBonuses.Armor + NewBonuses.Armor);
+	EquipmentBonuses = NewBonuses;
+
+	CurrentHealth = bWasDead ? 0.0f : FMath::Clamp(MaxHealth - MissingHealth, 0.0f, MaxHealth);
+	CurrentMana = FMath::Clamp(MaxMana - MissingMana, 0.0f, MaxMana);
+	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+	OnManaChanged.Broadcast(CurrentMana, MaxMana);
 }

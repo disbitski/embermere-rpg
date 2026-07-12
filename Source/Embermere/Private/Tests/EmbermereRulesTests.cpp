@@ -287,6 +287,8 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	FirstItem->Category = EEmbermereItemCategory::Armor;
 	FirstItem->EquipmentSlot = EEmbermereEquipmentSlot::Back;
 	FirstItem->RequiredLevel = 2;
+	FirstItem->StatBonuses.MaxHealth = 5.0f;
+	FirstItem->StatBonuses.Armor = 1.0f;
 
 	UEmbermereItemData* SecondItem = NewObject<UEmbermereItemData>();
 	SecondItem->ItemId = "MarshReed";
@@ -310,6 +312,7 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Inventory display shows primary action"), FirstItemDisplayText.Contains(TEXT("Action: Equip")));
 	TestTrue(TEXT("Inventory display shows equipment slot"), FirstItemDisplayText.Contains(TEXT("Slot: Back")));
 	TestTrue(TEXT("Inventory display shows required level"), FirstItemDisplayText.Contains(TEXT("Required level: 2")));
+	TestTrue(TEXT("Inventory display shows item stat summary"), FirstItemDisplayText.Contains(TEXT("+5 HP")) && FirstItemDisplayText.Contains(TEXT("+1 Armor")));
 	TestTrue(TEXT("Inventory selection advances to the next stack"), HudWidget->SelectNextInventoryItem(1));
 	TestEqual(TEXT("Inventory selection reports second stack"), HudWidget->GetSelectedInventoryStackIndex(), 1);
 	FString SecondItemDisplayText = HudWidget->GetInventoryDisplayText().ToString();
@@ -329,6 +332,11 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	InventoryOwnerStats->Level = 2;
 	TestTrue(TEXT("Eligible selected item can be equipped"), HudWidget->ActivateSelectedInventoryItem());
 	TestTrue(TEXT("Inventory action equips selected item"), Equipment->IsItemEquipped(FirstItem));
+	TestTrue(TEXT("Equipped inventory item is marked"), HudWidget->GetInventoryDisplayText().ToString().Contains(TEXT("Equipped")));
+	const FString EquipmentText = HudWidget->GetEquipmentDisplayText().ToString();
+	TestTrue(TEXT("Equipment panel shows Back-slot item"), EquipmentText.Contains(TEXT("Back")) && EquipmentText.Contains(TEXT("Recruit Pack")));
+	TestTrue(TEXT("Equipment panel shows aggregate health bonus"), EquipmentText.Contains(TEXT("HP +5")));
+	TestTrue(TEXT("Equipment panel shows aggregate armor bonus"), EquipmentText.Contains(TEXT("Armor +1")));
 	TestEqual(TEXT("Equipped item action changes to Unequip"), HudWidget->GetSelectedInventoryActionLabel().ToString(), FString(TEXT("Unequip")));
 	TestTrue(TEXT("Selected equipped item can be unequipped"), HudWidget->ActivateSelectedInventoryItem());
 	TestFalse(TEXT("Inventory action clears equipped state"), Equipment->IsItemEquipped(FirstItem));
@@ -375,6 +383,7 @@ bool FEmbermereEquipmentSlotRulesTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Eligible equip attempt succeeds"), Equipment->EquipItem(RecruitBlade, 2));
 	TestTrue(TEXT("Main-hand slot stores equipped weapon"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::MainHand) == RecruitBlade);
 	TestTrue(TEXT("Equipped item query finds weapon"), Equipment->IsItemEquipped(RecruitBlade));
+	TestEqual(TEXT("Equipment aggregates weapon power"), Equipment->GetTotalStatBonuses().Power, 3.0f);
 
 	TestTrue(TEXT("Equipping a replacement weapon succeeds"), Equipment->EquipItem(MarshBlade, 2));
 	TestTrue(TEXT("Replacement occupies the same slot"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::MainHand) == MarshBlade);
@@ -383,6 +392,140 @@ bool FEmbermereEquipmentSlotRulesTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Unequip returns the removed weapon"), Equipment->UnequipItem(EEmbermereEquipmentSlot::MainHand) == MarshBlade);
 	TestNull(TEXT("Main-hand slot clears after unequip"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::MainHand));
 	TestNull(TEXT("Unequipping an empty slot is harmless"), Equipment->UnequipItem(EEmbermereEquipmentSlot::MainHand));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereEquipmentStatApplicationTest,
+	"Embermere.Equipment.StatApplication",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereEquipmentStatApplicationTest::RunTest(const FString& Parameters)
+{
+	UEmbermereStatsComponent* Stats = NewObject<UEmbermereStatsComponent>();
+	TestNotNull(TEXT("Stats component can be created for equipment bonuses"), Stats);
+	if (!Stats)
+	{
+		return false;
+	}
+
+	Stats->InitializeVitals();
+	FEmbermereItemStatBonuses Bonuses;
+	Bonuses.MaxHealth = 20.0f;
+	Bonuses.MaxMana = 10.0f;
+	Bonuses.Armor = 25.0f;
+	Bonuses.Power = 3.0f;
+	Stats->ApplyEquipmentBonuses(Bonuses);
+
+	TestEqual(TEXT("Equipment increases maximum health"), Stats->MaxHealth, 120.0f);
+	TestEqual(TEXT("Equipment increases current health while preserving missing health"), Stats->CurrentHealth, 120.0f);
+	TestEqual(TEXT("Equipment increases maximum mana"), Stats->MaxMana, 60.0f);
+	TestEqual(TEXT("Equipment increases attack power"), Stats->AttackPower, 13.0f);
+	TestEqual(TEXT("Equipment applies armor"), Stats->Armor, 25.0f);
+
+	Stats->ApplyEquipmentBonuses(Bonuses);
+	TestEqual(TEXT("Reapplying identical equipment bonuses is idempotent"), Stats->MaxHealth, 120.0f);
+	TestTrue(TEXT("Armor mitigates incoming damage"), FMath::IsNearlyEqual(Stats->ApplyDamage(25.0f), 20.0f));
+
+	Stats->ApplyEquipmentBonuses(FEmbermereItemStatBonuses());
+	TestEqual(TEXT("Removing gear restores base maximum health"), Stats->MaxHealth, 100.0f);
+	TestEqual(TEXT("Removing gear preserves missing health"), Stats->CurrentHealth, 80.0f);
+	TestEqual(TEXT("Removing gear restores base attack power"), Stats->AttackPower, 10.0f);
+	TestEqual(TEXT("Removing gear clears armor"), Stats->Armor, 0.0f);
+
+	Stats->ApplyDamage(Stats->CurrentHealth);
+	TestTrue(TEXT("Character is dead before equipment change"), Stats->IsDead());
+	Stats->ApplyEquipmentBonuses(Bonuses);
+	TestTrue(TEXT("Maximum-health gear does not resurrect a dead character"), Stats->IsDead());
+	TestEqual(TEXT("Dead character remains at zero health after gear change"), Stats->CurrentHealth, 0.0f);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereEnemyLootRulesTest,
+	"Embermere.Enemy.LootRules",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereEnemyLootRulesTest::RunTest(const FString& Parameters)
+{
+	AEmbermereEnemyCharacter* Enemy = NewObject<AEmbermereEnemyCharacter>();
+	AEmbermereCharacter* Recipient = NewObject<AEmbermereCharacter>();
+	UEmbermereItemData* Tonic = NewObject<UEmbermereItemData>();
+	if (!Enemy || !Recipient || !Recipient->Inventory || !Tonic)
+	{
+		AddError(TEXT("Could not create enemy loot test objects"));
+		return false;
+	}
+
+	Tonic->DisplayName = FText::FromString(TEXT("Marsh Tonic"));
+	Tonic->MaxStack = 5;
+	Enemy->LootItem = Tonic;
+	Enemy->LootQuantity = 2;
+	Enemy->LootDropChance = 0.5f;
+
+	TestTrue(TEXT("Loot roll inside chance succeeds"), Enemy->ShouldDropLoot(0.25f));
+	TestFalse(TEXT("Loot roll outside chance fails"), Enemy->ShouldDropLoot(0.75f));
+	Enemy->LootDropChance = 0.0f;
+	TestFalse(TEXT("Zero drop chance never succeeds"), Enemy->ShouldDropLoot(0.0f));
+	Enemy->LootDropChance = 1.0f;
+	TestTrue(TEXT("Guaranteed drop chance accepts the highest runtime roll"), Enemy->ShouldDropLoot(0.999999f));
+	TestTrue(TEXT("Loot can be granted to an inventory owner"), Enemy->GrantLootTo(Recipient));
+	TestEqual(TEXT("Loot grant creates one stack"), Recipient->Inventory->Stacks.Num(), 1);
+	TestEqual(TEXT("Loot grant uses configured quantity"), Recipient->Inventory->Stacks[0].Quantity, 2);
+	TestTrue(TEXT("Loot grant stores configured item"), Recipient->Inventory->Stacks[0].Item == Tonic);
+
+	Enemy->LootQuantity = 0;
+	TestFalse(TEXT("Zero-quantity loot is rejected"), Enemy->GrantLootTo(Recipient));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereConsumableUseTest,
+	"Embermere.Inventory.ConsumableUse",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereConsumableUseTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* HudWidget = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereStatsComponent* Stats = NewObject<UEmbermereStatsComponent>();
+	UEmbermereItemData* Tonic = NewObject<UEmbermereItemData>();
+	if (!HudWidget || !Inventory || !Stats || !Tonic)
+	{
+		AddError(TEXT("Could not create consumable test objects"));
+		return false;
+	}
+
+	Tonic->ItemId = "MarshTonic";
+	Tonic->DisplayName = FText::FromString(TEXT("Marsh Tonic"));
+	Tonic->Category = EEmbermereItemCategory::Consumable;
+	Tonic->MaxStack = 5;
+	Tonic->ConsumableEffects.HealHealth = 25.0f;
+	Tonic->ConsumableEffects.RestoreMana = 10.0f;
+	HudWidget->Inventory = Inventory;
+	HudWidget->Stats = Stats;
+	Stats->InitializeVitals();
+	Stats->ApplyDamage(40.0f);
+	Stats->SpendMana(20.0f);
+	TestTrue(TEXT("Consumable stack can be added"), Inventory->AddItem(Tonic, 2));
+	TestEqual(TEXT("Consumable primary action is Use"), HudWidget->GetSelectedInventoryActionLabel().ToString(), FString(TEXT("Use")));
+	TestTrue(TEXT("Consumable summary reports recovery"), Tonic->GetEffectSummary().ToString().Contains(TEXT("Restores 25 HP")));
+
+	TestTrue(TEXT("Consumable applies when health or mana is missing"), HudWidget->ActivateSelectedInventoryItem());
+	TestEqual(TEXT("Consumable restores health"), Stats->CurrentHealth, 85.0f);
+	TestEqual(TEXT("Consumable restores mana"), Stats->CurrentMana, 40.0f);
+	TestEqual(TEXT("Successful use consumes one item"), Inventory->Stacks[0].Quantity, 1);
+
+	TestTrue(TEXT("Second consumable can finish recovery"), HudWidget->ActivateSelectedInventoryItem());
+	TestEqual(TEXT("Second consumable caps health"), Stats->CurrentHealth, Stats->MaxHealth);
+	TestEqual(TEXT("Second consumable caps mana"), Stats->CurrentMana, Stats->MaxMana);
+	TestEqual(TEXT("Empty consumable stack is removed"), Inventory->Stacks.Num(), 0);
+
+	TestTrue(TEXT("Fresh consumable can be added at full resources"), Inventory->AddItem(Tonic, 1));
+	TestFalse(TEXT("Consumable cannot be wasted at full resources"), HudWidget->ActivateSelectedInventoryItem());
+	TestEqual(TEXT("Failed use preserves inventory"), Inventory->Stacks[0].Quantity, 1);
 
 	return true;
 }

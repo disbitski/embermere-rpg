@@ -209,6 +209,20 @@ A successful one-off lighting or material edit is fragile if the foundational le
 
 The validator now checks sun intensity and atmosphere role, skylight intensity and real-time capture, fog density/falloff/color, the Mac-friendly volumetric-fog choice, and all three ground-material overrides. For Unreal asset paths, remember that `get_path_name()` returns the full object path such as `/Game/Path/Asset.Asset`, not only the package path.
 
+## Equipment Bonuses Must Replace, Not Accumulate
+
+An equipment-change delegate can fire repeatedly for equip, replacement, UI refresh, or future load operations. Adding bonuses directly to live stats each time creates silent stat inflation.
+
+Embermere stores the previously applied equipment aggregate and computes each new value as `live - old bonus + new bonus`. Reapplying the same loadout is therefore idempotent. Health and mana preserve the amount missing when maximums change, which avoids both free full heals and accidental extra damage during gear swaps. A dead character is explicitly held at zero so maximum-health gear cannot resurrect them. Armor uses a bounded mitigation curve, while zero armor preserves the original damage contract.
+
+## Consumables Should Commit Inventory Last
+
+A Use action should not remove an item before proving that an effect occurred. Embermere snapshots health/mana, attempts recovery, and decrements one stack only when at least one resource actually increases. At full resources, the action remains disabled and the stack is preserved. This transaction order keeps UI clicks, automation, and future server-authoritative logic aligned.
+
+## Prototype Loot Should Be Deterministic But Data-Driven
+
+A first playable loot loop is easiest to validate when its default drop is deterministic, but the enemy should not hard-code inventory behavior around one specific item. Embermere exposes an enemy loot item, quantity, and drop chance, then routes a successful roll through the recipient's inventory component. Marsh Prowlers currently default to a guaranteed Marsh Tonic so every combat test can reach the recovery action. Automation separately covers the roll boundary, stack delivery, and no-drop path, leaving later tuning free to lower the chance or swap loot without rewriting death handling.
+
 ## Fab Search And Import Reality
 
 Fab's public website and listing endpoints can trigger Cloudflare checks from terminal automation. Do not assume Codex can choose and download Fab assets directly from unauthenticated shell or web requests.

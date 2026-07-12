@@ -1,9 +1,11 @@
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Data/EmbermereItemData.h"
 #include "Engine/Engine.h"
 #include "Engine/StaticMesh.h"
 #include "GameFramework/Pawn.h"
@@ -24,6 +26,13 @@ AEmbermereEnemyCharacter::AEmbermereEnemyCharacter()
 {
 	EnemyName = FText::FromString(TEXT("Marsh Prowler"));
 	Tags.AddUnique("Hostile");
+
+	static ConstructorHelpers::FObjectFinder<UEmbermereItemData> MarshTonic(
+		TEXT("/Game/Data/Items/DI_MarshTonic.DI_MarshTonic"));
+	if (MarshTonic.Succeeded())
+	{
+		LootItem = MarshTonic.Object;
+	}
 
 	NameplateText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("SelectedTargetNameplate"));
 	NameplateText->SetupAttachment(RootComponent);
@@ -213,6 +222,11 @@ void AEmbermereEnemyCharacter::HandleDeath()
 		FText::FromString(FString::Printf(TEXT("%s defeated"), *EnemyName.ToString())),
 		FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
 
+	if (ShouldDropLoot(FMath::FRand()))
+	{
+		GrantLootTo(UGameplayStatics::GetPlayerPawn(this, 0));
+	}
+
 	if (UWorld* World = GetWorld())
 	{
 		World->GetTimerManager().SetTimer(
@@ -222,6 +236,34 @@ void AEmbermereEnemyCharacter::HandleDeath()
 			FMath::Max(0.1f, RespawnDelaySeconds),
 			false);
 	}
+}
+
+bool AEmbermereEnemyCharacter::ShouldDropLoot(float RandomRoll) const
+{
+	const float ClampedChance = FMath::Clamp(LootDropChance, 0.0f, 1.0f);
+	return !LootItem.IsNull() && LootQuantity > 0 && ClampedChance > 0.0f &&
+		FMath::Clamp(RandomRoll, 0.0f, 1.0f) < ClampedChance;
+}
+
+bool AEmbermereEnemyCharacter::GrantLootTo(AActor* Recipient)
+{
+	if (!Recipient || LootQuantity <= 0)
+	{
+		return false;
+	}
+
+	UEmbermereItemData* Item = LootItem.LoadSynchronous();
+	UEmbermereInventoryComponent* RecipientInventory = Recipient->FindComponentByClass<UEmbermereInventoryComponent>();
+	if (!Item || !RecipientInventory || !RecipientInventory->AddItem(Item, LootQuantity))
+	{
+		return false;
+	}
+
+	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+		Recipient,
+		FText::FromString(FString::Printf(TEXT("Looted %s x%d"), *Item->DisplayName.ToString(), LootQuantity)),
+		FLinearColor(0.48f, 0.92f, 0.62f, 1.0f));
+	return true;
 }
 
 void AEmbermereEnemyCharacter::HandleHealthChanged(float CurrentHealth, float MaxHealth)

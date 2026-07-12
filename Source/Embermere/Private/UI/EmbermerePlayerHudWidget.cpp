@@ -266,6 +266,14 @@ FText UEmbermerePlayerHudWidget::GetInventoryDisplayText() const
 					*Item->GetEquipmentSlotDisplayName().ToString(),
 					FMath::Max(1, Item->RequiredLevel));
 			}
+			if (Item->IsEquippable() || Item->IsConsumable())
+			{
+				InventoryLine += FString::Printf(TEXT("\n%s"), *Item->GetEffectSummary().ToString());
+			}
+			if (Equipment && Equipment->IsItemEquipped(Item))
+			{
+				InventoryLine += TEXT("\nEquipped");
+			}
 			if (!Item->Description.IsEmpty())
 			{
 				InventoryLine += FString::Printf(TEXT("\n%s"), *Item->Description.ToString());
@@ -295,6 +303,43 @@ FText UEmbermerePlayerHudWidget::GetSelectedInventoryActionLabel() const
 	return Item->GetPrimaryActionLabel();
 }
 
+FText UEmbermerePlayerHudWidget::GetEquipmentDisplayText() const
+{
+	struct FSlotLabel
+	{
+		EEmbermereEquipmentSlot Slot;
+		const TCHAR* Label;
+	};
+	static const FSlotLabel Slots[] = {
+		{EEmbermereEquipmentSlot::Head, TEXT("Head")},
+		{EEmbermereEquipmentSlot::Neck, TEXT("Neck")},
+		{EEmbermereEquipmentSlot::Back, TEXT("Back")},
+		{EEmbermereEquipmentSlot::Chest, TEXT("Chest")},
+		{EEmbermereEquipmentSlot::MainHand, TEXT("Main Hand")},
+		{EEmbermereEquipmentSlot::OffHand, TEXT("Off Hand")},
+		{EEmbermereEquipmentSlot::Hands, TEXT("Hands")},
+		{EEmbermereEquipmentSlot::Legs, TEXT("Legs")},
+		{EEmbermereEquipmentSlot::Feet, TEXT("Feet")},
+		{EEmbermereEquipmentSlot::Ring, TEXT("Ring")},
+	};
+
+	FString Result = TEXT("Equipment");
+	for (const FSlotLabel& Slot : Slots)
+	{
+		const UEmbermereItemData* Item = Equipment ? Equipment->GetEquippedItem(Slot.Slot) : nullptr;
+		Result += FString::Printf(TEXT("\n%-10s  %s"), Slot.Label, Item ? *Item->DisplayName.ToString() : TEXT("-"));
+	}
+
+	const FEmbermereItemStatBonuses Bonuses = Equipment ? Equipment->GetTotalStatBonuses() : FEmbermereItemStatBonuses();
+	Result += FString::Printf(
+		TEXT("\n\nBonuses\nHP %+.0f  Mana %+.0f\nArmor %+.0f  Power %+.0f"),
+		Bonuses.MaxHealth,
+		Bonuses.MaxMana,
+		Bonuses.Armor,
+		Bonuses.Power);
+	return FText::FromString(Result);
+}
+
 bool UEmbermerePlayerHudWidget::ActivateSelectedInventoryItem()
 {
 	if (!Inventory || !Inventory->Stacks.IsValidIndex(SelectedInventoryStackIndex))
@@ -303,7 +348,37 @@ bool UEmbermerePlayerHudWidget::ActivateSelectedInventoryItem()
 	}
 
 	UEmbermereItemData* Item = Inventory->Stacks[SelectedInventoryStackIndex].Item;
-	if (!Item || !Item->IsEquippable() || !Equipment)
+	if (!Item)
+	{
+		return false;
+	}
+
+	if (Item->IsConsumable())
+	{
+		if (!Stats)
+		{
+			return false;
+		}
+
+		const float HealthBefore = Stats->CurrentHealth;
+		const float ManaBefore = Stats->CurrentMana;
+		Stats->Heal(Item->ConsumableEffects.HealHealth);
+		Stats->RestoreMana(Item->ConsumableEffects.RestoreMana);
+		const bool bAppliedEffect = Stats->CurrentHealth > HealthBefore || Stats->CurrentMana > ManaBefore;
+		if (!bAppliedEffect || !Inventory->RemoveItem(Item, 1))
+		{
+			return false;
+		}
+
+		AddChatMessage(
+			FText::FromString(FString::Printf(TEXT("Used %s"), *Item->DisplayName.ToString())),
+			FLinearColor(0.48f, 0.92f, 0.62f, 1.0f));
+		ClampSelectedInventoryStackIndex();
+		RefreshHudText();
+		return true;
+	}
+
+	if (!Item->IsEquippable() || !Equipment)
 	{
 		return false;
 	}
@@ -471,6 +546,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	UHorizontalBox* InventoryBody = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("InventoryBody"));
 	UVerticalBox* InventoryListStack = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("InventoryListStack"));
 	UVerticalBox* InventoryDetailStack = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("InventoryDetailStack"));
+	UVerticalBox* InventoryEquipmentStack = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("InventoryEquipmentStack"));
 	InventoryRowTexts.Reset();
 	InventoryRowButtons.Reset();
 	for (int32 RowIndex = 0; RowIndex < InventoryVisibleRowCount; ++RowIndex)
@@ -503,7 +579,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 				WidgetTree,
 				RowButton,
 				*FString::Printf(TEXT("InventoryRowSize_%d"), RowIndex),
-				220.0f,
+				205.0f,
 				23.0f),
 			3.0f);
 	}
@@ -513,6 +589,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	InventoryDetailDescriptionText = MakeHudText(WidgetTree, TEXT("InventoryDetailDescriptionText"), FLinearColor(0.84f, 0.83f, 0.76f, 1.0f), 13.0f);
 	InventoryActionButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("InventoryActionButton"));
 	InventoryActionText = MakeHudText(WidgetTree, TEXT("InventoryActionText"), FLinearColor(0.98f, 0.88f, 0.58f, 1.0f), 13.0f);
+	InventoryEquipmentText = MakeHudText(WidgetTree, TEXT("InventoryEquipmentText"), FLinearColor(0.78f, 0.82f, 0.72f, 1.0f), 12.0f);
 	if (InventoryDetailDescriptionText)
 	{
 		InventoryDetailDescriptionText->SetAutoWrapText(true);
@@ -531,16 +608,26 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			MakeSizedWidget(WidgetTree, InventoryActionButton, TEXT("InventoryActionSize"), 150.0f, 28.0f),
 			0.0f);
 	}
+	if (InventoryEquipmentText)
+	{
+		InventoryEquipmentText->SetAutoWrapText(false);
+		AddStackChild(InventoryEquipmentStack, InventoryEquipmentText, 0.0f);
+	}
 
 	if (InventoryBody)
 	{
-		USizeBox* ListSize = MakeSizedWidget(WidgetTree, InventoryListStack, TEXT("InventoryListSize"), 220.0f, 238.0f);
-		USizeBox* DetailSize = MakeSizedWidget(WidgetTree, InventoryDetailStack, TEXT("InventoryDetailSize"), 250.0f, 238.0f);
+		USizeBox* ListSize = MakeSizedWidget(WidgetTree, InventoryListStack, TEXT("InventoryListSize"), 205.0f, 238.0f);
+		USizeBox* DetailSize = MakeSizedWidget(WidgetTree, InventoryDetailStack, TEXT("InventoryDetailSize"), 225.0f, 238.0f);
+		USizeBox* EquipmentSize = MakeSizedWidget(WidgetTree, InventoryEquipmentStack, TEXT("InventoryEquipmentSize"), 210.0f, 238.0f);
 		if (UHorizontalBoxSlot* ListSlot = InventoryBody->AddChildToHorizontalBox(ListSize))
 		{
 			ListSlot->SetPadding(FMargin(0.0f, 0.0f, 14.0f, 0.0f));
 		}
-		InventoryBody->AddChildToHorizontalBox(DetailSize);
+		if (UHorizontalBoxSlot* DetailSlot = InventoryBody->AddChildToHorizontalBox(DetailSize))
+		{
+			DetailSlot->SetPadding(FMargin(0.0f, 0.0f, 14.0f, 0.0f));
+		}
+		InventoryBody->AddChildToHorizontalBox(EquipmentSize);
 	}
 	AddStackChild(InventoryStack, InventoryBody, 8.0f);
 	AddStackChild(InventoryStack, InventoryFooterText, 0.0f);
@@ -653,7 +740,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			InventorySlot->SetAnchors(FAnchors(1.0f, 0.0f, 1.0f, 0.0f));
 			InventorySlot->SetAlignment(FVector2D(1.0f, 0.0f));
 			InventorySlot->SetPosition(FVector2D(-24.0f, 24.0f));
-			InventorySlot->SetSize(FVector2D(510.0f, 330.0f));
+			InventorySlot->SetSize(FVector2D(700.0f, 330.0f));
 		}
 	}
 
@@ -864,6 +951,10 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 	{
 		InventoryCapacityText->SetText(FText::FromString(FString::Printf(TEXT("Slots %d / %d"), StackCount, MaxSlots)));
 	}
+	if (InventoryEquipmentText)
+	{
+		InventoryEquipmentText->SetText(GetEquipmentDisplayText());
+	}
 
 	for (int32 RowIndex = 0; RowIndex < InventoryRowTexts.Num(); ++RowIndex)
 	{
@@ -946,9 +1037,10 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 				? FLinearColor(0.28f, 0.19f, 0.055f, 0.92f)
 				: FLinearColor(0.08f, 0.085f, 0.075f, 0.72f));
 		RowText->SetText(FText::FromString(FString::Printf(
-			TEXT("%s  x%d"),
+			TEXT("%s  x%d%s"),
 			*Stack.Item->DisplayName.ToString(),
-			Stack.Quantity)));
+			Stack.Quantity,
+			Equipment && Equipment->IsItemEquipped(Stack.Item) ? TEXT("  [E]") : TEXT(""))));
 		RowText->SetColorAndOpacity(FSlateColor(
 			bSelected
 				? FLinearColor(1.0f, 0.8f, 0.3f, 1.0f)
@@ -977,6 +1069,14 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 					*SelectedStack.Item->GetEquipmentSlotDisplayName().ToString(),
 					FMath::Max(1, SelectedStack.Item->RequiredLevel));
 			}
+			if (SelectedStack.Item->IsEquippable() || SelectedStack.Item->IsConsumable())
+			{
+				DetailMeta += FString::Printf(TEXT("\n%s"), *SelectedStack.Item->GetEffectSummary().ToString());
+			}
+			if (Equipment && Equipment->IsItemEquipped(SelectedStack.Item))
+			{
+				DetailMeta += TEXT("\nEquipped");
+			}
 			DetailMeta += FString::Printf(TEXT("\nItem %d of %d"), SelectedIndex + 1, StackCount);
 			InventoryDetailMetaText->SetText(FText::FromString(DetailMeta));
 		}
@@ -989,10 +1089,14 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 		}
 		if (InventoryActionButton && InventoryActionText)
 		{
-			const bool bCanActivate = SelectedStack.Item->IsEquippable() && Equipment &&
+			const bool bCanEquip = SelectedStack.Item->IsEquippable() && Equipment &&
 				(Equipment->IsItemEquipped(SelectedStack.Item) || Equipment->CanEquip(SelectedStack.Item, Stats ? Stats->Level : 1));
-			InventoryActionButton->SetVisibility(SelectedStack.Item->IsEquippable() ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
-			InventoryActionButton->SetIsEnabled(bCanActivate);
+			const bool bCanConsume = SelectedStack.Item->IsConsumable() && Stats &&
+				((SelectedStack.Item->ConsumableEffects.HealHealth > 0.0f && Stats->CurrentHealth < Stats->MaxHealth) ||
+				 (SelectedStack.Item->ConsumableEffects.RestoreMana > 0.0f && Stats->CurrentMana < Stats->MaxMana));
+			const bool bSupportsAction = SelectedStack.Item->IsEquippable() || SelectedStack.Item->IsConsumable();
+			InventoryActionButton->SetVisibility(bSupportsAction ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+			InventoryActionButton->SetIsEnabled(bCanEquip || bCanConsume);
 			InventoryActionText->SetText(GetSelectedInventoryActionLabel());
 		}
 	}

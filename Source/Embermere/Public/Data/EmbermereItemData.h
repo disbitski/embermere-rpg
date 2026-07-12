@@ -37,11 +37,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Equipment")
 	FEmbermereItemStatBonuses StatBonuses;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Consumable")
+	FEmbermereConsumableEffects ConsumableEffects;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Assets")
 	TSoftObjectPtr<UTexture2D> Icon;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Item")
 	bool IsEquippable() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Item")
+	bool IsConsumable() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Item")
 	FText GetCategoryDisplayName() const;
@@ -51,4 +57,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Item")
 	FText GetPrimaryActionLabel() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Item")
+	FText GetEffectSummary() const;
 };

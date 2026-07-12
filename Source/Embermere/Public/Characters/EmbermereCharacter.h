@@ -84,4 +84,8 @@ protected:
 
 	virtual void HandleTargetedByPlayer(bool bIsTargeted);
 	void PrimeStarterHotbar();
+	void RefreshEquipmentStats();
+
+	UFUNCTION()
+	void HandleEquipmentChanged();
 };

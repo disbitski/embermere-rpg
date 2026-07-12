@@ -89,6 +89,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	FText GetSelectedInventoryActionLabel() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	FText GetEquipmentDisplayText() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool ActivateSelectedInventoryItem();
 
@@ -157,6 +160,9 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> InventoryActionText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> InventoryEquipmentText;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> InventoryFooterText;
