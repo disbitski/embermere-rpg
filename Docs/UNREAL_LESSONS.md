@@ -223,6 +223,22 @@ A Use action should not remove an item before proving that an effect occurred. E
 
 A first playable loot loop is easiest to validate when its default drop is deterministic, but the enemy should not hard-code inventory behavior around one specific item. Embermere exposes an enemy loot item, quantity, and drop chance, then routes a successful roll through the recipient's inventory component. Marsh Prowlers currently default to a guaranteed Marsh Tonic so every combat test can reach the recovery action. Automation separately covers the roll boundary, stack delivery, and no-drop path, leaving later tuning free to lower the chance or swap loot without rewriting death handling.
 
+## Inventory And Equipment Transfers Must Be Atomic
+
+Returning `false` after partially changing a bag is worse than rejecting an operation up front: callers believe nothing happened while quantities, loot, or equipment have already moved. This is especially risky for same-slot gear replacement, where the incoming item leaves the bag before the old item can be returned.
+
+Embermere now preflights add/remove capacity and treats bag/equipment movement as a transaction:
+
+- equipping removes the candidate only after eligibility passes;
+- replacement confirms the old item can return to the post-removal bag;
+- any failed replacement restores the candidate stack and leaves old equipment untouched;
+- unequip adds to the bag before clearing the equipment slot, with rollback if clearing fails;
+- general add/remove calls reject insufficient capacity or quantity without partial mutation.
+
+Transfers still broadcast inventory-changed events so the HUD refreshes, but they suppress the item-added acquisition event. Moving owned gear must not produce a fake loot/reward popup.
+
+Test both the happy path and a deliberately full one-slot bag. The rollback assertion is the important part: after failure, verify exact item identity, quantity, and equipped-slot state rather than checking only the boolean result.
+
 ## Fab Search And Import Reality
 
 Fab's public website and listing endpoints can trigger Cloudflare checks from terminal automation. Do not assume Codex can choose and download Fab assets directly from unauthenticated shell or web requests.

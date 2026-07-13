@@ -332,14 +332,17 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	InventoryOwnerStats->Level = 2;
 	TestTrue(TEXT("Eligible selected item can be equipped"), HudWidget->ActivateSelectedInventoryItem());
 	TestTrue(TEXT("Inventory action equips selected item"), Equipment->IsItemEquipped(FirstItem));
-	TestTrue(TEXT("Equipped inventory item is marked"), HudWidget->GetInventoryDisplayText().ToString().Contains(TEXT("Equipped")));
+	TestEqual(TEXT("Equipped item leaves the bag"), Inventory->Stacks.Num(), 1);
+	TestTrue(TEXT("Remaining bag stack is preserved"), Inventory->Stacks[0].Item == SecondItem);
 	const FString EquipmentText = HudWidget->GetEquipmentDisplayText().ToString();
 	TestTrue(TEXT("Equipment panel shows Back-slot item"), EquipmentText.Contains(TEXT("Back")) && EquipmentText.Contains(TEXT("Recruit Pack")));
 	TestTrue(TEXT("Equipment panel shows aggregate health bonus"), EquipmentText.Contains(TEXT("HP +5")));
 	TestTrue(TEXT("Equipment panel shows aggregate armor bonus"), EquipmentText.Contains(TEXT("Armor +1")));
-	TestEqual(TEXT("Equipped item action changes to Unequip"), HudWidget->GetSelectedInventoryActionLabel().ToString(), FString(TEXT("Unequip")));
-	TestTrue(TEXT("Selected equipped item can be unequipped"), HudWidget->ActivateSelectedInventoryItem());
-	TestFalse(TEXT("Inventory action clears equipped state"), Equipment->IsItemEquipped(FirstItem));
+	TestTrue(TEXT("Occupied Back slot can be activated to unequip"), HudWidget->ActivateEquipmentSlot(EEmbermereEquipmentSlot::Back));
+	TestFalse(TEXT("Equipment slot action clears equipped state"), Equipment->IsItemEquipped(FirstItem));
+	TestEqual(TEXT("Unequipped item returns to the bag"), Inventory->Stacks.Num(), 2);
+	TestTrue(TEXT("Returned item is appended to the bag"), Inventory->Stacks[1].Item == FirstItem);
+	TestTrue(TEXT("Returned item can be selected"), HudWidget->SelectInventoryItem(1));
 	TestEqual(TEXT("Unequipped item action returns to Equip"), HudWidget->GetSelectedInventoryActionLabel().ToString(), FString(TEXT("Equip")));
 
 	return true;
@@ -392,6 +395,73 @@ bool FEmbermereEquipmentSlotRulesTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Unequip returns the removed weapon"), Equipment->UnequipItem(EEmbermereEquipmentSlot::MainHand) == MarshBlade);
 	TestNull(TEXT("Main-hand slot clears after unequip"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::MainHand));
 	TestNull(TEXT("Unequipping an empty slot is harmless"), Equipment->UnequipItem(EEmbermereEquipmentSlot::MainHand));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereEquipmentInventoryTransactionsTest,
+	"Embermere.Equipment.InventoryTransactions",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereEquipmentInventoryTransactionsTest::RunTest(const FString& Parameters)
+{
+	UEmbermereEquipmentComponent* Equipment = NewObject<UEmbermereEquipmentComponent>();
+	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereItemData* RecruitBlade = NewObject<UEmbermereItemData>();
+	UEmbermereItemData* MarshBlade = NewObject<UEmbermereItemData>();
+	if (!Equipment || !Inventory || !RecruitBlade || !MarshBlade)
+	{
+		AddError(TEXT("Could not create equipment transaction test objects"));
+		return false;
+	}
+
+	RecruitBlade->DisplayName = FText::FromString(TEXT("Recruit Blade"));
+	RecruitBlade->Category = EEmbermereItemCategory::Weapon;
+	RecruitBlade->EquipmentSlot = EEmbermereEquipmentSlot::MainHand;
+	MarshBlade->DisplayName = FText::FromString(TEXT("Marsh Blade"));
+	MarshBlade->Category = EEmbermereItemCategory::Weapon;
+	MarshBlade->EquipmentSlot = EEmbermereEquipmentSlot::MainHand;
+
+	TestTrue(TEXT("Recruit weapon enters the bag"), Inventory->AddItem(RecruitBlade, 1));
+	TestTrue(TEXT("Replacement weapon enters the bag"), Inventory->AddItem(MarshBlade, 1));
+	TestTrue(TEXT("Equipping transfers the recruit weapon out of the bag"), Equipment->EquipFromInventory(RecruitBlade, 1, Inventory));
+	TestTrue(TEXT("Recruit weapon occupies its equipment slot"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::MainHand) == RecruitBlade);
+	TestEqual(TEXT("Only the replacement remains in the bag"), Inventory->Stacks.Num(), 1);
+	TestTrue(TEXT("Replacement stack is preserved"), Inventory->Stacks[0].Item == MarshBlade);
+
+	TestTrue(TEXT("Equipping a replacement succeeds transactionally"), Equipment->EquipFromInventory(MarshBlade, 1, Inventory));
+	TestTrue(TEXT("Replacement occupies the slot"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::MainHand) == MarshBlade);
+	TestEqual(TEXT("Replaced item returns to the bag"), Inventory->Stacks.Num(), 1);
+	TestTrue(TEXT("Returned bag item is the recruit weapon"), Inventory->Stacks[0].Item == RecruitBlade);
+	TestTrue(TEXT("Unequip transfers the replacement back to the bag"), Equipment->UnequipToInventory(EEmbermereEquipmentSlot::MainHand, Inventory));
+	TestNull(TEXT("Unequip clears the equipment slot"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::MainHand));
+	TestEqual(TEXT("Both items are in the bag after unequip"), Inventory->Stacks.Num(), 2);
+
+	UEmbermereEquipmentComponent* FullBagEquipment = NewObject<UEmbermereEquipmentComponent>();
+	UEmbermereInventoryComponent* FullBagInventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereItemData* Blocker = NewObject<UEmbermereItemData>();
+	FullBagInventory->MaxSlots = 1;
+	Blocker->DisplayName = FText::FromString(TEXT("Packed Supplies"));
+	TestTrue(TEXT("Full-bag fixture equips a weapon directly"), FullBagEquipment->EquipItem(RecruitBlade, 1));
+	TestTrue(TEXT("Full-bag fixture fills its only slot"), FullBagInventory->AddItem(Blocker, 1));
+	TestFalse(TEXT("Full bag rejects unequip"), FullBagEquipment->UnequipToInventory(EEmbermereEquipmentSlot::MainHand, FullBagInventory));
+	TestTrue(TEXT("Rejected unequip leaves the weapon equipped"), FullBagEquipment->GetEquippedItem(EEmbermereEquipmentSlot::MainHand) == RecruitBlade);
+	TestEqual(TEXT("Rejected unequip leaves the bag unchanged"), FullBagInventory->Stacks.Num(), 1);
+
+	UEmbermereEquipmentComponent* RollbackEquipment = NewObject<UEmbermereEquipmentComponent>();
+	UEmbermereInventoryComponent* RollbackInventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereItemData* StackableMarshBlade = NewObject<UEmbermereItemData>();
+	RollbackInventory->MaxSlots = 1;
+	StackableMarshBlade->DisplayName = FText::FromString(TEXT("Stackable Marsh Blade"));
+	StackableMarshBlade->Category = EEmbermereItemCategory::Weapon;
+	StackableMarshBlade->EquipmentSlot = EEmbermereEquipmentSlot::MainHand;
+	StackableMarshBlade->MaxStack = 2;
+	TestTrue(TEXT("Rollback fixture equips the original weapon"), RollbackEquipment->EquipItem(RecruitBlade, 1));
+	TestTrue(TEXT("Rollback fixture fills its bag stack"), RollbackInventory->AddItem(StackableMarshBlade, 2));
+	TestFalse(TEXT("Replacement fails when the old item cannot return to the bag"), RollbackEquipment->EquipFromInventory(StackableMarshBlade, 1, RollbackInventory));
+	TestTrue(TEXT("Failed replacement preserves the original equipment"), RollbackEquipment->GetEquippedItem(EEmbermereEquipmentSlot::MainHand) == RecruitBlade);
+	TestEqual(TEXT("Failed replacement restores the candidate stack"), RollbackInventory->Stacks[0].Quantity, 2);
 
 	return true;
 }
@@ -526,6 +596,42 @@ bool FEmbermereConsumableUseTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Fresh consumable can be added at full resources"), Inventory->AddItem(Tonic, 1));
 	TestFalse(TEXT("Consumable cannot be wasted at full resources"), HudWidget->ActivateSelectedInventoryItem());
 	TestEqual(TEXT("Failed use preserves inventory"), Inventory->Stacks[0].Quantity, 1);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereInventoryCapacityTransactionsTest,
+	"Embermere.Inventory.CapacityTransactions",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereInventoryCapacityTransactionsTest::RunTest(const FString& Parameters)
+{
+	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereItemData* Tonic = NewObject<UEmbermereItemData>();
+	UEmbermereItemData* Reed = NewObject<UEmbermereItemData>();
+	if (!Inventory || !Tonic || !Reed)
+	{
+		AddError(TEXT("Could not create inventory capacity transaction test objects"));
+		return false;
+	}
+
+	Inventory->MaxSlots = 1;
+	Tonic->DisplayName = FText::FromString(TEXT("Marsh Tonic"));
+	Tonic->MaxStack = 2;
+	Reed->DisplayName = FText::FromString(TEXT("Marsh Reed"));
+	Reed->MaxStack = 10;
+
+	TestTrue(TEXT("A stack that fits can be added"), Inventory->AddItem(Tonic, 2));
+	TestEqual(TEXT("Quantity query sums the stored stack"), Inventory->GetItemQuantity(Tonic), 2);
+	TestFalse(TEXT("Over-capacity add is rejected"), Inventory->AddItem(Tonic, 1));
+	TestEqual(TEXT("Rejected stack growth leaves quantity unchanged"), Inventory->GetItemQuantity(Tonic), 2);
+	TestFalse(TEXT("Different item cannot enter a full bag"), Inventory->AddItem(Reed, 1));
+	TestEqual(TEXT("Rejected different item creates no partial stack"), Inventory->GetItemQuantity(Reed), 0);
+	TestFalse(TEXT("Over-quantity removal is rejected"), Inventory->RemoveItem(Tonic, 3));
+	TestEqual(TEXT("Rejected removal leaves quantity unchanged"), Inventory->GetItemQuantity(Tonic), 2);
+	TestTrue(TEXT("Available quantity can be removed"), Inventory->RemoveItem(Tonic, 1));
+	TestEqual(TEXT("Successful removal decrements exactly once"), Inventory->GetItemQuantity(Tonic), 1);
 
 	return true;
 }

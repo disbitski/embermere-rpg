@@ -41,7 +41,16 @@ public:
 	FEmbermereItemAddedSignature OnItemAdded;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Inventory")
-	bool AddItem(UEmbermereItemData* Item, int32 Quantity = 1);
+	bool AddItem(UEmbermereItemData* Item, int32 Quantity = 1, bool bNotifyItemAdded = true);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Inventory")
+	bool CanAddItem(const UEmbermereItemData* Item, int32 Quantity = 1) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Inventory")
+	int32 GetItemQuantity(const UEmbermereItemData* Item) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Inventory")
+	bool CanRemoveItem(const UEmbermereItemData* Item, int32 Quantity = 1) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Inventory")
 	bool RemoveItem(UEmbermereItemData* Item, int32 Quantity = 1);

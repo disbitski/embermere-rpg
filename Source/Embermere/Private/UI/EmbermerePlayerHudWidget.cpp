@@ -7,12 +7,15 @@
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Data/EmbermereItemData.h"
+#include "UI/EmbermereEquipmentSlotButton.h"
 #include "UI/EmbermereInventoryRowButton.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/GridPanel.h"
+#include "Components/GridSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/ProgressBar.h"
@@ -26,6 +29,24 @@ namespace
 {
 	constexpr int32 ChatMessageLimit = 6;
 	constexpr int32 InventoryVisibleRowCount = 8;
+
+	const TCHAR* GetEquipmentSlotLabel(EEmbermereEquipmentSlot Slot)
+	{
+		switch (Slot)
+		{
+		case EEmbermereEquipmentSlot::MainHand: return TEXT("Main Hand");
+		case EEmbermereEquipmentSlot::OffHand: return TEXT("Off Hand");
+		case EEmbermereEquipmentSlot::Head: return TEXT("Head");
+		case EEmbermereEquipmentSlot::Chest: return TEXT("Chest");
+		case EEmbermereEquipmentSlot::Hands: return TEXT("Hands");
+		case EEmbermereEquipmentSlot::Legs: return TEXT("Legs");
+		case EEmbermereEquipmentSlot::Feet: return TEXT("Feet");
+		case EEmbermereEquipmentSlot::Back: return TEXT("Back");
+		case EEmbermereEquipmentSlot::Neck: return TEXT("Neck");
+		case EEmbermereEquipmentSlot::Ring: return TEXT("Ring");
+		default: return TEXT("-");
+		}
+	}
 
 	UTextBlock* MakeHudText(UWidgetTree* WidgetTree, const FName Name, const FLinearColor Color, const float FontSize)
 	{
@@ -270,10 +291,6 @@ FText UEmbermerePlayerHudWidget::GetInventoryDisplayText() const
 			{
 				InventoryLine += FString::Printf(TEXT("\n%s"), *Item->GetEffectSummary().ToString());
 			}
-			if (Equipment && Equipment->IsItemEquipped(Item))
-			{
-				InventoryLine += TEXT("\nEquipped");
-			}
 			if (!Item->Description.IsEmpty())
 			{
 				InventoryLine += FString::Printf(TEXT("\n%s"), *Item->Description.ToString());
@@ -295,10 +312,6 @@ FText UEmbermerePlayerHudWidget::GetSelectedInventoryActionLabel() const
 	if (!Item)
 	{
 		return FText::FromString(TEXT("Inspect"));
-	}
-	if (Equipment && Equipment->IsItemEquipped(Item))
-	{
-		return FText::FromString(TEXT("Unequip"));
 	}
 	return Item->GetPrimaryActionLabel();
 }
@@ -332,7 +345,7 @@ FText UEmbermerePlayerHudWidget::GetEquipmentDisplayText() const
 
 	const FEmbermereItemStatBonuses Bonuses = Equipment ? Equipment->GetTotalStatBonuses() : FEmbermereItemStatBonuses();
 	Result += FString::Printf(
-		TEXT("\n\nBonuses\nHP %+.0f  Mana %+.0f\nArmor %+.0f  Power %+.0f"),
+		TEXT("\n\nBonuses\nHP %+.0f  Mana %+.0f\nArmor %+.0f  Power %+.0f\nClick an occupied slot to unequip."),
 		Bonuses.MaxHealth,
 		Bonuses.MaxMana,
 		Bonuses.Armor,
@@ -383,30 +396,50 @@ bool UEmbermerePlayerHudWidget::ActivateSelectedInventoryItem()
 		return false;
 	}
 
-	bool bChanged = false;
-	bool bEquipped = false;
-	if (Equipment->IsItemEquipped(Item))
-	{
-		bChanged = Equipment->UnequipItem(Item->EquipmentSlot) == Item;
-	}
-	else
-	{
-		const int32 CharacterLevel = Stats ? Stats->Level : 1;
-		bChanged = Equipment->EquipItem(Item, CharacterLevel);
-		bEquipped = bChanged;
-	}
+	const int32 CharacterLevel = Stats ? Stats->Level : 1;
+	const bool bChanged = Equipment->EquipFromInventory(Item, CharacterLevel, Inventory);
 
 	if (bChanged)
 	{
 		AddChatMessage(
 			FText::FromString(FString::Printf(
-				TEXT("%s %s"),
-				bEquipped ? TEXT("Equipped") : TEXT("Unequipped"),
+				TEXT("Equipped %s"),
 				*Item->DisplayName.ToString())),
 			FLinearColor(1.0f, 0.82f, 0.3f, 1.0f));
+		ClampSelectedInventoryStackIndex();
 		RefreshHudText();
 	}
 	return bChanged;
+}
+
+bool UEmbermerePlayerHudWidget::ActivateEquipmentSlot(EEmbermereEquipmentSlot EquipmentSlot)
+{
+	if (!Inventory || !Equipment)
+	{
+		return false;
+	}
+
+	UEmbermereItemData* Item = Equipment->GetEquippedItem(EquipmentSlot);
+	if (!Item)
+	{
+		return false;
+	}
+	if (!Equipment->UnequipToInventory(EquipmentSlot, Inventory))
+	{
+		AddChatMessage(
+			FText::FromString(FString::Printf(
+				TEXT("Cannot unequip %s: inventory is full."),
+				*Item->DisplayName.ToString())),
+			FLinearColor(1.0f, 0.42f, 0.25f, 1.0f));
+		return false;
+	}
+
+	AddChatMessage(
+		FText::FromString(FString::Printf(TEXT("Unequipped %s"), *Item->DisplayName.ToString())),
+		FLinearColor(1.0f, 0.82f, 0.3f, 1.0f));
+	ClampSelectedInventoryStackIndex();
+	RefreshHudText();
+	return true;
 }
 
 FText UEmbermerePlayerHudWidget::GetHotbarSlotDisplayText(int32 SlotIndex, float CooldownRemainingSeconds) const
@@ -589,7 +622,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	InventoryDetailDescriptionText = MakeHudText(WidgetTree, TEXT("InventoryDetailDescriptionText"), FLinearColor(0.84f, 0.83f, 0.76f, 1.0f), 13.0f);
 	InventoryActionButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("InventoryActionButton"));
 	InventoryActionText = MakeHudText(WidgetTree, TEXT("InventoryActionText"), FLinearColor(0.98f, 0.88f, 0.58f, 1.0f), 13.0f);
-	InventoryEquipmentText = MakeHudText(WidgetTree, TEXT("InventoryEquipmentText"), FLinearColor(0.78f, 0.82f, 0.72f, 1.0f), 12.0f);
+	InventoryEquipmentText = MakeHudText(WidgetTree, TEXT("InventoryEquipmentText"), FLinearColor(0.78f, 0.82f, 0.72f, 1.0f), 10.0f);
 	if (InventoryDetailDescriptionText)
 	{
 		InventoryDetailDescriptionText->SetAutoWrapText(true);
@@ -608,9 +641,75 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			MakeSizedWidget(WidgetTree, InventoryActionButton, TEXT("InventoryActionSize"), 150.0f, 28.0f),
 			0.0f);
 	}
+	UTextBlock* EquipmentTitle = MakeHudText(WidgetTree, TEXT("InventoryEquipmentTitle"), FLinearColor(1.0f, 0.82f, 0.38f, 1.0f), 15.0f);
+	UGridPanel* EquipmentGrid = WidgetTree->ConstructWidget<UGridPanel>(UGridPanel::StaticClass(), TEXT("InventoryEquipmentGrid"));
+	if (EquipmentTitle)
+	{
+		EquipmentTitle->SetText(FText::FromString(TEXT("Equipment")));
+		EquipmentTitle->SetJustification(ETextJustify::Center);
+	}
+	AddStackChild(InventoryEquipmentStack, EquipmentTitle, 5.0f);
+	InventoryEquipmentSlotButtons.Reset();
+	InventoryEquipmentSlotTexts.Reset();
+	struct FEquipmentSlotLayout
+	{
+		EEmbermereEquipmentSlot Slot;
+		int32 Row;
+		int32 Column;
+	};
+	static const FEquipmentSlotLayout EquipmentSlotLayouts[] = {
+		{EEmbermereEquipmentSlot::Head, 0, 1},
+		{EEmbermereEquipmentSlot::Back, 0, 2},
+		{EEmbermereEquipmentSlot::MainHand, 1, 0},
+		{EEmbermereEquipmentSlot::Neck, 1, 1},
+		{EEmbermereEquipmentSlot::OffHand, 1, 2},
+		{EEmbermereEquipmentSlot::Hands, 2, 0},
+		{EEmbermereEquipmentSlot::Chest, 2, 1},
+		{EEmbermereEquipmentSlot::Ring, 2, 2},
+		{EEmbermereEquipmentSlot::Legs, 3, 1},
+		{EEmbermereEquipmentSlot::Feet, 4, 1},
+	};
+	for (const FEquipmentSlotLayout& Layout : EquipmentSlotLayouts)
+	{
+		UEmbermereEquipmentSlotButton* SlotButton = WidgetTree->ConstructWidget<UEmbermereEquipmentSlotButton>(
+			UEmbermereEquipmentSlotButton::StaticClass(),
+			*FString::Printf(TEXT("EquipmentSlotButton_%d"), static_cast<int32>(Layout.Slot)));
+		UTextBlock* SlotText = MakeHudText(
+			WidgetTree,
+			*FString::Printf(TEXT("EquipmentSlotText_%d"), static_cast<int32>(Layout.Slot)),
+			FLinearColor(0.66f, 0.68f, 0.62f, 1.0f),
+			8.0f);
+		if (!SlotButton || !SlotText || !EquipmentGrid)
+		{
+			continue;
+		}
+
+		SlotButton->SetEquipmentSlot(Layout.Slot);
+		SlotButton->OnEquipmentSlotClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleEquipmentSlotClicked);
+		SlotButton->SetBackgroundColor(FLinearColor(0.07f, 0.075f, 0.065f, 0.9f));
+		SlotText->SetText(FText::FromString(FString::Printf(TEXT("%s\n-"), GetEquipmentSlotLabel(Layout.Slot))));
+		SlotText->SetJustification(ETextJustify::Center);
+		SlotText->SetAutoWrapText(false);
+		SlotText->SetClipping(EWidgetClipping::ClipToBounds);
+		SlotButton->AddChild(SlotText);
+		InventoryEquipmentSlotButtons.Add(SlotButton);
+		InventoryEquipmentSlotTexts.Add(SlotText);
+
+		USizeBox* SlotSize = MakeSizedWidget(
+			WidgetTree,
+			SlotButton,
+			*FString::Printf(TEXT("EquipmentSlotSize_%d"), static_cast<int32>(Layout.Slot)),
+			62.0f,
+			29.0f);
+		if (UGridSlot* GridSlot = EquipmentGrid->AddChildToGrid(SlotSize, Layout.Row, Layout.Column))
+		{
+			GridSlot->SetPadding(FMargin(2.0f, 1.0f));
+		}
+	}
+	AddStackChild(InventoryEquipmentStack, EquipmentGrid, 5.0f);
 	if (InventoryEquipmentText)
 	{
-		InventoryEquipmentText->SetAutoWrapText(false);
+		InventoryEquipmentText->SetAutoWrapText(true);
 		AddStackChild(InventoryEquipmentStack, InventoryEquipmentText, 0.0f);
 	}
 
@@ -953,7 +1052,37 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 	}
 	if (InventoryEquipmentText)
 	{
-		InventoryEquipmentText->SetText(GetEquipmentDisplayText());
+		const FEmbermereItemStatBonuses Bonuses = Equipment ? Equipment->GetTotalStatBonuses() : FEmbermereItemStatBonuses();
+		InventoryEquipmentText->SetText(FText::FromString(FString::Printf(
+			TEXT("Bonuses  HP %+.0f  Mana %+.0f\nArmor %+.0f  Power %+.0f\nClick occupied slot to unequip"),
+			Bonuses.MaxHealth,
+			Bonuses.MaxMana,
+			Bonuses.Armor,
+			Bonuses.Power)));
+	}
+	for (int32 Index = 0; Index < InventoryEquipmentSlotButtons.Num(); ++Index)
+	{
+		UEmbermereEquipmentSlotButton* SlotButton = InventoryEquipmentSlotButtons[Index];
+		UTextBlock* SlotText = InventoryEquipmentSlotTexts.IsValidIndex(Index) ? InventoryEquipmentSlotTexts[Index] : nullptr;
+		if (!SlotButton || !SlotText)
+		{
+			continue;
+		}
+
+		const UEmbermereItemData* Item = Equipment ? Equipment->GetEquippedItem(SlotButton->EquipmentSlot) : nullptr;
+		SlotButton->SetIsEnabled(Item != nullptr);
+		SlotButton->SetBackgroundColor(
+			Item
+				? FLinearColor(0.3f, 0.2f, 0.055f, 0.96f)
+				: FLinearColor(0.07f, 0.075f, 0.065f, 0.9f));
+		SlotText->SetColorAndOpacity(FSlateColor(
+			Item
+				? FLinearColor(1.0f, 0.8f, 0.3f, 1.0f)
+				: FLinearColor(0.56f, 0.58f, 0.53f, 1.0f)));
+		SlotText->SetText(FText::FromString(FString::Printf(
+			TEXT("%s\n%s"),
+			GetEquipmentSlotLabel(SlotButton->EquipmentSlot),
+			Item ? *Item->DisplayName.ToString() : TEXT("-"))));
 	}
 
 	for (int32 RowIndex = 0; RowIndex < InventoryRowTexts.Num(); ++RowIndex)
@@ -1037,10 +1166,9 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 				? FLinearColor(0.28f, 0.19f, 0.055f, 0.92f)
 				: FLinearColor(0.08f, 0.085f, 0.075f, 0.72f));
 		RowText->SetText(FText::FromString(FString::Printf(
-			TEXT("%s  x%d%s"),
+			TEXT("%s  x%d"),
 			*Stack.Item->DisplayName.ToString(),
-			Stack.Quantity,
-			Equipment && Equipment->IsItemEquipped(Stack.Item) ? TEXT("  [E]") : TEXT(""))));
+			Stack.Quantity)));
 		RowText->SetColorAndOpacity(FSlateColor(
 			bSelected
 				? FLinearColor(1.0f, 0.8f, 0.3f, 1.0f)
@@ -1073,10 +1201,6 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 			{
 				DetailMeta += FString::Printf(TEXT("\n%s"), *SelectedStack.Item->GetEffectSummary().ToString());
 			}
-			if (Equipment && Equipment->IsItemEquipped(SelectedStack.Item))
-			{
-				DetailMeta += TEXT("\nEquipped");
-			}
 			DetailMeta += FString::Printf(TEXT("\nItem %d of %d"), SelectedIndex + 1, StackCount);
 			InventoryDetailMetaText->SetText(FText::FromString(DetailMeta));
 		}
@@ -1090,7 +1214,7 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 		if (InventoryActionButton && InventoryActionText)
 		{
 			const bool bCanEquip = SelectedStack.Item->IsEquippable() && Equipment &&
-				(Equipment->IsItemEquipped(SelectedStack.Item) || Equipment->CanEquip(SelectedStack.Item, Stats ? Stats->Level : 1));
+				Equipment->CanEquip(SelectedStack.Item, Stats ? Stats->Level : 1);
 			const bool bCanConsume = SelectedStack.Item->IsConsumable() && Stats &&
 				((SelectedStack.Item->ConsumableEffects.HealHealth > 0.0f && Stats->CurrentHealth < Stats->MaxHealth) ||
 				 (SelectedStack.Item->ConsumableEffects.RestoreMana > 0.0f && Stats->CurrentMana < Stats->MaxMana));
@@ -1110,6 +1234,11 @@ void UEmbermerePlayerHudWidget::HandleInventoryRowClicked(int32 VisibleRowIndex)
 void UEmbermerePlayerHudWidget::HandleInventoryActionClicked()
 {
 	ActivateSelectedInventoryItem();
+}
+
+void UEmbermerePlayerHudWidget::HandleEquipmentSlotClicked(EEmbermereEquipmentSlot EquipmentSlot)
+{
+	ActivateEquipmentSlot(EquipmentSlot);
 }
 
 void UEmbermerePlayerHudWidget::ClampSelectedInventoryStackIndex()

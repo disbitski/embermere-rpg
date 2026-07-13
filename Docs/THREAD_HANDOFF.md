@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-07-11
+Last updated: 2026-07-13
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -43,11 +43,11 @@ The project currently includes:
 - hostile enemy aggro, chase, attack, leash, return-home, death, and respawn;
 - player death, respawn, and short recovery damage immunity;
 - a styled native HUD with player/target status, quest tracker, hotbar,
-  clickable inventory rows, dialogue, loot feedback, nameplates, an emissive
+  clickable inventory rows and equipment slots, dialogue, loot feedback, nameplates, an emissive
   target ring, and chat log;
 - a first local Fab/Epic art pass with 65 upright environment actors plus a
   Mac-friendly atmospheric daylight baseline;
-- 14 passing Unreal automation tests and a headless Fab/map/lighting validator.
+- 16 passing Unreal automation tests and a headless Fab/map/lighting validator.
 
 This is still prototype art. The first black-sky problem is corrected, but the
 scene remains mixed in style and is missing a cohesive fantasy village kit,
@@ -182,11 +182,12 @@ Implemented presentation includes:
 - 700x330 structured inventory/equipment window with `Slots X / 24`, eight visible rows,
   selected-item details, quantity, stack limit, description, empty/reward state,
   clickable highlighted rows, cursor-aware input mode, keyboard footer, `I`
-  toggle, bracket cycling, category/slot/level/effect metadata, equipped-row markers,
-  a visible slot/bonus pane, Equip/Unequip, and safe consumable Use actions.
+  toggle, bracket cycling, category/slot/level/effect metadata, ten clickable
+  paper-doll controls, aggregate bonuses, transactional Equip/Unequip, and safe
+  consumable Use actions.
 
 These systems are functional programmer art. Dedicated fantasy UI materials,
-icons, graphical body-slot art, richer equipment transactions, chat scrolling,
+icons, illustrated body-slot art, item comparison, drag/drop, chat scrolling,
 and final responsive layout remain future work.
 
 ## Source Architecture
@@ -384,19 +385,23 @@ Current automation tests:
 12. `Embermere.Equipment.StatApplication`
 13. `Embermere.Inventory.ConsumableUse`
 14. `Embermere.Enemy.LootRules`
+15. `Embermere.Equipment.InventoryTransactions`
+16. `Embermere.Inventory.CapacityTransactions`
 
-Latest verified baseline (2026-07-12):
+Latest verified baseline (2026-07-13):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- automation passed 14/14 with zero errors and zero warnings;
+- automation passed 16/16 with zero errors and zero warnings;
 - headless Fab validator passed with 65 upright `FabPass_` actors, required
   gameplay anchors, moss-ground overrides, and exact saved sun/skylight/fog values;
 - live pre-relink PIE confirmed the blue atmospheric sky, readable ambient fill,
   muted moss ground, inventory show/hide, target/nameplate, and chat clipping;
 - clean PIE verified the 2026-07-11 inventory shell, Mara quest acceptance,
   target/nameplate, raised target ring, moss/daylight balance, and chat clipping;
-- restart before visually testing the newly linked 700px equipment pane, stat
-  changes, Marsh Tonic drop/use flow, equipped marker, and more saturated gold ring.
+- clean pre-relink PIE verified Mara quest acceptance, combat progression, a real
+  Marsh Tonic drop, targeting/nameplate, daylight/moss, and the three-column window;
+- restart before visually testing the newly linked ten-slot paper doll, bag/gear
+  transfers, full-bag rejection message, and stat changes.
 
 ## Critical Unreal Lessons
 
@@ -450,11 +455,12 @@ First fresh-session checks:
 
 1. Restart Unreal and open `L_Embermere_Prototype`.
 2. Start MCP on port `8123` and wait briefly for tool discovery.
-3. Run/discover all 14 tests.
+3. Run/discover all 16 tests.
 4. Start PIE and verify:
    - structured inventory layout, empty state, reward inspection, clickable row
-     selection, selected-row highlight, 700px equipment/bonus pane, Recruit Pack
-     stat changes, equipped marker, Equip/Unequip, Marsh Tonic loot/use, `I`,
+     selection, selected-row highlight, 700px equipment/bonus pane, all ten slot
+     controls, Recruit Pack bag-to-Back transfer, slot-click unequip, full-bag
+     rejection, stat changes, Marsh Tonic loot/use, `I`,
      `[`/`]`, and cursor capture/release;
    - hotbar dimming and live cooldown countdown;
    - native nameplate and health-aware color;
@@ -471,7 +477,7 @@ First fresh-session checks:
 
 High-value milestones after that:
 
-- richer graphical equipment slots and a deliberate equipped-item bag/slot transaction model;
+- illustrated body-slot art, item tooltips/comparison, and drag/drop planning on top of the atomic transaction model;
 - optional rune/soft-edge texture treatment for the dedicated target-ring
   material;
 - proper Stylized Classic fantasy village buildings from a suitable signed-in
@@ -530,7 +536,7 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of the 700px paper-doll inventory, Recruit Pack stat application, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, and the corrected 65-actor Fab environment. Then continue into richer equipment-slot interaction, the equipped-item transfer model, starter-enemy tuning, and the highest-value next milestone when the path is clear.
+Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of the 700px inventory and ten-slot paper doll, Recruit Pack bag-to-Back transfer and click-to-unequip flow, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, and the corrected 65-actor Fab environment. Then continue into starter-enemy tuning, item comparison/drag-drop planning, and the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

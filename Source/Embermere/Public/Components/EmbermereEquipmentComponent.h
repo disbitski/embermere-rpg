@@ -5,6 +5,8 @@
 #include "Data/EmbermereItemData.h"
 #include "EmbermereEquipmentComponent.generated.h"
 
+class UEmbermereInventoryComponent;
+
 USTRUCT(BlueprintType)
 struct FEmbermereEquippedItem
 {
@@ -40,7 +42,13 @@ public:
 	bool EquipItem(UEmbermereItemData* Item, int32 CharacterLevel);
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Equipment")
+	bool EquipFromInventory(UEmbermereItemData* Item, int32 CharacterLevel, UEmbermereInventoryComponent* Inventory);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Equipment")
 	UEmbermereItemData* UnequipItem(EEmbermereEquipmentSlot Slot);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Equipment")
+	bool UnequipToInventory(EEmbermereEquipmentSlot Slot, UEmbermereInventoryComponent* Inventory);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Equipment")
 	UEmbermereItemData* GetEquippedItem(EEmbermereEquipmentSlot Slot) const;

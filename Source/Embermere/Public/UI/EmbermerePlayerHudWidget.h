@@ -2,12 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Types/EmbermereItemTypes.h"
 #include "EmbermerePlayerHudWidget.generated.h"
 
 class AActor;
 class AEmbermereCharacter;
 class UEmbermereCombatComponent;
 class UEmbermereEquipmentComponent;
+class UEmbermereEquipmentSlotButton;
 class UEmbermereHotbarComponent;
 class UEmbermereInventoryRowButton;
 class UEmbermereInventoryComponent;
@@ -95,6 +97,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool ActivateSelectedInventoryItem();
 
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
+	bool ActivateEquipmentSlot(EEmbermereEquipmentSlot EquipmentSlot);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	FText GetHotbarSlotDisplayText(int32 SlotIndex, float CooldownRemainingSeconds = 0.0f) const;
 
@@ -165,6 +170,12 @@ private:
 	TObjectPtr<UTextBlock> InventoryEquipmentText;
 
 	UPROPERTY(Transient)
+	TArray<TObjectPtr<UEmbermereEquipmentSlotButton>> InventoryEquipmentSlotButtons;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UTextBlock>> InventoryEquipmentSlotTexts;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> InventoryFooterText;
 
 	UPROPERTY(Transient)
@@ -217,4 +228,7 @@ private:
 
 	UFUNCTION()
 	void HandleInventoryActionClicked();
+
+	UFUNCTION()
+	void HandleEquipmentSlotClicked(EEmbermereEquipmentSlot EquipmentSlot);
 };

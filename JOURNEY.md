@@ -610,6 +610,33 @@ Verification:
 - Fresh saved-map/Fab/daylight validation remained green.
 - The editor now predates the final C++ relink, so the new 700px paper-doll pane, stat changes, Marsh Tonic drop/use flow, and saturated ring need one clean-restart PIE pass tomorrow.
 
+## 2026-07-13 - Clickable Gear Slots And Lossless Inventory Transactions
+
+We began in a clean live MCP session and verified the player-facing baseline before changing source.
+
+Live verification:
+
+- Ran the existing 14-test suite successfully in the editor.
+- Used PIE to accept Mara's quest, target and defeat a Marsh Prowler, advance the objective, and receive a real Marsh Tonic stack.
+- Confirmed the blue atmospheric sky, muted moss ground, corrected Fab route, target/nameplate, chat log, hotbar, and three-column inventory were still healthy.
+
+Equipment and inventory pass:
+
+- Replaced the equipment text list with ten stable paper-doll slot buttons arranged as a compact body layout.
+- Occupied slots show the item in gold and provide the single explicit click-to-unequip path.
+- Equipping now removes one item from the bag; replacement returns the old item; unequipping returns the equipped item only when capacity exists.
+- Added preflight and rollback behavior so a full bag cannot lose, duplicate, or partially move equipment.
+- Made general inventory add/remove operations atomic as well, preventing failed loot, reward, consumable, and future vendor operations from leaving partial mutations.
+
+Verification:
+
+- Added `Embermere.Equipment.InventoryTransactions` for normal transfer, replacement, unequip, full-bag rejection, and replacement rollback.
+- Added `Embermere.Inventory.CapacityTransactions` for atomic add/remove capacity and quantity boundaries.
+- Built the Mac editor target with `-NoHotReloadFromIDE`.
+- Final headless automation passed 16/16 with zero warnings and zero failures.
+- Final saved-map validation passed with 65 upright Fab actors, gameplay anchors, moss ground, and exact daylight baseline intact.
+- The interactive editor predates the final relink, so tomorrow starts with a clean-restart visual pass over the slot grid and bag/equipment flow.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

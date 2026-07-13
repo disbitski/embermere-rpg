@@ -54,7 +54,8 @@ The repo currently contains the C++ gameplay scaffold for:
 - first hotbar cooldown enforcement and ready-time feedback
 - starter enemy aggro, leash, return-home, attack, death, and respawn behavior
 - player respawn with short damage protection for recovery safety
-- structured inventory/equipment window with clickable item rows, visible paper-doll slots and aggregate bonuses, cursor-aware game/UI input, capacity, selected-item effects, empty/reward states, `[`/`]` inspection cycling, `I` show/hide behavior, Equip/Unequip, and consumable Use actions
+- structured inventory/equipment window with clickable item rows, ten clickable paper-doll slots, aggregate bonuses, cursor-aware game/UI input, capacity, selected-item effects, empty/reward states, `[`/`]` inspection cycling, `I` show/hide behavior, transactional Equip/Unequip, and consumable Use actions
+- atomic inventory capacity and quantity operations with rollback-safe equipment replacement and full-bag unequip rejection
 - idempotent equipment stat application for health, mana, armor mitigation, and power
 - selected enemy UMG nameplate widget, HP bar/readout, and a flat animated 24-segment target ring using a dedicated emissive Embermere material
 - live hotbar cooldown countdowns with unavailable-state dimming
@@ -134,6 +135,6 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 ## Status
 
-Early playable Unreal prototype scaffold with MCP connected, a daylight Fab-dressed starter-zone loop, tab-target combat, hotbar cooldown feedback, native HUD panels, bottom-left chat/combat feedback, first quest reward and starter-enemy loot flow, a visible equipment/inventory window with Equip/Unequip and safe consumable actions, and native selected-target nameplate/emissive-ring feedback.
+Early playable Unreal prototype scaffold with MCP connected, a daylight Fab-dressed starter-zone loop, tab-target combat, hotbar cooldown feedback, native HUD panels, bottom-left chat/combat feedback, first quest reward and starter-enemy loot flow, a clickable paper-doll equipment/inventory window with atomic transactions and safe consumable actions, and native selected-target nameplate/emissive-ring feedback.
 
-Next milestone: clean-restart PIE verification of the expanded equipment window and Marsh Tonic loot/use loop, richer equipment-slot interaction, starter-enemy tuning, and replacing the remaining temporary village silhouettes with a cohesive stylized fantasy architecture kit.
+Next milestone: clean-restart PIE verification of the clickable equipment slots, bag/gear transfers, and Marsh Tonic loop, followed by starter-enemy tuning and replacement of the remaining temporary village silhouettes with a cohesive stylized fantasy architecture kit.

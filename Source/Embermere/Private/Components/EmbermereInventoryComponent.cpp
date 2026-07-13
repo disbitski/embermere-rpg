@@ -6,9 +6,45 @@ UEmbermereInventoryComponent::UEmbermereInventoryComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-bool UEmbermereInventoryComponent::AddItem(UEmbermereItemData* Item, int32 Quantity)
+bool UEmbermereInventoryComponent::CanAddItem(const UEmbermereItemData* Item, int32 Quantity) const
 {
-	if (!Item || Quantity <= 0)
+	if (!Item || Quantity <= 0 || Item->MaxStack <= 0)
+	{
+		return false;
+	}
+
+	int32 AvailableCapacity = FMath::Max(0, MaxSlots - Stacks.Num()) * Item->MaxStack;
+	for (const FEmbermereInventoryStack& Stack : Stacks)
+	{
+		if (Stack.Item == Item)
+		{
+			AvailableCapacity += FMath::Max(0, Item->MaxStack - Stack.Quantity);
+		}
+	}
+	return AvailableCapacity >= Quantity;
+}
+
+int32 UEmbermereInventoryComponent::GetItemQuantity(const UEmbermereItemData* Item) const
+{
+	int32 TotalQuantity = 0;
+	for (const FEmbermereInventoryStack& Stack : Stacks)
+	{
+		if (Stack.Item == Item)
+		{
+			TotalQuantity += FMath::Max(0, Stack.Quantity);
+		}
+	}
+	return TotalQuantity;
+}
+
+bool UEmbermereInventoryComponent::CanRemoveItem(const UEmbermereItemData* Item, int32 Quantity) const
+{
+	return Item && Quantity > 0 && GetItemQuantity(Item) >= Quantity;
+}
+
+bool UEmbermereInventoryComponent::AddItem(UEmbermereItemData* Item, int32 Quantity, bool bNotifyItemAdded)
+{
+	if (!CanAddItem(Item, Quantity))
 	{
 		return false;
 	}
@@ -26,7 +62,10 @@ bool UEmbermereInventoryComponent::AddItem(UEmbermereItemData* Item, int32 Quant
 			if (Quantity <= 0)
 			{
 				OnInventoryChanged.Broadcast();
-				OnItemAdded.Broadcast(Item, RequestedQuantity);
+				if (bNotifyItemAdded)
+				{
+					OnItemAdded.Broadcast(Item, RequestedQuantity);
+				}
 				return true;
 			}
 		}
@@ -46,14 +85,17 @@ bool UEmbermereInventoryComponent::AddItem(UEmbermereItemData* Item, int32 Quant
 	if (AddedQuantity > 0)
 	{
 		OnInventoryChanged.Broadcast();
-		OnItemAdded.Broadcast(Item, AddedQuantity);
+		if (bNotifyItemAdded)
+		{
+			OnItemAdded.Broadcast(Item, AddedQuantity);
+		}
 	}
 	return bAddedAll;
 }
 
 bool UEmbermereInventoryComponent::RemoveItem(UEmbermereItemData* Item, int32 Quantity)
 {
-	if (!Item || Quantity <= 0)
+	if (!CanRemoveItem(Item, Quantity))
 	{
 		return false;
 	}

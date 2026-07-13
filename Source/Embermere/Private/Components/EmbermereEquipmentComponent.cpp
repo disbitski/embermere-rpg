@@ -1,4 +1,5 @@
 #include "Components/EmbermereEquipmentComponent.h"
+#include "Components/EmbermereInventoryComponent.h"
 
 UEmbermereEquipmentComponent::UEmbermereEquipmentComponent()
 {
@@ -39,6 +40,48 @@ bool UEmbermereEquipmentComponent::EquipItem(UEmbermereItemData* Item, int32 Cha
 	return true;
 }
 
+bool UEmbermereEquipmentComponent::EquipFromInventory(
+	UEmbermereItemData* Item,
+	int32 CharacterLevel,
+	UEmbermereInventoryComponent* Inventory)
+{
+	if (!Inventory || !CanEquip(Item, CharacterLevel))
+	{
+		return false;
+	}
+
+	UEmbermereItemData* ReplacedItem = GetEquippedItem(Item->EquipmentSlot);
+	if (ReplacedItem == Item)
+	{
+		return true;
+	}
+	if (!Inventory->RemoveItem(Item, 1))
+	{
+		return false;
+	}
+
+	if (ReplacedItem && !Inventory->CanAddItem(ReplacedItem, 1))
+	{
+		Inventory->AddItem(Item, 1, false);
+		return false;
+	}
+	if (ReplacedItem && !Inventory->AddItem(ReplacedItem, 1, false))
+	{
+		Inventory->AddItem(Item, 1, false);
+		return false;
+	}
+	if (!EquipItem(Item, CharacterLevel))
+	{
+		if (ReplacedItem)
+		{
+			Inventory->RemoveItem(ReplacedItem, 1);
+		}
+		Inventory->AddItem(Item, 1, false);
+		return false;
+	}
+	return true;
+}
+
 UEmbermereItemData* UEmbermereEquipmentComponent::UnequipItem(EEmbermereEquipmentSlot Slot)
 {
 	for (int32 Index = 0; Index < EquippedItems.Num(); ++Index)
@@ -55,6 +98,27 @@ UEmbermereItemData* UEmbermereEquipmentComponent::UnequipItem(EEmbermereEquipmen
 	}
 
 	return nullptr;
+}
+
+bool UEmbermereEquipmentComponent::UnequipToInventory(
+	EEmbermereEquipmentSlot Slot,
+	UEmbermereInventoryComponent* Inventory)
+{
+	UEmbermereItemData* Item = GetEquippedItem(Slot);
+	if (!Inventory || !Item || !Inventory->CanAddItem(Item, 1))
+	{
+		return false;
+	}
+	if (!Inventory->AddItem(Item, 1, false))
+	{
+		return false;
+	}
+	if (UnequipItem(Slot) != Item)
+	{
+		Inventory->RemoveItem(Item, 1);
+		return false;
+	}
+	return true;
 }
 
 UEmbermereItemData* UEmbermereEquipmentComponent::GetEquippedItem(EEmbermereEquipmentSlot Slot) const
