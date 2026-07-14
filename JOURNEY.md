@@ -696,6 +696,37 @@ The lane is now proven end to end: reviewed Blender source script to editable
 `.blend`, preview, FBX, Unreal import, map placement, collision, saved-map
 validation, and gameplay regression tests.
 
+## 2026-07-14 - Item Comparison And Drag-Safe Actions
+
+The inventory moved from inspection-only metadata toward the decision support
+expected in a classic fantasy RPG.
+
+Implementation:
+
+- Added net HP, mana, armor, and power comparison between an inspected bag item
+  and the item currently equipped in its destination slot.
+- Added concise hover tooltips to populated bag rows and occupied paper-doll
+  slots without enlarging the fixed inventory window.
+- Compacted detail metadata so comparison fits inside the existing 700x330
+  three-column layout.
+- Refactored inventory actions to resolve a live item identity and added an
+  explicit target-slot action. Wrong-slot and stale payload requests are
+  rejected before any transaction begins.
+- Documented the drag payload, bag/equipment drop rules, stable sorting
+  contract, implementation order, and edge-case matrix in
+  `Docs/INVENTORY_INTERACTION_PLAN.md`.
+
+Verification:
+
+- Added `Embermere.UI.ItemComparison` for upgrades, downgrades, empty slots,
+  tooltip content, and consumable presentation.
+- Added `Embermere.Inventory.IdentityActions` for matching-slot equip,
+  wrong-slot rejection, and stale-payload rejection without duplication.
+- Built with `-NoHotReloadFromIDE`; headless automation passed 18/18.
+- First-class MCP in the open editor listed only 14 tests, objectively proving
+  that the interactive session still held an old module and must restart before
+  visual PIE verification.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

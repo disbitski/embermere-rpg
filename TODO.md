@@ -6,9 +6,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Restart Unreal before manual PIE because the editor was open during the latest
-  authoritative `-NoHotReloadFromIDE` build. The saved map and current source
-  pass headless validation, but the open editor still has the pre-build module.
+- Restart Unreal before manual PIE because the editor was open during the
+  2026-07-14 item-comparison and identity-action build. Current headless code
+  passes 18 tests, while first-class MCP in the open editor discovered only 14,
+  proving that session still has the pre-2026-07-13 module.
 - Verify the first original Blender asset in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -36,6 +37,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.Equipment.StatApplication`
   - `Embermere.Inventory.CapacityTransactions`
   - `Embermere.Inventory.ConsumableUse`
+  - `Embermere.Inventory.IdentityActions`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
   - `Embermere.Stats.DamageImmunity`
@@ -43,6 +45,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.UI.EnemyNameplateWidget`
   - `Embermere.UI.HotbarCooldownDisplay`
   - `Embermere.UI.InventoryToggle`
+  - `Embermere.UI.ItemComparison`
 - Manually verify the styled first-pass HUD in PIE:
   - player HP, mana, XP, health bar, and mana bar are visible;
   - target panel appears after `Tab` and shows target HP plus range state;
@@ -52,6 +55,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - the structured inventory window starts empty and shows its title, `Slots 0 / 24`, clickable item list, selected-item detail pane, quest-reward hint, and keyboard/mouse footer;
   - the inventory starts in cursor-aware game/UI mode; pressing `I` hides it, hides the cursor, and restores classic game-only mouse input;
   - clicking a populated row or pressing `[` and `]` changes the inspected inventory stack after multiple stacks exist;
+  - hovering a populated row shows quantity, category, slot/level, effects, comparison, and description without expanding the fixed window;
+  - equippable item details show net HP, mana, armor, and power changes against the currently equipped item, or against an empty destination slot;
   - Mara's Recruit Pack identifies as level-1 Back armor with `+5 HP, +1 Armor`; equipping it removes it from the bag, updates the gold Back-slot control, bonus totals, HP to `105/105`, and chat; clicking the occupied Back slot returns it to the bag and restores base stats;
   - a full bag refuses unequip/replacement without losing, duplicating, or partially moving either item;
   - the 700x330 inventory/equipment window keeps all three columns and its footer inside the shaded panel without overlapping the hotbar;
@@ -117,17 +122,19 @@ Embermere has a working first-pass starter slice:
 - mouse-clickable inventory rows and cursor-aware game/UI input while the inventory is open;
 - data-driven item categories, paper-doll equipment slots, level requirements, stat-bonus fields, and transactional Equip/Unequip actions;
 - ten clickable equipment-slot controls, atomic bag/equipment transfers, rollback-safe replacement, idempotent health/mana/armor/power application, armor mitigation, and safe consumable depletion;
+- item-row and occupied-slot tooltips plus net stat comparison against the current item or empty equipment slot;
+- item-identity action routing with explicit destination-slot validation, forming the safe foundation for future drag/drop gestures;
 - data-driven Marsh Tonic consumables dropped by starter enemies so recovery is reachable through the normal combat loop;
 - first-pass selected-target UMG nameplate widget plus a flat 24-segment rotating/pulsing emissive gold target ring;
 - first-pass hotbar cooldown enforcement and ready-time feedback;
 - live hotbar slot countdown and unavailable-state dimming;
 - first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
 - first Mac-friendly sky, ambient fill, fog-readability correction, and muted moss foundation material;
-- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash and loot rules, equipment slot/stat/transaction rules, atomic inventory capacity, consumable use, damage immunity, enemy nameplate widget, chat log, hotbar cooldown display, and inventory toggle.
+- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash and loot rules, equipment slot/stat/transaction rules, atomic inventory capacity, consumable use, item comparison/tooltips, identity-based inventory actions, damage immunity, enemy nameplate widget, chat log, hotbar cooldown display, and inventory toggle.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable slots and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. The newly linked slot grid and bag/gear transfers still need visual PIE review after a clean editor restart. The world remains stylistically mixed without real fantasy village buildings or final character art.
+The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable slots, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. The newly linked comparison/tooltips and item-identity action path still need visual PIE review after a clean editor restart. The world remains stylistically mixed without real fantasy village buildings or final character art.
 
 ## Next Work
 
@@ -139,8 +146,9 @@ The prototype foundation is alive, but it is still early. The environment is upr
   - verify the 700x330 bag/detail/equipment layout, all ten slot controls, Recruit Pack bag-to-Back transfer, gold occupied state, slot-click unequip, stat changes, and full-bag failure message in PIE;
   - manually verify mouse row/action clicks, cursor capture/release, and bracket-key item cycling once inventory has multiple stacks;
   - verify Marsh Prowler deaths grant Marsh Tonic, repeated drops stack, and `Use` heals damaged players without wasting a full-resource tonic;
-  - add item comparison/tooltips and illustrated body-slot art after the clickable grid survives PIE;
-  - plan drag/drop and sorting without weakening the atomic transfer contract.
+  - visually verify item comparison lines and row/occupied-slot hover tooltips after a clean restart;
+  - implement drag sources/drop targets from [Docs/INVENTORY_INTERACTION_PLAN.md](Docs/INVENTORY_INTERACTION_PLAN.md) without weakening the atomic transfer contract;
+  - add illustrated body-slot art after the interaction model survives PIE.
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
   - continue tuning chat panel height/line count against the hotbar and common desktop viewport sizes.
@@ -159,7 +167,7 @@ The prototype foundation is alive, but it is still early. The environment is upr
 - Tune starter enemy aggro, leash radius, return-home speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
-- Add illustrated body-slot art, item tooltips, and comparison states after the clickable paper doll survives PIE.
+- Add illustrated body-slot art after the clickable paper doll and comparison states survive PIE.
 
 ## Last Completed
 
@@ -273,6 +281,20 @@ The prototype foundation is alive, but it is still early. The environment is upr
 - Final Mac editor build succeeded; saved-map validation passed with 64 upright
   FabPass actors plus the original waystone; headless automation passed 16/16
   with zero failures and zero warnings.
+- 2026-07-14: added net item comparison against equipped gear or an empty slot,
+  with concise detail-pane output and hover tooltips for bag rows and occupied
+  paper-doll slots.
+- Added item-identity action routing and explicit target-slot validation so
+  future drag/drop can reject wrong-slot and stale payloads before mutation
+  while reusing the atomic equipment transaction path.
+- Added [Docs/INVENTORY_INTERACTION_PLAN.md](Docs/INVENTORY_INTERACTION_PLAN.md)
+  covering drag payload identity, bag/equipment rules, sorting invariants,
+  implementation order, and loss/duplication edge cases.
+- Added `Embermere.UI.ItemComparison` and
+  `Embermere.Inventory.IdentityActions`; the authoritative Mac build succeeded
+  and headless automation passed 18/18.
+- First-class MCP proved the still-open editor was stale by discovering only 14
+  tests. Restart Unreal before visual comparison/tooltip or paper-doll testing.
 
 ## Asset Hunt
 

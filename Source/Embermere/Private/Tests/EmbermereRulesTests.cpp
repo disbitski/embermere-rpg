@@ -349,6 +349,148 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereInventoryItemComparisonTest,
+	"Embermere.UI.ItemComparison",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereInventoryItemComparisonTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* HudWidget = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereEquipmentComponent* Equipment = NewObject<UEmbermereEquipmentComponent>();
+	TestNotNull(TEXT("HUD widget can be created"), HudWidget);
+	TestNotNull(TEXT("Inventory component can be created"), Inventory);
+	TestNotNull(TEXT("Equipment component can be created"), Equipment);
+	if (!HudWidget || !Inventory || !Equipment)
+	{
+		return false;
+	}
+
+	UEmbermereItemData* WeatheredCloak = NewObject<UEmbermereItemData>();
+	WeatheredCloak->ItemId = "WeatheredCloak";
+	WeatheredCloak->DisplayName = FText::FromString(TEXT("Weathered Cloak"));
+	WeatheredCloak->Category = EEmbermereItemCategory::Armor;
+	WeatheredCloak->EquipmentSlot = EEmbermereEquipmentSlot::Back;
+	WeatheredCloak->StatBonuses.MaxHealth = 2.0f;
+	WeatheredCloak->StatBonuses.Armor = 2.0f;
+
+	UEmbermereItemData* FenwatchMantle = NewObject<UEmbermereItemData>();
+	FenwatchMantle->ItemId = "FenwatchMantle";
+	FenwatchMantle->DisplayName = FText::FromString(TEXT("Fenwatch Mantle"));
+	FenwatchMantle->Description = FText::FromString(TEXT("A moss-green mantle issued to trusted Fenwatch scouts."));
+	FenwatchMantle->Category = EEmbermereItemCategory::Armor;
+	FenwatchMantle->EquipmentSlot = EEmbermereEquipmentSlot::Back;
+	FenwatchMantle->RequiredLevel = 2;
+	FenwatchMantle->StatBonuses.MaxHealth = 5.0f;
+	FenwatchMantle->StatBonuses.MaxMana = 1.0f;
+	FenwatchMantle->StatBonuses.Armor = 1.0f;
+
+	UEmbermereItemData* MarshTonic = NewObject<UEmbermereItemData>();
+	MarshTonic->ItemId = "MarshTonic";
+	MarshTonic->DisplayName = FText::FromString(TEXT("Marsh Tonic"));
+	MarshTonic->Description = FText::FromString(TEXT("A sharp herbal draught."));
+	MarshTonic->Category = EEmbermereItemCategory::Consumable;
+	MarshTonic->MaxStack = 5;
+	MarshTonic->ConsumableEffects.HealHealth = 25.0f;
+
+	HudWidget->Inventory = Inventory;
+	HudWidget->Equipment = Equipment;
+	TestTrue(TEXT("Baseline cloak can be equipped"), Equipment->EquipItem(WeatheredCloak, 1));
+	TestTrue(TEXT("Comparison candidate can be added"), Inventory->AddItem(FenwatchMantle, 1));
+	TestTrue(TEXT("Consumable can be added"), Inventory->AddItem(MarshTonic, 2));
+
+	const FString ComparisonText = HudWidget->GetSelectedInventoryComparisonText().ToString();
+	TestTrue(TEXT("Comparison names the equipped item"), ComparisonText.Contains(TEXT("Vs Weathered Cloak")));
+	TestTrue(TEXT("Comparison reports a health upgrade"), ComparisonText.Contains(TEXT("HP +3")));
+	TestTrue(TEXT("Comparison reports a mana upgrade"), ComparisonText.Contains(TEXT("Mana +1")));
+	TestTrue(TEXT("Comparison reports an armor downgrade"), ComparisonText.Contains(TEXT("Armor -1")));
+
+	const FString TooltipText = HudWidget->GetSelectedInventoryTooltipText().ToString();
+	TestTrue(TEXT("Tooltip names the inspected item"), TooltipText.Contains(TEXT("Fenwatch Mantle x1")));
+	TestTrue(TEXT("Tooltip includes slot and level"), TooltipText.Contains(TEXT("Back | Level 2")));
+	TestTrue(TEXT("Tooltip includes the item's effects"), TooltipText.Contains(TEXT("+5 HP")));
+	TestTrue(TEXT("Tooltip includes equipment comparison"), TooltipText.Contains(TEXT("Vs Weathered Cloak")));
+	TestTrue(TEXT("Tooltip includes item description"), TooltipText.Contains(TEXT("trusted Fenwatch scouts")));
+	TestTrue(TEXT("Inventory detail text includes comparison"), HudWidget->GetInventoryDisplayText().ToString().Contains(TEXT("Armor -1")));
+
+	TestNotNull(TEXT("Equipped item can be removed for empty-slot comparison"), Equipment->UnequipItem(EEmbermereEquipmentSlot::Back));
+	const FString EmptySlotComparison = HudWidget->GetSelectedInventoryComparisonText().ToString();
+	TestTrue(TEXT("Empty-slot comparison names the destination slot"), EmptySlotComparison.Contains(TEXT("Vs empty Back")));
+	TestTrue(TEXT("Empty-slot comparison reports candidate armor"), EmptySlotComparison.Contains(TEXT("Armor +1")));
+
+	TestTrue(TEXT("Consumable can be selected"), HudWidget->SelectInventoryItem(1));
+	TestTrue(TEXT("Consumable has no equipment comparison"), HudWidget->GetSelectedInventoryComparisonText().IsEmpty());
+	const FString ConsumableTooltip = HudWidget->GetSelectedInventoryTooltipText().ToString();
+	TestTrue(TEXT("Consumable tooltip reports quantity"), ConsumableTooltip.Contains(TEXT("Marsh Tonic x2")));
+	TestTrue(TEXT("Consumable tooltip reports its effect"), ConsumableTooltip.Contains(TEXT("Restores 25 HP")));
+	TestFalse(TEXT("Consumable tooltip omits equipment comparison"), ConsumableTooltip.Contains(TEXT("Vs ")));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereInventoryIdentityActionsTest,
+	"Embermere.Inventory.IdentityActions",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereInventoryIdentityActionsTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* HudWidget = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereEquipmentComponent* Equipment = NewObject<UEmbermereEquipmentComponent>();
+	UEmbermereStatsComponent* Stats = NewObject<UEmbermereStatsComponent>();
+	TestNotNull(TEXT("HUD widget can be created"), HudWidget);
+	TestNotNull(TEXT("Inventory component can be created"), Inventory);
+	TestNotNull(TEXT("Equipment component can be created"), Equipment);
+	TestNotNull(TEXT("Stats component can be created"), Stats);
+	if (!HudWidget || !Inventory || !Equipment || !Stats)
+	{
+		return false;
+	}
+
+	UEmbermereItemData* RecruitPack = NewObject<UEmbermereItemData>();
+	RecruitPack->ItemId = "RecruitPack";
+	RecruitPack->DisplayName = FText::FromString(TEXT("Recruit Pack"));
+	RecruitPack->Category = EEmbermereItemCategory::Armor;
+	RecruitPack->EquipmentSlot = EEmbermereEquipmentSlot::Back;
+	RecruitPack->RequiredLevel = 1;
+	RecruitPack->StatBonuses.MaxHealth = 5.0f;
+
+	HudWidget->Inventory = Inventory;
+	HudWidget->Equipment = Equipment;
+	HudWidget->Stats = Stats;
+	Stats->Level = 1;
+	TestTrue(TEXT("Identity-action item can be added"), Inventory->AddItem(RecruitPack, 1));
+
+	TestFalse(
+		TEXT("Wrong-slot request is rejected"),
+		HudWidget->EquipInventoryItemToSlot(RecruitPack, EEmbermereEquipmentSlot::Chest));
+	TestEqual(TEXT("Wrong-slot rejection preserves bag quantity"), Inventory->GetItemQuantity(RecruitPack), 1);
+	TestNull(TEXT("Wrong-slot rejection preserves empty Back slot"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::Back));
+
+	TestTrue(
+		TEXT("Matching-slot request equips through the identity action"),
+		HudWidget->EquipInventoryItemToSlot(RecruitPack, EEmbermereEquipmentSlot::Back));
+	TestEqual(TEXT("Successful identity action removes bag item"), Inventory->GetItemQuantity(RecruitPack), 0);
+	TestTrue(TEXT("Successful identity action equips requested item"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::Back) == RecruitPack);
+
+	TestFalse(
+		TEXT("Stale item payload is rejected after item leaves bag"),
+		HudWidget->EquipInventoryItemToSlot(RecruitPack, EEmbermereEquipmentSlot::Back));
+	TestEqual(TEXT("Stale payload does not duplicate item into bag"), Inventory->GetItemQuantity(RecruitPack), 0);
+	TestTrue(TEXT("Stale payload leaves equipment intact"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::Back) == RecruitPack);
+
+	TestTrue(TEXT("A second copy of equipped gear can remain in the bag"), Inventory->AddItem(RecruitPack, 1));
+	TestFalse(
+		TEXT("Already-equipped item definition is a rejected no-op"),
+		HudWidget->EquipInventoryItemToSlot(RecruitPack, EEmbermereEquipmentSlot::Back));
+	TestEqual(TEXT("Rejected duplicate equip preserves bag quantity"), Inventory->GetItemQuantity(RecruitPack), 1);
+	TestTrue(TEXT("Rejected duplicate equip preserves equipped item"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::Back) == RecruitPack);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereEquipmentSlotRulesTest,
 	"Embermere.Equipment.SlotRules",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

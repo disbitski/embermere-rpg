@@ -11,6 +11,7 @@ class UEmbermereCombatComponent;
 class UEmbermereEquipmentComponent;
 class UEmbermereEquipmentSlotButton;
 class UEmbermereHotbarComponent;
+class UEmbermereItemData;
 class UEmbermereInventoryRowButton;
 class UEmbermereInventoryComponent;
 class UEmbermereQuestLogComponent;
@@ -92,10 +93,22 @@ public:
 	FText GetSelectedInventoryActionLabel() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	FText GetSelectedInventoryComparisonText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	FText GetSelectedInventoryTooltipText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	FText GetEquipmentDisplayText() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool ActivateSelectedInventoryItem();
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
+	bool ActivateInventoryItem(UEmbermereItemData* Item);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
+	bool EquipInventoryItemToSlot(UEmbermereItemData* Item, EEmbermereEquipmentSlot TargetSlot);
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool ActivateEquipmentSlot(EEmbermereEquipmentSlot EquipmentSlot);
@@ -219,9 +232,11 @@ private:
 	void RefreshInventoryWindow();
 	void RefreshChatMessages();
 	void ClampSelectedInventoryStackIndex();
+	FText BuildItemComparisonText(const UEmbermereItemData* Item) const;
+	FText BuildItemTooltipText(const UEmbermereItemData* Item, int32 Quantity) const;
 
 	UFUNCTION()
-	void HandleItemAdded(class UEmbermereItemData* Item, int32 Quantity);
+	void HandleItemAdded(UEmbermereItemData* Item, int32 Quantity);
 
 	UFUNCTION()
 	void HandleInventoryRowClicked(int32 VisibleRowIndex);

@@ -48,6 +48,26 @@ namespace
 		}
 	}
 
+	void AddStatDelta(TArray<FString>& Deltas, const TCHAR* Label, const float Value)
+	{
+		if (!FMath::IsNearlyZero(Value))
+		{
+			Deltas.Add(FString::Printf(TEXT("%s %+.0f"), Label, Value));
+		}
+	}
+
+	FString GetStatDeltaSummary(
+		const FEmbermereItemStatBonuses& Candidate,
+		const FEmbermereItemStatBonuses& Equipped)
+	{
+		TArray<FString> Deltas;
+		AddStatDelta(Deltas, TEXT("HP"), Candidate.MaxHealth - Equipped.MaxHealth);
+		AddStatDelta(Deltas, TEXT("Mana"), Candidate.MaxMana - Equipped.MaxMana);
+		AddStatDelta(Deltas, TEXT("Armor"), Candidate.Armor - Equipped.Armor);
+		AddStatDelta(Deltas, TEXT("Power"), Candidate.Power - Equipped.Power);
+		return Deltas.Num() > 0 ? FString::Join(Deltas, TEXT(", ")) : TEXT("No stat change");
+	}
+
 	UTextBlock* MakeHudText(UWidgetTree* WidgetTree, const FName Name, const FLinearColor Color, const float FontSize)
 	{
 		UTextBlock* TextBlock = WidgetTree ? WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), Name) : nullptr;
@@ -291,6 +311,11 @@ FText UEmbermerePlayerHudWidget::GetInventoryDisplayText() const
 			{
 				InventoryLine += FString::Printf(TEXT("\n%s"), *Item->GetEffectSummary().ToString());
 			}
+			const FText ComparisonText = BuildItemComparisonText(Item);
+			if (!ComparisonText.IsEmpty())
+			{
+				InventoryLine += FString::Printf(TEXT("\n%s"), *ComparisonText.ToString());
+			}
 			if (!Item->Description.IsEmpty())
 			{
 				InventoryLine += FString::Printf(TEXT("\n%s"), *Item->Description.ToString());
@@ -314,6 +339,91 @@ FText UEmbermerePlayerHudWidget::GetSelectedInventoryActionLabel() const
 		return FText::FromString(TEXT("Inspect"));
 	}
 	return Item->GetPrimaryActionLabel();
+}
+
+FText UEmbermerePlayerHudWidget::GetSelectedInventoryComparisonText() const
+{
+	if (!Inventory || !Inventory->Stacks.IsValidIndex(SelectedInventoryStackIndex))
+	{
+		return FText::GetEmpty();
+	}
+
+	return BuildItemComparisonText(Inventory->Stacks[SelectedInventoryStackIndex].Item);
+}
+
+FText UEmbermerePlayerHudWidget::GetSelectedInventoryTooltipText() const
+{
+	if (!Inventory || !Inventory->Stacks.IsValidIndex(SelectedInventoryStackIndex))
+	{
+		return FText::GetEmpty();
+	}
+
+	const FEmbermereInventoryStack& Stack = Inventory->Stacks[SelectedInventoryStackIndex];
+	return BuildItemTooltipText(Stack.Item, Stack.Quantity);
+}
+
+FText UEmbermerePlayerHudWidget::BuildItemComparisonText(const UEmbermereItemData* Item) const
+{
+	if (!Item || !Item->IsEquippable())
+	{
+		return FText::GetEmpty();
+	}
+
+	const UEmbermereItemData* EquippedItem = Equipment ? Equipment->GetEquippedItem(Item->EquipmentSlot) : nullptr;
+	if (EquippedItem == Item)
+	{
+		return FText::FromString(TEXT("Currently equipped"));
+	}
+
+	const FEmbermereItemStatBonuses EquippedBonuses = EquippedItem
+		? EquippedItem->StatBonuses
+		: FEmbermereItemStatBonuses();
+	const FString ComparisonName = EquippedItem
+		? EquippedItem->DisplayName.ToString()
+		: FString::Printf(TEXT("empty %s"), GetEquipmentSlotLabel(Item->EquipmentSlot));
+	return FText::FromString(FString::Printf(
+		TEXT("Vs %s: %s"),
+		*ComparisonName,
+		*GetStatDeltaSummary(Item->StatBonuses, EquippedBonuses)));
+}
+
+FText UEmbermerePlayerHudWidget::BuildItemTooltipText(const UEmbermereItemData* Item, int32 Quantity) const
+{
+	if (!Item)
+	{
+		return FText::GetEmpty();
+	}
+
+	TArray<FString> Lines;
+	Lines.Add(FString::Printf(TEXT("%s x%d"), *Item->DisplayName.ToString(), FMath::Max(1, Quantity)));
+	if (Item->IsEquippable())
+	{
+		Lines.Add(FString::Printf(
+			TEXT("%s | %s | Level %d"),
+			*Item->GetCategoryDisplayName().ToString(),
+			*Item->GetEquipmentSlotDisplayName().ToString(),
+			FMath::Max(1, Item->RequiredLevel)));
+	}
+	else
+	{
+		Lines.Add(Item->GetCategoryDisplayName().ToString());
+	}
+
+	if (Item->IsEquippable() || Item->IsConsumable())
+	{
+		Lines.Add(Item->GetEffectSummary().ToString());
+	}
+	const FText ComparisonText = BuildItemComparisonText(Item);
+	if (!ComparisonText.IsEmpty())
+	{
+		Lines.Add(ComparisonText.ToString());
+	}
+	if (!Item->Description.IsEmpty())
+	{
+		Lines.Add(TEXT(""));
+		Lines.Add(Item->Description.ToString());
+	}
+	return FText::FromString(FString::Join(Lines, TEXT("\n")));
 }
 
 FText UEmbermerePlayerHudWidget::GetEquipmentDisplayText() const
@@ -360,8 +470,12 @@ bool UEmbermerePlayerHudWidget::ActivateSelectedInventoryItem()
 		return false;
 	}
 
-	UEmbermereItemData* Item = Inventory->Stacks[SelectedInventoryStackIndex].Item;
-	if (!Item)
+	return ActivateInventoryItem(Inventory->Stacks[SelectedInventoryStackIndex].Item);
+}
+
+bool UEmbermerePlayerHudWidget::ActivateInventoryItem(UEmbermereItemData* Item)
+{
+	if (!Inventory || !Item || !Inventory->CanRemoveItem(Item, 1))
 	{
 		return false;
 	}
@@ -395,6 +509,10 @@ bool UEmbermerePlayerHudWidget::ActivateSelectedInventoryItem()
 	{
 		return false;
 	}
+	if (Equipment->IsItemEquipped(Item))
+	{
+		return false;
+	}
 
 	const int32 CharacterLevel = Stats ? Stats->Level : 1;
 	const bool bChanged = Equipment->EquipFromInventory(Item, CharacterLevel, Inventory);
@@ -410,6 +528,19 @@ bool UEmbermerePlayerHudWidget::ActivateSelectedInventoryItem()
 		RefreshHudText();
 	}
 	return bChanged;
+}
+
+bool UEmbermerePlayerHudWidget::EquipInventoryItemToSlot(
+	UEmbermereItemData* Item,
+	EEmbermereEquipmentSlot TargetSlot)
+{
+	if (!Item || !Item->IsEquippable() || TargetSlot == EEmbermereEquipmentSlot::None ||
+		Item->EquipmentSlot != TargetSlot)
+	{
+		return false;
+	}
+
+	return ActivateInventoryItem(Item);
 }
 
 bool UEmbermerePlayerHudWidget::ActivateEquipmentSlot(EEmbermereEquipmentSlot EquipmentSlot)
@@ -1071,6 +1202,11 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 
 		const UEmbermereItemData* Item = Equipment ? Equipment->GetEquippedItem(SlotButton->EquipmentSlot) : nullptr;
 		SlotButton->SetIsEnabled(Item != nullptr);
+		SlotButton->SetToolTipText(Item
+			? FText::FromString(FString::Printf(
+				TEXT("%s\n\nClick to unequip"),
+				*BuildItemTooltipText(Item, 1).ToString()))
+			: FText::FromString(FString::Printf(TEXT("Empty %s slot"), GetEquipmentSlotLabel(SlotButton->EquipmentSlot))));
 		SlotButton->SetBackgroundColor(
 			Item
 				? FLinearColor(0.3f, 0.2f, 0.055f, 0.96f)
@@ -1095,6 +1231,7 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 			RowButton->SetIsEnabled(false);
 			RowButton->SetVisibility(ESlateVisibility::Collapsed);
 			RowButton->SetBackgroundColor(FLinearColor(0.08f, 0.085f, 0.075f, 0.72f));
+			RowButton->SetToolTipText(FText::GetEmpty());
 		}
 
 		UTextBlock* RowText = InventoryRowTexts[RowIndex];
@@ -1161,6 +1298,7 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 		const bool bSelected = StackIndex == SelectedIndex;
 		RowButton->SetIsEnabled(true);
 		RowButton->SetVisibility(ESlateVisibility::Visible);
+		RowButton->SetToolTipText(BuildItemTooltipText(Stack.Item, Stack.Quantity));
 		RowButton->SetBackgroundColor(
 			bSelected
 				? FLinearColor(0.28f, 0.19f, 0.055f, 0.92f)
@@ -1185,7 +1323,7 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 		if (InventoryDetailMetaText)
 		{
 			FString DetailMeta = FString::Printf(
-				TEXT("Quantity %d\nStack limit %d\n%s\nAction: %s"),
+				TEXT("Quantity %d / %d\n%s | %s"),
 				SelectedStack.Quantity,
 				SelectedStack.Item->MaxStack,
 				*SelectedStack.Item->GetCategoryDisplayName().ToString(),
@@ -1193,13 +1331,18 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 			if (SelectedStack.Item->IsEquippable())
 			{
 				DetailMeta += FString::Printf(
-					TEXT("\nSlot: %s\nRequired level: %d"),
+					TEXT("\n%s | Level %d"),
 					*SelectedStack.Item->GetEquipmentSlotDisplayName().ToString(),
 					FMath::Max(1, SelectedStack.Item->RequiredLevel));
 			}
 			if (SelectedStack.Item->IsEquippable() || SelectedStack.Item->IsConsumable())
 			{
 				DetailMeta += FString::Printf(TEXT("\n%s"), *SelectedStack.Item->GetEffectSummary().ToString());
+			}
+			const FText ComparisonText = BuildItemComparisonText(SelectedStack.Item);
+			if (!ComparisonText.IsEmpty())
+			{
+				DetailMeta += FString::Printf(TEXT("\n%s"), *ComparisonText.ToString());
 			}
 			DetailMeta += FString::Printf(TEXT("\nItem %d of %d"), SelectedIndex + 1, StackCount);
 			InventoryDetailMetaText->SetText(FText::FromString(DetailMeta));

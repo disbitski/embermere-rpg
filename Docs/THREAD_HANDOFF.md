@@ -185,11 +185,16 @@ Implemented presentation includes:
   clickable highlighted rows, cursor-aware input mode, keyboard footer, `I`
   toggle, bracket cycling, category/slot/level/effect metadata, ten clickable
   paper-doll controls, aggregate bonuses, transactional Equip/Unequip, and safe
-  consumable Use actions.
+  consumable Use actions;
+- net item-stat comparison against current gear or an empty destination slot,
+  plus hover tooltips for populated bag rows and occupied equipment slots;
+- item-identity action routing with destination-slot validation as the first
+  implementation layer for drag/drop.
 
 These systems are functional programmer art. Dedicated fantasy UI materials,
-icons, illustrated body-slot art, item comparison, drag/drop, chat scrolling,
-and final responsive layout remain future work.
+icons, illustrated body-slot art, drag/drop gestures, sorting, chat scrolling,
+and final responsive layout remain future work. The drag/drop contract is in
+`Docs/INVENTORY_INTERACTION_PLAN.md`.
 
 ## Source Architecture
 
@@ -412,11 +417,13 @@ Current automation tests:
 14. `Embermere.Enemy.LootRules`
 15. `Embermere.Equipment.InventoryTransactions`
 16. `Embermere.Inventory.CapacityTransactions`
+17. `Embermere.UI.ItemComparison`
+18. `Embermere.Inventory.IdentityActions`
 
-Latest verified baseline (2026-07-13):
+Latest verified baseline (2026-07-14):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- automation passed 16/16 with zero errors and zero warnings;
+- headless automation passed 18/18 with zero test errors and zero test warnings;
 - headless zone validator passed with 64 upright `FabPass_` actors, the exact
   original waystone mesh/tag/transform, required gameplay anchors, moss-ground
   overrides, and exact saved sun/skylight/fog values;
@@ -426,8 +433,11 @@ Latest verified baseline (2026-07-13):
   target/nameplate, raised target ring, moss/daylight balance, and chat clipping;
 - clean pre-relink PIE verified Mara quest acceptance, combat progression, a real
   Marsh Tonic drop, targeting/nameplate, daylight/moss, and the three-column window;
+- first-class MCP in the unrestarted editor discovered only 14 tests, proving it
+  still held the pre-2026-07-13 module;
 - restart before visually testing the newly linked ten-slot paper doll, bag/gear
-  transfers, full-bag rejection message, and stat changes.
+  transfers, comparison lines, hover tooltips, full-bag rejection message, and
+  stat changes.
 
 ## Critical Unreal Lessons
 
@@ -481,12 +491,13 @@ First fresh-session checks:
 
 1. Restart Unreal and open `L_Embermere_Prototype`.
 2. Start MCP on port `8123` and wait briefly for tool discovery.
-3. Run/discover all 16 tests.
+3. Run/discover all 18 tests.
 4. Start PIE and verify:
    - structured inventory layout, empty state, reward inspection, clickable row
      selection, selected-row highlight, 700px equipment/bonus pane, all ten slot
      controls, Recruit Pack bag-to-Back transfer, slot-click unequip, full-bag
-     rejection, stat changes, Marsh Tonic loot/use, `I`,
+     rejection, stat changes, row/slot hover tooltips, net item comparison,
+     Marsh Tonic loot/use, `I`,
      `[`/`]`, and cursor capture/release;
    - hotbar dimming and live cooldown countdown;
    - native nameplate and health-aware color;
@@ -503,7 +514,8 @@ First fresh-session checks:
 
 High-value milestones after that:
 
-- illustrated body-slot art, item tooltips/comparison, and drag/drop planning on top of the atomic transaction model;
+- implement drag sources and drop targets from
+  `Docs/INVENTORY_INTERACTION_PLAN.md`, then add illustrated body-slot art;
 - expand the proven Blender lane into a small matching road/village prop family
   while preserving deterministic scripts, FBX checks, and original-art tags;
 - optional rune/soft-edge texture treatment for the dedicated target-ring
@@ -564,7 +576,7 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of the 700px inventory and ten-slot paper doll, Recruit Pack bag-to-Back transfer and click-to-unequip flow, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, and the corrected 65-actor Fab environment. Then continue into starter-enemy tuning, item comparison/drag-drop planning, and the highest-value next milestone when the path is clear.
+Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of the 700px inventory and ten-slot paper doll, Recruit Pack bag-to-Back transfer and click-to-unequip flow, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 64 upright Fab actors, and the original road waystone. Then continue into starter-enemy tuning, drag/drop implementation from Docs/INVENTORY_INTERACTION_PLAN.md, and the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

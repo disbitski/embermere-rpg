@@ -73,6 +73,11 @@ Embermere example:
 
 After the no-hot-reload build, the new `Embermere.Combat.DeadCasterRejected` test ran from the current source and passed in commandlet automation.
 
+Test discovery itself is also a useful stale-module probe. On 2026-07-14, a
+fresh commandlet run discovered and passed 18 tests while first-class MCP in the
+still-open interactive editor discovered only 14. That count mismatch proved
+the editor needed a restart before PIE, without relying on visual guesswork.
+
 ## Do Not Parallelize Unreal Commandlets
 
 Unreal commandlets can share UnrealBuildTool log and trace files under `~/Library/Application Support/Epic/UnrealBuildTool`. Running two `UnrealEditor-Cmd` jobs at the same time can make one commandlet fail while trying to rotate or move `Trace.uba`.
