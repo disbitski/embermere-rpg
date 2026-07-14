@@ -3,6 +3,7 @@ import json
 
 FAB_TAG = "EmbermereFabPass"
 FAB_PREFIX = "FabPass_"
+ORIGINAL_TAG = "EmbermereOriginalArt"
 
 
 def call(tool_name, payload):
@@ -68,7 +69,7 @@ def spawn(entry):
         return {"name": entry["name"], "asset": asset_path, "status": "not_created"}
 
     actor("set_label", {"actor": actor_ref, "label": entry["name"]})
-    actor("add_tag", {"actor": actor_ref, "tag": FAB_TAG})
+    actor("add_tag", {"actor": actor_ref, "tag": entry.get("tag", FAB_TAG)})
     scene("set_actor_folder", {"actor": actor_ref, "folder_path": entry["folder"]})
     return {"name": entry["name"], "asset": asset_path, "status": "created", "actor": actor_ref}
 
@@ -126,6 +127,23 @@ SCI_LAMP = "/Game/Scifi_desert_city/Meshes/Lamps/SM_lamp_01"
 SCI_TABLE = "/Game/Scifi_desert_city/Meshes/Table/SM_table"
 SCI_STOOL = "/Game/Scifi_desert_city/Meshes/Stool/SM_stool"
 
+EMBERMERE_WAYSTONE = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01"
+
+ORIGINAL_PLACEMENTS = [
+    {
+        "name": "Embermere_Waystone_Road_01",
+        "asset": EMBERMERE_WAYSTONE,
+        "x": -690,
+        "y": -25,
+        "z": 20,
+        "yaw": 30,
+        "scale": 1.0,
+        "snap": False,
+        "folder": "04_Fab_Zone_Pass/02_Road/Embermere_Originals",
+        "tag": ORIGINAL_TAG,
+    },
+]
+
 
 PLACEMENTS = [
     # Village safe-area dressing. Full sci-fi building shells were removed after
@@ -151,7 +169,6 @@ PLACEMENTS = [
     {"name": FAB_PREFIX + "Road_Pine_04", "asset": KITE_TREE, "x": 250, "y": -155, "z": 20, "yaw": 30, "scale": 0.5, "folder": "04_Fab_Zone_Pass/02_Road"},
     {"name": FAB_PREFIX + "Road_Pine_05", "asset": KITE_TALL_TREE, "x": 845, "y": 150, "z": 20, "yaw": -35, "scale": 0.48, "folder": "04_Fab_Zone_Pass/02_Road"},
     {"name": FAB_PREFIX + "Road_Pine_06", "asset": KITE_HILL_TREE, "x": 1380, "y": 290, "z": 20, "yaw": 14, "scale": 0.43, "folder": "04_Fab_Zone_Pass/02_Road"},
-    {"name": FAB_PREFIX + "Road_Stump_01", "asset": KITE_STUMP, "x": -690, "y": -25, "z": 20, "yaw": 30, "scale": 0.8, "folder": "04_Fab_Zone_Pass/02_Road"},
     {"name": FAB_PREFIX + "Road_Boulder_01", "asset": KITE_ROCK, "x": -230, "y": 285, "z": 20, "yaw": -22, "scale": 0.75, "folder": "04_Fab_Zone_Pass/02_Road"},
     {"name": FAB_PREFIX + "Road_Boulder_02", "asset": KITE_RIVER_ROCK, "x": 525, "y": 690, "z": 20, "yaw": 88, "scale": 0.9, "folder": "04_Fab_Zone_Pass/02_Road"},
     {"name": FAB_PREFIX + "Road_Bush_01", "asset": KITE_BUSH, "x": -1060, "y": -125, "z": 20, "yaw": 0, "scale": 0.85, "folder": "04_Fab_Zone_Pass/02_Road"},
@@ -234,9 +251,13 @@ def run():
     for label in GREYBOX_LABELS_TO_REMOVE:
         removed_greybox += remove_by_label(label)
 
+    removed_originals = 0
+    for entry in ORIGINAL_PLACEMENTS:
+        removed_originals += remove_by_label(entry["name"])
+
     created = []
     skipped = []
-    for entry in PLACEMENTS:
+    for entry in PLACEMENTS + ORIGINAL_PLACEMENTS:
         try:
             result = spawn(entry)
             if result["status"] == "created":
@@ -251,6 +272,7 @@ def run():
         "level": scene("get_current_level", {})["returnValue"],
         "removed_prior_fabpass": removed_prior,
         "removed_greybox_visuals": removed_greybox,
+        "removed_prior_originals": removed_originals,
         "created_count": len(created),
         "created": created,
         "skipped": skipped,

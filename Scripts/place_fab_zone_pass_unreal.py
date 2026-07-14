@@ -45,7 +45,9 @@ def actor_label(actor):
 def remove_visuals(data):
     removed_prior = 0
     removed_greybox = 0
+    removed_originals = 0
     greybox_labels = set(data.GREYBOX_LABELS_TO_REMOVE)
+    original_labels = {entry["name"] for entry in data.ORIGINAL_PLACEMENTS}
 
     for actor in list(unreal.EditorLevelLibrary.get_all_level_actors()):
         label = actor_label(actor)
@@ -55,8 +57,11 @@ def remove_visuals(data):
         elif label in greybox_labels:
             unreal.EditorLevelLibrary.destroy_actor(actor)
             removed_greybox += 1
+        elif label in original_labels:
+            unreal.EditorLevelLibrary.destroy_actor(actor)
+            removed_originals += 1
 
-    return removed_prior, removed_greybox
+    return removed_prior, removed_greybox, removed_originals
 
 
 def spawn_entry(data, entry):
@@ -72,7 +77,7 @@ def spawn_entry(data, entry):
 
     actor.set_actor_label(entry["name"])
     actor.set_actor_scale3d(scale_value(entry.get("scale", 1.0)))
-    actor.tags = list(actor.tags) + [unreal.Name(data.FAB_TAG)]
+    actor.tags = list(actor.tags) + [unreal.Name(entry.get("tag", data.FAB_TAG))]
     actor.set_folder_path(entry["folder"])
     return {"name": entry["name"], "asset": asset_path, "status": "created"}
 
@@ -81,11 +86,11 @@ def main():
     data = load_data()
     unreal.EditorLevelLibrary.load_level(LEVEL_PATH)
 
-    removed_prior, removed_greybox = remove_visuals(data)
+    removed_prior, removed_greybox, removed_originals = remove_visuals(data)
     created = []
     skipped = []
 
-    for entry in data.PLACEMENTS:
+    for entry in data.PLACEMENTS + data.ORIGINAL_PLACEMENTS:
         try:
             result = spawn_entry(data, entry)
             if result["status"] == "created":
@@ -107,7 +112,8 @@ def main():
     unreal.log("Embermere Fab zone pass complete")
     unreal.log("Removed prior FabPass actors: {}".format(removed_prior))
     unreal.log("Removed greybox visuals: {}".format(removed_greybox))
-    unreal.log("Created FabPass actors: {}".format(len(created)))
+    unreal.log("Removed prior Embermere originals: {}".format(removed_originals))
+    unreal.log("Created zone art actors: {}".format(len(created)))
     if skipped:
         unreal.log_warning("Skipped FabPass actors: {}".format(skipped))
 

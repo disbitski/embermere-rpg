@@ -1,6 +1,6 @@
 # Fab Asset Plan
 
-Embermere does not have final high-fantasy art assets installed yet. The current map now has a first local Fab/Epic art pass layered over the original greybox gameplay shell. This document tracks what to add from Fab/Marketplace and how to keep those assets replaceable.
+Embermere does not have final high-fantasy art assets installed yet. The current map now has a first local Fab/Epic art pass layered over the original greybox gameplay shell. This document tracks what to add from Fab/Marketplace and how to keep those assets replaceable. Original project-owned art follows the complementary [Blender asset pipeline](BLENDER_ASSET_PIPELINE.md).
 
 ## Current State
 
@@ -8,6 +8,9 @@ Embermere does not have final high-fantasy art assets installed yet. The current
 - We have gameplay Blueprints for player, enemies, game mode, and a quest giver.
 - We have a first local environment pass using imported Epic/Fab packs, but we do not yet have production-ready fantasy buildings, creatures, weapons, icons, VFX, or UI art.
 - We should start with free assets, then buy focused paid packs only when they clearly save time or improve cohesion.
+- Blender has begun replacing the most identity-defining temporary props and
+  architecture one bounded asset family at a time; Fab remains useful for
+  breadth and specialist content.
 
 ## Imported Local Packs
 
@@ -24,10 +27,10 @@ First local placement pass:
 - `Scripts/place_fab_zone_pass.py` stores the idempotent placement list for the `FabPass_` art layer.
 - `Scripts/place_fab_zone_pass_unreal.py` runs that placement list through Unreal Python and saves `/Game/Maps/L_Embermere_Prototype`.
 - `Scripts/validate_fab_zone_pass_unreal.py` loads the saved map and verifies the `FabPass_` actor count, required gameplay anchors, moss foundation material, and exact Mac-friendly daylight settings.
-- The pass removes the old visual-only village blockout buildings, road markers, and ruin blockout pieces, then creates 65 tagged `EmbermereFabPass` actors in `04_Fab_Zone_Pass` outliner folders.
+- The pass removes the old visual-only village blockout buildings, road markers, and ruin blockout pieces, then creates 64 tagged `EmbermereFabPass` actors in `04_Fab_Zone_Pass` outliner folders. A separate project-owned layer places `Embermere_Waystone_Road_01`, tagged `EmbermereOriginalArt`, where the temporary road stump used to stand.
 - The script keeps gameplay actors intact: Mara, PlayerStart, starter enemies, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring are not moved.
 - The Unreal Python helper assigns rotation fields by name. Do not use positional `unreal.Rotator(...)` arguments here; the first pass mapped intended yaw into pitch and tilted the environment.
-- Validation rejects any `FabPass_` actor with meaningful pitch or roll.
+- Validation rejects any `FabPass_` actor with meaningful pitch or roll and requires the original waystone's exact mesh, tag, upright road transform, and saved placement.
 - The map now includes a first Mac-friendly daylight baseline: `SkyAtmosphere`, real-time movable skylight fill, and restrained height-fog color/density. The validator asserts the sun, skylight, fog, and atmosphere settings so rebuilt maps do not regress to the previous black-sky state.
 - `/Game/Art/Embermere/Environment/M_EmbermereGround` gives the zone plane and both prototype area platforms a muted moss color. The setup script reapplies it and validation rejects missing overrides.
 

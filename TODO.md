@@ -6,7 +6,21 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Restart Unreal before manual PIE if the editor has been open since the 2026-07-13 clickable-slot, bag/equipment transaction, and atomic inventory C++ build. The current source builds and headless automation passes, but the open editor still has the pre-build module loaded.
+- Restart Unreal before manual PIE because the editor was open during the latest
+  authoritative `-NoHotReloadFromIDE` build. The saved map and current source
+  pass headless validation, but the open editor still has the pre-build module.
+- Verify the first original Blender asset in clean-restart PIE:
+  - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
+  - approach it from the rune side and confirm scale, terrain contact, camera
+    readability, and both-box collision without blocking the village route;
+  - confirm its pale stone, moss accent, and ember rune remain readable in the
+    current daylight alongside the mixed Fab foliage.
+- Restart ChatGPT Codex once before expecting first-class Blender MCP tools in a
+  new task. The bridge itself is already live and independently verified: 27
+  tools discovered, approved script execution succeeded, and inline code was
+  rejected.
+- After the clean PIE pass, design one matching bounded prop, preferably a road
+  signpost or ember lamp, and reuse the proven source/FBX/import/validation lane.
 - Confirm the local Fab/Epic folders are present but ignored by Git:
   - `Content/KiteDemo/`
   - `Content/SoulCave/`
@@ -63,7 +77,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - Mara should show a temporary gold `!` and name marker above her.
 - Manually verify the first `FabPass_` environment layer in PIE:
   - the map has a blue atmospheric sky, readable ambient fill, and muted moss foundation instead of the previous black sky/white ground presentation;
-  - all 65 remaining art-pass actors stand upright instead of inheriting intended yaw as pitch;
+  - all 64 remaining Fab art-pass actors stand upright and the original waystone sits at road elevation;
   - the three oversized sci-fi building shells are gone and PlayerStart has an unobstructed view toward Mara;
   - village props leave Mara, PlayerStart, and the quest interaction route readable;
   - the road dressing points naturally from the village toward the wilderness pocket;
@@ -139,6 +153,9 @@ The prototype foundation is alive, but it is still early. The environment is upr
   - confirm the upgraded ruin reads better than the old greybox and does not trap the player;
   - identify any sci-fi props that look too off-theme for the starter village.
 - Add proper stylized fantasy village buildings now that the oversized sci-fi shells have been removed.
+- Expand the proven original Blender-to-Unreal lane from the waystone shrine
+  into a matching village-prop family before attempting rigged
+  characters or creatures.
 - Tune starter enemy aggro, leash radius, return-home speed, attack range, damage, and respawn timing after in-editor playtesting.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
@@ -241,6 +258,21 @@ The prototype foundation is alive, but it is still early. The environment is upr
 - Added `Embermere.Equipment.InventoryTransactions` and `Embermere.Inventory.CapacityTransactions`; final headless automation passed 16/16 with zero warnings.
 - Built successfully with `-NoHotReloadFromIDE` and reran saved-map validation: 65 upright FabPass actors, gameplay anchors, moss ground, and daylight baseline remain intact.
 - Restart Unreal before visually verifying the newly linked paper-doll slot grid and bag/equipment transfer flow.
+- 2026-07-13: installed Blender 5.1.2 and the pinned structured Blender MCP
+  bridge with Safe Mode on, inline code off, localhost binding, and project-only
+  approved script roots.
+- Generated `SM_EmbermereWaystone_01` from the tracked Blender script, revised
+  its first dark preview, and validated 1,340 triangles, three materials, one UV
+  channel, ground pivot, and two Unreal collision boxes.
+- Imported and saved the waystone plus its materials under
+  `/Game/Art/Embermere/Environment/PrototypeVillage`, replaced the temporary
+  road stump, and tagged the map actor `EmbermereOriginalArt`.
+- Caught and fixed a live snap-order issue that initially placed the waystone on
+  top of the outgoing stump; deterministic placement now disables snap and the
+  validator asserts Z `20`.
+- Final Mac editor build succeeded; saved-map validation passed with 64 upright
+  FabPass actors plus the original waystone; headless automation passed 16/16
+  with zero failures and zero warnings.
 
 ## Asset Hunt
 

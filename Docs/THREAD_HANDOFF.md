@@ -45,8 +45,9 @@ The project currently includes:
 - a styled native HUD with player/target status, quest tracker, hotbar,
   clickable inventory rows and equipment slots, dialogue, loot feedback, nameplates, an emissive
   target ring, and chat log;
-- a first local Fab/Epic art pass with 65 upright environment actors plus a
-  Mac-friendly atmospheric daylight baseline;
+- a first local Fab/Epic art pass with 64 upright environment actors, the first
+  original Blender-built Embermere waystone, and a Mac-friendly atmospheric
+  daylight baseline;
 - 16 passing Unreal automation tests and a headless Fab/map/lighting validator.
 
 This is still prototype art. The first black-sky problem is corrected, but the
@@ -267,6 +268,30 @@ The three oversized sci-fi building shells were removed because they blocked
 PlayerStart and Mara readability. The current zone still needs proper Stylized
 Classic fantasy village buildings.
 
+## Original Blender Assets
+
+Blender is the active source tool for project-owned static props, ruins,
+modular architecture, weapons, and later character art. The durable setup,
+security model, technical contract, and acceptance checklist live in
+`Docs/BLENDER_ASSET_PIPELINE.md`.
+
+The first pilot is `SM_EmbermereWaystone_01`, built by the reviewed
+`Scripts/blender/build_embermere_waystone.py` script. The script creates the
+render mesh, two Unreal-named collision boxes, UVs, an FBX export, a `.blend`
+source file, a preview render, and deterministic metrics. On 2026-07-13 Blender
+5.1.2 and the pinned MCP bridge were installed, the script ran through the
+approved-path flow, inline execution was proven blocked, and the resulting
+1,340-triangle asset imported into Unreal with three materials, one UV channel,
+and two explicit collision boxes. It now replaces `FabPass_Road_Stump_01` in
+the saved starter map as `Embermere_Waystone_Road_01`.
+
+The chosen community bridge is `djeada/blender-mcp-server`, pinned during
+installation to commit `7eed33edf4aca2ab0ca84a6da27321f89f68b504`.
+Configure its add-on with Safe Mode enabled, inline code disabled, localhost
+port `9876`, and approved roots limited to this repository's `Scripts/blender`
+and `ArtSource/Blender` directories. Do not install the popular unrestricted
+raw-code bridge for this project.
+
 ## Unreal And Machine Setup
 
 Known local installation:
@@ -392,8 +417,9 @@ Latest verified baseline (2026-07-13):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
 - automation passed 16/16 with zero errors and zero warnings;
-- headless Fab validator passed with 65 upright `FabPass_` actors, required
-  gameplay anchors, moss-ground overrides, and exact saved sun/skylight/fog values;
+- headless zone validator passed with 64 upright `FabPass_` actors, the exact
+  original waystone mesh/tag/transform, required gameplay anchors, moss-ground
+  overrides, and exact saved sun/skylight/fog values;
 - live pre-relink PIE confirmed the blue atmospheric sky, readable ambient fill,
   muted moss ground, inventory show/hide, target/nameplate, and chat clipping;
 - clean PIE verified the 2026-07-11 inventory shell, Mara quest acceptance,
@@ -469,7 +495,7 @@ First fresh-session checks:
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
-   - 65 upright Fab actors, clear spawn/Mara route, readable road/enemy pocket,
+   - 64 upright Fab actors plus the original road waystone, clear spawn/Mara route, readable road/enemy pocket,
      a ruin that does not trap the player, muted moss ground, and balanced
      daylight/fog under the atmospheric sky.
 5. Confirm the already-added precise daylight and moss-ground validator
@@ -478,6 +504,8 @@ First fresh-session checks:
 High-value milestones after that:
 
 - illustrated body-slot art, item tooltips/comparison, and drag/drop planning on top of the atomic transaction model;
+- expand the proven Blender lane into a small matching road/village prop family
+  while preserving deterministic scripts, FBX checks, and original-art tags;
 - optional rune/soft-edge texture treatment for the dedicated target-ring
   material;
 - proper Stylized Classic fantasy village buildings from a suitable signed-in

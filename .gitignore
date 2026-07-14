@@ -7,6 +7,13 @@ Saved/
 __pycache__/
 Scripts/__pycache__/
 
+# Local DCC tooling and Blender recovery files. Original Embermere .blend,
+# interchange, and preview files remain eligible for source control.
+Tools/External/
+*.blend1
+*.blend2
+*.blend@
+
 # Local Fab/Epic asset imports. Do not publish raw marketplace packs in the
 # public repository; keep docs listing the required local imports instead.
 Content/KiteDemo/

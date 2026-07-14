@@ -1,2 +1,12 @@
 [mcp_servers.unreal-mcp]
 url = "http://127.0.0.1:8123/mcp"
+
+[mcp_servers.blender]
+command = "/Users/wizard/Documents/Unreal Game/Tools/External/blender-mcp-server/.venv/bin/blender-mcp-server"
+cwd = "/Users/wizard/Documents/Unreal Game/Tools/External/blender-mcp-server"
+enabled = true
+required = false
+startup_timeout_sec = 20
+tool_timeout_sec = 180
+default_tools_approval_mode = "prompt"
+disabled_tools = ["blender_python_exec_async"]

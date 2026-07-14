@@ -64,7 +64,7 @@ The repo currently contains the C++ gameplay scaffold for:
 - a tracked level-1 Back-slot Recruit Pack quest reward for the first equipment action
 - stackable Marsh Tonic recovery items dropped by Marsh Prowlers, connecting combat loot to the inventory `Use` action
 - the saved starter-zone map `L_Embermere_Prototype`
-- a corrected 65-actor local Fab/Epic art pass over the starter village, road, wilderness pocket, and ruin landmark, with upright rotations, an unobstructed PlayerStart/Mara route, a muted moss foundation material, and a validated Mac-friendly daylight/atmosphere baseline
+- a corrected 64-actor local Fab/Epic art pass plus Embermere's first original Blender-built waystone over the starter village, road, wilderness pocket, and ruin landmark, with upright rotations, an unobstructed PlayerStart/Mara route, a muted moss foundation material, and a validated Mac-friendly daylight/atmosphere baseline
 
 ## Starting Races
 
@@ -88,13 +88,19 @@ The repo currently contains the C++ gameplay scaffold for:
 
 The working visual north star is **Stylized Classic**: colorful high fantasy, readable silhouettes, lighter performance, and enough charm to avoid generic asset soup.
 
-We are starting Unreal-first with Fab and Marketplace assets, then replacing or upgrading packs as the game identity sharpens. Gameplay systems are designed to stay asset-agnostic so art, VFX, icons, characters, and environments can be swapped without rewriting core mechanics.
+We are starting Unreal-first with Fab and Marketplace assets, then replacing or upgrading packs as the game identity sharpens. Blender is our original-asset workshop for distinctive Embermere props, ruins, modular architecture, weapons, and eventually characters. Gameplay systems are designed to stay asset-agnostic so art, VFX, icons, characters, and environments can be swapped without rewriting core mechanics.
 
 The public repository intentionally ignores raw Fab/Epic marketplace asset folders. The saved map can reference locally imported packs, but the source asset packs themselves should be installed through Fab/Epic Launcher on each development machine rather than redistributed through GitHub.
 
 See [Docs/ASSET_STRATEGY.md](Docs/ASSET_STRATEGY.md).
 
 The current pack-by-pack shopping and import plan lives in [Docs/FAB_ASSET_PLAN.md](Docs/FAB_ASSET_PLAN.md).
+
+The original Blender and Blender MCP workflow lives in
+[Docs/BLENDER_ASSET_PIPELINE.md](Docs/BLENDER_ASSET_PIPELINE.md). Its first
+pilot is a project-owned stylized waystone shrine built from a reviewed script,
+validated in Blender, imported with explicit collision, and now placed in the
+starter-zone road in place of a temporary Fab stump.
 
 ## Unreal And MCP Setup
 
@@ -135,6 +141,6 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 ## Status
 
-Early playable Unreal prototype scaffold with MCP connected, a daylight Fab-dressed starter-zone loop, tab-target combat, hotbar cooldown feedback, native HUD panels, bottom-left chat/combat feedback, first quest reward and starter-enemy loot flow, a clickable paper-doll equipment/inventory window with atomic transactions and safe consumable actions, and native selected-target nameplate/emissive-ring feedback.
+Early playable Unreal prototype scaffold with Unreal and Blender MCP connected, a daylight starter-zone loop mixing a local Fab pass with the first original Embermere environment prop, tab-target combat, hotbar cooldown feedback, native HUD panels, bottom-left chat/combat feedback, first quest reward and starter-enemy loot flow, a clickable paper-doll equipment/inventory window with atomic transactions and safe consumable actions, and native selected-target nameplate/emissive-ring feedback.
 
 Next milestone: clean-restart PIE verification of the clickable equipment slots, bag/gear transfers, and Marsh Tonic loop, followed by starter-enemy tuning and replacement of the remaining temporary village silhouettes with a cohesive stylized fantasy architecture kit.

@@ -1,6 +1,7 @@
 # Asset Strategy
 
-Embermere is Unreal-first for the prototype.
+Embermere is Unreal-first for the prototype, with Blender as the source tool
+for original project-owned art.
 
 ## Direction
 
@@ -27,6 +28,22 @@ Prefer UE 5-ready Fab or Marketplace packs that provide:
 
 Paid packs are fine later when they clearly save time or improve quality.
 
+## Original Asset Creation
+
+Fab gives us breadth quickly; Blender gives Embermere its own identity. Use the
+Blender pipeline first for bounded static assets such as waystones, signs,
+lamps, fences, gates, crates, ruins, and modular village pieces. Keep using Fab
+for broad foliage coverage, temporary environment breadth, specialist VFX and
+audio, and animation-heavy content until an original replacement is justified.
+
+Every original Blender asset starts from a written brief, is built one asset at
+a time, and must pass deterministic mesh checks plus an Unreal scale,
+collision, and gameplay-readability pass. A beauty render alone is not an
+acceptance test.
+
+The full setup and Blender MCP workflow lives in
+[BLENDER_ASSET_PIPELINE.md](BLENDER_ASSET_PIPELINE.md).
+
 ## Acquisition And Install Flow
 
 Assets will be installed through Epic Games Launcher, Fab, and Unreal Editor once your Epic account and UE 5.8 are set up.
@@ -38,6 +55,10 @@ Assets will be installed through Epic Games Launcher, Fab, and Unreal Editor onc
 5. Open the project in Unreal and let it compile/import shaders as needed.
 6. Keep imported packs under their original vendor folder in `/Game`, then create Embermere-specific wrapper Blueprints, materials, and data references elsewhere.
 7. Use Unreal MCP to place, inspect, and iterate on imported assets once MCP is connected.
+
+Original assets follow a separate path: reviewed Blender source script,
+editable `.blend`, FBX export, import under `/Game/Art/Embermere`, Unreal MCP
+inspection, and PIE validation. They never go in a third-party vendor folder.
 
 I can help choose, vet, import, organize, and wire assets after Unreal is installed. Anything that requires account login, clicking purchase, or accepting paid checkout has to be done by you. Once the assets are in the project or your library, I can take over the boring integration work.
 

@@ -637,6 +637,65 @@ Verification:
 - Final saved-map validation passed with 65 upright Fab actors, gameplay anchors, moss ground, and exact daylight baseline intact.
 - The interactive editor predates the final relink, so tomorrow starts with a clean-restart visual pass over the slot grid and bag/equipment flow.
 
+## 2026-07-13 - Original Blender Asset Lane
+
+We researched the Blender MCP workflow demonstrated in the shared X article
+and adopted it as a complementary art lane rather than a wholesale replacement
+for Fab.
+
+Decisions:
+
+- Use Blender first for original static props, ruins, modular architecture,
+  signs, lamps, fences, and later weapons.
+- Keep Fab for broad foliage, temporary environment coverage, specialist
+  content, and animation-heavy assets while our original pipeline matures.
+- Build one bounded asset at a time from a written technical brief and require
+  deterministic mesh checks plus an Unreal PIE pass. A convincing render is
+  evidence, not acceptance.
+- Avoid the popular unrestricted raw-code Blender bridge after confirming its
+  open arbitrary-code execution report.
+- Use the structured `djeada/blender-mcp-server` bridge, pin the reviewed
+  version, enable Safe Mode, disable inline code, and run only tracked scripts
+  from approved project roots.
+
+Implementation:
+
+- Added `Docs/BLENDER_ASSET_PIPELINE.md` with Mac setup, Codex MCP config,
+  security boundaries, source layout, Unreal FBX conventions, and the asset
+  acceptance checklist.
+- Added `ArtSource/Blender/README.md` to establish ownership and repository
+  rules for original source art.
+- Added `Scripts/blender/build_embermere_waystone.py`, an idempotent first
+  pilot that builds a stylized ember-rune waystone, explicit Unreal collision,
+  UVs, validation metrics, a preview render, `.blend` source, and FBX export.
+- Kept the Blender MCP entry out of project config until its executable exists,
+  so Codex startup does not gain a known-dead server.
+
+Completed first asset loop:
+
+- Installed Blender 5.1.2 and the selected bridge at reviewed commit
+  `7eed33edf4aca2ab0ca84a6da27321f89f68b504`.
+- Enabled Safe Mode, disabled inline code, bound the add-on to localhost, and
+  limited approved scripts to Embermere's Blender source directories.
+- Verified all 27 structured MCP tools, proved an approved tracked script can
+  run, and proved inline code is rejected.
+- Generated the first waystone source, FBX, preview, and deterministic metrics;
+  revised its lighting after the first preview rendered too dark.
+- Imported the 1,340-triangle mesh into Unreal with three materials, one UV
+  channel, ground-level bounds, and two explicit box colliders.
+- Replaced the temporary road stump with `Embermere_Waystone_Road_01` and
+  separated it from the third-party art layer with `EmbermereOriginalArt`.
+- Caught a real placement-order bug when snap-to-ground used the outgoing stump
+  as its surface. Corrected the actor to road elevation and added its Z value to
+  the saved-map validator.
+- Rebuilt the editor, passed all 16 automation tests with zero warnings, and
+  passed fresh map validation with 64 upright Fab actors plus the original
+  waystone.
+
+The lane is now proven end to end: reviewed Blender source script to editable
+`.blend`, preview, FBX, Unreal import, map placement, collision, saved-map
+validation, and gameplay regression tests.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -4,7 +4,9 @@ import unreal
 
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
-EXPECTED_FABPASS_COUNT = 65
+EXPECTED_FABPASS_COUNT = 64
+ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
+ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 GROUND_MATERIAL_PATH = "/Game/Art/Embermere/Environment/M_EmbermereGround.M_EmbermereGround"
 GROUND_ACTOR_LABELS = {
     "Zone_Ground_Embermere_Glen",
@@ -22,6 +24,7 @@ REQUIRED_LABELS = {
     "Starter_Enemy_01",
     "Starter_Enemy_02",
     "Starter_Enemy_03",
+    ORIGINAL_WAYSTONE_LABEL,
 }
 
 REMOVED_GREYBOX_LABELS = {
@@ -91,6 +94,32 @@ def main():
         fail("FabPass actors must stay upright; found {}".format(tilted_fabpass))
 
     actors_by_label = {actor_label(actor): actor for actor in actors}
+    waystone = actors_by_label[ORIGINAL_WAYSTONE_LABEL]
+    waystone_component = waystone.get_component_by_class(unreal.StaticMeshComponent)
+    waystone_mesh = waystone_component.get_editor_property("static_mesh") if waystone_component else None
+    waystone_mesh_path = waystone_mesh.get_path_name() if waystone_mesh else "None"
+    if waystone_mesh_path != ORIGINAL_WAYSTONE_PATH:
+        fail("{} must use {}, found {}".format(ORIGINAL_WAYSTONE_LABEL, ORIGINAL_WAYSTONE_PATH, waystone_mesh_path))
+
+    waystone_location = waystone.get_actor_location()
+    waystone_rotation = waystone.get_actor_rotation()
+    if not all((
+        nearly_equal(waystone_location.x, -690.0, 1.0),
+        nearly_equal(waystone_location.y, -25.0, 1.0),
+        nearly_equal(waystone_location.z, 20.0, 1.0),
+        nearly_equal(waystone_rotation.pitch, 0.0, 0.1),
+        nearly_equal(waystone_rotation.yaw, 30.0, 0.1),
+        nearly_equal(waystone_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            ORIGINAL_WAYSTONE_LABEL,
+            waystone_location,
+            waystone_rotation,
+        ))
+
+    if unreal.Name("EmbermereOriginalArt") not in list(waystone.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(ORIGINAL_WAYSTONE_LABEL))
+
     missing_ground_actors = sorted(GROUND_ACTOR_LABELS - set(actors_by_label))
     if missing_ground_actors:
         fail("missing ground foundation actors {}".format(missing_ground_actors))
@@ -134,7 +163,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere Fab zone validation passed: {} upright FabPass actors, gameplay anchors, moss ground, and daylight baseline intact".format(len(fabpass_labels)))
+    unreal.log("Embermere zone validation passed: {} upright FabPass actors, original waystone, gameplay anchors, moss ground, and daylight baseline intact".format(len(fabpass_labels)))
 
 
 if __name__ == "__main__":
