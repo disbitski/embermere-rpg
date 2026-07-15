@@ -6,7 +6,8 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
-3. Confirm the map shows a blue atmospheric sky, readable ambient light, muted moss ground instead of a white foundation, 64 upright `FabPass_` actors plus `Embermere_Waystone_Road_01`, an unobstructed PlayerStart/Mara route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three starter enemies.
+3. Confirm the map shows a blue atmospheric sky, readable ambient light, muted moss ground instead of a white foundation, 62 upright `FabPass_` actors plus the original waystone and two ember lamps, an unobstructed PlayerStart/Mara route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three starter enemies.
+4. Inspect `Embermere_EmberLamp_Mara_01` and `Embermere_EmberLamp_Road_01`: pale stone/moss base, dark iron cage, warm ember crystal, terrain contact, clear route placement, and simple collision that does not trap the player.
 
 ## Finding Mara
 
@@ -28,28 +29,29 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 8. Press `W` or `S` while autorunning to stop autorun.
 9. Confirm the visible inventory opens in cursor-aware game/UI mode, then press `I` to hide/show it; closing the inventory should restore classic game-only mouse control.
 10. After earning Mara's Recruit Pack reward, select it and confirm it identifies as level-1 Back armor with `+5 HP, +1 Armor`. Confirm its detail pane compares it with the empty Back slot, then hover its row and verify the tooltip includes quantity, armor/slot/level, effects, comparison, and description.
-11. Click `Equip`; confirm the item leaves the bag, the gold Back-slot control shows Recruit Pack, aggregate bonuses update, HP becomes `105/105`, and chat reports the action. Hover the occupied Back slot for item details, then click it; confirm the item returns to the bag and stats/slot state return cleanly without a fake loot/reward popup.
-12. With every bag slot occupied, confirm clicking an equipped slot refuses to unequip and posts an inventory-full message without losing or duplicating the item.
-13. Walk near Mara Fenwatch in the village and press `F`.
-14. Watch for the temporary quest/dialogue message.
-15. Move toward the ruin and enemy pocket.
-16. Press `Tab` to target a nearby hostile.
-17. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP bar, flat animated 24-segment emissive gold ground ring, and the HUD target panel range state.
-18. Press `1` to use the first starter ability.
-19. Press `1` again before the cooldown finishes and confirm the bottom-left log reports the ability ready time.
-20. Confirm the cooling hotbar slot dims and shows its live countdown.
-21. Confirm combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log rather than overlapping the player status panel or spilling beyond the chat panel border.
-22. Expect nearby enemies to chase and melee you when you enter their aggro radius.
-23. Pull an enemy away from its wilderness pocket and confirm it eventually leashes back toward its spawn instead of chasing indefinitely into the village.
-24. Defeat a Marsh Prowler and confirm the chat reports one Marsh Tonic looted and inventory gains a stack. Repeated drops should increase the same stack up to its limit.
-25. After taking damage, select Marsh Tonic and click `Use`; confirm it restores up to 25 health and 10 mana and consumes one tonic. At full health/mana, `Use` must be disabled and preserve the stack.
-26. Defeat three starter enemies.
-27. Return to Mara and press `F` to complete the quest.
+11. Drag Recruit Pack onto Back; confirm the matching slot highlights gold, the item leaves the bag, aggregate bonuses update, HP becomes `105/105`, and chat reports the action. Dragging over a wrong slot should show a restrained red state and dropping there must change nothing.
+12. Drag the occupied Back slot onto the bag list; confirm the item returns once and stats/slot state reset without a fake loot popup. Repeat the equip/unequip flow with row click/action button and slot click to confirm the non-drag fallback remains intact.
+13. With every bag slot occupied, confirm clicking or dragging an equipped slot toward the bag refuses to unequip and posts an inventory-full message without losing or duplicating the item.
+14. Walk near Mara Fenwatch in the village and press `F`.
+15. Watch for the temporary quest/dialogue message.
+16. Move toward the ruin and enemy pocket.
+17. Press `Tab` to target a nearby hostile.
+18. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP bar, flat animated 24-segment emissive gold ground ring, and the HUD target panel range state.
+19. Press `1` to use the first starter ability.
+20. Press `1` again before the cooldown finishes and confirm the bottom-left log reports the ability ready time.
+21. Confirm the cooling hotbar slot dims and shows its live countdown.
+22. Confirm combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log rather than overlapping the player status panel or spilling beyond the chat panel border.
+23. Expect nearby enemies to chase and melee you when you enter their aggro radius.
+24. Pull an enemy away from its wilderness pocket and confirm it eventually leashes back toward its spawn instead of chasing indefinitely into the village.
+25. Defeat a Marsh Prowler and confirm the chat reports one Marsh Tonic looted and inventory gains a stack. Repeated drops should increase the same stack up to its limit.
+26. After taking damage, select Marsh Tonic and click `Use`; confirm it restores up to 25 health and 10 mana and consumes one tonic. At full health/mana, `Use` must be disabled and preserve the stack.
+27. Defeat three starter enemies.
+28. Return to Mara and press `F` to complete the quest.
 
 ## Expected Temporary Feedback
 
 - A styled first-pass HUD overlay shows player HP, mana, XP, current target, target HP, range state, quest progress, and all hotbar slots.
-- A 700x330 structured inventory/equipment window appears in the top-right with `Slots X / 24`, clickable highlighted item rows, selected-item effects and net equipment comparison, row/occupied-slot tooltips, ten stable clickable paper-doll slots, aggregate bonuses, description, empty/reward state, `[`/`]` cycling, `I` close/show behavior, and Equip or Use actions when supported.
+- A 700x330 structured inventory/equipment window appears in the top-right with `Slots X / 24`, clickable/draggable highlighted item rows, selected-item effects and net equipment comparison, row/occupied-slot tooltips, ten stable clickable/drop-target paper-doll slots, gold/red drag feedback, equipment-to-bag return, aggregate bonuses, description, empty/reward state, `[`/`]` cycling, `I` close/show behavior, and Equip or Use actions when supported.
 - Opening the inventory shows the cursor and permits UI clicks; closing it hides the cursor and restores classic game-only mouse input.
 - Interacting with Mara shows a temporary bottom-screen dialogue panel.
 - Mara has a temporary gold quest marker above her in PIE.
@@ -73,7 +75,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Enemy movement and attacks are deliberately simple prototype behavior.
 - Enemy leash/return-home behavior is first-pass and still needs tuning against the dressed FabPass terrain.
 - Player respawn is a simple prototype reset to the spawn point with short damage protection, not a full corpse run or revive system.
-- Inventory presentation now has clickable rows, keyboard selection, row and occupied-slot tooltips, net equipment comparison, clickable paper-doll slots, atomic bag/equipment transfers, rollback-safe replacement, equipment stat application, armor mitigation, safe consumable depletion, and a real Marsh Tonic enemy-loot source. It does not yet have illustrated body art, drag/drop gestures, or sorting; the interaction contract is documented in `Docs/INVENTORY_INTERACTION_PLAN.md`.
+- Inventory presentation now has clickable and draggable rows, keyboard selection, row and occupied-slot tooltips, net equipment comparison, clickable/drop-target paper-doll slots, atomic bag/equipment transfers, rollback-safe replacement, equipment stat application, armor mitigation, safe consumable depletion, and a real Marsh Tonic enemy-loot source. It does not yet have illustrated body art or stable sorting; the next interaction phases are documented in `Docs/INVENTORY_INTERACTION_PLAN.md`.
 - Nameplates use a native UMG widget component and target highlighting uses a dedicated emissive material on a flat animated 24-segment ring; a future decal/texture treatment can add runes and softer edges.
 - The bottom-left chat/combat log is clipped inside its shaded panel and currently uses single-line rows; final chat history, scrolling, and fantasy styling still need a proper UI pass.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.

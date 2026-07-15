@@ -14,5 +14,11 @@ public class Embermere : ModuleRules
 			"InputCore",
 			"UMG"
 		});
+
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"Slate",
+			"SlateCore"
+		});
 	}
 }

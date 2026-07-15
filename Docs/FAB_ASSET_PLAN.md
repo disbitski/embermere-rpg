@@ -19,7 +19,7 @@ These packs are installed locally through Fab/Epic and referenced by the map. Th
 - `Content/KiteDemo/`: Open World Demo Collection; used for working outdoor foliage/rocks where the assets resolve cleanly in UE 5.8.
 - `Content/SoulCave/`: Soul: Cave; used for stone, roots, cave/ruin mood pieces, fog/water accents, and fallback foliage.
 - `Content/ParagonProps/`: Paragon Agora/Monolith props; used for ruins, rocks, portals, pillars, and high-fantasy landmark silhouettes.
-- `Content/Scifi_desert_city/`: Science Fiction Desert City Kit; now limited to neutral crates, fabric, lamps, fences, tables, and stools. The three full building shells were removed after blocking PlayerStart/Mara readability.
+- `Content/Scifi_desert_city/`: Science Fiction Desert City Kit; now limited to neutral crates, fabric, fences, tables, and stools. The three full building shells and two temporary lamps were removed after project-owned replacements became available.
 - `Content/SampleMap/` and `Content/Lighting/`: supporting content imported with Paragon sample assets.
 
 First local placement pass:
@@ -27,10 +27,10 @@ First local placement pass:
 - `Scripts/place_fab_zone_pass.py` stores the idempotent placement list for the `FabPass_` art layer.
 - `Scripts/place_fab_zone_pass_unreal.py` runs that placement list through Unreal Python and saves `/Game/Maps/L_Embermere_Prototype`.
 - `Scripts/validate_fab_zone_pass_unreal.py` loads the saved map and verifies the `FabPass_` actor count, required gameplay anchors, moss foundation material, and exact Mac-friendly daylight settings.
-- The pass removes the old visual-only village blockout buildings, road markers, and ruin blockout pieces, then creates 64 tagged `EmbermereFabPass` actors in `04_Fab_Zone_Pass` outliner folders. A separate project-owned layer places `Embermere_Waystone_Road_01`, tagged `EmbermereOriginalArt`, where the temporary road stump used to stand.
+- The pass removes the old visual-only village blockout buildings, road markers, and ruin blockout pieces, then creates 62 tagged `EmbermereFabPass` actors in `04_Fab_Zone_Pass` outliner folders. A separate project-owned layer places `Embermere_Waystone_Road_01`, `Embermere_EmberLamp_Mara_01`, and `Embermere_EmberLamp_Road_01`, all tagged `EmbermereOriginalArt`, in place of one temporary stump and two sci-fi lamps.
 - The script keeps gameplay actors intact: Mara, PlayerStart, starter enemies, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring are not moved.
 - The Unreal Python helper assigns rotation fields by name. Do not use positional `unreal.Rotator(...)` arguments here; the first pass mapped intended yaw into pitch and tilted the environment.
-- Validation rejects any `FabPass_` actor with meaningful pitch or roll and requires the original waystone's exact mesh, tag, upright road transform, and saved placement.
+- Validation rejects any `FabPass_` actor with meaningful pitch or roll and requires all three original placements, their exact meshes/tags/transforms, and the ember lamp's clean classic-FBX bounds plus two authored box colliders.
 - The map now includes a first Mac-friendly daylight baseline: `SkyAtmosphere`, real-time movable skylight fill, and restrained height-fog color/density. The validator asserts the sun, skylight, fog, and atmosphere settings so rebuilt maps do not regress to the previous black-sky state.
 - `/Game/Art/Embermere/Environment/M_EmbermereGround` gives the zone plane and both prototype area platforms a muted moss color. The setup script reapplies it and validation rejects missing overrides.
 

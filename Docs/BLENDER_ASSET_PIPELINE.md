@@ -274,6 +274,47 @@ The pilot survived the technical checklist. The next original family should be
 small road and village props that reuse its stone, moss, and ember language:
 signposts, lamps, low boundary stones, and a matching quest shrine.
 
+## Second Asset: Ember Lamp
+
+`SM_EmbermereEmberLamp_01` extends the waystone language into a repeatable
+village/road prop: pale beveled stone, moss steps, dark iron, and a warm faceted
+ember crystal. Its reviewed source is
+`Scripts/blender/build_embermere_ember_lamp.py`; generated source and exchange
+files live under `ArtSource/Blender/Environment/EmberLamp`.
+
+Verified result:
+
+- dimensions: approximately `66.3 x 66.3 x 254.0` cm with a ground pivot;
+- Blender mesh: 2,184 triangles, one UV channel, no non-manifold edges, applied
+  scale, and four intentional material slots;
+- Unreal mesh: 2,168 post-import triangles and two retained `UBX_` box
+  colliders;
+- shared materials: existing waystone stone, moss, and ember materials, plus
+  project-owned `M_EmberLampIron`;
+- saved actors: `Embermere_EmberLamp_Mara_01` and
+  `Embermere_EmberLamp_Road_01`, both tagged `EmbermereOriginalArt`;
+- replacement: removed the two temporary sci-fi lamps, leaving 62 third-party
+  `FabPass_` actors plus three project-owned placements;
+- verification: asset thumbnail and level viewport inspected through Unreal
+  MCP, Mac editor build succeeded, 19/19 automation tests passed, and the
+  fresh-process map validator passed exact bounds, import provenance, authored
+  collision, actor tags, and transforms.
+
+### UE 5.8 FBX Import Lesson
+
+Passing `FbxImportUI` to a generic `AssetImportTask` is not enough to guarantee
+the classic FBX path in UE 5.8. The generic Interchange importer accepted the
+lamp but persisted `bCollision=false`, so both correctly named `UBX_` meshes
+were discarded. Pinning `unreal.FbxFactory()` made Unreal triangulate both
+collision models and retain them as box elements.
+
+An atomic replacement of the already-created Interchange asset kept its old
+`InterchangeAssetImportData` even after the classic factory rebuilt collision.
+The durable import script therefore deletes only the partial lamp mesh package,
+recreates the same object path with `FbxFactory`, validates
+`FbxStaticMeshImportData`, bounds, and both boxes, and only then loads or saves
+the map. Future Blender assets with authored collision should follow that lane.
+
 ## What To Build First
 
 Good early Blender assets:

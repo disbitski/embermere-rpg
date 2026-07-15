@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Types/EmbermereItemTypes.h"
+#include "UI/EmbermereItemDragDropOperation.h"
 #include "EmbermerePlayerHudWidget.generated.h"
 
 class AActor;
@@ -110,8 +111,23 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool EquipInventoryItemToSlot(UEmbermereItemData* Item, EEmbermereEquipmentSlot TargetSlot);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	bool CanDropInventoryItemOnEquipmentSlot(
+		const UEmbermereItemData* Item,
+		EEmbermereEquipmentSlot TargetSlot) const;
+
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool ActivateEquipmentSlot(EEmbermereEquipmentSlot EquipmentSlot);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	bool CanReturnEquipmentItemToInventory(
+		const UEmbermereItemData* ExpectedItem,
+		EEmbermereEquipmentSlot SourceSlot) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
+	bool ReturnEquipmentItemToInventory(
+		UEmbermereItemData* ExpectedItem,
+		EEmbermereEquipmentSlot SourceSlot);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	FText GetHotbarSlotDisplayText(int32 SlotIndex, float CooldownRemainingSeconds = 0.0f) const;
@@ -120,6 +136,22 @@ protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnDragDetected(
+		const FGeometry& InGeometry,
+		const FPointerEvent& InMouseEvent,
+		UDragDropOperation*& OutOperation) override;
+	virtual bool NativeOnDragOver(
+		const FGeometry& InGeometry,
+		const FDragDropEvent& InDragDropEvent,
+		UDragDropOperation* InOperation) override;
+	virtual bool NativeOnDrop(
+		const FGeometry& InGeometry,
+		const FDragDropEvent& InDragDropEvent,
+		UDragDropOperation* InOperation) override;
+	virtual void NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	virtual void NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
 private:
 	UPROPERTY(Transient)
@@ -163,6 +195,9 @@ private:
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UEmbermereInventoryRowButton>> InventoryRowButtons;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UBorder> InventoryListDropPanel;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> InventoryDetailNameText;
@@ -224,6 +259,14 @@ private:
 	int32 SelectedInventoryStackIndex = 0;
 	int32 FirstDisplayedInventoryStackIndex = 0;
 	TArray<TPair<FText, FLinearColor>> ChatMessages;
+	TObjectPtr<UEmbermereItemData> PendingDragItem;
+	EEmbermereItemDragSource PendingDragSource = EEmbermereItemDragSource::None;
+	EEmbermereEquipmentSlot PendingDragEquipmentSlot = EEmbermereEquipmentSlot::None;
+	int32 PendingDragStackIndex = INDEX_NONE;
+	EEmbermereEquipmentSlot HighlightedDropSlot = EEmbermereEquipmentSlot::None;
+	bool bHighlightedDropSlotValid = false;
+	bool bInventoryListDropHighlighted = false;
+	bool bInventoryListDropValid = false;
 
 	void BuildDefaultLayout();
 	void RefreshHudText();
@@ -234,6 +277,11 @@ private:
 	void ClampSelectedInventoryStackIndex();
 	FText BuildItemComparisonText(const UEmbermereItemData* Item) const;
 	FText BuildItemTooltipText(const UEmbermereItemData* Item, int32 Quantity) const;
+	int32 FindInventoryStackAtScreenPosition(const FVector2D& ScreenPosition) const;
+	EEmbermereEquipmentSlot FindEquipmentSlotAtScreenPosition(const FVector2D& ScreenPosition) const;
+	bool IsInventoryListAtScreenPosition(const FVector2D& ScreenPosition) const;
+	void ClearPendingDrag();
+	void ClearDropFeedback();
 
 	UFUNCTION()
 	void HandleItemAdded(UEmbermereItemData* Item, int32 Quantity);

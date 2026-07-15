@@ -13,6 +13,7 @@
 #include "Data/EmbermereRulesData.h"
 #include "Misc/AutomationTest.h"
 #include "UI/EmbermereEnemyNameplateWidget.h"
+#include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermerePlayerHudWidget.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -486,6 +487,104 @@ bool FEmbermereInventoryIdentityActionsTest::RunTest(const FString& Parameters)
 		HudWidget->EquipInventoryItemToSlot(RecruitPack, EEmbermereEquipmentSlot::Back));
 	TestEqual(TEXT("Rejected duplicate equip preserves bag quantity"), Inventory->GetItemQuantity(RecruitPack), 1);
 	TestTrue(TEXT("Rejected duplicate equip preserves equipped item"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::Back) == RecruitPack);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereInventoryDragDropTest,
+	"Embermere.UI.InventoryDragDrop",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereInventoryDragDropTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* HudWidget = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereEquipmentComponent* Equipment = NewObject<UEmbermereEquipmentComponent>();
+	UEmbermereStatsComponent* Stats = NewObject<UEmbermereStatsComponent>();
+	UEmbermereItemData* RecruitPack = NewObject<UEmbermereItemData>();
+	TestNotNull(TEXT("HUD widget can be created"), HudWidget);
+	TestNotNull(TEXT("Inventory component can be created"), Inventory);
+	TestNotNull(TEXT("Equipment component can be created"), Equipment);
+	TestNotNull(TEXT("Stats component can be created"), Stats);
+	TestNotNull(TEXT("Dragged item can be created"), RecruitPack);
+	if (!HudWidget || !Inventory || !Equipment || !Stats || !RecruitPack)
+	{
+		return false;
+	}
+
+	RecruitPack->ItemId = "RecruitPack";
+	RecruitPack->DisplayName = FText::FromString(TEXT("Recruit Pack"));
+	RecruitPack->Category = EEmbermereItemCategory::Armor;
+	RecruitPack->EquipmentSlot = EEmbermereEquipmentSlot::Back;
+	RecruitPack->RequiredLevel = 2;
+	RecruitPack->MaxStack = 1;
+	HudWidget->Inventory = Inventory;
+	HudWidget->Equipment = Equipment;
+	HudWidget->Stats = Stats;
+	Stats->Level = 1;
+	TestTrue(TEXT("Dragged gear can be added to the bag"), Inventory->AddItem(RecruitPack, 1));
+
+	UEmbermereItemDragDropOperation* Operation = NewObject<UEmbermereItemDragDropOperation>();
+	Operation->Item = RecruitPack;
+	Operation->Source = EEmbermereItemDragSource::Inventory;
+	TestTrue(TEXT("Typed drag payload preserves item identity"), Operation->Item == RecruitPack);
+	TestEqual(TEXT("Typed drag payload records bag source"), Operation->Source, EEmbermereItemDragSource::Inventory);
+
+	TestFalse(
+		TEXT("Wrong equipment slot is not a valid drop target"),
+		HudWidget->CanDropInventoryItemOnEquipmentSlot(RecruitPack, EEmbermereEquipmentSlot::Chest));
+	TestFalse(
+		TEXT("Under-level character sees the matching slot as invalid"),
+		HudWidget->CanDropInventoryItemOnEquipmentSlot(RecruitPack, EEmbermereEquipmentSlot::Back));
+	Stats->Level = 2;
+	TestTrue(
+		TEXT("Eligible matching slot is a valid drop target"),
+		HudWidget->CanDropInventoryItemOnEquipmentSlot(RecruitPack, EEmbermereEquipmentSlot::Back));
+	TestTrue(
+		TEXT("Valid drop equips through the atomic transaction"),
+		HudWidget->EquipInventoryItemToSlot(RecruitPack, EEmbermereEquipmentSlot::Back));
+	TestEqual(TEXT("Equipped drag removes bag quantity"), Inventory->GetItemQuantity(RecruitPack), 0);
+	TestTrue(TEXT("Equipped drag occupies Back slot"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::Back) == RecruitPack);
+	TestFalse(
+		TEXT("Stale bag payload is rejected after the item moves"),
+		HudWidget->CanDropInventoryItemOnEquipmentSlot(RecruitPack, EEmbermereEquipmentSlot::Back));
+
+	UEmbermereItemData* StaleItem = NewObject<UEmbermereItemData>();
+	StaleItem->Category = EEmbermereItemCategory::Armor;
+	StaleItem->EquipmentSlot = EEmbermereEquipmentSlot::Back;
+	TestFalse(
+		TEXT("Mismatched equipped-item identity cannot return another item"),
+		HudWidget->ReturnEquipmentItemToInventory(StaleItem, EEmbermereEquipmentSlot::Back));
+	TestTrue(
+		TEXT("Equipped item can return to an available bag"),
+		HudWidget->CanReturnEquipmentItemToInventory(RecruitPack, EEmbermereEquipmentSlot::Back));
+	TestTrue(
+		TEXT("Equipment-to-bag drop uses the atomic unequip transaction"),
+		HudWidget->ReturnEquipmentItemToInventory(RecruitPack, EEmbermereEquipmentSlot::Back));
+	TestEqual(TEXT("Returned item restores bag quantity"), Inventory->GetItemQuantity(RecruitPack), 1);
+	TestNull(TEXT("Returned item clears equipment slot"), Equipment->GetEquippedItem(EEmbermereEquipmentSlot::Back));
+
+	UEmbermerePlayerHudWidget* FullBagHud = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereInventoryComponent* FullBag = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereEquipmentComponent* FullBagEquipment = NewObject<UEmbermereEquipmentComponent>();
+	UEmbermereItemData* Filler = NewObject<UEmbermereItemData>();
+	Filler->DisplayName = FText::FromString(TEXT("Filler"));
+	Filler->MaxStack = 1;
+	FullBag->MaxSlots = 1;
+	FullBagHud->Inventory = FullBag;
+	FullBagHud->Equipment = FullBagEquipment;
+	TestTrue(TEXT("Full-bag fixture equips gear"), FullBagEquipment->EquipItem(RecruitPack, 2));
+	TestTrue(TEXT("Full-bag fixture fills its only slot"), FullBag->AddItem(Filler, 1));
+	TestFalse(
+		TEXT("Full bag rejects equipment-to-bag drop preflight"),
+		FullBagHud->CanReturnEquipmentItemToInventory(RecruitPack, EEmbermereEquipmentSlot::Back));
+	TestFalse(
+		TEXT("Full bag rejects the actual equipment-to-bag drop"),
+		FullBagHud->ReturnEquipmentItemToInventory(RecruitPack, EEmbermereEquipmentSlot::Back));
+	TestTrue(
+		TEXT("Rejected full-bag drop preserves equipped item"),
+		FullBagEquipment->GetEquippedItem(EEmbermereEquipmentSlot::Back) == RecruitPack);
 
 	return true;
 }

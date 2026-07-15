@@ -8,7 +8,9 @@
 #include "Components/EmbermereStatsComponent.h"
 #include "Data/EmbermereItemData.h"
 #include "UI/EmbermereEquipmentSlotButton.h"
+#include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermereInventoryRowButton.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
@@ -24,6 +26,7 @@
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "Interfaces/EmbermereTargetable.h"
+#include "InputCoreTypes.h"
 
 namespace
 {
@@ -192,6 +195,196 @@ void UEmbermerePlayerHudWidget::NativeTick(const FGeometry& MyGeometry, float In
 		LootPanel->SetVisibility(ESlateVisibility::Collapsed);
 		LootHideTimeSeconds = 0.0f;
 	}
+}
+
+FReply UEmbermerePlayerHudWidget::NativeOnPreviewMouseButtonDown(
+	const FGeometry& InGeometry,
+	const FPointerEvent& InMouseEvent)
+{
+	if (!bInventoryPanelVisible || InMouseEvent.GetEffectingButton() != EKeys::LeftMouseButton)
+	{
+		return Super::NativeOnPreviewMouseButtonDown(InGeometry, InMouseEvent);
+	}
+
+	ClearPendingDrag();
+	const FVector2D ScreenPosition = InMouseEvent.GetScreenSpacePosition();
+	const int32 StackIndex = FindInventoryStackAtScreenPosition(ScreenPosition);
+	if (Inventory && Inventory->Stacks.IsValidIndex(StackIndex) && Inventory->Stacks[StackIndex].Item)
+	{
+		PendingDragItem = Inventory->Stacks[StackIndex].Item;
+		PendingDragSource = EEmbermereItemDragSource::Inventory;
+		PendingDragStackIndex = StackIndex;
+		SelectInventoryItem(StackIndex);
+	}
+	else
+	{
+		const EEmbermereEquipmentSlot EquipmentSlot = FindEquipmentSlotAtScreenPosition(ScreenPosition);
+		UEmbermereItemData* EquippedItem = Equipment ? Equipment->GetEquippedItem(EquipmentSlot) : nullptr;
+		if (EquippedItem)
+		{
+			PendingDragItem = EquippedItem;
+			PendingDragSource = EEmbermereItemDragSource::Equipment;
+			PendingDragEquipmentSlot = EquipmentSlot;
+		}
+	}
+
+	if (!PendingDragItem)
+	{
+		return Super::NativeOnPreviewMouseButtonDown(InGeometry, InMouseEvent);
+	}
+
+	return UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton).NativeReply;
+}
+
+FReply UEmbermerePlayerHudWidget::NativeOnMouseButtonUp(
+	const FGeometry& InGeometry,
+	const FPointerEvent& InMouseEvent)
+{
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && PendingDragItem)
+	{
+		UEmbermereItemData* ClickedItem = PendingDragItem;
+		const EEmbermereItemDragSource ClickedSource = PendingDragSource;
+		const EEmbermereEquipmentSlot ClickedSlot = PendingDragEquipmentSlot;
+		const int32 ClickedStackIndex = PendingDragStackIndex;
+		const FVector2D ScreenPosition = InMouseEvent.GetScreenSpacePosition();
+		ClearPendingDrag();
+
+		if (ClickedSource == EEmbermereItemDragSource::Inventory &&
+			FindInventoryStackAtScreenPosition(ScreenPosition) == ClickedStackIndex)
+		{
+			SelectInventoryItem(ClickedStackIndex);
+		}
+		else if (ClickedSource == EEmbermereItemDragSource::Equipment &&
+			FindEquipmentSlotAtScreenPosition(ScreenPosition) == ClickedSlot)
+		{
+			ReturnEquipmentItemToInventory(ClickedItem, ClickedSlot);
+		}
+		return FReply::Handled();
+	}
+
+	return Super::NativeOnMouseButtonUp(InGeometry, InMouseEvent);
+}
+
+void UEmbermerePlayerHudWidget::NativeOnDragDetected(
+	const FGeometry& InGeometry,
+	const FPointerEvent& InMouseEvent,
+	UDragDropOperation*& OutOperation)
+{
+	if (!PendingDragItem || PendingDragSource == EEmbermereItemDragSource::None)
+	{
+		Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+		return;
+	}
+
+	UEmbermereItemDragDropOperation* Operation = NewObject<UEmbermereItemDragDropOperation>(this);
+	Operation->Item = PendingDragItem;
+	Operation->Source = PendingDragSource;
+	Operation->SourceEquipmentSlot = PendingDragEquipmentSlot;
+	Operation->Pivot = EDragPivot::MouseDown;
+
+	UBorder* DragPanel = NewObject<UBorder>(Operation);
+	UTextBlock* DragText = NewObject<UTextBlock>(DragPanel);
+	if (DragPanel && DragText)
+	{
+		DragPanel->SetBrushColor(FLinearColor(0.08f, 0.06f, 0.025f, 0.94f));
+		DragPanel->SetPadding(FMargin(10.0f, 6.0f));
+		FSlateFontInfo FontInfo = DragText->GetFont();
+		FontInfo.Size = 13;
+		DragText->SetFont(FontInfo);
+		DragText->SetColorAndOpacity(FSlateColor(FLinearColor(1.0f, 0.82f, 0.3f, 1.0f)));
+		DragText->SetText(Operation->Item->DisplayName);
+		DragPanel->SetContent(DragText);
+		Operation->DefaultDragVisual = DragPanel;
+	}
+
+	OutOperation = Operation;
+	ClearPendingDrag();
+}
+
+bool UEmbermerePlayerHudWidget::NativeOnDragOver(
+	const FGeometry& InGeometry,
+	const FDragDropEvent& InDragDropEvent,
+	UDragDropOperation* InOperation)
+{
+	const UEmbermereItemDragDropOperation* Operation = Cast<UEmbermereItemDragDropOperation>(InOperation);
+	if (!Operation || !Operation->Item)
+	{
+		return Super::NativeOnDragOver(InGeometry, InDragDropEvent, InOperation);
+	}
+
+	ClearDropFeedback();
+	const FVector2D ScreenPosition = InDragDropEvent.GetScreenSpacePosition();
+	if (Operation->Source == EEmbermereItemDragSource::Inventory)
+	{
+		HighlightedDropSlot = FindEquipmentSlotAtScreenPosition(ScreenPosition);
+		if (HighlightedDropSlot == EEmbermereEquipmentSlot::None)
+		{
+			return false;
+		}
+		bHighlightedDropSlotValid = CanDropInventoryItemOnEquipmentSlot(Operation->Item, HighlightedDropSlot);
+		RefreshInventoryWindow();
+		return true;
+	}
+
+	if (Operation->Source == EEmbermereItemDragSource::Equipment && IsInventoryListAtScreenPosition(ScreenPosition))
+	{
+		bInventoryListDropHighlighted = true;
+		bInventoryListDropValid = CanReturnEquipmentItemToInventory(Operation->Item, Operation->SourceEquipmentSlot);
+		RefreshInventoryWindow();
+		return true;
+	}
+
+	return false;
+}
+
+bool UEmbermerePlayerHudWidget::NativeOnDrop(
+	const FGeometry& InGeometry,
+	const FDragDropEvent& InDragDropEvent,
+	UDragDropOperation* InOperation)
+{
+	UEmbermereItemDragDropOperation* Operation = Cast<UEmbermereItemDragDropOperation>(InOperation);
+	if (!Operation || !Operation->Item)
+	{
+		return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+	}
+
+	const FVector2D ScreenPosition = InDragDropEvent.GetScreenSpacePosition();
+	bool bHandled = false;
+	if (Operation->Source == EEmbermereItemDragSource::Inventory)
+	{
+		const EEmbermereEquipmentSlot TargetSlot = FindEquipmentSlotAtScreenPosition(ScreenPosition);
+		if (TargetSlot != EEmbermereEquipmentSlot::None)
+		{
+			bHandled = EquipInventoryItemToSlot(Operation->Item, TargetSlot);
+		}
+	}
+	else if (Operation->Source == EEmbermereItemDragSource::Equipment && IsInventoryListAtScreenPosition(ScreenPosition))
+	{
+		bHandled = ReturnEquipmentItemToInventory(Operation->Item, Operation->SourceEquipmentSlot);
+	}
+
+	ClearDropFeedback();
+	RefreshInventoryWindow();
+	return bHandled;
+}
+
+void UEmbermerePlayerHudWidget::NativeOnDragLeave(
+	const FDragDropEvent& InDragDropEvent,
+	UDragDropOperation* InOperation)
+{
+	Super::NativeOnDragLeave(InDragDropEvent, InOperation);
+	ClearDropFeedback();
+	RefreshInventoryWindow();
+}
+
+void UEmbermerePlayerHudWidget::NativeOnDragCancelled(
+	const FDragDropEvent& InDragDropEvent,
+	UDragDropOperation* InOperation)
+{
+	Super::NativeOnDragCancelled(InDragDropEvent, InOperation);
+	ClearPendingDrag();
+	ClearDropFeedback();
+	RefreshInventoryWindow();
 }
 
 bool UEmbermerePlayerHudWidget::ToggleInventoryPanel()
@@ -534,13 +727,26 @@ bool UEmbermerePlayerHudWidget::EquipInventoryItemToSlot(
 	UEmbermereItemData* Item,
 	EEmbermereEquipmentSlot TargetSlot)
 {
-	if (!Item || !Item->IsEquippable() || TargetSlot == EEmbermereEquipmentSlot::None ||
-		Item->EquipmentSlot != TargetSlot)
+	if (!CanDropInventoryItemOnEquipmentSlot(Item, TargetSlot))
 	{
 		return false;
 	}
 
 	return ActivateInventoryItem(Item);
+}
+
+bool UEmbermerePlayerHudWidget::CanDropInventoryItemOnEquipmentSlot(
+	const UEmbermereItemData* Item,
+	EEmbermereEquipmentSlot TargetSlot) const
+{
+	if (!Item || !Inventory || !Equipment || !Item->IsEquippable() ||
+		TargetSlot == EEmbermereEquipmentSlot::None || Item->EquipmentSlot != TargetSlot ||
+		!Inventory->CanRemoveItem(Item, 1) || Equipment->IsItemEquipped(Item))
+	{
+		return false;
+	}
+
+	return Equipment->CanEquip(Item, Stats ? Stats->Level : 1);
 }
 
 bool UEmbermerePlayerHudWidget::ActivateEquipmentSlot(EEmbermereEquipmentSlot EquipmentSlot)
@@ -571,6 +777,27 @@ bool UEmbermerePlayerHudWidget::ActivateEquipmentSlot(EEmbermereEquipmentSlot Eq
 	ClampSelectedInventoryStackIndex();
 	RefreshHudText();
 	return true;
+}
+
+bool UEmbermerePlayerHudWidget::CanReturnEquipmentItemToInventory(
+	const UEmbermereItemData* ExpectedItem,
+	EEmbermereEquipmentSlot SourceSlot) const
+{
+	return ExpectedItem && Inventory && Equipment &&
+		Equipment->GetEquippedItem(SourceSlot) == ExpectedItem &&
+		Inventory->CanAddItem(ExpectedItem, 1);
+}
+
+bool UEmbermerePlayerHudWidget::ReturnEquipmentItemToInventory(
+	UEmbermereItemData* ExpectedItem,
+	EEmbermereEquipmentSlot SourceSlot)
+{
+	if (!ExpectedItem || !Equipment || Equipment->GetEquippedItem(SourceSlot) != ExpectedItem)
+	{
+		return false;
+	}
+
+	return ActivateEquipmentSlot(SourceSlot);
 }
 
 FText UEmbermerePlayerHudWidget::GetHotbarSlotDisplayText(int32 SlotIndex, float CooldownRemainingSeconds) const
@@ -683,7 +910,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	}
 	if (InventoryFooterText)
 	{
-		InventoryFooterText->SetText(FText::FromString(TEXT("Click item or [ / ] inspect   |   I Close")));
+		InventoryFooterText->SetText(FText::FromString(TEXT("Drag gear or click item   |   [ / ] Inspect   |   I Close")));
 		InventoryFooterText->SetJustification(ETextJustify::Center);
 	}
 
@@ -711,6 +938,12 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	UVerticalBox* InventoryListStack = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("InventoryListStack"));
 	UVerticalBox* InventoryDetailStack = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("InventoryDetailStack"));
 	UVerticalBox* InventoryEquipmentStack = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("InventoryEquipmentStack"));
+	InventoryListDropPanel = MakePanel(WidgetTree, TEXT("InventoryListDropPanel"), FLinearColor(0.035f, 0.04f, 0.032f, 0.55f));
+	if (InventoryListDropPanel)
+	{
+		InventoryListDropPanel->SetPadding(FMargin(0.0f));
+		InventoryListDropPanel->SetContent(InventoryListStack);
+	}
 	InventoryRowTexts.Reset();
 	InventoryRowButtons.Reset();
 	for (int32 RowIndex = 0; RowIndex < InventoryVisibleRowCount; ++RowIndex)
@@ -846,7 +1079,12 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 
 	if (InventoryBody)
 	{
-		USizeBox* ListSize = MakeSizedWidget(WidgetTree, InventoryListStack, TEXT("InventoryListSize"), 205.0f, 238.0f);
+		USizeBox* ListSize = MakeSizedWidget(
+			WidgetTree,
+			InventoryListDropPanel ? static_cast<UWidget*>(InventoryListDropPanel) : static_cast<UWidget*>(InventoryListStack),
+			TEXT("InventoryListSize"),
+			205.0f,
+			238.0f);
 		USizeBox* DetailSize = MakeSizedWidget(WidgetTree, InventoryDetailStack, TEXT("InventoryDetailSize"), 225.0f, 238.0f);
 		USizeBox* EquipmentSize = MakeSizedWidget(WidgetTree, InventoryEquipmentStack, TEXT("InventoryEquipmentSize"), 210.0f, 238.0f);
 		if (UHorizontalBoxSlot* ListSlot = InventoryBody->AddChildToHorizontalBox(ListSize))
@@ -1191,6 +1429,34 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 			Bonuses.Armor,
 			Bonuses.Power)));
 	}
+	if (InventoryListDropPanel)
+	{
+		InventoryListDropPanel->SetBrushColor(
+			bInventoryListDropHighlighted
+				? (bInventoryListDropValid
+					? FLinearColor(0.34f, 0.24f, 0.055f, 0.95f)
+					: FLinearColor(0.34f, 0.055f, 0.04f, 0.92f))
+				: FLinearColor(0.035f, 0.04f, 0.032f, 0.55f));
+	}
+	if (InventoryFooterText)
+	{
+		if (HighlightedDropSlot != EEmbermereEquipmentSlot::None)
+		{
+			InventoryFooterText->SetText(FText::FromString(
+				bHighlightedDropSlotValid
+					? FString::Printf(TEXT("Equip in %s"), GetEquipmentSlotLabel(HighlightedDropSlot))
+					: FString::Printf(TEXT("Cannot equip in %s"), GetEquipmentSlotLabel(HighlightedDropSlot))));
+		}
+		else if (bInventoryListDropHighlighted)
+		{
+			InventoryFooterText->SetText(FText::FromString(
+				bInventoryListDropValid ? TEXT("Return to inventory") : TEXT("Inventory is full")));
+		}
+		else
+		{
+			InventoryFooterText->SetText(FText::FromString(TEXT("Drag gear or click item   |   [ / ] Inspect   |   I Close")));
+		}
+	}
 	for (int32 Index = 0; Index < InventoryEquipmentSlotButtons.Num(); ++Index)
 	{
 		UEmbermereEquipmentSlotButton* SlotButton = InventoryEquipmentSlotButtons[Index];
@@ -1207,10 +1473,15 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 				TEXT("%s\n\nClick to unequip"),
 				*BuildItemTooltipText(Item, 1).ToString()))
 			: FText::FromString(FString::Printf(TEXT("Empty %s slot"), GetEquipmentSlotLabel(SlotButton->EquipmentSlot))));
+		const bool bIsDropTarget = SlotButton->EquipmentSlot == HighlightedDropSlot;
 		SlotButton->SetBackgroundColor(
-			Item
-				? FLinearColor(0.3f, 0.2f, 0.055f, 0.96f)
-				: FLinearColor(0.07f, 0.075f, 0.065f, 0.9f));
+			bIsDropTarget
+				? (bHighlightedDropSlotValid
+					? FLinearColor(0.46f, 0.31f, 0.055f, 0.98f)
+					: FLinearColor(0.42f, 0.055f, 0.035f, 0.96f))
+				: (Item
+					? FLinearColor(0.3f, 0.2f, 0.055f, 0.96f)
+					: FLinearColor(0.07f, 0.075f, 0.065f, 0.9f)));
 		SlotText->SetColorAndOpacity(FSlateColor(
 			Item
 				? FLinearColor(1.0f, 0.8f, 0.3f, 1.0f)
@@ -1382,6 +1653,61 @@ void UEmbermerePlayerHudWidget::HandleInventoryActionClicked()
 void UEmbermerePlayerHudWidget::HandleEquipmentSlotClicked(EEmbermereEquipmentSlot EquipmentSlot)
 {
 	ActivateEquipmentSlot(EquipmentSlot);
+}
+
+int32 UEmbermerePlayerHudWidget::FindInventoryStackAtScreenPosition(const FVector2D& ScreenPosition) const
+{
+	for (int32 VisibleRowIndex = 0; VisibleRowIndex < InventoryRowButtons.Num(); ++VisibleRowIndex)
+	{
+		const UEmbermereInventoryRowButton* RowButton = InventoryRowButtons[VisibleRowIndex];
+		if (!RowButton || !RowButton->IsVisible() ||
+			!RowButton->GetCachedGeometry().IsUnderLocation(ScreenPosition))
+		{
+			continue;
+		}
+
+		const int32 StackIndex = FirstDisplayedInventoryStackIndex + VisibleRowIndex;
+		return Inventory && Inventory->Stacks.IsValidIndex(StackIndex) ? StackIndex : INDEX_NONE;
+	}
+
+	return INDEX_NONE;
+}
+
+EEmbermereEquipmentSlot UEmbermerePlayerHudWidget::FindEquipmentSlotAtScreenPosition(
+	const FVector2D& ScreenPosition) const
+{
+	for (const UEmbermereEquipmentSlotButton* SlotButton : InventoryEquipmentSlotButtons)
+	{
+		if (SlotButton && SlotButton->IsVisible() &&
+			SlotButton->GetCachedGeometry().IsUnderLocation(ScreenPosition))
+		{
+			return SlotButton->EquipmentSlot;
+		}
+	}
+
+	return EEmbermereEquipmentSlot::None;
+}
+
+bool UEmbermerePlayerHudWidget::IsInventoryListAtScreenPosition(const FVector2D& ScreenPosition) const
+{
+	return InventoryListDropPanel && InventoryListDropPanel->IsVisible() &&
+		InventoryListDropPanel->GetCachedGeometry().IsUnderLocation(ScreenPosition);
+}
+
+void UEmbermerePlayerHudWidget::ClearPendingDrag()
+{
+	PendingDragItem = nullptr;
+	PendingDragSource = EEmbermereItemDragSource::None;
+	PendingDragEquipmentSlot = EEmbermereEquipmentSlot::None;
+	PendingDragStackIndex = INDEX_NONE;
+}
+
+void UEmbermerePlayerHudWidget::ClearDropFeedback()
+{
+	HighlightedDropSlot = EEmbermereEquipmentSlot::None;
+	bHighlightedDropSlotValid = false;
+	bInventoryListDropHighlighted = false;
+	bInventoryListDropValid = false;
 }
 
 void UEmbermerePlayerHudWidget::ClampSelectedInventoryStackIndex()

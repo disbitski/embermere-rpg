@@ -4,9 +4,14 @@ import unreal
 
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
-EXPECTED_FABPASS_COUNT = 64
+EXPECTED_FABPASS_COUNT = 62
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
+ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
+ORIGINAL_EMBER_LAMPS = {
+    "Embermere_EmberLamp_Mara_01": ((-1970.0, -775.0, 20.0), 5.0),
+    "Embermere_EmberLamp_Road_01": ((-1150.0, -520.0, 20.0), 8.0),
+}
 GROUND_MATERIAL_PATH = "/Game/Art/Embermere/Environment/M_EmbermereGround.M_EmbermereGround"
 GROUND_ACTOR_LABELS = {
     "Zone_Ground_Embermere_Glen",
@@ -25,7 +30,7 @@ REQUIRED_LABELS = {
     "Starter_Enemy_02",
     "Starter_Enemy_03",
     ORIGINAL_WAYSTONE_LABEL,
-}
+} | set(ORIGINAL_EMBER_LAMPS)
 
 REMOVED_GREYBOX_LABELS = {
     "Village_Hall_Blockout",
@@ -40,6 +45,8 @@ REMOVED_GREYBOX_LABELS = {
     "Ruin_Broken_Arch_Right",
     "Ruin_Broken_Arch_Top",
     "Ruin_Fallen_Stone",
+    "FabPass_Village_Lamp_Mara",
+    "FabPass_Village_Lamp_Road",
 }
 
 
@@ -120,6 +127,50 @@ def main():
     if unreal.Name("EmbermereOriginalArt") not in list(waystone.tags):
         fail("{} must retain the EmbermereOriginalArt tag".format(ORIGINAL_WAYSTONE_LABEL))
 
+    lamp_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_EMBER_LAMP_PATH)
+    if not lamp_mesh or not isinstance(lamp_mesh, unreal.StaticMesh):
+        fail("missing original ember lamp mesh {}".format(ORIGINAL_EMBER_LAMP_PATH))
+    lamp_import_data = lamp_mesh.get_editor_property("asset_import_data")
+    import_data_class = lamp_import_data.get_class().get_name() if lamp_import_data else "None"
+    if import_data_class != "FbxStaticMeshImportData":
+        fail("original ember lamp must retain classic FBX import data, found {}".format(import_data_class))
+    lamp_body_setup = lamp_mesh.get_editor_property("body_setup")
+    lamp_aggregate = lamp_body_setup.get_editor_property("agg_geom") if lamp_body_setup else None
+    lamp_box_count = len(lamp_aggregate.get_editor_property("box_elems")) if lamp_aggregate else 0
+    if lamp_box_count != 2:
+        fail("original ember lamp must retain 2 authored box colliders, found {}".format(lamp_box_count))
+    lamp_bounds = lamp_mesh.get_bounds()
+    if not all((
+        nearly_equal(lamp_bounds.origin.z, 127.0, 2.0),
+        nearly_equal(lamp_bounds.box_extent.z, 127.0, 2.0),
+    )):
+        fail("original ember lamp bounds drifted: origin={}, extent={}".format(
+            lamp_bounds.origin,
+            lamp_bounds.box_extent,
+        ))
+
+    for label, (expected_location, expected_yaw) in ORIGINAL_EMBER_LAMPS.items():
+        lamp = actors_by_label[label]
+        lamp_component = lamp.get_component_by_class(unreal.StaticMeshComponent)
+        actor_mesh = lamp_component.get_editor_property("static_mesh") if lamp_component else None
+        actor_mesh_path = actor_mesh.get_path_name() if actor_mesh else "None"
+        if actor_mesh_path != ORIGINAL_EMBER_LAMP_PATH:
+            fail("{} must use {}, found {}".format(label, ORIGINAL_EMBER_LAMP_PATH, actor_mesh_path))
+
+        location = lamp.get_actor_location()
+        rotation = lamp.get_actor_rotation()
+        if not all((
+            nearly_equal(location.x, expected_location[0], 1.0),
+            nearly_equal(location.y, expected_location[1], 1.0),
+            nearly_equal(location.z, expected_location[2], 1.0),
+            nearly_equal(rotation.pitch, 0.0, 0.1),
+            nearly_equal(rotation.yaw, expected_yaw, 0.1),
+            nearly_equal(rotation.roll, 0.0, 0.1),
+        )):
+            fail("{} transform drifted: location={}, rotation={}".format(label, location, rotation))
+        if unreal.Name("EmbermereOriginalArt") not in list(lamp.tags):
+            fail("{} must retain the EmbermereOriginalArt tag".format(label))
+
     missing_ground_actors = sorted(GROUND_ACTOR_LABELS - set(actors_by_label))
     if missing_ground_actors:
         fail("missing ground foundation actors {}".format(missing_ground_actors))
@@ -163,7 +214,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} upright FabPass actors, original waystone, gameplay anchors, moss ground, and daylight baseline intact".format(len(fabpass_labels)))
+    unreal.log("Embermere zone validation passed: {} upright FabPass actors, 3 original-art placements, gameplay anchors, moss ground, and daylight baseline intact".format(len(fabpass_labels)))
 
 
 if __name__ == "__main__":

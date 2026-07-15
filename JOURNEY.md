@@ -727,6 +727,64 @@ Verification:
   that the interactive session still held an old module and must restart before
   visual PIE verification.
 
+## 2026-07-15 - Real Drag/Drop And The Ember Lamp Family
+
+The inventory interaction plan became a bounded playable gesture, and the
+original Blender lane grew from a one-off proof into the beginning of a visual
+family.
+
+Inventory implementation:
+
+- Added a typed `UEmbermereItemDragDropOperation` carrying item identity,
+  bag/equipment source, and source equipment slot instead of a fragile row
+  index.
+- Made bag rows drag sources, matching paper-doll slots drop targets, and the
+  bag list an equipment-return target while preserving row clicks, slot clicks,
+  action buttons, `[`/`]`, and `I`.
+- Added compact item-name drag feedback, gold valid targets, restrained red
+  invalid targets, bag-return highlighting, and footer status inside the fixed
+  700x330 window.
+- Kept all mutations on the existing atomic equipment/inventory paths so stale
+  identity, wrong slot, under-level, and full-bag failures cannot lose or
+  duplicate gear.
+- Added `Embermere.UI.InventoryDragDrop`; the final suite passed 19/19.
+
+Original-art implementation:
+
+- Added `Scripts/blender/build_embermere_ember_lamp.py` and generated editable
+  `.blend`, FBX, preview, and metrics for a 254 cm stone/moss/iron lamp with a
+  warm faceted ember crystal.
+- Blender validation reported 2,184 triangles, one UV channel, applied scale,
+  no non-manifold edges, a ground pivot, and two named `UBX_` collision boxes.
+- Imported the lamp and `M_EmberLampIron` under the project-owned prototype
+  village folder, reused the waystone stone/moss/ember materials, and replaced
+  the two temporary sci-fi lamps with Mara-side and road-side original actors.
+- Unreal retained 2,168 triangles and both authored box colliders. MCP asset
+  imaging and live level captures confirmed the high-fantasy silhouette,
+  scale, warm crystal, and road readability.
+
+Pipeline lesson:
+
+- The first generic import silently used UE 5.8 Interchange and persisted
+  `bCollision=false`, producing zero colliders despite correct `UBX_` names.
+- Pinning `unreal.FbxFactory()` imported both boxes, but atomic replacement kept
+  stale Interchange provenance. Deleting only the partial mesh package and
+  recreating the same path through the classic factory produced clean
+  `FbxStaticMeshImportData` before the map was loaded.
+- The import script now validates provenance, bounds, and collision before any
+  actor replacement or level save. The saved-map validator repeats those checks
+  from a fresh process.
+
+Verification:
+
+- The authoritative no-hot-reload Mac editor build succeeded.
+- Headless automation passed 19/19 with no test failures.
+- Saved-map validation passed with 62 upright third-party `FabPass_` actors,
+  three tagged original-art placements, gameplay anchors, moss ground, and the
+  exact daylight baseline intact.
+- Clean-restart PIE remains the next manual boundary because the open editor
+  predates the final drag/drop relink.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

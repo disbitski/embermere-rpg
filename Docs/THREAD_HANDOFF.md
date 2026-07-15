@@ -43,12 +43,12 @@ The project currently includes:
 - hostile enemy aggro, chase, attack, leash, return-home, death, and respawn;
 - player death, respawn, and short recovery damage immunity;
 - a styled native HUD with player/target status, quest tracker, hotbar,
-  clickable inventory rows and equipment slots, dialogue, loot feedback, nameplates, an emissive
+  clickable/draggable inventory rows and equipment slots, dialogue, loot feedback, nameplates, an emissive
   target ring, and chat log;
-- a first local Fab/Epic art pass with 64 upright environment actors, the first
-  original Blender-built Embermere waystone, and a Mac-friendly atmospheric
+- a first local Fab/Epic art pass with 62 upright environment actors, an
+  original Blender-built Embermere waystone plus two matching ember lamps, and a Mac-friendly atmospheric
   daylight baseline;
-- 16 passing Unreal automation tests and a headless Fab/map/lighting validator.
+- 19 passing Unreal automation tests and a headless Fab/map/lighting/original-art validator.
 
 This is still prototype art. The first black-sky problem is corrected, but the
 scene remains mixed in style and is missing a cohesive fantasy village kit,
@@ -182,17 +182,17 @@ Implemented presentation includes:
   `M_EmbermereTargetRing` material;
 - 700x330 structured inventory/equipment window with `Slots X / 24`, eight visible rows,
   selected-item details, quantity, stack limit, description, empty/reward state,
-  clickable highlighted rows, cursor-aware input mode, keyboard footer, `I`
+  clickable/draggable highlighted rows, cursor-aware input mode, keyboard footer, `I`
   toggle, bracket cycling, category/slot/level/effect metadata, ten clickable
-  paper-doll controls, aggregate bonuses, transactional Equip/Unequip, and safe
+  and drop-target paper-doll controls, aggregate bonuses, transactional Equip/Unequip, and safe
   consumable Use actions;
 - net item-stat comparison against current gear or an empty destination slot,
   plus hover tooltips for populated bag rows and occupied equipment slots;
-- item-identity action routing with destination-slot validation as the first
-  implementation layer for drag/drop.
+- item-identity drag payloads, bag-to-equipment and equipment-to-bag drop paths,
+  plus gold/red target feedback on the existing atomic transaction layer.
 
 These systems are functional programmer art. Dedicated fantasy UI materials,
-icons, illustrated body-slot art, drag/drop gestures, sorting, chat scrolling,
+icons, illustrated body-slot art, stable sorting, chat scrolling,
 and final responsive layout remain future work. The drag/drop contract is in
 `Docs/INVENTORY_INTERACTION_PLAN.md`.
 
@@ -289,6 +289,14 @@ approved-path flow, inline execution was proven blocked, and the resulting
 1,340-triangle asset imported into Unreal with three materials, one UV channel,
 and two explicit collision boxes. It now replaces `FabPass_Road_Stump_01` in
 the saved starter map as `Embermere_Waystone_Road_01`.
+
+The second original asset is `SM_EmbermereEmberLamp_01`, built by
+`Scripts/blender/build_embermere_ember_lamp.py`. It reuses the waystone's pale
+stone, moss, and ember language with a dark iron cage and warm faceted crystal.
+The saved map contains Mara-side and road-side lamp instances replacing two
+temporary sci-fi lamps. Unreal retains two authored `UBX_` box colliders; the
+validator requires clean classic-FBX provenance, exact bounds, transforms,
+tags, and both collision boxes before accepting the map.
 
 The chosen community bridge is `djeada/blender-mcp-server`, pinned during
 installation to commit `7eed33edf4aca2ab0ca84a6da27321f89f68b504`.
@@ -419,25 +427,28 @@ Current automation tests:
 16. `Embermere.Inventory.CapacityTransactions`
 17. `Embermere.UI.ItemComparison`
 18. `Embermere.Inventory.IdentityActions`
+19. `Embermere.UI.InventoryDragDrop`
 
-Latest verified baseline (2026-07-14):
+Latest verified baseline (2026-07-15):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- headless automation passed 18/18 with zero test errors and zero test warnings;
-- headless zone validator passed with 64 upright `FabPass_` actors, the exact
-  original waystone mesh/tag/transform, required gameplay anchors, moss-ground
-  overrides, and exact saved sun/skylight/fog values;
+- headless automation passed 19/19 with zero test failures;
+- headless zone validator passed with 62 upright `FabPass_` actors, three exact
+  original-art placements, authored ember-lamp collision/provenance, required
+  gameplay anchors, moss-ground overrides, and exact saved sun/skylight/fog values;
+- Blender MCP generated and validated the 2,184-triangle ember lamp; Unreal MCP
+  inspected its thumbnail, actor transforms/tags, and road-side level read;
+- bounded inventory drag/drop now supports bag-to-matching-slot equip and
+  equipment-to-bag return with identity-safe preflight and atomic mutation;
 - live pre-relink PIE confirmed the blue atmospheric sky, readable ambient fill,
   muted moss ground, inventory show/hide, target/nameplate, and chat clipping;
 - clean PIE verified the 2026-07-11 inventory shell, Mara quest acceptance,
   target/nameplate, raised target ring, moss/daylight balance, and chat clipping;
 - clean pre-relink PIE verified Mara quest acceptance, combat progression, a real
   Marsh Tonic drop, targeting/nameplate, daylight/moss, and the three-column window;
-- first-class MCP in the unrestarted editor discovered only 14 tests, proving it
-  still held the pre-2026-07-13 module;
-- restart before visually testing the newly linked ten-slot paper doll, bag/gear
-  transfers, comparison lines, hover tooltips, full-bag rejection message, and
-  stat changes.
+- restart before visually testing the newly linked drag threshold, gold/red
+  drop states, equipment-to-bag return, and final map placements because the
+  interactive editor predates the final C++ relink.
 
 ## Critical Unreal Lessons
 
@@ -461,6 +472,10 @@ Read `Docs/UNREAL_LESSONS.md` for the full record. The highest-risk lessons are:
    Asset acquisition happens through the signed-in Fab window/Launcher.
 9. **Marketplace licensing:** use assets in the project, but never commit or
    redistribute raw vendor packs in the public repository.
+10. **Authored Blender collision:** pin `unreal.FbxFactory()` for FBX assets
+    with `UBX_`/`UCX_` collision, validate body setup before map placement, and
+    recreate a partial Interchange mesh package if stale import provenance
+    survives atomic replacement.
 
 ## Known Workspace State
 
@@ -491,11 +506,12 @@ First fresh-session checks:
 
 1. Restart Unreal and open `L_Embermere_Prototype`.
 2. Start MCP on port `8123` and wait briefly for tool discovery.
-3. Run/discover all 18 tests.
+3. Run/discover all 19 tests.
 4. Start PIE and verify:
    - structured inventory layout, empty state, reward inspection, clickable row
      selection, selected-row highlight, 700px equipment/bonus pane, all ten slot
-     controls, Recruit Pack bag-to-Back transfer, slot-click unequip, full-bag
+     controls, Recruit Pack drag/click bag-to-Back transfer, slot-click or
+     equipment-to-bag drag unequip, gold/red drop states, full-bag
      rejection, stat changes, row/slot hover tooltips, net item comparison,
      Marsh Tonic loot/use, `I`,
      `[`/`]`, and cursor capture/release;
@@ -506,7 +522,8 @@ First fresh-session checks:
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
-   - 64 upright Fab actors plus the original road waystone, clear spawn/Mara route, readable road/enemy pocket,
+   - 62 upright Fab actors plus the original road waystone and two ember lamps,
+     clear spawn/Mara route, readable road/enemy pocket,
      a ruin that does not trap the player, muted moss ground, and balanced
      daylight/fog under the atmospheric sky.
 5. Confirm the already-added precise daylight and moss-ground validator
@@ -514,9 +531,10 @@ First fresh-session checks:
 
 High-value milestones after that:
 
-- implement drag sources and drop targets from
-  `Docs/INVENTORY_INTERACTION_PLAN.md`, then add illustrated body-slot art;
-- expand the proven Blender lane into a small matching road/village prop family
+- add identity-preserving stable inventory sorting, visually polish the drag
+  label after clean PIE, then add illustrated body-slot art;
+- expand the proven Blender waystone/lamp lane into a matching signpost or
+  boundary-prop family
   while preserving deterministic scripts, FBX checks, and original-art tags;
 - optional rune/soft-edge texture treatment for the dedicated target-ring
   material;
@@ -576,7 +594,7 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of the 700px inventory and ten-slot paper doll, Recruit Pack bag-to-Back transfer and click-to-unequip flow, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 64 upright Fab actors, and the original road waystone. Then continue into starter-enemy tuning, drag/drop implementation from Docs/INVENTORY_INTERACTION_PLAN.md, and the highest-value next milestone when the path is clear.
+Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of the 700px inventory and ten-slot paper doll, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, the road waystone, and both original ember lamps. Then continue into live starter-enemy/respawn tuning, identity-preserving stable inventory sorting, and the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

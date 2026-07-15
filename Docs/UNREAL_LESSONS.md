@@ -253,3 +253,29 @@ Practical rule:
 - use the signed-in Unreal Fab window or Epic Games Launcher for the actual add-to-library/import step;
 - import third-party packs under `/Game/ThirdParty/Fab/<PackName>`;
 - once assets exist locally, Codex can inspect paths, duplicate project-specific variants into `/Game/Art/Embermere`, replace blockout actors, run PIE, and commit intentional project files.
+
+## Pin The Classic FBX Factory For Authored Collision
+
+In UE 5.8, creating `FbxImportUI` does not force a generic
+`AssetImportTask` to use the classic FBX importer. Embermere's first ember-lamp
+attempt went through Interchange, where the generated mesh pipeline persisted
+`bCollision=false`. The source FBX contained two correctly named `UBX_` meshes,
+but the resulting static mesh had zero simple collision boxes.
+
+Practical rule:
+
+- for reviewed Blender assets with authored `UBX_`, `UCX_`, `UCP_`, or `USP_`
+  collision, assign `unreal.FbxFactory()` explicitly on the import task;
+- validate `body_setup.agg_geom` before placing or saving any actor;
+- validate the resulting asset import-data class is `FbxStaticMeshImportData`;
+- if a failed Interchange attempt already created the asset path, atomic
+  replacement can retain `InterchangeAssetImportData`; delete only that partial
+  mesh package and recreate the same path through the classic factory before
+  loading the referencing map;
+- treat the commandlet process exit code as insufficient for Python scripts,
+  because `SystemExit` or a late Python exception can still appear in the log
+  after Unreal returns process status zero.
+
+The finalized ember-lamp lane first validates import provenance, bounds, and two
+box colliders, then replaces the two map lamps. A fresh-process zone validator
+rechecks the same contract from disk.

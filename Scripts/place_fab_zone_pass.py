@@ -123,11 +123,11 @@ SCI_CRATE_2 = "/Game/Scifi_desert_city/Meshes/Crates/SM_crate_03"
 SCI_CRATE_GROUP = "/Game/Scifi_desert_city/Meshes/Crates/SM_crates_group_"
 SCI_FABRIC = "/Game/Scifi_desert_city/Meshes/Fabric/SM_fabric_cover_01"
 SCI_FENCE = "/Game/Scifi_desert_city/Meshes/Fence/SM_fence"
-SCI_LAMP = "/Game/Scifi_desert_city/Meshes/Lamps/SM_lamp_01"
 SCI_TABLE = "/Game/Scifi_desert_city/Meshes/Table/SM_table"
 SCI_STOOL = "/Game/Scifi_desert_city/Meshes/Stool/SM_stool"
 
 EMBERMERE_WAYSTONE = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01"
+EMBERMERE_EMBER_LAMP = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01"
 
 ORIGINAL_PLACEMENTS = [
     {
@@ -137,6 +137,30 @@ ORIGINAL_PLACEMENTS = [
         "y": -25,
         "z": 20,
         "yaw": 30,
+        "scale": 1.0,
+        "snap": False,
+        "folder": "04_Fab_Zone_Pass/02_Road/Embermere_Originals",
+        "tag": ORIGINAL_TAG,
+    },
+    {
+        "name": "Embermere_EmberLamp_Mara_01",
+        "asset": EMBERMERE_EMBER_LAMP,
+        "x": -1970,
+        "y": -775,
+        "z": 20,
+        "yaw": 5,
+        "scale": 1.0,
+        "snap": False,
+        "folder": "04_Fab_Zone_Pass/01_Village/Embermere_Originals",
+        "tag": ORIGINAL_TAG,
+    },
+    {
+        "name": "Embermere_EmberLamp_Road_01",
+        "asset": EMBERMERE_EMBER_LAMP,
+        "x": -1150,
+        "y": -520,
+        "z": 20,
+        "yaw": 8,
         "scale": 1.0,
         "snap": False,
         "folder": "04_Fab_Zone_Pass/02_Road/Embermere_Originals",
@@ -156,8 +180,6 @@ PLACEMENTS = [
     {"name": FAB_PREFIX + "Village_Crates_A", "asset": SCI_CRATE_GROUP, "x": -1545, "y": -920, "z": 20, "yaw": 12, "scale": 0.9, "folder": "04_Fab_Zone_Pass/01_Village"},
     {"name": FAB_PREFIX + "Village_Crate_B", "asset": SCI_CRATE, "x": -2060, "y": -650, "z": 20, "yaw": 74, "scale": 0.8, "folder": "04_Fab_Zone_Pass/01_Village"},
     {"name": FAB_PREFIX + "Village_Crate_C", "asset": SCI_CRATE_2, "x": -1320, "y": -1120, "z": 20, "yaw": -20, "scale": 0.85, "folder": "04_Fab_Zone_Pass/01_Village"},
-    {"name": FAB_PREFIX + "Village_Lamp_Mara", "asset": SCI_LAMP, "x": -1970, "y": -775, "z": 20, "yaw": 5, "scale": 0.9, "folder": "04_Fab_Zone_Pass/01_Village"},
-    {"name": FAB_PREFIX + "Village_Lamp_Road", "asset": SCI_LAMP, "x": -1150, "y": -520, "z": 20, "yaw": 8, "scale": 0.9, "folder": "04_Fab_Zone_Pass/01_Village"},
     {"name": FAB_PREFIX + "Village_Fence_01", "asset": SCI_FENCE, "x": -1580, "y": -1375, "z": 20, "yaw": 74, "scale": 1.2, "folder": "04_Fab_Zone_Pass/01_Village"},
     {"name": FAB_PREFIX + "Village_Fence_02", "asset": SCI_FENCE, "x": -2380, "y": -700, "z": 20, "yaw": -35, "scale": 1.2, "folder": "04_Fab_Zone_Pass/01_Village"},
     {"name": FAB_PREFIX + "Village_Fence_03", "asset": SCI_FENCE, "x": -980, "y": -800, "z": 20, "yaw": 28, "scale": 1.2, "folder": "04_Fab_Zone_Pass/01_Village"},

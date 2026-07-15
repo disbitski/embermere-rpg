@@ -1,0 +1,22 @@
+{
+  "dimensions_cm": [
+    66.348,
+    66.348,
+    254.0
+  ],
+  "triangles": 2184,
+  "materials": [
+    "M_Waystone",
+    "M_WaystoneMoss",
+    "M_EmberLampIron",
+    "M_WaystoneEmber"
+  ],
+  "uv_channels": 1,
+  "non_manifold_edges": 0,
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "origin_z_cm": 0.0
+}

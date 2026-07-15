@@ -16,6 +16,10 @@ rules. Click, keyboard, and future controller interaction remain supported.
   operations. Full-bag failures preserve both the bag and equipped state.
 - The ten paper-doll slots remain readable buttons, so drag/drop will be an
   additional path rather than the only path.
+- The first bounded drag/drop slice shipped on 2026-07-15: bag rows are drag
+  sources, equipment slots are typed drop targets, and the bag list accepts
+  equipped-item returns. Gold/red hover feedback and a compact item-name drag
+  visual fit inside the existing window.
 
 ## Drag Payload
 
@@ -70,15 +74,20 @@ item against the live inventory when the drop occurs and reject stale payloads.
 - Any future manual bag ordering needs persistent slot identities rather than
   the current compact stack array.
 
-## Suggested Implementation Order
+## Implementation Status
 
-1. Introduce item-identity action helpers on the HUD/controller so click and
-   drop both call one path.
-2. Add the drag operation and bag-row drag source wrapper.
-3. Add equipment-slot drop targets and valid/invalid hover states.
-4. Add an equipment-to-bag return target.
-5. Add stable sorting that restores selection by item identity.
-6. Add custom fantasy drag visuals after behavior survives PIE.
+1. **Complete:** item-identity action helpers route click and drop through the
+   same atomic equipment operations.
+2. **Complete:** `UEmbermereItemDragDropOperation` carries live item identity,
+   bag/equipment source, and source slot rather than a fragile row index.
+3. **Complete:** equipment slots expose gold valid and restrained red invalid
+   hover states, with matching-slot and level preflight.
+4. **Complete:** the bag list accepts equipped-item returns and preserves the
+   existing full-bag rejection/chat path.
+5. **Next:** add stable sorting that restores selection by item identity and
+   never reorders during an active drag.
+6. **After PIE:** replace the compact text drag label with project-owned fantasy
+   icon/frame art once the gesture survives clean-restart playtesting.
 
 ## Verification
 
@@ -91,3 +100,8 @@ item against the live inventory when the drop occurs and reject stale payloads.
 - Click, keyboard inspection, and action-button behavior remain unchanged.
 - Drag hover and drop states fit inside the fixed inventory window at desktop
   and compact PIE resolutions.
+
+Automation now covers the transaction and identity matrix in
+`Embermere.UI.InventoryDragDrop`. A clean-restart PIE pass still owns pointer
+threshold, cached-geometry hit testing, drag visual, hover feedback, cursor
+mode, and compact-viewport verification.
