@@ -54,4 +54,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Inventory")
 	bool RemoveItem(UEmbermereItemData* Item, int32 Quantity = 1);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Inventory")
+	bool SortStacksByCategoryAndName();
 };

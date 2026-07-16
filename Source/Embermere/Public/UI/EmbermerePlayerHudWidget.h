@@ -84,6 +84,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool SelectInventoryItem(int32 StackIndex);
 
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
+	bool SortInventory();
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	int32 GetSelectedInventoryStackIndex() const;
 
@@ -191,6 +194,12 @@ private:
 	TObjectPtr<UTextBlock> InventoryCapacityText;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UButton> InventorySortButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> InventorySortText;
+
+	UPROPERTY(Transient)
 	TArray<TObjectPtr<UTextBlock>> InventoryRowTexts;
 
 	UPROPERTY(Transient)
@@ -267,6 +276,7 @@ private:
 	bool bHighlightedDropSlotValid = false;
 	bool bInventoryListDropHighlighted = false;
 	bool bInventoryListDropValid = false;
+	bool bInventoryDragInProgress = false;
 
 	void BuildDefaultLayout();
 	void RefreshHudText();
@@ -291,6 +301,9 @@ private:
 
 	UFUNCTION()
 	void HandleInventoryActionClicked();
+
+	UFUNCTION()
+	void HandleInventorySortClicked();
 
 	UFUNCTION()
 	void HandleEquipmentSlotClicked(EEmbermereEquipmentSlot EquipmentSlot);

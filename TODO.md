@@ -6,42 +6,38 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- On the 2026-07-16 run only, remind Dave to review the Unreal/Codex/MCP
-  lessons in `Docs/THREAD_HANDOFF.md` and choose one or more strong field-note
-  topics. Do not repeat the reminder on later runs.
-- Restart Unreal before authoritative PIE. The editor was open during the
-  2026-07-15 drag/drop C++ relink and external lamp/map import, so it must load
-  the current module and saved level before anyone presses Save All.
-- Restart or confirm Blender and its localhost MCP bridge, then verify Unreal
-  MCP on port `8123` after the editor restart.
-- Discover and run all 19 tests, including
-  `Embermere.UI.InventoryDragDrop`. The final 2026-07-15 headless run passed
-  19/19 and the saved-map validator passed independently.
-- In clean PIE, verify the new bounded drag/drop slice:
-  - dragging Recruit Pack from its bag row to Back shows a gold valid target,
-    equips once, removes one bag item, and applies stats once;
-  - hovering a wrong equipment slot shows the restrained red invalid state and
-    dropping there changes nothing;
-  - dragging the occupied Back slot onto the bag list unequips once, while a
-    full bag refuses the return without loss or duplication;
-  - row click, slot click, `[`/`]`, action button, and `I` behavior remain fully
-    usable without dragging;
-  - the drag label, footer feedback, and drop highlights stay inside the fixed
-    700x330 window at the normal PIE viewport.
-- Verify the original-art layer now consists of the road waystone plus
-  `Embermere_EmberLamp_Mara_01` and `Embermere_EmberLamp_Road_01`. Confirm both
-  lamps sit on terrain, read as pale stone/moss/dark iron/warm ember, collide
-  without trapping the player, and leave Mara and the road route clear.
-- After the clean regression pass, tune starter-enemy and respawn feel from
-  live PIE. If the values already feel good, continue into identity-preserving
-  stable inventory sorting and a more graphical fantasy drag visual, or build
-  the next bounded Blender prop such as a road signpost.
+- Restart Unreal before authoritative PIE. The interactive editor now predates
+  the 2026-07-16 stable-inventory-sorting C++ relink, so it cannot visually
+  prove the new Sort control until it loads the current module.
+- Verify Unreal MCP on port `8123` after the restart. Restart or confirm Blender
+  and its localhost bridge only if original-art work is selected for the day.
+- Discover and run all 20 tests, especially
+  `Embermere.Inventory.StableSorting` and
+  `Embermere.UI.InventoryDragDrop`. The authoritative 2026-07-16 headless run
+  passed 20/20, and saved-map validation passed independently.
+- In clean PIE, earn at least Marsh Tonic and Recruit Pack, then verify the new
+  inventory Sort control:
+  - armor appears before consumables, with alphabetical order inside each
+    category;
+  - the inspected item and duplicate-stack occurrence remain selected after
+    sorting;
+  - chat reports `Inventory sorted`, while an already sorted bag is a no-op;
+  - the Sort control becomes unavailable during a pending press or active drag,
+    and no row moves underneath the pointer.
+- Recheck the verified drag/drop slice after sorting: valid Back-slot equip,
+  red wrong-slot rejection, equipment-to-bag return, full-bag preservation,
+  and unchanged row click, slot click, action button, `[`/`]`, and `I`
+  fallbacks.
+- Tune starter-enemy and respawn feel from a normal village-to-wilderness PIE
+  run rather than a teleported test setup. If those values already feel good,
+  replace the compact drag label with a project-owned fantasy visual or build
+  the next bounded Blender prop, preferably an Embermere road signpost.
 
 ## Full Manual Regression Checklist
 
 - Restart Unreal before manual PIE because the editor was open during the
-  2026-07-15 drag/drop build and lamp/map import. Current headless code passes
-  19 tests; the open editor must reload before post-change PIE.
+  2026-07-16 inventory-sorting build. Current headless code passes 20 tests;
+  the open editor must reload before post-change PIE.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -69,6 +65,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.Inventory.CapacityTransactions`
   - `Embermere.Inventory.ConsumableUse`
   - `Embermere.Inventory.IdentityActions`
+  - `Embermere.Inventory.StableSorting`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
   - `Embermere.Stats.DamageImmunity`
@@ -88,6 +85,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - the inventory starts in cursor-aware game/UI mode; pressing `I` hides it, hides the cursor, and restores classic game-only mouse input;
   - clicking a populated row or pressing `[` and `]` changes the inspected inventory stack after multiple stacks exist;
   - hovering a populated row shows quantity, category, slot/level, effects, comparison, and description without expanding the fixed window;
+  - clicking Sort groups weapon, armor, consumable, quest, and misc stacks in that priority, sorts names inside each category, preserves the inspected item occurrence, posts chat feedback, and is unavailable during drag;
   - equippable item details show net HP, mana, armor, and power changes against the currently equipped item, or against an empty destination slot;
   - Mara's Recruit Pack identifies as level-1 Back armor with `+5 HP, +1 Armor`; equipping it removes it from the bag, updates the gold Back-slot control, bonus totals, HP to `105/105`, and chat; clicking the occupied Back slot returns it to the bag and restores base stats;
   - a full bag refuses unequip/replacement without losing, duplicating, or partially moving either item;
@@ -156,6 +154,7 @@ Embermere has a working first-pass starter slice:
 - ten clickable equipment-slot controls, atomic bag/equipment transfers, rollback-safe replacement, idempotent health/mana/armor/power application, armor mitigation, and safe consumable depletion;
 - item-row and occupied-slot tooltips plus net stat comparison against the current item or empty equipment slot;
 - item-identity action routing plus typed bag/equipment drag payloads, valid and invalid drop feedback, bag-to-slot equip, and equipment-to-bag return on top of atomic transactions;
+- explicit stable category/name inventory sorting that preserves selected item identity and duplicate-stack occurrence and refuses to reorder during a pending or active drag;
 - data-driven Marsh Tonic consumables dropped by starter enemies so recovery is reachable through the normal combat loop;
 - first-pass selected-target UMG nameplate widget plus a flat 24-segment rotating/pulsing emissive gold target ring;
 - first-pass hotbar cooldown enforcement and ready-time feedback;
@@ -167,7 +166,7 @@ Embermere has a working first-pass starter slice:
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. The newly linked drag/drop gestures and second original Blender prop still need clean-restart PIE review. The world remains stylistically mixed without real fantasy village buildings or final character art.
+The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, stable explicit sorting, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE verified drag/drop, Mara's quest/reward loop, targeting, autorun cancel, and the original-art route before the 2026-07-16 relink; the new Sort control still needs a clean-restart visual pass. The world remains stylistically mixed without real fantasy village buildings or final character art.
 
 ## Next Work
 
@@ -181,7 +180,7 @@ The prototype foundation is alive, but it is still early. The environment is upr
   - verify Marsh Prowler deaths grant Marsh Tonic, repeated drops stack, and `Use` heals damaged players without wasting a full-resource tonic;
   - visually verify item comparison lines and row/occupied-slot hover tooltips after a clean restart;
   - visually verify bag-to-equipment and equipment-to-bag drag/drop, valid/invalid feedback, stale identity rejection, and click/keyboard fallbacks;
-  - add stable identity-preserving sorting and improve the fantasy drag visual after the bounded gesture survives PIE;
+  - visually verify stable identity-preserving sorting, then improve the compact drag label with project-owned fantasy art;
   - add illustrated body-slot art after the interaction model survives PIE.
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
@@ -351,6 +350,21 @@ The prototype foundation is alive, but it is still early. The environment is upr
 - The no-hot-reload editor build succeeded, the final 19-test suite passed, and
   saved-map validation passed. Restart Unreal before authoritative drag/drop
   PIE because the open editor predates the final relink.
+- 2026-07-16: clean live PIE verified the full Mara quest/reward loop, three
+  Marsh Prowler kills and tonic stacking, target clear on death, bracket
+  cycling, Recruit Pack comparison, valid/invalid drag targets,
+  equipment-to-bag return, W autorun cancel, and both ember lamps in the saved
+  route. Slate could not hold `Ctrl` across a later game tick, so `Ctrl+M`
+  remains a manual input check rather than a detected regression.
+- Added an explicit compact Sort control that orders weapon, armor, consumable,
+  quest, and misc stacks by category then name, preserves selected item identity
+  and duplicate-stack occurrence, and disables during pending or active drags.
+- Added `Embermere.Inventory.StableSorting`; the authoritative Mac build
+  succeeded and headless automation passed 20/20.
+- Fresh-process map validation passed with 62 upright FabPass actors, the
+  waystone and two ember lamps, all gameplay anchors, moss ground, and the exact
+  daylight baseline intact. Restart Unreal before visually checking the newly
+  linked Sort control.
 
 ## Asset Hunt
 

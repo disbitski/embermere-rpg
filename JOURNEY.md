@@ -785,6 +785,47 @@ Verification:
 - Clean-restart PIE remains the next manual boundary because the open editor
   predates the final drag/drop relink.
 
+## 2026-07-16 - Clean Quest Regression And Stable Bag Sorting
+
+The previous day's interaction work survived a complete live loop, then the bag
+gained a predictable player-controlled order without weakening item identity.
+
+Clean PIE verification:
+
+- Ran the full Mara quest from acceptance through three Marsh Prowler defeats,
+  tonic stacking, return, XP, Recruit Pack reward, and inventory update.
+- Verified target nameplate/ring, damage and target clear on death, bracket
+  cycling, item comparison, valid Back-slot drag, wrong-slot rejection, and
+  equipment-to-bag return.
+- Confirmed `Q` autorun and `W` cancellation in live input, plus readable
+  Mara-side and road-side ember lamps. Slate's atomic key synthesis could not
+  hold `Ctrl` into the later game tick used by the inversion toggle, so
+  `Ctrl+M` remains a manual PIE check.
+
+Inventory implementation:
+
+- Added an explicit compact Sort control rather than silently reordering loot.
+- Stable sorting uses weapon, armor, consumable, quest, and misc category
+  priority, then case-insensitive display name.
+- Selection follows the same item identity and duplicate-stack occurrence
+  after rows move.
+- Sorting is disabled from initial bag press through active drag completion, so
+  a row cannot move under the pointer.
+- Added `Embermere.Inventory.StableSorting` for category order, alphabetical
+  order, equal-key stability, duplicate occurrence selection, and no-op repeat
+  sorting.
+
+Verification:
+
+- The authoritative Mac editor build succeeded with `-NoHotReloadFromIDE`.
+- Headless automation passed 20/20, including all prior drag/drop and atomic
+  inventory transaction coverage.
+- Fresh-process saved-map validation passed with 62 upright Fab actors, three
+  original-art placements, gameplay anchors, moss ground, and the exact
+  daylight baseline intact.
+- Restart Unreal before visually checking the newly linked Sort button and its
+  active-drag disabled state.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

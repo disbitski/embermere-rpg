@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-07-13
+Last updated: 2026-07-16
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -189,11 +189,13 @@ Implemented presentation includes:
 - net item-stat comparison against current gear or an empty destination slot,
   plus hover tooltips for populated bag rows and occupied equipment slots;
 - item-identity drag payloads, bag-to-equipment and equipment-to-bag drop paths,
-  plus gold/red target feedback on the existing atomic transaction layer.
+  plus gold/red target feedback on the existing atomic transaction layer;
+- explicit stable category/name sorting with selected-item and duplicate-stack
+  occurrence preservation plus pending/active-drag protection.
 
 These systems are functional programmer art. Dedicated fantasy UI materials,
-icons, illustrated body-slot art, stable sorting, chat scrolling,
-and final responsive layout remain future work. The drag/drop contract is in
+icons, illustrated body-slot art, a final fantasy drag visual, chat scrolling,
+and final responsive layout remain future work. The interaction contract is in
 `Docs/INVENTORY_INTERACTION_PLAN.md`.
 
 ## Source Architecture
@@ -428,11 +430,12 @@ Current automation tests:
 17. `Embermere.UI.ItemComparison`
 18. `Embermere.Inventory.IdentityActions`
 19. `Embermere.UI.InventoryDragDrop`
+20. `Embermere.Inventory.StableSorting`
 
-Latest verified baseline (2026-07-15):
+Latest verified baseline (2026-07-16):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- headless automation passed 19/19 with zero test failures;
+- headless automation passed 20/20 with zero test failures;
 - headless zone validator passed with 62 upright `FabPass_` actors, three exact
   original-art placements, authored ember-lamp collision/provenance, required
   gameplay anchors, moss-ground overrides, and exact saved sun/skylight/fog values;
@@ -440,15 +443,14 @@ Latest verified baseline (2026-07-15):
   inspected its thumbnail, actor transforms/tags, and road-side level read;
 - bounded inventory drag/drop now supports bag-to-matching-slot equip and
   equipment-to-bag return with identity-safe preflight and atomic mutation;
-- live pre-relink PIE confirmed the blue atmospheric sky, readable ambient fill,
-  muted moss ground, inventory show/hide, target/nameplate, and chat clipping;
-- clean PIE verified the 2026-07-11 inventory shell, Mara quest acceptance,
-  target/nameplate, raised target ring, moss/daylight balance, and chat clipping;
-- clean pre-relink PIE verified Mara quest acceptance, combat progression, a real
-  Marsh Tonic drop, targeting/nameplate, daylight/moss, and the three-column window;
-- restart before visually testing the newly linked drag threshold, gold/red
-  drop states, equipment-to-bag return, and final map placements because the
-  interactive editor predates the final C++ relink.
+- clean PIE verified the full Mara acceptance/combat/reward loop, three tonic
+  drops and stacking, targeting and target clear, bracket cycling, Recruit Pack
+  comparison, valid/invalid drag targets, equipment-to-bag return, W autorun
+  cancel, and both ember-lamp placements;
+- stable sorting now orders category/name explicitly, preserves the selected
+  item and duplicate occurrence, and refuses to run during a pending/active drag;
+- restart before visually testing the newly linked Sort control because the
+  interactive editor predates the 2026-07-16 C++ relink.
 
 ## Critical Unreal Lessons
 
@@ -506,14 +508,15 @@ First fresh-session checks:
 
 1. Restart Unreal and open `L_Embermere_Prototype`.
 2. Start MCP on port `8123` and wait briefly for tool discovery.
-3. Run/discover all 19 tests.
+3. Run/discover all 20 tests.
 4. Start PIE and verify:
    - structured inventory layout, empty state, reward inspection, clickable row
      selection, selected-row highlight, 700px equipment/bonus pane, all ten slot
      controls, Recruit Pack drag/click bag-to-Back transfer, slot-click or
      equipment-to-bag drag unequip, gold/red drop states, full-bag
      rejection, stat changes, row/slot hover tooltips, net item comparison,
-     Marsh Tonic loot/use, `I`,
+     category/name Sort ordering and selection preservation, Sort disabled
+     during drag, Marsh Tonic loot/use, `I`,
      `[`/`]`, and cursor capture/release;
    - hotbar dimming and live cooldown countdown;
    - native nameplate and health-aware color;
@@ -531,8 +534,8 @@ First fresh-session checks:
 
 High-value milestones after that:
 
-- add identity-preserving stable inventory sorting, visually polish the drag
-  label after clean PIE, then add illustrated body-slot art;
+- visually verify identity-preserving stable inventory sorting, polish the drag
+  label with project-owned fantasy art, then add illustrated body-slot art;
 - expand the proven Blender waystone/lamp lane into a matching signpost or
   boundary-prop family
   while preserving deterministic scripts, FBX checks, and original-art tags;
@@ -594,7 +597,7 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of the 700px inventory and ten-slot paper doll, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, the road waystone, and both original ember lamps. Then continue into live starter-enemy/respawn tuning, identity-preserving stable inventory sorting, and the highest-value next milestone when the path is clear.
+Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of the new category/name Sort control, selected-item preservation, and active-drag guard alongside the already verified 700px inventory and ten-slot paper doll, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, the road waystone, and both original ember lamps. Then continue into live starter-enemy/respawn tuning, a project-owned fantasy drag visual or road signpost, and the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

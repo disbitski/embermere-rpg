@@ -1,6 +1,22 @@
 #include "Components/EmbermereInventoryComponent.h"
 #include "Engine/Engine.h"
 
+namespace
+{
+	int32 GetInventoryCategorySortPriority(const EEmbermereItemCategory Category)
+	{
+		switch (Category)
+		{
+		case EEmbermereItemCategory::Weapon: return 0;
+		case EEmbermereItemCategory::Armor: return 1;
+		case EEmbermereItemCategory::Consumable: return 2;
+		case EEmbermereItemCategory::Quest: return 3;
+		case EEmbermereItemCategory::Misc: return 4;
+		default: return 5;
+		}
+	}
+}
+
 UEmbermereInventoryComponent::UEmbermereInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -124,4 +140,49 @@ bool UEmbermereInventoryComponent::RemoveItem(UEmbermereItemData* Item, int32 Qu
 		OnInventoryChanged.Broadcast();
 	}
 	return bRemovedAll;
+}
+
+bool UEmbermereInventoryComponent::SortStacksByCategoryAndName()
+{
+	if (Stacks.Num() <= 1)
+	{
+		return false;
+	}
+
+	const TArray<FEmbermereInventoryStack> OriginalOrder = Stacks;
+	Stacks.StableSort([](const FEmbermereInventoryStack& Left, const FEmbermereInventoryStack& Right)
+	{
+		if (!Left.Item || !Right.Item)
+		{
+			return Left.Item != nullptr && Right.Item == nullptr;
+		}
+
+		const int32 LeftPriority = GetInventoryCategorySortPriority(Left.Item->Category);
+		const int32 RightPriority = GetInventoryCategorySortPriority(Right.Item->Category);
+		if (LeftPriority != RightPriority)
+		{
+			return LeftPriority < RightPriority;
+		}
+
+		return Left.Item->DisplayName.ToString().Compare(
+			Right.Item->DisplayName.ToString(),
+			ESearchCase::IgnoreCase) < 0;
+	});
+
+	bool bOrderChanged = false;
+	for (int32 Index = 0; Index < Stacks.Num(); ++Index)
+	{
+		if (OriginalOrder[Index].Item != Stacks[Index].Item ||
+			OriginalOrder[Index].Quantity != Stacks[Index].Quantity)
+		{
+			bOrderChanged = true;
+			break;
+		}
+	}
+
+	if (bOrderChanged)
+	{
+		OnInventoryChanged.Broadcast();
+	}
+	return bOrderChanged;
 }

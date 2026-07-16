@@ -590,6 +590,87 @@ bool FEmbermereInventoryDragDropTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereInventoryStableSortingTest,
+	"Embermere.Inventory.StableSorting",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereInventoryStableSortingTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* HudWidget = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	TestNotNull(TEXT("HUD widget can be created for inventory sorting"), HudWidget);
+	TestNotNull(TEXT("Inventory component can be created for sorting"), Inventory);
+	if (!HudWidget || !Inventory)
+	{
+		return false;
+	}
+
+	auto MakeItem = [](const TCHAR* ItemId, const TCHAR* DisplayName, EEmbermereItemCategory Category)
+	{
+		UEmbermereItemData* Item = NewObject<UEmbermereItemData>();
+		Item->ItemId = FName(ItemId);
+		Item->DisplayName = FText::FromString(DisplayName);
+		Item->Category = Category;
+		Item->MaxStack = 1;
+		return Item;
+	};
+
+	UEmbermereItemData* AncientPebble = MakeItem(TEXT("AncientPebble"), TEXT("Ancient Pebble"), EEmbermereItemCategory::Misc);
+	UEmbermereItemData* MarshTonic = MakeItem(TEXT("MarshTonic"), TEXT("Marsh Tonic"), EEmbermereItemCategory::Consumable);
+	UEmbermereItemData* FenwatchSeal = MakeItem(TEXT("FenwatchSeal"), TEXT("Fenwatch Seal"), EEmbermereItemCategory::Quest);
+	UEmbermereItemData* RecruitPack = MakeItem(TEXT("RecruitPack"), TEXT("Recruit Pack"), EEmbermereItemCategory::Armor);
+	UEmbermereItemData* AshenBlade = MakeItem(TEXT("AshenBlade"), TEXT("Ashen Blade"), EEmbermereItemCategory::Weapon);
+	UEmbermereItemData* BitterDraught = MakeItem(TEXT("BitterDraught"), TEXT("Bitter Draught"), EEmbermereItemCategory::Consumable);
+
+	HudWidget->Inventory = Inventory;
+	TestTrue(TEXT("Misc item enters the unsorted bag"), Inventory->AddItem(AncientPebble, 1));
+	TestTrue(TEXT("Two identical consumable stacks enter the unsorted bag"), Inventory->AddItem(MarshTonic, 2));
+	TestTrue(TEXT("Quest item enters the unsorted bag"), Inventory->AddItem(FenwatchSeal, 1));
+	TestTrue(TEXT("Armor enters the unsorted bag"), Inventory->AddItem(RecruitPack, 1));
+	TestTrue(TEXT("Weapon enters the unsorted bag"), Inventory->AddItem(AshenBlade, 1));
+	TestTrue(TEXT("Alphabetically earlier consumable enters last"), Inventory->AddItem(BitterDraught, 1));
+	TestEqual(TEXT("Sorting fixture has seven stacks"), Inventory->Stacks.Num(), 7);
+
+	TestTrue(TEXT("Second duplicate stack can be selected"), HudWidget->SelectInventoryItem(2));
+	TestTrue(TEXT("Mixed bag reports a changed order"), HudWidget->SortInventory());
+
+	const TArray<UEmbermereItemData*> ExpectedOrder = {
+		AshenBlade,
+		RecruitPack,
+		BitterDraught,
+		MarshTonic,
+		MarshTonic,
+		FenwatchSeal,
+		AncientPebble
+	};
+	for (int32 Index = 0; Index < ExpectedOrder.Num(); ++Index)
+	{
+		TestTrue(
+			*FString::Printf(TEXT("Sorted stack %d has expected category/name order"), Index),
+			Inventory->Stacks[Index].Item == ExpectedOrder[Index]);
+	}
+
+	TestEqual(
+		TEXT("Selection follows the second identical stack by item occurrence"),
+		HudWidget->GetSelectedInventoryStackIndex(),
+		4);
+	TestTrue(
+		TEXT("Selected stack still points to the same item identity"),
+		Inventory->Stacks[HudWidget->GetSelectedInventoryStackIndex()].Item == MarshTonic);
+	TestTrue(
+		TEXT("Stable sorting preserves the first identical stack before the selected duplicate"),
+		Inventory->Stacks[3].Item == MarshTonic);
+
+	TestFalse(TEXT("Sorting an already ordered bag is a no-op"), HudWidget->SortInventory());
+	TestEqual(
+		TEXT("No-op sorting preserves selected duplicate occurrence"),
+		HudWidget->GetSelectedInventoryStackIndex(),
+		4);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereEquipmentSlotRulesTest,
 	"Embermere.Equipment.SlotRules",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

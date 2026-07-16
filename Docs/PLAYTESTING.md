@@ -47,11 +47,13 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 26. After taking damage, select Marsh Tonic and click `Use`; confirm it restores up to 25 health and 10 mana and consumes one tonic. At full health/mana, `Use` must be disabled and preserve the stack.
 27. Defeat three starter enemies.
 28. Return to Mara and press `F` to complete the quest.
+29. With both Recruit Pack and Marsh Tonic in the bag, select one and click `Sort`; confirm armor appears before consumables, names sort alphabetically within a category, the same item stays selected, and chat reports `Inventory sorted`.
+30. Begin dragging a bag row and confirm the Sort control becomes unavailable and the bag order stays fixed until the drag ends. Recheck one valid and one invalid equipment drop afterward.
 
 ## Expected Temporary Feedback
 
 - A styled first-pass HUD overlay shows player HP, mana, XP, current target, target HP, range state, quest progress, and all hotbar slots.
-- A 700x330 structured inventory/equipment window appears in the top-right with `Slots X / 24`, clickable/draggable highlighted item rows, selected-item effects and net equipment comparison, row/occupied-slot tooltips, ten stable clickable/drop-target paper-doll slots, gold/red drag feedback, equipment-to-bag return, aggregate bonuses, description, empty/reward state, `[`/`]` cycling, `I` close/show behavior, and Equip or Use actions when supported.
+- A 700x330 structured inventory/equipment window appears in the top-right with `Slots X / 24`, an explicit category/name Sort control, clickable/draggable highlighted item rows, selected-item effects and net equipment comparison, row/occupied-slot tooltips, ten stable clickable/drop-target paper-doll slots, gold/red drag feedback, equipment-to-bag return, aggregate bonuses, description, empty/reward state, `[`/`]` cycling, `I` close/show behavior, and Equip or Use actions when supported.
 - Opening the inventory shows the cursor and permits UI clicks; closing it hides the cursor and restores classic game-only mouse input.
 - Interacting with Mara shows a temporary bottom-screen dialogue panel.
 - Mara has a temporary gold quest marker above her in PIE.
@@ -75,7 +77,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Enemy movement and attacks are deliberately simple prototype behavior.
 - Enemy leash/return-home behavior is first-pass and still needs tuning against the dressed FabPass terrain.
 - Player respawn is a simple prototype reset to the spawn point with short damage protection, not a full corpse run or revive system.
-- Inventory presentation now has clickable and draggable rows, keyboard selection, row and occupied-slot tooltips, net equipment comparison, clickable/drop-target paper-doll slots, atomic bag/equipment transfers, rollback-safe replacement, equipment stat application, armor mitigation, safe consumable depletion, and a real Marsh Tonic enemy-loot source. It does not yet have illustrated body art or stable sorting; the next interaction phases are documented in `Docs/INVENTORY_INTERACTION_PLAN.md`.
+- Inventory presentation now has clickable and draggable rows, stable identity-preserving category/name sorting, keyboard selection, row and occupied-slot tooltips, net equipment comparison, clickable/drop-target paper-doll slots, atomic bag/equipment transfers, rollback-safe replacement, equipment stat application, armor mitigation, safe consumable depletion, and a real Marsh Tonic enemy-loot source. It does not yet have illustrated body art or a final fantasy drag visual; the next interaction phases are documented in `Docs/INVENTORY_INTERACTION_PLAN.md`.
 - Nameplates use a native UMG widget component and target highlighting uses a dedicated emissive material on a flat animated 24-segment ring; a future decal/texture treatment can add runes and softer edges.
 - The bottom-left chat/combat log is clipped inside its shaded panel and currently uses single-line rows; final chat history, scrolling, and fantasy styling still need a proper UI pass.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.

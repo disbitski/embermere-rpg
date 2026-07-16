@@ -20,6 +20,10 @@ rules. Click, keyboard, and future controller interaction remain supported.
   sources, equipment slots are typed drop targets, and the bag list accepts
   equipped-item returns. Gold/red hover feedback and a compact item-name drag
   visual fit inside the existing window.
+- The explicit Sort control shipped on 2026-07-16. It uses stable
+  weapon/armor/consumable/quest/misc category priority, then item name,
+  preserves the selected item occurrence, and disables while a pointer press
+  or drag could make a row identity ambiguous.
 
 ## Drag Payload
 
@@ -84,9 +88,9 @@ item against the live inventory when the drop occurs and reject stale payloads.
    hover states, with matching-slot and level preflight.
 4. **Complete:** the bag list accepts equipped-item returns and preserves the
    existing full-bag rejection/chat path.
-5. **Next:** add stable sorting that restores selection by item identity and
-   never reorders during an active drag.
-6. **After PIE:** replace the compact text drag label with project-owned fantasy
+5. **Complete:** stable category/name sorting restores the selected item and
+   duplicate-stack occurrence by identity and never runs during an active drag.
+6. **Next:** replace the compact text drag label with project-owned fantasy
    icon/frame art once the gesture survives clean-restart playtesting.
 
 ## Verification
@@ -98,10 +102,14 @@ item against the live inventory when the drop occurs and reject stale payloads.
 - A stale payload is rejected after its item leaves the bag.
 - Tooltips and comparison text update after every successful transaction.
 - Click, keyboard inspection, and action-button behavior remain unchanged.
+- Sorting orders equipment before consumables and quest/misc items, preserves
+  alphabetical and equal-key stability, and keeps the inspected item selected.
+- The Sort control is unavailable while a bag press or drag is active.
 - Drag hover and drop states fit inside the fixed inventory window at desktop
   and compact PIE resolutions.
 
-Automation now covers the transaction and identity matrix in
-`Embermere.UI.InventoryDragDrop`. A clean-restart PIE pass still owns pointer
-threshold, cached-geometry hit testing, drag visual, hover feedback, cursor
-mode, and compact-viewport verification.
+Automation covers the transaction and identity matrix in
+`Embermere.UI.InventoryDragDrop` plus order and selection invariants in
+`Embermere.Inventory.StableSorting`. A clean-restart PIE pass still owns
+pointer threshold, cached-geometry hit testing, the visible Sort control, drag
+visual, hover feedback, cursor mode, and compact-viewport verification.

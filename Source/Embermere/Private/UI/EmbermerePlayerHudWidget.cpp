@@ -298,6 +298,7 @@ void UEmbermerePlayerHudWidget::NativeOnDragDetected(
 	}
 
 	OutOperation = Operation;
+	bInventoryDragInProgress = true;
 	ClearPendingDrag();
 }
 
@@ -348,6 +349,7 @@ bool UEmbermerePlayerHudWidget::NativeOnDrop(
 		return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 	}
 
+	bInventoryDragInProgress = false;
 	const FVector2D ScreenPosition = InDragDropEvent.GetScreenSpacePosition();
 	bool bHandled = false;
 	if (Operation->Source == EEmbermereItemDragSource::Inventory)
@@ -382,6 +384,7 @@ void UEmbermerePlayerHudWidget::NativeOnDragCancelled(
 	UDragDropOperation* InOperation)
 {
 	Super::NativeOnDragCancelled(InDragDropEvent, InOperation);
+	bInventoryDragInProgress = false;
 	ClearPendingDrag();
 	ClearDropFeedback();
 	RefreshInventoryWindow();
@@ -422,6 +425,51 @@ bool UEmbermerePlayerHudWidget::SelectInventoryItem(int32 StackIndex)
 
 	SelectedInventoryStackIndex = StackIndex;
 	RefreshHudText();
+	return true;
+}
+
+bool UEmbermerePlayerHudWidget::SortInventory()
+{
+	if (!Inventory || Inventory->Stacks.Num() <= 1 || PendingDragItem || bInventoryDragInProgress)
+	{
+		return false;
+	}
+
+	ClampSelectedInventoryStackIndex();
+	const UEmbermereItemData* SelectedItem = Inventory->Stacks[SelectedInventoryStackIndex].Item;
+	int32 SelectedItemOccurrence = 0;
+	for (int32 Index = 0; Index < SelectedInventoryStackIndex; ++Index)
+	{
+		if (Inventory->Stacks[Index].Item == SelectedItem)
+		{
+			++SelectedItemOccurrence;
+		}
+	}
+
+	if (!Inventory->SortStacksByCategoryAndName())
+	{
+		return false;
+	}
+
+	int32 MatchingOccurrence = 0;
+	for (int32 Index = 0; Index < Inventory->Stacks.Num(); ++Index)
+	{
+		if (Inventory->Stacks[Index].Item != SelectedItem)
+		{
+			continue;
+		}
+
+		if (MatchingOccurrence == SelectedItemOccurrence)
+		{
+			SelectedInventoryStackIndex = Index;
+			break;
+		}
+		++MatchingOccurrence;
+	}
+
+	ClampSelectedInventoryStackIndex();
+	RefreshHudText();
+	AddChatMessage(FText::FromString(TEXT("Inventory sorted")), FLinearColor(0.86f, 0.78f, 0.5f, 1.0f));
 	return true;
 }
 
@@ -899,6 +947,8 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	UVerticalBox* InventoryStack = MakePanelStack(WidgetTree, InventoryPanel, TEXT("InventoryStack"));
 	InventoryText = MakeHudText(WidgetTree, TEXT("InventoryTitleText"), FLinearColor(1.0f, 0.82f, 0.38f, 1.0f), 18.0f);
 	InventoryCapacityText = MakeHudText(WidgetTree, TEXT("InventoryCapacityText"), FLinearColor(0.68f, 0.72f, 0.66f, 1.0f), 12.0f);
+	InventorySortButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("InventorySortButton"));
+	InventorySortText = MakeHudText(WidgetTree, TEXT("InventorySortText"), FLinearColor(0.98f, 0.86f, 0.52f, 1.0f), 12.0f);
 	InventoryFooterText = MakeHudText(WidgetTree, TEXT("InventoryFooterText"), FLinearColor(0.72f, 0.75f, 0.68f, 1.0f), 11.0f);
 	if (InventoryText)
 	{
@@ -907,6 +957,15 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	if (InventoryCapacityText)
 	{
 		InventoryCapacityText->SetJustification(ETextJustify::Right);
+	}
+	if (InventorySortButton && InventorySortText)
+	{
+		InventorySortButton->SetBackgroundColor(FLinearColor(0.22f, 0.16f, 0.055f, 0.92f));
+		InventorySortButton->SetToolTipText(FText::FromString(TEXT("Sort by category, then name")));
+		InventorySortButton->OnClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleInventorySortClicked);
+		InventorySortText->SetText(FText::FromString(TEXT("Sort")));
+		InventorySortText->SetJustification(ETextJustify::Center);
+		InventorySortButton->AddChild(InventorySortText);
 	}
 	if (InventoryFooterText)
 	{
@@ -919,6 +978,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	{
 		USizeBox* TitleSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("InventoryTitleSize"));
 		USizeBox* CapacitySize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("InventoryCapacitySize"));
+		USizeBox* SortSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("InventorySortSize"));
 		if (TitleSize && InventoryText)
 		{
 			TitleSize->SetWidthOverride(300.0f);
@@ -930,6 +990,13 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			CapacitySize->SetWidthOverride(170.0f);
 			CapacitySize->AddChild(InventoryCapacityText);
 			InventoryHeader->AddChildToHorizontalBox(CapacitySize);
+		}
+		if (SortSize && InventorySortButton)
+		{
+			SortSize->SetWidthOverride(72.0f);
+			SortSize->SetHeightOverride(24.0f);
+			SortSize->AddChild(InventorySortButton);
+			InventoryHeader->AddChildToHorizontalBox(SortSize);
 		}
 	}
 	AddStackChild(InventoryStack, InventoryHeader, 8.0f);
@@ -1419,6 +1486,11 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 	{
 		InventoryCapacityText->SetText(FText::FromString(FString::Printf(TEXT("Slots %d / %d"), StackCount, MaxSlots)));
 	}
+	if (InventorySortButton)
+	{
+		InventorySortButton->SetIsEnabled(
+			StackCount > 1 && !PendingDragItem && !bInventoryDragInProgress);
+	}
 	if (InventoryEquipmentText)
 	{
 		const FEmbermereItemStatBonuses Bonuses = Equipment ? Equipment->GetTotalStatBonuses() : FEmbermereItemStatBonuses();
@@ -1648,6 +1720,11 @@ void UEmbermerePlayerHudWidget::HandleInventoryRowClicked(int32 VisibleRowIndex)
 void UEmbermerePlayerHudWidget::HandleInventoryActionClicked()
 {
 	ActivateSelectedInventoryItem();
+}
+
+void UEmbermerePlayerHudWidget::HandleInventorySortClicked()
+{
+	SortInventory();
 }
 
 void UEmbermerePlayerHudWidget::HandleEquipmentSlotClicked(EEmbermereEquipmentSlot EquipmentSlot)
