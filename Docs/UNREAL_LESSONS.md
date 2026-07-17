@@ -279,3 +279,52 @@ Practical rule:
 The finalized ember-lamp lane first validates import provenance, bounds, and two
 box colliders, then replaces the two map lamps. A fresh-process zone validator
 rechecks the same contract from disk.
+
+## Decorative Geometry Must Declare No Collision
+
+A translucent or low-profile encounter marker can look harmless while its
+static-mesh component still uses `QueryAndPhysics`. Embermere's enemy cones and
+safe/combat area cylinders were intended only as visual guides, but their saved
+collision could block AI movement and make a tuning problem look like a
+navigation or behavior bug.
+
+Practical rule:
+
+- set both the collision profile and collision-enabled state to `NoCollision`
+  for every visual-only component;
+- call `modify()` on the actor and component before changing editor state;
+- reproduce the setting in the foundational level setup script;
+- reload the saved map and assert the component collision state in the
+  validator.
+
+## Place Encounters From Collision Queries, Not Visual Bounds
+
+Vendor foliage and ruin meshes can have simple collision that extends beyond
+their visible silhouette. Moving a starter enemy until it looks clear in the
+viewport is therefore insufficient. Embermere's first proposed solo-pull
+triangle still intersected a hidden rock, stair, and ruin collider.
+
+Use native WorldStatic overlap queries around the expected capsule footprint,
+then validate exact home positions and minimum spacing. The resulting Prowler
+triangle is visually inside the wilderness pocket, clear of vendor collision,
+and far enough apart for a `525` cm aggro radius to produce one-enemy pulls.
+
+## Imported Assets Are Not Durable Until Their Packages Are Saved
+
+Unreal can return a generated material from the object registry and render it
+in the current session even when no `.uasset` package has been written. The
+first road-signpost import appeared complete until a filesystem audit found
+`M_EmbermereTimber` only in memory.
+
+Explicitly save every generated mesh and material package, verify the expected
+asset path exists after the save, and include the material path in the map or
+asset validator. Session visibility is not persistence.
+
+## Keep Delays Outside Unreal Programmatic Scripts
+
+`time.sleep()` inside a programmatic Unreal MCP script blocks the editor's game
+thread, including the PIE work the script is waiting for. Trigger the operation,
+return control, wait in the outer MCP orchestration layer, and query state in a
+second call. When using the Unreal console, send `py import unreal; ...` or
+`py exec(compile(open(...).read(), ...))` directly; quoting the entire Python
+statement causes the console command to be parsed incorrectly.

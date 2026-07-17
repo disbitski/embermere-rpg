@@ -34,7 +34,7 @@ public:
 	float LootDropChance = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Prototype AI")
-	float AggroRadius = 900.0f;
+	float AggroRadius = 525.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Prototype AI")
 	float AttackRange = 175.0f;

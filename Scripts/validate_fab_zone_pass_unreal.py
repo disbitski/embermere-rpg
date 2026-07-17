@@ -1,3 +1,4 @@
+import math
 import sys
 
 import unreal
@@ -12,12 +13,39 @@ ORIGINAL_EMBER_LAMPS = {
     "Embermere_EmberLamp_Mara_01": ((-1970.0, -775.0, 20.0), 5.0),
     "Embermere_EmberLamp_Road_01": ((-1150.0, -520.0, 20.0), 8.0),
 }
+ORIGINAL_SIGNPOST_LABEL = "Embermere_RoadSignpost_01"
+ORIGINAL_SIGNPOST_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereRoadSignpost_01.SM_EmbermereRoadSignpost_01"
+ORIGINAL_SIGNPOST_LOCATION = (20.0, -170.0, 20.0)
+ORIGINAL_SIGNPOST_YAW = 22.0
+ORIGINAL_SIGNPOST_MATERIAL_PATHS = {
+    "/Game/Art/Embermere/Environment/PrototypeVillage/M_Waystone.M_Waystone",
+    "/Game/Art/Embermere/Environment/PrototypeVillage/M_WaystoneMoss.M_WaystoneMoss",
+    "/Game/Art/Embermere/Environment/PrototypeVillage/M_EmberLampIron.M_EmberLampIron",
+    "/Game/Art/Embermere/Environment/PrototypeVillage/M_EmbermereTimber.M_EmbermereTimber",
+    "/Game/Art/Embermere/Environment/PrototypeVillage/M_WaystoneEmber.M_WaystoneEmber",
+}
 GROUND_MATERIAL_PATH = "/Game/Art/Embermere/Environment/M_EmbermereGround.M_EmbermereGround"
 GROUND_ACTOR_LABELS = {
     "Zone_Ground_Embermere_Glen",
     "Safe_Area_Ring",
     "Combat_Pocket_Ring",
 }
+VISUAL_ONLY_GROUND_LABELS = {
+    "Safe_Area_Ring",
+    "Combat_Pocket_Ring",
+}
+STARTER_ENEMY_LAYOUT = {
+    "Starter_Enemy_01": (1900.0, 300.0, 95.0),
+    "Starter_Enemy_02": (1700.0, 1100.0, 95.0),
+    "Starter_Enemy_03": (2500.0, 1300.0, 95.0),
+}
+STARTER_MARKER_LAYOUT = {
+    "Enemy_Visual_Marker_01": (1900.0, 300.0, 90.0),
+    "Enemy_Visual_Marker_02": (1700.0, 1100.0, 90.0),
+    "Enemy_Visual_Marker_03": (2500.0, 1300.0, 90.0),
+}
+STARTER_AGGRO_RADIUS = 525.0
+MIN_STARTER_ENEMY_SPACING = 800.0
 
 REQUIRED_LABELS = {
     "PlayerStart_Embermere_Village",
@@ -30,6 +58,7 @@ REQUIRED_LABELS = {
     "Starter_Enemy_02",
     "Starter_Enemy_03",
     ORIGINAL_WAYSTONE_LABEL,
+    ORIGINAL_SIGNPOST_LABEL,
 } | set(ORIGINAL_EMBER_LAMPS)
 
 REMOVED_GREYBOX_LABELS = {
@@ -171,6 +200,63 @@ def main():
         if unreal.Name("EmbermereOriginalArt") not in list(lamp.tags):
             fail("{} must retain the EmbermereOriginalArt tag".format(label))
 
+    signpost_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_SIGNPOST_PATH)
+    if not signpost_mesh or not isinstance(signpost_mesh, unreal.StaticMesh):
+        fail("missing original road signpost mesh {}".format(ORIGINAL_SIGNPOST_PATH))
+    signpost_import_data = signpost_mesh.get_editor_property("asset_import_data")
+    signpost_import_class = signpost_import_data.get_class().get_name() if signpost_import_data else "None"
+    if signpost_import_class != "FbxStaticMeshImportData":
+        fail("original road signpost must retain classic FBX import data, found {}".format(signpost_import_class))
+    signpost_body_setup = signpost_mesh.get_editor_property("body_setup")
+    signpost_aggregate = signpost_body_setup.get_editor_property("agg_geom") if signpost_body_setup else None
+    signpost_box_count = len(signpost_aggregate.get_editor_property("box_elems")) if signpost_aggregate else 0
+    if signpost_box_count != 2:
+        fail("original road signpost must retain 2 authored box colliders, found {}".format(signpost_box_count))
+    signpost_bounds = signpost_mesh.get_bounds()
+    if not all((
+        nearly_equal(signpost_bounds.origin.z, 132.0, 2.0),
+        nearly_equal(signpost_bounds.box_extent.z, 132.0, 2.0),
+    )):
+        fail("original road signpost bounds drifted: origin={}, extent={}".format(
+            signpost_bounds.origin,
+            signpost_bounds.box_extent,
+        ))
+    signpost_material_paths = set()
+    for static_material in list(signpost_mesh.get_editor_property("static_materials")):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            signpost_material_paths.add(material.get_path_name())
+    if signpost_material_paths != ORIGINAL_SIGNPOST_MATERIAL_PATHS:
+        fail("original road signpost material set drifted: {}".format(sorted(signpost_material_paths)))
+
+    signpost = actors_by_label[ORIGINAL_SIGNPOST_LABEL]
+    signpost_component = signpost.get_component_by_class(unreal.StaticMeshComponent)
+    actor_signpost_mesh = signpost_component.get_editor_property("static_mesh") if signpost_component else None
+    actor_signpost_path = actor_signpost_mesh.get_path_name() if actor_signpost_mesh else "None"
+    if actor_signpost_path != ORIGINAL_SIGNPOST_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_SIGNPOST_LABEL,
+            ORIGINAL_SIGNPOST_PATH,
+            actor_signpost_path,
+        ))
+    signpost_location = signpost.get_actor_location()
+    signpost_rotation = signpost.get_actor_rotation()
+    if not all((
+        nearly_equal(signpost_location.x, ORIGINAL_SIGNPOST_LOCATION[0], 1.0),
+        nearly_equal(signpost_location.y, ORIGINAL_SIGNPOST_LOCATION[1], 1.0),
+        nearly_equal(signpost_location.z, ORIGINAL_SIGNPOST_LOCATION[2], 1.0),
+        nearly_equal(signpost_rotation.pitch, 0.0, 0.1),
+        nearly_equal(signpost_rotation.yaw, ORIGINAL_SIGNPOST_YAW, 0.1),
+        nearly_equal(signpost_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            ORIGINAL_SIGNPOST_LABEL,
+            signpost_location,
+            signpost_rotation,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(signpost.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(ORIGINAL_SIGNPOST_LABEL))
+
     missing_ground_actors = sorted(GROUND_ACTOR_LABELS - set(actors_by_label))
     if missing_ground_actors:
         fail("missing ground foundation actors {}".format(missing_ground_actors))
@@ -185,6 +271,78 @@ def main():
 
     if wrong_ground_materials:
         fail("ground foundation must use {}: {}".format(GROUND_MATERIAL_PATH, wrong_ground_materials))
+
+    for label in sorted(VISUAL_ONLY_GROUND_LABELS):
+        component = actors_by_label[label].get_component_by_class(unreal.StaticMeshComponent)
+        if not component:
+            fail("{} has no static mesh component".format(label))
+        collision_enabled = component.get_collision_enabled()
+        if collision_enabled != unreal.CollisionEnabled.NO_COLLISION:
+            fail("{} must remain a visual-only ground ring, found {}".format(
+                label,
+                collision_enabled,
+            ))
+
+    combat_pocket = actors_by_label["Combat_Pocket_Ring"]
+    combat_location = combat_pocket.get_actor_location()
+    combat_scale = combat_pocket.get_actor_scale3d()
+    if not all((
+        nearly_equal(combat_location.x, 2100.0, 1.0),
+        nearly_equal(combat_location.y, 800.0, 1.0),
+        nearly_equal(combat_location.z, 8.0, 1.0),
+        nearly_equal(combat_scale.x, 15.0, 0.01),
+        nearly_equal(combat_scale.y, 15.0, 0.01),
+        nearly_equal(combat_scale.z, 0.08, 0.001),
+    )):
+        fail("combat pocket transform drifted: location={}, scale={}".format(
+            combat_location,
+            combat_scale,
+        ))
+
+    for label, expected_location in {**STARTER_ENEMY_LAYOUT, **STARTER_MARKER_LAYOUT}.items():
+        actor = actors_by_label.get(label)
+        if not actor:
+            fail("missing starter encounter actor {}".format(label))
+        location = actor.get_actor_location()
+        if not all(nearly_equal(actual, expected, 1.0) for actual, expected in zip(
+            (location.x, location.y, location.z),
+            expected_location,
+        )):
+            fail("{} location drifted: expected {}, found {}".format(label, expected_location, location))
+
+    for label in sorted(STARTER_MARKER_LAYOUT):
+        marker_component = actors_by_label[label].get_component_by_class(unreal.StaticMeshComponent)
+        if not marker_component:
+            fail("{} has no static mesh component".format(label))
+        collision_enabled = marker_component.get_collision_enabled()
+        if collision_enabled != unreal.CollisionEnabled.NO_COLLISION:
+            fail("{} must remain visual-only with NoCollision, found {}".format(
+                label,
+                collision_enabled,
+            ))
+
+    enemy_locations = []
+    for label in sorted(STARTER_ENEMY_LAYOUT):
+        enemy = actors_by_label[label]
+        aggro_radius = enemy.get_editor_property("aggro_radius")
+        if not nearly_equal(aggro_radius, STARTER_AGGRO_RADIUS):
+            fail("{} aggro radius must remain {}, found {}".format(
+                label,
+                STARTER_AGGRO_RADIUS,
+                aggro_radius,
+            ))
+        enemy_locations.append((label, enemy.get_actor_location()))
+
+    for index, (left_label, left_location) in enumerate(enemy_locations):
+        for right_label, right_location in enemy_locations[index + 1:]:
+            delta = left_location - right_location
+            spacing = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z)
+            if spacing < MIN_STARTER_ENEMY_SPACING:
+                fail("starter enemies {} and {} are only {:.1f} cm apart".format(
+                    left_label,
+                    right_label,
+                    spacing,
+                ))
 
     sun_component = actors_by_label["Sun_Key_Light"].get_component_by_class(unreal.DirectionalLightComponent)
     sky_component = actors_by_label["Sky_Ambient_Light"].get_component_by_class(unreal.SkyLightComponent)
@@ -214,7 +372,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} upright FabPass actors, 3 original-art placements, gameplay anchors, moss ground, and daylight baseline intact".format(len(fabpass_labels)))
+    unreal.log("Embermere zone validation passed: {} upright FabPass actors, 4 original-art placements, separated starter pulls, visual-only encounter markers, gameplay anchors, moss ground, and daylight baseline intact".format(len(fabpass_labels)))
 
 
 if __name__ == "__main__":

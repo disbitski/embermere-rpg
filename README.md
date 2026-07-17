@@ -64,7 +64,7 @@ The repo currently contains the C++ gameplay scaffold for:
 - a tracked level-1 Back-slot Recruit Pack quest reward for the first equipment action
 - stackable Marsh Tonic recovery items dropped by Marsh Prowlers, connecting combat loot to the inventory `Use` action
 - the saved starter-zone map `L_Embermere_Prototype`
-- a corrected 62-actor local Fab/Epic art pass plus Embermere's original Blender-built waystone and two matching ember lamps over the starter village, road, wilderness pocket, and ruin landmark, with upright rotations, authored collision, an unobstructed PlayerStart/Mara route, a muted moss foundation material, and a validated Mac-friendly daylight/atmosphere baseline
+- a corrected 62-actor local Fab/Epic art pass plus Embermere's original Blender-built waystone, two matching ember lamps, and road signpost over the starter village, road, wilderness pocket, and ruin landmark, with upright rotations, authored collision, an unobstructed PlayerStart/Mara route, a muted moss foundation material, collision-cleared solo enemy pulls, and a validated Mac-friendly daylight/atmosphere baseline
 
 ## Starting Races
 
@@ -98,9 +98,10 @@ The current pack-by-pack shopping and import plan lives in [Docs/FAB_ASSET_PLAN.
 
 The original Blender and Blender MCP workflow lives in
 [Docs/BLENDER_ASSET_PIPELINE.md](Docs/BLENDER_ASSET_PIPELINE.md). Its first
-family now includes a project-owned stylized waystone shrine and matching ember
-lamp, each built from reviewed scripts, validated in Blender, imported with
-authored collision, and used to replace temporary Fab road/village props.
+family now includes a project-owned stylized waystone shrine, matching ember
+lamps, and a timber road signpost, each built from reviewed scripts, validated
+in Blender, imported with authored collision, and placed as a swappable
+project-owned layer over the local Fab environment.
 
 ## Unreal And MCP Setup
 
@@ -141,6 +142,10 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 ## Status
 
-Early playable Unreal prototype scaffold with Unreal and Blender MCP connected, a daylight starter-zone loop mixing a local Fab pass with an original Embermere waystone/lamp family, tab-target combat, hotbar cooldown feedback, native HUD panels, bottom-left chat/combat feedback, first quest reward and starter-enemy loot flow, a clickable and draggable paper-doll equipment/inventory window with atomic transactions and safe consumable actions, and native selected-target nameplate/emissive-ring feedback.
+Early playable Unreal prototype scaffold with Unreal and Blender MCP connected, a daylight starter-zone loop mixing a local Fab pass with an original Embermere waystone/lamp/signpost family, collision-cleared solo-pull tab-target combat, hotbar cooldown feedback, native HUD panels, bottom-left chat/combat feedback, first quest reward and starter-enemy loot flow, a clickable and draggable paper-doll equipment/inventory window with atomic transactions and safe consumable actions, and native selected-target nameplate/emissive-ring feedback.
 
-Next milestone: clean-restart PIE verification of bag/equipment drag/drop and both original ember lamps, followed by starter-enemy/respawn feel tuning, identity-preserving inventory sorting, and replacement of the remaining temporary village silhouettes with cohesive stylized fantasy architecture.
+Next milestone: clean-restart PIE verification of the final signpost and
+collision-cleared Prowler triangle, followed by respawn feel tuning, a
+project-owned fantasy inventory drag visual or boundary-prop family, and
+replacement of the remaining temporary village silhouettes with cohesive
+stylized fantasy architecture.

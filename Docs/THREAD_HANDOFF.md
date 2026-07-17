@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-07-16
+Last updated: 2026-07-17
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -46,9 +46,10 @@ The project currently includes:
   clickable/draggable inventory rows and equipment slots, dialogue, loot feedback, nameplates, an emissive
   target ring, and chat log;
 - a first local Fab/Epic art pass with 62 upright environment actors, an
-  original Blender-built Embermere waystone plus two matching ember lamps, and a Mac-friendly atmospheric
-  daylight baseline;
-- 19 passing Unreal automation tests and a headless Fab/map/lighting/original-art validator.
+  original Blender-built Embermere waystone, two matching ember lamps, a timber
+  road signpost, and a Mac-friendly atmospheric daylight baseline;
+- 20 passing Unreal automation tests and a saved-map
+  Fab/gameplay/lighting/original-art validator.
 
 This is still prototype art. The first black-sky problem is corrected, but the
 scene remains mixed in style and is missing a cohesive fantasy village kit,
@@ -143,7 +144,8 @@ Important gameplay actors/assets:
 
 - PlayerStart near the village edge.
 - Mara Ashwick, the first quest giver, with a temporary gold quest marker.
-- Three starter Marsh Prowlers in the wilderness pocket.
+- Three starter Marsh Prowlers in a collision-cleared solo-pull triangle in
+  the wilderness pocket, using a `525` cm aggro radius.
 - A village-to-road-to-wilderness route and an upgraded ruin landmark.
 - Starter quest and reward item data assets.
 - The tracked Recruit Pack reward is configured as level-1 Back-slot armor so
@@ -262,12 +264,13 @@ Games Launcher. Saved map references may be missing until those packs exist.
 
 Environment scripts:
 
-- `Scripts/place_fab_zone_pass.py`: idempotent 65-actor placement recipe.
+- `Scripts/place_fab_zone_pass.py`: idempotent 62-actor placement recipe.
 - `Scripts/place_fab_zone_pass_unreal.py`: executes placement through Unreal
   Python and saves the map.
 - `Scripts/validate_fab_zone_pass_unreal.py`: reloads and validates the saved
-  map, actor count, upright rotations, gameplay anchors, moss foundation, and
-  exact Mac-friendly daylight values.
+  map, actor count, upright rotations, gameplay anchors, collision-cleared
+  encounter layout, four original-art placements, moss foundation, and exact
+  Mac-friendly daylight values.
 - `Scripts/configure_starter_items.py`: idempotently migrates tracked starter
   item assets, currently the level-1 Back-slot Recruit Pack reward.
 
@@ -299,6 +302,15 @@ The saved map contains Mara-side and road-side lamp instances replacing two
 temporary sci-fi lamps. Unreal retains two authored `UBX_` box colliders; the
 validator requires clean classic-FBX provenance, exact bounds, transforms,
 tags, and both collision boxes before accepting the map.
+
+The third original asset is `SM_EmbermereRoadSignpost_01`, built by
+`Scripts/blender/build_embermere_road_signpost.py` and imported through the
+explicit classic-FBX lane in `Scripts/import_embermere_road_signpost_unreal.py`.
+It adds a broad timber sign silhouette while reusing stone, moss, iron, and
+ember materials. The saved actor `Embermere_RoadSignpost_01` sits beside the
+village road at `(20, -170, 20)`, yaw `22`; two authored boxes cover the base
+and post while its overhead arms remain non-colliding. The importer explicitly
+saves the new `M_EmbermereTimber` package so it cannot exist only in memory.
 
 The chosen community bridge is `djeada/blender-mcp-server`, pinned during
 installation to commit `7eed33edf4aca2ab0ca84a6da27321f89f68b504`.
@@ -432,25 +444,27 @@ Current automation tests:
 19. `Embermere.UI.InventoryDragDrop`
 20. `Embermere.Inventory.StableSorting`
 
-Latest verified baseline (2026-07-16):
+Latest verified baseline (2026-07-17):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
 - headless automation passed 20/20 with zero test failures;
-- headless zone validator passed with 62 upright `FabPass_` actors, three exact
-  original-art placements, authored ember-lamp collision/provenance, required
-  gameplay anchors, moss-ground overrides, and exact saved sun/skylight/fog values;
-- Blender MCP generated and validated the 2,184-triangle ember lamp; Unreal MCP
-  inspected its thumbnail, actor transforms/tags, and road-side level read;
-- bounded inventory drag/drop now supports bag-to-matching-slot equip and
-  equipment-to-bag return with identity-safe preflight and atomic mutation;
-- clean PIE verified the full Mara acceptance/combat/reward loop, three tonic
-  drops and stacking, targeting and target clear, bracket cycling, Recruit Pack
-  comparison, valid/invalid drag targets, equipment-to-bag return, W autorun
-  cancel, and both ember-lamp placements;
-- stable sorting now orders category/name explicitly, preserves the selected
-  item and duplicate occurrence, and refuses to run during a pending/active drag;
-- restart before visually testing the newly linked Sort control because the
-  interactive editor predates the 2026-07-16 C++ relink.
+- the validator reloaded the saved map and passed with 62 upright `FabPass_`
+  actors, four exact original-art placements, visual-only encounter geometry,
+  required gameplay anchors, moss-ground overrides, and exact saved
+  sun/skylight/fog values;
+- Blender MCP generated and validated the 1,828-triangle timber road signpost;
+  Unreal MCP imported it through `FbxFactory`, saved its new timber material,
+  inspected its thumbnail/placement, and retained two authored box colliders;
+- clean PIE verified the full Mara quest/reward loop, identity-preserving Sort,
+  Recruit Pack bag-to-Back and Back-to-bag drag paths, wrong-slot rejection,
+  tonic stacking, target clear, bracket cycling, and W autorun cancel;
+- starter Prowlers now use a `525` cm aggro radius and collision-cleared home
+  points at `(1900, 300)`, `(1700, 1100)`, and `(2500, 1300)`; a focused PIE
+  probe proved one enemy moved and attacked while the other two stayed home;
+- enemy markers plus safe/combat area bands are explicitly `NoCollision` in the
+  saved map and setup script;
+- restart before authoritative visual testing because the interactive editor
+  predates the 2026-07-17 C++ relink and final saved map/art pass.
 
 ## Critical Unreal Lessons
 
@@ -478,6 +492,12 @@ Read `Docs/UNREAL_LESSONS.md` for the full record. The highest-risk lessons are:
     with `UBX_`/`UCX_` collision, validate body setup before map placement, and
     recreate a partial Interchange mesh package if stale import provenance
     survives atomic replacement.
+11. **Visual-only geometry:** marker cones and encounter bands must explicitly
+    use `NoCollision`; persist that state in the setup script and validator.
+12. **Encounter placement:** inspect native WorldStatic overlaps around the
+    expected capsule, not only visible mesh bounds, before saving enemy homes.
+13. **Generated material persistence:** save every imported/generated material
+    package and verify it on disk; a live Unreal object is not durable proof.
 
 ## Known Workspace State
 
@@ -525,25 +545,30 @@ First fresh-session checks:
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
-   - 62 upright Fab actors plus the original road waystone and two ember lamps,
-     clear spawn/Mara route, readable road/enemy pocket,
+   - 62 upright Fab actors plus the original road waystone, two ember lamps,
+     and timber signpost, clear spawn/Mara route, readable road/enemy pocket,
      a ruin that does not trap the player, muted moss ground, and balanced
      daylight/fog under the atmospheric sky.
-5. Confirm the already-added precise daylight and moss-ground validator
-   assertions still match the clean-restart visual result.
+5. Walk from the village into the new Prowler triangle. Confirm each `525` cm
+   pull stays solo, visual markers/bands do not block movement, and an enemy can
+   leash and return home normally.
+6. Confirm the already-added precise daylight, moss-ground, original-art,
+   collision, and encounter-layout validator assertions still match the
+   clean-restart visual result.
 
 High-value milestones after that:
 
-- visually verify identity-preserving stable inventory sorting, polish the drag
-  label with project-owned fantasy art, then add illustrated body-slot art;
-- expand the proven Blender waystone/lamp lane into a matching signpost or
-  boundary-prop family
-  while preserving deterministic scripts, FBX checks, and original-art tags;
+- polish the compact drag label with project-owned fantasy art, then add
+  illustrated body-slot art;
+- expand the proven Blender waystone/lamp/signpost lane into a matching
+  boundary-stone, fence, gate, or compact village-prop family while preserving
+  deterministic scripts, FBX checks, and original-art tags;
 - optional rune/soft-edge texture treatment for the dedicated target-ring
   material;
 - proper Stylized Classic fantasy village buildings from a suitable signed-in
   UE-compatible pack;
-- enemy aggro/leash/attack/damage/respawn tuning from real PIE feel;
+- preserve the collision-cleared `525` cm solo-pull baseline while tuning
+  leash, attack, damage, and respawn from normal-route PIE feel;
 - player respawn timing/protection tuning;
 - continued automation around player-facing combat and UI behavior.
 
@@ -597,7 +622,7 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. The first priority is a clean-restart PIE verification of the new category/name Sort control, selected-item preservation, and active-drag guard alongside the already verified 700px inventory and ten-slot paper doll, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, the road waystone, and both original ember lamps. Then continue into live starter-enemy/respawn tuning, a project-owned fantasy drag visual or road signpost, and the highest-value next milestone when the path is clear.
+Follow TODO.md's Start Here section. The first priority is clean-restart PIE verification of the final road signpost and collision-cleared Prowler encounter alongside the already verified 700px inventory and ten-slot paper doll, identity-preserving Sort, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, movement/camera fixes, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, the road waystone, both original ember lamps, and the timber signpost. Walk the normal route and prove each 525 cm Prowler pull stays solo while visual marker/band geometry remains non-colliding. Then continue into a project-owned fantasy drag visual, a matching Blender boundary-prop family, or the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

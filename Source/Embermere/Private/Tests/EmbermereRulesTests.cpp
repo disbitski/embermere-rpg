@@ -233,6 +233,10 @@ bool FEmbermereEnemyLeashRulesTest::RunTest(const FString& Parameters)
 		return false;
 	}
 
+	TestEqual(TEXT("Starter enemy default aggro supports separated pulls"), Enemy->AggroRadius, 525.0f);
+	TestEqual(TEXT("Starter enemy keeps first-pass attack damage"), Enemy->AttackDamage, 6.0f);
+	TestEqual(TEXT("Starter enemy keeps first-pass attack cadence"), Enemy->AttackCooldownSeconds, 2.0f);
+
 	Enemy->LeashRadius = 1000.0f;
 	Enemy->ReturnHomeRadius = 120.0f;
 

@@ -6,46 +6,45 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Restart Unreal before authoritative PIE. The interactive editor now predates
-  the 2026-07-16 stable-inventory-sorting C++ relink, so it cannot visually
-  prove the new Sort control until it loads the current module.
-- Verify Unreal MCP on port `8123` after the restart. Restart or confirm Blender
-  and its localhost bridge only if original-art work is selected for the day.
-- Discover and run all 20 tests, especially
-  `Embermere.Inventory.StableSorting` and
-  `Embermere.UI.InventoryDragDrop`. The authoritative 2026-07-16 headless run
-  passed 20/20, and saved-map validation passed independently.
-- In clean PIE, earn at least Marsh Tonic and Recruit Pack, then verify the new
-  inventory Sort control:
-  - armor appears before consumables, with alphabetical order inside each
-    category;
-  - the inspected item and duplicate-stack occurrence remain selected after
-    sorting;
-  - chat reports `Inventory sorted`, while an already sorted bag is a no-op;
-  - the Sort control becomes unavailable during a pending press or active drag,
-    and no row moves underneath the pointer.
-- Recheck the verified drag/drop slice after sorting: valid Back-slot equip,
-  red wrong-slot rejection, equipment-to-bag return, full-bag preservation,
-  and unchanged row click, slot click, action button, `[`/`]`, and `I`
-  fallbacks.
-- Tune starter-enemy and respawn feel from a normal village-to-wilderness PIE
-  run rather than a teleported test setup. If those values already feel good,
-  replace the compact drag label with a project-owned fantasy visual or build
-  the next bounded Blender prop, preferably an Embermere road signpost.
+- Restart Unreal before authoritative PIE. The interactive editor predates the
+  2026-07-17 no-hot-reload C++ build and now also predates the final signpost,
+  collision-cleared encounter layout, and saved map reload.
+- Verify Unreal MCP on port `8123` after restart. Confirm Blender and its
+  localhost bridge only if another original-art pass is selected.
+- Discover and run all 20 tests. The authoritative 2026-07-17 build and
+  headless run passed 20/20; the saved-map validator also passes with 62 upright
+  `FabPass_` actors, four original-art placements, visual-only encounter
+  markers, exact daylight, and the collision-cleared starter layout.
+- In clean PIE, inspect `Embermere_RoadSignpost_01` at `(20, -170, 20)`:
+  confirm terrain contact, timber/stone/moss/iron/ember readability, clear road
+  traversal, and base/post collision without colliding against the sign arms.
+- Walk normally from the village to the new Prowler triangle at `(1900,300)`,
+  `(1700,1100)`, and `(2500,1300)`. Confirm each 525 cm aggro pull stays solo,
+  enemies can move across the visual combat-pocket band, and the two idle
+  Prowlers remain at home.
+- Recheck leash/return and death/respawn protection from that normal route.
+  Tune respawn delay/protection only if live feel exposes a concrete issue.
+- Then continue with the next bounded high-value slice: replace the compact
+  inventory drag label with project-owned fantasy presentation, build a
+  matching Blender boundary stone/fence/gate family, or begin cohesive fantasy
+  village architecture when a suitable signed-in UE pack is available.
 
 ## Full Manual Regression Checklist
 
 - Restart Unreal before manual PIE because the editor was open during the
-  2026-07-16 inventory-sorting build. Current headless code passes 20 tests;
-  the open editor must reload before post-change PIE.
+  2026-07-17 C++ build and final map/art pass. Current headless code passes 20
+  tests; the open editor must reload before authoritative post-change PIE.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
     readability, and both-box collision without blocking the village route;
   - confirm its pale stone, moss accent, and ember rune remain readable in the
-    current daylight alongside both matching ember lamps and mixed Fab foliage;
+    current daylight alongside both matching ember lamps, the road signpost,
+    and mixed Fab foliage;
   - inspect both ember lamps for scale, ground contact, warm crystal readability,
     two-box collision, and clear village/road traversal.
+  - inspect the road signpost for readable directional silhouette, saved timber
+    material, two-box base/post collision, and non-colliding overhead arms.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -95,7 +94,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - quest completion/reward shows the loot popup and the inventory panel lists the reward item;
   - combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log instead of overlapping the top-left player status panel or spilling beyond the chat panel border.
 - Manually verify selected-target world readability in PIE:
-  - `Tab` shows the selected enemy's UMG nameplate, selected marker, HP text, HP bar, and saturated orange-gold segmented mesh target ring above the raised combat platform rather than buried inside it;
+  - `Tab` shows the selected enemy's UMG nameplate, selected marker, HP text, HP bar, and saturated orange-gold segmented mesh target ring above the visual combat-pocket band rather than buried inside it;
   - the nameplate accent/HP bar changes toward red/orange as enemy HP falls;
   - switching targets clears the old enemy marker;
   - killing the selected enemy clears the target and marker.
@@ -112,7 +111,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - Mara should show a temporary gold `!` and name marker above her.
 - Manually verify the first `FabPass_` environment layer in PIE:
   - the map has a blue atmospheric sky, readable ambient fill, and muted moss foundation instead of the previous black sky/white ground presentation;
-  - all 62 remaining Fab art-pass actors stand upright, the original waystone sits at road elevation, and both original ember lamps replace the former sci-fi lamps;
+  - all 62 remaining Fab art-pass actors stand upright, the original waystone sits at road elevation, both original ember lamps replace the former sci-fi lamps, and the original road signpost reads clearly beside the route;
   - the three oversized sci-fi building shells are gone and PlayerStart has an unobstructed view toward Mara;
   - village props leave Mara, PlayerStart, and the quest interaction route readable;
   - the road dressing points naturally from the village toward the wilderness pocket;
@@ -160,13 +159,13 @@ Embermere has a working first-pass starter slice:
 - first-pass hotbar cooldown enforcement and ready-time feedback;
 - live hotbar slot countdown and unavailable-state dimming;
 - first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
-- a project-owned Blender waystone and matching ember-lamp family with reviewed scripts, editable source, FBX, previews, authored collision, and validated saved placements;
+- a project-owned Blender waystone, ember-lamp, and road-signpost family with reviewed scripts, editable source, FBX, previews, authored collision, and validated saved placements;
 - first Mac-friendly sky, ambient fill, fog-readability correction, and muted moss foundation material;
 - automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash and loot rules, equipment slot/stat/transaction rules, atomic inventory capacity, consumable use, item comparison/tooltips, identity-based inventory and drag/drop actions, damage immunity, enemy nameplate widget, chat log, hotbar cooldown display, and inventory toggle.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, stable explicit sorting, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE verified drag/drop, Mara's quest/reward loop, targeting, autorun cancel, and the original-art route before the 2026-07-16 relink; the new Sort control still needs a clean-restart visual pass. The world remains stylistically mixed without real fantasy village buildings or final character art.
+The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, stable explicit sorting, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE verified the full quest, drag/drop, identity-preserving Sort, solo Prowler pulls, collision-cleared encounter markers, targeting, autorun cancel, and the original-art road family. The world remains stylistically mixed without real fantasy village buildings or final character art.
 
 ## Next Work
 
@@ -194,10 +193,11 @@ The prototype foundation is alive, but it is still early. The environment is upr
   - confirm the upgraded ruin reads better than the old greybox and does not trap the player;
   - identify any sci-fi props that look too off-theme for the starter village.
 - Add proper stylized fantasy village buildings now that the oversized sci-fi shells have been removed.
-- Expand the proven original Blender-to-Unreal lane from the waystone shrine
-  and ember lamps into a matching signpost/boundary-prop family before attempting rigged
-  characters or creatures.
-- Tune starter enemy aggro, leash radius, return-home speed, attack range, damage, and respawn timing after in-editor playtesting.
+- Expand the proven original Blender-to-Unreal lane from the waystone, ember
+  lamps, and road signpost into a matching boundary-stone/fence/gate family
+  before attempting rigged characters or creatures.
+- Preserve the collision-cleared 525 cm solo-pull baseline while tuning leash,
+  return-home speed, damage, and respawn timing only from normal-route PIE.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
 - Add illustrated body-slot art after the clickable paper doll and comparison states survive PIE.
@@ -365,6 +365,34 @@ The prototype foundation is alive, but it is still early. The environment is upr
   waystone and two ember lamps, all gameplay anchors, moss ground, and the exact
   daylight baseline intact. Restart Unreal before visually checking the newly
   linked Sort control.
+- 2026-07-17: ran all 20 tests in the live editor and through authoritative
+  headless automation; both suites passed with no test failures after a
+  successful `-NoHotReloadFromIDE` Mac editor build.
+- Completed the full Mara quest in clean PIE and verified tonic stacking,
+  identity-preserving Sort, bracket cycling, Recruit Pack bag-to-Back and
+  Back-to-bag drags, wrong-slot rejection, target clear, and W autorun cancel.
+- Tuned the starter encounter around the proven combat cadence: default aggro
+  is now `525` cm, while damage remains 6 and attack cooldown remains 2 seconds;
+  automation asserts all three defaults.
+- Used native WorldStatic overlap probes to move the Prowler homes to the
+  collision-clear triangle `(1900, 300)`, `(1700, 1100)`, and `(2500, 1300)`.
+  A focused PIE pull moved and activated only the nearest enemy while both
+  neighbors remained at home.
+- Made enemy marker cones plus safe/combat area cylinders explicitly
+  `NoCollision` in both the saved map and foundational setup script. The map
+  validator now rejects visual guides that become invisible blockers.
+- Built `SM_EmbermereRoadSignpost_01` through Blender MCP with reviewed source,
+  editable `.blend`, FBX, preview, deterministic metrics, 1,828 triangles, one
+  UV, no non-manifold edges, shared fantasy materials, and two authored boxes.
+- Imported the signpost through explicit `FbxFactory`, explicitly saved its new
+  `M_EmbermereTimber` package, and placed `Embermere_RoadSignpost_01` beside the
+  village road with base/post collision and non-colliding overhead arms.
+- The tracked validator reloaded the saved level and passed 62 upright Fab
+  actors, four exact original-art placements, the collision-cleared encounter,
+  visual-only marker collision, gameplay anchors, moss ground, and daylight.
+  A separate final commandlet launch stalled in macOS app-launch services
+  before Unreal produced a log, so this result is recorded accurately as a
+  live-editor saved-map reload rather than a fresh-process pass.
 
 ## Asset Hunt
 

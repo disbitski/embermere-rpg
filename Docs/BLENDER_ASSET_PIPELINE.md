@@ -173,8 +173,12 @@ ArtSource/Blender/
       SM_EmbermereWaystone_01.blend
       SM_EmbermereWaystone_01.fbx
       SM_EmbermereWaystone_01_preview.png
+    EmberLamp/
+    RoadSignpost/
 Scripts/blender/
   build_embermere_waystone.py
+  build_embermere_ember_lamp.py
+  build_embermere_road_signpost.py
 Content/Art/Embermere/
   Environment/PrototypeVillage/
 ```
@@ -314,6 +318,45 @@ The durable import script therefore deletes only the partial lamp mesh package,
 recreates the same object path with `FbxFactory`, validates
 `FbxStaticMeshImportData`, bounds, and both boxes, and only then loads or saves
 the map. Future Blender assets with authored collision should follow that lane.
+
+## Third Asset: Road Signpost
+
+`SM_EmbermereRoadSignpost_01` turns the waystone and lamp material language into
+a practical navigation prop. Its broad timber post and directional arms use
+stone/moss footing, dark iron straps, and three warm ember diamonds so the
+silhouette reads as a road sign before its fantasy detailing is inspected.
+
+The reviewed build script is
+`Scripts/blender/build_embermere_road_signpost.py`; editable source, FBX,
+preview, and deterministic metrics live under
+`ArtSource/Blender/Environment/RoadSignpost`. The Unreal import and placement
+lane is `Scripts/import_embermere_road_signpost_unreal.py`.
+
+Verified result:
+
+- dimensions: approximately `187.5 x 58.0 x 264.0` cm with a ground pivot;
+- Blender mesh: 1,828 triangles, one UV channel, no non-manifold edges, and
+  applied scale;
+- materials: shared waystone stone/moss and lamp iron/ember, plus the new
+  project-owned `M_EmbermereTimber`;
+- collision: two retained `UBX_` boxes cover only the footing and post, leaving
+  the overhead sign arms non-colliding;
+- saved actor: `Embermere_RoadSignpost_01` at `(20, -170, 20)`, yaw `22`,
+  tagged `EmbermereOriginalArt` beside the village road;
+- verification: preview, imported thumbnail, and level framing were inspected;
+  exact mesh/material/import/collision/transform assertions pass in the saved
+  map validator.
+
+The import exposed another persistence edge case. A generated material can
+exist in the editor object registry and render correctly during the current
+session while its package is still absent from disk. The signpost importer now
+explicitly saves `M_EmbermereTimber`, and validation checks both its object path
+and durable asset package before accepting the map.
+
+The road signpost completes the first small Embermere roadside family. The next
+bounded original-art pass should reuse this language for low boundary stones,
+fence/gate pieces, or a compact village prop rather than jumping directly to
+rigged characters.
 
 ## What To Build First
 

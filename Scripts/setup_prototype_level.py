@@ -67,6 +67,16 @@ def apply_material_override(actor, material_path):
     component.set_material(0, material)
 
 
+def disable_static_mesh_collision(actor):
+    component = actor.get_component_by_class(unreal.StaticMeshComponent)
+    if not component:
+        raise RuntimeError(f"Actor has no static mesh component: {actor.get_actor_label()}")
+    actor.modify()
+    component.modify()
+    component.set_collision_profile_name(unreal.Name("NoCollision"))
+    component.set_collision_enabled(unreal.CollisionEnabled.NO_COLLISION)
+
+
 def configure_daylight(sun, skylight, fog):
     sun_component = sun.get_component_by_class(unreal.DirectionalLightComponent)
     sky_component = skylight.get_component_by_class(unreal.SkyLightComponent)
@@ -108,9 +118,11 @@ def build_level():
     ground_material_path = "/Game/Art/Embermere/Environment/M_EmbermereGround"
     ground = spawn_asset("/Engine/BasicShapes/Plane", "Zone_Ground_Embermere_Glen", (0, 0, 0), "00_World", (90, 90, 1), tags=blockout_tag)
     safe_area = spawn_asset("/Engine/BasicShapes/Cylinder", "Safe_Area_Ring", (-1800, -850, 8), "01_Village", (8, 8, 0.08), tags=blockout_tag)
-    combat_pocket = spawn_asset("/Engine/BasicShapes/Cylinder", "Combat_Pocket_Ring", (1900, 850, 8), "03_Wilderness", (9, 9, 0.08), tags=blockout_tag)
+    combat_pocket = spawn_asset("/Engine/BasicShapes/Cylinder", "Combat_Pocket_Ring", (2100, 800, 8), "03_Wilderness", (15, 15, 0.08), tags=blockout_tag)
     for foundation_actor in (ground, safe_area, combat_pocket):
         apply_material_override(foundation_actor, ground_material_path)
+    for visual_ring in (safe_area, combat_pocket):
+        disable_static_mesh_collision(visual_ring)
 
     # Lighting and atmosphere.
     sun = spawn_class("/Script/Engine.DirectionalLight", "Sun_Key_Light", (-900, -1200, 1200), "00_World/Lighting", yaw=-35, tags=blockout_tag)
@@ -138,12 +150,16 @@ def build_level():
     spawn_asset("/Engine/BasicShapes/Cube", "Ruin_Fallen_Stone", (3050, 730, 55), "04_Ruins", (2.1, 0.8, 0.45), yaw=32, tags=blockout_tag)
 
     # Starter enemies use our project Blueprint so gameplay hooks survive art swaps.
-    for index, position in enumerate([(1750, 630, 95), (2100, 980, 95), (2380, 760, 95)], start=1):
+    # The triangle keeps each melee pull outside its neighbors' starter aggro radius.
+    starter_enemy_positions = [(1900, 300, 95), (1700, 1100, 95), (2500, 1300, 95)]
+    for index, position in enumerate(starter_enemy_positions, start=1):
         spawn_asset("/Game/Blueprints/BP_StarterEnemy", f"Starter_Enemy_{index:02d}", position, "03_Wilderness/Enemies", tags=blockout_tag + ["Hostile"])
 
     # Extra hostile markers remain visible even before enemy art is assigned.
-    for index, position in enumerate([(1750, 630, 90), (2100, 980, 90), (2380, 760, 90)], start=1):
-        spawn_asset("/Engine/BasicShapes/Cone", f"Enemy_Visual_Marker_{index:02d}", position, "03_Wilderness/Enemies", (0.9, 0.9, 1.7), tags=blockout_tag + ["HostileMarker"])
+    for index, (x, y, _) in enumerate(starter_enemy_positions, start=1):
+        position = (x, y, 90)
+        marker = spawn_asset("/Engine/BasicShapes/Cone", f"Enemy_Visual_Marker_{index:02d}", position, "03_Wilderness/Enemies", (0.9, 0.9, 1.7), tags=blockout_tag + ["HostileMarker"])
+        disable_static_mesh_collision(marker)
 
     # Let the editor open on the useful overview.
     EDITOR_SUBSYSTEM.set_level_viewport_camera_info(vec(-1250, -3600, 1850), rot(-28, 36, 0))

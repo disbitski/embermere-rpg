@@ -6,8 +6,11 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
-3. Confirm the map shows a blue atmospheric sky, readable ambient light, muted moss ground instead of a white foundation, 62 upright `FabPass_` actors plus the original waystone and two ember lamps, an unobstructed PlayerStart/Mara route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three starter enemies.
+3. Confirm the map shows a blue atmospheric sky, readable ambient light, muted moss ground instead of a white foundation, 62 upright `FabPass_` actors plus the original waystone, two ember lamps, and road signpost, an unobstructed PlayerStart/Mara route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three starter enemies.
 4. Inspect `Embermere_EmberLamp_Mara_01` and `Embermere_EmberLamp_Road_01`: pale stone/moss base, dark iron cage, warm ember crystal, terrain contact, clear route placement, and simple collision that does not trap the player.
+5. Inspect `Embermere_RoadSignpost_01`: warm timber, stone/moss footing,
+   iron bands, three ember route marks, terrain contact, clear route placement,
+   and base/post collision without blocking beneath the two sign arms.
 
 ## Finding Mara
 
@@ -41,8 +44,8 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 20. Press `1` again before the cooldown finishes and confirm the bottom-left log reports the ability ready time.
 21. Confirm the cooling hotbar slot dims and shows its live countdown.
 22. Confirm combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log rather than overlapping the player status panel or spilling beyond the chat panel border.
-23. Expect nearby enemies to chase and melee you when you enter their aggro radius.
-24. Pull an enemy away from its wilderness pocket and confirm it eventually leashes back toward its spawn instead of chasing indefinitely into the village.
+23. Expect one nearby enemy to chase and melee you when you enter its 525 cm aggro radius. The other two Prowlers should remain at their separated homes.
+24. Confirm the selected enemy can cross the visual-only combat-pocket band and visual cone marker without sticking. Pull it farther away and confirm it eventually leashes back toward its spawn instead of chasing indefinitely into the village.
 25. Defeat a Marsh Prowler and confirm the chat reports one Marsh Tonic looted and inventory gains a stack. Repeated drops should increase the same stack up to its limit.
 26. After taking damage, select Marsh Tonic and click `Use`; confirm it restores up to 25 health and 10 mana and consumes one tonic. At full health/mana, `Use` must be disabled and preserve the stack.
 27. Defeat three starter enemies.
@@ -74,8 +77,10 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 ## Known Prototype Gaps
 
 - The UI has native first-pass HUD panels, but styling is still programmer-art and needs a proper fantasy skin.
-- Enemy movement and attacks are deliberately simple prototype behavior.
-- Enemy leash/return-home behavior is first-pass and still needs tuning against the dressed FabPass terrain.
+- Enemy movement and attacks are deliberately simple prototype behavior. The
+  first solo-pull pass now uses three WorldStatic-cleared homes, a 525 cm aggro
+  radius, visual-only pocket/marker collision, 6 damage, and a 2 second attack
+  cadence; leash and respawn feel still need normal-route playtesting.
 - Player respawn is a simple prototype reset to the spawn point with short damage protection, not a full corpse run or revive system.
 - Inventory presentation now has clickable and draggable rows, stable identity-preserving category/name sorting, keyboard selection, row and occupied-slot tooltips, net equipment comparison, clickable/drop-target paper-doll slots, atomic bag/equipment transfers, rollback-safe replacement, equipment stat application, armor mitigation, safe consumable depletion, and a real Marsh Tonic enemy-loot source. It does not yet have illustrated body art or a final fantasy drag visual; the next interaction phases are documented in `Docs/INVENTORY_INTERACTION_PLAN.md`.
 - Nameplates use a native UMG widget component and target highlighting uses a dedicated emissive material on a flat animated 24-segment ring; a future decal/texture treatment can add runes and softer edges.

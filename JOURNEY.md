@@ -826,6 +826,65 @@ Verification:
 - Restart Unreal before visually checking the newly linked Sort button and its
   active-drag disabled state.
 
+## 2026-07-17 - Clean Pulls And The Embermere Signpost
+
+The starter encounter received its first collision-informed feel pass, and the
+original roadside art family gained a navigation silhouette of its own.
+
+Live gameplay verification:
+
+- Ran all 20 current tests in the clean editor and again through authoritative
+  headless automation; every test passed.
+- Completed Mara's full acceptance, three-kill, tonic-stack, return, XP, and
+  Recruit Pack loop in PIE.
+- Verified identity-preserving Sort, bracket cycling, Back-slot equip/unequip
+  drag paths, wrong-slot rejection, target clear, and W autorun cancellation.
+- Measured the existing combat cadence before tuning: Strike deals 28, a
+  Prowler deals 6 every two seconds, and one enemy takes roughly four hits over
+  six seconds. The cadence felt useful; the real problem was accidental group
+  pulls.
+
+Encounter pass:
+
+- Reduced the default starter-enemy aggro radius from `900` to `525` cm and
+  added exact automation assertions for aggro, damage, and attack cadence.
+- Native WorldStatic overlap probes found hidden collision from vendor rocks,
+  stairs, and ruin dressing at the old and first-proposed home points.
+- Moved the three Prowler homes to the collision-clear triangle
+  `(1900, 300)`, `(1700, 1100)`, and `(2500, 1300)`, preserving at least 800 cm
+  spacing inside the visual wilderness pocket.
+- Explicitly disabled collision on enemy marker cones and the safe/combat area
+  cylinders. A focused PIE probe showed the pulled enemy moving and attacking
+  while both neighboring enemies remained exactly at home.
+
+Original art:
+
+- Built `SM_EmbermereRoadSignpost_01` through the reviewed Blender MCP
+  `script_path` lane: editable `.blend`, FBX, preview, deterministic metrics,
+  1,828 triangles, one UV channel, five intentional materials, no non-manifold
+  edges, and two authored `UBX_` boxes.
+- Imported through explicit `FbxFactory`, saved the new
+  `M_EmbermereTimber` package, reused the waystone/lamp material family, and
+  placed `Embermere_RoadSignpost_01` beside the village route.
+- The base and post collide while the broad directional arms remain overhead
+  and non-colliding. Unreal thumbnail and viewport inspection confirmed a clear
+  classic-fantasy road silhouette.
+
+Verification and lessons:
+
+- The no-hot-reload Mac editor build succeeded and headless automation passed
+  20/20 with no test failures.
+- The tracked validator reloaded the saved map and passed 62 upright Fab actors,
+  four original-art placements, exact encounter homes, non-colliding visual
+  guides, gameplay anchors, moss ground, and daylight assertions.
+- A final fresh commandlet validator launch stalled in macOS app-launch services
+  before Unreal produced a log, so the same tracked validator was run through
+  the live editor's explicit saved-map reload instead of overstating that run.
+- The day reinforced three durable rules: test gameplay homes against native
+  collision rather than visual bounds, declare all decorative geometry
+  `NoCollision`, and explicitly save generated material packages before
+  trusting the current editor session.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
