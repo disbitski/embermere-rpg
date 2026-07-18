@@ -885,6 +885,51 @@ Verification and lessons:
   `NoCollision`, and explicitly save generated material packages before
   trusting the current editor session.
 
+## 2026-07-18 - A Real Road Gate And Clear Autorun Ownership
+
+The roadside prop family gained its first traversable threshold, inventory
+dragging stopped looking like debug text, and a subtle movement-ownership bug
+received an architectural fix instead of another input special case.
+
+Movement and UI:
+
+- Separated controller-driven autorun movement from the manual forward-axis
+  notification. Automatic ticks now add movement directly, while any real
+  nonzero `W` or `S` input owns cancellation.
+- Added `Embermere.Input.AutorunCancellation` for forward cancellation,
+  backward cancellation, and idle preservation.
+- Replaced the compact inventory drag label with a fixed 236x62 Embermere
+  token using category sigils, warm item names, slot/level or consumable-effect
+  context, and restrained moss/gold presentation.
+- Extended drag/drop automation to cover the armor sigil, Back-slot context,
+  and accent color while preserving every atomic transaction and click/key
+  fallback.
+
+Original art:
+
+- Built `SM_EmbermereRoadGate_01` through the reviewed Blender MCP script lane:
+  editable `.blend`, FBX, preview, deterministic metrics, 3,296 triangles, one
+  UV channel, five shared fantasy materials, no non-manifold edges, and four
+  authored `UBX_` support boxes.
+- Imported through explicit classic `FbxFactory`, reused the existing
+  stone/moss/timber/iron/ember family, and placed the gate on the road into the
+  wilderness at `(1080, 540, 20)`, yaw `20`.
+- Native traces proved the 250 cm center path is unobstructed while the support
+  remains solid. The gate now frames the transition from village safety to the
+  Prowler pocket without changing gameplay placement.
+
+Verification:
+
+- The authoritative Mac editor build succeeded with `-NoHotReloadFromIDE`.
+- Headless automation passed 21/21, including the new autorun contract and
+  expanded fantasy drag-token assertions.
+- Saved-map validation passed 62 upright third-party actors, five exact
+  original-art placements, gate import/material/collision bounds, encounter
+  homes, visual-only guides, gameplay anchors, moss ground, and daylight.
+- The interactive editor remained on the previous C++ module, so clean-restart
+  live verification of both `W` and `S` cancellation plus the final drag-token
+  appearance is deliberately carried into the next session.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

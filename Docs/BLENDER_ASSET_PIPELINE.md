@@ -353,10 +353,40 @@ session while its package is still absent from disk. The signpost importer now
 explicitly saves `M_EmbermereTimber`, and validation checks both its object path
 and durable asset package before accepting the map.
 
-The road signpost completes the first small Embermere roadside family. The next
-bounded original-art pass should reuse this language for low boundary stones,
-fence/gate pieces, or a compact village prop rather than jumping directly to
-rigged characters.
+The road signpost completed the first small Embermere roadside trio and set the
+material language for a larger traversable boundary piece.
+
+## Fourth Asset: Road Gate
+
+`SM_EmbermereRoadGate_01` turns the roadside family into a traversable world
+boundary. Two moss-stone footings support timber posts and a broad overhead
+beam, with iron bands and an ember crest carrying the waystone palette into a
+clear village-to-wilderness threshold.
+
+The reviewed build script is `Scripts/blender/build_embermere_road_gate.py`;
+editable source, FBX, preview, and deterministic metrics live under
+`ArtSource/Blender/Environment/RoadGate`. The Unreal import and placement lane
+is `Scripts/import_embermere_road_gate_unreal.py`.
+
+Verified result:
+
+- dimensions: approximately `96.0 x 432.0 x 373.7` cm with a ground pivot;
+- Blender and Unreal render mesh: 3,296 triangles, one UV channel, no
+  non-manifold edges, and applied scale;
+- materials: shared waystone stone/moss/ember, lamp iron, and signpost timber;
+- collision: four retained `UBX_` boxes cover the two footings and posts while
+  the overhead span remains non-colliding;
+- saved actor: `Embermere_RoadGate_01` at `(1080, 540, 20)`, yaw `20`, tagged
+  `EmbermereOriginalArt` on the road into the wilderness pocket;
+- traversal: a native trace through the 250 cm center opening returns no hit,
+  while a support trace hits the authored collider;
+- verification: preview and route framing were inspected through MCP, the Mac
+  editor build succeeded, 21/21 automation tests passed, and the saved-map
+  validator passed exact bounds, materials, import provenance, collision,
+  transform, and five original-art placements.
+
+The next bounded art pass should extend this gate into low matching fence or
+boundary-stone modules before attempting a larger modular building kit.
 
 ## What To Build First
 

@@ -79,7 +79,6 @@ protected:
 private:
 	bool bLeftMouseDown = false;
 	bool bRightMouseDown = false;
-	bool bApplyingAutomaticForwardMovement = false;
 	FTransform ControlledSpawnTransform;
 	FTimerHandle PlayerRespawnTimerHandle;
 	TObjectPtr<UEmbermerePlayerHudWidget> PlayerHudWidget;

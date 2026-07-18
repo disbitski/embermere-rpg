@@ -282,20 +282,7 @@ void UEmbermerePlayerHudWidget::NativeOnDragDetected(
 	Operation->SourceEquipmentSlot = PendingDragEquipmentSlot;
 	Operation->Pivot = EDragPivot::MouseDown;
 
-	UBorder* DragPanel = NewObject<UBorder>(Operation);
-	UTextBlock* DragText = NewObject<UTextBlock>(DragPanel);
-	if (DragPanel && DragText)
-	{
-		DragPanel->SetBrushColor(FLinearColor(0.08f, 0.06f, 0.025f, 0.94f));
-		DragPanel->SetPadding(FMargin(10.0f, 6.0f));
-		FSlateFontInfo FontInfo = DragText->GetFont();
-		FontInfo.Size = 13;
-		DragText->SetFont(FontInfo);
-		DragText->SetColorAndOpacity(FSlateColor(FLinearColor(1.0f, 0.82f, 0.3f, 1.0f)));
-		DragText->SetText(Operation->Item->DisplayName);
-		DragPanel->SetContent(DragText);
-		Operation->DefaultDragVisual = DragPanel;
-	}
+	Operation->DefaultDragVisual = Operation->CreateDragVisual();
 
 	OutOperation = Operation;
 	bInventoryDragInProgress = true;

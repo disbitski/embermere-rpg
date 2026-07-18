@@ -328,3 +328,17 @@ return control, wait in the outer MCP orchestration layer, and query state in a
 second call. When using the Unreal console, send `py import unreal; ...` or
 `py exec(compile(open(...).read(), ...))` directly; quoting the entire Python
 statement causes the console command to be parsed incorrectly.
+
+## Keep Automatic Movement Out Of Manual Input Handlers
+
+Autorun and manual forward input can share movement math without sharing the
+same cancellation entry point. Calling Embermere's manual `MoveForward(1)`
+from the controller tick made the autorun system indistinguishable from a real
+`W` press: either autorun cancelled itself or the cancellation path needed a
+fragile transient guard that could also suppress real input.
+
+Apply automatic forward movement directly from the controller tick, and reserve
+the manual-axis notification for actual nonzero player input. Cover forward,
+backward, and idle cases in automation, then restart the editor before live
+input verification because stale C++ modules can make a correct fix look
+unchanged.

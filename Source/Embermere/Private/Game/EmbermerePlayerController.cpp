@@ -99,16 +99,15 @@ void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 	{
 		if (bAutorunEnabled || (bLeftMouseDown && bRightMouseDown))
 		{
-			bApplyingAutomaticForwardMovement = true;
-			Character->MoveForward(1.0f);
-			bApplyingAutomaticForwardMovement = false;
+			const FRotator YawRotation(0.0f, GetControlRotation().Yaw, 0.0f);
+			Character->AddMovementInput(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X), 1.0f);
 		}
 	}
 }
 
 void AEmbermerePlayerController::NotifyManualMoveForwardInput(float Value)
 {
-	if (!bApplyingAutomaticForwardMovement && bAutorunEnabled && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
+	if (bAutorunEnabled && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
 	{
 		bAutorunEnabled = false;
 	}

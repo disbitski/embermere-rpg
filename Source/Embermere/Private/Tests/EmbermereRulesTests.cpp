@@ -11,10 +11,40 @@
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
 #include "Data/EmbermereRulesData.h"
+#include "Game/EmbermerePlayerController.h"
 #include "Misc/AutomationTest.h"
 #include "UI/EmbermereEnemyNameplateWidget.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermerePlayerHudWidget.h"
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereAutorunCancellationTest,
+	"Embermere.Input.AutorunCancellation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereAutorunCancellationTest::RunTest(const FString& Parameters)
+{
+	AEmbermerePlayerController* Controller = NewObject<AEmbermerePlayerController>();
+	TestNotNull(TEXT("Player controller can be created"), Controller);
+	if (!Controller)
+	{
+		return false;
+	}
+
+	Controller->bAutorunEnabled = true;
+	Controller->NotifyManualMoveForwardInput(1.0f);
+	TestFalse(TEXT("Forward input cancels autorun"), Controller->bAutorunEnabled);
+
+	Controller->bAutorunEnabled = true;
+	Controller->NotifyManualMoveForwardInput(-1.0f);
+	TestFalse(TEXT("Backward input cancels autorun"), Controller->bAutorunEnabled);
+
+	Controller->bAutorunEnabled = true;
+	Controller->NotifyManualMoveForwardInput(0.0f);
+	TestTrue(TEXT("Idle axis input leaves autorun enabled"), Controller->bAutorunEnabled);
+
+	return true;
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereRaceClassRulesTest,
@@ -534,6 +564,12 @@ bool FEmbermereInventoryDragDropTest::RunTest(const FString& Parameters)
 	Operation->Source = EEmbermereItemDragSource::Inventory;
 	TestTrue(TEXT("Typed drag payload preserves item identity"), Operation->Item == RecruitPack);
 	TestEqual(TEXT("Typed drag payload records bag source"), Operation->Source, EEmbermereItemDragSource::Inventory);
+	TestEqual(TEXT("Armor drag visual uses an armor sigil"), Operation->GetVisualSigilText().ToString(), FString(TEXT("ARM")));
+	TestEqual(
+		TEXT("Armor drag visual includes slot and level context"),
+		Operation->GetVisualContextText().ToString(),
+		FString(TEXT("Back | Level 2")));
+	TestTrue(TEXT("Armor drag visual uses a warm fantasy accent"), Operation->GetVisualAccentColor().R > 0.9f);
 
 	TestFalse(
 		TEXT("Wrong equipment slot is not a valid drop target"),

@@ -6,6 +6,7 @@
 #include "EmbermereItemDragDropOperation.generated.h"
 
 class UEmbermereItemData;
+class UWidget;
 
 UENUM(BlueprintType)
 enum class EEmbermereItemDragSource : uint8
@@ -29,4 +30,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Embermere|Inventory")
 	EEmbermereEquipmentSlot SourceEquipmentSlot = EEmbermereEquipmentSlot::None;
+
+	FText GetVisualSigilText() const;
+	FText GetVisualContextText() const;
+	FLinearColor GetVisualAccentColor() const;
+	UWidget* CreateDragVisual();
 };
