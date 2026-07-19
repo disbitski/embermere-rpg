@@ -342,3 +342,27 @@ the manual-axis notification for actual nonzero player input. Cover forward,
 backward, and idle cases in automation, then restart the editor before live
 input verification because stale C++ modules can make a correct fix look
 unchanged.
+
+## UE 5.8 Python Line Traces Return A Hit Or None
+
+In UE 5.8 Python, `unreal.SystemLibrary.line_trace_single(...)` returns a
+`HitResult` when something blocks the trace and `None` when the route is clear.
+Do not unpack it as `(did_hit, hit_result)`. Protected actor/component members
+also may not be readable as normal Python properties; the stable inspection
+path used by Embermere is `hit_result.to_dict()["hit_actor"]`.
+
+An Unreal commandlet can still exit with status zero after the invoked Python
+script logs an exception. Treat the process code as only one signal: require a
+known validator success line and reject `LogPython: Error` in the captured log.
+The road-boundary validator follows this contract while proving clear gate
+lanes and solid gate/fence collision.
+
+## Atomic Slate Chords Do Not Span A Later Player Tick
+
+Unreal MCP's Slate `PressKey` sends a modifier chord as a press-and-release
+operation on the focused widget. That is sufficient for event-driven action
+bindings such as `Q`, `W`, and `S`, but it cannot prove a control that polls
+`IsInputKeyDown(Ctrl)` during a later `PlayerTick`: Ctrl has already been
+released by then. Keep `Ctrl+M` as a physical-key PIE check unless its game
+implementation moves to an event-driven chord binding. Do not report an MCP
+tool-model limitation as a gameplay regression.

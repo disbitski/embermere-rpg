@@ -6,42 +6,44 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Restart Unreal before authoritative PIE. The interactive editor predates the
-  2026-07-18 no-hot-reload autorun and fantasy drag-visual C++ build, although
-  the final road-gate asset and saved map are already present on disk.
-- Verify Unreal MCP on port `8123` after restart. Confirm Blender and its
-  localhost bridge only if another original-art pass is selected.
-- Discover and run all 21 tests. The authoritative 2026-07-18 build and
-  headless run passed 21/21; the saved-map validator also passes with 62 upright
-  `FabPass_` actors, five original-art placements, visual-only encounter
+- Confirm Unreal is still running the current module/map and MCP listener on
+  port `8123`; restart only if the editor predates later C++ or package work,
+  or test discovery proves stale. Confirm Blender and its localhost bridge only
+  when another original-art pass is selected.
+- Discover and run all 21 tests. The authoritative 2026-07-19 build and
+  headless run passed 21/21; saved-map validation passes with 62 upright
+  `FabPass_` actors, seven original-art placements, visual-only encounter
   markers, exact daylight, and the collision-cleared starter layout.
-- In clean PIE, toggle autorun with `Q`, then prove both `W` and `S` cancel it.
-  Recheck `Q` toggling and `Ctrl+M` inversion feedback. The new
-  `Embermere.Input.AutorunCancellation` test covers both manual directions,
-  but the prior live editor held the old controller module.
-- Inspect the new project-owned fantasy drag token with Recruit Pack and Marsh
-  Tonic: fixed size, category sigil, readable item/context text, no panel or
-  hotbar overlap, gold valid-drop state, and red wrong-slot state.
-- Inspect `Embermere_RoadGate_01` at `(1080, 540, 20)`, yaw `20`: confirm
-  terrain contact, stone/moss/timber/iron/ember readability, a clear 250 cm
-  center opening, support collision, non-colliding overhead span, and readable
-  road-to-wilderness framing.
-- Walk normally from the village to the new Prowler triangle at `(1900,300)`,
-  `(1700,1100)`, and `(2500,1300)`. Confirm each 525 cm aggro pull stays solo,
-  enemies can move across the visual combat-pocket band, and the two idle
-  Prowlers remain at home.
-- Recheck leash/return and death/respawn protection from that normal route.
-  Tune respawn delay/protection only if live feel exposes a concrete issue.
-- Then continue with the next bounded high-value slice: extend the gate into a
-  matching fence/boundary-stone family, tune combat/respawn feel only if live
-  PIE exposes a concrete issue, or begin cohesive fantasy village architecture
-  when a suitable signed-in UE pack is available.
+- In clean PIE, retain the verified input baseline: `Q` advances the player and
+  independent `W` and `S` presses stop all later movement. Physically press
+  `Ctrl+M` and confirm inversion feedback; Slate's atomic chord cannot span the
+  controller's later `PlayerTick` poll, so MCP cannot prove that specific UI
+  message without changing the input implementation.
+- Complete the populated-inventory visual check for the project-owned fantasy
+  drag token with Recruit Pack and Marsh Tonic: fixed size, category sigil,
+  readable item/context text, no panel or hotbar overlap, gold valid-drop state,
+  and red wrong-slot state. Its automation contract already passes.
+- Walk the road threshold through `Embermere_RoadGate_01` and between
+  `Embermere_BoundaryFence_GateSouth_01` and
+  `Embermere_BoundaryFence_GateNorth_01`. Confirm clear center traversal,
+  solid supports/fences, and cohesive stone/moss/timber/iron/ember readability.
+- Review the existing tree that masks much of the south fence from the first
+  road capture. Move or replace only foliage if normal-route PIE agrees; do not
+  shift the collision-validated gate/fence geometry casually.
+- Walk normally to the Prowler homes at `(1900,300)`, `(1700,1100)`, and
+  `(2500,1300)`. Confirm each 525 cm pull stays solo, enemies cross visual-only
+  marker geometry, and the two idle Prowlers remain home. Tune leash/respawn
+  only when live feel exposes a concrete issue.
+- Then continue with the highest-value bounded slice: illustrated item/body-slot
+  icon art, a matching Blender boundary-stone/end-cap or compact village prop,
+  or cohesive fantasy village architecture when a suitable signed-in UE pack
+  is available.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE because the editor was open during the
-  2026-07-18 C++ build and final map/art pass. Current headless code passes 21
-  tests; the open editor must reload before authoritative post-change PIE.
+- Restart Unreal before manual PIE only when the editor predates later C++ or
+  package work. The 2026-07-19 clean editor loaded the current controller and
+  map; current headless code passes all 21 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -56,6 +58,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - inspect the road gate for terrain contact, route framing, all five shared
     fantasy materials, a clear center opening, four support colliders, and a
     non-colliding overhead span.
+  - inspect both boundary fences for terrain contact, all five shared materials,
+    three colliders each, a solid crossed-rail body, and no intrusion into the
+    road-gate opening; review the tree masking the south fence from one angle.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -172,14 +177,14 @@ Embermere has a working first-pass starter slice:
 - first-pass hotbar cooldown enforcement and ready-time feedback;
 - live hotbar slot countdown and unavailable-state dimming;
 - first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
-- a project-owned Blender waystone, ember-lamp, road-signpost, and road-gate family with reviewed scripts, editable source, FBX, previews, authored collision, and validated saved placements;
+- a project-owned Blender waystone, ember-lamp, road-signpost, road-gate, and boundary-fence family with reviewed scripts, editable source, FBX, previews, authored collision, and seven validated saved placements;
 - a project-owned fantasy inventory drag token with category sigils, contextual item text, and fixed bounds;
 - first Mac-friendly sky, ambient fill, fog-readability correction, and muted moss foundation material;
 - automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash and loot rules, equipment slot/stat/transaction rules, atomic inventory capacity, consumable use, item comparison/tooltips, identity-based inventory and drag/drop actions, autorun cancellation, damage immunity, enemy nameplate widget, chat log, hotbar cooldown display, and inventory toggle.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, project-owned drag presentation, stable explicit sorting, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE previously verified the full quest, drag/drop, identity-preserving Sort, solo Prowler pulls, collision-cleared encounter markers, targeting, and the original-art road family; the 2026-07-18 controller and drag-visual relink still needs a clean-restart visual pass. The world remains stylistically mixed without real fantasy village buildings or final character art.
+The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, project-owned drag presentation, stable explicit sorting, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE has verified the full quest, drag/drop, identity-preserving Sort, solo Prowler pulls, collision-cleared encounter markers, targeting, the original-art road family, and transform-proven `W`/`S` autorun cancellation on the current module. The populated-item fantasy drag token, physical `Ctrl+M` feedback, and south-fence foliage composition remain the immediate visual checks. The world remains stylistically mixed without real fantasy village buildings or final character art.
 
 ## Next Work
 
@@ -208,8 +213,9 @@ The prototype foundation is alive, but it is still early. The environment is upr
   - identify any sci-fi props that look too off-theme for the starter village.
 - Add proper stylized fantasy village buildings now that the oversized sci-fi shells have been removed.
 - Expand the proven original Blender-to-Unreal lane from the waystone, ember
-  lamps, road signpost, and road gate into matching boundary-stone/fence pieces
-  before attempting rigged characters or creatures.
+  lamps, road signpost, road gate, and boundary fences into matching
+  boundary-stone/end-cap or compact village pieces before attempting rigged
+  characters or creatures.
 - Preserve the collision-cleared 525 cm solo-pull baseline while tuning leash,
   return-home speed, damage, and respawn timing only from normal-route PIE.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
@@ -427,6 +433,32 @@ The prototype foundation is alive, but it is still early. The environment is upr
 - The open editor predates the final C++ relink. Restart Unreal before claiming
   authoritative live `W`/`S` cancellation or visual approval of the new drag
   token; those two checks are tomorrow's first manual boundary.
+- 2026-07-19: rebuilt `EmbermereEditor` with `-NoHotReloadFromIDE` and ran the
+  complete headless suite; all 21 tests passed with zero failures and zero
+  warning tests. The clean live editor also discovered and passed all 21 after
+  the final boundary-fence map save.
+- Restarted Unreal cleanly, started MCP, and used timed player-transform reads
+  in PIE to prove `Q` movement plus independent `W` and `S` cancellation. Both
+  cancellation checks held the exact same transform for a full second.
+- Built `SM_EmbermereBoundaryFence_01` through the reviewed Blender MCP script
+  lane: editable `.blend`, FBX, preview, deterministic metrics, 2,632 triangles,
+  one UV, no non-manifold edges, five shared fantasy materials, and three
+  authored `UBX_` colliders.
+- Imported through explicit `FbxFactory` and placed matching south/north fence
+  instances beside `Embermere_RoadGate_01`. The map now contains 62 upright
+  Fab actors plus seven exact original-art placements.
+- Expanded the saved-map validator for both fence transforms, materials,
+  bounds, tags, and three-box collision. Added a native trace validator proving
+  three gate lanes clear, one gate support solid, and both fence centers solid.
+- Inspected the Blender preview and live Unreal road approach. The north fence
+  and center opening read clearly; an existing tree partly masks the south
+  fence and is recorded for foliage-only composition review.
+- Captured two durable UE 5.8 lessons: Python line traces return `HitResult` or
+  `None`, and commandlet Python errors can coexist with a zero process exit, so
+  validators must require a success marker and reject `LogPython: Error`.
+- Slate's atomic `Ctrl+M` synthesis still cannot span the later controller tick
+  that polls Ctrl state. Keep physical inversion feedback and populated-item
+  drag-token appearance as the next manual visual checks.
 
 ## Asset Hunt
 

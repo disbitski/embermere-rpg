@@ -6,6 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 62
+EXPECTED_ORIGINAL_ART_COUNT = 7
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -21,7 +22,12 @@ ORIGINAL_GATE_LABEL = "Embermere_RoadGate_01"
 ORIGINAL_GATE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereRoadGate_01.SM_EmbermereRoadGate_01"
 ORIGINAL_GATE_LOCATION = (1080.0, 540.0, 20.0)
 ORIGINAL_GATE_YAW = 20.0
-ORIGINAL_SIGNPOST_MATERIAL_PATHS = {
+ORIGINAL_FENCE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereBoundaryFence_01.SM_EmbermereBoundaryFence_01"
+ORIGINAL_FENCES = {
+    "Embermere_BoundaryFence_GateSouth_01": ((1206.55, 192.35, 20.0), 20.0),
+    "Embermere_BoundaryFence_GateNorth_01": ((953.45, 887.65, 20.0), 20.0),
+}
+ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS = {
     "/Game/Art/Embermere/Environment/PrototypeVillage/M_Waystone.M_Waystone",
     "/Game/Art/Embermere/Environment/PrototypeVillage/M_WaystoneMoss.M_WaystoneMoss",
     "/Game/Art/Embermere/Environment/PrototypeVillage/M_EmberLampIron.M_EmberLampIron",
@@ -64,7 +70,7 @@ REQUIRED_LABELS = {
     ORIGINAL_WAYSTONE_LABEL,
     ORIGINAL_SIGNPOST_LABEL,
     ORIGINAL_GATE_LABEL,
-} | set(ORIGINAL_EMBER_LAMPS)
+} | set(ORIGINAL_EMBER_LAMPS) | set(ORIGINAL_FENCES)
 
 REMOVED_GREYBOX_LABELS = {
     "Village_Hall_Blockout",
@@ -135,6 +141,17 @@ def main():
         fail("FabPass actors must stay upright; found {}".format(tilted_fabpass))
 
     actors_by_label = {actor_label(actor): actor for actor in actors}
+    original_art_labels = {
+        actor_label(actor)
+        for actor in actors
+        if unreal.Name("EmbermereOriginalArt") in list(actor.tags)
+    }
+    if len(original_art_labels) != EXPECTED_ORIGINAL_ART_COUNT:
+        fail("expected {} EmbermereOriginalArt placements, found {}: {}".format(
+            EXPECTED_ORIGINAL_ART_COUNT,
+            len(original_art_labels),
+            sorted(original_art_labels),
+        ))
     waystone = actors_by_label[ORIGINAL_WAYSTONE_LABEL]
     waystone_component = waystone.get_component_by_class(unreal.StaticMeshComponent)
     waystone_mesh = waystone_component.get_editor_property("static_mesh") if waystone_component else None
@@ -231,7 +248,7 @@ def main():
         material = static_material.get_editor_property("material_interface")
         if material:
             signpost_material_paths.add(material.get_path_name())
-    if signpost_material_paths != ORIGINAL_SIGNPOST_MATERIAL_PATHS:
+    if signpost_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
         fail("original road signpost material set drifted: {}".format(sorted(signpost_material_paths)))
 
     signpost = actors_by_label[ORIGINAL_SIGNPOST_LABEL]
@@ -288,7 +305,7 @@ def main():
         material = static_material.get_editor_property("material_interface")
         if material:
             gate_material_paths.add(material.get_path_name())
-    if gate_material_paths != ORIGINAL_SIGNPOST_MATERIAL_PATHS:
+    if gate_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
         fail("original road gate material set drifted: {}".format(sorted(gate_material_paths)))
 
     gate = actors_by_label[ORIGINAL_GATE_LABEL]
@@ -314,6 +331,57 @@ def main():
         ))
     if unreal.Name("EmbermereOriginalArt") not in list(gate.tags):
         fail("{} must retain the EmbermereOriginalArt tag".format(ORIGINAL_GATE_LABEL))
+
+    fence_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_FENCE_PATH)
+    if not fence_mesh or not isinstance(fence_mesh, unreal.StaticMesh):
+        fail("missing original boundary fence mesh {}".format(ORIGINAL_FENCE_PATH))
+    fence_import_data = fence_mesh.get_editor_property("asset_import_data")
+    fence_import_class = fence_import_data.get_class().get_name() if fence_import_data else "None"
+    if fence_import_class != "FbxStaticMeshImportData":
+        fail("original boundary fence must retain classic FBX import data, found {}".format(fence_import_class))
+    fence_body_setup = fence_mesh.get_editor_property("body_setup")
+    fence_aggregate = fence_body_setup.get_editor_property("agg_geom") if fence_body_setup else None
+    fence_box_count = len(fence_aggregate.get_editor_property("box_elems")) if fence_aggregate else 0
+    if fence_box_count != 3:
+        fail("original boundary fence must retain 3 authored box colliders, found {}".format(fence_box_count))
+    fence_bounds = fence_mesh.get_bounds()
+    if not all((
+        nearly_equal(fence_bounds.origin.z, 90.0, 2.0),
+        nearly_equal(fence_bounds.box_extent.z, 90.0, 2.0),
+    )):
+        fail("original boundary fence bounds drifted: origin={}, extent={}".format(
+            fence_bounds.origin,
+            fence_bounds.box_extent,
+        ))
+    fence_material_paths = set()
+    for static_material in list(fence_mesh.get_editor_property("static_materials")):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            fence_material_paths.add(material.get_path_name())
+    if fence_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("original boundary fence material set drifted: {}".format(sorted(fence_material_paths)))
+
+    for label, (expected_location, expected_yaw) in ORIGINAL_FENCES.items():
+        fence = actors_by_label[label]
+        fence_component = fence.get_component_by_class(unreal.StaticMeshComponent)
+        actor_mesh = fence_component.get_editor_property("static_mesh") if fence_component else None
+        actor_mesh_path = actor_mesh.get_path_name() if actor_mesh else "None"
+        if actor_mesh_path != ORIGINAL_FENCE_PATH:
+            fail("{} must use {}, found {}".format(label, ORIGINAL_FENCE_PATH, actor_mesh_path))
+
+        location = fence.get_actor_location()
+        rotation = fence.get_actor_rotation()
+        if not all((
+            nearly_equal(location.x, expected_location[0], 1.0),
+            nearly_equal(location.y, expected_location[1], 1.0),
+            nearly_equal(location.z, expected_location[2], 1.0),
+            nearly_equal(rotation.pitch, 0.0, 0.1),
+            nearly_equal(rotation.yaw, expected_yaw, 0.1),
+            nearly_equal(rotation.roll, 0.0, 0.1),
+        )):
+            fail("{} transform drifted: location={}, rotation={}".format(label, location, rotation))
+        if unreal.Name("EmbermereOriginalArt") not in list(fence.tags):
+            fail("{} must retain the EmbermereOriginalArt tag".format(label))
 
     missing_ground_actors = sorted(GROUND_ACTOR_LABELS - set(actors_by_label))
     if missing_ground_actors:
@@ -430,7 +498,10 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} upright FabPass actors, 5 original-art placements, separated starter pulls, visual-only encounter markers, gameplay anchors, moss ground, and daylight baseline intact".format(len(fabpass_labels)))
+    unreal.log("Embermere zone validation passed: {} upright FabPass actors, {} original-art placements, separated starter pulls, visual-only encounter markers, gameplay anchors, moss ground, and daylight baseline intact".format(
+        len(fabpass_labels),
+        EXPECTED_ORIGINAL_ART_COUNT,
+    ))
 
 
 if __name__ == "__main__":

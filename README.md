@@ -64,7 +64,7 @@ The repo currently contains the C++ gameplay scaffold for:
 - a tracked level-1 Back-slot Recruit Pack quest reward for the first equipment action
 - stackable Marsh Tonic recovery items dropped by Marsh Prowlers, connecting combat loot to the inventory `Use` action
 - the saved starter-zone map `L_Embermere_Prototype`
-- a corrected 62-actor local Fab/Epic art pass plus Embermere's original Blender-built waystone, two matching ember lamps, road signpost, and traversable road gate over the starter village, road, wilderness pocket, and ruin landmark, with upright rotations, authored collision, an unobstructed PlayerStart/Mara route, a muted moss foundation material, collision-cleared solo enemy pulls, and a validated Mac-friendly daylight/atmosphere baseline
+- a corrected 62-actor local Fab/Epic art pass plus seven placements from Embermere's original Blender-built waystone, ember-lamp, road-signpost, road-gate, and boundary-fence family over the starter village, road, wilderness pocket, and ruin landmark, with upright rotations, authored collision, an unobstructed PlayerStart/Mara route, a muted moss foundation material, collision-cleared solo enemy pulls, and a validated Mac-friendly daylight/atmosphere baseline
 
 ## Starting Races
 

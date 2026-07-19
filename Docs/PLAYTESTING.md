@@ -6,7 +6,7 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
-3. Confirm the map shows a blue atmospheric sky, readable ambient light, muted moss ground instead of a white foundation, 62 upright `FabPass_` actors plus the original waystone, two ember lamps, road signpost, and road gate, an unobstructed PlayerStart/Mara route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three starter enemies.
+3. Confirm the map shows a blue atmospheric sky, readable ambient light, muted moss ground instead of a white foundation, 62 upright `FabPass_` actors plus seven original-art placements from the waystone, ember-lamp, road-signpost, road-gate, and boundary-fence family, an unobstructed PlayerStart/Mara route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three starter enemies.
 4. Inspect `Embermere_EmberLamp_Mara_01` and `Embermere_EmberLamp_Road_01`: pale stone/moss base, dark iron cage, warm ember crystal, terrain contact, clear route placement, and simple collision that does not trap the player.
 5. Inspect `Embermere_RoadSignpost_01`: warm timber, stone/moss footing,
    iron bands, three ember route marks, terrain contact, clear route placement,
@@ -14,6 +14,12 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 6. Inspect `Embermere_RoadGate_01`: stone/moss footings, timber span, iron
    bands, ember crest, terrain contact, clear road framing, four solid support
    boxes, and an unobstructed 250 cm center opening beneath the overhead beam.
+7. Inspect `Embermere_BoundaryFence_GateSouth_01` and
+   `Embermere_BoundaryFence_GateNorth_01`: low stone/moss supports, crossed
+   timber rails, iron bands, ember diamonds, terrain contact, solid boundary
+   collision, and no intrusion into the gate's three clear center lanes. Note
+   whether the existing tree masks too much of the south fence from the normal
+   road approach before moving either validated fence actor.
 
 ## Finding Mara
 
@@ -44,7 +50,7 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 14. With every bag slot occupied, confirm clicking or dragging an equipped slot toward the bag refuses to unequip and posts an inventory-full message without losing or duplicating the item.
 15. Walk near Mara Fenwatch in the village and press `F`.
 16. Watch for the temporary quest/dialogue message.
-17. Move toward the ruin and enemy pocket, passing cleanly through the road gate.
+17. Move toward the ruin and enemy pocket, passing cleanly through the road gate between the two matching boundary fences.
 18. Press `Tab` to target a nearby hostile.
 19. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP bar, flat animated 24-segment emissive gold ground ring, and the HUD target panel range state.
 20. Press `1` to use the first starter ability.
@@ -94,4 +100,8 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - The bottom-left chat/combat log is clipped inside its shaded panel and currently uses single-line rows; final chat history, scrolling, and fantasy styling still need a proper UI pass.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.
 - The first local Fab/Epic environment pass is upright and spawn-safe after removing three oversized sci-fi shells. Its first atmosphere/ambient-light correction is in place, but collision, scale, route readability, final lighting balance, and style cohesion still need manual PIE review.
+- The original gate/fence family is collision-validated and keeps the road
+  opening clear. One existing tree partly masks the south fence from the first
+  captured road angle; normal-route PIE should decide whether that foliage
+  needs composition cleanup.
 - Raw Fab/Epic asset folders are local-only and ignored by Git, so missing local imports will make the art layer show missing references.

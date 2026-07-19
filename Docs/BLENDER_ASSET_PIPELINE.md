@@ -175,10 +175,14 @@ ArtSource/Blender/
       SM_EmbermereWaystone_01_preview.png
     EmberLamp/
     RoadSignpost/
+    RoadGate/
+    BoundaryFence/
 Scripts/blender/
   build_embermere_waystone.py
   build_embermere_ember_lamp.py
   build_embermere_road_signpost.py
+  build_embermere_road_gate.py
+  build_embermere_boundary_fence.py
 Content/Art/Embermere/
   Environment/PrototypeVillage/
 ```
@@ -385,8 +389,47 @@ Verified result:
   validator passed exact bounds, materials, import provenance, collision,
   transform, and five original-art placements.
 
-The next bounded art pass should extend this gate into low matching fence or
-boundary-stone modules before attempting a larger modular building kit.
+The gate now has matching low fence modules on both sides. A future bounded
+pass can add corner/end-cap boundary stones before attempting a larger modular
+building kit.
+
+## Fifth Asset: Boundary Fence
+
+`SM_EmbermereBoundaryFence_01` turns the gate into a repeatable roadside
+boundary family. Two stone-and-moss supports hold crossed timber rails with
+iron bands and three ember diamonds, preserving the gate silhouette at a lower
+height without creating a second traversable opening.
+
+The reviewed build script is
+`Scripts/blender/build_embermere_boundary_fence.py`; editable source, FBX,
+preview, and deterministic metrics live under
+`ArtSource/Blender/Environment/BoundaryFence`. The Unreal import and placement
+lane is `Scripts/import_embermere_boundary_fence_unreal.py`.
+
+Verified result:
+
+- dimensions: `78.0 x 328.0 x 180.0` cm with a ground pivot;
+- Blender and Unreal render mesh: 2,632 triangles, one UV channel, no
+  non-manifold edges, and applied scale;
+- materials: the same five stone, moss, timber, iron, and ember assets used by
+  the road gate;
+- collision: three retained `UBX_` boxes cover both supports and the center
+  crossed-rail body;
+- saved actors: `Embermere_BoundaryFence_GateSouth_01` at
+  `(1206.55, 192.35, 20)` and `Embermere_BoundaryFence_GateNorth_01` at
+  `(953.45, 887.65, 20)`, both yaw `20` and tagged
+  `EmbermereOriginalArt`;
+- traversal: native traces keep three lanes through the gate clear, prove one
+  gate support solid, and prove both fence centers solid;
+- verification: the Blender preview and Unreal road approach were inspected,
+  the saved-map validator passed exact import/material/bounds/collision/tag/
+  transform assertions, and the map now contains 62 local Fab placements plus
+  seven original-art placements.
+
+The north fence reads clearly from the current road approach. A pre-existing
+tree masks much of the south fence from that one angle; treat that as a future
+foliage-composition decision rather than moving collision-validated boundary
+geometry without a normal-route PIE review.
 
 ## What To Build First
 

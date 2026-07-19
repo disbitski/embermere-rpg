@@ -930,6 +930,52 @@ Verification:
   live verification of both `W` and `S` cancellation plus the final drag-token
   appearance is deliberately carried into the next session.
 
+## 2026-07-19 - The Gate Became A Boundary
+
+The first traversable threshold gained a matching modular fence family, and
+the controller fix crossed its final live-verification boundary.
+
+Original art:
+
+- Built `SM_EmbermereBoundaryFence_01` through the reviewed Blender MCP
+  `script_path` lane with editable source, FBX, preview, deterministic metrics,
+  2,632 triangles, one UV channel, no non-manifold edges, five shared fantasy
+  materials, a ground pivot, and three authored `UBX_` boxes.
+- Imported it through explicit classic `FbxFactory`, reused the gate's
+  stone/moss/timber/iron/ember materials, and saved south and north instances
+  beside `Embermere_RoadGate_01`.
+- The two fences continue the gate silhouette without narrowing its center
+  opening. A road-approach capture showed the north module and open route
+  clearly; an existing tree partly masks the south module from that angle and
+  is now a deliberate foliage-composition review.
+
+Verification:
+
+- The authoritative Mac editor build succeeded with `-NoHotReloadFromIDE`,
+  and both headless automation and the clean live editor passed all 21 tests
+  with no failures or warnings.
+- Fresh-process saved-map validation passed 62 upright third-party actors plus
+  seven exact original-art placements, including the fence mesh provenance,
+  five materials, bounds, three colliders, tags, and transforms.
+- Added a native trace validator that proves three lanes through the gate are
+  clear, a gate support blocks, and both fence centers block.
+- Restarted Unreal onto the current controller module and used short-lived MCP
+  key events plus timed player-transform reads in PIE. `Q` advanced the player;
+  both `W` and `S` independently stopped all later movement and held an
+  identical transform for a full second.
+
+Pipeline lessons:
+
+- UE 5.8 Python `line_trace_single` returns `HitResult` or `None`, not a
+  boolean/result tuple. Protected hit data is reliably available through
+  `to_dict()`.
+- A commandlet can exit zero while an invoked Python validator logs an
+  exception. Acceptance therefore requires both a known success line and no
+  `LogPython: Error` entries.
+- Slate's atomic modifier chord cannot verify a control that polls modifier
+  state during a later game tick. Physical `Ctrl+M` feedback remains a manual
+  PIE check; that tool limitation is not evidence of a gameplay regression.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
