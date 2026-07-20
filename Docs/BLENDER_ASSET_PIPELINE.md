@@ -177,12 +177,14 @@ ArtSource/Blender/
     RoadSignpost/
     RoadGate/
     BoundaryFence/
+    BoundaryStone/
 Scripts/blender/
   build_embermere_waystone.py
   build_embermere_ember_lamp.py
   build_embermere_road_signpost.py
   build_embermere_road_gate.py
   build_embermere_boundary_fence.py
+  build_embermere_boundary_stone.py
 Content/Art/Embermere/
   Environment/PrototypeVillage/
 ```
@@ -389,8 +391,8 @@ Verified result:
   validator passed exact bounds, materials, import provenance, collision,
   transform, and five original-art placements.
 
-The gate now has matching low fence modules on both sides. A future bounded
-pass can add corner/end-cap boundary stones before attempting a larger modular
+The gate now has matching low fence modules and rune-topped end stones on both
+sides. The accepted threshold is ready to sit beside a future larger modular
 building kit.
 
 ## Fifth Asset: Boundary Fence
@@ -426,10 +428,46 @@ Verified result:
   transform assertions, and the map now contains 62 local Fab placements plus
   seven original-art placements.
 
-The north fence reads clearly from the current road approach. A pre-existing
-tree masks much of the south fence from that one angle; treat that as a future
-foliage-composition decision rather than moving collision-validated boundary
-geometry without a normal-route PIE review.
+The north fence reads clearly from the current road approach. The original
+south-side capture exposed two vendor trees masking the second fence; their
+accepted foliage-only relocation is now locked by the saved-map validator so
+the collision-validated boundary geometry stays untouched.
+
+## Sixth Asset: Boundary Stone
+
+`SM_EmbermereBoundaryStone_01` terminates each fence with a compact rune-topped
+marker. Its stepped stone and moss base, timber core, iron bands, and two ember
+diamonds reuse the complete threshold material language while remaining taller
+than the fence and lower than the gate crest.
+
+The reviewed build script is
+`Scripts/blender/build_embermere_boundary_stone.py`; editable source, FBX,
+preview, and deterministic metrics live under
+`ArtSource/Blender/Environment/BoundaryStone`. The classic-FBX import,
+placement, and foliage-composition lane is
+`Scripts/import_embermere_boundary_stone_unreal.py`.
+
+Verified result:
+
+- dimensions: `96.0 x 92.0 x 253.731` cm with a ground pivot;
+- Blender and Unreal render mesh: 1,872 triangles, one UV channel, no
+  non-manifold edges, and applied scale;
+- materials: the same five stone, moss, timber, iron, and ember assets used by
+  the gate and fence;
+- collision: two retained `UBX_` boxes cover the stepped footing and marker
+  core;
+- saved actors: `Embermere_BoundaryStone_GateSouth_01` at approximately
+  `(1274.951, 4.375, 20)` and `Embermere_BoundaryStone_GateNorth_01` at
+  `(885.049, 1075.625, 20)`, both yaw `20` and tagged
+  `EmbermereOriginalArt`;
+- composition: only `FabPass_Road_Pine_05` and
+  `FabPass_Wild_Tree_South_01` moved within the south foliage band, revealing
+  the fence and end marker without changing the 62-actor Fab count;
+- verification: the Blender preview and fresh Unreal road capture were
+  inspected, fresh-process map validation passed exact import/material/bounds/
+  collision/tag/transform assertions for nine original placements, and native
+  traces proved both stone cores solid while all three gate lanes remained
+  clear.
 
 ## What To Build First
 

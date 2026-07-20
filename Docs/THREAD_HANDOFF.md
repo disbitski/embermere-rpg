@@ -45,10 +45,11 @@ The project currently includes:
 - a styled native HUD with player/target status, quest tracker, hotbar,
   clickable/draggable inventory rows and equipment slots, dialogue, loot feedback, nameplates, an emissive
   target ring, project-owned fantasy drag tokens, and chat log;
-- a first local Fab/Epic art pass with 62 upright environment actors and seven
+- a first local Fab/Epic art pass with 62 upright environment actors and nine
   placements from an original Blender-built Embermere waystone, ember-lamp,
-  timber-signpost, traversable-road-gate, and matching boundary-fence family,
-  plus a Mac-friendly atmospheric daylight baseline;
+  timber-signpost, traversable-road-gate, matching boundary-fence family, and
+  rune-topped boundary stones, plus a Mac-friendly atmospheric daylight
+  baseline;
 - 21 passing Unreal automation tests and a saved-map
   Fab/gameplay/lighting/original-art validator.
 
@@ -271,7 +272,7 @@ Environment scripts:
   Python and saves the map.
 - `Scripts/validate_fab_zone_pass_unreal.py`: reloads and validates the saved
   map, actor count, upright rotations, gameplay anchors, collision-cleared
-  encounter layout, seven original-art placements, moss foundation, and exact
+  encounter layout, nine original-art placements, moss foundation, and exact
   Mac-friendly daylight values.
 - `Scripts/configure_starter_items.py`: idempotently migrates tracked starter
   item assets, currently the level-1 Back-slot Recruit Pack reward.
@@ -333,6 +334,16 @@ the road gate at yaw `20`, bringing the map to seven original-art placements.
 The saved-map validator locks their exact assets, transforms, tags, materials,
 bounds, and colliders; a separate native-trace validator proves both fence
 centers solid while three lanes through the gate remain clear.
+
+The sixth original model type is `SM_EmbermereBoundaryStone_01`, built by
+`Scripts/blender/build_embermere_boundary_stone.py` and imported through
+`Scripts/import_embermere_boundary_stone_unreal.py`. It is a 1,872-triangle,
+`96 x 92 x 253.731` cm rune-topped stone/moss/timber/iron/ember marker with two
+authored collision boxes. South and north instances terminate the fence family
+at gate-local Y `-570` and `570`, bringing the map to nine original-art
+placements. The same integration pass relocates only the two vendor trees that
+masked the south fence; exact validator assertions preserve those accepted
+foliage transforms without changing the 62-actor Fab count.
 
 The chosen community bridge is `djeada/blender-mcp-server`, pinned during
 installation to commit `7eed33edf4aca2ab0ca84a6da27321f89f68b504`.
@@ -467,23 +478,23 @@ Current automation tests:
 20. `Embermere.Inventory.StableSorting`
 21. `Embermere.Input.AutorunCancellation`
 
-Latest verified baseline (2026-07-19):
+Latest verified baseline (2026-07-20):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
 - headless automation passed 21/21 with zero test failures, including forward,
   backward, and idle autorun-cancellation cases; the clean live editor also
   discovered and passed all 21 after the final map save;
 - the validator reloaded the saved map and passed with 62 upright `FabPass_`
-  actors, seven exact original-art placements, visual-only encounter geometry,
+  actors, nine exact original-art placements, visual-only encounter geometry,
   required gameplay anchors, moss-ground overrides, and exact saved
   sun/skylight/fog values;
-- Blender MCP generated and validated the 2,632-triangle boundary-fence module;
+- Blender MCP generated and validated the 1,872-triangle boundary-stone module;
   Unreal imported it through `FbxFactory`, reused all five project materials,
-  retained three authored colliders, and saved two exact gate-side placements;
-- native traces proved three gate lanes clear, one gate support solid, and both
-  fence centers solid. A road-approach capture confirmed the center route and
-  north fence read clearly; an existing tree partly masks the south fence from
-  that angle and remains a future composition review;
+  retained two authored colliders, and saved two exact fence-end placements;
+- native traces proved three gate lanes clear, one gate support solid, both
+  fence centers solid, and both boundary-stone cores solid. A fresh road capture
+  shows the complete threshold after two masking trees moved within the south
+  foliage band; their exact transforms are validator-owned;
 - automatic movement is now applied separately from manual-axis cancellation,
   and the inventory drag visual is a fixed 236x62 fantasy token with category
   sigil and item context;
@@ -559,7 +570,7 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. The current module, map, and
-original-art layer were loaded in a clean editor on 2026-07-19. Restart only if
+original-art layer were loaded in a clean editor on 2026-07-20. Restart only if
 the editor predates later C++ or package work, or MCP/test discovery proves it
 stale.
 
@@ -588,27 +599,28 @@ First fresh-session checks:
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
-   - 62 upright Fab actors plus seven original placements from the waystone,
-     ember-lamp, timber-signpost, road-gate, and boundary-fence family; clear
-     gate lanes and solid fences; clear spawn/Mara route,
+   - 62 upright Fab actors plus nine original placements from the waystone,
+     ember-lamp, timber-signpost, road-gate, boundary-fence, and boundary-stone
+     family; clear gate lanes and solid fences/end stones; clear spawn/Mara route,
      readable road/enemy pocket,
      a ruin that does not trap the player, muted moss ground, and balanced
      daylight/fog under the atmospheric sky.
 5. Walk from the village into the new Prowler triangle. Confirm each `525` cm
    pull stays solo, visual markers/bands do not block movement, and an enemy can
    leash and return home normally.
-6. Inspect the normal road approach to both boundary fences. Decide whether the
-   tree masking the south module needs foliage-only composition cleanup.
+6. Inspect the accepted road approach to both boundary fences and rune-topped
+   end stones. Confirm the relocated south-side trees preserve depth without
+   masking the threshold.
 7. Confirm the already-added precise daylight, moss-ground, original-art,
    collision, and encounter-layout validator assertions still match the
    clean-restart visual result.
 
 High-value milestones after that:
 
-- add illustrated body-slot or item icon art after the new drag token survives
-  clean visual PIE;
-- expand the proven Blender waystone/lamp/signpost/gate/fence lane into matching
-  boundary-stone/end-cap or compact village-prop modules while preserving
+- add data-driven illustrated body-slot or item icon art after the new drag
+  token survives clean visual PIE;
+- expand the proven Blender waystone/lamp/signpost/gate/fence/end-stone lane
+  into compact village-prop modules while preserving
   deterministic scripts, FBX checks, and original-art tags;
 - optional rune/soft-edge texture treatment for the dedicated target-ring
   material;
@@ -669,7 +681,7 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. The latest clean PIE already proved Q autorun plus independent W and S cancellation. First visually inspect the populated-item fantasy drag token, physically verify Ctrl+M feedback, and walk the road gate between its two new boundary fences; decide whether the tree masking the south fence needs foliage-only composition cleanup. Recheck the 700px inventory and ten-slot paper doll, identity-preserving Sort, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, and all seven original-art placements. Walk the normal route and prove each 525 cm Prowler pull stays solo while visual marker/band geometry remains non-colliding. Then continue into illustrated item/body-slot icons, a matching boundary-stone/end-cap, cohesive fantasy architecture, concrete combat/respawn tuning, or the highest-value next milestone when the path is clear.
+Follow TODO.md's Start Here section. The latest clean PIE already proved Q autorun plus independent W and S cancellation. First visually inspect the populated-item fantasy drag token and physically verify Ctrl+M feedback. Recheck the accepted gate/fence/end-stone threshold, exact south-side foliage cleanup, the 700px inventory and ten-slot paper doll, identity-preserving Sort, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, and all nine original-art placements. Walk the normal route and prove each 525 cm Prowler pull stays solo while visual marker/band geometry remains non-colliding. Then continue into data-driven illustrated item/body-slot icons with text fallbacks and tests, a compact original Blender village prop, cohesive fantasy architecture, concrete combat/respawn tuning, or the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

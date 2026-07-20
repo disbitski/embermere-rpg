@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 62
-EXPECTED_ORIGINAL_ART_COUNT = 7
+EXPECTED_ORIGINAL_ART_COUNT = 9
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -26,6 +26,15 @@ ORIGINAL_FENCE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_Ember
 ORIGINAL_FENCES = {
     "Embermere_BoundaryFence_GateSouth_01": ((1206.55, 192.35, 20.0), 20.0),
     "Embermere_BoundaryFence_GateNorth_01": ((953.45, 887.65, 20.0), 20.0),
+}
+ORIGINAL_BOUNDARY_STONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereBoundaryStone_01.SM_EmbermereBoundaryStone_01"
+ORIGINAL_BOUNDARY_STONES = {
+    "Embermere_BoundaryStone_GateSouth_01": ((1274.951, 4.375, 20.0), 20.0),
+    "Embermere_BoundaryStone_GateNorth_01": ((885.049, 1075.625, 20.0), 20.0),
+}
+COMPOSITION_FOLIAGE = {
+    "FabPass_Road_Pine_05": ((600.0, -500.0, 20.0), -35.0, 0.48),
+    "FabPass_Wild_Tree_South_01": ((1600.0, -400.0, 20.0), 15.0, 0.5),
 }
 ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS = {
     "/Game/Art/Embermere/Environment/PrototypeVillage/M_Waystone.M_Waystone",
@@ -70,7 +79,7 @@ REQUIRED_LABELS = {
     ORIGINAL_WAYSTONE_LABEL,
     ORIGINAL_SIGNPOST_LABEL,
     ORIGINAL_GATE_LABEL,
-} | set(ORIGINAL_EMBER_LAMPS) | set(ORIGINAL_FENCES)
+} | set(ORIGINAL_EMBER_LAMPS) | set(ORIGINAL_FENCES) | set(ORIGINAL_BOUNDARY_STONES) | set(COMPOSITION_FOLIAGE)
 
 REMOVED_GREYBOX_LABELS = {
     "Village_Hall_Blockout",
@@ -382,6 +391,106 @@ def main():
             fail("{} transform drifted: location={}, rotation={}".format(label, location, rotation))
         if unreal.Name("EmbermereOriginalArt") not in list(fence.tags):
             fail("{} must retain the EmbermereOriginalArt tag".format(label))
+
+    boundary_stone_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_BOUNDARY_STONE_PATH)
+    if not boundary_stone_mesh or not isinstance(boundary_stone_mesh, unreal.StaticMesh):
+        fail("missing original boundary stone mesh {}".format(ORIGINAL_BOUNDARY_STONE_PATH))
+    boundary_stone_import_data = boundary_stone_mesh.get_editor_property("asset_import_data")
+    boundary_stone_import_class = (
+        boundary_stone_import_data.get_class().get_name()
+        if boundary_stone_import_data
+        else "None"
+    )
+    if boundary_stone_import_class != "FbxStaticMeshImportData":
+        fail("original boundary stone must retain classic FBX import data, found {}".format(
+            boundary_stone_import_class,
+        ))
+    boundary_stone_body_setup = boundary_stone_mesh.get_editor_property("body_setup")
+    boundary_stone_aggregate = (
+        boundary_stone_body_setup.get_editor_property("agg_geom")
+        if boundary_stone_body_setup
+        else None
+    )
+    boundary_stone_box_count = (
+        len(boundary_stone_aggregate.get_editor_property("box_elems"))
+        if boundary_stone_aggregate
+        else 0
+    )
+    if boundary_stone_box_count != 2:
+        fail("original boundary stone must retain 2 authored box colliders, found {}".format(
+            boundary_stone_box_count,
+        ))
+    boundary_stone_bounds = boundary_stone_mesh.get_bounds()
+    if not all((
+        nearly_equal(boundary_stone_bounds.origin.z, 126.8655, 2.0),
+        nearly_equal(boundary_stone_bounds.box_extent.z, 126.8655, 2.0),
+    )):
+        fail("original boundary stone bounds drifted: origin={}, extent={}".format(
+            boundary_stone_bounds.origin,
+            boundary_stone_bounds.box_extent,
+        ))
+    boundary_stone_material_paths = set()
+    for static_material in list(boundary_stone_mesh.get_editor_property("static_materials")):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            boundary_stone_material_paths.add(material.get_path_name())
+    if boundary_stone_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("original boundary stone material set drifted: {}".format(
+            sorted(boundary_stone_material_paths),
+        ))
+
+    for label, (expected_location, expected_yaw) in ORIGINAL_BOUNDARY_STONES.items():
+        boundary_stone = actors_by_label[label]
+        component = boundary_stone.get_component_by_class(unreal.StaticMeshComponent)
+        actor_mesh = component.get_editor_property("static_mesh") if component else None
+        actor_mesh_path = actor_mesh.get_path_name() if actor_mesh else "None"
+        if actor_mesh_path != ORIGINAL_BOUNDARY_STONE_PATH:
+            fail("{} must use {}, found {}".format(
+                label,
+                ORIGINAL_BOUNDARY_STONE_PATH,
+                actor_mesh_path,
+            ))
+
+        location = boundary_stone.get_actor_location()
+        rotation = boundary_stone.get_actor_rotation()
+        if not all((
+            nearly_equal(location.x, expected_location[0], 1.0),
+            nearly_equal(location.y, expected_location[1], 1.0),
+            nearly_equal(location.z, expected_location[2], 1.0),
+            nearly_equal(rotation.pitch, 0.0, 0.1),
+            nearly_equal(rotation.yaw, expected_yaw, 0.1),
+            nearly_equal(rotation.roll, 0.0, 0.1),
+        )):
+            fail("{} transform drifted: location={}, rotation={}".format(
+                label,
+                location,
+                rotation,
+            ))
+        if unreal.Name("EmbermereOriginalArt") not in list(boundary_stone.tags):
+            fail("{} must retain the EmbermereOriginalArt tag".format(label))
+
+    for label, (expected_location, expected_yaw, expected_scale) in COMPOSITION_FOLIAGE.items():
+        foliage = actors_by_label[label]
+        location = foliage.get_actor_location()
+        rotation = foliage.get_actor_rotation()
+        scale = foliage.get_actor_scale3d()
+        if not all((
+            nearly_equal(location.x, expected_location[0], 1.0),
+            nearly_equal(location.y, expected_location[1], 1.0),
+            nearly_equal(location.z, expected_location[2], 1.0),
+            nearly_equal(rotation.pitch, 0.0, 0.1),
+            nearly_equal(rotation.yaw, expected_yaw, 0.1),
+            nearly_equal(rotation.roll, 0.0, 0.1),
+            nearly_equal(scale.x, expected_scale, 0.001),
+            nearly_equal(scale.y, expected_scale, 0.001),
+            nearly_equal(scale.z, expected_scale, 0.001),
+        )):
+            fail("{} composition transform drifted: location={}, rotation={}, scale={}".format(
+                label,
+                location,
+                rotation,
+                scale,
+            ))
 
     missing_ground_actors = sorted(GROUND_ACTOR_LABELS - set(actors_by_label))
     if missing_ground_actors:

@@ -366,3 +366,23 @@ bindings such as `Q`, `W`, and `S`, but it cannot prove a control that polls
 released by then. Keep `Ctrl+M` as a physical-key PIE check unless its game
 implementation moves to an event-driven chord binding. Do not report an MCP
 tool-model limitation as a gameplay regression.
+
+## Refresh Slate Focus Before Synthetic Gameplay Input
+
+Editor inspection calls can change Slate focus even while PIE keeps running.
+An early road-gate probe sent a valid `W` event to the wrong focused widget,
+leaving autorun active long enough for the pawn to cross the prototype and fall
+past the map. That looked like an autorun regression until a fresh accessibility
+snapshot and explicit viewport click restored the expected input route.
+
+For MCP input checks:
+
+- capture a fresh Slate snapshot after starting each PIE session;
+- click the current game-viewport/root image before every measured key action;
+- prove movement and cancellation with actor transforms sampled before and
+  after the action, not only with a successful `PressKey` return value;
+- stop PIE promptly when a bounded movement probe finishes.
+
+With refreshed focus, `Q` moved the Embermere pawn and independent `W` and `S`
+checks each held an identical transform for a full second. Tool success means
+the event was sent; state measurement proves the game received it.

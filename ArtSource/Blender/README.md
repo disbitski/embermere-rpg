@@ -18,5 +18,6 @@ unless their license explicitly permits redistribution and the source is
 recorded in the asset's brief.
 
 The current original roadside family includes the waystone, two placed ember
-lamps, and a timber road signpost. See `Docs/BLENDER_ASSET_PIPELINE.md` for
-setup, security settings, naming, import provenance, and validation.
+lamps, timber road signpost, traversable gate, two low fences, and two
+rune-topped end stones. See `Docs/BLENDER_ASSET_PIPELINE.md` for setup,
+security settings, naming, import provenance, and validation.

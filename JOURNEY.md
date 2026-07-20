@@ -976,6 +976,47 @@ Pipeline lessons:
   state during a later game tick. Physical `Ctrl+M` feedback remains a manual
   PIE check; that tool limitation is not evidence of a gameplay regression.
 
+## 2026-07-20 - The Boundary Gained Its End Stones
+
+The gate/fence experiment became a complete roadside threshold, and the first
+composition problem was fixed without disturbing validated gameplay geometry.
+
+Original art:
+
+- Built `SM_EmbermereBoundaryStone_01` through the reviewed Blender MCP
+  `script_path` lane with editable `.blend`, FBX, preview, deterministic
+  metrics, 1,872 triangles, one UV channel, no non-manifold edges, five shared
+  fantasy materials, a ground pivot, and two authored `UBX_` boxes.
+- Imported it with explicit classic `FbxFactory`, saved the mesh package, and
+  placed symmetric rune-topped south/north markers outside the two boundary
+  fences. The map now has six original model types and nine placed instances.
+- Moved only `FabPass_Road_Pine_05` and
+  `FabPass_Wild_Tree_South_01` farther into the south foliage band. A fresh
+  Unreal road capture now shows both fences, both end stones, and the complete
+  gate opening while preserving all 62 Fab actors.
+
+Acceptance:
+
+- Fresh-process map validation passed exact boundary-stone classic-FBX import,
+  bounds, materials, two colliders, tags, transforms, both foliage transforms,
+  all gameplay anchors, the encounter triangle, and the daylight baseline.
+- Native traces proved three gate lanes clear, one gate support solid, both
+  fence centers solid, and both boundary-stone cores solid.
+- The authoritative no-hot-reload Mac build succeeded, and the current live
+  editor discovered and passed all 21 tests with no failures or warnings.
+- Fresh PIE transform probes again proved `Q` movement and independent `W` and
+  `S` cancellation, each holding an identical location for one second after
+  the stop input. Physical `Ctrl+M` and populated-item drag-token appearance
+  remain manual checks.
+
+Pipeline lesson:
+
+- A successful Slate key call does not prove the game viewport had focus.
+  Refresh the accessibility snapshot, click the current viewport before each
+  measured key, and compare game state before and after the action. That turned
+  an apparent autorun failure into a reproducible focus diagnosis instead of a
+  speculative gameplay change.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

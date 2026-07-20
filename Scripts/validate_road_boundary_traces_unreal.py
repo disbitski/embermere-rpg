@@ -13,6 +13,10 @@ FENCE_CENTERS = {
     "Embermere_BoundaryFence_GateSouth_01": (1206.55, 192.35),
     "Embermere_BoundaryFence_GateNorth_01": (953.45, 887.65),
 }
+BOUNDARY_STONE_LOCAL_Y = {
+    "Embermere_BoundaryStone_GateSouth_01": -570.0,
+    "Embermere_BoundaryStone_GateNorth_01": 570.0,
+}
 
 
 def fail(message):
@@ -116,8 +120,23 @@ def main():
             130.0,
         )
 
+    for label, local_y in BOUNDARY_STONE_LOCAL_Y.items():
+        center = (
+            GATE_CENTER[0] - local_y * math.sin(math.radians(GATE_YAW)),
+            GATE_CENTER[1] + local_y * math.cos(math.radians(GATE_YAW)),
+        )
+        require_hit(
+            world,
+            "{} core".format(label),
+            label,
+            center,
+            0.0,
+            125.0,
+            90.0,
+        )
+
     unreal.log(
-        "Embermere road boundary traces passed: 3 clear gate lanes, 1 solid gate support, and 2 solid fence centers"
+        "Embermere road boundary traces passed: 3 clear gate lanes, 1 solid gate support, 2 solid fence centers, and 2 solid boundary stones"
     )
 
 

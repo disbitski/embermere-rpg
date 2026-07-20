@@ -10,9 +10,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   port `8123`; restart only if the editor predates later C++ or package work,
   or test discovery proves stale. Confirm Blender and its localhost bridge only
   when another original-art pass is selected.
-- Discover and run all 21 tests. The authoritative 2026-07-19 build and
-  headless run passed 21/21; saved-map validation passes with 62 upright
-  `FabPass_` actors, seven original-art placements, visual-only encounter
+- Discover and run all 21 tests. The authoritative 2026-07-20 build and live
+  MCP run passed 21/21; saved-map validation passes with 62 upright
+  `FabPass_` actors, nine original-art placements, visual-only encounter
   markers, exact daylight, and the collision-cleared starter layout.
 - In clean PIE, retain the verified input baseline: `Q` advances the player and
   independent `W` and `S` presses stop all later movement. Physically press
@@ -23,21 +23,19 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   drag token with Recruit Pack and Marsh Tonic: fixed size, category sigil,
   readable item/context text, no panel or hotbar overlap, gold valid-drop state,
   and red wrong-slot state. Its automation contract already passes.
-- Walk the road threshold through `Embermere_RoadGate_01` and between
-  `Embermere_BoundaryFence_GateSouth_01` and
-  `Embermere_BoundaryFence_GateNorth_01`. Confirm clear center traversal,
-  solid supports/fences, and cohesive stone/moss/timber/iron/ember readability.
-- Review the existing tree that masks much of the south fence from the first
-  road capture. Move or replace only foliage if normal-route PIE agrees; do not
-  shift the collision-validated gate/fence geometry casually.
+- Recheck the accepted road threshold through `Embermere_RoadGate_01`, between
+  both boundary fences, and inside the two new rune-topped boundary stones.
+  Native validation already proves three clear center lanes plus solid gate,
+  fence, and end-stone collision. The two masking trees now sit in the south
+  foliage band without erasing the authored silhouette.
 - Walk normally to the Prowler homes at `(1900,300)`, `(1700,1100)`, and
   `(2500,1300)`. Confirm each 525 cm pull stays solo, enemies cross visual-only
   marker geometry, and the two idle Prowlers remain home. Tune leash/respawn
   only when live feel exposes a concrete issue.
-- Then continue with the highest-value bounded slice: illustrated item/body-slot
-  icon art, a matching Blender boundary-stone/end-cap or compact village prop,
-  or cohesive fantasy village architecture when a suitable signed-in UE pack
-  is available.
+- Then continue with the highest-value bounded slice: data-driven illustrated
+  item/body-slot icon art with text fallbacks and tests, a compact original
+  Blender village prop, or cohesive fantasy village architecture when a
+  suitable signed-in UE pack is available.
 
 ## Full Manual Regression Checklist
 
@@ -60,7 +58,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     non-colliding overhead span.
   - inspect both boundary fences for terrain contact, all five shared materials,
     three colliders each, a solid crossed-rail body, and no intrusion into the
-    road-gate opening; review the tree masking the south fence from one angle.
+    road-gate opening;
+  - inspect both rune-topped boundary stones for terrain contact, all five
+    shared materials, two colliders each, readable ember crests, and clean
+    termination of the fence silhouette after the south-side foliage cleanup.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -213,9 +214,8 @@ The prototype foundation is alive, but it is still early. The environment is upr
   - identify any sci-fi props that look too off-theme for the starter village.
 - Add proper stylized fantasy village buildings now that the oversized sci-fi shells have been removed.
 - Expand the proven original Blender-to-Unreal lane from the waystone, ember
-  lamps, road signpost, road gate, and boundary fences into matching
-  boundary-stone/end-cap or compact village pieces before attempting rigged
-  characters or creatures.
+  lamps, road signpost, road gate, boundary fences, and end stones into compact
+  village pieces before attempting rigged characters or creatures.
 - Preserve the collision-cleared 525 cm solo-pull baseline while tuning leash,
   return-home speed, damage, and respawn timing only from normal-route PIE.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
@@ -459,6 +459,29 @@ The prototype foundation is alive, but it is still early. The environment is upr
 - Slate's atomic `Ctrl+M` synthesis still cannot span the later controller tick
   that polls Ctrl state. Keep physical inversion feedback and populated-item
   drag-token appearance as the next manual visual checks.
+- 2026-07-20: built `SM_EmbermereBoundaryStone_01` through the reviewed Blender
+  MCP script lane with editable source, FBX, preview, deterministic metrics,
+  1,872 triangles, five shared materials, one UV, no non-manifold edges, a
+  ground pivot, and two authored `UBX_` colliders.
+- Imported it through explicit `FbxFactory` and placed matching south/north
+  rune-topped end markers outside the existing boundary fences. The saved map
+  now contains 62 upright Fab actors plus nine exact original-art placements.
+- Moved only `FabPass_Road_Pine_05` and `FabPass_Wild_Tree_South_01` within the
+  south foliage band. A fresh road capture now shows both fences, both end
+  markers, and the full gate opening without changing validated boundary
+  geometry or the Fab actor count.
+- Expanded fresh-process validation for the boundary-stone classic-FBX import,
+  bounds, five materials, two colliders, tags, exact transforms, and both
+  foliage transforms. Native traces pass three clear gate lanes, one gate
+  support, two fence centers, and two boundary-stone cores.
+- The authoritative Mac build succeeded with `-NoHotReloadFromIDE`; the live
+  editor discovered and passed all 21 tests with no failures or warnings.
+  Fresh PIE again proved `Q` movement and independent `W`/`S` cancellation by
+  holding identical transforms for one second after each stop input.
+- Recorded the Slate focus lesson: refresh the accessibility snapshot and click
+  the game viewport before synthetic gameplay keys, or editor-tool calls can
+  make a correct input path look broken. Physical `Ctrl+M` and populated-item
+  drag-token appearance remain honest manual checks.
 
 ## Asset Hunt
 
