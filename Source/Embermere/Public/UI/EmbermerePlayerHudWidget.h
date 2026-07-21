@@ -13,6 +13,7 @@ class UEmbermereEquipmentComponent;
 class UEmbermereEquipmentSlotButton;
 class UEmbermereHotbarComponent;
 class UEmbermereItemData;
+class UEmbermereUiIconSet;
 class UEmbermereInventoryRowButton;
 class UEmbermereInventoryComponent;
 class UEmbermereQuestLogComponent;
@@ -20,8 +21,10 @@ class UEmbermereStatsComponent;
 class UBorder;
 class UButton;
 class UHorizontalBox;
+class UImage;
 class UProgressBar;
 class UTextBlock;
+class UTexture2D;
 class UVerticalBox;
 
 UCLASS(Blueprintable)
@@ -30,6 +33,8 @@ class EMBERMERE_API UEmbermerePlayerHudWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UEmbermerePlayerHudWidget(const FObjectInitializer& ObjectInitializer);
+
 	UPROPERTY(BlueprintReadOnly, Category = "Embermere|HUD")
 	TObjectPtr<AEmbermereCharacter> OwningEmbermereCharacter;
 
@@ -50,6 +55,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Embermere|HUD")
 	TObjectPtr<UEmbermereEquipmentComponent> Equipment;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Embermere|HUD|Icons")
+	TSoftObjectPtr<UEmbermereUiIconSet> UiIconSet;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	void BindToCharacter(AEmbermereCharacter* Character);
@@ -135,6 +143,21 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	FText GetHotbarSlotDisplayText(int32 SlotIndex, float CooldownRemainingSeconds = 0.0f) const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
+	UTexture2D* ResolveItemIconForUi(const UEmbermereItemData* Item) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
+	UTexture2D* ResolveEquipmentSlotIconForUi(EEmbermereEquipmentSlot EquipmentSlot) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
+	FVector2D GetInventoryRowIconDimensions() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
+	FVector2D GetInventoryDetailIconDimensions() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
+	FVector2D GetEquipmentSlotIconDimensions() const;
+
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void NativeConstruct() override;
@@ -203,6 +226,9 @@ private:
 	TArray<TObjectPtr<UTextBlock>> InventoryRowTexts;
 
 	UPROPERTY(Transient)
+	TArray<TObjectPtr<UImage>> InventoryRowIcons;
+
+	UPROPERTY(Transient)
 	TArray<TObjectPtr<UEmbermereInventoryRowButton>> InventoryRowButtons;
 
 	UPROPERTY(Transient)
@@ -210,6 +236,9 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> InventoryDetailNameText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UImage> InventoryDetailIcon;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> InventoryDetailMetaText;
@@ -231,6 +260,9 @@ private:
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UTextBlock>> InventoryEquipmentSlotTexts;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UImage>> InventoryEquipmentSlotIcons;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> InventoryFooterText;

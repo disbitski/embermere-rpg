@@ -367,6 +367,31 @@ released by then. Keep `Ctrl+M` as a physical-key PIE check unless its game
 implementation moves to an event-driven chord binding. Do not report an MCP
 tool-model limitation as a gameplay regression.
 
+## Treat UI Source Art, Packages, And Presentation As Separate Gates
+
+A generated PNG existing on disk does not make it an Unreal asset, and a
+texture loaded in one editor session does not prove its package or data-asset
+reference was saved. Embermere's first icon family therefore keeps five
+separate checks:
+
+- a deterministic tracked source generator and inspectable PNG outputs;
+- an explicit Unreal import/configuration script;
+- explicit saves for every texture, icon-set, and item-data package;
+- a fresh-process Python validator for dimensions, texture settings, mappings,
+  and soft references;
+- C++ resolver/layout automation plus clean-restart PIE judgment.
+
+Keep icon selection data-driven through item soft references and a shared
+category/slot/missing-art fallback asset. Fixed `SizeBox` bounds preserve layout
+even when an image is collapsed and text remains the readable fallback.
+
+One headless detail matters: `UTexture2D::GetSizeX/Y()` can report zero under
+`-NullRHI` because no runtime texture resource exists. In editor automation,
+inspect `Texture->Source.GetSizeX/Y()` instead; retain an independent
+fresh-process check through Unreal's Python `blueprint_get_size_x/y()` surface.
+The two assertions measure persisted source dimensions without pretending the
+Null RHI created a render resource.
+
 ## Refresh Slate Focus Before Synthetic Gameplay Input
 
 Editor inspection calls can change Slate focus even while PIE keeps running.

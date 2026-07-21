@@ -198,6 +198,12 @@ Use in project:
 
 - Ability data points to icons/VFX with soft references.
 - UI widgets use icons from data, not hardcoded textures.
+- The first item/body-slot lane is now project-owned under `/Game/UI/Icons`:
+  Recruit Pack, Marsh Tonic, ten equipment slots, and category/missing-art
+  fallbacks resolve through `UEmbermereUiIconSet`. Do not replace that
+  data-driven contract when evaluating a later UI or ability-icon pack.
+- Fab remains useful for broad starter ability/spell icon and Niagara coverage;
+  Embermere-owned item/equipment art establishes the palette and fallback lane.
 
 ## Import Rules
 

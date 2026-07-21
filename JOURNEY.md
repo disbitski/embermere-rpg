@@ -1017,6 +1017,53 @@ Pipeline lesson:
   an apparent autorun failure into a reproducible focus diagnosis instead of a
   speculative gameplay change.
 
+## 2026-07-21 - The Inventory Gained A Visual Language
+
+The first item and paper-doll art pass moved Embermere beyond labeled boxes
+without coupling inventory rules to any one texture family.
+
+Presentation:
+
+- Generated 14 original `128x128` icons for Recruit Pack, Marsh Tonic, all ten
+  equipment slots, and explicit missing-item/missing-slot states. The tracked
+  standard-library generator makes the raster source deterministic and uses the
+  same moss, stone, iron, gold, leather, and ember language as the roadside
+  Blender family.
+- Added `UEmbermereUiIconSet` as the presentation contract. Item data may point
+  directly to soft icon references; otherwise the resolver uses category,
+  equipment-slot, and missing-art fallbacks without changing inventory or
+  equipment logic.
+- Integrated icons into fixed `18x18` bag rows and equipment cells plus a
+  `42x42` selected-item header. Existing item names and tooltips remain the
+  accessible fallback, and every fixed icon container keeps the inventory
+  geometry stable when art is absent.
+
+Persistence and verification:
+
+- Imported the raster family explicitly under `/Game/UI/Icons`, configured it
+  for UI use with no mip generation, saved every texture package, created and
+  saved the icon-set data asset, and persisted direct Recruit Pack/Marsh Tonic
+  assignments.
+- A fresh Unreal process reloaded all 14 textures at exact dimensions and
+  verified ten slot mappings, five category fallbacks, both missing-art paths,
+  and both starter-item references.
+- Added `Embermere.UI.IconPresentation`. The authoritative Mac build succeeded
+  with `-NoHotReloadFromIDE`, and the complete headless suite passed 22/22.
+  Saved-zone and native road-boundary validation also remained green with 62
+  upright Fab actors, nine original placements, and all three gate lanes open.
+- The interactive editor still predates the final C++ link, so actual icon
+  scale, clipping, tooltip readability, and fallback appearance remain an
+  explicit clean-restart PIE acceptance pass rather than an inferred success.
+
+Pipeline lesson:
+
+- Generated pixels, loaded objects, and saved Unreal packages are three
+  different states. Keep the source generator, explicit import/save step,
+  fresh-process asset validator, runtime resolver test, and human PIE review as
+  separate gates. `-NullRHI` can report zero runtime texture resource size, so
+  editor tests should inspect `Texture->Source` while the fresh Python validator
+  checks Unreal's Blueprint-visible dimensions.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

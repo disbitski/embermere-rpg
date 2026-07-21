@@ -9,6 +9,8 @@ import unreal
 
 RECRUIT_PACK_PATH = "/Game/Data/Items/DI_EmbermereRecruitPack"
 MARSH_TONIC_PATH = "/Game/Data/Items/DI_MarshTonic"
+RECRUIT_PACK_ICON_PATH = "/Game/UI/Icons/T_Icon_Item_RecruitPack"
+MARSH_TONIC_ICON_PATH = "/Game/UI/Icons/T_Icon_Item_MarshTonic"
 
 
 def load_or_create_item(asset_path):
@@ -42,6 +44,10 @@ def main():
     bonuses.set_editor_property("armor", 1.0)
     recruit_pack.set_editor_property("stat_bonuses", bonuses)
 
+    recruit_pack_icon = unreal.EditorAssetLibrary.load_asset(RECRUIT_PACK_ICON_PATH)
+    if recruit_pack_icon:
+        recruit_pack.set_editor_property("icon", recruit_pack_icon)
+
     if not unreal.EditorAssetLibrary.save_loaded_asset(recruit_pack, only_if_is_dirty=False):
         raise RuntimeError(f"Could not save starter item: {RECRUIT_PACK_PATH}")
 
@@ -56,6 +62,10 @@ def main():
     effects.set_editor_property("heal_health", 25.0)
     effects.set_editor_property("restore_mana", 10.0)
     marsh_tonic.set_editor_property("consumable_effects", effects)
+
+    marsh_tonic_icon = unreal.EditorAssetLibrary.load_asset(MARSH_TONIC_ICON_PATH)
+    if marsh_tonic_icon:
+        marsh_tonic.set_editor_property("icon", marsh_tonic_icon)
 
     if not unreal.EditorAssetLibrary.save_loaded_asset(marsh_tonic, only_if_is_dirty=False):
         raise RuntimeError(f"Could not save starter item: {MARSH_TONIC_PATH}")

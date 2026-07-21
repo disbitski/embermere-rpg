@@ -7,6 +7,7 @@
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Data/EmbermereItemData.h"
+#include "Data/EmbermereUiIconSet.h"
 #include "UI/EmbermereEquipmentSlotButton.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermereInventoryRowButton.h"
@@ -20,6 +21,7 @@
 #include "Components/GridSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
+#include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
@@ -32,6 +34,9 @@ namespace
 {
 	constexpr int32 ChatMessageLimit = 6;
 	constexpr int32 InventoryVisibleRowCount = 8;
+	constexpr float InventoryRowIconSize = 18.0f;
+	constexpr float InventoryDetailIconSize = 42.0f;
+	constexpr float EquipmentSlotIconSize = 18.0f;
 
 	const TCHAR* GetEquipmentSlotLabel(EEmbermereEquipmentSlot Slot)
 	{
@@ -150,6 +155,51 @@ namespace
 			Slot->SetPadding(FMargin(0.0f, 0.0f, 0.0f, BottomPadding));
 		}
 	}
+
+	void SetIconImage(UImage* Image, UTexture2D* Texture)
+	{
+		if (!Image)
+		{
+			return;
+		}
+
+		Image->SetBrushFromTexture(Texture, true);
+		Image->SetVisibility(Texture ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+	}
+}
+
+UEmbermerePlayerHudWidget::UEmbermerePlayerHudWidget(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	UiIconSet = TSoftObjectPtr<UEmbermereUiIconSet>(FSoftObjectPath(
+		TEXT("/Game/UI/Icons/DA_EmbermereUiIconSet.DA_EmbermereUiIconSet")));
+}
+
+UTexture2D* UEmbermerePlayerHudWidget::ResolveItemIconForUi(const UEmbermereItemData* Item) const
+{
+	const UEmbermereUiIconSet* IconSet = UiIconSet.IsNull() ? nullptr : UiIconSet.LoadSynchronous();
+	return IconSet ? IconSet->ResolveItemIcon(Item) : nullptr;
+}
+
+UTexture2D* UEmbermerePlayerHudWidget::ResolveEquipmentSlotIconForUi(EEmbermereEquipmentSlot EquipmentSlot) const
+{
+	const UEmbermereUiIconSet* IconSet = UiIconSet.IsNull() ? nullptr : UiIconSet.LoadSynchronous();
+	return IconSet ? IconSet->ResolveEquipmentSlotIcon(EquipmentSlot) : nullptr;
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetInventoryRowIconDimensions() const
+{
+	return FVector2D(InventoryRowIconSize);
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetInventoryDetailIconDimensions() const
+{
+	return FVector2D(InventoryDetailIconSize);
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetEquipmentSlotIconDimensions() const
+{
+	return FVector2D(EquipmentSlotIconSize);
 }
 
 void UEmbermerePlayerHudWidget::BindToCharacter(AEmbermereCharacter* Character)
@@ -999,18 +1049,25 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		InventoryListDropPanel->SetContent(InventoryListStack);
 	}
 	InventoryRowTexts.Reset();
+	InventoryRowIcons.Reset();
 	InventoryRowButtons.Reset();
 	for (int32 RowIndex = 0; RowIndex < InventoryVisibleRowCount; ++RowIndex)
 	{
 		UEmbermereInventoryRowButton* RowButton = WidgetTree->ConstructWidget<UEmbermereInventoryRowButton>(
 			UEmbermereInventoryRowButton::StaticClass(),
 			*FString::Printf(TEXT("InventoryRowButton_%d"), RowIndex));
+		UHorizontalBox* RowContent = WidgetTree->ConstructWidget<UHorizontalBox>(
+			UHorizontalBox::StaticClass(),
+			*FString::Printf(TEXT("InventoryRowContent_%d"), RowIndex));
+		UImage* RowIcon = WidgetTree->ConstructWidget<UImage>(
+			UImage::StaticClass(),
+			*FString::Printf(TEXT("InventoryRowIcon_%d"), RowIndex));
 		UTextBlock* RowText = MakeHudText(
 			WidgetTree,
 			*FString::Printf(TEXT("InventoryRowText_%d"), RowIndex),
 			FLinearColor(0.82f, 0.84f, 0.78f, 1.0f),
 			13.0f);
-		if (!RowButton || !RowText)
+		if (!RowButton || !RowContent || !RowIcon || !RowText)
 		{
 			continue;
 		}
@@ -1021,8 +1078,26 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		RowText->SetAutoWrapText(false);
 		RowText->SetClipping(EWidgetClipping::ClipToBounds);
 		RowText->SetMargin(FMargin(7.0f, 2.0f));
-		RowButton->AddChild(RowText);
+		RowIcon->SetVisibility(ESlateVisibility::Collapsed);
+		USizeBox* RowIconSize = MakeSizedWidget(
+			WidgetTree,
+			RowIcon,
+			*FString::Printf(TEXT("InventoryRowIconSize_%d"), RowIndex),
+			InventoryRowIconSize,
+			InventoryRowIconSize);
+		if (UHorizontalBoxSlot* IconSlot = RowContent->AddChildToHorizontalBox(RowIconSize))
+		{
+			IconSlot->SetPadding(FMargin(4.0f, 2.0f, 2.0f, 2.0f));
+			IconSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		if (UHorizontalBoxSlot* TextSlot = RowContent->AddChildToHorizontalBox(RowText))
+		{
+			TextSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+			TextSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		RowButton->AddChild(RowContent);
 		InventoryRowButtons.Add(RowButton);
+		InventoryRowIcons.Add(RowIcon);
 		InventoryRowTexts.Add(RowText);
 		AddStackChild(
 			InventoryListStack,
@@ -1036,6 +1111,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	}
 
 	InventoryDetailNameText = MakeHudText(WidgetTree, TEXT("InventoryDetailNameText"), FLinearColor(1.0f, 0.84f, 0.44f, 1.0f), 16.0f);
+	InventoryDetailIcon = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), TEXT("InventoryDetailIcon"));
 	InventoryDetailMetaText = MakeHudText(WidgetTree, TEXT("InventoryDetailMetaText"), FLinearColor(0.7f, 0.82f, 0.72f, 1.0f), 12.0f);
 	InventoryDetailDescriptionText = MakeHudText(WidgetTree, TEXT("InventoryDetailDescriptionText"), FLinearColor(0.84f, 0.83f, 0.76f, 1.0f), 13.0f);
 	InventoryActionButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("InventoryActionButton"));
@@ -1045,7 +1121,33 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	{
 		InventoryDetailDescriptionText->SetAutoWrapText(true);
 	}
-	AddStackChild(InventoryDetailStack, InventoryDetailNameText, 8.0f);
+	UHorizontalBox* InventoryDetailHeader = WidgetTree->ConstructWidget<UHorizontalBox>(
+		UHorizontalBox::StaticClass(), TEXT("InventoryDetailHeader"));
+	if (InventoryDetailHeader && InventoryDetailIcon && InventoryDetailNameText)
+	{
+		InventoryDetailIcon->SetVisibility(ESlateVisibility::Collapsed);
+		USizeBox* DetailIconSize = MakeSizedWidget(
+			WidgetTree,
+			InventoryDetailIcon,
+			TEXT("InventoryDetailIconSize"),
+			InventoryDetailIconSize,
+			InventoryDetailIconSize);
+		if (UHorizontalBoxSlot* IconSlot = InventoryDetailHeader->AddChildToHorizontalBox(DetailIconSize))
+		{
+			IconSlot->SetPadding(FMargin(0.0f, 0.0f, 8.0f, 0.0f));
+			IconSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		if (UHorizontalBoxSlot* NameSlot = InventoryDetailHeader->AddChildToHorizontalBox(InventoryDetailNameText))
+		{
+			NameSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+			NameSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		AddStackChild(InventoryDetailStack, InventoryDetailHeader, 6.0f);
+	}
+	else
+	{
+		AddStackChild(InventoryDetailStack, InventoryDetailNameText, 8.0f);
+	}
 	AddStackChild(InventoryDetailStack, InventoryDetailMetaText, 12.0f);
 	AddStackChild(InventoryDetailStack, InventoryDetailDescriptionText, 10.0f);
 	if (InventoryActionButton && InventoryActionText)
@@ -1069,6 +1171,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	AddStackChild(InventoryEquipmentStack, EquipmentTitle, 5.0f);
 	InventoryEquipmentSlotButtons.Reset();
 	InventoryEquipmentSlotTexts.Reset();
+	InventoryEquipmentSlotIcons.Reset();
 	struct FEquipmentSlotLayout
 	{
 		EEmbermereEquipmentSlot Slot;
@@ -1092,12 +1195,18 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		UEmbermereEquipmentSlotButton* SlotButton = WidgetTree->ConstructWidget<UEmbermereEquipmentSlotButton>(
 			UEmbermereEquipmentSlotButton::StaticClass(),
 			*FString::Printf(TEXT("EquipmentSlotButton_%d"), static_cast<int32>(Layout.Slot)));
+		UHorizontalBox* SlotContent = WidgetTree->ConstructWidget<UHorizontalBox>(
+			UHorizontalBox::StaticClass(),
+			*FString::Printf(TEXT("EquipmentSlotContent_%d"), static_cast<int32>(Layout.Slot)));
+		UImage* SlotIcon = WidgetTree->ConstructWidget<UImage>(
+			UImage::StaticClass(),
+			*FString::Printf(TEXT("EquipmentSlotIcon_%d"), static_cast<int32>(Layout.Slot)));
 		UTextBlock* SlotText = MakeHudText(
 			WidgetTree,
 			*FString::Printf(TEXT("EquipmentSlotText_%d"), static_cast<int32>(Layout.Slot)),
 			FLinearColor(0.66f, 0.68f, 0.62f, 1.0f),
-			8.0f);
-		if (!SlotButton || !SlotText || !EquipmentGrid)
+			7.0f);
+		if (!SlotButton || !SlotContent || !SlotIcon || !SlotText || !EquipmentGrid)
 		{
 			continue;
 		}
@@ -1109,16 +1218,33 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		SlotText->SetJustification(ETextJustify::Center);
 		SlotText->SetAutoWrapText(false);
 		SlotText->SetClipping(EWidgetClipping::ClipToBounds);
-		SlotButton->AddChild(SlotText);
+		USizeBox* SlotIconSize = MakeSizedWidget(
+			WidgetTree,
+			SlotIcon,
+			*FString::Printf(TEXT("EquipmentSlotIconSize_%d"), static_cast<int32>(Layout.Slot)),
+			EquipmentSlotIconSize,
+			EquipmentSlotIconSize);
+		if (UHorizontalBoxSlot* IconSlot = SlotContent->AddChildToHorizontalBox(SlotIconSize))
+		{
+			IconSlot->SetPadding(FMargin(2.0f, 0.0f, 2.0f, 0.0f));
+			IconSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		if (UHorizontalBoxSlot* TextSlot = SlotContent->AddChildToHorizontalBox(SlotText))
+		{
+			TextSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+			TextSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		SlotButton->AddChild(SlotContent);
 		InventoryEquipmentSlotButtons.Add(SlotButton);
 		InventoryEquipmentSlotTexts.Add(SlotText);
+		InventoryEquipmentSlotIcons.Add(SlotIcon);
 
 		USizeBox* SlotSize = MakeSizedWidget(
 			WidgetTree,
 			SlotButton,
 			*FString::Printf(TEXT("EquipmentSlotSize_%d"), static_cast<int32>(Layout.Slot)),
 			62.0f,
-			29.0f);
+			31.0f);
 		if (UGridSlot* GridSlot = EquipmentGrid->AddChildToGrid(SlotSize, Layout.Row, Layout.Column))
 		{
 			GridSlot->SetPadding(FMargin(2.0f, 1.0f));
@@ -1520,12 +1646,16 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 	{
 		UEmbermereEquipmentSlotButton* SlotButton = InventoryEquipmentSlotButtons[Index];
 		UTextBlock* SlotText = InventoryEquipmentSlotTexts.IsValidIndex(Index) ? InventoryEquipmentSlotTexts[Index] : nullptr;
+		UImage* SlotIcon = InventoryEquipmentSlotIcons.IsValidIndex(Index) ? InventoryEquipmentSlotIcons[Index] : nullptr;
 		if (!SlotButton || !SlotText)
 		{
 			continue;
 		}
 
 		const UEmbermereItemData* Item = Equipment ? Equipment->GetEquippedItem(SlotButton->EquipmentSlot) : nullptr;
+		SetIconImage(
+			SlotIcon,
+			Item ? ResolveItemIconForUi(Item) : ResolveEquipmentSlotIconForUi(SlotButton->EquipmentSlot));
 		SlotButton->SetIsEnabled(Item != nullptr);
 		SlotButton->SetToolTipText(Item
 			? FText::FromString(FString::Printf(
@@ -1545,10 +1675,9 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 			Item
 				? FLinearColor(1.0f, 0.8f, 0.3f, 1.0f)
 				: FLinearColor(0.56f, 0.58f, 0.53f, 1.0f)));
-		SlotText->SetText(FText::FromString(FString::Printf(
-			TEXT("%s\n%s"),
-			GetEquipmentSlotLabel(SlotButton->EquipmentSlot),
-			Item ? *Item->DisplayName.ToString() : TEXT("-"))));
+		SlotText->SetText(Item
+			? Item->DisplayName
+			: FText::FromString(GetEquipmentSlotLabel(SlotButton->EquipmentSlot)));
 	}
 
 	for (int32 RowIndex = 0; RowIndex < InventoryRowTexts.Num(); ++RowIndex)
@@ -1565,6 +1694,8 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 		}
 
 		UTextBlock* RowText = InventoryRowTexts[RowIndex];
+		UImage* RowIcon = InventoryRowIcons.IsValidIndex(RowIndex) ? InventoryRowIcons[RowIndex] : nullptr;
+		SetIconImage(RowIcon, nullptr);
 		if (RowText)
 		{
 			RowText->SetText(FText::GetEmpty());
@@ -1574,6 +1705,7 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 
 	if (!Inventory || StackCount <= 0)
 	{
+		SetIconImage(InventoryDetailIcon, nullptr);
 		if (InventoryActionButton)
 		{
 			InventoryActionButton->SetVisibility(ESlateVisibility::Collapsed);
@@ -1626,6 +1758,8 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 		}
 
 		const bool bSelected = StackIndex == SelectedIndex;
+		UImage* RowIcon = InventoryRowIcons.IsValidIndex(RowIndex) ? InventoryRowIcons[RowIndex] : nullptr;
+		SetIconImage(RowIcon, ResolveItemIconForUi(Stack.Item));
 		RowButton->SetIsEnabled(true);
 		RowButton->SetVisibility(ESlateVisibility::Visible);
 		RowButton->SetToolTipText(BuildItemTooltipText(Stack.Item, Stack.Quantity));
@@ -1646,6 +1780,7 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 	const FEmbermereInventoryStack& SelectedStack = Inventory->Stacks[SelectedIndex];
 	if (SelectedStack.Item)
 	{
+		SetIconImage(InventoryDetailIcon, ResolveItemIconForUi(SelectedStack.Item));
 		if (InventoryDetailNameText)
 		{
 			InventoryDetailNameText->SetText(SelectedStack.Item->DisplayName);

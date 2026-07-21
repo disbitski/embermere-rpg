@@ -24,6 +24,10 @@ rules. Click, keyboard, and future controller interaction remain supported.
   weapon/armor/consumable/quest/misc category priority, then item name,
   preserves the selected item occurrence, and disables while a pointer press
   or drag could make a row identity ambiguous.
+- The first data-driven icon family shipped on 2026-07-21. Recruit Pack and
+  Marsh Tonic own soft item references; ten equipment slots plus category and
+  missing-art states resolve through `UEmbermereUiIconSet`. Fixed row, detail,
+  and slot dimensions preserve layout while text and tooltips remain available.
 
 ## Drag Payload
 
@@ -90,8 +94,13 @@ item against the live inventory when the drop occurs and reject stale payloads.
    existing full-bag rejection/chat path.
 5. **Complete:** stable category/name sorting restores the selected item and
    duplicate-stack occurrence by identity and never runs during an active drag.
-6. **Next:** replace the compact text drag label with project-owned fantasy
-   icon/frame art once the gesture survives clean-restart playtesting.
+6. **Complete:** the compact text drag label is now a fixed project-owned
+   fantasy token with category sigil, item/context text, and stable bounds.
+7. **Complete:** project-owned item and equipment-slot art resolves through a
+   shared data asset with direct, category, slot, and missing-art fallbacks.
+8. **Next:** after clean-restart visual approval, reuse the resolved item icon
+   inside the drag token and reward presentation without changing payload or
+   transaction identity; then consider a restrained paper-doll backdrop.
 
 ## Verification
 
@@ -107,9 +116,13 @@ item against the live inventory when the drop occurs and reject stale payloads.
 - The Sort control is unavailable while a bag press or drag is active.
 - Drag hover and drop states fit inside the fixed inventory window at desktop
   and compact PIE resolutions.
+- Item and slot icons stay inside fixed bounds, preserve text/tooltips, and use
+  category or missing-art fallback without moving rows or the footer.
 
 Automation covers the transaction and identity matrix in
 `Embermere.UI.InventoryDragDrop` plus order and selection invariants in
-`Embermere.Inventory.StableSorting`. A clean-restart PIE pass still owns
-pointer threshold, cached-geometry hit testing, the visible Sort control, drag
-visual, hover feedback, cursor mode, and compact-viewport verification.
+`Embermere.Inventory.StableSorting`, while `Embermere.UI.IconPresentation`
+covers icon resolution, source dimensions, fallback paths, and fixed UI bounds.
+A clean-restart PIE pass still owns pointer threshold, cached-geometry hit
+testing, the visible Sort control, drag visual, icon readability, hover
+feedback, cursor mode, and compact-viewport verification.

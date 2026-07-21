@@ -6,14 +6,19 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is still running the current module/map and MCP listener on
-  port `8123`; restart only if the editor predates later C++ or package work,
-  or test discovery proves stale. Confirm Blender and its localhost bridge only
-  when another original-art pass is selected.
-- Discover and run all 21 tests. The authoritative 2026-07-20 build and live
-  MCP run passed 21/21; saved-map validation passes with 62 upright
+- Restart Unreal if it predates the 2026-07-21 UI-icon C++ build and texture
+  import, then confirm the current module/map and MCP listener on port `8123`.
+  Confirm Blender and its localhost bridge only when another original-art pass
+  is selected.
+- Discover and run all 22 tests. The authoritative 2026-07-21 no-hot-reload
+  build and headless run passed 22/22; saved-map validation passes with 62 upright
   `FabPass_` actors, nine original-art placements, visual-only encounter
   markers, exact daylight, and the collision-cleared starter layout.
+- In clean PIE, open the inventory and visually approve the new project-owned
+  icon family: fixed `18x18` bag/slot icons, the `42x42` detail icon, all ten
+  empty-slot symbols, Recruit Pack and Marsh Tonic art, occupied-slot item art,
+  readable text/tooltips, and no row, footer, panel, or hotbar layout shift.
+  Also check that an item without direct art uses its category fallback.
 - In clean PIE, retain the verified input baseline: `Q` advances the player and
   independent `W` and `S` presses stop all later movement. Physically press
   `Ctrl+M` and confirm inversion feedback; Slate's atomic chord cannot span the
@@ -32,16 +37,16 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `(2500,1300)`. Confirm each 525 cm pull stays solo, enemies cross visual-only
   marker geometry, and the two idle Prowlers remain home. Tune leash/respawn
   only when live feel exposes a concrete issue.
-- Then continue with the highest-value bounded slice: data-driven illustrated
-  item/body-slot icon art with text fallbacks and tests, a compact original
-  Blender village prop, or cohesive fantasy village architecture when a
-  suitable signed-in UE pack is available.
+- After visual acceptance, continue with the highest-value bounded slice:
+  reuse the same data-driven item icons in the fantasy drag token and reward
+  presentation, add a restrained illustrated paper-doll backdrop, build a
+  compact original Blender village prop, or begin cohesive fantasy village
+  architecture when a suitable signed-in UE pack is available.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE only when the editor predates later C++ or
-  package work. The 2026-07-19 clean editor loaded the current controller and
-  map; current headless code passes all 21 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-07-21
+  icon build/package import. Current headless code passes all 22 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -89,6 +94,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.UI.ChatLog`
   - `Embermere.UI.EnemyNameplateWidget`
   - `Embermere.UI.HotbarCooldownDisplay`
+  - `Embermere.UI.IconPresentation`
   - `Embermere.UI.InventoryDragDrop`
   - `Embermere.UI.InventoryToggle`
   - `Embermere.UI.ItemComparison`
@@ -167,6 +173,10 @@ Embermere has a working first-pass starter slice:
 - temporary in-world interactable markers, including a gold quest marker for Mara;
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
 - structured first-pass inventory window with capacity header, item rows, selected-item details, empty/reward states, `[`/`]` inspection cycling, and `I` show/hide toggle;
+- a data-driven project-owned icon set with explicit Recruit Pack and Marsh
+  Tonic art, ten equipment-slot symbols, category and missing-art fallbacks,
+  fixed UI dimensions, deterministic source generation, and durable Unreal
+  texture packages;
 - mouse-clickable inventory rows and cursor-aware game/UI input while the inventory is open;
 - data-driven item categories, paper-doll equipment slots, level requirements, stat-bonus fields, and transactional Equip/Unequip actions;
 - ten clickable equipment-slot controls, atomic bag/equipment transfers, rollback-safe replacement, idempotent health/mana/armor/power application, armor mitigation, and safe consumable depletion;
@@ -181,11 +191,11 @@ Embermere has a working first-pass starter slice:
 - a project-owned Blender waystone, ember-lamp, road-signpost, road-gate, and boundary-fence family with reviewed scripts, editable source, FBX, previews, authored collision, and seven validated saved placements;
 - a project-owned fantasy inventory drag token with category sigils, contextual item text, and fixed bounds;
 - first Mac-friendly sky, ambient fill, fog-readability correction, and muted moss foundation material;
-- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash and loot rules, equipment slot/stat/transaction rules, atomic inventory capacity, consumable use, item comparison/tooltips, identity-based inventory and drag/drop actions, autorun cancellation, damage immunity, enemy nameplate widget, chat log, hotbar cooldown display, and inventory toggle.
+- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash and loot rules, equipment slot/stat/transaction rules, atomic inventory capacity, consumable use, item comparison/tooltips, identity-based inventory and drag/drop actions, autorun cancellation, damage immunity, enemy nameplate widget, chat log, hotbar cooldown display, data-driven icon presentation, and inventory toggle.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, project-owned drag presentation, stable explicit sorting, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE has verified the full quest, drag/drop, identity-preserving Sort, solo Prowler pulls, collision-cleared encounter markers, targeting, the original-art road family, and transform-proven `W`/`S` autorun cancellation on the current module. The populated-item fantasy drag token, physical `Ctrl+M` feedback, and south-fence foliage composition remain the immediate visual checks. The world remains stylistically mixed without real fantasy village buildings or final character art.
+The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, project-owned drag and icon presentation, stable explicit sorting, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE has verified the full quest, drag/drop, identity-preserving Sort, solo Prowler pulls, collision-cleared encounter markers, targeting, the original-art road family, and transform-proven `W`/`S` autorun cancellation on the current module. The new item/slot icon layout, populated-item fantasy drag token, and physical `Ctrl+M` feedback remain the immediate clean-restart visual checks. The world remains stylistically mixed without real fantasy village buildings or final character art.
 
 ## Next Work
 
@@ -194,13 +204,17 @@ The prototype foundation is alive, but it is still early. The environment is upr
   - visually verify the flat animated 24-segment ring using `M_EmbermereTargetRing`, then decide whether rune/soft-edge texture art warrants a decal revision;
   - tune screen-space widget size/height against camera distance.
 - Improve inventory presentation:
+  - after restarting Unreal, visually verify all ten empty equipment-slot icons,
+    Recruit Pack and Marsh Tonic icons in rows/detail/occupied slots, fixed icon
+    dimensions, text fallback/tooltips, category fallback, and no layout shift;
   - verify the 700x330 bag/detail/equipment layout, all ten slot controls, Recruit Pack bag-to-Back transfer, gold occupied state, slot-click unequip, stat changes, and full-bag failure message in PIE;
   - manually verify mouse row/action clicks, cursor capture/release, and bracket-key item cycling once inventory has multiple stacks;
   - verify Marsh Prowler deaths grant Marsh Tonic, repeated drops stack, and `Use` heals damaged players without wasting a full-resource tonic;
   - visually verify item comparison lines and row/occupied-slot hover tooltips after a clean restart;
   - visually verify bag-to-equipment and equipment-to-bag drag/drop, valid/invalid feedback, stale identity rejection, and click/keyboard fallbacks;
   - visually verify stable identity-preserving sorting and the new fixed-size fantasy drag token across armor and consumable payloads;
-  - add illustrated body-slot art after the interaction model survives PIE.
+  - after the icon layout survives PIE, reuse item art in the fantasy drag token
+    and reward popup, then consider a restrained paper-doll body backdrop.
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
   - continue tuning chat panel height/line count against the hotbar and common desktop viewport sizes.
@@ -220,7 +234,8 @@ The prototype foundation is alive, but it is still early. The environment is upr
   return-home speed, damage, and respawn timing only from normal-route PIE.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
-- Add illustrated body-slot art after the clickable paper doll and comparison states survive PIE.
+- Add a restrained paper-doll backdrop and starter ability icons after the new
+  data-driven item/slot icon family survives clean-restart PIE.
 
 ## Last Completed
 
@@ -482,6 +497,30 @@ The prototype foundation is alive, but it is still early. The environment is upr
   the game viewport before synthetic gameplay keys, or editor-tool calls can
   make a correct input path look broken. Physical `Ctrl+M` and populated-item
   drag-token appearance remain honest manual checks.
+- 2026-07-21: generated a deterministic project-owned family of 14 square UI
+  icons: Recruit Pack, Marsh Tonic, ten equipment slots, and explicit missing
+  item/slot fallbacks. The tracked standard-library generator keeps the source
+  art reproducible and the palette aligned with Embermere's moss, stone, iron,
+  gold, leather, and ember roadside family.
+- Added `UEmbermereUiIconSet`, which resolves explicit soft item references,
+  category fallbacks, equipment-slot art, and missing-art fallbacks without
+  hardwiring textures into inventory rules. Recruit Pack and Marsh Tonic now
+  own explicit icon references in their saved data assets.
+- Integrated fixed `18x18` row/slot icons and a fixed `42x42` detail icon into
+  the native inventory window while preserving item names, hover tooltips,
+  click/keyboard interaction, and collapsed text-only fallback behavior.
+- Imported and explicitly saved all 14 `128x128` textures plus the icon-set data
+  asset under `/Game/UI/Icons`. A fresh-process Python validator reloaded every
+  package and passed exact dimensions, mappings, texture settings, and starter
+  item assignments.
+- Added `Embermere.UI.IconPresentation`; after adapting the source-dimension
+  assertion for `-NullRHI`, the authoritative no-hot-reload build succeeded and
+  the complete suite passed 22/22. Fresh saved-map and road-boundary validators
+  also passed with the accepted 62 Fab actors, nine original placements, and
+  three clear gate lanes intact.
+- The already-open interactive editor predates the final icon C++ link. Restart
+  it before visual approval of the row, detail, slot, fallback, and tooltip
+  presentation in PIE.
 
 ## Asset Hunt
 

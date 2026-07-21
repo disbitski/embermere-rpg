@@ -11,6 +11,8 @@
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
 #include "Data/EmbermereRulesData.h"
+#include "Data/EmbermereUiIconSet.h"
+#include "Engine/Texture2D.h"
 #include "Game/EmbermerePlayerController.h"
 #include "Misc/AutomationTest.h"
 #include "UI/EmbermereEnemyNameplateWidget.h"
@@ -379,6 +381,100 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Returned item is appended to the bag"), Inventory->Stacks[1].Item == FirstItem);
 	TestTrue(TEXT("Returned item can be selected"), HudWidget->SelectInventoryItem(1));
 	TestEqual(TEXT("Unequipped item action returns to Equip"), HudWidget->GetSelectedInventoryActionLabel().ToString(), FString(TEXT("Equip")));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereUiIconPresentationTest,
+	"Embermere.UI.IconPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereUiIconPresentationTest::RunTest(const FString& Parameters)
+{
+	const UEmbermereUiIconSet* IconSet = LoadObject<UEmbermereUiIconSet>(
+		nullptr,
+		TEXT("/Game/UI/Icons/DA_EmbermereUiIconSet.DA_EmbermereUiIconSet"));
+	const UEmbermereItemData* RecruitPack = LoadObject<UEmbermereItemData>(
+		nullptr,
+		TEXT("/Game/Data/Items/DI_EmbermereRecruitPack.DI_EmbermereRecruitPack"));
+	const UEmbermereItemData* MarshTonic = LoadObject<UEmbermereItemData>(
+		nullptr,
+		TEXT("/Game/Data/Items/DI_MarshTonic.DI_MarshTonic"));
+	TestNotNull(TEXT("UI icon set asset resolves"), IconSet);
+	TestNotNull(TEXT("Recruit Pack data resolves"), RecruitPack);
+	TestNotNull(TEXT("Marsh Tonic data resolves"), MarshTonic);
+	if (!IconSet || !RecruitPack || !MarshTonic)
+	{
+		return false;
+	}
+
+	TestEqual(TEXT("Icon set maps all ten equipment slots"), IconSet->EquipmentSlotIcons.Num(), 10);
+	TestEqual(TEXT("Icon set maps all five item category fallbacks"), IconSet->CategoryFallbackIcons.Num(), 5);
+	TestFalse(TEXT("Icon set has a missing-item fallback"), IconSet->MissingItemIcon.IsNull());
+	TestFalse(TEXT("Icon set has a missing-slot fallback"), IconSet->MissingSlotIcon.IsNull());
+	TestFalse(TEXT("Recruit Pack owns an explicit icon reference"), RecruitPack->Icon.IsNull());
+	TestFalse(TEXT("Marsh Tonic owns an explicit icon reference"), MarshTonic->Icon.IsNull());
+
+	auto TestIconDimensions = [this](const FString& Label, UTexture2D* Texture)
+	{
+		TestNotNull(*FString::Printf(TEXT("%s resolves"), *Label), Texture);
+		if (Texture)
+		{
+			TestEqual(*FString::Printf(TEXT("%s source width is stable"), *Label), static_cast<int32>(Texture->Source.GetSizeX()), 128);
+			TestEqual(*FString::Printf(TEXT("%s source height is stable"), *Label), static_cast<int32>(Texture->Source.GetSizeY()), 128);
+		}
+	};
+
+	UTexture2D* RecruitPackIcon = IconSet->ResolveItemIcon(RecruitPack);
+	UTexture2D* MarshTonicIcon = IconSet->ResolveItemIcon(MarshTonic);
+	TestIconDimensions(TEXT("Recruit Pack icon"), RecruitPackIcon);
+	TestIconDimensions(TEXT("Marsh Tonic icon"), MarshTonicIcon);
+	TestTrue(TEXT("Recruit Pack resolves its direct icon"), RecruitPackIcon == RecruitPack->Icon.LoadSynchronous());
+	TestTrue(TEXT("Marsh Tonic resolves its direct icon"), MarshTonicIcon == MarshTonic->Icon.LoadSynchronous());
+
+	static const EEmbermereEquipmentSlot EquipmentSlots[] = {
+		EEmbermereEquipmentSlot::MainHand,
+		EEmbermereEquipmentSlot::OffHand,
+		EEmbermereEquipmentSlot::Head,
+		EEmbermereEquipmentSlot::Chest,
+		EEmbermereEquipmentSlot::Hands,
+		EEmbermereEquipmentSlot::Legs,
+		EEmbermereEquipmentSlot::Feet,
+		EEmbermereEquipmentSlot::Back,
+		EEmbermereEquipmentSlot::Neck,
+		EEmbermereEquipmentSlot::Ring,
+	};
+	for (const EEmbermereEquipmentSlot Slot : EquipmentSlots)
+	{
+		TestIconDimensions(
+			FString::Printf(TEXT("Equipment slot %d icon"), static_cast<int32>(Slot)),
+			IconSet->ResolveEquipmentSlotIcon(Slot));
+	}
+
+	UEmbermereItemData* FallbackWeapon = NewObject<UEmbermereItemData>();
+	FallbackWeapon->DisplayName = FText::FromString(TEXT("Fallback Weapon"));
+	FallbackWeapon->Category = EEmbermereItemCategory::Weapon;
+	TestTrue(
+		TEXT("Item without direct art resolves its category fallback"),
+		IconSet->ResolveItemIcon(FallbackWeapon) == IconSet->ResolveEquipmentSlotIcon(EEmbermereEquipmentSlot::MainHand));
+	TestTrue(
+		TEXT("Null item resolves explicit missing-item art"),
+		IconSet->ResolveItemIcon(nullptr) == IconSet->MissingItemIcon.LoadSynchronous());
+	TestTrue(
+		TEXT("Unmapped slot resolves explicit missing-slot art"),
+		IconSet->ResolveEquipmentSlotIcon(EEmbermereEquipmentSlot::None) == IconSet->MissingSlotIcon.LoadSynchronous());
+
+	UEmbermerePlayerHudWidget* HudWidget = NewObject<UEmbermerePlayerHudWidget>();
+	TestNotNull(TEXT("HUD can be created for icon presentation"), HudWidget);
+	if (HudWidget)
+	{
+		TestFalse(TEXT("HUD defaults to the data-driven icon set"), HudWidget->UiIconSet.IsNull());
+		TestTrue(TEXT("HUD resolves Recruit Pack through item data"), HudWidget->ResolveItemIconForUi(RecruitPack) == RecruitPackIcon);
+		TestEqual(TEXT("Bag row icon dimensions stay fixed"), HudWidget->GetInventoryRowIconDimensions(), FVector2D(18.0f, 18.0f));
+		TestEqual(TEXT("Detail icon dimensions stay fixed"), HudWidget->GetInventoryDetailIconDimensions(), FVector2D(42.0f, 42.0f));
+		TestEqual(TEXT("Equipment icon dimensions stay fixed"), HudWidget->GetEquipmentSlotIconDimensions(), FVector2D(18.0f, 18.0f));
+	}
 
 	return true;
 }
