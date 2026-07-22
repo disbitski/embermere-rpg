@@ -46,15 +46,18 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 10. Inspect the icon pass before and after earning items: all ten empty
     equipment slots show distinct fixed symbols; Recruit Pack and Marsh Tonic
     show project-owned art in their `18x18` rows, selected `42x42` detail header,
-    and occupied slot where applicable. Confirm labels/tooltips remain readable,
-    no panel geometry shifts, and a test item without direct art uses a category
-    fallback rather than an empty box.
+    and occupied slot where applicable. Confirm the exact `Recruit Pack` label
+    fits its row and detail heading without clipping or crowding `Equipment`,
+    labels/tooltips remain readable, no panel geometry shifts, and a test item
+    without direct art uses a category fallback rather than an empty box.
 11. After earning Mara's Recruit Pack reward, select it and confirm it identifies as level-1 Back armor with `+5 HP, +1 Armor`. Confirm its detail pane compares it with the empty Back slot, then hover its row and verify the tooltip includes quantity, armor/slot/level, effects, comparison, and description.
 12. Drag Recruit Pack onto Back; confirm the matching slot highlights gold, the item leaves the bag, aggregate bonuses update, HP becomes `105/105`, and chat reports the action. Dragging over a wrong slot should show a restrained red state and dropping there must change nothing.
 13. Confirm the drag visual is a fixed fantasy token rather than a plain text
-    label: `ARM` sigil, warm Recruit Pack name, `Back | Level 1` context, and no
-    overlap with the inventory footer or hotbar. Repeat with Marsh Tonic and
-    confirm the consumable sigil/effect context remains readable.
+    label: a fixed `44x44` Recruit Pack illustration, warm item name,
+    `Back | Level 1` context, and no overlap with the inventory footer or
+    hotbar. Repeat with Marsh Tonic and confirm its illustration/effect context
+    remains readable. An item without resolved art should retain the compact
+    category-sigil fallback in the same cell.
 14. Drag the occupied Back slot onto the bag list; confirm the item returns once and stats/slot state reset without a fake loot popup. Repeat the equip/unequip flow with row click/action button and slot click to confirm the non-drag fallback remains intact.
 15. With every bag slot occupied, confirm clicking or dragging an equipped slot toward the bag refuses to unequip and posts an inventory-full message without losing or duplicating the item.
 16. Walk near Mara Fenwatch in the village and press `F`.
@@ -71,7 +74,9 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 27. Defeat a Marsh Prowler and confirm the chat reports one Marsh Tonic looted and inventory gains a stack. Repeated drops should increase the same stack up to its limit.
 28. After taking damage, select Marsh Tonic and click `Use`; confirm it restores up to 25 health and 10 mana and consumes one tonic. At full health/mana, `Use` must be disabled and preserve the stack.
 29. Defeat three starter enemies.
-30. Return to Mara and press `F` to complete the quest.
+30. Return to Mara and press `F` to complete the quest. Confirm the temporary
+    reward popup shows the Recruit Pack art in a fixed `32x32` cell beside
+    readable reward text without changing the popup bounds.
 31. With both Recruit Pack and Marsh Tonic in the bag, select one and click `Sort`; confirm armor appears before consumables, names sort alphabetically within a category, the same item stays selected, and chat reports `Inventory sorted`.
 32. Begin dragging a bag row and confirm the Sort control becomes unavailable and the bag order stays fixed until the drag ends. Recheck one valid and one invalid equipment drop afterward.
 
@@ -94,7 +99,9 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Defeating starter enemies advances `StarterEnemyDefeated`.
 - Defeating a Marsh Prowler grants one stackable Marsh Tonic and reports it in chat.
 - Defeated enemies hide and respawn after a short prototype delay.
-- Completing the quest shows bottom-left completion/XP messages, a temporary loot/reward popup, and the reward item in the inventory panel.
+- Completing the quest shows bottom-left completion/XP messages, a temporary
+  loot/reward popup with fixed item art, and the reward item in the inventory
+  panel.
 
 ## Known Prototype Gaps
 
@@ -110,8 +117,8 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
   selection, tooltips, net equipment comparison, clickable/drop-target slots,
   atomic transfers, rollback-safe replacement, stat application, armor
   mitigation, safe consumable depletion, and a real Marsh Tonic loot source. It
-  does not yet have an illustrated paper-doll body backdrop or item icons inside
-  the drag/reward presentation; the next phases are documented in
+  now reuses resolved item art in drag and reward feedback. It does not yet have
+  an illustrated paper-doll body backdrop; the next phases are documented in
   `Docs/INVENTORY_INTERACTION_PLAN.md`.
 - Nameplates use a native UMG widget component and target highlighting uses a dedicated emissive material on a flat animated 24-segment ring; a future decal/texture treatment can add runes and softer edges.
 - The bottom-left chat/combat log is clipped inside its shaded panel and currently uses single-line rows; final chat history, scrolling, and fantasy styling still need a proper UI pass.

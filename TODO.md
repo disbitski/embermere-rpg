@@ -6,28 +6,36 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Restart Unreal if it predates the 2026-07-21 UI-icon C++ build and texture
-  import, then confirm the current module/map and MCP listener on port `8123`.
+- Restart Unreal if it predates the 2026-07-22 drag/reward icon C++ build and
+  compact Recruit Pack data-asset save, then confirm the current module/map and
+  MCP listener on port `8123`.
   Confirm Blender and its localhost bridge only when another original-art pass
   is selected.
-- Discover and run all 22 tests. The authoritative 2026-07-21 no-hot-reload
+- Discover and run all 22 tests. The authoritative 2026-07-22 no-hot-reload
   build and headless run passed 22/22; saved-map validation passes with 62 upright
   `FabPass_` actors, nine original-art placements, visual-only encounter
   markers, exact daylight, and the collision-cleared starter layout.
 - In clean PIE, open the inventory and visually approve the new project-owned
   icon family: fixed `18x18` bag/slot icons, the `42x42` detail icon, all ten
   empty-slot symbols, Recruit Pack and Marsh Tonic art, occupied-slot item art,
-  readable text/tooltips, and no row, footer, panel, or hotbar layout shift.
-  Also check that an item without direct art uses its category fallback.
+  readable text/tooltips, and no row, footer, panel, or hotbar layout shift. The
+  saved player-facing label is now `Recruit Pack`; confirm it fits both its row
+  and detail header without clipping or crowding `Equipment`. Also check that
+  an item without direct art uses its category fallback.
+- Populate both starter items and visually approve today's icon reuse: the
+  fixed `236x62` fantasy drag token should show the resolved item illustration
+  in its `44x44` sigil cell, and the temporary reward popup should show a fixed
+  `32x32` item icon without moving or clipping its text. Category-sigil and
+  missing-art fallbacks must remain readable when no texture resolves.
 - In clean PIE, retain the verified input baseline: `Q` advances the player and
   independent `W` and `S` presses stop all later movement. Physically press
   `Ctrl+M` and confirm inversion feedback; Slate's atomic chord cannot span the
   controller's later `PlayerTick` poll, so MCP cannot prove that specific UI
   message without changing the input implementation.
-- Complete the populated-inventory visual check for the project-owned fantasy
-  drag token with Recruit Pack and Marsh Tonic: fixed size, category sigil,
-  readable item/context text, no panel or hotbar overlap, gold valid-drop state,
-  and red wrong-slot state. Its automation contract already passes.
+- Complete the populated-inventory interaction check for Recruit Pack and Marsh
+  Tonic: readable item/context text, no panel or hotbar overlap, gold valid-drop
+  state, red wrong-slot state, unchanged click/keyboard fallbacks, and atomic
+  rollback. The icon-bearing drag-token automation contract already passes.
 - Recheck the accepted road threshold through `Embermere_RoadGate_01`, between
   both boundary fences, and inside the two new rune-topped boundary stones.
   Native validation already proves three clear center lanes plus solid gate,
@@ -37,16 +45,16 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `(2500,1300)`. Confirm each 525 cm pull stays solo, enemies cross visual-only
   marker geometry, and the two idle Prowlers remain home. Tune leash/respawn
   only when live feel exposes a concrete issue.
-- After visual acceptance, continue with the highest-value bounded slice:
-  reuse the same data-driven item icons in the fantasy drag token and reward
-  presentation, add a restrained illustrated paper-doll backdrop, build a
-  compact original Blender village prop, or begin cohesive fantasy village
-  architecture when a suitable signed-in UE pack is available.
+- After visual acceptance, continue with the highest-value bounded slice: add a
+  restrained illustrated paper-doll backdrop, create ability/hotbar icon art,
+  build a compact original Blender village prop, or begin cohesive fantasy
+  village architecture when a suitable signed-in UE pack is available.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-07-21
-  icon build/package import. Current headless code passes all 22 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-07-22
+  drag/reward icon build and Recruit Pack package save. Current headless code
+  passes all 22 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -521,6 +529,35 @@ The prototype foundation is alive, but it is still early. The environment is upr
 - The already-open interactive editor predates the final icon C++ link. Restart
   it before visual approval of the row, detail, slot, fallback, and tooltip
   presentation in PIE.
+- 2026-07-22: restarted PIE on the July 21 icon module, passed all 22 tests in
+  the live editor, and inspected both the empty and populated inventory. The
+  ten empty-slot symbols and starter-item art were distinct and stable, but the
+  real saved `Embermere Recruit Pack` label clipped in its row and crowded the
+  adjacent Equipment heading in the detail layout.
+- Shortened the data-driven player-facing label to `Recruit Pack`, reproduced
+  that value in `configure_starter_items.py`, saved the item package, and added
+  the exact name to fresh-process icon validation. A second populated PIE
+  capture accepted the corrected row and detail-heading fit. This keeps the
+  underlying `RecruitPack` identity unchanged.
+- Reused the existing resolver in the fixed `236x62` fantasy drag token and the
+  temporary reward popup. Resolved item art now occupies a fixed `44x44` drag
+  cell and a fixed `32x32` reward cell; category text and missing-item art remain
+  fallbacks without changing drag payload or transaction identity.
+- Expanded `Embermere.UI.InventoryDragDrop` and
+  `Embermere.UI.IconPresentation` for resolved drag art, visual construction,
+  and fixed reward-icon bounds. The authoritative no-hot-reload Mac build and
+  fresh-process suite passed 22/22 with zero warnings or failures.
+- Fresh-process icon validation passed all 14 textures, mappings, starter-item
+  assignments, and the compact Recruit Pack name. Saved-zone validation passed
+  62 upright Fab actors plus nine original placements; native traces again
+  proved three clear gate lanes and solid gate/fence/end-stone collision.
+- The interactive editor predates today's final relink. Clean-restart PIE still
+  owns visual approval of the icon-bearing drag token, reward popup, and
+  fallback appearance; the compact `Recruit Pack` copy is already accepted.
+- The Codex automation read/update API stalled twice and was terminated without
+  mutating `daily-embermere-rpg-build`. Its existing 8:00 AM heartbeat remains
+  active and already treats this `Start Here` section as authoritative, so this
+  handoff remains tomorrow's source of truth until the app endpoint recovers.
 
 ## Asset Hunt
 

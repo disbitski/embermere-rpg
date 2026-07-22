@@ -98,9 +98,12 @@ item against the live inventory when the drop occurs and reject stale payloads.
    fantasy token with category sigil, item/context text, and stable bounds.
 7. **Complete:** project-owned item and equipment-slot art resolves through a
    shared data asset with direct, category, slot, and missing-art fallbacks.
-8. **Next:** after clean-restart visual approval, reuse the resolved item icon
-   inside the drag token and reward presentation without changing payload or
-   transaction identity; then consider a restrained paper-doll backdrop.
+8. **Complete:** the shared resolver now supplies a fixed `44x44` item image in
+   the drag token and fixed `32x32` item art in reward feedback without changing
+   payload or transaction identity. Category-sigil and missing-item fallbacks
+   remain available when direct art does not resolve.
+9. **Next:** clean-restart visual approval of the icon-bearing drag/reward
+   presentation, then consider a restrained paper-doll backdrop.
 
 ## Verification
 
@@ -124,5 +127,6 @@ Automation covers the transaction and identity matrix in
 `Embermere.Inventory.StableSorting`, while `Embermere.UI.IconPresentation`
 covers icon resolution, source dimensions, fallback paths, and fixed UI bounds.
 A clean-restart PIE pass still owns pointer threshold, cached-geometry hit
-testing, the visible Sort control, drag visual, icon readability, hover
-feedback, cursor mode, and compact-viewport verification.
+testing, the visible Sort control, icon-bearing drag visual, reward-popup art,
+icon readability, hover feedback, cursor mode, and compact-viewport
+verification.

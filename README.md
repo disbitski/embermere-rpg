@@ -54,7 +54,7 @@ The repo currently contains the C++ gameplay scaffold for:
 - first hotbar cooldown enforcement and ready-time feedback
 - starter enemy aggro, leash, return-home, attack, death, and respawn behavior
 - player respawn with short damage protection for recovery safety
-- structured inventory/equipment window with clickable and draggable item rows, a fixed project-owned fantasy drag token, ten clickable/drop-target paper-doll slots, gold/red drop feedback, equipment-to-bag return, aggregate bonuses, cursor-aware game/UI input, capacity, selected-item effects, empty/reward states, `[`/`]` inspection cycling, `I` show/hide behavior, transactional Equip/Unequip, and consumable Use actions
+- structured inventory/equipment window with clickable and draggable item rows, a fixed project-owned icon-bearing fantasy drag token, ten clickable/drop-target paper-doll slots, gold/red drop feedback, equipment-to-bag return, aggregate bonuses, cursor-aware game/UI input, capacity, selected-item effects, icon-bearing reward feedback, empty/reward states, `[`/`]` inspection cycling, `I` show/hide behavior, transactional Equip/Unequip, and consumable Use actions
 - data-driven project-owned item and equipment-slot icons with explicit soft
   item references, category/missing-art fallbacks, fixed row/detail/slot sizes,
   deterministic source generation, and durable Unreal texture packages
@@ -146,10 +146,10 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 ## Status
 
-Early playable Unreal prototype scaffold with Unreal and Blender MCP connected, a daylight starter-zone loop mixing a local Fab pass with an original Embermere waystone/lamp/signpost/gate/fence/end-stone family, collision-cleared solo-pull tab-target combat, hotbar cooldown feedback, native HUD panels, bottom-left chat/combat feedback, first quest reward and starter-enemy loot flow, a clickable and draggable paper-doll equipment/inventory window with atomic transactions, project-owned fantasy drag and data-driven icon presentation, safe consumable actions, and native selected-target nameplate/emissive-ring feedback.
+Early playable Unreal prototype scaffold with Unreal and Blender MCP connected, a daylight starter-zone loop mixing a local Fab pass with an original Embermere waystone/lamp/signpost/gate/fence/end-stone family, collision-cleared solo-pull tab-target combat, hotbar cooldown feedback, native HUD panels, bottom-left chat/combat feedback, first quest reward and starter-enemy loot flow, a clickable and draggable paper-doll equipment/inventory window with atomic transactions, project-owned data-driven icon presentation reused across rows, slots, details, drag feedback, and rewards, safe consumable actions, and native selected-target nameplate/emissive-ring feedback.
 
-Next milestone: clean-restart PIE approval of the new item/equipment icon
-layout and populated fantasy drag token; reuse of item art in drag/reward
-presentation; normal-route Prowler/respawn feel tuning; and replacement of the
-remaining temporary village silhouettes with cohesive stylized fantasy
-architecture.
+Next milestone: clean-restart PIE approval of the icon-bearing fantasy drag
+token, reward popup, and fallback states; a restrained illustrated paper-doll
+backdrop or ability-icon pass; normal-route
+Prowler/respawn feel tuning; and replacement of the remaining temporary village
+silhouettes with cohesive stylized fantasy architecture.

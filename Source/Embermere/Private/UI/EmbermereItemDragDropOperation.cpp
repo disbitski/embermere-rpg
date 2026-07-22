@@ -2,11 +2,13 @@
 #include "Components/Border.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
+#include "Components/Image.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "Data/EmbermereItemData.h"
+#include "Engine/Texture2D.h"
 
 namespace
 {
@@ -101,6 +103,7 @@ UWidget* UEmbermereItemDragDropOperation::CreateDragVisual()
 	UHorizontalBox* Row = NewObject<UHorizontalBox>(InnerBorder);
 	USizeBox* SigilSize = NewObject<USizeBox>(Row);
 	UBorder* SigilBorder = NewObject<UBorder>(SigilSize);
+	UImage* IconImage = ResolvedIcon ? NewObject<UImage>(SigilBorder) : nullptr;
 	UVerticalBox* Details = NewObject<UVerticalBox>(Row);
 	if (!RootSize || !OuterBorder || !InnerBorder || !Row || !SigilSize || !SigilBorder || !Details)
 	{
@@ -123,7 +126,13 @@ UWidget* UEmbermereItemDragDropOperation::CreateDragVisual()
 	SigilSize->AddChild(SigilBorder);
 	SigilBorder->SetBrushColor(FLinearColor(Accent.R * 0.2f, Accent.G * 0.2f, Accent.B * 0.2f, 1.0f));
 	SigilBorder->SetPadding(FMargin(4.0f));
-	if (UTextBlock* SigilText = MakeDragText(SigilBorder, GetVisualSigilText(), Accent, 11))
+	if (IconImage)
+	{
+		IconImage->SetBrushFromTexture(ResolvedIcon, true);
+		IconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
+		SigilBorder->SetContent(IconImage);
+	}
+	else if (UTextBlock* SigilText = MakeDragText(SigilBorder, GetVisualSigilText(), Accent, 11))
 	{
 		SigilText->SetJustification(ETextJustify::Center);
 		SigilBorder->SetContent(SigilText);

@@ -6,6 +6,7 @@
 #include "EmbermereItemDragDropOperation.generated.h"
 
 class UEmbermereItemData;
+class UTexture2D;
 class UWidget;
 
 UENUM(BlueprintType)
@@ -30,6 +31,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Embermere|Inventory")
 	EEmbermereEquipmentSlot SourceEquipmentSlot = EEmbermereEquipmentSlot::None;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Embermere|Inventory")
+	TObjectPtr<UTexture2D> ResolvedIcon;
 
 	FText GetVisualSigilText() const;
 	FText GetVisualContextText() const;

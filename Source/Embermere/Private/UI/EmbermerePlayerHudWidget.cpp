@@ -37,6 +37,7 @@ namespace
 	constexpr float InventoryRowIconSize = 18.0f;
 	constexpr float InventoryDetailIconSize = 42.0f;
 	constexpr float EquipmentSlotIconSize = 18.0f;
+	constexpr float LootPopupIconSize = 32.0f;
 
 	const TCHAR* GetEquipmentSlotLabel(EEmbermereEquipmentSlot Slot)
 	{
@@ -202,6 +203,11 @@ FVector2D UEmbermerePlayerHudWidget::GetEquipmentSlotIconDimensions() const
 	return FVector2D(EquipmentSlotIconSize);
 }
 
+FVector2D UEmbermerePlayerHudWidget::GetLootPopupIconDimensions() const
+{
+	return FVector2D(LootPopupIconSize);
+}
+
 void UEmbermerePlayerHudWidget::BindToCharacter(AEmbermereCharacter* Character)
 {
 	OwningEmbermereCharacter = Character;
@@ -330,6 +336,7 @@ void UEmbermerePlayerHudWidget::NativeOnDragDetected(
 	Operation->Item = PendingDragItem;
 	Operation->Source = PendingDragSource;
 	Operation->SourceEquipmentSlot = PendingDragEquipmentSlot;
+	Operation->ResolvedIcon = ResolveItemIconForUi(PendingDragItem);
 	Operation->Pivot = EDragPivot::MouseDown;
 
 	Operation->DefaultDragVisual = Operation->CreateDragVisual();
@@ -1365,11 +1372,30 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	}
 
 	LootPanel = MakePanel(WidgetTree, TEXT("LootPanel"), FLinearColor(0.025f, 0.08f, 0.04f, 0.88f));
+	LootIcon = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), TEXT("LootIcon"));
 	LootTextBlock = MakeHudText(WidgetTree, TEXT("LootText"), FLinearColor(0.58f, 1.0f, 0.62f, 1.0f), 16.0f);
-	if (LootPanel && LootTextBlock)
+	UHorizontalBox* LootRow = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("LootRow"));
+	if (LootPanel && LootIcon && LootTextBlock && LootRow)
 	{
+		LootIcon->SetVisibility(ESlateVisibility::Collapsed);
+		USizeBox* LootIconSizeBox = MakeSizedWidget(
+			WidgetTree,
+			LootIcon,
+			TEXT("LootIconSize"),
+			LootPopupIconSize,
+			LootPopupIconSize);
+		if (UHorizontalBoxSlot* IconSlot = LootRow->AddChildToHorizontalBox(LootIconSizeBox))
+		{
+			IconSlot->SetPadding(FMargin(0.0f, 0.0f, 10.0f, 0.0f));
+			IconSlot->SetVerticalAlignment(VAlign_Center);
+		}
 		LootTextBlock->SetAutoWrapText(true);
-		LootPanel->SetContent(LootTextBlock);
+		if (UHorizontalBoxSlot* TextSlot = LootRow->AddChildToHorizontalBox(LootTextBlock))
+		{
+			TextSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+			TextSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		LootPanel->SetContent(LootRow);
 		LootPanel->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
@@ -1951,11 +1977,17 @@ void UEmbermerePlayerHudWidget::RefreshChatMessages()
 
 void UEmbermerePlayerHudWidget::ShowLootPopup_Implementation(const FText& LootText)
 {
+	ShowLootPopupWithIcon(LootText, ResolveItemIconForUi(nullptr));
+}
+
+void UEmbermerePlayerHudWidget::ShowLootPopupWithIcon(const FText& LootText, UTexture2D* Icon)
+{
 	if (!LootPanel || !LootTextBlock)
 	{
 		return;
 	}
 
+	SetIconImage(LootIcon, Icon);
 	LootTextBlock->SetText(LootText);
 	LootPanel->SetVisibility(ESlateVisibility::Visible);
 	if (const UWorld* World = GetWorld())
@@ -1994,7 +2026,9 @@ void UEmbermerePlayerHudWidget::HandleItemAdded(UEmbermereItemData* Item, int32 
 		return;
 	}
 
-	ShowLootPopup(FText::FromString(FString::Printf(TEXT("Received: %s x%d"), *Item->DisplayName.ToString(), Quantity)));
+	ShowLootPopupWithIcon(
+		FText::FromString(FString::Printf(TEXT("Received: %s x%d"), *Item->DisplayName.ToString(), Quantity)),
+		ResolveItemIconForUi(Item));
 	AddChatMessage(
 		FText::FromString(FString::Printf(TEXT("Received: %s x%d"), *Item->DisplayName.ToString(), Quantity)),
 		FLinearColor(0.58f, 1.0f, 0.62f, 1.0f));

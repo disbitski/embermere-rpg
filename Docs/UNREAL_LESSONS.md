@@ -385,6 +385,15 @@ Keep icon selection data-driven through item soft references and a shared
 category/slot/missing-art fallback asset. Fixed `SizeBox` bounds preserve layout
 even when an image is collapsed and text remains the readable fallback.
 
+Passing those contracts still does not prove real copy fits. Embermere's first
+populated clean-PIE screenshot showed that the saved `Embermere Recruit Pack`
+label clipped in its compact row and crowded the adjacent Equipment heading,
+even though resolver, dimensions, fallbacks, and all 22 tests passed. Exercise
+the actual longest saved labels in the real panel, not only synthetic geometry
+constants. When presentation copy changes, preserve the stable item identifier,
+make the player-facing label reproducible in the asset-configuration script,
+and add the accepted compact text to fresh-process package validation.
+
 One headless detail matters: `UTexture2D::GetSizeX/Y()` can report zero under
 `-NullRHI` because no runtime texture resource exists. In editor automation,
 inspect `Texture->Source.GetSizeX/Y()` instead; retain an independent

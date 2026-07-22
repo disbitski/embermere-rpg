@@ -486,17 +486,20 @@ Current automation tests:
 21. `Embermere.Input.AutorunCancellation`
 22. `Embermere.UI.IconPresentation`
 
-Latest verified baseline (2026-07-21):
+Latest verified baseline (2026-07-22):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
 - headless automation discovered and passed 22/22 with zero test failures,
   including data-driven icon resolution, source dimensions, category/missing
-  fallbacks, and fixed row/detail/slot presentation bounds;
+  fallbacks, fixed row/detail/slot/reward presentation bounds, and successful
+  construction of the icon-bearing fantasy drag visual;
 - 14 deterministic `128x128` project-owned textures plus
   `DA_EmbermereUiIconSet` were imported and explicitly saved under
   `/Game/UI/Icons`; a fresh process reloaded exact texture settings, ten slot
   mappings, five category mappings, both missing-art paths, and explicit
-  Recruit Pack/Marsh Tonic references;
+  Recruit Pack/Marsh Tonic references. The saved player-facing item label is
+  now the validated compact `Recruit Pack`, while its stable identity remains
+  `RecruitPack`;
 - the validator reloaded the saved map and passed with 62 upright `FabPass_`
   actors, nine exact original-art placements, visual-only encounter geometry,
   required gameplay anchors, moss-ground overrides, and exact saved
@@ -509,8 +512,9 @@ Latest verified baseline (2026-07-21):
   shows the complete threshold after two masking trees moved within the south
   foliage band; their exact transforms are validator-owned;
 - automatic movement is now applied separately from manual-axis cancellation,
-  and the inventory drag visual is a fixed 236x62 fantasy token with category
-  sigil and item context;
+  and the inventory drag visual is a fixed 236x62 fantasy token with resolved
+  item art, category-sigil fallback, and item context. Reward feedback reuses
+  the same resolver in a fixed 32x32 icon cell;
 - starter Prowlers now use a `525` cm aggro radius and collision-cleared home
   points at `(1900, 300)`, `(1700, 1100)`, and `(2500, 1300)`; a focused PIE
   probe proved one enemy moved and attacked while the other two stayed home;
@@ -518,10 +522,12 @@ Latest verified baseline (2026-07-21):
   saved map and setup script;
 - a fresh editor loaded the 2026-07-18 controller module. Transform-based PIE
   checks proved `Q` autorun advances the player and independent `W` and `S`
-  presses stop all subsequent movement. The populated-item fantasy drag token
-  and physical `Ctrl+M` feedback remain manual visual checks. The editor now
-  also needs a clean restart onto the 2026-07-21 icon module before icon layout
-  can receive visual acceptance.
+  presses stop all subsequent movement. A July 22 populated-inventory capture
+  accepted the slot/item art but rejected the old long Recruit Pack copy for
+  row clipping and detail-heading crowding; a second capture accepted the
+  corrected `Recruit Pack` row and detail fit. The editor now needs a clean
+  restart onto the 2026-07-22 module before the icon-bearing drag token, reward
+  popup, and physical `Ctrl+M` feedback can receive visual acceptance.
 
 ## Critical Unreal Lessons
 
@@ -589,8 +595,8 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Restart Unreal if it predates
-the 2026-07-21 icon C++ link and package import, then confirm MCP/test discovery
-against the current module.
+the 2026-07-22 drag/reward icon C++ link and compact Recruit Pack package save,
+then confirm MCP/test discovery against the current module.
 
 First fresh-session checks:
 
@@ -601,7 +607,8 @@ First fresh-session checks:
 4. Start PIE and verify:
    - all ten empty equipment-slot icons, Recruit Pack and Marsh Tonic row/detail
      art, occupied-slot art, category fallback, text/tooltips, fixed icon sizes,
-     and no inventory/footer/hotbar layout shift;
+     and no inventory/footer/hotbar layout shift. Confirm `Recruit Pack` fits its
+     row and detail header without clipping or crowding `Equipment`;
    - retain the proven `Q` plus independent `W`/`S` cancellation behavior;
      press physical `Ctrl+M` and confirm inversion feedback because Slate's
      atomic chord cannot span the controller's later `PlayerTick` poll;
@@ -611,8 +618,9 @@ First fresh-session checks:
      equipment-to-bag drag unequip, gold/red drop states, full-bag
      rejection, stat changes, row/slot hover tooltips, net item comparison,
      category/name Sort ordering and selection preservation, Sort disabled
-     during drag, the fixed category-sigil fantasy drag token for armor and
-     consumables, Marsh Tonic loot/use, `I`,
+     during drag, the fixed icon-bearing fantasy drag token for armor and
+     consumables, category-sigil fallback, fixed icon-bearing reward popup,
+     Marsh Tonic loot/use, `I`,
      `[`/`]`, and cursor capture/release;
    - hotbar dimming and live cooldown countdown;
    - native nameplate and health-aware color;
@@ -638,9 +646,9 @@ First fresh-session checks:
 
 High-value milestones after that:
 
-- after clean visual acceptance, reuse resolved item icons in the fantasy drag
-  token and reward presentation, then consider a restrained paper-doll body
-  backdrop and starter-ability icon family;
+- after clean visual acceptance of the completed icon-bearing drag/reward pass,
+  consider a restrained paper-doll body backdrop and starter-ability icon
+  family;
 - expand the proven Blender waystone/lamp/signpost/gate/fence/end-stone lane
   into compact village-prop modules while preserving
   deterministic scripts, FBX checks, and original-art tags;
@@ -703,7 +711,7 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. The latest clean PIE already proved Q autorun plus independent W and S cancellation. Restart onto the 2026-07-21 icon module, run all 22 tests, then visually inspect all ten slot icons, Recruit Pack and Marsh Tonic row/detail/occupied-slot art, category and missing-art fallback, fixed dimensions, readable text/tooltips, and no inventory/footer/hotbar layout shift. Also inspect the populated-item fantasy drag token and physically verify Ctrl+M feedback. Recheck the accepted gate/fence/end-stone threshold, exact south-side foliage cleanup, the 700px inventory and ten-slot paper doll, identity-preserving Sort, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, and all nine original-art placements. Walk the normal route and prove each 525 cm Prowler pull stays solo while visual marker/band geometry remains non-colliding. Then reuse item icons in drag/reward presentation, add a restrained paper-doll backdrop, build a compact original Blender village prop, pursue cohesive fantasy architecture, tune concrete combat/respawn issues, or take the highest-value next milestone when the path is clear.
+Follow TODO.md's Start Here section. The latest clean PIE already proved Q autorun plus independent W and S cancellation. Restart onto the 2026-07-22 drag/reward icon module and compact Recruit Pack asset, run all 22 tests, then visually inspect all ten slot icons, Recruit Pack and Marsh Tonic row/detail/occupied-slot art, category and missing-art fallback, fixed dimensions, readable text/tooltips, and no inventory/footer/hotbar layout shift. Confirm `Recruit Pack` fits without clipping or crowding, the populated fantasy drag token shows resolved item art in its fixed cell, the reward popup shows fixed item art, and both retain their fallback presentation. Physically verify Ctrl+M feedback. Recheck the accepted gate/fence/end-stone threshold, exact south-side foliage cleanup, the 700px inventory and ten-slot paper doll, identity-preserving Sort, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, and all nine original-art placements. Walk the normal route and prove each 525 cm Prowler pull stays solo while visual marker/band geometry remains non-colliding. Then add a restrained paper-doll backdrop or ability icons, build a compact original Blender village prop, pursue cohesive fantasy architecture, tune concrete combat/respawn issues, or take the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

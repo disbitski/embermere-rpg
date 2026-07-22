@@ -101,6 +101,11 @@ def main():
 
     recruit_pack = load_asset(RECRUIT_PACK_PATH, unreal.EmbermereItemData)
     marsh_tonic = load_asset(MARSH_TONIC_PATH, unreal.EmbermereItemData)
+    if str(recruit_pack.get_editor_property("display_name")) != "Recruit Pack":
+        fail(
+            "Recruit Pack display name must stay compact for inventory and reward UI; "
+            f"found {recruit_pack.get_editor_property('display_name')}"
+        )
     require_texture(
         recruit_pack.get_editor_property("icon"),
         "T_Icon_Item_RecruitPack",
@@ -114,7 +119,8 @@ def main():
 
     unreal.log(
         "Embermere UI icon validation passed: 14 saved 128x128 UI textures, "
-        "10 equipment slots, 5 category fallbacks, and 2 starter-item assignments"
+        "10 equipment slots, 5 category fallbacks, 2 starter-item assignments, "
+        "and the compact Recruit Pack display name"
     )
 
 

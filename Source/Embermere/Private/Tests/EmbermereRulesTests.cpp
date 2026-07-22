@@ -474,6 +474,7 @@ bool FEmbermereUiIconPresentationTest::RunTest(const FString& Parameters)
 		TestEqual(TEXT("Bag row icon dimensions stay fixed"), HudWidget->GetInventoryRowIconDimensions(), FVector2D(18.0f, 18.0f));
 		TestEqual(TEXT("Detail icon dimensions stay fixed"), HudWidget->GetInventoryDetailIconDimensions(), FVector2D(42.0f, 42.0f));
 		TestEqual(TEXT("Equipment icon dimensions stay fixed"), HudWidget->GetEquipmentSlotIconDimensions(), FVector2D(18.0f, 18.0f));
+		TestEqual(TEXT("Loot popup icon dimensions stay fixed"), HudWidget->GetLootPopupIconDimensions(), FVector2D(32.0f, 32.0f));
 	}
 
 	return true;
@@ -658,8 +659,11 @@ bool FEmbermereInventoryDragDropTest::RunTest(const FString& Parameters)
 	UEmbermereItemDragDropOperation* Operation = NewObject<UEmbermereItemDragDropOperation>();
 	Operation->Item = RecruitPack;
 	Operation->Source = EEmbermereItemDragSource::Inventory;
+	Operation->ResolvedIcon = HudWidget->ResolveItemIconForUi(RecruitPack);
 	TestTrue(TEXT("Typed drag payload preserves item identity"), Operation->Item == RecruitPack);
 	TestEqual(TEXT("Typed drag payload records bag source"), Operation->Source, EEmbermereItemDragSource::Inventory);
+	TestNotNull(TEXT("Fantasy drag token receives the shared resolved item icon"), Operation->ResolvedIcon.Get());
+	TestNotNull(TEXT("Fantasy drag token can build with resolved icon art"), Operation->CreateDragVisual());
 	TestEqual(TEXT("Armor drag visual uses an armor sigil"), Operation->GetVisualSigilText().ToString(), FString(TEXT("ARM")));
 	TestEqual(
 		TEXT("Armor drag visual includes slot and level context"),

@@ -158,6 +158,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
 	FVector2D GetEquipmentSlotIconDimensions() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
+	FVector2D GetLootPopupIconDimensions() const;
+
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void NativeConstruct() override;
@@ -292,6 +295,9 @@ private:
 	TObjectPtr<UBorder> LootPanel;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UImage> LootIcon;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> LootTextBlock;
 
 	float DialogueHideTimeSeconds = 0.0f;
@@ -316,6 +322,7 @@ private:
 	void UpdateInventoryPanelVisibility();
 	void RefreshInventoryWindow();
 	void RefreshChatMessages();
+	void ShowLootPopupWithIcon(const FText& LootText, UTexture2D* Icon);
 	void ClampSelectedInventoryStackIndex();
 	FText BuildItemComparisonText(const UEmbermereItemData* Item) const;
 	FText BuildItemTooltipText(const UEmbermereItemData* Item, int32 Quantity) const;

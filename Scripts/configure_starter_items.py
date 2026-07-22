@@ -35,6 +35,12 @@ def load_or_create_item(asset_path):
 def main():
     recruit_pack = load_or_create_item(RECRUIT_PACK_PATH)
 
+    recruit_pack.set_editor_property("item_id", "RecruitPack")
+    recruit_pack.set_editor_property("display_name", "Recruit Pack")
+    recruit_pack.set_editor_property(
+        "description",
+        "A simple bundle of village supplies for a new defender of Embermere.",
+    )
     recruit_pack.set_editor_property("category", unreal.EmbermereItemCategory.ARMOR)
     recruit_pack.set_editor_property("equipment_slot", unreal.EmbermereEquipmentSlot.BACK)
     recruit_pack.set_editor_property("required_level", 1)

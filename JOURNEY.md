@@ -1064,6 +1064,56 @@ Pipeline lesson:
   editor tests should inspect `Texture->Source` while the fresh Python validator
   checks Unreal's Blueprint-visible dimensions.
 
+## 2026-07-22 - The Screenshot Rejected A Passing Build
+
+The icon family passed every technical gate, then the first populated screen
+found a presentation bug those gates were never meant to judge.
+
+Visual acceptance:
+
+- Restarted the editor onto the July 21 icon module, passed all 22 live tests,
+  and inspected the empty inventory. All ten paper-doll symbols were distinct,
+  stable, and readable.
+- Populated the bag with Recruit Pack and Marsh Tonic through the current data
+  and captured the real panel. The icons held their bounds, but the saved
+  `Embermere Recruit Pack` copy clipped in its compact row and crowded the
+  adjacent Equipment heading.
+- Preserved the stable `RecruitPack` identity while shortening only the
+  player-facing label to `Recruit Pack`. The configuration script now
+  reproduces that choice, and the fresh-process validator treats it as part of
+  the presentation contract. A second populated PIE capture accepted the
+  corrected row and detail-heading fit.
+
+Presentation reuse:
+
+- Routed the existing item-icon resolver into the fixed `236x62` fantasy drag
+  token. Resolved art occupies a stable `44x44` cell; the category sigil remains
+  the fallback when no image resolves.
+- Added the same data-driven art to the temporary reward popup in a fixed
+  `32x32` cell, preserving its existing bounds, timing, and text behavior.
+- Kept drag payload identity and all atomic inventory/equipment transactions
+  unchanged. This was a presentation extension, not a second gameplay path.
+
+Verification:
+
+- The authoritative no-hot-reload Mac build succeeded, and fresh-process
+  automation passed 22/22 with zero warnings or failures.
+- Fresh icon validation reloaded all 14 textures, every mapping and item
+  assignment, plus the compact Recruit Pack label. Saved-zone validation still
+  passed 62 upright Fab actors and nine original placements, while native
+  traces retained all three clear gate lanes and solid boundary collision.
+- The open editor predates the final July 22 relink, so actual drag-token and
+  reward-popup appearance remains a deliberate clean-restart PIE check rather
+  than an inferred acceptance. The compact item copy itself is visually
+  accepted.
+
+Pipeline lesson:
+
+- Automation establishes technical eligibility; a populated screenshot judges
+  whether the result belongs in the interface. Test the real saved strings and
+  real neighboring panels, then turn the accepted copy back into deterministic
+  configuration and validation so the visual fix remains durable.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
