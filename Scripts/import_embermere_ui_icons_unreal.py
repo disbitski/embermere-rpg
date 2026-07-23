@@ -8,11 +8,13 @@ import unreal
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = PROJECT_ROOT / "ArtSource" / "UI" / "Icons"
 DESTINATION_PATH = "/Game/UI/Icons"
+ABILITY_DESTINATION_PATH = f"{DESTINATION_PATH}/Abilities"
 ICON_SET_PATH = f"{DESTINATION_PATH}/DA_EmbermereUiIconSet"
 RECRUIT_PACK_PATH = "/Game/Data/Items/DI_EmbermereRecruitPack"
 MARSH_TONIC_PATH = "/Game/Data/Items/DI_MarshTonic"
+RULES_PATH = "/Game/Data/DA_EmbermereRules"
 
-TEXTURE_NAMES = (
+BASE_TEXTURE_NAMES = (
     "T_Icon_Item_RecruitPack",
     "T_Icon_Item_MarshTonic",
     "T_Icon_Slot_MainHand",
@@ -29,6 +31,32 @@ TEXTURE_NAMES = (
     "T_Icon_Slot_Missing",
 )
 
+ABILITY_TEXTURES = {
+    "Strike": "T_Icon_Ability_Strike",
+    "Taunt": "T_Icon_Ability_Taunt",
+    "ShieldSlam": "T_Icon_Ability_ShieldSlam",
+    "BattleShout": "T_Icon_Ability_BattleShout",
+    "Smite": "T_Icon_Ability_Smite",
+    "LesserHeal": "T_Icon_Ability_LesserHeal",
+    "Ward": "T_Icon_Ability_Ward",
+    "Judgment": "T_Icon_Ability_Judgment",
+    "QuickShot": "T_Icon_Ability_QuickShot",
+    "Snare": "T_Icon_Ability_Snare",
+    "TwinCut": "T_Icon_Ability_TwinCut",
+    "NaturesFocus": "T_Icon_Ability_NaturesFocus",
+    "SparkBolt": "T_Icon_Ability_SparkBolt",
+    "FrostRoot": "T_Icon_Ability_FrostRoot",
+    "ArcaneBurst": "T_Icon_Ability_ArcaneBurst",
+    "Meditate": "T_Icon_Ability_Meditate",
+}
+
+ABILITY_TEXTURE_NAMES = tuple(ABILITY_TEXTURES.values()) + ("T_Icon_Ability_Missing",)
+TEXTURE_NAMES = BASE_TEXTURE_NAMES + ABILITY_TEXTURE_NAMES
+
+
+def destination_for_texture(texture_name):
+    return ABILITY_DESTINATION_PATH if texture_name.startswith("T_Icon_Ability_") else DESTINATION_PATH
+
 
 def import_textures():
     tasks = []
@@ -39,7 +67,7 @@ def import_textures():
 
         task = unreal.AssetImportTask()
         task.set_editor_property("filename", str(source_path))
-        task.set_editor_property("destination_path", DESTINATION_PATH)
+        task.set_editor_property("destination_path", destination_for_texture(texture_name))
         task.set_editor_property("destination_name", texture_name)
         task.set_editor_property("automated", True)
         task.set_editor_property("replace_existing", True)
@@ -51,7 +79,7 @@ def import_textures():
 
     textures = {}
     for texture_name in TEXTURE_NAMES:
-        asset_path = f"{DESTINATION_PATH}/{texture_name}"
+        asset_path = f"{destination_for_texture(texture_name)}/{texture_name}"
         texture = unreal.EditorAssetLibrary.load_asset(asset_path)
         if not isinstance(texture, unreal.Texture2D):
             raise RuntimeError(f"Icon did not import as Texture2D: {asset_path}")
@@ -120,6 +148,7 @@ def configure_icon_set(icon_set, textures):
     )
     icon_set.set_editor_property("missing_item_icon", textures["T_Icon_Item_Missing"])
     icon_set.set_editor_property("missing_slot_icon", textures["T_Icon_Slot_Missing"])
+    icon_set.set_editor_property("missing_ability_icon", textures["T_Icon_Ability_Missing"])
     icon_set.modify()
     if not unreal.EditorAssetLibrary.save_loaded_asset(icon_set, only_if_is_dirty=False):
         raise RuntimeError(f"Could not save UI icon set: {ICON_SET_PATH}")
@@ -135,15 +164,46 @@ def assign_item_icon(item_path, texture):
         raise RuntimeError(f"Could not save starter item icon assignment: {item_path}")
 
 
+def assign_ability_icons(rules_path, textures):
+    rules = unreal.EditorAssetLibrary.load_asset(rules_path)
+    if not isinstance(rules, unreal.EmbermereRulesData):
+        raise RuntimeError(f"Missing Embermere rules data for ability icon assignment: {rules_path}")
+
+    abilities = list(rules.get_editor_property("abilities"))
+    if len(abilities) != len(ABILITY_TEXTURES):
+        raise RuntimeError(
+            f"Expected {len(ABILITY_TEXTURES)} starter abilities, found {len(abilities)}"
+        )
+
+    assigned_ids = set()
+    for ability in abilities:
+        ability_id = str(ability.get_editor_property("ability_id"))
+        texture_name = ABILITY_TEXTURES.get(ability_id)
+        if not texture_name:
+            raise RuntimeError(f"No generated icon mapping for ability {ability_id}")
+        ability.set_editor_property("icon", textures[texture_name])
+        assigned_ids.add(ability_id)
+
+    missing_ids = set(ABILITY_TEXTURES) - assigned_ids
+    if missing_ids:
+        raise RuntimeError(f"Rules data is missing mapped abilities: {sorted(missing_ids)}")
+
+    rules.set_editor_property("abilities", abilities)
+    rules.modify()
+    if not unreal.EditorAssetLibrary.save_loaded_asset(rules, only_if_is_dirty=False):
+        raise RuntimeError(f"Could not save ability icon assignments: {rules_path}")
+
+
 def main():
     textures = import_textures()
     icon_set = load_or_create_icon_set()
     configure_icon_set(icon_set, textures)
     assign_item_icon(RECRUIT_PACK_PATH, textures["T_Icon_Item_RecruitPack"])
     assign_item_icon(MARSH_TONIC_PATH, textures["T_Icon_Item_MarshTonic"])
+    assign_ability_icons(RULES_PATH, textures)
     unreal.log(
-        "Embermere UI icons imported: 14 textures, 10 equipment slots, "
-        "5 category fallbacks, and 2 starter-item assignments"
+        "Embermere UI icons imported: 31 textures, 10 equipment slots, "
+        "5 category fallbacks, 2 starter-item assignments, and 16 ability assignments"
     )
 
 

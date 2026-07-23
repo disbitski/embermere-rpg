@@ -481,6 +481,91 @@ bool FEmbermereUiIconPresentationTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereAbilityIconPresentationTest,
+	"Embermere.UI.AbilityIconPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereAbilityIconPresentationTest::RunTest(const FString& Parameters)
+{
+	const UEmbermereUiIconSet* IconSet = LoadObject<UEmbermereUiIconSet>(
+		nullptr,
+		TEXT("/Game/UI/Icons/DA_EmbermereUiIconSet.DA_EmbermereUiIconSet"));
+	const UEmbermereRulesData* SavedRules = LoadObject<UEmbermereRulesData>(
+		nullptr,
+		TEXT("/Game/Data/DA_EmbermereRules.DA_EmbermereRules"));
+	const UEmbermereRulesData* DefaultRules = NewObject<UEmbermereRulesData>();
+	TestNotNull(TEXT("UI icon set resolves for abilities"), IconSet);
+	TestNotNull(TEXT("Saved rules data resolves for abilities"), SavedRules);
+	TestNotNull(TEXT("Native rules defaults resolve for abilities"), DefaultRules);
+	if (!IconSet || !SavedRules || !DefaultRules)
+	{
+		return false;
+	}
+
+	TestFalse(TEXT("Icon set has a missing-ability fallback"), IconSet->MissingAbilityIcon.IsNull());
+	TestEqual(TEXT("Saved rules contain all starter abilities"), SavedRules->Abilities.Num(), 16);
+	TestEqual(TEXT("Native defaults contain all starter abilities"), DefaultRules->Abilities.Num(), 16);
+
+	TSet<FString> SavedAbilityIds;
+	TSet<FString> SavedIconPaths;
+	for (const FEmbermereAbilityDefinition& Ability : SavedRules->Abilities)
+	{
+		const FString AbilityId = Ability.AbilityId.ToString();
+		SavedAbilityIds.Add(AbilityId);
+		TestFalse(
+			*FString::Printf(TEXT("%s owns a saved icon reference"), *AbilityId),
+			Ability.Icon.IsNull());
+
+		UTexture2D* AbilityIcon = IconSet->ResolveAbilityIcon(Ability);
+		TestNotNull(*FString::Printf(TEXT("%s icon resolves"), *AbilityId), AbilityIcon);
+		if (AbilityIcon)
+		{
+			TestEqual(
+				*FString::Printf(TEXT("%s source width is stable"), *AbilityId),
+				static_cast<int32>(AbilityIcon->Source.GetSizeX()),
+				128);
+			TestEqual(
+				*FString::Printf(TEXT("%s source height is stable"), *AbilityId),
+				static_cast<int32>(AbilityIcon->Source.GetSizeY()),
+				128);
+		}
+		SavedIconPaths.Add(Ability.Icon.ToSoftObjectPath().ToString());
+	}
+
+	TestEqual(TEXT("All sixteen saved ability IDs are distinct"), SavedAbilityIds.Num(), 16);
+	TestEqual(TEXT("All sixteen saved ability icons are distinct"), SavedIconPaths.Num(), 16);
+
+	for (const FEmbermereAbilityDefinition& Ability : DefaultRules->Abilities)
+	{
+		TestFalse(
+			*FString::Printf(TEXT("%s native default owns an icon reference"), *Ability.AbilityId.ToString()),
+			Ability.Icon.IsNull());
+		TestTrue(
+			*FString::Printf(TEXT("%s native default icon resolves"), *Ability.AbilityId.ToString()),
+			IconSet->ResolveAbilityIcon(Ability) != nullptr);
+	}
+
+	FEmbermereAbilityDefinition MissingArtAbility;
+	MissingArtAbility.AbilityId = "MissingArt";
+	TestTrue(
+		TEXT("Ability without direct art resolves the explicit fallback"),
+		IconSet->ResolveAbilityIcon(MissingArtAbility) == IconSet->MissingAbilityIcon.LoadSynchronous());
+
+	UEmbermerePlayerHudWidget* HudWidget = NewObject<UEmbermerePlayerHudWidget>();
+	TestNotNull(TEXT("HUD can be created for ability icon presentation"), HudWidget);
+	if (HudWidget)
+	{
+		TestEqual(TEXT("Hotbar ability icon dimensions stay fixed"), HudWidget->GetHotbarSlotIconDimensions(), FVector2D(32.0f, 32.0f));
+		TestTrue(
+			TEXT("HUD resolves saved Strike art through ability data"),
+			HudWidget->ResolveAbilityIconForUi(SavedRules->Abilities[0]) ==
+				IconSet->ResolveAbilityIcon(SavedRules->Abilities[0]));
+	}
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereInventoryItemComparisonTest,
 	"Embermere.UI.ItemComparison",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -1115,19 +1200,33 @@ bool FEmbermereHotbarCooldownDisplayTest::RunTest(const FString& Parameters)
 	}
 
 	FEmbermereAbilityDefinition Strike;
-	Strike.AbilityId = "Strike";
-	Strike.DisplayName = FText::FromString(TEXT("Strike"));
+	const UEmbermereRulesData* Rules = NewObject<UEmbermereRulesData>();
+	TestNotNull(TEXT("Native rules resolve for hotbar display"), Rules);
+	if (!Rules || !Rules->GetAbilityDefinition("Strike", Strike))
+	{
+		AddError(TEXT("Strike ability definition did not resolve for hotbar display"));
+		return false;
+	}
 	Hotbar->SetAbilityInSlot(0, Strike);
 	HudWidget->Hotbar = Hotbar;
 
 	const FString ReadyText = HudWidget->GetHotbarSlotDisplayText(0, 0.0f).ToString();
 	TestTrue(TEXT("Ready hotbar text includes key and ability"), ReadyText.Contains(TEXT("1\nStrike")));
 	TestEqual(TEXT("Ready hotbar text has no countdown line"), ReadyText, FString(TEXT("1\nStrike")));
+	TestNotNull(TEXT("Ready hotbar ability resolves its icon"), HudWidget->ResolveAbilityIconForUi(Strike));
+	TestEqual(TEXT("Hotbar ability icon dimensions stay fixed"), HudWidget->GetHotbarSlotIconDimensions(), FVector2D(32.0f, 32.0f));
+	const FString StrikeTooltip = HudWidget->GetHotbarSlotTooltipText(0).ToString();
+	TestTrue(TEXT("Ability tooltip keeps its description"), StrikeTooltip.Contains(TEXT("A simple weapon attack.")));
+	TestTrue(TEXT("Ability tooltip includes power"), StrikeTooltip.Contains(TEXT("Power 18")));
+	TestTrue(TEXT("Ability tooltip includes no-mana state"), StrikeTooltip.Contains(TEXT("No mana")));
+	TestTrue(TEXT("Ability tooltip converts range to meters"), StrikeTooltip.Contains(TEXT("2.2m Range")));
+	TestTrue(TEXT("Ability tooltip includes cooldown"), StrikeTooltip.Contains(TEXT("1.5s Cooldown")));
 
 	const FString CoolingText = HudWidget->GetHotbarSlotDisplayText(0, 1.26f).ToString();
 	TestTrue(TEXT("Cooling hotbar text keeps ability label"), CoolingText.Contains(TEXT("Strike")));
 	TestTrue(TEXT("Cooling hotbar text rounds countdown for display"), CoolingText.Contains(TEXT("1.3s")));
 	TestTrue(TEXT("Interact slot keeps its command label"), HudWidget->GetHotbarSlotDisplayText(9, 0.0f).ToString().Contains(TEXT("F\nInteract")));
+	TestTrue(TEXT("Interact slot keeps an accessible tooltip"), HudWidget->GetHotbarSlotTooltipText(9).ToString().Contains(TEXT("Interact")));
 
 	return true;
 }

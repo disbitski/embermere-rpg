@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Types/EmbermereItemTypes.h"
+#include "Types/EmbermereTypes.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "EmbermerePlayerHudWidget.generated.h"
 
@@ -143,11 +144,17 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	FText GetHotbarSlotDisplayText(int32 SlotIndex, float CooldownRemainingSeconds = 0.0f) const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	FText GetHotbarSlotTooltipText(int32 SlotIndex) const;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
 	UTexture2D* ResolveItemIconForUi(const UEmbermereItemData* Item) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
 	UTexture2D* ResolveEquipmentSlotIconForUi(EEmbermereEquipmentSlot EquipmentSlot) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
+	UTexture2D* ResolveAbilityIconForUi(const FEmbermereAbilityDefinition& Ability) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
 	FVector2D GetInventoryRowIconDimensions() const;
@@ -160,6 +167,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
 	FVector2D GetLootPopupIconDimensions() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
+	FVector2D GetHotbarSlotIconDimensions() const;
 
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
@@ -284,6 +294,12 @@ private:
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UTextBlock>> HotbarSlotTexts;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UBorder>> HotbarSlotPanels;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UImage>> HotbarSlotIcons;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UBorder> DialoguePanel;

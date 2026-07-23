@@ -65,19 +65,26 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 18. Move toward the ruin and enemy pocket, passing cleanly through the road gate between the two matching boundary fences and their rune-topped end stones.
 19. Press `Tab` to target a nearby hostile.
 20. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP bar, flat animated 24-segment emissive gold ground ring, and the HUD target panel range state.
-21. Press `1` to use the first starter ability.
-22. Press `1` again before the cooldown finishes and confirm the bottom-left log reports the ability ready time.
-23. Confirm the cooling hotbar slot dims and shows its live countdown.
-24. Confirm combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log rather than overlapping the player status panel or spilling beyond the chat panel border.
-25. Expect one nearby enemy to chase and melee you when you enter its 525 cm aggro radius. The other two Prowlers should remain at their separated homes.
-26. Confirm the selected enemy can cross the visual-only combat-pocket band and visual cone marker without sticking. Pull it farther away and confirm it eventually leashes back toward its spawn instead of chasing indefinitely into the village.
-27. Defeat a Marsh Prowler and confirm the chat reports one Marsh Tonic looted and inventory gains a stack. Repeated drops should increase the same stack up to its limit.
-28. After taking damage, select Marsh Tonic and click `Use`; confirm it restores up to 25 health and 10 mana and consumes one tonic. At full health/mana, `Use` must be disabled and preserve the stack.
-29. Defeat three starter enemies.
-30. Return to Mara and press `F` to complete the quest. Confirm the temporary
+21. Inspect the starter hotbar before combat. The first four slots should show
+    fixed `32x32` Warrior illustrations inside the unchanged `92x64` cells,
+    with readable key/name text and no movement of empty or Interact slots.
+    Hover each active slot and confirm its tooltip includes description, power,
+    mana, meter-based range or Self, and cooldown. Repeat after selecting each
+    starter class so all sixteen project-owned illustrations receive a viewport
+    check.
+22. Press `1` to use the first starter ability.
+23. Press `1` again before the cooldown finishes and confirm the bottom-left log reports the ability ready time.
+24. Confirm the cooling hotbar icon and text dim together while the live countdown remains in the fixed two-line label area.
+25. Confirm combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log rather than overlapping the player status panel or spilling beyond the chat panel border.
+26. Expect one nearby enemy to chase and melee you when you enter its 525 cm aggro radius. The other two Prowlers should remain at their separated homes.
+27. Confirm the selected enemy can cross the visual-only combat-pocket band and visual cone marker without sticking. Pull it farther away and confirm it eventually leashes back toward its spawn instead of chasing indefinitely into the village.
+28. Defeat a Marsh Prowler and confirm the chat reports one Marsh Tonic looted and inventory gains a stack. Repeated drops should increase the same stack up to its limit.
+29. After taking damage, select Marsh Tonic and click `Use`; confirm it restores up to 25 health and 10 mana and consumes one tonic. At full health/mana, `Use` must be disabled and preserve the stack.
+30. Defeat three starter enemies.
+31. Return to Mara and press `F` to complete the quest. Confirm the temporary
     reward popup shows the Recruit Pack art in a fixed `32x32` cell beside
     readable reward text without changing the popup bounds.
-31. With both Recruit Pack and Marsh Tonic in the bag, select one and click `Sort`; confirm armor appears before consumables, names sort alphabetically within a category, the same item stays selected, and chat reports `Inventory sorted`.
+32. With both Recruit Pack and Marsh Tonic in the bag, select one and click `Sort`; confirm armor appears before consumables, names sort alphabetically within a category, the same item stays selected, and chat reports `Inventory sorted`.
 32. Begin dragging a bag row and confirm the Sort control becomes unavailable and the bag order stays fixed until the drag ends. Recheck one valid and one invalid equipment drop afterward.
 
 ## Expected Temporary Feedback
@@ -106,6 +113,10 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 ## Known Prototype Gaps
 
 - The UI has native first-pass HUD panels, but styling is still programmer-art and needs a proper fantasy skin.
+- The hotbar now has sixteen project-owned starter-ability illustrations,
+  fixed art cells, synchronized cooldown dimming, and accessible data-driven
+  tooltips. Several abilities still use placeholder effects instead of their
+  intended root, snare, buff, or mana-recovery behavior.
 - Enemy movement and attacks are deliberately simple prototype behavior. The
   first solo-pull pass now uses three WorldStatic-cleared homes, a 525 cm aggro
   radius, visual-only pocket/marker collision, 6 damage, and a 2 second attack

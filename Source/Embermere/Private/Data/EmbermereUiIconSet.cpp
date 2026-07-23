@@ -44,3 +44,13 @@ UTexture2D* UEmbermereUiIconSet::ResolveEquipmentSlotIcon(EEmbermereEquipmentSlo
 
 	return ResolveTexture(MissingSlotIcon);
 }
+
+UTexture2D* UEmbermereUiIconSet::ResolveAbilityIcon(const FEmbermereAbilityDefinition& Ability) const
+{
+	if (UTexture2D* AbilityIcon = ResolveTexture(Ability.Icon))
+	{
+		return AbilityIcon;
+	}
+
+	return ResolveTexture(MissingAbilityIcon);
+}

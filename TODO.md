@@ -6,15 +6,23 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Restart Unreal if it predates the 2026-07-22 drag/reward icon C++ build and
-  compact Recruit Pack data-asset save, then confirm the current module/map and
-  MCP listener on port `8123`.
+- Restart Unreal if it predates the 2026-07-23 starter-ability icon, hotbar
+  layout, and tooltip C++ build, then confirm the current module/map and MCP
+  listener on port `8123`.
   Confirm Blender and its localhost bridge only when another original-art pass
   is selected.
-- Discover and run all 22 tests. The authoritative 2026-07-22 no-hot-reload
-  build and headless run passed 22/22; saved-map validation passes with 62 upright
+- Discover and run all 23 tests. The authoritative 2026-07-23 no-hot-reload
+  build and headless run passed 23/23; saved-map validation passes with 62 upright
   `FabPass_` actors, nine original-art placements, visual-only encounter
   markers, exact daylight, and the collision-cleared starter layout.
+- In clean PIE, visually approve the new hotbar presentation. The active
+  starter abilities must show fixed `32x32` illustrations inside the unchanged
+  `92x64` slots, with readable two-line key/name text, no hotbar growth, and
+  no overlap. Trigger a cooldown and confirm both icon/text dimming plus the
+  live countdown. Hover each active slot and confirm its data-driven tooltip
+  includes description, power, mana, meter-based range or Self, and cooldown.
+  Exercise Warrior, Cleric, Ranger, and Wizard so all sixteen icons receive a
+  real viewport check; empty slots remain stable and `F` retains Interact.
 - In clean PIE, open the inventory and visually approve the new project-owned
   icon family: fixed `18x18` bag/slot icons, the `42x42` detail icon, all ten
   empty-slot symbols, Recruit Pack and Marsh Tonic art, occupied-slot item art,
@@ -22,10 +30,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   saved player-facing label is now `Recruit Pack`; confirm it fits both its row
   and detail header without clipping or crowding `Equipment`. Also check that
   an item without direct art uses its category fallback.
-- Populate both starter items and visually approve today's icon reuse: the
-  fixed `236x62` fantasy drag token should show the resolved item illustration
-  in its `44x44` sigil cell, and the temporary reward popup should show a fixed
-  `32x32` item icon without moving or clipping its text. Category-sigil and
+- Retain the accepted reward-popup and bag-to-Back flow, then physically inspect
+  the one state Slate cannot freeze: the populated fantasy drag token in
+  motion. It should retain fixed `236x62` bounds and show the resolved item
+  illustration in its `44x44` sigil cell. The accepted reward popup should
+  retain its fixed `32x32` item icon and readable text. Category-sigil and
   missing-art fallbacks must remain readable when no texture resolves.
 - In clean PIE, retain the verified input baseline: `Q` advances the player and
   independent `W` and `S` presses stop all later movement. Physically press
@@ -45,16 +54,16 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `(2500,1300)`. Confirm each 525 cm pull stays solo, enemies cross visual-only
   marker geometry, and the two idle Prowlers remain home. Tune leash/respawn
   only when live feel exposes a concrete issue.
-- After visual acceptance, continue with the highest-value bounded slice: add a
-  restrained illustrated paper-doll backdrop, create ability/hotbar icon art,
-  build a compact original Blender village prop, or begin cohesive fantasy
-  village architecture when a suitable signed-in UE pack is available.
+- After visual acceptance, continue with the highest-value bounded slice:
+  implement real starter root/snare/buff/mana-recovery behavior and class-loop
+  coverage, add a restrained illustrated paper-doll backdrop, build a compact
+  original Blender village prop, or begin cohesive fantasy village architecture
+  when a suitable signed-in UE pack is available.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-07-22
-  drag/reward icon build and Recruit Pack package save. Current headless code
-  passes all 22 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-07-23
+  ability-icon/hotbar build. Current headless code passes all 23 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -182,9 +191,9 @@ Embermere has a working first-pass starter slice:
 - styled native HUD panels for player status, target, range state, quest progress, dialogue, loot, and hotbar labels;
 - structured first-pass inventory window with capacity header, item rows, selected-item details, empty/reward states, `[`/`]` inspection cycling, and `I` show/hide toggle;
 - a data-driven project-owned icon set with explicit Recruit Pack and Marsh
-  Tonic art, ten equipment-slot symbols, category and missing-art fallbacks,
-  fixed UI dimensions, deterministic source generation, and durable Unreal
-  texture packages;
+  Tonic art, ten equipment-slot symbols, sixteen starter-ability illustrations,
+  category/slot/ability missing-art fallbacks, fixed UI dimensions,
+  deterministic source generation, and durable Unreal texture packages;
 - mouse-clickable inventory rows and cursor-aware game/UI input while the inventory is open;
 - data-driven item categories, paper-doll equipment slots, level requirements, stat-bonus fields, and transactional Equip/Unequip actions;
 - ten clickable equipment-slot controls, atomic bag/equipment transfers, rollback-safe replacement, idempotent health/mana/armor/power application, armor mitigation, and safe consumable depletion;
@@ -195,15 +204,18 @@ Embermere has a working first-pass starter slice:
 - first-pass selected-target UMG nameplate widget plus a flat 24-segment rotating/pulsing emissive gold target ring;
 - first-pass hotbar cooldown enforcement and ready-time feedback;
 - live hotbar slot countdown and unavailable-state dimming;
+- fixed hotbar ability illustrations with class-specific palettes, data-driven
+  soft references, accessible stat/description tooltips, and missing-art
+  fallback;
 - first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
 - a project-owned Blender waystone, ember-lamp, road-signpost, road-gate, and boundary-fence family with reviewed scripts, editable source, FBX, previews, authored collision, and seven validated saved placements;
 - a project-owned fantasy inventory drag token with category sigils, contextual item text, and fixed bounds;
 - first Mac-friendly sky, ambient fill, fog-readability correction, and muted moss foundation material;
-- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash and loot rules, equipment slot/stat/transaction rules, atomic inventory capacity, consumable use, item comparison/tooltips, identity-based inventory and drag/drop actions, autorun cancellation, damage immunity, enemy nameplate widget, chat log, hotbar cooldown display, data-driven icon presentation, and inventory toggle.
+- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, enemy leash and loot rules, equipment slot/stat/transaction rules, atomic inventory capacity, consumable use, item comparison/tooltips, identity-based inventory and drag/drop actions, autorun cancellation, damage immunity, enemy nameplate widget, chat log, hotbar cooldown display, item/slot icon presentation, ability icon presentation, and inventory toggle.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, project-owned drag and icon presentation, stable explicit sorting, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE has verified the full quest, drag/drop, identity-preserving Sort, solo Prowler pulls, collision-cleared encounter markers, targeting, the original-art road family, and transform-proven `W`/`S` autorun cancellation on the current module. The new item/slot icon layout, populated-item fantasy drag token, and physical `Ctrl+M` feedback remain the immediate clean-restart visual checks. The world remains stylistically mixed without real fantasy village buildings or final character art.
+The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, project-owned drag and icon presentation, stable explicit sorting, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE has verified the full quest, a real bag-to-Back drag, the icon-bearing reward popup, identity-preserving Sort, solo Prowler pulls, collision-cleared encounter markers, targeting, the original-art road family, and transform-proven `W`/`S` autorun cancellation. The new sixteen-ability hotbar art family, populated drag token while in motion, and physical `Ctrl+M` feedback remain the immediate clean-restart visual checks. The world remains stylistically mixed without real fantasy village buildings or final character art, and several class abilities still use placeholder effects rather than their intended root, snare, buff, or recovery behavior.
 
 ## Next Work
 
@@ -221,8 +233,14 @@ The prototype foundation is alive, but it is still early. The environment is upr
   - visually verify item comparison lines and row/occupied-slot hover tooltips after a clean restart;
   - visually verify bag-to-equipment and equipment-to-bag drag/drop, valid/invalid feedback, stale identity rejection, and click/keyboard fallbacks;
   - visually verify stable identity-preserving sorting and the new fixed-size fantasy drag token across armor and consumable payloads;
-  - after the icon layout survives PIE, reuse item art in the fantasy drag token
-    and reward popup, then consider a restrained paper-doll body backdrop.
+  - retain item-art reuse in the fantasy drag token and reward popup, then
+    consider a restrained paper-doll body backdrop.
+- Finish starter-class combat identity:
+  - visually approve all sixteen new ability icons and class palettes in the
+    fixed hotbar layout after a clean editor restart;
+  - verify hover tooltips and cooldown dimming/countdown without layout shift;
+  - replace placeholder root, snare, defensive buff, offensive buff, and mana
+    recovery effects with bounded functional behavior plus tests.
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
   - continue tuning chat panel height/line count against the hotbar and common desktop viewport sizes.
@@ -242,8 +260,8 @@ The prototype foundation is alive, but it is still early. The environment is upr
   return-home speed, damage, and respawn timing only from normal-route PIE.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
-- Add a restrained paper-doll backdrop and starter ability icons after the new
-  data-driven item/slot icon family survives clean-restart PIE.
+- Add a restrained paper-doll backdrop after the complete item/slot/ability
+  icon family survives clean-restart PIE.
 
 ## Last Completed
 
@@ -558,6 +576,35 @@ The prototype foundation is alive, but it is still early. The environment is upr
   mutating `daily-embermere-rpg-build`. Its existing 8:00 AM heartbeat remains
   active and already treats this `Start Here` section as authoritative, so this
   handoff remains tomorrow's source of truth until the app endpoint recovers.
+- 2026-07-23: clean-restart PIE accepted the fixed reward popup and a real
+  Recruit Pack bag-to-Back drag on the July 22 module. The reward kept its
+  `32x32` Marsh Tonic art and readable copy; the equipment transaction removed
+  the item from the bag, populated the Back slot, raised HP to `105/105`, and
+  posted one chat line. Slate cannot freeze its atomic drag mid-flight, so the
+  populated drag-token appearance remains a physical-eye check.
+- Extended the deterministic source family from 14 to 31 project-owned
+  `128x128` textures: sixteen distinct starter-ability illustrations plus an
+  explicit missing-ability fallback. Warrior uses ember/iron, Cleric
+  gold/ivory, Ranger moss/leather, and Wizard frost/arcane while sharing the
+  roadside family's frame language.
+- Added direct soft icon references to every native ability definition,
+  persisted matching assignments through `DA_EmbermereRules`, and extended
+  `UEmbermereUiIconSet` with ability fallback resolution. The native hotbar now
+  presents fixed `32x32` art inside the existing `92x64` slots, keeps
+  cooldowns to a two-line layout, dims art and text together, and exposes
+  data-driven description/power/mana/range/cooldown hover tooltips.
+- Added `Embermere.UI.AbilityIconPresentation` and expanded the cooldown test.
+  The authoritative no-hot-reload build succeeded and all 23 tests passed in a
+  fresh process with zero failures. A separate fresh process reloaded all 31
+  exact UI textures, all mappings, and all sixteen distinct ability references.
+- Saved-zone validation remained green with 62 upright Fab actors and nine
+  original placements. Native traces retained three clear gate lanes plus
+  solid gate/fence/end-stone collision. The interactive editor now predates
+  the final July 23 C++ link, so all-class hotbar appearance and tooltip fit
+  are tomorrow's first clean-restart PIE acceptance pass.
+- The Codex automation endpoint recovered. `daily-embermere-rpg-build` remains
+  active at 8:00 AM and now starts from the 23-test ability-icon/hotbar handoff
+  instead of the stale 21-test item-icon milestone.
 
 ## Asset Hunt
 

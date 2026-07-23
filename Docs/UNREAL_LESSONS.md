@@ -385,6 +385,17 @@ Keep icon selection data-driven through item soft references and a shared
 category/slot/missing-art fallback asset. Fixed `SizeBox` bounds preserve layout
 even when an image is collapsed and text remains the readable fallback.
 
+The same contract now covers abilities. Each `FEmbermereAbilityDefinition`
+owns a soft texture reference, `UEmbermereUiIconSet` supplies one explicit
+missing-ability fallback, and the hotbar consumes the definition without
+switching on class or ability ID. Keep every slot's art cell allocated even
+when its image is collapsed so empty commands cannot shift neighboring cells.
+When vertical space is fixed, compact the changing cooldown copy rather than
+growing the control: Embermere keeps key/countdown on one line and the ability
+name on the second. Attach the description, power, mana, range, and cooldown as
+a tooltip so the icon remains accessible without turning the HUD into visible
+instruction text.
+
 Passing those contracts still does not prove real copy fits. Embermere's first
 populated clean-PIE screenshot showed that the saved `Embermere Recruit Pack`
 label clipped in its compact row and crowded the adjacent Equipment heading,

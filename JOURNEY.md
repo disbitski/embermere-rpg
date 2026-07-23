@@ -1114,6 +1114,54 @@ Pipeline lesson:
   real neighboring panels, then turn the accepted copy back into deterministic
   configuration and validation so the visual fix remains durable.
 
+## 2026-07-23 - Every Starter Class Gained A Visual Voice
+
+The item-art contract expanded into a complete ability language instead of a
+Warrior-only sample.
+
+Presentation:
+
+- Generated seventeen additional deterministic `128x128` textures: all sixteen
+  starter abilities plus an explicit missing-ability fallback. Warrior uses
+  ember and iron, Cleric gold and ivory, Ranger moss and leather, and Wizard
+  frost and arcane while retaining the roadside family's shared frame.
+- Added direct soft references to native and saved ability definitions, plus a
+  shared fallback resolver in `UEmbermereUiIconSet`. The hotbar remains
+  asset-agnostic and never switches on class or ability ID.
+- Mounted fixed `32x32` art cells inside the existing `92x64` hotbar slots.
+  Cooldowns dim icon and text together, and the changing countdown stays in a
+  two-line label instead of growing the bar.
+- Added hover tooltips from the same ability data: description, power, mana,
+  meter-based range or Self, and cooldown. Empty slots retain fixed geometry
+  and `F` remains the Interact command.
+
+Acceptance:
+
+- Before the new build, clean PIE accepted the fixed Marsh Tonic reward popup
+  and a real Recruit Pack bag-to-Back drag. The transaction removed the bag
+  item, populated Back, raised HP to `105/105`, and posted one chat message.
+- The authoritative Mac build succeeded with `-NoHotReloadFromIDE`. Fresh
+  automation passed 23/23, including the new
+  `Embermere.UI.AbilityIconPresentation` contract and expanded cooldown/tooltip
+  assertions.
+- A separate fresh process reloaded all 31 exact UI textures, ten equipment
+  mappings, five category mappings, three missing-art paths, two starter-item
+  assignments, and sixteen distinct ability assignments.
+- Saved-zone and native road-boundary validation remained green with 62 upright
+  Fab actors, nine original placements, three open gate lanes, and all required
+  collision. The interactive editor predates the final link, so all-class
+  hotbar appearance remains tomorrow's clean-restart visual gate.
+- Refreshed the 8:00 AM daily automation to start from this 23-test
+  ability-icon baseline and move next into functional class effects,
+  paper-doll art, an original prop, or cohesive village architecture.
+
+Pipeline lesson:
+
+- A complete family is a better architecture test than one attractive icon.
+  Distinct class palettes expose naming, persistence, fallback, fixed-layout,
+  cooldown, and tooltip assumptions across every current ability while the
+  gameplay system remains untouched.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

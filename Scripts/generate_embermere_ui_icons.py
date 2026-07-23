@@ -36,6 +36,14 @@ LEATHER: Color = (130, 77, 42, 255)
 LEATHER_LIGHT: Color = (190, 126, 66, 255)
 TONIC: Color = (82, 185, 103, 255)
 TONIC_LIGHT: Color = (164, 238, 148, 255)
+HOLY: Color = (246, 211, 108, 255)
+HOLY_LIGHT: Color = (255, 244, 194, 255)
+RANGER: Color = (78, 151, 89, 255)
+RANGER_LIGHT: Color = (166, 226, 132, 255)
+FROST: Color = (71, 165, 220, 255)
+FROST_LIGHT: Color = (174, 230, 255, 255)
+ARCANE: Color = (117, 89, 211, 255)
+ARCANE_LIGHT: Color = (202, 178, 255, 255)
 VOID: Color = (0, 0, 0, 0)
 
 
@@ -181,6 +189,215 @@ def ember_rune(canvas: Canvas, cx: float, cy: float, scale: float = 1.0) -> None
     canvas.ellipse(cx, cy + 2 * scale, 3.5 * scale, 3.5 * scale, GOLD_LIGHT)
 
 
+def impact_star(
+    canvas: Canvas,
+    cx: float,
+    cy: float,
+    outer: float,
+    inner: float,
+    color: Color,
+) -> None:
+    points: list[tuple[float, float]] = []
+    for index in range(16):
+        radius = outer if index % 2 == 0 else inner
+        angle = -math.pi / 2 + index * math.pi / 8
+        points.append((cx + math.cos(angle) * radius, cy + math.sin(angle) * radius))
+    canvas.polygon(points, color)
+
+
+def leaf(
+    canvas: Canvas,
+    cx: float,
+    cy: float,
+    width: float,
+    height: float,
+    color: Color,
+) -> None:
+    canvas.polygon(
+        [
+            (cx, cy - height / 2),
+            (cx + width / 2, cy),
+            (cx, cy + height / 2),
+            (cx - width / 2, cy),
+        ],
+        color,
+    )
+    canvas.line([(cx, cy - height / 3), (cx, cy + height / 3)], MOSS_DARK, 2.5)
+
+
+def draw_ability_strike(canvas: Canvas) -> None:
+    canvas.frame(EMBER)
+    canvas.polygon([(79, 23), (88, 31), (56, 82), (47, 73)], IRON_LIGHT)
+    canvas.polygon([(79, 23), (88, 31), (80, 44)], STONE_LIGHT)
+    canvas.line([(40, 70), (66, 88)], GOLD, 6)
+    canvas.line([(56, 84), (39, 105)], LEATHER_LIGHT, 8)
+    canvas.line([(25, 42), (56, 31), (91, 42)], EMBER_LIGHT, 4)
+    canvas.line([(29, 52), (53, 45)], GOLD_LIGHT, 3)
+
+
+def draw_ability_taunt(canvas: Canvas) -> None:
+    canvas.frame(EMBER)
+    canvas.polygon([(40, 38), (61, 29), (82, 38), (87, 77), (64, 99), (39, 78)], IRON)
+    canvas.polygon([(46, 45), (61, 38), (78, 45), (76, 69), (63, 82), (47, 69)], LEATHER)
+    canvas.ellipse(56, 58, 5, 4, EMBER_LIGHT)
+    canvas.ellipse(70, 58, 5, 4, EMBER_LIGHT)
+    canvas.line([(24, 49), (34, 58), (23, 66)], GOLD_LIGHT, 4)
+    canvas.line([(103, 49), (93, 58), (104, 66)], GOLD_LIGHT, 4)
+    canvas.line([(25, 82), (39, 76)], EMBER, 4)
+    canvas.line([(102, 82), (87, 76)], EMBER, 4)
+
+
+def draw_ability_shield_slam(canvas: Canvas) -> None:
+    canvas.frame(GOLD)
+    canvas.polygon([(54, 25), (84, 38), (79, 78), (54, 101), (29, 78), (24, 38)], IRON)
+    canvas.polygon([(54, 32), (76, 42), (72, 71), (54, 90)], IRON_LIGHT)
+    canvas.line([(54, 33), (54, 90)], GOLD, 4)
+    impact_star(canvas, 87, 60, 24, 9, EMBER_LIGHT)
+    canvas.ellipse(87, 60, 7, 7, HOLY_LIGHT)
+
+
+def draw_ability_battle_shout(canvas: Canvas) -> None:
+    canvas.frame(EMBER)
+    canvas.polygon([(29, 55), (48, 46), (75, 29), (78, 77), (50, 67)], LEATHER_LIGHT)
+    canvas.polygon([(50, 47), (70, 36), (70, 68), (50, 62)], GOLD)
+    canvas.line([(34, 67), (25, 86)], IRON_LIGHT, 7)
+    canvas.line([(84, 42), (101, 31)], HOLY_LIGHT, 4)
+    canvas.line([(87, 57), (108, 57)], HOLY_LIGHT, 5)
+    canvas.line([(84, 72), (101, 84)], HOLY_LIGHT, 4)
+    canvas.ellipse(105, 57, 4, 4, EMBER_LIGHT)
+
+
+def draw_ability_smite(canvas: Canvas) -> None:
+    canvas.frame(HOLY)
+    canvas.polygon([(58, 20), (76, 20), (70, 57), (57, 57)], HOLY_LIGHT)
+    impact_star(canvas, 62, 71, 35, 13, GOLD_LIGHT)
+    canvas.polygon([(54, 54), (72, 54), (65, 102), (48, 102)], STONE_LIGHT)
+    canvas.ellipse(62, 71, 8, 8, EMBER_LIGHT)
+
+
+def draw_ability_lesser_heal(canvas: Canvas) -> None:
+    canvas.frame(HOLY)
+    canvas.ellipse(49, 52, 20, 19, EMBER)
+    canvas.ellipse(79, 52, 20, 19, EMBER)
+    canvas.polygon([(31, 55), (97, 55), (64, 102)], EMBER)
+    canvas.rect(58, 38, 70, 82, HOLY_LIGHT)
+    canvas.rect(43, 53, 85, 67, HOLY_LIGHT)
+    canvas.ellipse(64, 60, 8, 8, GOLD_LIGHT)
+
+
+def draw_ability_ward(canvas: Canvas) -> None:
+    canvas.frame(HOLY)
+    canvas.ellipse(64, 62, 43, 43, (111, 91, 39, 255))
+    canvas.ellipse(64, 62, 36, 36, CHARCOAL)
+    canvas.polygon([(64, 28), (92, 40), (87, 76), (64, 98), (41, 76), (36, 40)], IRON_LIGHT)
+    canvas.polygon([(64, 35), (84, 44), (80, 70), (64, 87)], HOLY)
+    ember_rune(canvas, 61, 61, 0.55)
+
+
+def draw_ability_judgment(canvas: Canvas) -> None:
+    canvas.frame(HOLY)
+    canvas.line([(64, 29), (64, 91)], GOLD_LIGHT, 6)
+    canvas.line([(34, 48), (94, 48)], GOLD, 6)
+    canvas.line([(42, 49), (31, 73), (52, 73), (42, 49)], HOLY_LIGHT, 3)
+    canvas.line([(86, 49), (75, 73), (97, 73), (86, 49)], HOLY_LIGHT, 3)
+    canvas.line([(29, 74), (54, 74)], EMBER_LIGHT, 5)
+    canvas.line([(73, 74), (99, 74)], EMBER_LIGHT, 5)
+    impact_star(canvas, 64, 94, 17, 7, HOLY_LIGHT)
+
+
+def draw_ability_quick_shot(canvas: Canvas) -> None:
+    canvas.frame(RANGER)
+    canvas.line([(43, 27), (30, 47), (28, 71), (42, 98)], LEATHER_LIGHT, 6)
+    canvas.line([(43, 27), (42, 98)], GOLD_LIGHT, 3)
+    canvas.line([(26, 64), (101, 51)], IRON_LIGHT, 5)
+    canvas.polygon([(102, 51), (87, 43), (90, 58)], STONE_LIGHT)
+    canvas.line([(34, 62), (27, 55)], RANGER_LIGHT, 3)
+    canvas.line([(34, 62), (30, 71)], RANGER_LIGHT, 3)
+
+
+def draw_ability_snare(canvas: Canvas) -> None:
+    canvas.frame(RANGER)
+    canvas.polygon([(51, 27), (76, 27), (77, 72), (96, 86), (92, 101), (42, 101), (34, 91), (51, 73)], LEATHER)
+    canvas.line([(49, 47), (78, 47)], GOLD, 4)
+    canvas.line([(31, 54), (91, 82), (38, 91), (88, 57)], RANGER_LIGHT, 6)
+    leaf(canvas, 31, 54, 15, 25, TONIC)
+    leaf(canvas, 91, 82, 15, 25, TONIC)
+    canvas.ellipse(63, 71, 8, 8, MOSS_DARK)
+
+
+def draw_ability_twin_cut(canvas: Canvas) -> None:
+    canvas.frame(RANGER)
+    canvas.polygon([(37, 26), (46, 24), (73, 83), (63, 87)], IRON_LIGHT)
+    canvas.polygon([(91, 25), (99, 34), (54, 85), (46, 77)], IRON_LIGHT)
+    canvas.line([(57, 78), (39, 99)], LEATHER_LIGHT, 7)
+    canvas.line([(69, 79), (88, 101)], LEATHER_LIGHT, 7)
+    canvas.line([(31, 44), (52, 35)], RANGER_LIGHT, 4)
+    canvas.line([(77, 38), (101, 49)], GOLD_LIGHT, 4)
+
+
+def draw_ability_natures_focus(canvas: Canvas) -> None:
+    canvas.frame(RANGER)
+    leaf(canvas, 64, 60, 70, 82, RANGER_LIGHT)
+    canvas.ellipse(64, 60, 28, 17, MOSS_DARK)
+    canvas.ellipse(64, 60, 17, 11, STONE_LIGHT)
+    canvas.ellipse(64, 60, 7, 7, GOLD_LIGHT)
+    canvas.line([(64, 86), (64, 105)], TONIC_LIGHT, 4)
+    canvas.line([(64, 96), (52, 87)], TONIC_LIGHT, 3)
+    canvas.line([(64, 97), (76, 88)], TONIC_LIGHT, 3)
+
+
+def draw_ability_spark_bolt(canvas: Canvas) -> None:
+    canvas.frame(FROST)
+    canvas.polygon([(72, 18), (41, 65), (60, 65), (48, 108), (91, 53), (70, 53)], HOLY_LIGHT)
+    canvas.polygon([(68, 25), (49, 58), (67, 58), (58, 88), (82, 57), (65, 57)], FROST_LIGHT)
+    canvas.ellipse(91, 39, 8, 8, ARCANE_LIGHT)
+    canvas.ellipse(32, 83, 5, 5, FROST)
+
+
+def draw_ability_frost_root(canvas: Canvas) -> None:
+    canvas.frame(FROST)
+    for angle_index in range(6):
+        angle = angle_index * math.pi / 3
+        x = 64 + math.cos(angle) * 31
+        y = 54 + math.sin(angle) * 31
+        canvas.line([(64, 54), (x, y)], FROST_LIGHT, 4)
+    canvas.ellipse(64, 54, 7, 7, HOLY_LIGHT)
+    canvas.line([(64, 61), (64, 89), (45, 105)], RANGER_LIGHT, 5)
+    canvas.line([(64, 83), (82, 104)], RANGER_LIGHT, 5)
+    canvas.line([(64, 75), (48, 88)], RANGER, 4)
+    canvas.line([(64, 72), (80, 85)], RANGER, 4)
+
+
+def draw_ability_arcane_burst(canvas: Canvas) -> None:
+    canvas.frame(ARCANE)
+    impact_star(canvas, 64, 63, 45, 18, ARCANE_LIGHT)
+    canvas.ellipse(64, 63, 25, 25, ARCANE)
+    canvas.ellipse(64, 63, 14, 14, HOLY_LIGHT)
+    canvas.ellipse(64, 63, 6, 6, EMBER_LIGHT)
+    canvas.ellipse(29, 35, 5, 5, FROST_LIGHT)
+    canvas.ellipse(101, 88, 5, 5, GOLD_LIGHT)
+
+
+def draw_ability_meditate(canvas: Canvas) -> None:
+    canvas.frame(ARCANE)
+    canvas.ellipse(64, 36, 12, 12, HOLY_LIGHT)
+    canvas.line([(64, 49), (64, 76)], ARCANE_LIGHT, 8)
+    canvas.line([(64, 58), (45, 71), (35, 88)], ARCANE_LIGHT, 7)
+    canvas.line([(64, 58), (83, 71), (93, 88)], ARCANE_LIGHT, 7)
+    canvas.line([(64, 76), (45, 94), (33, 94)], FROST_LIGHT, 7)
+    canvas.line([(64, 76), (83, 94), (95, 94)], FROST_LIGHT, 7)
+    canvas.ellipse(64, 69, 44, 38, (117, 89, 211, 58))
+    canvas.ellipse(64, 69, 32, 27, (18, 27, 23, 230))
+    canvas.ellipse(64, 69, 5, 5, GOLD_LIGHT)
+
+
+def draw_missing_ability(canvas: Canvas) -> None:
+    canvas.frame(ARCANE)
+    impact_star(canvas, 64, 60, 34, 16, IRON)
+    canvas.line([(48, 48), (64, 36), (80, 49), (64, 63), (64, 82)], STONE_LIGHT, 6)
+    canvas.ellipse(64, 96, 5, 5, ARCANE_LIGHT)
+
+
 def draw_recruit_pack(canvas: Canvas) -> None:
     canvas.frame(GOLD)
     canvas.rounded_rect(33, 34, 95, 103, 10, LEATHER)
@@ -308,6 +525,23 @@ def draw_missing_slot(canvas: Canvas) -> None:
 ICON_BUILDERS = {
     "T_Icon_Item_RecruitPack.png": draw_recruit_pack,
     "T_Icon_Item_MarshTonic.png": draw_marsh_tonic,
+    "T_Icon_Ability_Strike.png": draw_ability_strike,
+    "T_Icon_Ability_Taunt.png": draw_ability_taunt,
+    "T_Icon_Ability_ShieldSlam.png": draw_ability_shield_slam,
+    "T_Icon_Ability_BattleShout.png": draw_ability_battle_shout,
+    "T_Icon_Ability_Smite.png": draw_ability_smite,
+    "T_Icon_Ability_LesserHeal.png": draw_ability_lesser_heal,
+    "T_Icon_Ability_Ward.png": draw_ability_ward,
+    "T_Icon_Ability_Judgment.png": draw_ability_judgment,
+    "T_Icon_Ability_QuickShot.png": draw_ability_quick_shot,
+    "T_Icon_Ability_Snare.png": draw_ability_snare,
+    "T_Icon_Ability_TwinCut.png": draw_ability_twin_cut,
+    "T_Icon_Ability_NaturesFocus.png": draw_ability_natures_focus,
+    "T_Icon_Ability_SparkBolt.png": draw_ability_spark_bolt,
+    "T_Icon_Ability_FrostRoot.png": draw_ability_frost_root,
+    "T_Icon_Ability_ArcaneBurst.png": draw_ability_arcane_burst,
+    "T_Icon_Ability_Meditate.png": draw_ability_meditate,
+    "T_Icon_Ability_Missing.png": draw_missing_ability,
     "T_Icon_Slot_MainHand.png": draw_sword,
     "T_Icon_Slot_OffHand.png": draw_shield,
     "T_Icon_Slot_Head.png": draw_helmet,

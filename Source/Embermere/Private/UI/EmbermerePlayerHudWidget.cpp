@@ -38,6 +38,7 @@ namespace
 	constexpr float InventoryDetailIconSize = 42.0f;
 	constexpr float EquipmentSlotIconSize = 18.0f;
 	constexpr float LootPopupIconSize = 32.0f;
+	constexpr float HotbarSlotIconSize = 32.0f;
 
 	const TCHAR* GetEquipmentSlotLabel(EEmbermereEquipmentSlot Slot)
 	{
@@ -188,6 +189,12 @@ UTexture2D* UEmbermerePlayerHudWidget::ResolveEquipmentSlotIconForUi(EEmbermereE
 	return IconSet ? IconSet->ResolveEquipmentSlotIcon(EquipmentSlot) : nullptr;
 }
 
+UTexture2D* UEmbermerePlayerHudWidget::ResolveAbilityIconForUi(const FEmbermereAbilityDefinition& Ability) const
+{
+	const UEmbermereUiIconSet* IconSet = UiIconSet.IsNull() ? nullptr : UiIconSet.LoadSynchronous();
+	return IconSet ? IconSet->ResolveAbilityIcon(Ability) : nullptr;
+}
+
 FVector2D UEmbermerePlayerHudWidget::GetInventoryRowIconDimensions() const
 {
 	return FVector2D(InventoryRowIconSize);
@@ -206,6 +213,11 @@ FVector2D UEmbermerePlayerHudWidget::GetEquipmentSlotIconDimensions() const
 FVector2D UEmbermerePlayerHudWidget::GetLootPopupIconDimensions() const
 {
 	return FVector2D(LootPopupIconSize);
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetHotbarSlotIconDimensions() const
+{
+	return FVector2D(HotbarSlotIconSize);
 }
 
 void UEmbermerePlayerHudWidget::BindToCharacter(AEmbermereCharacter* Character)
@@ -909,13 +921,40 @@ FText UEmbermerePlayerHudWidget::GetHotbarSlotDisplayText(int32 SlotIndex, float
 	if (CooldownRemainingSeconds > 0.05f)
 	{
 		return FText::FromString(FString::Printf(
-			TEXT("%s\n%s\n%.1fs"),
+			TEXT("%s  %.1fs\n%s"),
 			*KeyText,
-			*AbilityText,
-			CooldownRemainingSeconds));
+			CooldownRemainingSeconds,
+			*AbilityText));
 	}
 
 	return FText::FromString(FString::Printf(TEXT("%s\n%s"), *KeyText, *AbilityText));
+}
+
+FText UEmbermerePlayerHudWidget::GetHotbarSlotTooltipText(int32 SlotIndex) const
+{
+	if (!Hotbar || !Hotbar->Slots.IsValidIndex(SlotIndex) || Hotbar->Slots[SlotIndex].AbilityId.IsNone())
+	{
+		return SlotIndex == 9
+			? FText::FromString(TEXT("Interact with a nearby character or object."))
+			: FText::GetEmpty();
+	}
+
+	const FEmbermereAbilityDefinition& Ability = Hotbar->Slots[SlotIndex];
+	const FString ManaText = Ability.ManaCost > 0.0f
+		? FString::Printf(TEXT("%.0f Mana"), Ability.ManaCost)
+		: TEXT("No mana");
+	const FString RangeText = Ability.Range > 0.0f
+		? FString::Printf(TEXT("%.1fm Range"), Ability.Range / 100.0f)
+		: TEXT("Self");
+
+	return FText::FromString(FString::Printf(
+		TEXT("%s\n%s\nPower %.0f | %s | %s | %.1fs Cooldown"),
+		*Ability.DisplayName.ToString(),
+		*Ability.Description.ToString(),
+		Ability.Power,
+		*ManaText,
+		*RangeText,
+		Ability.Cooldown));
 }
 
 void UEmbermerePlayerHudWidget::AddChatMessage(const FText& Message, FLinearColor MessageColor)
@@ -1332,25 +1371,48 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 
 	HotbarRow = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("HotbarRow"));
 	HotbarSlotTexts.Reset();
+	HotbarSlotPanels.Reset();
+	HotbarSlotIcons.Reset();
 	static const TCHAR* HotbarKeys[] = { TEXT("1"), TEXT("2"), TEXT("3"), TEXT("4"), TEXT("Alt+R"), TEXT("Alt+E"), TEXT("R"), TEXT("X"), TEXT("E"), TEXT("F") };
 	for (int32 SlotIndex = 0; SlotIndex < UE_ARRAY_COUNT(HotbarKeys); ++SlotIndex)
 	{
 		USizeBox* SlotSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), *FString::Printf(TEXT("HotbarSlotSize_%d"), SlotIndex));
 		UBorder* SlotPanel = MakePanel(WidgetTree, *FString::Printf(TEXT("HotbarSlotPanel_%d"), SlotIndex), FLinearColor(0.025f, 0.03f, 0.035f, 0.86f));
-		UTextBlock* SlotText = MakeHudText(WidgetTree, *FString::Printf(TEXT("HotbarSlotText_%d"), SlotIndex), FLinearColor(0.92f, 0.96f, 1.0f, 1.0f), 13.0f);
-		if (!SlotSize || !SlotPanel || !SlotText)
+		UVerticalBox* SlotStack = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), *FString::Printf(TEXT("HotbarSlotStack_%d"), SlotIndex));
+		UImage* SlotIcon = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), *FString::Printf(TEXT("HotbarSlotIcon_%d"), SlotIndex));
+		USizeBox* SlotIconSize = MakeSizedWidget(
+			WidgetTree,
+			SlotIcon,
+			*FString::Printf(TEXT("HotbarSlotIconSize_%d"), SlotIndex),
+			HotbarSlotIconSize,
+			HotbarSlotIconSize);
+		UTextBlock* SlotText = MakeHudText(WidgetTree, *FString::Printf(TEXT("HotbarSlotText_%d"), SlotIndex), FLinearColor(0.92f, 0.96f, 1.0f, 1.0f), 10.0f);
+		if (!SlotSize || !SlotPanel || !SlotStack || !SlotIcon || !SlotIconSize || !SlotText)
 		{
 			continue;
 		}
 
 		SlotSize->SetWidthOverride(92.0f);
 		SlotSize->SetHeightOverride(64.0f);
+		SlotPanel->SetPadding(FMargin(4.0f, 2.0f));
+		SlotIcon->SetVisibility(ESlateVisibility::Collapsed);
 		SlotText->SetJustification(ETextJustify::Center);
-		SlotText->SetAutoWrapText(true);
+		SlotText->SetAutoWrapText(false);
+		SlotText->SetLineHeightPercentage(0.8f);
 		SlotText->SetText(FText::FromString(FString::Printf(TEXT("%s\n-"), HotbarKeys[SlotIndex])));
-		SlotPanel->SetContent(SlotText);
+		if (UVerticalBoxSlot* IconSlot = SlotStack->AddChildToVerticalBox(SlotIconSize))
+		{
+			IconSlot->SetHorizontalAlignment(HAlign_Center);
+		}
+		if (UVerticalBoxSlot* TextSlot = SlotStack->AddChildToVerticalBox(SlotText))
+		{
+			TextSlot->SetHorizontalAlignment(HAlign_Center);
+		}
+		SlotPanel->SetContent(SlotStack);
 		SlotSize->AddChild(SlotPanel);
 		HotbarSlotTexts.Add(SlotText);
+		HotbarSlotPanels.Add(SlotPanel);
+		HotbarSlotIcons.Add(SlotIcon);
 
 		if (HotbarRow)
 		{
@@ -1606,6 +1668,27 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 			CooldownRemaining > 0.05f
 				? FLinearColor(0.58f, 0.62f, 0.68f, 1.0f)
 				: FLinearColor(0.92f, 0.96f, 1.0f, 1.0f)));
+		if (HotbarSlotPanels.IsValidIndex(SlotIndex) && HotbarSlotPanels[SlotIndex])
+		{
+			HotbarSlotPanels[SlotIndex]->SetToolTipText(GetHotbarSlotTooltipText(SlotIndex));
+		}
+
+		if (HotbarSlotIcons.IsValidIndex(SlotIndex))
+		{
+			UImage* SlotIcon = HotbarSlotIcons[SlotIndex];
+			const bool bHasAbility = Hotbar && Hotbar->Slots.IsValidIndex(SlotIndex) &&
+				!Hotbar->Slots[SlotIndex].AbilityId.IsNone();
+			SetIconImage(
+				SlotIcon,
+				bHasAbility ? ResolveAbilityIconForUi(Hotbar->Slots[SlotIndex]) : nullptr);
+			if (SlotIcon)
+			{
+				SlotIcon->SetColorAndOpacity(
+					CooldownRemaining > 0.05f
+						? FLinearColor(0.35f, 0.38f, 0.42f, 0.9f)
+						: FLinearColor::White);
+			}
+		}
 	}
 }
 

@@ -45,18 +45,18 @@ The project currently includes:
 - a styled native HUD with player/target status, quest tracker, hotbar,
   clickable/draggable inventory rows and equipment slots, dialogue, loot feedback, nameplates, an emissive
   target ring, project-owned fantasy drag tokens, data-driven item/slot icons,
-  and chat log;
+  sixteen data-driven starter-ability icons with tooltips, and chat log;
 - a first local Fab/Epic art pass with 62 upright environment actors and nine
   placements from an original Blender-built Embermere waystone, ember-lamp,
   timber-signpost, traversable-road-gate, matching boundary-fence family, and
   rune-topped boundary stones, plus a Mac-friendly atmospheric daylight
   baseline;
-- 22 passing Unreal automation tests plus fresh-process UI-icon package,
+- 23 passing Unreal automation tests plus fresh-process UI-icon package,
   saved-map, and road-boundary validators.
 
 This is still prototype art. The first black-sky problem is corrected, but the
 scene remains mixed in style and is missing a cohesive fantasy village kit,
-final characters, animations, weapons, starter-ability icons, VFX, audio, and
+final characters, animations, weapons, final ability VFX, audio, and
 final UI art.
 
 ## Game Vision
@@ -200,11 +200,11 @@ Implemented presentation includes:
 - explicit stable category/name sorting with selected-item and duplicate-stack
   occurrence preservation plus pending/active-drag protection;
 - a project-owned data-driven icon family with explicit Recruit Pack and Marsh
-  Tonic art, all ten paper-doll slot symbols, category and missing-art
-  fallbacks, and fixed row/detail/slot dimensions.
+  Tonic art, all ten paper-doll slot symbols, all sixteen starter-ability
+  illustrations, category/slot/ability fallbacks, and fixed UI dimensions.
 
 These systems are functional first-pass UI. Dedicated fantasy UI materials,
-an illustrated paper-doll backdrop, starter-ability icons, chat scrolling, and
+an illustrated paper-doll backdrop, final ability VFX, chat scrolling, and
 final responsive layout remain future work. The interaction contract is in
 `Docs/INVENTORY_INTERACTION_PLAN.md`.
 
@@ -485,20 +485,23 @@ Current automation tests:
 20. `Embermere.Inventory.StableSorting`
 21. `Embermere.Input.AutorunCancellation`
 22. `Embermere.UI.IconPresentation`
+23. `Embermere.UI.AbilityIconPresentation`
 
-Latest verified baseline (2026-07-22):
+Latest verified baseline (2026-07-23):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- headless automation discovered and passed 22/22 with zero test failures,
+- headless automation discovered and passed 23/23 with zero test failures,
   including data-driven icon resolution, source dimensions, category/missing
   fallbacks, fixed row/detail/slot/reward presentation bounds, and successful
-  construction of the icon-bearing fantasy drag visual;
-- 14 deterministic `128x128` project-owned textures plus
+  construction of the icon-bearing fantasy drag visual and sixteen distinct
+  ability-icon references;
+- 31 deterministic `128x128` project-owned textures plus
   `DA_EmbermereUiIconSet` were imported and explicitly saved under
   `/Game/UI/Icons`; a fresh process reloaded exact texture settings, ten slot
-  mappings, five category mappings, both missing-art paths, and explicit
-  Recruit Pack/Marsh Tonic references. The saved player-facing item label is
-  now the validated compact `Recruit Pack`, while its stable identity remains
+  mappings, five category mappings, item/slot/ability missing-art paths,
+  explicit Recruit Pack/Marsh Tonic references, and all sixteen distinct
+  ability assignments. The saved player-facing item label remains the
+  validated compact `Recruit Pack`, while its stable identity is
   `RecruitPack`;
 - the validator reloaded the saved map and passed with 62 upright `FabPass_`
   actors, nine exact original-art placements, visual-only encounter geometry,
@@ -595,16 +598,20 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Restart Unreal if it predates
-the 2026-07-22 drag/reward icon C++ link and compact Recruit Pack package save,
-then confirm MCP/test discovery against the current module.
+the 2026-07-23 starter-ability icon, hotbar, and tooltip C++ link, then confirm
+MCP/test discovery against the current module.
 
 First fresh-session checks:
 
 1. Confirm Unreal has the latest module/map and open
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery.
-3. Run/discover all 22 tests.
+3. Run/discover all 23 tests.
 4. Start PIE and verify:
+   - all four class palettes across the sixteen starter-ability illustrations,
+     fixed `32x32` art inside unchanged `92x64` slots, key/name fit, empty and
+     Interact stability, data-driven hover tooltips, and synchronized
+     icon/text cooldown dimming with two-line countdown copy;
    - all ten empty equipment-slot icons, Recruit Pack and Marsh Tonic row/detail
      art, occupied-slot art, category fallback, text/tooltips, fixed icon sizes,
      and no inventory/footer/hotbar layout shift. Confirm `Recruit Pack` fits its
@@ -646,9 +653,9 @@ First fresh-session checks:
 
 High-value milestones after that:
 
-- after clean visual acceptance of the completed icon-bearing drag/reward pass,
-  consider a restrained paper-doll body backdrop and starter-ability icon
-  family;
+- after clean visual acceptance of the completed item/slot/ability icon family,
+  consider a restrained paper-doll body backdrop or implement real
+  root/snare/buff/mana-recovery class behavior;
 - expand the proven Blender waystone/lamp/signpost/gate/fence/end-stone lane
   into compact village-prop modules while preserving
   deterministic scripts, FBX checks, and original-art tags;
@@ -711,7 +718,7 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. The latest clean PIE already proved Q autorun plus independent W and S cancellation. Restart onto the 2026-07-22 drag/reward icon module and compact Recruit Pack asset, run all 22 tests, then visually inspect all ten slot icons, Recruit Pack and Marsh Tonic row/detail/occupied-slot art, category and missing-art fallback, fixed dimensions, readable text/tooltips, and no inventory/footer/hotbar layout shift. Confirm `Recruit Pack` fits without clipping or crowding, the populated fantasy drag token shows resolved item art in its fixed cell, the reward popup shows fixed item art, and both retain their fallback presentation. Physically verify Ctrl+M feedback. Recheck the accepted gate/fence/end-stone threshold, exact south-side foliage cleanup, the 700px inventory and ten-slot paper doll, identity-preserving Sort, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, hotbar cooldown countdown, native enemy nameplate, raised saturated emissive target ring, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, and all nine original-art placements. Walk the normal route and prove each 525 cm Prowler pull stays solo while visual marker/band geometry remains non-colliding. Then add a restrained paper-doll backdrop or ability icons, build a compact original Blender village prop, pursue cohesive fantasy architecture, tune concrete combat/respawn issues, or take the highest-value next milestone when the path is clear.
+Follow TODO.md's Start Here section. The latest clean PIE already proved Q autorun plus independent W and S cancellation, the icon-bearing reward popup, and a real Recruit Pack bag-to-Back drag. Restart onto the 2026-07-23 starter-ability icon/hotbar module, run all 23 tests, then visually inspect all sixteen class-specific ability illustrations, fixed 32x32 art cells inside the unchanged 92x64 hotbar slots, readable key/name labels, hover tooltips, synchronized cooldown dimming, two-line countdown copy, empty-slot stability, and the F Interact slot. Retain the accepted item/slot art, compact Recruit Pack copy, reward popup, inventory/footer/hotbar bounds, and physically inspect the populated fantasy drag token while in motion. Physically verify Ctrl+M feedback. Recheck the accepted gate/fence/end-stone threshold, exact south-side foliage cleanup, the 700px inventory and ten-slot paper doll, identity-preserving Sort, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy nameplate, raised saturated emissive target ring, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, and all nine original-art placements. Walk the normal route and prove each 525 cm Prowler pull stays solo while visual marker/band geometry remains non-colliding. Then implement bounded root/snare/buff/mana-recovery behavior, add a restrained paper-doll backdrop, build a compact original Blender village prop, pursue cohesive fantasy architecture, tune concrete combat/respawn issues, or take the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

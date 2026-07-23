@@ -25,6 +25,7 @@ namespace EmbermereRules
 	FEmbermereAbilityDefinition MakeAbility(FName AbilityId, EEmbermereClass Class, const TCHAR* Name, const TCHAR* Description, EEmbermereAbilityTargetKind TargetKind, float Power, float ManaCost, float Range, float Cooldown)
 	{
 		FEmbermereAbilityDefinition Definition;
+		const FString IconName = FString::Printf(TEXT("T_Icon_Ability_%s"), *AbilityId.ToString());
 		Definition.AbilityId = AbilityId;
 		Definition.OwningClass = Class;
 		Definition.DisplayName = FText::FromString(Name);
@@ -34,6 +35,10 @@ namespace EmbermereRules
 		Definition.ManaCost = ManaCost;
 		Definition.Range = Range;
 		Definition.Cooldown = Cooldown;
+		Definition.Icon = TSoftObjectPtr<UTexture2D>(FSoftObjectPath(FString::Printf(
+			TEXT("/Game/UI/Icons/Abilities/%s.%s"),
+			*IconName,
+			*IconName)));
 		return Definition;
 	}
 }

@@ -6,9 +6,11 @@ import unreal
 
 
 ICON_ROOT = "/Game/UI/Icons"
+ABILITY_ICON_ROOT = f"{ICON_ROOT}/Abilities"
 ICON_SET_PATH = f"{ICON_ROOT}/DA_EmbermereUiIconSet"
 RECRUIT_PACK_PATH = "/Game/Data/Items/DI_EmbermereRecruitPack"
 MARSH_TONIC_PATH = "/Game/Data/Items/DI_MarshTonic"
+RULES_PATH = "/Game/Data/DA_EmbermereRules"
 
 SLOT_TEXTURES = {
     unreal.EmbermereEquipmentSlot.MAIN_HAND: "T_Icon_Slot_MainHand",
@@ -31,10 +33,30 @@ CATEGORY_TEXTURES = {
     unreal.EmbermereItemCategory.QUEST: "T_Icon_Item_Missing",
 }
 
-ALL_TEXTURE_NAMES = set(SLOT_TEXTURES.values()) | set(CATEGORY_TEXTURES.values()) | {
+ABILITY_TEXTURES = {
+    "Strike": "T_Icon_Ability_Strike",
+    "Taunt": "T_Icon_Ability_Taunt",
+    "ShieldSlam": "T_Icon_Ability_ShieldSlam",
+    "BattleShout": "T_Icon_Ability_BattleShout",
+    "Smite": "T_Icon_Ability_Smite",
+    "LesserHeal": "T_Icon_Ability_LesserHeal",
+    "Ward": "T_Icon_Ability_Ward",
+    "Judgment": "T_Icon_Ability_Judgment",
+    "QuickShot": "T_Icon_Ability_QuickShot",
+    "Snare": "T_Icon_Ability_Snare",
+    "TwinCut": "T_Icon_Ability_TwinCut",
+    "NaturesFocus": "T_Icon_Ability_NaturesFocus",
+    "SparkBolt": "T_Icon_Ability_SparkBolt",
+    "FrostRoot": "T_Icon_Ability_FrostRoot",
+    "ArcaneBurst": "T_Icon_Ability_ArcaneBurst",
+    "Meditate": "T_Icon_Ability_Meditate",
+}
+
+BASE_TEXTURE_NAMES = set(SLOT_TEXTURES.values()) | set(CATEGORY_TEXTURES.values()) | {
     "T_Icon_Item_RecruitPack",
     "T_Icon_Slot_Missing",
 }
+ABILITY_TEXTURE_NAMES = set(ABILITY_TEXTURES.values()) | {"T_Icon_Ability_Missing"}
 
 
 def fail(message):
@@ -56,7 +78,8 @@ def texture_path(texture):
 
 
 def require_texture(actual, expected_name, context):
-    expected_path = f"{ICON_ROOT}/{expected_name}"
+    expected_root = ABILITY_ICON_ROOT if expected_name.startswith("T_Icon_Ability_") else ICON_ROOT
+    expected_path = f"{expected_root}/{expected_name}"
     if texture_path(actual) != expected_path:
         fail(f"{context} expected {expected_path}, found {texture_path(actual)}")
 
@@ -86,9 +109,15 @@ def main():
         "T_Icon_Slot_Missing",
         "missing-slot fallback",
     )
+    require_texture(
+        icon_set.get_editor_property("missing_ability_icon"),
+        "T_Icon_Ability_Missing",
+        "missing-ability fallback",
+    )
 
-    for texture_name in sorted(ALL_TEXTURE_NAMES):
-        texture = load_asset(f"{ICON_ROOT}/{texture_name}", unreal.Texture2D)
+    for texture_name in sorted(BASE_TEXTURE_NAMES | ABILITY_TEXTURE_NAMES):
+        texture_root = ABILITY_ICON_ROOT if texture_name in ABILITY_TEXTURE_NAMES else ICON_ROOT
+        texture = load_asset(f"{texture_root}/{texture_name}", unreal.Texture2D)
         if texture.blueprint_get_size_x() != 128 or texture.blueprint_get_size_y() != 128:
             fail(
                 f"{texture_name} expected 128x128, found "
@@ -117,10 +146,32 @@ def main():
         "Marsh Tonic item icon",
     )
 
+    rules = load_asset(RULES_PATH, unreal.EmbermereRulesData)
+    abilities = list(rules.get_editor_property("abilities"))
+    if len(abilities) != len(ABILITY_TEXTURES):
+        fail(f"expected 16 starter abilities, found {len(abilities)}")
+
+    found_ids = set()
+    found_icon_paths = set()
+    for ability in abilities:
+        ability_id = str(ability.get_editor_property("ability_id"))
+        expected_name = ABILITY_TEXTURES.get(ability_id)
+        if not expected_name:
+            fail(f"rules data contains unmapped ability {ability_id}")
+        icon = ability.get_editor_property("icon")
+        require_texture(icon, expected_name, f"{ability_id} ability icon")
+        found_ids.add(ability_id)
+        found_icon_paths.add(texture_path(icon))
+
+    if found_ids != set(ABILITY_TEXTURES):
+        fail(f"ability ID set mismatch: {sorted(found_ids)}")
+    if len(found_icon_paths) != len(ABILITY_TEXTURES):
+        fail(f"expected 16 distinct ability icons, found {len(found_icon_paths)}")
+
     unreal.log(
-        "Embermere UI icon validation passed: 14 saved 128x128 UI textures, "
+        "Embermere UI icon validation passed: 31 saved 128x128 UI textures, "
         "10 equipment slots, 5 category fallbacks, 2 starter-item assignments, "
-        "and the compact Recruit Pack display name"
+        "16 distinct ability assignments, and the compact Recruit Pack display name"
     )
 
 
