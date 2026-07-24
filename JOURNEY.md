@@ -1162,6 +1162,54 @@ Pipeline lesson:
   cooldown, and tooltip assumptions across every current ability while the
   gameplay system remains untouched.
 
+## 2026-07-24 - The Utility Buttons Became Class Mechanics
+
+The completed hotbar art family made the next gap obvious: Snare, Frost Root,
+Ward, Battle Shout, Nature's Focus, and Meditate looked distinct but still
+shared placeholder combat behavior. Today the saved rules became the authority
+for what those buttons actually do.
+
+Gameplay contract:
+
+- Added explicit damage, healing, mana-recovery, Attack Power buff, and Armor
+  buff effect types to the data-driven ability definition, alongside duration
+  and movement-speed multiplier fields.
+- Battle Shout and Nature's Focus now grant `+8 Attack Power` for 10 seconds.
+  Ward grants `+10 Armor` for 10 seconds and feeds the existing armor
+  mitigation formula.
+- Snare deals light damage and applies `0.50x` movement for 6 seconds. Frost
+  Root deals light damage and applies `0.00x` movement for 4 seconds.
+- Meditate restores 18 missing mana and reports only the amount actually
+  restored.
+- Player movement, enemy chase, and enemy return-home movement consume the
+  shared movement multiplier. World-time expiration restores baseline values,
+  and vital initialization clears all temporary effects so respawned enemies
+  never inherit old control state.
+
+Acceptance:
+
+- Restarted Unreal onto the July 23 module, passed all 23 existing live tests,
+  and visually accepted the Warrior, Cleric, Ranger, and Wizard icon palettes.
+  Warrior cooldown dimming and its fixed two-line countdown also held in PIE.
+- Saved all sixteen ability semantics through a deterministic configuration
+  script and expanded the fresh-process UI validator to reject mismatched
+  effects, durations, movement multipliers, or placeholder descriptions.
+- Added `Embermere.Combat.StarterAbilityEffects`. The authoritative
+  no-hot-reload build succeeded and fresh headless automation passed 24/24.
+- In a second clean editor session, live probes measured Snare at `0.50x`
+  movement, Frost Root at `0.00x`, both offensive buffs at 18 effective Attack
+  Power, Ward at 10 effective Armor, and Meditate restoring mana from 20 to 38.
+- UI/icon, saved-map, and road-boundary validators all retained their success
+  markers with no `LogPython: Error`; the environment stayed at 62 upright Fab
+  actors, nine original placements, and three clear gate lanes.
+
+Pipeline lesson:
+
+- Put ability identity in saved data, make runtime systems consume generic
+  effects, and validate both the package and the lived result. A passing struct
+  assertion proves eligibility; a clean PIE measurement proves the enemy
+  really stopped moving.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

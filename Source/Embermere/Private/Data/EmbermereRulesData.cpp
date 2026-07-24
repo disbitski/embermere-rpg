@@ -22,7 +22,19 @@ namespace EmbermereRules
 		return Definition;
 	}
 
-	FEmbermereAbilityDefinition MakeAbility(FName AbilityId, EEmbermereClass Class, const TCHAR* Name, const TCHAR* Description, EEmbermereAbilityTargetKind TargetKind, float Power, float ManaCost, float Range, float Cooldown)
+	FEmbermereAbilityDefinition MakeAbility(
+		FName AbilityId,
+		EEmbermereClass Class,
+		const TCHAR* Name,
+		const TCHAR* Description,
+		EEmbermereAbilityTargetKind TargetKind,
+		float Power,
+		float ManaCost,
+		float Range,
+		float Cooldown,
+		EEmbermereAbilityEffectType EffectType = EEmbermereAbilityEffectType::Damage,
+		float Duration = 0.0f,
+		float MovementSpeedMultiplier = 1.0f)
 	{
 		FEmbermereAbilityDefinition Definition;
 		const FString IconName = FString::Printf(TEXT("T_Icon_Ability_%s"), *AbilityId.ToString());
@@ -31,10 +43,13 @@ namespace EmbermereRules
 		Definition.DisplayName = FText::FromString(Name);
 		Definition.Description = FText::FromString(Description);
 		Definition.TargetKind = TargetKind;
+		Definition.EffectType = EffectType;
 		Definition.Power = Power;
 		Definition.ManaCost = ManaCost;
 		Definition.Range = Range;
 		Definition.Cooldown = Cooldown;
+		Definition.Duration = Duration;
+		Definition.MovementSpeedMultiplier = MovementSpeedMultiplier;
 		Definition.Icon = TSoftObjectPtr<UTexture2D>(FSoftObjectPath(FString::Printf(
 			TEXT("/Game/UI/Icons/Abilities/%s.%s"),
 			*IconName,
@@ -69,22 +84,22 @@ UEmbermereRulesData::UEmbermereRulesData()
 		MakeAbility("Strike", EEmbermereClass::Warrior, TEXT("Strike"), TEXT("A simple weapon attack."), EEmbermereAbilityTargetKind::Enemy, 18.0f, 0.0f, 225.0f, 1.5f),
 		MakeAbility("Taunt", EEmbermereClass::Warrior, TEXT("Taunt"), TEXT("Forces the enemy's attention in future party play."), EEmbermereAbilityTargetKind::Enemy, 4.0f, 0.0f, 400.0f, 8.0f),
 		MakeAbility("ShieldSlam", EEmbermereClass::Warrior, TEXT("Shield Slam"), TEXT("A heavier shield attack."), EEmbermereAbilityTargetKind::Enemy, 30.0f, 0.0f, 175.0f, 6.0f),
-		MakeAbility("BattleShout", EEmbermereClass::Warrior, TEXT("Battle Shout"), TEXT("A self-buff placeholder for later threat and damage tuning."), EEmbermereAbilityTargetKind::Self, 8.0f, 0.0f, 0.0f, 12.0f),
+		MakeAbility("BattleShout", EEmbermereClass::Warrior, TEXT("Battle Shout"), TEXT("Raises Attack Power by 8 for 10 seconds."), EEmbermereAbilityTargetKind::Self, 8.0f, 0.0f, 0.0f, 12.0f, EEmbermereAbilityEffectType::AttackPowerBuff, 10.0f),
 
 		MakeAbility("Smite", EEmbermereClass::Cleric, TEXT("Smite"), TEXT("A focused holy damage spell."), EEmbermereAbilityTargetKind::Enemy, 22.0f, 8.0f, 800.0f, 2.5f),
-		MakeAbility("LesserHeal", EEmbermereClass::Cleric, TEXT("Lesser Heal"), TEXT("Restores a modest amount of health."), EEmbermereAbilityTargetKind::Self, 28.0f, 12.0f, 0.0f, 3.0f),
-		MakeAbility("Ward", EEmbermereClass::Cleric, TEXT("Ward"), TEXT("A defensive blessing placeholder."), EEmbermereAbilityTargetKind::Self, 10.0f, 10.0f, 0.0f, 12.0f),
+		MakeAbility("LesserHeal", EEmbermereClass::Cleric, TEXT("Lesser Heal"), TEXT("Restores a modest amount of health."), EEmbermereAbilityTargetKind::Self, 28.0f, 12.0f, 0.0f, 3.0f, EEmbermereAbilityEffectType::Heal),
+		MakeAbility("Ward", EEmbermereClass::Cleric, TEXT("Ward"), TEXT("Raises Armor by 10 for 10 seconds."), EEmbermereAbilityTargetKind::Self, 10.0f, 10.0f, 0.0f, 12.0f, EEmbermereAbilityEffectType::ArmorBuff, 10.0f),
 		MakeAbility("Judgment", EEmbermereClass::Cleric, TEXT("Judgment"), TEXT("A stronger holy strike."), EEmbermereAbilityTargetKind::Enemy, 34.0f, 18.0f, 650.0f, 8.0f),
 
 		MakeAbility("QuickShot", EEmbermereClass::Ranger, TEXT("Quick Shot"), TEXT("A fast ranged attack."), EEmbermereAbilityTargetKind::Enemy, 18.0f, 0.0f, 900.0f, 1.8f),
-		MakeAbility("Snare", EEmbermereClass::Ranger, TEXT("Snare"), TEXT("Slows the target in the full prototype; deals light damage now."), EEmbermereAbilityTargetKind::Enemy, 8.0f, 0.0f, 800.0f, 8.0f),
+		MakeAbility("Snare", EEmbermereClass::Ranger, TEXT("Snare"), TEXT("Deals light damage and slows the target by 50% for 6 seconds."), EEmbermereAbilityTargetKind::Enemy, 8.0f, 0.0f, 800.0f, 8.0f, EEmbermereAbilityEffectType::Damage, 6.0f, 0.5f),
 		MakeAbility("TwinCut", EEmbermereClass::Ranger, TEXT("Twin Cut"), TEXT("A quick melee follow-up."), EEmbermereAbilityTargetKind::Enemy, 24.0f, 0.0f, 180.0f, 4.0f),
-		MakeAbility("NaturesFocus", EEmbermereClass::Ranger, TEXT("Nature's Focus"), TEXT("A self-buff placeholder for later ranged tuning."), EEmbermereAbilityTargetKind::Self, 8.0f, 0.0f, 0.0f, 12.0f),
+		MakeAbility("NaturesFocus", EEmbermereClass::Ranger, TEXT("Nature's Focus"), TEXT("Raises Attack Power by 8 for 10 seconds."), EEmbermereAbilityTargetKind::Self, 8.0f, 0.0f, 0.0f, 12.0f, EEmbermereAbilityEffectType::AttackPowerBuff, 10.0f),
 
 		MakeAbility("SparkBolt", EEmbermereClass::Wizard, TEXT("Spark Bolt"), TEXT("A reliable starter bolt."), EEmbermereAbilityTargetKind::Enemy, 26.0f, 10.0f, 900.0f, 2.0f),
-		MakeAbility("FrostRoot", EEmbermereClass::Wizard, TEXT("Frost Root"), TEXT("Roots the target in the full prototype; deals light damage now."), EEmbermereAbilityTargetKind::Enemy, 10.0f, 12.0f, 800.0f, 8.0f),
+		MakeAbility("FrostRoot", EEmbermereClass::Wizard, TEXT("Frost Root"), TEXT("Deals light damage and roots the target for 4 seconds."), EEmbermereAbilityTargetKind::Enemy, 10.0f, 12.0f, 800.0f, 8.0f, EEmbermereAbilityEffectType::Damage, 4.0f, 0.0f),
 		MakeAbility("ArcaneBurst", EEmbermereClass::Wizard, TEXT("Arcane Burst"), TEXT("A high-damage burst spell."), EEmbermereAbilityTargetKind::Enemy, 42.0f, 24.0f, 750.0f, 7.0f),
-		MakeAbility("Meditate", EEmbermereClass::Wizard, TEXT("Meditate"), TEXT("A mana recovery placeholder."), EEmbermereAbilityTargetKind::Self, 18.0f, 0.0f, 0.0f, 15.0f)
+		MakeAbility("Meditate", EEmbermereClass::Wizard, TEXT("Meditate"), TEXT("Restores 18 mana."), EEmbermereAbilityTargetKind::Self, 18.0f, 0.0f, 0.0f, 15.0f, EEmbermereAbilityEffectType::RestoreMana)
 	};
 }
 

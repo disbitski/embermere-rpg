@@ -16,6 +16,7 @@ void UEmbermereStatsComponent::BeginPlay()
 void UEmbermereStatsComponent::InitializeVitals()
 {
 	ClearDamageImmunity();
+	ClearTemporaryEffects();
 	CurrentHealth = MaxHealth;
 	CurrentMana = MaxMana;
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
@@ -29,7 +30,7 @@ float UEmbermereStatsComponent::ApplyDamage(float DamageAmount)
 		return 0.0f;
 	}
 
-	const float EffectiveDamage = DamageAmount * (100.0f / (100.0f + FMath::Max(0.0f, Armor)));
+	const float EffectiveDamage = DamageAmount * (100.0f / (100.0f + GetEffectiveArmor()));
 	const float PreviousHealth = CurrentHealth;
 	CurrentHealth = FMath::Clamp(CurrentHealth - EffectiveDamage, 0.0f, MaxHealth);
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
@@ -110,15 +111,103 @@ bool UEmbermereStatsComponent::SpendMana(float ManaCost)
 	return true;
 }
 
-void UEmbermereStatsComponent::RestoreMana(float ManaAmount)
+float UEmbermereStatsComponent::RestoreMana(float ManaAmount)
 {
 	if (ManaAmount <= 0.0f)
 	{
-		return;
+		return 0.0f;
 	}
 
+	const float PreviousMana = CurrentMana;
 	CurrentMana = FMath::Clamp(CurrentMana + ManaAmount, 0.0f, MaxMana);
 	OnManaChanged.Broadcast(CurrentMana, MaxMana);
+	return CurrentMana - PreviousMana;
+}
+
+bool UEmbermereStatsComponent::GrantTemporaryAttackPower(float BonusAmount, float DurationSeconds)
+{
+	if (BonusAmount <= 0.0f || DurationSeconds <= 0.0f)
+	{
+		return false;
+	}
+
+	if (!IsTimedEffectActive(AttackPowerBuffEndTimeSeconds))
+	{
+		TemporaryAttackPowerBonus = 0.0f;
+	}
+	TemporaryAttackPowerBonus = FMath::Max(TemporaryAttackPowerBonus, BonusAmount);
+	AttackPowerBuffEndTimeSeconds = FMath::Max(AttackPowerBuffEndTimeSeconds, GetEffectEndTime(DurationSeconds));
+	return true;
+}
+
+bool UEmbermereStatsComponent::GrantTemporaryArmor(float BonusAmount, float DurationSeconds)
+{
+	if (BonusAmount <= 0.0f || DurationSeconds <= 0.0f)
+	{
+		return false;
+	}
+
+	if (!IsTimedEffectActive(ArmorBuffEndTimeSeconds))
+	{
+		TemporaryArmorBonus = 0.0f;
+	}
+	TemporaryArmorBonus = FMath::Max(TemporaryArmorBonus, BonusAmount);
+	ArmorBuffEndTimeSeconds = FMath::Max(ArmorBuffEndTimeSeconds, GetEffectEndTime(DurationSeconds));
+	return true;
+}
+
+bool UEmbermereStatsComponent::GrantMovementSpeedMultiplier(float SpeedMultiplier, float DurationSeconds)
+{
+	if (SpeedMultiplier < 0.0f ||
+		SpeedMultiplier > 1.0f ||
+		FMath::IsNearlyEqual(SpeedMultiplier, 1.0f) ||
+		DurationSeconds <= 0.0f)
+	{
+		return false;
+	}
+
+	if (!IsTimedEffectActive(MovementSpeedEffectEndTimeSeconds))
+	{
+		ActiveMovementSpeedMultiplier = 1.0f;
+	}
+	ActiveMovementSpeedMultiplier = FMath::Min(ActiveMovementSpeedMultiplier, SpeedMultiplier);
+	MovementSpeedEffectEndTimeSeconds = FMath::Max(
+		MovementSpeedEffectEndTimeSeconds,
+		GetEffectEndTime(DurationSeconds));
+	return true;
+}
+
+void UEmbermereStatsComponent::ClearTemporaryEffects()
+{
+	TemporaryAttackPowerBonus = 0.0f;
+	TemporaryArmorBonus = 0.0f;
+	ActiveMovementSpeedMultiplier = 1.0f;
+	AttackPowerBuffEndTimeSeconds = -1.0f;
+	ArmorBuffEndTimeSeconds = -1.0f;
+	MovementSpeedEffectEndTimeSeconds = -1.0f;
+}
+
+float UEmbermereStatsComponent::GetEffectiveAttackPower() const
+{
+	const float ActiveBonus = IsTimedEffectActive(AttackPowerBuffEndTimeSeconds)
+		? TemporaryAttackPowerBonus
+		: 0.0f;
+	return FMath::Max(0.0f, AttackPower + ActiveBonus);
+}
+
+float UEmbermereStatsComponent::GetEffectiveArmor() const
+{
+	const float ActiveBonus = IsTimedEffectActive(ArmorBuffEndTimeSeconds)
+		? TemporaryArmorBonus
+		: 0.0f;
+	return FMath::Max(0.0f, Armor + ActiveBonus);
+}
+
+float UEmbermereStatsComponent::GetMovementSpeedMultiplier() const
+{
+	return IsTimedEffectActive(MovementSpeedEffectEndTimeSeconds)
+		? FMath::Max(0.0f, ActiveMovementSpeedMultiplier)
+		: 1.0f;
 }
 
 void UEmbermereStatsComponent::AddExperience(int32 ExperienceAmount)
@@ -157,4 +246,29 @@ void UEmbermereStatsComponent::ApplyEquipmentBonuses(const FEmbermereItemStatBon
 	CurrentMana = FMath::Clamp(MaxMana - MissingMana, 0.0f, MaxMana);
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
 	OnManaChanged.Broadcast(CurrentMana, MaxMana);
+}
+
+bool UEmbermereStatsComponent::IsTimedEffectActive(float EndTimeSeconds) const
+{
+	if (EndTimeSeconds <= 0.0f)
+	{
+		return false;
+	}
+
+	if (const UWorld* World = GetWorld())
+	{
+		return World->GetTimeSeconds() < EndTimeSeconds;
+	}
+
+	return true;
+}
+
+float UEmbermereStatsComponent::GetEffectEndTime(float DurationSeconds) const
+{
+	if (const UWorld* World = GetWorld())
+	{
+		return World->GetTimeSeconds() + DurationSeconds;
+	}
+
+	return DurationSeconds;
 }

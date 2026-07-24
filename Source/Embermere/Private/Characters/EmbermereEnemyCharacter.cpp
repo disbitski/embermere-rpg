@@ -537,9 +537,17 @@ void AEmbermereEnemyCharacter::UpdateReturnHome(float DeltaSeconds)
 	}
 
 	SetActorRotation(Direction.Rotation());
-	const float ReturnSpeed = FMath::Max(0.0f, ReturnHomeSpeedCmPerSecond);
+	const float ReturnSpeed =
+		FMath::Max(0.0f, ReturnHomeSpeedCmPerSecond) *
+		(Stats ? Stats->GetMovementSpeedMultiplier() : 1.0f);
 	const float StepDistance = FMath::Min(DistanceToHome, ReturnSpeed * DeltaSeconds);
 	SetActorLocation(GetActorLocation() + Direction * StepDistance, true);
+}
+
+float AEmbermereEnemyCharacter::GetEffectiveMoveSpeedCmPerSecond() const
+{
+	return FMath::Max(0.0f, MoveSpeedCmPerSecond) *
+		(Stats ? Stats->GetMovementSpeedMultiplier() : 1.0f);
 }
 
 void AEmbermereEnemyCharacter::FaceTarget(const AActor* Target)
@@ -561,7 +569,8 @@ void AEmbermereEnemyCharacter::FaceTarget(const AActor* Target)
 
 void AEmbermereEnemyCharacter::MoveTowardTarget(AActor* Target, float DeltaSeconds)
 {
-	if (!Target || DeltaSeconds <= 0.0f || MoveSpeedCmPerSecond <= 0.0f)
+	const float EffectiveMoveSpeed = GetEffectiveMoveSpeedCmPerSecond();
+	if (!Target || DeltaSeconds <= 0.0f || EffectiveMoveSpeed <= 0.0f)
 	{
 		return;
 	}
@@ -573,7 +582,7 @@ void AEmbermereEnemyCharacter::MoveTowardTarget(AActor* Target, float DeltaSecon
 		return;
 	}
 
-	const FVector Step = Direction * MoveSpeedCmPerSecond * DeltaSeconds;
+	const FVector Step = Direction * EffectiveMoveSpeed * DeltaSeconds;
 	SetActorLocation(GetActorLocation() + Step, true);
 }
 

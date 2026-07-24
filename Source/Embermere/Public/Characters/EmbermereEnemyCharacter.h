@@ -108,6 +108,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|AI")
 	bool ShouldReturnHomeFromLocation(const FVector& Location) const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|AI")
+	float GetEffectiveMoveSpeedCmPerSecond() const;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Loot")
 	bool ShouldDropLoot(float RandomRoll) const;
 

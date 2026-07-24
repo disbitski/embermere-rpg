@@ -61,6 +61,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - sixteen data-driven project-owned starter-ability icons plus an explicit
   fallback, fixed hotbar art cells, class-specific palettes, synchronized
   cooldown dimming, and accessible ability-stat tooltips
+- functional data-driven starter utility effects: timed Attack Power and Armor
+  buffs, six-second Snare, four-second Frost Root, Meditate mana recovery,
+  effective-stat combat consumption, and respawn-safe effect clearing
 - atomic inventory capacity and quantity operations with rollback-safe equipment replacement and full-bag unequip rejection
 - idempotent equipment stat application for health, mana, armor mitigation, and power
 - selected enemy UMG nameplate widget, HP bar/readout, and a flat animated 24-segment target ring using a dedicated emissive Embermere material
@@ -149,11 +152,10 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 ## Status
 
-Early playable Unreal prototype scaffold with Unreal and Blender MCP connected, a daylight starter-zone loop mixing a local Fab pass with an original Embermere waystone/lamp/signpost/gate/fence/end-stone family, collision-cleared solo-pull tab-target combat, a fully illustrated data-driven starter hotbar with cooldown feedback and tooltips, native HUD panels, bottom-left chat/combat feedback, first quest reward and starter-enemy loot flow, a clickable and draggable paper-doll equipment/inventory window with atomic transactions, project-owned data-driven icon presentation reused across rows, slots, details, drag feedback, and rewards, safe consumable actions, and native selected-target nameplate/emissive-ring feedback.
+Early playable Unreal prototype scaffold with Unreal and Blender MCP connected, a daylight starter-zone loop mixing a local Fab pass with an original Embermere waystone/lamp/signpost/gate/fence/end-stone family, collision-cleared solo-pull tab-target combat, a fully illustrated data-driven starter hotbar with cooldown feedback, tooltips, timed buffs, root, snare, and mana recovery, native HUD panels, bottom-left chat/combat feedback, first quest reward and starter-enemy loot flow, a clickable and draggable paper-doll equipment/inventory window with atomic transactions, project-owned data-driven icon presentation reused across rows, slots, details, drag feedback, and rewards, safe consumable actions, and native selected-target nameplate/emissive-ring feedback.
 
-Next milestone: clean-restart PIE approval of all four class hotbar palettes,
-ability tooltips, cooldown states, and the populated fantasy drag token;
-functional root/snare/buff/recovery ability behavior or a restrained illustrated
-paper-doll backdrop; normal-route Prowler/respawn feel tuning; and replacement
-of the remaining temporary village silhouettes with cohesive stylized fantasy
-architecture.
+Next milestone: live class-loop tuning for the new timed effects, bounded
+status/VFX presentation or a restrained illustrated paper-doll backdrop,
+normal-route Prowler/respawn feel tuning, a compact original Blender village
+prop, and replacement of the remaining temporary village silhouettes with
+cohesive stylized fantasy architecture.

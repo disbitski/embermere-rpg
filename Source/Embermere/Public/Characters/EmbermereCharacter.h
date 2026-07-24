@@ -64,6 +64,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Rules")
 	TObjectPtr<UEmbermereRulesData> RulesData;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float BaseWalkSpeedCmPerSecond = 600.0f;
+
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Identity")
 	void ApplyRaceAndClass(EEmbermereRace NewRace, EEmbermereClass NewClass);
 
@@ -80,6 +83,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	virtual void HandleTargetedByPlayer(bool bIsTargeted);

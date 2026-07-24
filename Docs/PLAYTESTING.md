@@ -75,17 +75,33 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 22. Press `1` to use the first starter ability.
 23. Press `1` again before the cooldown finishes and confirm the bottom-left log reports the ability ready time.
 24. Confirm the cooling hotbar icon and text dim together while the live countdown remains in the fixed two-line label area.
-25. Confirm combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log rather than overlapping the player status panel or spilling beyond the chat panel border.
-26. Expect one nearby enemy to chase and melee you when you enter its 525 cm aggro radius. The other two Prowlers should remain at their separated homes.
-27. Confirm the selected enemy can cross the visual-only combat-pocket band and visual cone marker without sticking. Pull it farther away and confirm it eventually leashes back toward its spawn instead of chasing indefinitely into the village.
-28. Defeat a Marsh Prowler and confirm the chat reports one Marsh Tonic looted and inventory gains a stack. Repeated drops should increase the same stack up to its limit.
-29. After taking damage, select Marsh Tonic and click `Use`; confirm it restores up to 25 health and 10 mana and consumes one tonic. At full health/mana, `Use` must be disabled and preserve the stack.
-30. Defeat three starter enemies.
-31. Return to Mara and press `F` to complete the quest. Confirm the temporary
+25. As Warrior, press `4` for Battle Shout and confirm chat reports `+8 Attack
+    Power` for 10 seconds. After it expires, damage should return to baseline.
+26. As Cleric, press `3` for Ward and confirm chat reports `+10 Armor` for 10
+    seconds; incoming damage should be reduced during the ward.
+27. As Ranger, press `2` for Snare and confirm it deals light damage, halves
+    the target's movement for 6 seconds, and then restores normal movement.
+28. As Ranger, press `4` for Nature's Focus and confirm the same shared timed
+    Attack Power contract as Battle Shout.
+29. As Wizard, press `2` for Frost Root and confirm it deals light damage,
+    stops target movement for 4 seconds, and then releases the target.
+30. Spend mana, press Wizard `4` for Meditate, and confirm exactly 18 missing
+    mana is restored without exceeding maximum mana.
+31. Confirm combat, target, quest, XP, inventory, mouse, cooldown, utility
+    effect, and death/recovery messages remain clipped as single-line rows
+    inside the bottom-left chat/combat log.
+32. Expect one nearby enemy to chase and melee you when you enter its 525 cm aggro radius. The other two Prowlers should remain at their separated homes.
+33. Confirm the selected enemy can cross the visual-only combat-pocket band and visual cone marker without sticking. Pull it farther away and confirm it eventually leashes back toward its spawn instead of chasing indefinitely into the village.
+34. Confirm an enemy respawn clears any old Snare or Frost Root state instead
+    of preserving reduced movement into its next life.
+35. Defeat a Marsh Prowler and confirm the chat reports one Marsh Tonic looted and inventory gains a stack. Repeated drops should increase the same stack up to its limit.
+36. After taking damage, select Marsh Tonic and click `Use`; confirm it restores up to 25 health and 10 mana and consumes one tonic. At full health/mana, `Use` must be disabled and preserve the stack.
+37. Defeat three starter enemies.
+38. Return to Mara and press `F` to complete the quest. Confirm the temporary
     reward popup shows the Recruit Pack art in a fixed `32x32` cell beside
     readable reward text without changing the popup bounds.
-32. With both Recruit Pack and Marsh Tonic in the bag, select one and click `Sort`; confirm armor appears before consumables, names sort alphabetically within a category, the same item stays selected, and chat reports `Inventory sorted`.
-32. Begin dragging a bag row and confirm the Sort control becomes unavailable and the bag order stays fixed until the drag ends. Recheck one valid and one invalid equipment drop afterward.
+39. With both Recruit Pack and Marsh Tonic in the bag, select one and click `Sort`; confirm armor appears before consumables, names sort alphabetically within a category, the same item stays selected, and chat reports `Inventory sorted`.
+40. Begin dragging a bag row and confirm the Sort control becomes unavailable and the bag order stays fixed until the drag ends. Recheck one valid and one invalid equipment drop afterward.
 
 ## Expected Temporary Feedback
 
@@ -100,6 +116,9 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Tab targeting shows the selected target name, HP, first-ability range state, a temporary screen-space UMG nameplate, HP-aware accent/health bar coloring, and a flat animated 24-segment gold ground ring.
 - Ability use posts a bottom-left hit message clipped inside the shaded chat panel.
 - Reusing an ability before its cooldown finishes posts a bottom-left ready-time message; the hotbar slot itself dims and counts down while cooling.
+- Battle Shout and Nature's Focus post timed Attack Power feedback; Ward posts
+  timed Armor feedback; Snare and Frost Root post movement-control feedback;
+  Meditate reports actual mana restored.
 - Enemies show red bottom-left combat log messages clipped inside the shaded chat panel when they melee the player.
 - Enemies leash and return home if pulled too far from their spawn area.
 - If the player dies, autorun turns off, a bottom-left death message appears, and the player respawns after a short delay with a brief damage-protection message.
@@ -113,10 +132,11 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 ## Known Prototype Gaps
 
 - The UI has native first-pass HUD panels, but styling is still programmer-art and needs a proper fantasy skin.
-- The hotbar now has sixteen project-owned starter-ability illustrations,
-  fixed art cells, synchronized cooldown dimming, and accessible data-driven
-  tooltips. Several abilities still use placeholder effects instead of their
-  intended root, snare, buff, or mana-recovery behavior.
+- The hotbar has sixteen project-owned starter-ability illustrations, fixed
+  art cells, synchronized cooldown dimming, accessible data-driven tooltips,
+  and functional first-pass timed root, snare, buff, and mana-recovery rules.
+  It does not yet show persistent buff/debuff status icons or class-specific
+  VFX/audio.
 - Enemy movement and attacks are deliberately simple prototype behavior. The
   first solo-pull pass now uses three WorldStatic-cleared homes, a 525 cm aggro
   radius, visual-only pocket/marker collision, 6 damage, and a 2 second attack

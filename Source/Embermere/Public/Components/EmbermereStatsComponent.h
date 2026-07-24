@@ -45,6 +45,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
 	FEmbermereItemStatBonuses EquipmentBonuses;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats|Temporary Effects")
+	float TemporaryAttackPowerBonus = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats|Temporary Effects")
+	float TemporaryArmorBonus = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats|Temporary Effects")
+	float ActiveMovementSpeedMultiplier = 1.0f;
+
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FEmbermereHealthChangedSignature OnHealthChanged;
 
@@ -79,7 +88,28 @@ public:
 	bool SpendMana(float ManaCost);
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
-	void RestoreMana(float ManaAmount);
+	float RestoreMana(float ManaAmount);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats|Temporary Effects")
+	bool GrantTemporaryAttackPower(float BonusAmount, float DurationSeconds);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats|Temporary Effects")
+	bool GrantTemporaryArmor(float BonusAmount, float DurationSeconds);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats|Temporary Effects")
+	bool GrantMovementSpeedMultiplier(float SpeedMultiplier, float DurationSeconds);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats|Temporary Effects")
+	void ClearTemporaryEffects();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats|Temporary Effects")
+	float GetEffectiveAttackPower() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats|Temporary Effects")
+	float GetEffectiveArmor() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats|Temporary Effects")
+	float GetMovementSpeedMultiplier() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
 	void AddExperience(int32 ExperienceAmount);
@@ -95,4 +125,10 @@ protected:
 
 private:
 	float DamageImmunityEndTimeSeconds = -1.0f;
+	float AttackPowerBuffEndTimeSeconds = -1.0f;
+	float ArmorBuffEndTimeSeconds = -1.0f;
+	float MovementSpeedEffectEndTimeSeconds = -1.0f;
+
+	bool IsTimedEffectActive(float EndTimeSeconds) const;
+	float GetEffectEndTime(float DurationSeconds) const;
 };

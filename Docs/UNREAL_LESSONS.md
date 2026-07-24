@@ -412,6 +412,22 @@ fresh-process check through Unreal's Python `blueprint_get_size_x/y()` surface.
 The two assertions measure persisted source dimensions without pretending the
 Null RHI created a render resource.
 
+## Native Interface Objects Need A Native Test Path
+
+Reflected `BlueprintNativeEvent` interface dispatch is not a reliable
+substitute for the direct native implementation on every unattached
+`NewObject<AActor>` used by object-level automation. Embermere's first
+starter-effect test created a native enemy without a world; direct
+`IsAlive_Implementation()` returned true while reflected `Execute_IsAlive()`
+did not establish the same transient test state.
+
+For helpers that already support native Embermere actors, cast to the native
+interface and call its implementation first, then retain reflected
+`Execute_...` dispatch as the fallback for other interface implementers. Assert
+both the native cast and the declared interface in the focused test. Keep a
+separate clean-PIE check against the actual Blueprint enemy so object-level
+convenience cannot hide a runtime dispatch regression.
+
 ## Refresh Slate Focus Before Synthetic Gameplay Input
 
 Editor inspection calls can change Slate focus even while PIE keeps running.

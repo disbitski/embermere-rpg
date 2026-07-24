@@ -37,6 +37,16 @@ enum class EEmbermereAbilityTargetKind : uint8
 	Self UMETA(DisplayName = "Self")
 };
 
+UENUM(BlueprintType)
+enum class EEmbermereAbilityEffectType : uint8
+{
+	Damage UMETA(DisplayName = "Damage"),
+	Heal UMETA(DisplayName = "Heal"),
+	RestoreMana UMETA(DisplayName = "Restore Mana"),
+	AttackPowerBuff UMETA(DisplayName = "Attack Power Buff"),
+	ArmorBuff UMETA(DisplayName = "Armor Buff")
+};
+
 USTRUCT(BlueprintType)
 struct FEmbermereAttributeBlock
 {
@@ -133,6 +143,9 @@ struct FEmbermereAbilityDefinition
 	EEmbermereAbilityTargetKind TargetKind = EEmbermereAbilityTargetKind::Enemy;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	EEmbermereAbilityEffectType EffectType = EEmbermereAbilityEffectType::Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
 	float Power = 20.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
@@ -143,6 +156,12 @@ struct FEmbermereAbilityDefinition
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
 	float Cooldown = 1.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability", meta = (ClampMin = "0.0"))
+	float Duration = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float MovementSpeedMultiplier = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Assets")
 	TSoftObjectPtr<UTexture2D> Icon;

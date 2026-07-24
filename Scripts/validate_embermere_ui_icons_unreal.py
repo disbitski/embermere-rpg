@@ -52,6 +52,26 @@ ABILITY_TEXTURES = {
     "Meditate": "T_Icon_Ability_Meditate",
 }
 
+DEFAULT_DAMAGE = (unreal.EmbermereAbilityEffectType.DAMAGE, 0.0, 1.0)
+ABILITY_EFFECTS = {
+    "Strike": DEFAULT_DAMAGE,
+    "Taunt": DEFAULT_DAMAGE,
+    "ShieldSlam": DEFAULT_DAMAGE,
+    "BattleShout": (unreal.EmbermereAbilityEffectType.ATTACK_POWER_BUFF, 10.0, 1.0),
+    "Smite": DEFAULT_DAMAGE,
+    "LesserHeal": (unreal.EmbermereAbilityEffectType.HEAL, 0.0, 1.0),
+    "Ward": (unreal.EmbermereAbilityEffectType.ARMOR_BUFF, 10.0, 1.0),
+    "Judgment": DEFAULT_DAMAGE,
+    "QuickShot": DEFAULT_DAMAGE,
+    "Snare": (unreal.EmbermereAbilityEffectType.DAMAGE, 6.0, 0.5),
+    "TwinCut": DEFAULT_DAMAGE,
+    "NaturesFocus": (unreal.EmbermereAbilityEffectType.ATTACK_POWER_BUFF, 10.0, 1.0),
+    "SparkBolt": DEFAULT_DAMAGE,
+    "FrostRoot": (unreal.EmbermereAbilityEffectType.DAMAGE, 4.0, 0.0),
+    "ArcaneBurst": DEFAULT_DAMAGE,
+    "Meditate": (unreal.EmbermereAbilityEffectType.RESTORE_MANA, 0.0, 1.0),
+}
+
 BASE_TEXTURE_NAMES = set(SLOT_TEXTURES.values()) | set(CATEGORY_TEXTURES.values()) | {
     "T_Icon_Item_RecruitPack",
     "T_Icon_Slot_Missing",
@@ -160,6 +180,24 @@ def main():
             fail(f"rules data contains unmapped ability {ability_id}")
         icon = ability.get_editor_property("icon")
         require_texture(icon, expected_name, f"{ability_id} ability icon")
+
+        expected_effect, expected_duration, expected_movement_multiplier = ABILITY_EFFECTS[ability_id]
+        actual_effect = ability.get_editor_property("effect_type")
+        actual_duration = ability.get_editor_property("duration")
+        actual_movement_multiplier = ability.get_editor_property("movement_speed_multiplier")
+        if actual_effect != expected_effect:
+            fail(f"{ability_id} effect expected {expected_effect}, found {actual_effect}")
+        if abs(actual_duration - expected_duration) > 0.001:
+            fail(f"{ability_id} duration expected {expected_duration}, found {actual_duration}")
+        if abs(actual_movement_multiplier - expected_movement_multiplier) > 0.001:
+            fail(
+                f"{ability_id} movement multiplier expected "
+                f"{expected_movement_multiplier}, found {actual_movement_multiplier}"
+            )
+        description = str(ability.get_editor_property("description")).lower()
+        if "placeholder" in description or "full prototype" in description:
+            fail(f"{ability_id} still exposes placeholder behavior copy")
+
         found_ids.add(ability_id)
         found_icon_paths.add(texture_path(icon))
 
@@ -171,7 +209,8 @@ def main():
     unreal.log(
         "Embermere UI icon validation passed: 31 saved 128x128 UI textures, "
         "10 equipment slots, 5 category fallbacks, 2 starter-item assignments, "
-        "16 distinct ability assignments, and the compact Recruit Pack display name"
+        "16 distinct ability assignments with saved gameplay semantics, and the "
+        "compact Recruit Pack display name"
     )
 
 

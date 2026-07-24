@@ -23,6 +23,7 @@ AEmbermereCharacter::AEmbermereCharacter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeedCmPerSecond;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -53,6 +54,17 @@ void AEmbermereCharacter::BeginPlay()
 	}
 	RefreshEquipmentStats();
 	PrimeStarterHotbar();
+}
+
+void AEmbermereCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (Stats && GetCharacterMovement())
+	{
+		GetCharacterMovement()->MaxWalkSpeed =
+			BaseWalkSpeedCmPerSecond * Stats->GetMovementSpeedMultiplier();
+	}
 }
 
 void AEmbermereCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

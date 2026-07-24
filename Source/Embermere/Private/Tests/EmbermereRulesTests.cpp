@@ -148,6 +148,125 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereStarterAbilityEffectsTest,
+	"Embermere.Combat.StarterAbilityEffects",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereStarterAbilityEffectsTest::RunTest(const FString& Parameters)
+{
+	const UEmbermereRulesData* Rules = LoadObject<UEmbermereRulesData>(
+		nullptr,
+		TEXT("/Game/Data/DA_EmbermereRules.DA_EmbermereRules"));
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	AEmbermereEnemyCharacter* Enemy = NewObject<AEmbermereEnemyCharacter>();
+	TestNotNull(TEXT("Saved rules data resolves"), Rules);
+	TestNotNull(TEXT("Character can be created for starter effects"), Character);
+	TestNotNull(TEXT("Enemy can be created for starter effects"), Enemy);
+	if (!Rules || !Character || !Enemy || !Character->Combat || !Character->Stats || !Enemy->Stats)
+	{
+		return false;
+	}
+
+	auto GetAbility = [this, Rules](FName AbilityId, FEmbermereAbilityDefinition& OutAbility)
+	{
+		const bool bFound = Rules->GetAbilityDefinition(AbilityId, OutAbility);
+		TestTrue(*FString::Printf(TEXT("%s resolves from saved rules"), *AbilityId.ToString()), bFound);
+		return bFound;
+	};
+
+	FEmbermereAbilityDefinition BattleShout;
+	FEmbermereAbilityDefinition Ward;
+	FEmbermereAbilityDefinition LesserHeal;
+	FEmbermereAbilityDefinition Snare;
+	FEmbermereAbilityDefinition NaturesFocus;
+	FEmbermereAbilityDefinition FrostRoot;
+	FEmbermereAbilityDefinition Meditate;
+	if (!GetAbility("BattleShout", BattleShout) ||
+		!GetAbility("Ward", Ward) ||
+		!GetAbility("LesserHeal", LesserHeal) ||
+		!GetAbility("Snare", Snare) ||
+		!GetAbility("NaturesFocus", NaturesFocus) ||
+		!GetAbility("FrostRoot", FrostRoot) ||
+		!GetAbility("Meditate", Meditate))
+	{
+		return false;
+	}
+
+	TestEqual(TEXT("Battle Shout is data-driven attack power"), BattleShout.EffectType, EEmbermereAbilityEffectType::AttackPowerBuff);
+	TestEqual(TEXT("Battle Shout lasts ten seconds"), BattleShout.Duration, 10.0f);
+	TestEqual(TEXT("Ward is data-driven armor"), Ward.EffectType, EEmbermereAbilityEffectType::ArmorBuff);
+	TestEqual(TEXT("Lesser Heal uses the healing effect"), LesserHeal.EffectType, EEmbermereAbilityEffectType::Heal);
+	TestEqual(TEXT("Snare uses a half-speed multiplier"), Snare.MovementSpeedMultiplier, 0.5f);
+	TestEqual(TEXT("Snare lasts six seconds"), Snare.Duration, 6.0f);
+	TestEqual(TEXT("Snare targets an enemy"), Snare.TargetKind, EEmbermereAbilityTargetKind::Enemy);
+	TestEqual(TEXT("Snare keeps its eight-meter range"), Snare.Range, 800.0f);
+	TestEqual(TEXT("Nature's Focus is data-driven attack power"), NaturesFocus.EffectType, EEmbermereAbilityEffectType::AttackPowerBuff);
+	TestEqual(TEXT("Frost Root stops movement"), FrostRoot.MovementSpeedMultiplier, 0.0f);
+	TestEqual(TEXT("Frost Root lasts four seconds"), FrostRoot.Duration, 4.0f);
+	TestEqual(TEXT("Frost Root targets an enemy"), FrostRoot.TargetKind, EEmbermereAbilityTargetKind::Enemy);
+	TestEqual(TEXT("Frost Root keeps its eight-meter range"), FrostRoot.Range, 800.0f);
+	TestEqual(TEXT("Meditate restores mana"), Meditate.EffectType, EEmbermereAbilityEffectType::RestoreMana);
+
+	Character->Stats->InitializeVitals();
+	TestTrue(TEXT("Battle Shout activates"), Character->Combat->ExecuteAbility(BattleShout));
+	TestEqual(TEXT("Battle Shout preserves base attack power"), Character->Stats->AttackPower, 10.0f);
+	TestEqual(TEXT("Battle Shout grants eight effective attack power"), Character->Stats->GetEffectiveAttackPower(), 18.0f);
+	Character->Stats->ClearTemporaryEffects();
+	TestEqual(TEXT("Clearing Battle Shout restores effective attack power"), Character->Stats->GetEffectiveAttackPower(), 10.0f);
+
+	TestTrue(TEXT("Nature's Focus activates through the same effect contract"), Character->Combat->ExecuteAbility(NaturesFocus));
+	TestEqual(TEXT("Nature's Focus grants eight effective attack power"), Character->Stats->GetEffectiveAttackPower(), 18.0f);
+	Character->Stats->ClearTemporaryEffects();
+
+	Character->Stats->InitializeVitals();
+	TestTrue(TEXT("Ward activates"), Character->Combat->ExecuteAbility(Ward));
+	TestEqual(TEXT("Ward preserves base armor"), Character->Stats->Armor, 0.0f);
+	TestEqual(TEXT("Ward grants ten effective armor"), Character->Stats->GetEffectiveArmor(), 10.0f);
+	TestTrue(
+		TEXT("Ward mitigates damage through effective armor"),
+		FMath::IsNearlyEqual(Character->Stats->ApplyDamage(11.0f), 10.0f, 0.01f));
+	Character->Stats->ClearTemporaryEffects();
+
+	Character->Stats->InitializeVitals();
+	TestTrue(TEXT("Mana can be spent before Meditate"), Character->Stats->SpendMana(20.0f));
+	TestTrue(TEXT("Meditate activates"), Character->Combat->ExecuteAbility(Meditate));
+	TestEqual(TEXT("Meditate restores eighteen mana"), Character->Stats->CurrentMana, 48.0f);
+
+	Character->Stats->InitializeVitals();
+	Enemy->Stats->InitializeVitals();
+	Character->Combat->SetTarget(Enemy);
+	TestTrue(TEXT("Enemy is alive before Snare"), Enemy->IsAlive_Implementation());
+	TestTrue(
+		TEXT("Enemy class exposes the targetable interface"),
+		Enemy->GetClass()->ImplementsInterface(UEmbermereTargetable::StaticClass()));
+	TestNotNull(TEXT("Enemy exposes its native targetable implementation"), Cast<IEmbermereTargetable>(Enemy));
+	TestNotNull(
+		TEXT("Enemy stats resolve through actor component lookup"),
+		Enemy->FindComponentByClass<UEmbermereStatsComponent>());
+	TestTrue(TEXT("Character is alive before Snare"), !Character->Stats->IsDead());
+	TestTrue(TEXT("Snare target is retained"), Character->Combat->CurrentTarget == Enemy);
+	TestTrue(TEXT("Snare target is in range"), Character->Combat->IsTargetInRange(Snare.Range));
+	TestTrue(TEXT("Character has enough mana for Snare"), Character->Stats->CurrentMana >= Snare.ManaCost);
+	TestTrue(TEXT("Snare activates on a live target"), Character->Combat->ExecuteAbility(Snare));
+	TestEqual(TEXT("Snare applies its light damage plus base attack power"), Enemy->Stats->CurrentHealth, 82.0f);
+	TestEqual(TEXT("Snare halves movement"), Enemy->Stats->GetMovementSpeedMultiplier(), 0.5f);
+	TestTrue(
+		TEXT("Enemy chase speed consumes Snare"),
+		FMath::IsNearlyEqual(Enemy->GetEffectiveMoveSpeedCmPerSecond(), Enemy->MoveSpeedCmPerSecond * 0.5f));
+
+	Character->Stats->InitializeVitals();
+	Enemy->Stats->InitializeVitals();
+	Enemy->Stats->ClearTemporaryEffects();
+	TestTrue(TEXT("Frost Root activates on a live target"), Character->Combat->ExecuteAbility(FrostRoot));
+	TestEqual(TEXT("Frost Root stops movement"), Enemy->Stats->GetMovementSpeedMultiplier(), 0.0f);
+	TestEqual(TEXT("Rooted enemy chase speed is zero"), Enemy->GetEffectiveMoveSpeedCmPerSecond(), 0.0f);
+
+	Enemy->Stats->InitializeVitals();
+	TestEqual(TEXT("Respawn-style vital initialization clears control effects"), Enemy->Stats->GetMovementSpeedMultiplier(), 1.0f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereCombatDeadCasterRejectedTest,
 	"Embermere.Combat.DeadCasterRejected",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

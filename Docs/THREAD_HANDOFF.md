@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-07-21
+Last updated: 2026-07-24
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,8 @@ The project currently includes:
 
 - classic MMO movement, camera, autorun, mouse inversion, and tab targeting;
 - data-driven race/class restrictions and starter abilities;
+- functional data-driven starter utility effects: timed Attack Power and Armor
+  buffs, Snare, Frost Root, and Meditate mana recovery;
 - quest, inventory, equipment, stats, combat, targeting, interactable, and hotbar systems;
 - hostile enemy aggro, chase, attack, leash, return-home, death, and respawn;
 - player death, respawn, and short recovery damage immunity;
@@ -51,7 +53,7 @@ The project currently includes:
   timber-signpost, traversable-road-gate, matching boundary-fence family, and
   rune-topped boundary stones, plus a Mac-friendly atmospheric daylight
   baseline;
-- 23 passing Unreal automation tests plus fresh-process UI-icon package,
+- 24 passing Unreal automation tests plus fresh-process UI-icon package,
   saved-map, and road-boundary validators.
 
 This is still prototype art. The first black-sky problem is corrected, but the
@@ -466,35 +468,44 @@ Current automation tests:
 1. `Embermere.Rules.RaceClassMatrix`
 2. `Embermere.Combat.TargetSelectionPresentation`
 3. `Embermere.Combat.DeadCasterRejected`
-4. `Embermere.Stats.DamageImmunity`
-5. `Embermere.UI.EnemyNameplateWidget`
-6. `Embermere.Enemy.LeashRules`
-7. `Embermere.UI.InventoryToggle`
-8. `Embermere.UI.HotbarCooldownDisplay`
-9. `Embermere.UI.ChatLog`
-10. `Embermere.Quests.CompletionRewards`
-11. `Embermere.Equipment.SlotRules`
-12. `Embermere.Equipment.StatApplication`
-13. `Embermere.Inventory.ConsumableUse`
-14. `Embermere.Enemy.LootRules`
-15. `Embermere.Equipment.InventoryTransactions`
-16. `Embermere.Inventory.CapacityTransactions`
-17. `Embermere.UI.ItemComparison`
-18. `Embermere.Inventory.IdentityActions`
-19. `Embermere.UI.InventoryDragDrop`
-20. `Embermere.Inventory.StableSorting`
-21. `Embermere.Input.AutorunCancellation`
-22. `Embermere.UI.IconPresentation`
-23. `Embermere.UI.AbilityIconPresentation`
+4. `Embermere.Combat.StarterAbilityEffects`
+5. `Embermere.Stats.DamageImmunity`
+6. `Embermere.UI.EnemyNameplateWidget`
+7. `Embermere.Enemy.LeashRules`
+8. `Embermere.UI.InventoryToggle`
+9. `Embermere.UI.HotbarCooldownDisplay`
+10. `Embermere.UI.ChatLog`
+11. `Embermere.Quests.CompletionRewards`
+12. `Embermere.Equipment.SlotRules`
+13. `Embermere.Equipment.StatApplication`
+14. `Embermere.Inventory.ConsumableUse`
+15. `Embermere.Enemy.LootRules`
+16. `Embermere.Equipment.InventoryTransactions`
+17. `Embermere.Inventory.CapacityTransactions`
+18. `Embermere.UI.ItemComparison`
+19. `Embermere.Inventory.IdentityActions`
+20. `Embermere.UI.InventoryDragDrop`
+21. `Embermere.Inventory.StableSorting`
+22. `Embermere.Input.AutorunCancellation`
+23. `Embermere.UI.IconPresentation`
+24. `Embermere.UI.AbilityIconPresentation`
 
-Latest verified baseline (2026-07-23):
+Latest verified baseline (2026-07-24):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- headless automation discovered and passed 23/23 with zero test failures,
-  including data-driven icon resolution, source dimensions, category/missing
-  fallbacks, fixed row/detail/slot/reward presentation bounds, and successful
-  construction of the icon-bearing fantasy drag visual and sixteen distinct
-  ability-icon references;
+- headless automation discovered and passed 24/24 with zero test failures,
+  including saved starter-effect semantics and runtime contracts for timed
+  power/armor buffs, Snare, Frost Root, Meditate, effective-stat consumption,
+  and respawn-safe temporary-effect clearing;
+- a freshly restarted editor discovered the same 24 tests. Clean PIE visually
+  accepted all four starter-class icon palettes and Warrior cooldown
+  presentation, then live probes measured Snare at `0.50x` movement, Frost Root
+  at `0.00x`, both offensive buffs at 18 effective Attack Power, Ward at 10
+  effective Armor, and Meditate restoring mana from 20 to 38;
+- `Scripts/configure_starter_abilities.py` reproduces the saved effect type,
+  duration, movement multiplier, and player-facing descriptions. Fresh-process
+  UI validation reloads and verifies those semantics for all sixteen abilities
+  while rejecting placeholder behavior copy;
 - 31 deterministic `128x128` project-owned textures plus
   `DA_EmbermereUiIconSet` were imported and explicitly saved under
   `/Game/UI/Icons`; a fresh process reloaded exact texture settings, ten slot
@@ -528,9 +539,10 @@ Latest verified baseline (2026-07-23):
   presses stop all subsequent movement. A July 22 populated-inventory capture
   accepted the slot/item art but rejected the old long Recruit Pack copy for
   row clipping and detail-heading crowding; a second capture accepted the
-  corrected `Recruit Pack` row and detail fit. The editor now needs a clean
-  restart onto the 2026-07-22 module before the icon-bearing drag token, reward
-  popup, and physical `Ctrl+M` feedback can receive visual acceptance.
+  corrected `Recruit Pack` row and detail fit. The icon-bearing reward popup and
+  real Recruit Pack bag-to-Back flow were accepted on July 23. The populated
+  drag token while in motion and physical `Ctrl+M` feedback remain honest
+  physical-eye checks.
 
 ## Critical Unreal Lessons
 
@@ -575,6 +587,11 @@ Read `Docs/UNREAL_LESSONS.md` for the full record. The highest-risk lessons are:
     objects, and saved packages are different states. Import/save explicitly,
     reload in a fresh process, and inspect texture source dimensions in
     `-NullRHI` automation instead of runtime resource size.
+18. **Native interface test objects:** reflected `BlueprintNativeEvent`
+    dispatch can differ on unattached native `NewObject<AActor>` fixtures.
+    Prefer the native implementation for known native actors, preserve
+    reflected fallback for other implementers, and recheck the real Blueprint
+    actor in clean PIE.
 
 ## Known Workspace State
 
@@ -598,20 +615,25 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Restart Unreal if it predates
-the 2026-07-23 starter-ability icon, hotbar, and tooltip C++ link, then confirm
-MCP/test discovery against the current module.
+the 2026-07-24 functional starter-effect C++ link and saved rules update, then
+confirm MCP/test discovery against the current module.
 
 First fresh-session checks:
 
 1. Confirm Unreal has the latest module/map and open
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery.
-3. Run/discover all 23 tests.
+3. Run/discover all 24 tests.
 4. Start PIE and verify:
-   - all four class palettes across the sixteen starter-ability illustrations,
-     fixed `32x32` art inside unchanged `92x64` slots, key/name fit, empty and
-     Interact stability, data-driven hover tooltips, and synchronized
-     icon/text cooldown dimming with two-line countdown copy;
+   - retain all four accepted class palettes across sixteen starter-ability
+     illustrations, fixed `32x32` art inside unchanged `92x64` slots, key/name
+     fit, empty and Interact stability, data-driven hover tooltips, and
+     synchronized icon/text cooldown dimming with two-line countdown copy;
+   - Battle Shout and Nature's Focus grant `+8 Attack Power` for 10 seconds;
+     Ward grants `+10 Armor` for 10 seconds; Snare deals light damage and
+     halves movement for 6 seconds; Frost Root deals light damage and stops
+     movement for 4 seconds; Meditate restores 18 missing mana. Confirm chat,
+     cooldown, natural expiration, and respawn clearing;
    - all ten empty equipment-slot icons, Recruit Pack and Marsh Tonic row/detail
      art, occupied-slot art, category fallback, text/tooltips, fixed icon sizes,
      and no inventory/footer/hotbar layout shift. Confirm `Recruit Pack` fits its
@@ -653,9 +675,8 @@ First fresh-session checks:
 
 High-value milestones after that:
 
-- after clean visual acceptance of the completed item/slot/ability icon family,
-  consider a restrained paper-doll body backdrop or implement real
-  root/snare/buff/mana-recovery class behavior;
+- add a restrained paper-doll body backdrop or bounded status/VFX presentation
+  for the now-functional timed class effects;
 - expand the proven Blender waystone/lamp/signpost/gate/fence/end-stone lane
   into compact village-prop modules while preserving
   deterministic scripts, FBX checks, and original-art tags;
@@ -718,7 +739,7 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. The latest clean PIE already proved Q autorun plus independent W and S cancellation, the icon-bearing reward popup, and a real Recruit Pack bag-to-Back drag. Restart onto the 2026-07-23 starter-ability icon/hotbar module, run all 23 tests, then visually inspect all sixteen class-specific ability illustrations, fixed 32x32 art cells inside the unchanged 92x64 hotbar slots, readable key/name labels, hover tooltips, synchronized cooldown dimming, two-line countdown copy, empty-slot stability, and the F Interact slot. Retain the accepted item/slot art, compact Recruit Pack copy, reward popup, inventory/footer/hotbar bounds, and physically inspect the populated fantasy drag token while in motion. Physically verify Ctrl+M feedback. Recheck the accepted gate/fence/end-stone threshold, exact south-side foliage cleanup, the 700px inventory and ten-slot paper doll, identity-preserving Sort, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy nameplate, raised saturated emissive target ring, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, and all nine original-art placements. Walk the normal route and prove each 525 cm Prowler pull stays solo while visual marker/band geometry remains non-colliding. Then implement bounded root/snare/buff/mana-recovery behavior, add a restrained paper-doll backdrop, build a compact original Blender village prop, pursue cohesive fantasy architecture, tune concrete combat/respawn issues, or take the highest-value next milestone when the path is clear.
+Follow TODO.md's Start Here section. The latest clean PIE already proved Q autorun plus independent W and S cancellation, all four starter-class hotbar palettes, Warrior cooldown presentation, the icon-bearing reward popup, and a real Recruit Pack bag-to-Back drag. Restart onto the 2026-07-24 functional starter-effect module and saved rules, run all 24 tests, then verify Battle Shout and Nature's Focus grant +8 Attack Power for 10 seconds, Ward grants +10 Armor for 10 seconds, Snare deals light damage and halves movement for 6 seconds, Frost Root deals light damage and stops movement for 4 seconds, and Meditate restores 18 missing mana. Confirm chat, cooldown, natural expiration, and respawn clearing while retaining all sixteen fixed 32x32 ability illustrations, the unchanged 92x64 hotbar layout, data-driven tooltips, empty-slot stability, and F Interact. Retain the accepted item/slot art, compact Recruit Pack copy, reward popup, inventory/footer/hotbar bounds, and physically inspect the populated fantasy drag token while in motion. Physically verify Ctrl+M feedback. Recheck the accepted gate/fence/end-stone threshold, exact south-side foliage cleanup, the 700px inventory and ten-slot paper doll, identity-preserving Sort, bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback, click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy nameplate, raised saturated emissive target ring, quest/reward loop, enemy leash, respawn protection, chat clipping, atmospheric daylight/moss-ground balance, 62 upright Fab actors, and all nine original-art placements. Walk the normal route and prove each 525 cm Prowler pull stays solo while visual marker/band geometry remains non-colliding. Then add bounded status/VFX presentation or a restrained paper-doll backdrop, build a compact original Blender village prop, pursue cohesive fantasy architecture, tune concrete combat/respawn issues, or take the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
