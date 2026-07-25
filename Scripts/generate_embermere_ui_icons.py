@@ -1,8 +1,9 @@
-"""Generate Embermere's project-owned starter UI icon family.
+"""Generate Embermere's project-owned starter UI art family.
 
-The icons use only Python's standard library so the source art is deterministic
-on every development machine. Output PNGs are 128x128 RGBA images with a shared
-charcoal, moss, stone, gold, and ember visual language.
+The art uses only Python's standard library so the source is deterministic on
+every development machine. Icons are 128x128 RGBA images and the equipment
+paper-doll backdrop is 128x160, all using Embermere's shared charcoal, moss,
+stone, gold, and ember visual language.
 """
 
 from __future__ import annotations
@@ -15,6 +16,8 @@ from pathlib import Path
 
 OUTPUT_DIR = Path(__file__).resolve().parents[1] / "ArtSource" / "UI" / "Icons"
 ICON_SIZE = 128
+PAPER_DOLL_WIDTH = 128
+PAPER_DOLL_HEIGHT = 160
 SUPERSAMPLE = 3
 
 
@@ -48,9 +51,11 @@ VOID: Color = (0, 0, 0, 0)
 
 
 class Canvas:
-    def __init__(self) -> None:
-        self.width = ICON_SIZE * SUPERSAMPLE
-        self.height = ICON_SIZE * SUPERSAMPLE
+    def __init__(self, output_width: int = ICON_SIZE, output_height: int = ICON_SIZE) -> None:
+        self.output_width = output_width
+        self.output_height = output_height
+        self.width = output_width * SUPERSAMPLE
+        self.height = output_height * SUPERSAMPLE
         self.pixels = bytearray(self.width * self.height * 4)
 
     @staticmethod
@@ -149,23 +154,23 @@ class Canvas:
         self.ellipse(64, 64, 46, 46, (63, 83, 64, 75))
 
     def save(self, path: Path) -> None:
-        output = bytearray(ICON_SIZE * ICON_SIZE * 4)
+        output = bytearray(self.output_width * self.output_height * 4)
         samples = SUPERSAMPLE * SUPERSAMPLE
-        for y in range(ICON_SIZE):
-            for x in range(ICON_SIZE):
+        for y in range(self.output_height):
+            for x in range(self.output_width):
                 totals = [0, 0, 0, 0]
                 for sy in range(SUPERSAMPLE):
                     for sx in range(SUPERSAMPLE):
                         source = (((y * SUPERSAMPLE + sy) * self.width) + x * SUPERSAMPLE + sx) * 4
                         for channel in range(4):
                             totals[channel] += self.pixels[source + channel]
-                destination = (y * ICON_SIZE + x) * 4
+                destination = (y * self.output_width + x) * 4
                 for channel in range(4):
                     output[destination + channel] = totals[channel] // samples
 
         raw = bytearray()
-        row_bytes = ICON_SIZE * 4
-        for y in range(ICON_SIZE):
+        row_bytes = self.output_width * 4
+        for y in range(self.output_height):
             raw.append(0)
             raw.extend(output[y * row_bytes : (y + 1) * row_bytes])
 
@@ -173,7 +178,21 @@ class Canvas:
             return struct.pack(">I", len(payload)) + kind + payload + struct.pack(">I", zlib.crc32(kind + payload) & 0xFFFFFFFF)
 
         png = bytearray(b"\x89PNG\r\n\x1a\n")
-        png.extend(chunk(b"IHDR", struct.pack(">IIBBBBB", ICON_SIZE, ICON_SIZE, 8, 6, 0, 0, 0)))
+        png.extend(
+            chunk(
+                b"IHDR",
+                struct.pack(
+                    ">IIBBBBB",
+                    self.output_width,
+                    self.output_height,
+                    8,
+                    6,
+                    0,
+                    0,
+                    0,
+                ),
+            )
+        )
         png.extend(chunk(b"IDAT", zlib.compress(bytes(raw), 9)))
         png.extend(chunk(b"IEND", b""))
         path.write_bytes(png)
@@ -522,6 +541,39 @@ def draw_missing_slot(canvas: Canvas) -> None:
     canvas.ellipse(64, 66, 5, 5, GOLD)
 
 
+def draw_paper_doll_backdrop(canvas: Canvas) -> None:
+    """Draw a restrained armored adventurer silhouette behind equipment slots."""
+
+    canvas.ellipse(64, 80, 48, 73, (83, 126, 70, 24))
+    canvas.ellipse(64, 80, 42, 66, (18, 27, 23, 118))
+    canvas.line([(64, 8), (91, 20), (106, 48), (106, 112), (91, 140), (64, 153)], (232, 172, 61, 105), 2.0)
+    canvas.line([(64, 8), (37, 20), (22, 48), (22, 112), (37, 140), (64, 153)], (232, 172, 61, 105), 2.0)
+    canvas.ellipse(64, 27, 13, 15, (151, 157, 139, 205))
+    canvas.polygon([(52, 24), (64, 16), (76, 24), (73, 38), (64, 43), (55, 38)], (91, 102, 99, 215))
+    canvas.line([(53, 30), (75, 30)], (255, 219, 116, 150), 2.0)
+
+    canvas.polygon([(43, 48), (56, 41), (72, 41), (85, 48), (82, 95), (64, 105), (46, 95)], (91, 102, 99, 205))
+    canvas.polygon([(49, 51), (64, 45), (79, 51), (76, 88), (64, 97), (52, 88)], (151, 157, 139, 190))
+    canvas.line([(45, 73), (83, 73)], (232, 172, 61, 155), 3.0)
+    canvas.ellipse(64, 73, 4, 4, (243, 91, 39, 210))
+    ember_rune(canvas, 64, 65, 0.52)
+
+    canvas.polygon([(43, 49), (32, 55), (22, 95), (31, 99), (49, 69)], (83, 126, 70, 185))
+    canvas.polygon([(85, 49), (96, 55), (106, 95), (97, 99), (79, 69)], (83, 126, 70, 185))
+    canvas.ellipse(27, 99, 7, 6, (174, 184, 177, 190))
+    canvas.ellipse(101, 99, 7, 6, (174, 184, 177, 190))
+
+    canvas.polygon([(47, 94), (62, 98), (59, 142), (42, 146), (48, 114)], (130, 77, 42, 205))
+    canvas.polygon([(66, 98), (81, 94), (80, 114), (86, 146), (69, 142)], (130, 77, 42, 205))
+    canvas.line([(45, 111), (60, 111)], (174, 184, 177, 150), 2.5)
+    canvas.line([(68, 111), (83, 111)], (174, 184, 177, 150), 2.5)
+    canvas.polygon([(41, 143), (59, 139), (59, 151), (36, 151)], (91, 102, 99, 215))
+    canvas.polygon([(69, 139), (87, 143), (92, 151), (69, 151)], (91, 102, 99, 215))
+
+    canvas.line([(30, 119), (38, 134), (46, 140)], (255, 219, 116, 115), 2.0)
+    canvas.line([(98, 119), (90, 134), (82, 140)], (255, 219, 116, 115), 2.0)
+
+
 ICON_BUILDERS = {
     "T_Icon_Item_RecruitPack.png": draw_recruit_pack,
     "T_Icon_Item_MarshTonic.png": draw_marsh_tonic,
@@ -563,7 +615,13 @@ def main() -> None:
         canvas = Canvas()
         builder(canvas)
         canvas.save(OUTPUT_DIR / filename)
-    print(f"Generated {len(ICON_BUILDERS)} Embermere UI icons in {OUTPUT_DIR}")
+    paper_doll = Canvas(PAPER_DOLL_WIDTH, PAPER_DOLL_HEIGHT)
+    draw_paper_doll_backdrop(paper_doll)
+    paper_doll.save(OUTPUT_DIR / "T_UI_PaperDoll_Backdrop.png")
+    print(
+        f"Generated {len(ICON_BUILDERS)} Embermere UI icons and "
+        f"1 paper-doll backdrop in {OUTPUT_DIR}"
+    )
 
 
 if __name__ == "__main__":

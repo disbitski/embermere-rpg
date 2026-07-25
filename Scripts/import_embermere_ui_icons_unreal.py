@@ -13,6 +13,7 @@ ICON_SET_PATH = f"{DESTINATION_PATH}/DA_EmbermereUiIconSet"
 RECRUIT_PACK_PATH = "/Game/Data/Items/DI_EmbermereRecruitPack"
 MARSH_TONIC_PATH = "/Game/Data/Items/DI_MarshTonic"
 RULES_PATH = "/Game/Data/DA_EmbermereRules"
+PAPER_DOLL_TEXTURE_NAME = "T_UI_PaperDoll_Backdrop"
 
 BASE_TEXTURE_NAMES = (
     "T_Icon_Item_RecruitPack",
@@ -51,7 +52,7 @@ ABILITY_TEXTURES = {
 }
 
 ABILITY_TEXTURE_NAMES = tuple(ABILITY_TEXTURES.values()) + ("T_Icon_Ability_Missing",)
-TEXTURE_NAMES = BASE_TEXTURE_NAMES + ABILITY_TEXTURE_NAMES
+TEXTURE_NAMES = BASE_TEXTURE_NAMES + ABILITY_TEXTURE_NAMES + (PAPER_DOLL_TEXTURE_NAME,)
 
 
 def destination_for_texture(texture_name):
@@ -149,6 +150,7 @@ def configure_icon_set(icon_set, textures):
     icon_set.set_editor_property("missing_item_icon", textures["T_Icon_Item_Missing"])
     icon_set.set_editor_property("missing_slot_icon", textures["T_Icon_Slot_Missing"])
     icon_set.set_editor_property("missing_ability_icon", textures["T_Icon_Ability_Missing"])
+    icon_set.set_editor_property("paper_doll_backdrop", textures[PAPER_DOLL_TEXTURE_NAME])
     icon_set.modify()
     if not unreal.EditorAssetLibrary.save_loaded_asset(icon_set, only_if_is_dirty=False):
         raise RuntimeError(f"Could not save UI icon set: {ICON_SET_PATH}")
@@ -202,7 +204,7 @@ def main():
     assign_item_icon(MARSH_TONIC_PATH, textures["T_Icon_Item_MarshTonic"])
     assign_ability_icons(RULES_PATH, textures)
     unreal.log(
-        "Embermere UI icons imported: 31 textures, 10 equipment slots, "
+        "Embermere UI art imported: 32 textures, 10 equipment slots, "
         "5 category fallbacks, 2 starter-item assignments, and 16 ability assignments"
     )
 

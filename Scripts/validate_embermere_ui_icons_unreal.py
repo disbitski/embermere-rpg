@@ -11,6 +11,7 @@ ICON_SET_PATH = f"{ICON_ROOT}/DA_EmbermereUiIconSet"
 RECRUIT_PACK_PATH = "/Game/Data/Items/DI_EmbermereRecruitPack"
 MARSH_TONIC_PATH = "/Game/Data/Items/DI_MarshTonic"
 RULES_PATH = "/Game/Data/DA_EmbermereRules"
+PAPER_DOLL_TEXTURE_NAME = "T_UI_PaperDoll_Backdrop"
 
 SLOT_TEXTURES = {
     unreal.EmbermereEquipmentSlot.MAIN_HAND: "T_Icon_Slot_MainHand",
@@ -134,6 +135,11 @@ def main():
         "T_Icon_Ability_Missing",
         "missing-ability fallback",
     )
+    require_texture(
+        icon_set.get_editor_property("paper_doll_backdrop"),
+        PAPER_DOLL_TEXTURE_NAME,
+        "paper-doll backdrop",
+    )
 
     for texture_name in sorted(BASE_TEXTURE_NAMES | ABILITY_TEXTURE_NAMES):
         texture_root = ABILITY_ICON_ROOT if texture_name in ABILITY_TEXTURE_NAMES else ICON_ROOT
@@ -147,6 +153,17 @@ def main():
             fail(f"{texture_name} is not assigned to TEXTUREGROUP_UI")
         if texture.get_editor_property("mip_gen_settings") != unreal.TextureMipGenSettings.TMGS_NO_MIPMAPS:
             fail(f"{texture_name} does not disable mip generation")
+
+    paper_doll = load_asset(f"{ICON_ROOT}/{PAPER_DOLL_TEXTURE_NAME}", unreal.Texture2D)
+    if paper_doll.blueprint_get_size_x() != 128 or paper_doll.blueprint_get_size_y() != 160:
+        fail(
+            f"{PAPER_DOLL_TEXTURE_NAME} expected 128x160, found "
+            f"{paper_doll.blueprint_get_size_x()}x{paper_doll.blueprint_get_size_y()}"
+        )
+    if paper_doll.get_editor_property("lod_group") != unreal.TextureGroup.TEXTUREGROUP_UI:
+        fail(f"{PAPER_DOLL_TEXTURE_NAME} is not assigned to TEXTUREGROUP_UI")
+    if paper_doll.get_editor_property("mip_gen_settings") != unreal.TextureMipGenSettings.TMGS_NO_MIPMAPS:
+        fail(f"{PAPER_DOLL_TEXTURE_NAME} does not disable mip generation")
 
     recruit_pack = load_asset(RECRUIT_PACK_PATH, unreal.EmbermereItemData)
     marsh_tonic = load_asset(MARSH_TONIC_PATH, unreal.EmbermereItemData)
@@ -207,7 +224,8 @@ def main():
         fail(f"expected 16 distinct ability icons, found {len(found_icon_paths)}")
 
     unreal.log(
-        "Embermere UI icon validation passed: 31 saved 128x128 UI textures, "
+        "Embermere UI art validation passed: 31 saved 128x128 icon textures, "
+        "one saved 128x160 paper-doll backdrop, "
         "10 equipment slots, 5 category fallbacks, 2 starter-item assignments, "
         "16 distinct ability assignments with saved gameplay semantics, and the "
         "compact Recruit Pack display name"

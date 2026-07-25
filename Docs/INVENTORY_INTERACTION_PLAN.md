@@ -28,6 +28,10 @@ rules. Click, keyboard, and future controller interaction remain supported.
   Marsh Tonic own soft item references; ten equipment slots plus category and
   missing-art states resolve through `UEmbermereUiIconSet`. Fixed row, detail,
   and slot dimensions preserve layout while text and tooltips remain available.
+- The first paper-doll illustration shipped on 2026-07-25 as a deterministic
+  `128x160` project-owned texture. It resolves through the same shared data
+  asset and sits in a hit-test-invisible overlay beneath the unchanged slot
+  grid.
 
 ## Drag Payload
 
@@ -102,8 +106,12 @@ item against the live inventory when the drop occurs and reject stale payloads.
    the drag token and fixed `32x32` item art in reward feedback without changing
    payload or transaction identity. Category-sigil and missing-item fallbacks
    remain available when direct art does not resolve.
-9. **Next:** clean-restart visual approval of the icon-bearing drag/reward
-   presentation, then consider a restrained paper-doll backdrop.
+9. **Complete:** the equipment column now layers a restrained illustrated
+   adventurer behind the existing ten-slot grid without changing slot bounds,
+   labels, input, drag targets, or transaction rules.
+10. **Next:** clean-restart visual approval of the paper-doll, icon-bearing
+    drag/reward presentation, and populated-slot contrast; then continue with
+    bounded status/VFX presentation or the next item-action milestone.
 
 ## Verification
 
@@ -126,7 +134,9 @@ Automation covers the transaction and identity matrix in
 `Embermere.UI.InventoryDragDrop` plus order and selection invariants in
 `Embermere.Inventory.StableSorting`, while `Embermere.UI.IconPresentation`
 covers icon resolution, source dimensions, fallback paths, and fixed UI bounds.
-A clean-restart PIE pass still owns pointer threshold, cached-geometry hit
-testing, the visible Sort control, icon-bearing drag visual, reward-popup art,
+`Embermere.UI.PaperDollPresentation` covers the backdrop reference, persisted
+source dimensions, HUD resolver, and fixed presentation bounds. A clean-restart
+PIE pass still owns pointer threshold, cached-geometry hit testing, the visible
+Sort control, icon-bearing drag visual, reward-popup art, backdrop contrast,
 icon readability, hover feedback, cursor mode, and compact-viewport
 verification.

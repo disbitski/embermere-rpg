@@ -1210,6 +1210,47 @@ Pipeline lesson:
   assertion proves eligibility; a clean PIE measurement proves the enemy
   really stopped moving.
 
+## 2026-07-25 - The Paper Doll Became A Picture
+
+The equipment grid already behaved like an RPG system, but it still read as ten
+carefully arranged buttons. Today Embermere gained a restrained original
+adventurer illustration behind those controls without giving the artwork any
+authority over inventory behavior.
+
+Presentation contract:
+
+- Generalized the standard-library UI generator so fixed square icons and
+  bounded rectangular presentation art share one deterministic source lane.
+- Generated a transparent `128x160` armored silhouette in Embermere's
+  stone/moss/iron/gold/ember language, including the shared ember rune.
+- Added a soft paper-doll reference and resolver to
+  `DA_EmbermereUiIconSet`. The native HUD layers the fixed image beneath the
+  existing ten-slot grid through a hit-test-invisible overlay.
+- Preserved every slot's `18x18` icon, `62x31` button bounds, label, tooltip,
+  click action, drop target, and atomic bag/equipment transaction.
+
+Acceptance:
+
+- The no-hot-reload Mac editor build succeeded.
+- A fresh Unreal process imported and explicitly saved the new texture and data
+  reference; a second process reloaded the exact `128x160` source, UI texture
+  group, no-mipmap setting, and mapping.
+- Added `Embermere.UI.PaperDollPresentation`. Fresh headless automation passed
+  25/25 with zero warnings or failures.
+- Saved-zone validation retained 62 upright Fab actors and nine original-art
+  placements. Native road traces retained three clear gate lanes and all
+  required solid supports, fences, and boundary stones.
+- The running interactive editor still holds the July 24 module, so backdrop
+  contrast behind empty and occupied slots remains the next clean-restart PIE
+  judgment rather than a claimed visual acceptance.
+
+Pipeline lesson:
+
+- Decorative art should enrich the system it sits behind, not acquire hidden
+  gameplay responsibilities. Deterministic source, persisted asset references,
+  fixed layout contracts, and a final human visual check keep those concerns
+  separate.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

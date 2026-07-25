@@ -157,6 +157,9 @@ public:
 	UTexture2D* ResolveAbilityIconForUi(const FEmbermereAbilityDefinition& Ability) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
+	UTexture2D* ResolvePaperDollBackdropForUi() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
 	FVector2D GetInventoryRowIconDimensions() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
@@ -170,6 +173,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
 	FVector2D GetHotbarSlotIconDimensions() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
+	FVector2D GetPaperDollBackdropDimensions() const;
 
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
@@ -267,6 +273,9 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> InventoryEquipmentText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UImage> InventoryPaperDollBackdrop;
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UEmbermereEquipmentSlotButton>> InventoryEquipmentSlotButtons;

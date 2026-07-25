@@ -30,6 +30,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Icons")
 	TSoftObjectPtr<UTexture2D> MissingAbilityIcon;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation")
+	TSoftObjectPtr<UTexture2D> PaperDollBackdrop;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|UI|Icons")
 	UTexture2D* ResolveItemIcon(const UEmbermereItemData* Item) const;
 
@@ -38,4 +41,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|UI|Icons")
 	UTexture2D* ResolveAbilityIcon(const FEmbermereAbilityDefinition& Ability) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|UI|Icons")
+	UTexture2D* ResolvePaperDollBackdrop() const;
 };

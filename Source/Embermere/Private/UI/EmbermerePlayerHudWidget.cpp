@@ -22,6 +22,8 @@
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/Image.h"
+#include "Components/Overlay.h"
+#include "Components/OverlaySlot.h"
 #include "Components/ProgressBar.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
@@ -39,6 +41,8 @@ namespace
 	constexpr float EquipmentSlotIconSize = 18.0f;
 	constexpr float LootPopupIconSize = 32.0f;
 	constexpr float HotbarSlotIconSize = 32.0f;
+	constexpr float PaperDollBackdropWidth = 128.0f;
+	constexpr float PaperDollBackdropHeight = 160.0f;
 
 	const TCHAR* GetEquipmentSlotLabel(EEmbermereEquipmentSlot Slot)
 	{
@@ -195,6 +199,12 @@ UTexture2D* UEmbermerePlayerHudWidget::ResolveAbilityIconForUi(const FEmbermereA
 	return IconSet ? IconSet->ResolveAbilityIcon(Ability) : nullptr;
 }
 
+UTexture2D* UEmbermerePlayerHudWidget::ResolvePaperDollBackdropForUi() const
+{
+	const UEmbermereUiIconSet* IconSet = UiIconSet.IsNull() ? nullptr : UiIconSet.LoadSynchronous();
+	return IconSet ? IconSet->ResolvePaperDollBackdrop() : nullptr;
+}
+
 FVector2D UEmbermerePlayerHudWidget::GetInventoryRowIconDimensions() const
 {
 	return FVector2D(InventoryRowIconSize);
@@ -218,6 +228,11 @@ FVector2D UEmbermerePlayerHudWidget::GetLootPopupIconDimensions() const
 FVector2D UEmbermerePlayerHudWidget::GetHotbarSlotIconDimensions() const
 {
 	return FVector2D(HotbarSlotIconSize);
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetPaperDollBackdropDimensions() const
+{
+	return FVector2D(PaperDollBackdropWidth, PaperDollBackdropHeight);
 }
 
 void UEmbermerePlayerHudWidget::BindToCharacter(AEmbermereCharacter* Character)
@@ -1209,6 +1224,17 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	}
 	UTextBlock* EquipmentTitle = MakeHudText(WidgetTree, TEXT("InventoryEquipmentTitle"), FLinearColor(1.0f, 0.82f, 0.38f, 1.0f), 15.0f);
 	UGridPanel* EquipmentGrid = WidgetTree->ConstructWidget<UGridPanel>(UGridPanel::StaticClass(), TEXT("InventoryEquipmentGrid"));
+	UOverlay* EquipmentPresentation = WidgetTree->ConstructWidget<UOverlay>(
+		UOverlay::StaticClass(),
+		TEXT("InventoryEquipmentPresentation"));
+	InventoryPaperDollBackdrop = WidgetTree->ConstructWidget<UImage>(
+		UImage::StaticClass(),
+		TEXT("InventoryPaperDollBackdrop"));
+	if (InventoryPaperDollBackdrop)
+	{
+		SetIconImage(InventoryPaperDollBackdrop, ResolvePaperDollBackdropForUi());
+		InventoryPaperDollBackdrop->SetRenderOpacity(0.82f);
+	}
 	if (EquipmentTitle)
 	{
 		EquipmentTitle->SetText(FText::FromString(TEXT("Equipment")));
@@ -1296,7 +1322,30 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			GridSlot->SetPadding(FMargin(2.0f, 1.0f));
 		}
 	}
-	AddStackChild(InventoryEquipmentStack, EquipmentGrid, 5.0f);
+	if (EquipmentPresentation && EquipmentGrid)
+	{
+		USizeBox* PaperDollSize = MakeSizedWidget(
+			WidgetTree,
+			InventoryPaperDollBackdrop,
+			TEXT("InventoryPaperDollBackdropSize"),
+			PaperDollBackdropWidth,
+			PaperDollBackdropHeight);
+		if (UOverlaySlot* BackdropSlot = EquipmentPresentation->AddChildToOverlay(PaperDollSize))
+		{
+			BackdropSlot->SetHorizontalAlignment(HAlign_Center);
+			BackdropSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		if (UOverlaySlot* GridOverlaySlot = EquipmentPresentation->AddChildToOverlay(EquipmentGrid))
+		{
+			GridOverlaySlot->SetHorizontalAlignment(HAlign_Center);
+			GridOverlaySlot->SetVerticalAlignment(VAlign_Center);
+		}
+		AddStackChild(InventoryEquipmentStack, EquipmentPresentation, 5.0f);
+	}
+	else
+	{
+		AddStackChild(InventoryEquipmentStack, EquipmentGrid, 5.0f);
+	}
 	if (InventoryEquipmentText)
 	{
 		InventoryEquipmentText->SetAutoWrapText(true);

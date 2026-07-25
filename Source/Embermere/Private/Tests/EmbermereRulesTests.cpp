@@ -600,6 +600,57 @@ bool FEmbermereUiIconPresentationTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermerePaperDollPresentationTest,
+	"Embermere.UI.PaperDollPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermerePaperDollPresentationTest::RunTest(const FString& Parameters)
+{
+	const UEmbermereUiIconSet* IconSet = LoadObject<UEmbermereUiIconSet>(
+		nullptr,
+		TEXT("/Game/UI/Icons/DA_EmbermereUiIconSet.DA_EmbermereUiIconSet"));
+	TestNotNull(TEXT("UI icon set resolves for paper-doll presentation"), IconSet);
+	if (!IconSet)
+	{
+		return false;
+	}
+
+	TestFalse(TEXT("Icon set owns a paper-doll backdrop reference"), IconSet->PaperDollBackdrop.IsNull());
+	UTexture2D* PaperDollBackdrop = IconSet->ResolvePaperDollBackdrop();
+	TestNotNull(TEXT("Paper-doll backdrop resolves"), PaperDollBackdrop);
+	if (PaperDollBackdrop)
+	{
+		TestEqual(
+			TEXT("Paper-doll source width is stable"),
+			static_cast<int32>(PaperDollBackdrop->Source.GetSizeX()),
+			128);
+		TestEqual(
+			TEXT("Paper-doll source height is stable"),
+			static_cast<int32>(PaperDollBackdrop->Source.GetSizeY()),
+			160);
+	}
+
+	UEmbermerePlayerHudWidget* HudWidget = NewObject<UEmbermerePlayerHudWidget>();
+	TestNotNull(TEXT("HUD can be created for paper-doll presentation"), HudWidget);
+	if (HudWidget)
+	{
+		TestTrue(
+			TEXT("HUD resolves the shared paper-doll backdrop"),
+			HudWidget->ResolvePaperDollBackdropForUi() == PaperDollBackdrop);
+		TestEqual(
+			TEXT("Paper-doll presentation dimensions stay fixed"),
+			HudWidget->GetPaperDollBackdropDimensions(),
+			FVector2D(128.0f, 160.0f));
+		TestEqual(
+			TEXT("Equipment slot dimensions remain unchanged"),
+			HudWidget->GetEquipmentSlotIconDimensions(),
+			FVector2D(18.0f, 18.0f));
+	}
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereAbilityIconPresentationTest,
 	"Embermere.UI.AbilityIconPresentation",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

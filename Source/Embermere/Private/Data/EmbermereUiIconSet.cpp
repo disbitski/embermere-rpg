@@ -54,3 +54,8 @@ UTexture2D* UEmbermereUiIconSet::ResolveAbilityIcon(const FEmbermereAbilityDefin
 
 	return ResolveTexture(MissingAbilityIcon);
 }
+
+UTexture2D* UEmbermereUiIconSet::ResolvePaperDollBackdrop() const
+{
+	return ResolveTexture(PaperDollBackdrop);
+}

@@ -6,17 +6,18 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Restart Unreal if it predates the 2026-07-24 functional starter-effect C++
-  build and saved `DA_EmbermereRules` update, then confirm the current
+- Restart Unreal if it predates the 2026-07-25 paper-doll presentation C++
+  build and saved `DA_EmbermereUiIconSet` update, then confirm the current
   module/map and MCP listener on port `8123`.
   Confirm Blender and its localhost bridge only when another original-art pass
   is selected.
-- Discover and run all 24 tests, especially
-  `Embermere.Combat.StarterAbilityEffects`. The authoritative 2026-07-24
-  no-hot-reload build and headless run passed 24/24. UI/icon, saved-map, and
-  road-boundary validators also pass with saved ability semantics, 62 upright
-  `FabPass_` actors, nine original-art placements, exact daylight, and the
-  collision-cleared starter layout.
+- Discover and run all 25 tests, especially
+  `Embermere.UI.PaperDollPresentation` and
+  `Embermere.Combat.StarterAbilityEffects`. The authoritative 2026-07-25
+  no-hot-reload build and headless run passed 25/25. UI-art, saved-map, and
+  road-boundary validators also pass with the saved `128x160` paper-doll
+  reference, ability semantics, 62 upright `FabPass_` actors, nine original-art
+  placements, exact daylight, and the collision-cleared starter layout.
 - Retain the accepted clean-PIE hotbar baseline: all four class palettes across
   sixteen fixed `32x32` illustrations inside unchanged `92x64` slots, readable
   key/name copy, stable empty and `F` Interact slots, data-driven tooltips, and
@@ -36,8 +37,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   empty-slot symbols, Recruit Pack and Marsh Tonic art, occupied-slot item art,
   readable text/tooltips, and no row, footer, panel, or hotbar layout shift. The
   saved player-facing label is now `Recruit Pack`; confirm it fits both its row
-  and detail header without clipping or crowding `Equipment`. Also check that
-  an item without direct art uses its category fallback.
+  and detail header without clipping or crowding `Equipment`. Confirm the new
+  illustrated armored-adventurer backdrop stays centered beneath the unchanged
+  ten-slot grid, never intercepts input, and remains readable without obscuring
+  empty or occupied slot art. Also check that an item without direct art uses
+  its category fallback.
 - Retain the accepted reward-popup and bag-to-Back flow, then physically inspect
   the one state Slate cannot freeze: the populated fantasy drag token in
   motion. It should retain fixed `236x62` bounds and show the resolved item
@@ -62,16 +66,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `(2500,1300)`. Confirm each 525 cm pull stays solo, enemies cross visual-only
   marker geometry, and the two idle Prowlers remain home. Tune leash/respawn
   only when live feel exposes a concrete issue.
-- After visual acceptance, continue with the highest-value bounded slice: add a
-  restrained illustrated paper-doll backdrop, build a compact original Blender
-  village prop, begin cohesive fantasy village architecture when a suitable
-  signed-in UE pack is available, or add bounded status/VFX presentation for
-  the now-functional timed class effects.
+- After visual acceptance, continue with the highest-value bounded slice: add
+  status icons or restrained class VFX for the functional timed effects, build
+  a compact original Blender village prop, or begin cohesive fantasy village
+  architecture when a suitable signed-in UE pack is available.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-07-24
-  starter-effect build. Current headless code passes all 24 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-07-25
+  paper-doll build. Current headless code passes all 25 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -125,6 +128,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.UI.InventoryDragDrop`
   - `Embermere.UI.InventoryToggle`
   - `Embermere.UI.ItemComparison`
+  - `Embermere.UI.PaperDollPresentation`
 - Manually verify the styled first-pass HUD in PIE:
   - player HP, mana, XP, health bar, and mana bar are visible;
   - target panel appears after `Tab` and shows target HP plus range state;
@@ -228,7 +232,7 @@ Embermere has a working first-pass starter slice:
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, project-owned drag and icon presentation, stable explicit sorting, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE has verified the full quest, a real bag-to-Back drag, the icon-bearing reward popup, all four hotbar palettes, timed root/snare/buff/mana-recovery behavior, identity-preserving Sort, solo Prowler pulls, collision-cleared encounter markers, targeting, the original-art road family, and transform-proven `W`/`S` autorun cancellation. The populated drag token while in motion and physical `Ctrl+M` feedback remain honest physical-eye checks. The world remains stylistically mixed without real fantasy village buildings, final character art, ability VFX, audio, or visible timed-status indicators.
+The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, project-owned drag/icon/paper-doll presentation, stable explicit sorting, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE has verified the full quest, a real bag-to-Back drag, the icon-bearing reward popup, all four hotbar palettes, timed root/snare/buff/mana-recovery behavior, identity-preserving Sort, solo Prowler pulls, collision-cleared encounter markers, targeting, the original-art road family, and transform-proven `W`/`S` autorun cancellation. The new paper-doll backdrop, populated drag token while in motion, and physical `Ctrl+M` feedback remain honest physical-eye checks. The world remains stylistically mixed without real fantasy village buildings, final character art, ability VFX, audio, or visible timed-status indicators.
 
 ## Next Work
 
@@ -247,7 +251,8 @@ The prototype foundation is alive, but it is still early. The environment is upr
   - visually verify bag-to-equipment and equipment-to-bag drag/drop, valid/invalid feedback, stale identity rejection, and click/keyboard fallbacks;
   - visually verify stable identity-preserving sorting and the new fixed-size fantasy drag token across armor and consumable payloads;
   - retain item-art reuse in the fantasy drag token and reward popup, then
-    consider a restrained paper-doll body backdrop.
+    visually approve the `128x160` illustrated paper-doll backdrop beneath
+    empty and occupied slots without contrast or layout regressions.
 - Finish starter-class combat identity:
   - retain all sixteen accepted ability icons, class palettes, data-driven
     tooltips, and cooldown dimming/countdown without layout shift;
@@ -274,8 +279,8 @@ The prototype foundation is alive, but it is still early. The environment is upr
   return-home speed, damage, and respawn timing only from normal-route PIE.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
-- Add a restrained paper-doll backdrop after the complete item/slot/ability
-  icon family survives clean-restart PIE.
+- After clean-PIE acceptance of the paper-doll backdrop, add bounded status
+  indicators or class VFX without coupling gameplay effects to presentation.
 
 ## Last Completed
 
@@ -639,6 +644,21 @@ The prototype foundation is alive, but it is still early. The environment is upr
   `Scripts/configure_starter_abilities.py`. The authoritative no-hot-reload
   build succeeded, fresh headless automation passed 24/24, and UI/icon,
   saved-map, and road-boundary validators all passed without Python errors.
+- 2026-07-25: generalized the deterministic UI generator and added a
+  project-owned `128x160` armored-adventurer paper-doll backdrop in the shared
+  stone/moss/iron/gold/ember language.
+- Added a soft backdrop reference/resolver to `DA_EmbermereUiIconSet` and
+  layered it beneath the unchanged ten-slot equipment grid through a
+  hit-test-invisible native UMG overlay. Slot bounds, labels, icons, tooltips,
+  drag targets, and transaction rules remain unchanged.
+- Added `Embermere.UI.PaperDollPresentation`. The authoritative no-hot-reload
+  build succeeded, fresh headless automation passed 25/25 with zero warnings
+  or failures, and a second process reloaded the exact texture dimensions,
+  texture settings, and saved mapping.
+- Saved-zone validation retained 62 upright Fab actors and nine original-art
+  placements; native traces retained all three clear gate lanes and required
+  solid boundary collision. The running GUI editor still holds the prior
+  module, so backdrop contrast and fit remain the next clean-restart PIE gate.
 
 ## Asset Hunt
 

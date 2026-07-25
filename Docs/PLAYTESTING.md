@@ -102,11 +102,16 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
     readable reward text without changing the popup bounds.
 39. With both Recruit Pack and Marsh Tonic in the bag, select one and click `Sort`; confirm armor appears before consumables, names sort alphabetically within a category, the same item stays selected, and chat reports `Inventory sorted`.
 40. Begin dragging a bag row and confirm the Sort control becomes unavailable and the bag order stays fixed until the drag ends. Recheck one valid and one invalid equipment drop afterward.
+41. Inspect the equipment column with empty slots and again with Recruit Pack
+    equipped. Confirm the project-owned armored-adventurer backdrop stays
+    centered behind the unchanged ten-slot grid, remains decorative and
+    noninteractive, does not obscure slot icons or labels, and does not move
+    the Equipment title, bonus text, footer, or hotbar.
 
 ## Expected Temporary Feedback
 
 - A styled first-pass HUD overlay shows player HP, mana, XP, current target, target HP, range state, quest progress, and all hotbar slots.
-- A 700x330 structured inventory/equipment window appears in the top-right with `Slots X / 24`, an explicit category/name Sort control, clickable/draggable highlighted item rows, fixed project-owned item/slot icons and fantasy drag token, selected-item effects and net equipment comparison, row/occupied-slot tooltips, ten stable clickable/drop-target paper-doll slots, gold/red drag feedback, equipment-to-bag return, aggregate bonuses, description, empty/reward state, `[`/`]` cycling, `I` close/show behavior, and Equip or Use actions when supported.
+- A 700x330 structured inventory/equipment window appears in the top-right with `Slots X / 24`, an explicit category/name Sort control, clickable/draggable highlighted item rows, fixed project-owned item/slot icons and fantasy drag token, selected-item effects and net equipment comparison, row/occupied-slot tooltips, ten stable clickable/drop-target paper-doll slots layered over a restrained illustrated adventurer, gold/red drag feedback, equipment-to-bag return, aggregate bonuses, description, empty/reward state, `[`/`]` cycling, `I` close/show behavior, and Equip or Use actions when supported.
 - Opening the inventory shows the cursor and permits UI clicks; closing it hides the cursor and restores classic game-only mouse input.
 - Interacting with Mara shows a temporary bottom-screen dialogue panel.
 - Mara has a temporary gold quest marker above her in PIE.
@@ -148,9 +153,10 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
   selection, tooltips, net equipment comparison, clickable/drop-target slots,
   atomic transfers, rollback-safe replacement, stat application, armor
   mitigation, safe consumable depletion, and a real Marsh Tonic loot source. It
-  now reuses resolved item art in drag and reward feedback. It does not yet have
-  an illustrated paper-doll body backdrop; the next phases are documented in
-  `Docs/INVENTORY_INTERACTION_PLAN.md`.
+  now reuses resolved item art in drag and reward feedback and layers a
+  project-owned paper-doll illustration beneath the unchanged slot controls.
+  That new decorative layer still needs clean-PIE visual acceptance; the next
+  phases are documented in `Docs/INVENTORY_INTERACTION_PLAN.md`.
 - Nameplates use a native UMG widget component and target highlighting uses a dedicated emissive material on a flat animated 24-segment ring; a future decal/texture treatment can add runes and softer edges.
 - The bottom-left chat/combat log is clipped inside its shaded panel and currently uses single-line rows; final chat history, scrolling, and fantasy styling still need a proper UI pass.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.

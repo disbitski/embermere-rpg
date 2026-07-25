@@ -412,6 +412,22 @@ fresh-process check through Unreal's Python `blueprint_get_size_x/y()` surface.
 The two assertions measure persisted source dimensions without pretending the
 Null RHI created a render resource.
 
+## Decorative UMG Layers Must Not Own Interaction
+
+A paper-doll illustration can make an equipment panel feel like an RPG without
+becoming a second equipment system. Keep the decorative image and the
+interactive slot grid as separate children of one overlay:
+
+- add the illustration first and the slot grid second so controls remain on top;
+- keep the image hit-test invisible and size it explicitly;
+- resolve it from project data and collapse it cleanly when art is missing;
+- preserve every slot's existing dimensions, labels, tooltips, and drop logic;
+- test persisted source size and intended presentation bounds separately, then
+  judge contrast and readability in clean PIE.
+
+This keeps presentation replaceable while the atomic equipment contract remains
+owned by the same buttons and components as before.
+
 ## Native Interface Objects Need A Native Test Path
 
 Reflected `BlueprintNativeEvent` interface dispatch is not a reliable
