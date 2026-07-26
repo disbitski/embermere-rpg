@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/EmbermereStatsComponent.h"
 #include "Types/EmbermereItemTypes.h"
 #include "Types/EmbermereTypes.h"
 #include "UI/EmbermereItemDragDropOperation.h"
@@ -18,7 +19,6 @@ class UEmbermereUiIconSet;
 class UEmbermereInventoryRowButton;
 class UEmbermereInventoryComponent;
 class UEmbermereQuestLogComponent;
-class UEmbermereStatsComponent;
 class UBorder;
 class UButton;
 class UHorizontalBox;
@@ -177,6 +177,24 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Icons")
 	FVector2D GetPaperDollBackdropDimensions() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Status Effects")
+	int32 GetPlayerStatusEffectCount() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Status Effects")
+	int32 GetTargetStatusEffectCount() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Status Effects")
+	FText GetPlayerStatusEffectDisplayText(int32 EffectIndex) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Status Effects")
+	FText GetTargetStatusEffectDisplayText(int32 EffectIndex) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Status Effects")
+	FVector2D GetStatusEffectIconDimensions() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Status Effects")
+	FVector2D GetStatusEffectSlotDimensions() const;
+
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void NativeConstruct() override;
@@ -209,6 +227,15 @@ private:
 	TObjectPtr<UProgressBar> ManaBar;
 
 	UPROPERTY(Transient)
+	TArray<TObjectPtr<UBorder>> PlayerStatusEffectPanels;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UImage>> PlayerStatusEffectIcons;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UTextBlock>> PlayerStatusEffectTexts;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UBorder> TargetPanel;
 
 	UPROPERTY(Transient)
@@ -219,6 +246,15 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UProgressBar> TargetHealthBar;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UBorder>> TargetStatusEffectPanels;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UImage>> TargetStatusEffectIcons;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UTextBlock>> TargetStatusEffectTexts;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UBorder> QuestPanel;
@@ -343,6 +379,11 @@ private:
 
 	void BuildDefaultLayout();
 	void RefreshHudText();
+	void RefreshStatusEffectRow(
+		const TArray<FEmbermereActiveStatusEffect>& Effects,
+		const TArray<TObjectPtr<UBorder>>& Panels,
+		const TArray<TObjectPtr<UImage>>& Icons,
+		const TArray<TObjectPtr<UTextBlock>>& Texts);
 	void BindComponentEvents();
 	void UpdateInventoryPanelVisibility();
 	void RefreshInventoryWindow();
@@ -356,6 +397,8 @@ private:
 	bool IsInventoryListAtScreenPosition(const FVector2D& ScreenPosition) const;
 	void ClearPendingDrag();
 	void ClearDropFeedback();
+	TArray<FEmbermereActiveStatusEffect> GetTargetStatusEffects() const;
+	FText BuildStatusEffectDisplayText(const FEmbermereActiveStatusEffect& Effect) const;
 
 	UFUNCTION()
 	void HandleItemAdded(UEmbermereItemData* Item, int32 Quantity);

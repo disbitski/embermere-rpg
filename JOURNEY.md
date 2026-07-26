@@ -1251,6 +1251,56 @@ Pipeline lesson:
   fixed layout contracts, and a final human visual check keep those concerns
   separate.
 
+## 2026-07-26 - Timed Effects Became Visible
+
+The starter abilities already changed real combat state, but their duration
+lived only in chat and memory. Today Embermere gained a generic presentation
+contract that lets a player inspect what is helping them and what is controlling
+their selected target without teaching the HUD class-specific rules.
+
+Presentation contract:
+
+- Stats now expose lightweight active-effect snapshots containing the source
+  ability, remaining world time, and beneficial/harmful intent.
+- Combat registers that metadata only after the generic timed buff or movement
+  effect succeeds. Reapplying the same ability refreshes one record instead of
+  creating duplicate icons.
+- The HUD renders two fixed `128x32` cells beneath player mana and two beneath
+  selected-target health, reusing each ability's saved icon, display name,
+  description, and countdown.
+- Beneficial effects use moss/gold presentation; harmful control effects use
+  ember/frost presentation. Meditate stays instantaneous and creates no timed
+  record.
+- Expiration, vital reinitialization, player recovery, enemy respawn, target
+  death, and target switching all consume the same gameplay-owned state rather
+  than maintaining a second UI timer.
+
+Acceptance:
+
+- Before relinking, clean PIE accepted the new `128x160` paper doll behind an
+  empty equipment grid. It remained centered and readable without moving or
+  obscuring the title, bonuses, footer, inventory, or hotbar.
+- Added `Embermere.UI.TimedStatusPresentation`, covering source ability
+  identity, icon reuse, beneficial/harmful classification, countdown copy,
+  fixed icon/slot dimensions, and respawn-style clearing.
+- The authoritative no-hot-reload Mac build succeeded and fresh headless
+  automation passed 26/26.
+- Fresh-process UI-art validation retained all 31 saved icon textures, the
+  paper-doll package, item mappings, and sixteen ability semantics. Saved-zone
+  validation retained 62 upright Fab actors and nine original placements.
+  Native traces retained three clear gate lanes and all required road-boundary
+  collision.
+- The final C++ link makes the open editor stale, so tomorrow's clean-restart
+  visual gate is the live status rows plus paper-doll contrast with Recruit
+  Pack equipped.
+
+Pipeline lesson:
+
+- Register presentation metadata only after a gameplay rule succeeds, and let
+  UI read snapshots rather than infer mechanics from names. The gameplay
+  contract stays authoritative while icons, colors, layout, and future VFX
+  remain replaceable.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

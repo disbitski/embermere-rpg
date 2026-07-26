@@ -173,6 +173,17 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 				Ability.MovementSpeedMultiplier,
 				Ability.Duration);
 		}
+
+		if (bAppliedPrimaryEffect &&
+			(Ability.EffectType == EEmbermereAbilityEffectType::AttackPowerBuff ||
+			 Ability.EffectType == EEmbermereAbilityEffectType::ArmorBuff))
+		{
+			TargetStats->RegisterTimedStatusEffect(Ability, true);
+		}
+		if (bAppliedMovementEffect)
+		{
+			TargetStats->RegisterTimedStatusEffect(Ability, false);
+		}
 	}
 
 	OnAbilityUsed.Broadcast(Ability.AbilityId, TargetActor, EffectAmount);

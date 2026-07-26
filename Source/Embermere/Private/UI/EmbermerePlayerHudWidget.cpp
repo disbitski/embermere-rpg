@@ -43,6 +43,10 @@ namespace
 	constexpr float HotbarSlotIconSize = 32.0f;
 	constexpr float PaperDollBackdropWidth = 128.0f;
 	constexpr float PaperDollBackdropHeight = 160.0f;
+	constexpr int32 StatusEffectVisibleSlotCount = 2;
+	constexpr float StatusEffectIconSize = 22.0f;
+	constexpr float StatusEffectSlotWidth = 128.0f;
+	constexpr float StatusEffectSlotHeight = 32.0f;
 
 	const TCHAR* GetEquipmentSlotLabel(EEmbermereEquipmentSlot Slot)
 	{
@@ -233,6 +237,64 @@ FVector2D UEmbermerePlayerHudWidget::GetHotbarSlotIconDimensions() const
 FVector2D UEmbermerePlayerHudWidget::GetPaperDollBackdropDimensions() const
 {
 	return FVector2D(PaperDollBackdropWidth, PaperDollBackdropHeight);
+}
+
+int32 UEmbermerePlayerHudWidget::GetPlayerStatusEffectCount() const
+{
+	return Stats ? Stats->GetActiveStatusEffects().Num() : 0;
+}
+
+int32 UEmbermerePlayerHudWidget::GetTargetStatusEffectCount() const
+{
+	return GetTargetStatusEffects().Num();
+}
+
+FText UEmbermerePlayerHudWidget::GetPlayerStatusEffectDisplayText(int32 EffectIndex) const
+{
+	const TArray<FEmbermereActiveStatusEffect> Effects = Stats
+		? Stats->GetActiveStatusEffects()
+		: TArray<FEmbermereActiveStatusEffect>();
+	return Effects.IsValidIndex(EffectIndex)
+		? BuildStatusEffectDisplayText(Effects[EffectIndex])
+		: FText::GetEmpty();
+}
+
+FText UEmbermerePlayerHudWidget::GetTargetStatusEffectDisplayText(int32 EffectIndex) const
+{
+	const TArray<FEmbermereActiveStatusEffect> Effects = GetTargetStatusEffects();
+	return Effects.IsValidIndex(EffectIndex)
+		? BuildStatusEffectDisplayText(Effects[EffectIndex])
+		: FText::GetEmpty();
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetStatusEffectIconDimensions() const
+{
+	return FVector2D(StatusEffectIconSize);
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetStatusEffectSlotDimensions() const
+{
+	return FVector2D(StatusEffectSlotWidth, StatusEffectSlotHeight);
+}
+
+TArray<FEmbermereActiveStatusEffect> UEmbermerePlayerHudWidget::GetTargetStatusEffects() const
+{
+	const AActor* TargetActor = Combat ? Combat->CurrentTarget.Get() : nullptr;
+	const UEmbermereStatsComponent* TargetStats = TargetActor
+		? TargetActor->FindComponentByClass<UEmbermereStatsComponent>()
+		: nullptr;
+	return TargetStats
+		? TargetStats->GetActiveStatusEffects()
+		: TArray<FEmbermereActiveStatusEffect>();
+}
+
+FText UEmbermerePlayerHudWidget::BuildStatusEffectDisplayText(
+	const FEmbermereActiveStatusEffect& Effect) const
+{
+	return FText::FromString(FString::Printf(
+		TEXT("%s\n%ds"),
+		*Effect.Ability.DisplayName.ToString(),
+		FMath::Max(1, FMath::CeilToInt(Effect.RemainingSeconds))));
 }
 
 void UEmbermerePlayerHudWidget::BindToCharacter(AEmbermereCharacter* Character)
@@ -1018,23 +1080,115 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		return;
 	}
 
+	auto MakeStatusEffectRow = [this](
+		const TCHAR* Prefix,
+		TArray<TObjectPtr<UBorder>>& OutPanels,
+		TArray<TObjectPtr<UImage>>& OutIcons,
+		TArray<TObjectPtr<UTextBlock>>& OutTexts)
+	{
+		UHorizontalBox* Row = WidgetTree->ConstructWidget<UHorizontalBox>(
+			UHorizontalBox::StaticClass(),
+			*FString::Printf(TEXT("%sRow"), Prefix));
+		OutPanels.Reset();
+		OutIcons.Reset();
+		OutTexts.Reset();
+		for (int32 SlotIndex = 0; SlotIndex < StatusEffectVisibleSlotCount; ++SlotIndex)
+		{
+			UBorder* Panel = MakePanel(
+				WidgetTree,
+				*FString::Printf(TEXT("%sPanel_%d"), Prefix, SlotIndex),
+				FLinearColor(0.04f, 0.08f, 0.055f, 0.92f));
+			UHorizontalBox* Content = WidgetTree->ConstructWidget<UHorizontalBox>(
+				UHorizontalBox::StaticClass(),
+				*FString::Printf(TEXT("%sContent_%d"), Prefix, SlotIndex));
+			UImage* Icon = WidgetTree->ConstructWidget<UImage>(
+				UImage::StaticClass(),
+				*FString::Printf(TEXT("%sIcon_%d"), Prefix, SlotIndex));
+			UTextBlock* Text = MakeHudText(
+				WidgetTree,
+				*FString::Printf(TEXT("%sText_%d"), Prefix, SlotIndex),
+				FLinearColor(0.92f, 0.9f, 0.78f, 1.0f),
+				9.0f);
+			if (!Panel || !Content || !Icon || !Text || !Row)
+			{
+				continue;
+			}
+
+			Panel->SetPadding(FMargin(3.0f));
+			Panel->SetVisibility(ESlateVisibility::Hidden);
+			Icon->SetVisibility(ESlateVisibility::Collapsed);
+			Text->SetAutoWrapText(false);
+			Text->SetClipping(EWidgetClipping::ClipToBounds);
+			Text->SetLineHeightPercentage(0.8f);
+			USizeBox* IconSize = MakeSizedWidget(
+				WidgetTree,
+				Icon,
+				*FString::Printf(TEXT("%sIconSize_%d"), Prefix, SlotIndex),
+				StatusEffectIconSize,
+				StatusEffectIconSize);
+			if (UHorizontalBoxSlot* IconSlot = Content->AddChildToHorizontalBox(IconSize))
+			{
+				IconSlot->SetPadding(FMargin(0.0f, 0.0f, 4.0f, 0.0f));
+				IconSlot->SetVerticalAlignment(VAlign_Center);
+			}
+			if (UHorizontalBoxSlot* TextSlot = Content->AddChildToHorizontalBox(Text))
+			{
+				TextSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+				TextSlot->SetVerticalAlignment(VAlign_Center);
+			}
+			Panel->SetContent(Content);
+			USizeBox* SlotSize = MakeSizedWidget(
+				WidgetTree,
+				Panel,
+				*FString::Printf(TEXT("%sSize_%d"), Prefix, SlotIndex),
+				StatusEffectSlotWidth,
+				StatusEffectSlotHeight);
+			if (UHorizontalBoxSlot* RowSlot = Row->AddChildToHorizontalBox(SlotSize))
+			{
+				RowSlot->SetPadding(FMargin(SlotIndex > 0 ? 2.0f : 0.0f, 0.0f, 0.0f, 0.0f));
+			}
+			OutPanels.Add(Panel);
+			OutIcons.Add(Icon);
+			OutTexts.Add(Text);
+		}
+
+		return MakeSizedWidget(
+			WidgetTree,
+			Row,
+			*FString::Printf(TEXT("%sBounds"), Prefix),
+			260.0f,
+			StatusEffectSlotHeight);
+	};
+
 	UBorder* StatusPanel = MakePanel(WidgetTree, TEXT("StatusPanel"), FLinearColor(0.02f, 0.025f, 0.03f, 0.78f));
 	UVerticalBox* StatusStack = MakePanelStack(WidgetTree, StatusPanel, TEXT("StatusStack"));
 	PlayerStatusText = MakeHudText(WidgetTree, TEXT("PlayerStatusText"), FLinearColor(0.95f, 0.92f, 0.82f, 1.0f), 17.0f);
 	HealthBar = MakeBar(WidgetTree, TEXT("HealthBar"), FLinearColor(0.72f, 0.08f, 0.06f, 1.0f));
 	ManaBar = MakeBar(WidgetTree, TEXT("ManaBar"), FLinearColor(0.08f, 0.24f, 0.8f, 1.0f));
+	USizeBox* PlayerStatusEffectRow = MakeStatusEffectRow(
+		TEXT("PlayerStatusEffect"),
+		PlayerStatusEffectPanels,
+		PlayerStatusEffectIcons,
+		PlayerStatusEffectTexts);
 	AddStackChild(StatusStack, PlayerStatusText, 8.0f);
 	AddStackChild(StatusStack, MakeSizedWidget(WidgetTree, HealthBar, TEXT("HealthBarSize"), 260.0f, 14.0f), 5.0f);
-	AddStackChild(StatusStack, MakeSizedWidget(WidgetTree, ManaBar, TEXT("ManaBarSize"), 260.0f, 12.0f), 0.0f);
+	AddStackChild(StatusStack, MakeSizedWidget(WidgetTree, ManaBar, TEXT("ManaBarSize"), 260.0f, 12.0f), 5.0f);
+	AddStackChild(StatusStack, PlayerStatusEffectRow, 0.0f);
 
 	TargetPanel = MakePanel(WidgetTree, TEXT("TargetPanel"), FLinearColor(0.075f, 0.04f, 0.025f, 0.78f));
 	UVerticalBox* TargetStack = MakePanelStack(WidgetTree, TargetPanel, TEXT("TargetStack"));
 	TargetText = MakeHudText(WidgetTree, TEXT("TargetText"), FLinearColor(1.0f, 0.78f, 0.28f, 1.0f), 17.0f);
 	TargetRangeText = MakeHudText(WidgetTree, TEXT("TargetRangeText"), FLinearColor(0.82f, 0.86f, 0.92f, 1.0f), 13.0f);
 	TargetHealthBar = MakeBar(WidgetTree, TEXT("TargetHealthBar"), FLinearColor(0.86f, 0.12f, 0.08f, 1.0f));
+	USizeBox* TargetStatusEffectRow = MakeStatusEffectRow(
+		TEXT("TargetStatusEffect"),
+		TargetStatusEffectPanels,
+		TargetStatusEffectIcons,
+		TargetStatusEffectTexts);
 	AddStackChild(TargetStack, TargetText, 8.0f);
 	AddStackChild(TargetStack, TargetRangeText, 6.0f);
-	AddStackChild(TargetStack, MakeSizedWidget(WidgetTree, TargetHealthBar, TEXT("TargetHealthBarSize"), 260.0f, 12.0f), 0.0f);
+	AddStackChild(TargetStack, MakeSizedWidget(WidgetTree, TargetHealthBar, TEXT("TargetHealthBarSize"), 260.0f, 12.0f), 5.0f);
+	AddStackChild(TargetStack, TargetStatusEffectRow, 0.0f);
 
 	QuestPanel = MakePanel(WidgetTree, TEXT("QuestPanel"), FLinearColor(0.025f, 0.055f, 0.07f, 0.78f));
 	UVerticalBox* QuestStack = MakePanelStack(WidgetTree, QuestPanel, TEXT("QuestStack"));
@@ -1571,8 +1725,77 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	}
 }
 
+void UEmbermerePlayerHudWidget::RefreshStatusEffectRow(
+	const TArray<FEmbermereActiveStatusEffect>& Effects,
+	const TArray<TObjectPtr<UBorder>>& Panels,
+	const TArray<TObjectPtr<UImage>>& Icons,
+	const TArray<TObjectPtr<UTextBlock>>& Texts)
+{
+	for (int32 SlotIndex = 0; SlotIndex < Panels.Num(); ++SlotIndex)
+	{
+		UBorder* Panel = Panels[SlotIndex];
+		UImage* Icon = Icons.IsValidIndex(SlotIndex) ? Icons[SlotIndex] : nullptr;
+		UTextBlock* Text = Texts.IsValidIndex(SlotIndex) ? Texts[SlotIndex] : nullptr;
+		if (!Panel)
+		{
+			continue;
+		}
+
+		if (!Effects.IsValidIndex(SlotIndex))
+		{
+			Panel->SetVisibility(ESlateVisibility::Hidden);
+			SetIconImage(Icon, nullptr);
+			if (Text)
+			{
+				Text->SetText(FText::GetEmpty());
+			}
+			Panel->SetToolTipText(FText::GetEmpty());
+			continue;
+		}
+
+		const FEmbermereActiveStatusEffect& Effect = Effects[SlotIndex];
+		Panel->SetVisibility(ESlateVisibility::Visible);
+		Panel->SetBrushColor(
+			Effect.bBeneficial
+				? FLinearColor(0.045f, 0.13f, 0.075f, 0.94f)
+				: FLinearColor(0.18f, 0.045f, 0.035f, 0.94f));
+		Panel->SetToolTipText(FText::FromString(FString::Printf(
+			TEXT("%s\n%s\n%.1fs remaining"),
+			*Effect.Ability.DisplayName.ToString(),
+			*Effect.Ability.Description.ToString(),
+			Effect.RemainingSeconds)));
+		SetIconImage(Icon, ResolveAbilityIconForUi(Effect.Ability));
+		if (Icon)
+		{
+			Icon->SetColorAndOpacity(
+				Effect.bBeneficial
+					? FLinearColor(1.0f, 0.88f, 0.42f, 1.0f)
+					: FLinearColor(0.48f, 0.82f, 1.0f, 1.0f));
+		}
+		if (Text)
+		{
+			Text->SetText(BuildStatusEffectDisplayText(Effect));
+			Text->SetColorAndOpacity(FSlateColor(
+				Effect.bBeneficial
+					? FLinearColor(1.0f, 0.9f, 0.58f, 1.0f)
+					: FLinearColor(0.7f, 0.88f, 1.0f, 1.0f)));
+		}
+	}
+}
+
 void UEmbermerePlayerHudWidget::RefreshHudText()
 {
+	RefreshStatusEffectRow(
+		Stats ? Stats->GetActiveStatusEffects() : TArray<FEmbermereActiveStatusEffect>(),
+		PlayerStatusEffectPanels,
+		PlayerStatusEffectIcons,
+		PlayerStatusEffectTexts);
+	RefreshStatusEffectRow(
+		GetTargetStatusEffects(),
+		TargetStatusEffectPanels,
+		TargetStatusEffectIcons,
+		TargetStatusEffectTexts);
+
 	if (PlayerStatusText)
 	{
 		if (Stats)

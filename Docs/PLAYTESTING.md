@@ -76,17 +76,26 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 23. Press `1` again before the cooldown finishes and confirm the bottom-left log reports the ability ready time.
 24. Confirm the cooling hotbar icon and text dim together while the live countdown remains in the fixed two-line label area.
 25. As Warrior, press `4` for Battle Shout and confirm chat reports `+8 Attack
-    Power` for 10 seconds. After it expires, damage should return to baseline.
+    Power` for 10 seconds. Confirm one beneficial status cell appears beneath
+    player mana with the saved Battle Shout icon, name, live countdown, and
+    hover description. Reapply it after cooldown and confirm the same cell
+    refreshes instead of duplicating. After it expires, the cell should clear
+    and damage should return to baseline.
 26. As Cleric, press `3` for Ward and confirm chat reports `+10 Armor` for 10
-    seconds; incoming damage should be reduced during the ward.
+    seconds; incoming damage should be reduced during the ward and its
+    beneficial status cell should clear when the effect expires.
 27. As Ranger, press `2` for Snare and confirm it deals light damage, halves
     the target's movement for 6 seconds, and then restores normal movement.
+    The selected-target panel should show the Snare icon, name, harmful color,
+    live countdown, and hover description beneath target HP.
 28. As Ranger, press `4` for Nature's Focus and confirm the same shared timed
-    Attack Power contract as Battle Shout.
+    Attack Power and player-status contract as Battle Shout.
 29. As Wizard, press `2` for Frost Root and confirm it deals light damage,
-    stops target movement for 4 seconds, and then releases the target.
+    stops target movement for 4 seconds, shows the same generic target-status
+    treatment with Frost Root data, and then releases the target.
 30. Spend mana, press Wizard `4` for Meditate, and confirm exactly 18 missing
-    mana is restored without exceeding maximum mana.
+    mana is restored without exceeding maximum mana. Because it is
+    instantaneous, Meditate should not create a timed-status cell.
 31. Confirm combat, target, quest, XP, inventory, mouse, cooldown, utility
     effect, and death/recovery messages remain clipped as single-line rows
     inside the bottom-left chat/combat log.
@@ -124,6 +133,11 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Battle Shout and Nature's Focus post timed Attack Power feedback; Ward posts
   timed Armor feedback; Snare and Frost Root post movement-control feedback;
   Meditate reports actual mana restored.
+- Timed buffs appear in fixed cells beneath player mana, while Snare and Frost
+  Root appear in fixed cells beneath selected-target health. Each cell reuses
+  saved ability art and data for its name, countdown, and hover description;
+  duplicate applications refresh, and expiration/respawn/target clearing
+  removes stale presentation without moving neighboring HUD panels.
 - Enemies show red bottom-left combat log messages clipped inside the shaded chat panel when they melee the player.
 - Enemies leash and return home if pulled too far from their spawn area.
 - If the player dies, autorun turns off, a bottom-left death message appears, and the player respawns after a short delay with a brief damage-protection message.
@@ -140,8 +154,10 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - The hotbar has sixteen project-owned starter-ability illustrations, fixed
   art cells, synchronized cooldown dimming, accessible data-driven tooltips,
   and functional first-pass timed root, snare, buff, and mana-recovery rules.
-  It does not yet show persistent buff/debuff status icons or class-specific
-  VFX/audio.
+  Timed buffs and selected-target controls now have data-driven first-pass
+  status cells with live countdowns and hover descriptions. They still need
+  clean-restart visual acceptance and final fantasy styling, and there is no
+  class-specific VFX/audio yet.
 - Enemy movement and attacks are deliberately simple prototype behavior. The
   first solo-pull pass now uses three WorldStatic-cleared homes, a 525 cm aggro
   radius, visual-only pocket/marker collision, 6 damage, and a 2 second attack
@@ -155,8 +171,9 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
   mitigation, safe consumable depletion, and a real Marsh Tonic loot source. It
   now reuses resolved item art in drag and reward feedback and layers a
   project-owned paper-doll illustration beneath the unchanged slot controls.
-  That new decorative layer still needs clean-PIE visual acceptance; the next
-  phases are documented in `Docs/INVENTORY_INTERACTION_PLAN.md`.
+  The empty-state composition passed clean PIE on 2026-07-26; occupied-slot
+  contrast and the populated drag token in motion remain manual checks. The
+  next phases are documented in `Docs/INVENTORY_INTERACTION_PLAN.md`.
 - Nameplates use a native UMG widget component and target highlighting uses a dedicated emissive material on a flat animated 24-segment ring; a future decal/texture treatment can add runes and softer edges.
 - The bottom-left chat/combat log is clipped inside its shaded panel and currently uses single-line rows; final chat history, scrolling, and fantasy styling still need a proper UI pass.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.

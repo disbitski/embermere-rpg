@@ -3,12 +3,30 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Types/EmbermereItemTypes.h"
+#include "Types/EmbermereTypes.h"
 #include "EmbermereStatsComponent.generated.h"
+
+class UTexture2D;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEmbermereHealthChangedSignature, float, CurrentHealth, float, MaxHealth);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEmbermereManaChangedSignature, float, CurrentMana, float, MaxMana);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEmbermereXpChangedSignature, int32, CurrentExperience);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEmbermereDiedSignature);
+
+USTRUCT(BlueprintType)
+struct FEmbermereActiveStatusEffect
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Status Effect")
+	FEmbermereAbilityDefinition Ability;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Status Effect")
+	float RemainingSeconds = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Status Effect")
+	bool bBeneficial = true;
+};
 
 UCLASS(ClassGroup = (Embermere), meta = (BlueprintSpawnableComponent))
 class EMBERMERE_API UEmbermereStatsComponent : public UActorComponent
@@ -100,6 +118,12 @@ public:
 	bool GrantMovementSpeedMultiplier(float SpeedMultiplier, float DurationSeconds);
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats|Temporary Effects")
+	bool RegisterTimedStatusEffect(const FEmbermereAbilityDefinition& Ability, bool bBeneficial);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats|Temporary Effects")
+	TArray<FEmbermereActiveStatusEffect> GetActiveStatusEffects() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats|Temporary Effects")
 	void ClearTemporaryEffects();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats|Temporary Effects")
@@ -124,11 +148,20 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	struct FTimedStatusEffectRecord
+	{
+		FEmbermereAbilityDefinition Ability;
+		float EndTimeSeconds = -1.0f;
+		bool bBeneficial = true;
+	};
+
 	float DamageImmunityEndTimeSeconds = -1.0f;
 	float AttackPowerBuffEndTimeSeconds = -1.0f;
 	float ArmorBuffEndTimeSeconds = -1.0f;
 	float MovementSpeedEffectEndTimeSeconds = -1.0f;
+	TArray<FTimedStatusEffectRecord> ActiveStatusEffects;
 
 	bool IsTimedEffectActive(float EndTimeSeconds) const;
+	float GetEffectRemainingSeconds(float EndTimeSeconds) const;
 	float GetEffectEndTime(float DurationSeconds) const;
 };

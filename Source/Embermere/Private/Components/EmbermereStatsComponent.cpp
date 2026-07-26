@@ -177,6 +177,60 @@ bool UEmbermereStatsComponent::GrantMovementSpeedMultiplier(float SpeedMultiplie
 	return true;
 }
 
+bool UEmbermereStatsComponent::RegisterTimedStatusEffect(
+	const FEmbermereAbilityDefinition& Ability,
+	bool bBeneficial)
+{
+	if (Ability.AbilityId.IsNone() || Ability.DisplayName.IsEmpty() || Ability.Duration <= 0.0f)
+	{
+		return false;
+	}
+
+	ActiveStatusEffects.RemoveAll([this](const FTimedStatusEffectRecord& Record)
+	{
+		return !IsTimedEffectActive(Record.EndTimeSeconds);
+	});
+
+	const float NewEndTimeSeconds = GetEffectEndTime(Ability.Duration);
+	for (FTimedStatusEffectRecord& Record : ActiveStatusEffects)
+	{
+		if (Record.Ability.AbilityId != Ability.AbilityId)
+		{
+			continue;
+		}
+
+		Record.Ability = Ability;
+		Record.EndTimeSeconds = FMath::Max(Record.EndTimeSeconds, NewEndTimeSeconds);
+		Record.bBeneficial = bBeneficial;
+		return true;
+	}
+
+	FTimedStatusEffectRecord& NewRecord = ActiveStatusEffects.AddDefaulted_GetRef();
+	NewRecord.Ability = Ability;
+	NewRecord.EndTimeSeconds = NewEndTimeSeconds;
+	NewRecord.bBeneficial = bBeneficial;
+	return true;
+}
+
+TArray<FEmbermereActiveStatusEffect> UEmbermereStatsComponent::GetActiveStatusEffects() const
+{
+	TArray<FEmbermereActiveStatusEffect> Results;
+	for (const FTimedStatusEffectRecord& Record : ActiveStatusEffects)
+	{
+		const float RemainingSeconds = GetEffectRemainingSeconds(Record.EndTimeSeconds);
+		if (RemainingSeconds <= 0.0f)
+		{
+			continue;
+		}
+
+		FEmbermereActiveStatusEffect& Effect = Results.AddDefaulted_GetRef();
+		Effect.Ability = Record.Ability;
+		Effect.RemainingSeconds = RemainingSeconds;
+		Effect.bBeneficial = Record.bBeneficial;
+	}
+	return Results;
+}
+
 void UEmbermereStatsComponent::ClearTemporaryEffects()
 {
 	TemporaryAttackPowerBonus = 0.0f;
@@ -185,6 +239,7 @@ void UEmbermereStatsComponent::ClearTemporaryEffects()
 	AttackPowerBuffEndTimeSeconds = -1.0f;
 	ArmorBuffEndTimeSeconds = -1.0f;
 	MovementSpeedEffectEndTimeSeconds = -1.0f;
+	ActiveStatusEffects.Reset();
 }
 
 float UEmbermereStatsComponent::GetEffectiveAttackPower() const
@@ -250,17 +305,18 @@ void UEmbermereStatsComponent::ApplyEquipmentBonuses(const FEmbermereItemStatBon
 
 bool UEmbermereStatsComponent::IsTimedEffectActive(float EndTimeSeconds) const
 {
+	return GetEffectRemainingSeconds(EndTimeSeconds) > 0.0f;
+}
+
+float UEmbermereStatsComponent::GetEffectRemainingSeconds(float EndTimeSeconds) const
+{
 	if (EndTimeSeconds <= 0.0f)
 	{
-		return false;
+		return 0.0f;
 	}
 
-	if (const UWorld* World = GetWorld())
-	{
-		return World->GetTimeSeconds() < EndTimeSeconds;
-	}
-
-	return true;
+	const float CurrentTimeSeconds = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0f;
+	return FMath::Max(0.0f, EndTimeSeconds - CurrentTimeSeconds);
 }
 
 float UEmbermereStatsComponent::GetEffectEndTime(float DurationSeconds) const

@@ -109,9 +109,13 @@ item against the live inventory when the drop occurs and reject stale payloads.
 9. **Complete:** the equipment column now layers a restrained illustrated
    adventurer behind the existing ten-slot grid without changing slot bounds,
    labels, input, drag targets, or transaction rules.
-10. **Next:** clean-restart visual approval of the paper-doll, icon-bearing
-    drag/reward presentation, and populated-slot contrast; then continue with
-    bounded status/VFX presentation or the next item-action milestone.
+10. **Partial acceptance:** clean PIE on 2026-07-26 approved the centered
+    paper-doll beneath an empty ten-slot grid with no title, bonus, footer, or
+    hotbar movement. Recruit Pack occupied-slot contrast and the populated
+    icon-bearing drag token in motion remain clean-restart checks.
+11. **Next:** after those visual checks, continue with the next bounded item
+    action only when it can reuse the existing identity and atomic transaction
+    contracts.
 
 ## Verification
 
@@ -137,6 +141,7 @@ covers icon resolution, source dimensions, fallback paths, and fixed UI bounds.
 `Embermere.UI.PaperDollPresentation` covers the backdrop reference, persisted
 source dimensions, HUD resolver, and fixed presentation bounds. A clean-restart
 PIE pass still owns pointer threshold, cached-geometry hit testing, the visible
-Sort control, icon-bearing drag visual, reward-popup art, backdrop contrast,
-icon readability, hover feedback, cursor mode, and compact-viewport
-verification.
+Sort control, icon-bearing drag visual, reward-popup art, occupied backdrop
+contrast, icon readability, hover feedback, cursor mode, and compact-viewport
+verification. The empty backdrop composition passed that visual gate on
+2026-07-26.

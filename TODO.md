@@ -6,75 +6,66 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Restart Unreal if it predates the 2026-07-25 paper-doll presentation C++
-  build and saved `DA_EmbermereUiIconSet` update, then confirm the current
-  module/map and MCP listener on port `8123`.
+- Restart Unreal if it predates the 2026-07-26 timed-status presentation C++
+  build, then confirm the current module/map and MCP listener on port `8123`.
+  The editor used for the early paper-doll check was relinked underneath after
+  the new build, so clean-restart PIE is required before judging today's UI.
   Confirm Blender and its localhost bridge only when another original-art pass
   is selected.
-- Discover and run all 25 tests, especially
-  `Embermere.UI.PaperDollPresentation` and
-  `Embermere.Combat.StarterAbilityEffects`. The authoritative 2026-07-25
-  no-hot-reload build and headless run passed 25/25. UI-art, saved-map, and
-  road-boundary validators also pass with the saved `128x160` paper-doll
-  reference, ability semantics, 62 upright `FabPass_` actors, nine original-art
-  placements, exact daylight, and the collision-cleared starter layout.
-- Retain the accepted clean-PIE hotbar baseline: all four class palettes across
-  sixteen fixed `32x32` illustrations inside unchanged `92x64` slots, readable
-  key/name copy, stable empty and `F` Interact slots, data-driven tooltips, and
-  synchronized icon/text cooldown dimming with a two-line countdown.
-- Exercise the new utility effects through normal hotbar input:
-  - Warrior `Battle Shout` and Ranger `Nature's Focus` each grant `+8 Attack
-    Power` for 10 seconds;
-  - Cleric `Ward` grants `+10 Armor` for 10 seconds and mitigates damage;
-  - Ranger `Snare` deals light damage and halves enemy movement for 6 seconds;
-  - Wizard `Frost Root` deals light damage and stops enemy movement for 4
-    seconds;
-  - Wizard `Meditate` restores 18 missing mana.
-  Confirm chat feedback, cooldowns, natural expiration, baseline restoration,
-  and control-effect clearing when an enemy respawns.
-- In clean PIE, open the inventory and visually approve the new project-owned
-  icon family: fixed `18x18` bag/slot icons, the `42x42` detail icon, all ten
-  empty-slot symbols, Recruit Pack and Marsh Tonic art, occupied-slot item art,
-  readable text/tooltips, and no row, footer, panel, or hotbar layout shift. The
-  saved player-facing label is now `Recruit Pack`; confirm it fits both its row
-  and detail header without clipping or crowding `Equipment`. Confirm the new
-  illustrated armored-adventurer backdrop stays centered beneath the unchanged
-  ten-slot grid, never intercepts input, and remains readable without obscuring
-  empty or occupied slot art. Also check that an item without direct art uses
-  its category fallback.
-- Retain the accepted reward-popup and bag-to-Back flow, then physically inspect
-  the one state Slate cannot freeze: the populated fantasy drag token in
-  motion. It should retain fixed `236x62` bounds and show the resolved item
-  illustration in its `44x44` sigil cell. The accepted reward popup should
-  retain its fixed `32x32` item icon and readable text. Category-sigil and
-  missing-art fallbacks must remain readable when no texture resolves.
-- In clean PIE, retain the verified input baseline: `Q` advances the player and
-  independent `W` and `S` presses stop all later movement. Physically press
-  `Ctrl+M` and confirm inversion feedback; Slate's atomic chord cannot span the
-  controller's later `PlayerTick` poll, so MCP cannot prove that specific UI
-  message without changing the input implementation.
-- Complete the populated-inventory interaction check for Recruit Pack and Marsh
-  Tonic: readable item/context text, no panel or hotbar overlap, gold valid-drop
-  state, red wrong-slot state, unchanged click/keyboard fallbacks, and atomic
-  rollback. The icon-bearing drag-token automation contract already passes.
-- Recheck the accepted road threshold through `Embermere_RoadGate_01`, between
-  both boundary fences, and inside the two new rune-topped boundary stones.
-  Native validation already proves three clear center lanes plus solid gate,
-  fence, and end-stone collision. The two masking trees now sit in the south
-  foliage band without erasing the authored silhouette.
-- Walk normally to the Prowler homes at `(1900,300)`, `(1700,1100)`, and
-  `(2500,1300)`. Confirm each 525 cm pull stays solo, enemies cross visual-only
-  marker geometry, and the two idle Prowlers remain home. Tune leash/respawn
-  only when live feel exposes a concrete issue.
-- After visual acceptance, continue with the highest-value bounded slice: add
-  status icons or restrained class VFX for the functional timed effects, build
-  a compact original Blender village prop, or begin cohesive fantasy village
-  architecture when a suitable signed-in UE pack is available.
+- Discover and run all 26 tests, especially
+  `Embermere.UI.TimedStatusPresentation`,
+  `Embermere.UI.PaperDollPresentation`, and
+  `Embermere.Combat.StarterAbilityEffects`. The authoritative 2026-07-26
+  no-hot-reload build and fresh headless run passed 26/26. UI-art, saved-map,
+  and road-boundary validators also pass with the saved `128x160` paper-doll,
+  31 icon textures, 62 upright `FabPass_` actors, nine original-art placements,
+  exact daylight, and the collision-cleared starter layout.
+- In clean PIE, exercise the new data-driven timed-status rows:
+  - Warrior `Battle Shout`, Cleric `Ward`, and Ranger `Nature's Focus` should
+    appear beneath player mana with their existing ability art, name, live
+    countdown, beneficial color, and hover description;
+  - Ranger `Snare` and Wizard `Frost Root` should appear beneath the selected
+    target HP with harmful coloring and live countdown;
+  - reapplying the same effect must refresh one cell rather than duplicate it;
+  - expiration, enemy respawn, player respawn, target death, and target switch
+    must remove stale presentation;
+  - the two fixed `128x32` cells per row must not move player stats, target
+    stats, inventory, chat, or the hotbar.
+  `Meditate` remains an instantaneous mana recovery and should not create a
+  timed icon.
+- Retain the accepted utility semantics: Battle Shout and Nature's Focus grant
+  `+8 Attack Power` for 10 seconds; Ward grants `+10 Armor` for 10 seconds;
+  Snare deals light damage and applies `0.50x` movement for 6 seconds; Frost
+  Root deals light damage and applies `0.00x` movement for 4 seconds; Meditate
+  restores 18 missing mana. Confirm chat, cooldown, expiration, baseline
+  restoration, and respawn-safe clearing.
+- Reopen the `700x330` inventory empty and with Recruit Pack equipped. The
+  centered `128x160` armored-adventurer backdrop passed the 2026-07-26 empty
+  state visual check before relink; now accept occupied-slot contrast and
+  confirm it remains decorative, hit-test-invisible, and clear of the title,
+  bonuses, footer, hotbar, icons, labels, tooltips, click paths, and drag/drop.
+- Retain the accepted item-art and transaction baseline: fixed row/detail/slot
+  art, compact `Recruit Pack` copy, category fallback, icon-bearing reward
+  popup, fixed `236x62` fantasy drag token, gold/red drop feedback, Sort,
+  click/keyboard fallbacks, and atomic full-bag rollback. Physically inspect the
+  populated Recruit Pack and Marsh Tonic drag tokens in motion.
+- Retain `Q` autorun plus independent `W` and `S` cancellation. Physically press
+  `Ctrl+M` and confirm inversion feedback because Slate's atomic chord cannot
+  span the controller's later `PlayerTick` poll.
+- Walk the accepted road threshold and Prowler route. Preserve three clear gate
+  lanes, solid gate/fence/end-stone collision, 62 upright Fab actors, nine
+  original placements, and solo `525` cm pulls from homes at `(1900,300)`,
+  `(1700,1100)`, and `(2500,1300)`.
+- After visual acceptance, take the highest-value bounded slice: add restrained
+  class/status VFX without coupling presentation to effect rules, build a
+  compact original Blender village prop, begin cohesive signed-in Stylized
+  Classic fantasy architecture, or tune a concrete combat/respawn issue
+  exposed by the normal route.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-07-25
-  paper-doll build. Current headless code passes all 25 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-07-26
+  timed-status build. Current headless code passes all 26 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -129,6 +120,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.UI.InventoryToggle`
   - `Embermere.UI.ItemComparison`
   - `Embermere.UI.PaperDollPresentation`
+  - `Embermere.UI.TimedStatusPresentation`
 - Manually verify the styled first-pass HUD in PIE:
   - player HP, mana, XP, health bar, and mana bar are visible;
   - target panel appears after `Tab` and shows target HP plus range state;
@@ -225,14 +217,39 @@ Embermere has a working first-pass starter slice:
   soft references, accessible stat/description tooltips, and missing-art
   fallback;
 - first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
-- a project-owned Blender waystone, ember-lamp, road-signpost, road-gate, and boundary-fence family with reviewed scripts, editable source, FBX, previews, authored collision, and seven validated saved placements;
+- a project-owned Blender waystone, ember-lamp, road-signpost, road-gate,
+  boundary-fence, and boundary-stone family with reviewed scripts, editable
+  source, FBX, previews, authored collision, and nine validated saved
+  placements;
 - a project-owned fantasy inventory drag token with category sigils, contextual item text, and fixed bounds;
 - first Mac-friendly sky, ambient fill, fog-readability correction, and muted moss foundation material;
-- automation coverage for the race/class matrix, quest completion rewards, selected-target presentation, dead-caster rejection, starter ability effects, enemy leash and loot rules, equipment slot/stat/transaction rules, atomic inventory capacity, consumable use, item comparison/tooltips, identity-based inventory and drag/drop actions, autorun cancellation, damage immunity, enemy nameplate widget, chat log, hotbar cooldown display, item/slot icon presentation, ability icon presentation, and inventory toggle.
+- automation coverage for the race/class matrix, quest completion rewards,
+  selected-target presentation, dead-caster rejection, starter ability effects,
+  timed-status presentation, enemy leash and loot rules, equipment
+  slot/stat/transaction rules, atomic inventory capacity, consumable use, item
+  comparison/tooltips, identity-based inventory and drag/drop actions, autorun
+  cancellation, damage immunity, enemy nameplate widget, chat log, hotbar
+  cooldown display, item/slot/ability/paper-doll presentation, and inventory
+  toggle.
 
 ## How Far We Have To Go
 
-The prototype foundation is alive, but it is still early. The environment is upright, spawn-safe, and readable, while inventory/equipment now has clickable and draggable gear, project-owned drag/icon/paper-doll presentation, stable explicit sorting, hover inspection, item comparison, and lossless transactional RPG rules rather than display-only state. Starter combat feeds inventory through Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE has verified the full quest, a real bag-to-Back drag, the icon-bearing reward popup, all four hotbar palettes, timed root/snare/buff/mana-recovery behavior, identity-preserving Sort, solo Prowler pulls, collision-cleared encounter markers, targeting, the original-art road family, and transform-proven `W`/`S` autorun cancellation. The new paper-doll backdrop, populated drag token while in motion, and physical `Ctrl+M` feedback remain honest physical-eye checks. The world remains stylistically mixed without real fantasy village buildings, final character art, ability VFX, audio, or visible timed-status indicators.
+The prototype foundation is alive, but it is still early. The environment is
+upright, spawn-safe, and readable, while inventory/equipment now has clickable
+and draggable gear, project-owned drag/icon/paper-doll presentation, stable
+sorting, hover inspection, item comparison, and lossless transactional RPG
+rules rather than display-only state. Starter combat feeds inventory through
+Marsh Tonic drops, closing the first damage-loot-recovery loop. Clean PIE has
+verified the full quest, a real bag-to-Back drag, the icon-bearing reward
+popup, all four hotbar palettes, timed root/snare/buff/mana-recovery behavior,
+identity-preserving Sort, solo Prowler pulls, collision-cleared encounter
+markers, targeting, the original-art road family, transform-proven `W`/`S`
+autorun cancellation, and the empty-state paper-doll composition. Data-driven
+player and target status rows now make timed effects inspectable, but their
+clean-restart visual acceptance, the populated drag token in motion, occupied
+paper-doll contrast, and physical `Ctrl+M` feedback remain honest physical-eye
+checks. The world remains stylistically mixed without real fantasy village
+buildings, final character art, class VFX, or audio.
 
 ## Next Work
 
@@ -258,8 +275,10 @@ The prototype foundation is alive, but it is still early. The environment is upr
     tooltips, and cooldown dimming/countdown without layout shift;
   - play each timed effect through normal input and judge duration, feedback,
     damage cadence, and enemy recovery from the player's perspective;
-  - consider bounded buff/control status indicators and class-appropriate VFX
-    without coupling gameplay rules to presentation assets.
+  - visually accept the new fixed player/target status rows, live countdowns,
+    hover descriptions, duplicate prevention, and clearing rules;
+  - add restrained class-appropriate VFX without coupling gameplay rules to
+    presentation assets.
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
   - continue tuning chat panel height/line count against the hotbar and common desktop viewport sizes.
@@ -279,8 +298,9 @@ The prototype foundation is alive, but it is still early. The environment is upr
   return-home speed, damage, and respawn timing only from normal-route PIE.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
-- After clean-PIE acceptance of the paper-doll backdrop, add bounded status
-  indicators or class VFX without coupling gameplay effects to presentation.
+- After clean-PIE acceptance of timed-status and occupied paper-doll
+  presentation, add restrained class VFX without coupling gameplay effects to
+  presentation.
 
 ## Last Completed
 
@@ -659,6 +679,28 @@ The prototype foundation is alive, but it is still early. The environment is upr
   placements; native traces retained all three clear gate lanes and required
   solid boundary collision. The running GUI editor still holds the prior
   module, so backdrop contrast and fit remain the next clean-restart PIE gate.
+- 2026-07-26: accepted the centered paper-doll backdrop in clean PIE with an
+  empty equipment grid; it remained readable beneath all ten fixed controls
+  without moving the title, bonuses, footer, inventory, or hotbar.
+- Added source-ability-backed timed-status snapshots to stats and registered
+  them only after generic buff/control rules succeed. Player and selected-target
+  HUD rows now render existing ability art, names, live countdowns, beneficial
+  or harmful color, and hover descriptions without hard-coded class or ability
+  IDs.
+- Duplicate effect registration refreshes one record, world-time expiration
+  removes it, and existing vital-reset/respawn paths clear both gameplay state
+  and presentation metadata. Meditate remains instantaneous and creates no
+  timed record.
+- Added `Embermere.UI.TimedStatusPresentation`. The authoritative
+  no-hot-reload build succeeded and fresh headless automation passed 26/26.
+  UI-art, saved-map, and native road-boundary validators retained explicit
+  success markers with no Python errors.
+- The interactive editor now predates the final July 26 link. Clean-restart PIE
+  still owns visual acceptance of the new status rows and the paper doll with
+  Recruit Pack equipped.
+- Refreshed the daily heartbeat to begin from this 26-test baseline and move
+  next into clean-PIE status acceptance, restrained VFX, original village art,
+  or concrete live combat tuning.
 
 ## Asset Hunt
 

@@ -463,3 +463,30 @@ For MCP input checks:
 With refreshed focus, `Q` moved the Embermere pawn and independent `W` and `S`
 checks each held an identical transform for a full second. Tool success means
 the event was sent; state measurement proves the game received it.
+
+## Register Presentation Metadata After Gameplay Succeeds
+
+Timed-status UI should not rediscover combat rules by switching on ability
+names, nor should it start a second timer that can drift from gameplay. In
+Embermere, the combat component first asks the stats component to apply the
+generic buff or movement effect. Only after that operation succeeds does it
+register the source `FEmbermereAbilityDefinition` as presentation metadata.
+
+The stats component then exposes read-only snapshots containing source ability
+data, remaining world time, and beneficial/harmful intent. The HUD consumes
+those snapshots to resolve existing icons, names, descriptions, colors, and
+countdowns. Reapplication refreshes one record by stable ability ID, while
+expiration and the existing vital-reset path clear both mechanics and
+presentation.
+
+This ordering creates three useful gates:
+
+- failed gameplay never produces a lying status icon;
+- UI remains data-driven and cannot change effect power, duration, or movement;
+- future VFX can subscribe to the same successful-effect metadata without
+  becoming another gameplay authority.
+
+Test the source ability ID, duplicate behavior, countdown, fixed layout bounds,
+and respawn-style clearing at the object level. Then use clean PIE to judge
+contrast, hover behavior, neighboring-panel stability, and whether a real
+player can understand the status at a glance.

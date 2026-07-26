@@ -267,6 +267,104 @@ bool FEmbermereStarterAbilityEffectsTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereTimedStatusPresentationTest,
+	"Embermere.UI.TimedStatusPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereTimedStatusPresentationTest::RunTest(const FString& Parameters)
+{
+	const UEmbermereRulesData* Rules = LoadObject<UEmbermereRulesData>(
+		nullptr,
+		TEXT("/Game/Data/DA_EmbermereRules.DA_EmbermereRules"));
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	AEmbermereEnemyCharacter* Enemy = NewObject<AEmbermereEnemyCharacter>();
+	UEmbermerePlayerHudWidget* HudWidget = NewObject<UEmbermerePlayerHudWidget>();
+	TestNotNull(TEXT("Saved rules resolve for timed statuses"), Rules);
+	TestNotNull(TEXT("Character can be created for timed statuses"), Character);
+	TestNotNull(TEXT("Enemy can be created for timed statuses"), Enemy);
+	TestNotNull(TEXT("HUD can be created for timed statuses"), HudWidget);
+	if (!Rules || !Character || !Enemy || !HudWidget ||
+		!Character->Combat || !Character->Stats || !Enemy->Stats)
+	{
+		return false;
+	}
+
+	FEmbermereAbilityDefinition BattleShout;
+	FEmbermereAbilityDefinition Snare;
+	TestTrue(
+		TEXT("Battle Shout resolves for timed status presentation"),
+		Rules->GetAbilityDefinition("BattleShout", BattleShout));
+	TestTrue(
+		TEXT("Snare resolves for timed status presentation"),
+		Rules->GetAbilityDefinition("Snare", Snare));
+
+	Character->Stats->InitializeVitals();
+	HudWidget->BindToCharacter(Character);
+	TestTrue(TEXT("Battle Shout activates for timed status presentation"), Character->Combat->ExecuteAbility(BattleShout));
+	const TArray<FEmbermereActiveStatusEffect> PlayerEffects = Character->Stats->GetActiveStatusEffects();
+	TestEqual(TEXT("Battle Shout creates one active player status"), PlayerEffects.Num(), 1);
+	if (PlayerEffects.IsValidIndex(0))
+	{
+		TestEqual(TEXT("Player status preserves the source ability"), PlayerEffects[0].Ability.AbilityId, FName("BattleShout"));
+		TestTrue(TEXT("Battle Shout status is beneficial"), PlayerEffects[0].bBeneficial);
+		TestTrue(TEXT("Battle Shout status preserves its saved icon"), !PlayerEffects[0].Ability.Icon.IsNull());
+		TestTrue(
+			TEXT("Battle Shout status exposes a live countdown"),
+			PlayerEffects[0].RemainingSeconds > 9.0f && PlayerEffects[0].RemainingSeconds <= 10.0f);
+	}
+	TestEqual(TEXT("HUD sees one player status"), HudWidget->GetPlayerStatusEffectCount(), 1);
+	TestTrue(
+		TEXT("Player status copy includes ability name and countdown"),
+		HudWidget->GetPlayerStatusEffectDisplayText(0).ToString().Contains(TEXT("Battle Shout")) &&
+			HudWidget->GetPlayerStatusEffectDisplayText(0).ToString().Contains(TEXT("10s")));
+	TestTrue(
+		TEXT("Reapplying a status refreshes its existing record"),
+		Character->Stats->RegisterTimedStatusEffect(BattleShout, true));
+	TestEqual(
+		TEXT("Reapplying a status does not duplicate its presentation"),
+		Character->Stats->GetActiveStatusEffects().Num(),
+		1);
+
+	Enemy->Stats->InitializeVitals();
+	Character->Combat->SetTarget(Enemy);
+	TestTrue(TEXT("Snare activates for target status presentation"), Character->Combat->ExecuteAbility(Snare));
+	const TArray<FEmbermereActiveStatusEffect> TargetEffects = Enemy->Stats->GetActiveStatusEffects();
+	TestEqual(TEXT("Snare creates one active target status"), TargetEffects.Num(), 1);
+	if (TargetEffects.IsValidIndex(0))
+	{
+		TestEqual(TEXT("Target status preserves the source ability"), TargetEffects[0].Ability.AbilityId, FName("Snare"));
+		TestFalse(TEXT("Snare status is harmful"), TargetEffects[0].bBeneficial);
+		TestTrue(
+			TEXT("Snare status exposes a live countdown"),
+			TargetEffects[0].RemainingSeconds > 5.0f && TargetEffects[0].RemainingSeconds <= 6.0f);
+	}
+	TestEqual(TEXT("HUD sees one target status"), HudWidget->GetTargetStatusEffectCount(), 1);
+	TestTrue(
+		TEXT("Target status copy includes ability name and countdown"),
+		HudWidget->GetTargetStatusEffectDisplayText(0).ToString().Contains(TEXT("Snare")) &&
+			HudWidget->GetTargetStatusEffectDisplayText(0).ToString().Contains(TEXT("6s")));
+	Character->Combat->SetTarget(nullptr);
+	TestEqual(TEXT("Clearing the target hides target statuses immediately"), HudWidget->GetTargetStatusEffectCount(), 0);
+	Character->Combat->SetTarget(Enemy);
+	TestEqual(TEXT("Retargeting restores the active target status"), HudWidget->GetTargetStatusEffectCount(), 1);
+
+	TestEqual(
+		TEXT("Status icon dimensions stay fixed"),
+		HudWidget->GetStatusEffectIconDimensions(),
+		FVector2D(22.0f, 22.0f));
+	TestEqual(
+		TEXT("Status slot dimensions stay fixed"),
+		HudWidget->GetStatusEffectSlotDimensions(),
+		FVector2D(128.0f, 32.0f));
+
+	Character->Stats->ClearTemporaryEffects();
+	Enemy->Stats->InitializeVitals();
+	TestEqual(TEXT("Clearing player effects clears presentation snapshots"), HudWidget->GetPlayerStatusEffectCount(), 0);
+	TestEqual(TEXT("Respawn-style initialization clears target presentation snapshots"), HudWidget->GetTargetStatusEffectCount(), 0);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereCombatDeadCasterRejectedTest,
 	"Embermere.Combat.DeadCasterRejected",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
