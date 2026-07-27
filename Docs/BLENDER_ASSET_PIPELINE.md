@@ -469,6 +469,43 @@ Verified result:
   traces proved both stone cores solid while all three gate lanes remained
   clear.
 
+## Seventh Asset: Supply Chest
+
+`SM_EmbermereSupplyChest_01` replaces a temporary vendor crate stack with a
+compact village prop in the established stone, moss, timber, iron, and ember
+language. A low plank body, domed half-elliptical lid, iron bands and corners,
+stone feet, ember lock, and three irregular moss patches give it a readable
+front without introducing a one-off material family.
+
+The reviewed build script is
+`Scripts/blender/build_embermere_supply_chest.py`; editable source, FBX,
+preview, and deterministic metrics live under
+`ArtSource/Blender/Environment/SupplyChest`. The explicit classic-FBX import,
+replacement, placement, and validation lane is
+`Scripts/import_embermere_supply_chest_unreal.py`.
+
+Verified result:
+
+- dimensions: `180.0 x 119.0 x 123.1` cm with a ground pivot;
+- Blender and Unreal render mesh: 2,364 triangles, one UV channel, no
+  non-manifold edges, and applied scale;
+- materials: the same five timber, stone, iron, ember, and moss assets used by
+  the road-boundary family;
+- collision: two retained `UBX_` boxes cover the chest body and lid;
+- saved actor: `Embermere_SupplyChest_Vendor_01` at
+  `(-1545, -920, 20)`, yaw `108`, tagged `EmbermereOriginalArt`;
+- replacement: removes `FabPass_Village_Crates_A`, leaving 61 local Fab actors
+  and ten project-owned placements;
+- verification: the Blender preview, Unreal asset thumbnail, and PlayerStart
+  approach were inspected; saved-map validation locks classic-FBX provenance,
+  exact bounds/materials/collision/tag/transform, and a native trace in the
+  initialized live editor proved the lid solid.
+
+The first technically valid placement presented the chest poorly from the
+normal route. Yaw was therefore treated as an acceptance property, not merely
+a valid transform: `108` exposes the lock and plank face to the PlayerStart
+approach while preserving vendor-table and Mara-route clearance.
+
 ## What To Build First
 
 Good early Blender assets:

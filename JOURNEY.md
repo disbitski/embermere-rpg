@@ -1301,6 +1301,59 @@ Pipeline lesson:
   contract stays authoritative while icons, colors, layout, and future VFX
   remain replaceable.
 
+## 2026-07-27 - Status Acceptance And A Village Supply Chest
+
+The timed-effect system crossed its human acceptance gate, and the original-art
+lane moved from roadside infrastructure into the village itself.
+
+Live acceptance:
+
+- Clean PIE showed Battle Shout beneath player mana with its saved icon,
+  beneficial treatment, name, live countdown, and fixed footprint.
+- Ranger Snare appeared beneath selected-target health with harmful treatment
+  and the same data-driven layout. Neighboring HUD panels did not move.
+- Meditate remained instantaneous with no false status cell. Focused automation
+  retains duplicate refresh, expiration, respawn, death, and target-switch
+  clearing.
+- Recruit Pack was added and equipped through the real inventory/equipment
+  components. The gold occupied Back slot, `105/105` HP, empty post-transfer
+  bag, and illustrated paper doll all remained readable inside the unchanged
+  `700x330` window.
+
+Original village art:
+
+- Added `SM_EmbermereSupplyChest_01` through the reviewed Blender script,
+  FBX, classic `FbxFactory`, package-save, map-placement, and validation lane.
+- The chest is 2,364 triangles, `180.0 x 119.0 x 123.1` cm, one UV channel,
+  five shared Embermere materials, and two authored body/lid `UBX_` boxes.
+- Its saved actor replaces `FabPass_Village_Crates_A` beside the vendor table,
+  bringing the map to 61 upright local Fab actors and ten original-art
+  placements.
+- The first technically valid yaw hid the lock from the normal approach.
+  Inspecting from PlayerStart led to the accepted yaw `108`, which exposes the
+  lock and timber face while leaving Mara's route clear.
+- A live native trace hit the authored lid collision at the expected height.
+  Saved-map validation now locks classic-FBX provenance, bounds, materials,
+  collider count, tag, transform, and removal of the old crate stack.
+
+Verification:
+
+- The authoritative no-hot-reload Mac editor build succeeded.
+- Fresh commandlet automation discovered and passed all 26 tests with zero
+  failures, skipped tests, or warnings.
+- Fresh UI-art and saved-map validators emitted explicit success markers with
+  no Python errors.
+- A commandlet-loaded world did not register even known gate collision bodies,
+  while the same traces passed in the initialized live editor. Static package
+  contracts therefore remain fresh-process checks; native physics behavior is
+  verified in a live initialized world.
+
+Pipeline lesson:
+
+- Technical validity makes an asset eligible, not accepted. Route-facing
+  readability, physical behavior, and visual belonging still require the real
+  world, the real camera, and human judgment.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

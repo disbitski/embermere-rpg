@@ -5,8 +5,8 @@ import unreal
 
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
-EXPECTED_FABPASS_COUNT = 62
-EXPECTED_ORIGINAL_ART_COUNT = 9
+EXPECTED_FABPASS_COUNT = 61
+EXPECTED_ORIGINAL_ART_COUNT = 10
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -32,6 +32,10 @@ ORIGINAL_BOUNDARY_STONES = {
     "Embermere_BoundaryStone_GateSouth_01": ((1274.951, 4.375, 20.0), 20.0),
     "Embermere_BoundaryStone_GateNorth_01": ((885.049, 1075.625, 20.0), 20.0),
 }
+ORIGINAL_SUPPLY_CHEST_LABEL = "Embermere_SupplyChest_Vendor_01"
+ORIGINAL_SUPPLY_CHEST_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereSupplyChest_01.SM_EmbermereSupplyChest_01"
+ORIGINAL_SUPPLY_CHEST_LOCATION = (-1545.0, -920.0, 20.0)
+ORIGINAL_SUPPLY_CHEST_YAW = 108.0
 COMPOSITION_FOLIAGE = {
     "FabPass_Road_Pine_05": ((600.0, -500.0, 20.0), -35.0, 0.48),
     "FabPass_Wild_Tree_South_01": ((1600.0, -400.0, 20.0), 15.0, 0.5),
@@ -79,6 +83,7 @@ REQUIRED_LABELS = {
     ORIGINAL_WAYSTONE_LABEL,
     ORIGINAL_SIGNPOST_LABEL,
     ORIGINAL_GATE_LABEL,
+    ORIGINAL_SUPPLY_CHEST_LABEL,
 } | set(ORIGINAL_EMBER_LAMPS) | set(ORIGINAL_FENCES) | set(ORIGINAL_BOUNDARY_STONES) | set(COMPOSITION_FOLIAGE)
 
 REMOVED_GREYBOX_LABELS = {
@@ -96,6 +101,7 @@ REMOVED_GREYBOX_LABELS = {
     "Ruin_Fallen_Stone",
     "FabPass_Village_Lamp_Mara",
     "FabPass_Village_Lamp_Road",
+    "FabPass_Village_Crates_A",
 }
 
 
@@ -468,6 +474,99 @@ def main():
             ))
         if unreal.Name("EmbermereOriginalArt") not in list(boundary_stone.tags):
             fail("{} must retain the EmbermereOriginalArt tag".format(label))
+
+    supply_chest_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_SUPPLY_CHEST_PATH)
+    if not supply_chest_mesh or not isinstance(supply_chest_mesh, unreal.StaticMesh):
+        fail("missing original supply chest mesh {}".format(ORIGINAL_SUPPLY_CHEST_PATH))
+    supply_chest_import_data = supply_chest_mesh.get_editor_property("asset_import_data")
+    supply_chest_import_class = (
+        supply_chest_import_data.get_class().get_name()
+        if supply_chest_import_data
+        else "None"
+    )
+    if supply_chest_import_class != "FbxStaticMeshImportData":
+        fail("original supply chest must retain classic FBX import data, found {}".format(
+            supply_chest_import_class,
+        ))
+    supply_chest_body_setup = supply_chest_mesh.get_editor_property("body_setup")
+    supply_chest_aggregate = (
+        supply_chest_body_setup.get_editor_property("agg_geom")
+        if supply_chest_body_setup
+        else None
+    )
+    supply_chest_box_count = (
+        len(supply_chest_aggregate.get_editor_property("box_elems"))
+        if supply_chest_aggregate
+        else 0
+    )
+    if supply_chest_box_count != 2:
+        fail("original supply chest must retain 2 authored box colliders, found {}".format(
+            supply_chest_box_count,
+        ))
+    supply_chest_bounds = supply_chest_mesh.get_bounds()
+    if not all((
+        nearly_equal(supply_chest_bounds.origin.x, 0.0, 1.0),
+        nearly_equal(supply_chest_bounds.origin.y, 5.5, 1.0),
+        nearly_equal(supply_chest_bounds.origin.z, 61.55, 2.0),
+        nearly_equal(supply_chest_bounds.box_extent.x, 90.0, 2.0),
+        nearly_equal(supply_chest_bounds.box_extent.y, 59.5, 2.0),
+        nearly_equal(supply_chest_bounds.box_extent.z, 61.55, 2.0),
+    )):
+        fail("original supply chest bounds drifted: origin={}, extent={}".format(
+            supply_chest_bounds.origin,
+            supply_chest_bounds.box_extent,
+        ))
+    if supply_chest_mesh.get_num_triangles(0) != 2364:
+        fail("original supply chest triangle count drifted: {}".format(
+            supply_chest_mesh.get_num_triangles(0),
+        ))
+    supply_chest_material_paths = set()
+    for static_material in list(supply_chest_mesh.get_editor_property("static_materials")):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            supply_chest_material_paths.add(material.get_path_name())
+    if supply_chest_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("original supply chest material set drifted: {}".format(
+            sorted(supply_chest_material_paths),
+        ))
+
+    supply_chest = actors_by_label[ORIGINAL_SUPPLY_CHEST_LABEL]
+    supply_chest_component = supply_chest.get_component_by_class(unreal.StaticMeshComponent)
+    actor_supply_chest_mesh = (
+        supply_chest_component.get_editor_property("static_mesh")
+        if supply_chest_component
+        else None
+    )
+    actor_supply_chest_path = (
+        actor_supply_chest_mesh.get_path_name()
+        if actor_supply_chest_mesh
+        else "None"
+    )
+    if actor_supply_chest_path != ORIGINAL_SUPPLY_CHEST_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_SUPPLY_CHEST_LABEL,
+            ORIGINAL_SUPPLY_CHEST_PATH,
+            actor_supply_chest_path,
+        ))
+    supply_chest_location = supply_chest.get_actor_location()
+    supply_chest_rotation = supply_chest.get_actor_rotation()
+    if not all((
+        nearly_equal(supply_chest_location.x, ORIGINAL_SUPPLY_CHEST_LOCATION[0], 1.0),
+        nearly_equal(supply_chest_location.y, ORIGINAL_SUPPLY_CHEST_LOCATION[1], 1.0),
+        nearly_equal(supply_chest_location.z, ORIGINAL_SUPPLY_CHEST_LOCATION[2], 1.0),
+        nearly_equal(supply_chest_rotation.pitch, 0.0, 0.1),
+        nearly_equal(supply_chest_rotation.yaw, ORIGINAL_SUPPLY_CHEST_YAW, 0.1),
+        nearly_equal(supply_chest_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            ORIGINAL_SUPPLY_CHEST_LABEL,
+            supply_chest_location,
+            supply_chest_rotation,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(supply_chest.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_SUPPLY_CHEST_LABEL,
+        ))
 
     for label, (expected_location, expected_yaw, expected_scale) in COMPOSITION_FOLIAGE.items():
         foliage = actors_by_label[label]

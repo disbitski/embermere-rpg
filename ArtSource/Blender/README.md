@@ -19,5 +19,6 @@ recorded in the asset's brief.
 
 The current original roadside family includes the waystone, two placed ember
 lamps, timber road signpost, traversable gate, two low fences, and two
-rune-topped end stones. See `Docs/BLENDER_ASSET_PIPELINE.md` for setup,
-security settings, naming, import provenance, and validation.
+rune-topped end stones. The village-prop lane now also includes one placed
+supply chest. See `Docs/BLENDER_ASSET_PIPELINE.md` for setup, security
+settings, naming, import provenance, and validation.

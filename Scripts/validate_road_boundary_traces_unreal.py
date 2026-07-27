@@ -50,7 +50,7 @@ def trace_local_x(world, center, local_y, z, half_length):
         start,
         end,
         unreal.TraceTypeQuery.ECC_VISIBILITY,
-        True,
+        False,
         [],
         unreal.DrawDebugTrace.NONE,
         True,
@@ -76,6 +76,24 @@ def require_clear(world, description, center, local_y, z, half_length):
 
 def require_hit(world, description, expected_label, center, local_y, z, half_length):
     result = trace_local_x(world, center, local_y, z, half_length)
+    if not result:
+        fail("{} should block but the trace was clear".format(description))
+    actual_label = actor_label(hit_actor(result))
+    if actual_label != expected_label:
+        fail("{} should hit {}, found {}".format(description, expected_label, actual_label))
+
+
+def require_vertical_hit(world, description, expected_label, x, y, start_z, end_z):
+    result = unreal.SystemLibrary.line_trace_single(
+        world,
+        unreal.Vector(x, y, start_z),
+        unreal.Vector(x, y, end_z),
+        unreal.TraceTypeQuery.ECC_VISIBILITY,
+        False,
+        [],
+        unreal.DrawDebugTrace.NONE,
+        True,
+    )
     if not result:
         fail("{} should block but the trace was clear".format(description))
     actual_label = actor_label(hit_actor(result))
@@ -135,8 +153,18 @@ def main():
             90.0,
         )
 
+    require_vertical_hit(
+        world,
+        "village supply chest lid",
+        "Embermere_SupplyChest_Vendor_01",
+        -1545.0,
+        -920.0,
+        250.0,
+        -50.0,
+    )
+
     unreal.log(
-        "Embermere road boundary traces passed: 3 clear gate lanes, 1 solid gate support, 2 solid fence centers, and 2 solid boundary stones"
+        "Embermere road boundary traces passed: 3 clear gate lanes, 1 solid gate support, 2 solid fence centers, 2 solid boundary stones, and 1 solid supply chest"
     )
 
 

@@ -490,3 +490,54 @@ Test the source ability ID, duplicate behavior, countdown, fixed layout bounds,
 and respawn-style clearing at the object level. Then use clean PIE to judge
 contrast, hover behavior, neighboring-panel stability, and whether a real
 player can understand the status at a glance.
+
+## Use Unreal Key Names And Paired Input Commands For Bounded PIE Probes
+
+Synthetic key helpers do not all speak the same naming language. Slate accepted
+`Four`, not the display label `4`, and a successful one-shot call still did not
+prove that Embermere's later controller poll observed the intended state. For
+repeatable hotbar probes, the editor console route was more reliable:
+
+```text
+Input.+Key Four
+Input.-Key Four
+```
+
+Always release the key, refresh viewport focus before the next measured action,
+and prove gameplay state through stats, transforms, logs, or visible UI. The
+`slomo` command is useful for presentation inspection: speed up only long
+cooldowns, restore normal time, then slow the world briefly to hold a status
+row for a screenshot. Never leave altered time dilation or a pressed synthetic
+key behind after the bounded check.
+
+## Headless Map Loading Does Not Guarantee Registered Collision Bodies
+
+Fresh commandlets are authoritative for persisted packages, object properties,
+mesh bounds, materials, tags, transforms, and authored collision-element
+counts. They are not automatically authoritative for world physics. A July 27
+commandlet loaded the correct road-boundary map and assets but native line
+traces missed even the known gate support because the headless editor world had
+not registered its collision bodies. The same ray hit at the expected height in
+the initialized live editor, and the full live trace validator passed.
+
+Split the contract deliberately:
+
+- use fresh-process validators for durable package and saved-map assertions;
+- use an initialized editor or PIE world for native overlap and trace behavior;
+- require each validator's explicit success marker and reject
+  `LogPython: Error`, regardless of process exit status;
+- treat a headless physics miss as a diagnostic to investigate, never as proof
+  that saved collision is absent or present.
+
+## A Prop's Front Is Part Of Its Placement Contract
+
+Asset thumbnails and isolated Blender previews cannot establish how a prop
+reads from the player's normal route. The supply chest imported cleanly and
+passed every technical gate, yet its first valid yaw hid the lock and strongest
+plank silhouette from PlayerStart. Inspect route-facing props from the actual
+approach, then lock the accepted transform in the saved-map validator.
+
+For interactable-looking or directional props, validate both kinds of truth:
+technical eligibility covers mesh, materials, collision, persistence, and exact
+transform; world acceptance covers front-facing readability, terrain contact,
+route clearance, scale, and visual belonging.

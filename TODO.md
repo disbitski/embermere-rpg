@@ -6,21 +6,20 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Restart Unreal if it predates the 2026-07-26 timed-status presentation C++
-  build, then confirm the current module/map and MCP listener on port `8123`.
-  The editor used for the early paper-doll check was relinked underneath after
-  the new build, so clean-restart PIE is required before judging today's UI.
-  Confirm Blender and its localhost bridge only when another original-art pass
-  is selected.
+- Confirm Unreal is running the current 2026-07-27 module and saved supply-chest
+  map with MCP on port `8123`; restart only if the editor predates that work or
+  test discovery proves stale. Confirm Blender and its localhost bridge only
+  when another original-art pass is selected.
 - Discover and run all 26 tests, especially
   `Embermere.UI.TimedStatusPresentation`,
   `Embermere.UI.PaperDollPresentation`, and
-  `Embermere.Combat.StarterAbilityEffects`. The authoritative 2026-07-26
-  no-hot-reload build and fresh headless run passed 26/26. UI-art, saved-map,
-  and road-boundary validators also pass with the saved `128x160` paper-doll,
-  31 icon textures, 62 upright `FabPass_` actors, nine original-art placements,
-  exact daylight, and the collision-cleared starter layout.
-- In clean PIE, exercise the new data-driven timed-status rows:
+  `Embermere.Combat.StarterAbilityEffects`. The authoritative 2026-07-27
+  no-hot-reload build and fresh headless run passed 26/26. UI-art and saved-map
+  validators passed with explicit markers and no Python errors. The initialized
+  live editor passed native road-boundary traces, including the supply-chest
+  lid, with 61 upright `FabPass_` actors, ten original-art placements, exact
+  daylight, and the collision-cleared starter layout.
+- Retain the accepted data-driven timed-status rows:
   - Warrior `Battle Shout`, Cleric `Ward`, and Ranger `Nature's Focus` should
     appear beneath player mana with their existing ability art, name, live
     countdown, beneficial color, and hover description;
@@ -40,9 +39,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   restores 18 missing mana. Confirm chat, cooldown, expiration, baseline
   restoration, and respawn-safe clearing.
 - Reopen the `700x330` inventory empty and with Recruit Pack equipped. The
-  centered `128x160` armored-adventurer backdrop passed the 2026-07-26 empty
-  state visual check before relink; now accept occupied-slot contrast and
-  confirm it remains decorative, hit-test-invisible, and clear of the title,
+  centered `128x160` armored-adventurer backdrop and occupied Recruit Pack
+  Back slot passed clean-PIE visual review on 2026-07-27. Confirm it remains
+  decorative, hit-test-invisible, and clear of the title,
   bonuses, footer, hotbar, icons, labels, tooltips, click paths, and drag/drop.
 - Retain the accepted item-art and transaction baseline: fixed row/detail/slot
   art, compact `Recruit Pack` copy, category fallback, icon-bearing reward
@@ -53,14 +52,18 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Ctrl+M` and confirm inversion feedback because Slate's atomic chord cannot
   span the controller's later `PlayerTick` poll.
 - Walk the accepted road threshold and Prowler route. Preserve three clear gate
-  lanes, solid gate/fence/end-stone collision, 62 upright Fab actors, nine
+  lanes, solid gate/fence/end-stone collision, 61 upright Fab actors, ten
   original placements, and solo `525` cm pulls from homes at `(1900,300)`,
   `(1700,1100)`, and `(2500,1300)`.
-- After visual acceptance, take the highest-value bounded slice: add restrained
-  class/status VFX without coupling presentation to effect rules, build a
-  compact original Blender village prop, begin cohesive signed-in Stylized
-  Classic fantasy architecture, or tune a concrete combat/respawn issue
-  exposed by the normal route.
+- Inspect `Embermere_SupplyChest_Vendor_01` beside the village vendor table:
+  confirm the front lock and timber-plank silhouette face the PlayerStart
+  approach, the stone/moss/timber/iron/ember materials read together, the feet
+  contact terrain, the two authored body/lid boxes are solid, and the chest
+  leaves the Mara route clear.
+- Take the highest-value bounded slice: add restrained class/status VFX without
+  coupling presentation to effect rules, expand the original village-prop
+  family, begin cohesive signed-in Stylized Classic fantasy architecture, or
+  tune a concrete combat/respawn issue exposed by the normal route.
 
 ## Full Manual Regression Checklist
 
@@ -86,6 +89,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - inspect both rune-topped boundary stones for terrain contact, all five
     shared materials, two colliders each, readable ember crests, and clean
     termination of the fence silhouette after the south-side foliage cleanup.
+  - inspect `Embermere_SupplyChest_Vendor_01` for its route-facing lock and
+    plank silhouette, five shared materials, terrain contact, two solid authored
+    body/lid boxes, and clear PlayerStart-to-Mara traversal.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -159,7 +165,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - Mara should show a temporary gold `!` and name marker above her.
 - Manually verify the first `FabPass_` environment layer in PIE:
   - the map has a blue atmospheric sky, readable ambient fill, and muted moss foundation instead of the previous black sky/white ground presentation;
-  - all 62 remaining Fab art-pass actors stand upright, the original waystone sits at road elevation, both original ember lamps replace the former sci-fi lamps, and the original road signpost reads clearly beside the route;
+  - all 61 remaining Fab art-pass actors stand upright, the original waystone sits at road elevation, both original ember lamps replace the former sci-fi lamps, the original road signpost reads clearly beside the route, and the original supply chest replaces the temporary village crate stack;
   - the three oversized sci-fi building shells are gone and PlayerStart has an unobstructed view toward Mara;
   - village props leave Mara, PlayerStart, and the quest interaction route readable;
   - the road dressing points naturally from the village toward the wilderness pocket;
@@ -218,8 +224,8 @@ Embermere has a working first-pass starter slice:
   fallback;
 - first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
 - a project-owned Blender waystone, ember-lamp, road-signpost, road-gate,
-  boundary-fence, and boundary-stone family with reviewed scripts, editable
-  source, FBX, previews, authored collision, and nine validated saved
+  boundary-fence, boundary-stone, and supply-chest family with reviewed scripts,
+  editable source, FBX, previews, authored collision, and ten validated saved
   placements;
 - a project-owned fantasy inventory drag token with category sigils, contextual item text, and fixed bounds;
 - first Mac-friendly sky, ambient fill, fog-readability correction, and muted moss foundation material;
@@ -245,9 +251,9 @@ popup, all four hotbar palettes, timed root/snare/buff/mana-recovery behavior,
 identity-preserving Sort, solo Prowler pulls, collision-cleared encounter
 markers, targeting, the original-art road family, transform-proven `W`/`S`
 autorun cancellation, and the empty-state paper-doll composition. Data-driven
-player and target status rows now make timed effects inspectable, but their
-clean-restart visual acceptance, the populated drag token in motion, occupied
-paper-doll contrast, and physical `Ctrl+M` feedback remain honest physical-eye
+player and target status rows now make timed effects inspectable and passed
+clean-PIE review alongside occupied paper-doll contrast. The populated drag
+token in motion and physical `Ctrl+M` feedback remain honest physical-eye
 checks. The world remains stylistically mixed without real fantasy village
 buildings, final character art, class VFX, or audio.
 
@@ -292,14 +298,13 @@ buildings, final character art, class VFX, or audio.
   - identify any sci-fi props that look too off-theme for the starter village.
 - Add proper stylized fantasy village buildings now that the oversized sci-fi shells have been removed.
 - Expand the proven original Blender-to-Unreal lane from the waystone, ember
-  lamps, road signpost, road gate, boundary fences, and end stones into compact
-  village pieces before attempting rigged characters or creatures.
+  lamps, road signpost, road gate, boundary fences, end stones, and supply chest
+  into compact village pieces before attempting rigged characters or creatures.
 - Preserve the collision-cleared 525 cm solo-pull baseline while tuning leash,
   return-home speed, damage, and respawn timing only from normal-route PIE.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
-- After clean-PIE acceptance of timed-status and occupied paper-doll
-  presentation, add restrained class VFX without coupling gameplay effects to
+- Add restrained class/status VFX without coupling gameplay effects to
   presentation.
 
 ## Last Completed
@@ -701,6 +706,30 @@ buildings, final character art, class VFX, or audio.
 - Refreshed the daily heartbeat to begin from this 26-test baseline and move
   next into clean-PIE status acceptance, restrained VFX, original village art,
   or concrete live combat tuning.
+- 2026-07-27: accepted Battle Shout and Snare timed-status cells in clean PIE,
+  including saved ability art, beneficial/harmful treatment, live countdowns,
+  fixed bounds, and stable neighboring HUD layout. Meditate remains
+  instantaneous and focused automation retains duplicate, expiration, respawn,
+  death, and target-switch clearing.
+- Accepted the occupied paper-doll state with Recruit Pack equipped: the Back
+  slot uses its gold icon state, HP reads `105/105`, the bag is empty after the
+  atomic transfer, and the backdrop remains readable without moving the title,
+  bonuses, footer, or hotbar.
+- Added `SM_EmbermereSupplyChest_01`, a 2,364-triangle deterministic Blender
+  prop with five shared materials, one UV channel, two authored `UBX_` boxes,
+  editable source, FBX, preview, and metrics. Its route-facing saved actor
+  replaces `FabPass_Village_Crates_A` beside the vendor area.
+- Saved-map validation now requires 61 upright Fab actors and ten original-art
+  placements, including exact chest provenance, materials, bounds, collision,
+  tag, and transform. Native traces in the initialized live editor proved the
+  chest lid solid while retaining all three open gate lanes and required
+  boundary collision.
+- The authoritative no-hot-reload build succeeded; fresh commandlet automation
+  passed 26/26 with zero failures or warnings; UI-art and saved-map validators
+  emitted their success markers with no Python errors.
+- Refreshed the 8:00 AM daily automation to start from the 61-Fab/10-original
+  supply-chest baseline and to separate fresh-process persistence checks from
+  initialized-live-world collision traces.
 
 ## Asset Hunt
 

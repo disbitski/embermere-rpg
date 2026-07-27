@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-07-24
+Last updated: 2026-07-27
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -50,13 +50,13 @@ The project currently includes:
   sixteen data-driven starter-ability icons with tooltips, an illustrated
   paper-doll equipment backdrop, data-driven timed buff/control rows with live
   countdowns, and chat log;
-- a first local Fab/Epic art pass with 62 upright environment actors and nine
+- a first local Fab/Epic art pass with 61 upright environment actors and ten
   placements from an original Blender-built Embermere waystone, ember-lamp,
   timber-signpost, traversable-road-gate, matching boundary-fence family, and
-  rune-topped boundary stones, plus a Mac-friendly atmospheric daylight
-  baseline;
-- 26 passing Unreal automation tests plus fresh-process UI-art package,
-  saved-map, and road-boundary validators.
+  rune-topped boundary stones, plus an original village supply chest and a
+  Mac-friendly atmospheric daylight baseline;
+- 26 passing Unreal automation tests plus fresh-process UI-art/package and
+  saved-map validators and initialized-live-world road-boundary traces.
 
 This is still prototype art. The first black-sky problem is corrected, but the
 scene remains mixed in style and is missing a cohesive fantasy village kit,
@@ -281,12 +281,14 @@ Games Launcher. Saved map references may be missing until those packs exist.
 
 Environment scripts:
 
-- `Scripts/place_fab_zone_pass.py`: idempotent 62-actor placement recipe.
+- `Scripts/place_fab_zone_pass.py`: idempotent base placement recipe; the saved
+  map retains 61 Fab actors after the original supply chest replaces one crate
+  stack.
 - `Scripts/place_fab_zone_pass_unreal.py`: executes placement through Unreal
   Python and saves the map.
 - `Scripts/validate_fab_zone_pass_unreal.py`: reloads and validates the saved
   map, actor count, upright rotations, gameplay anchors, collision-cleared
-  encounter layout, nine original-art placements, moss foundation, and exact
+  encounter layout, ten original-art placements, moss foundation, and exact
   Mac-friendly daylight values.
 - `Scripts/configure_starter_items.py`: idempotently migrates tracked starter
   item assets, currently the level-1 Back-slot Recruit Pack reward.
@@ -358,6 +360,17 @@ at gate-local Y `-570` and `570`, bringing the map to nine original-art
 placements. The same integration pass relocates only the two vendor trees that
 masked the south fence; exact validator assertions preserve those accepted
 foliage transforms without changing the 62-actor Fab count.
+
+The seventh original model type is `SM_EmbermereSupplyChest_01`, built by
+`Scripts/blender/build_embermere_supply_chest.py` and imported through
+`Scripts/import_embermere_supply_chest_unreal.py`. It is a 2,364-triangle,
+`180.0 x 119.0 x 123.1` cm timber/stone/iron/ember/moss village prop with one
+UV channel and two authored body/lid boxes. The saved
+`Embermere_SupplyChest_Vendor_01` actor at `(-1545, -920, 20)`, yaw `108`,
+replaces `FabPass_Village_Crates_A`, bringing the map to 61 Fab actors and ten
+original-art placements. The validator locks classic-FBX provenance, exact
+bounds, shared materials, collision, tag, transform, and old-crate removal; a
+native live-editor trace proves the lid solid.
 
 The chosen community bridge is `djeada/blender-mcp-server`, pinned during
 installation to commit `7eed33edf4aca2ab0ca84a6da27321f89f68b504`.
@@ -497,7 +510,7 @@ Current automation tests:
 25. `Embermere.UI.PaperDollPresentation`
 26. `Embermere.UI.TimedStatusPresentation`
 
-Latest verified baseline (2026-07-26):
+Latest verified baseline (2026-07-27):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
 - headless automation discovered and passed 26/26 with zero test failures,
@@ -505,10 +518,12 @@ Latest verified baseline (2026-07-26):
   power/armor buffs, Snare, Frost Root, Meditate, effective-stat consumption,
   respawn-safe temporary-effect clearing, fixed paper-doll presentation, and
   source-ability-backed timed-status presentation;
-- clean PIE accepted the centered paper doll beneath an empty ten-slot grid
-  without title, bonus, footer, inventory, or hotbar movement. The final July
-  26 status relink makes the running GUI editor stale, so live status-row and
-  occupied-slot contrast remain one clean-restart visual gate;
+- clean PIE accepted Battle Shout and Snare status rows with saved art,
+  beneficial/harmful treatment, live countdowns, fixed bounds, and no
+  neighboring HUD motion. Meditate remained instantaneous. The same session
+  accepted Recruit Pack in the gold occupied Back slot over the centered paper
+  doll with `105/105` HP, an empty post-transfer bag, and no title, bonus,
+  footer, inventory, or hotbar movement;
 - stats expose generic active-effect snapshots with source ability data,
   remaining world time, and beneficial/harmful intent. Combat registers them
   only after timed gameplay effects succeed; duplicate applications refresh
@@ -531,17 +546,19 @@ Latest verified baseline (2026-07-26):
   `RecruitPack`;
 - fresh-process UI-art validation retained its explicit success marker with no
   `LogPython: Error`;
-- the validator reloaded the saved map and passed with 62 upright `FabPass_`
-  actors, nine exact original-art placements, visual-only encounter geometry,
+- the validator reloaded the saved map and passed with 61 upright `FabPass_`
+  actors, ten exact original-art placements, visual-only encounter geometry,
   required gameplay anchors, moss-ground overrides, and exact saved
   sun/skylight/fog values;
-- Blender MCP generated and validated the 1,872-triangle boundary-stone module;
-  Unreal imported it through `FbxFactory`, reused all five project materials,
-  retained two authored colliders, and saved two exact fence-end placements;
-- native traces proved three gate lanes clear, one gate support solid, both
-  fence centers solid, and both boundary-stone cores solid. A fresh road capture
-  shows the complete threshold after two masking trees moved within the south
-  foliage band; their exact transforms are validator-owned;
+- Blender MCP generated and validated the 2,364-triangle supply chest; Unreal
+  imported it through `FbxFactory`, reused all five project materials, retained
+  two authored colliders, replaced the temporary vendor crate stack, and saved
+  the route-facing actor at yaw `108`;
+- native traces in the initialized live editor proved three gate lanes clear,
+  one gate support solid, both fence centers solid, both boundary-stone cores
+  solid, and the supply-chest lid solid. Fresh commandlets remain authoritative
+  for package/map assertions, but a commandlet-loaded world did not register
+  native collision bodies and must not be treated as a physics result;
 - automatic movement is now applied separately from manual-axis cancellation,
   and the inventory drag visual is a fixed 236x62 fantasy token with resolved
   item art, category-sigil fallback, and item context. Reward feedback reuses
@@ -558,8 +575,8 @@ Latest verified baseline (2026-07-26):
   row clipping and detail-heading crowding; a second capture accepted the
   corrected `Recruit Pack` row and detail fit. The icon-bearing reward popup and
   real Recruit Pack bag-to-Back flow were accepted on July 23. The populated
-  drag token while in motion, occupied paper-doll contrast, new timed-status
-  rows, and physical `Ctrl+M` feedback remain honest physical-eye checks.
+  drag token while in motion and physical `Ctrl+M` feedback remain honest
+  physical-eye checks.
 
 ## Critical Unreal Lessons
 
@@ -631,9 +648,9 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 
 ## Immediate Next Work
 
-Start from the `Start Here` section of `TODO.md`. Restart Unreal if it predates
-the 2026-07-26 timed-status presentation C++ link, then confirm MCP/test
-discovery against the current module.
+Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
+2026-07-27 supply-chest map and current module, then confirm MCP/test discovery;
+restart only if the editor or test registry proves stale.
 
 First fresh-session checks:
 
@@ -651,7 +668,8 @@ First fresh-session checks:
      halves movement for 6 seconds; Frost Root deals light damage and stops
      movement for 4 seconds; Meditate restores 18 missing mana. Confirm chat,
      cooldown, natural expiration, and respawn clearing;
-   - Battle Shout, Ward, and Nature's Focus appear beneath player mana with
+   - retain the accepted Battle Shout, Ward, and Nature's Focus treatment
+     beneath player mana with
      existing ability art, names, beneficial coloring, live countdowns, and
      hover descriptions; Snare and Frost Root appear beneath selected-target
      HP with harmful coloring. Confirm duplicate refresh, expiry/respawn/target
@@ -660,9 +678,9 @@ First fresh-session checks:
    - all ten empty equipment-slot icons, Recruit Pack and Marsh Tonic row/detail
      art, occupied-slot art, category fallback, text/tooltips, fixed icon sizes,
      the illustrated adventurer beneath the unchanged slot grid, and no
-     inventory/footer/hotbar layout shift. Retain the accepted empty-state
-     composition, then confirm the backdrop remains decorative and does not
-     obscure occupied controls. Confirm
+     inventory/footer/hotbar layout shift. Retain the accepted empty and
+     Recruit-Pack-occupied compositions and confirm the backdrop remains
+     decorative and does not obscure occupied controls. Confirm
      `Recruit Pack` fits its row and detail header without clipping or crowding
      `Equipment`;
    - retain the proven `Q` plus independent `W`/`S` cancellation behavior;
@@ -684,9 +702,10 @@ First fresh-session checks:
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
-   - 62 upright Fab actors plus nine original placements from the waystone,
-     ember-lamp, timber-signpost, road-gate, boundary-fence, and boundary-stone
-     family; clear gate lanes and solid fences/end stones; clear spawn/Mara route,
+   - 61 upright Fab actors plus ten original placements from the waystone,
+     ember-lamp, timber-signpost, road-gate, boundary-fence, boundary-stone, and
+     supply-chest family; inspect the route-facing chest and solid lid, retain
+     clear gate lanes and solid fences/end stones, and retain a clear spawn/Mara route,
      readable road/enemy pocket,
      a ruin that does not trap the player, muted moss ground, and balanced
      daylight/fog under the atmospheric sky.
@@ -704,7 +723,7 @@ High-value milestones after that:
 
 - add restrained class/status VFX for the now-visible timed effects without
   coupling presentation assets to gameplay rules;
-- expand the proven Blender waystone/lamp/signpost/gate/fence/end-stone lane
+- expand the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest lane
   into compact village-prop modules while preserving
   deterministic scripts, FBX checks, and original-art tags;
 - optional rune/soft-edge texture treatment for the dedicated target-ring
@@ -766,16 +785,16 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Restart onto the 2026-07-26 timed-status
-presentation module, run all 26 tests, and inspect the new fixed player and
-selected-target status rows for saved ability art, names, live countdowns,
+Follow TODO.md's Start Here section. Confirm the 2026-07-27 current module and
+supply-chest map, then run all 26 tests. Retain the accepted fixed player and
+selected-target status rows with saved ability art, names, live countdowns,
 beneficial/harmful colors, hover descriptions, duplicate refresh, and clearing
 on expiration, respawn, death, and target switch without neighboring HUD
-movement. The latest clean PIE already proved Q autorun plus independent W and
-S cancellation, all four starter-class hotbar palettes, Warrior cooldown
+movement. The latest clean PIE also proved Q autorun plus independent W and S
+cancellation, all four starter-class hotbar palettes, Warrior cooldown
 presentation, the icon-bearing reward popup, a real Recruit Pack bag-to-Back
-drag, and the centered paper doll beneath an empty slot grid. Confirm occupied
-paper-doll contrast, fixed layout, and noninteractive behavior. Retain Battle
+drag, and the centered paper doll beneath both empty and occupied slot states
+with fixed layout and noninteractive behavior. Retain Battle
 Shout and Nature's Focus at +8 Attack Power for 10 seconds, Ward at +10 Armor
 for 10 seconds, Snare at half movement for 6 seconds, Frost Root at zero
 movement for 4 seconds, and Meditate restoring 18 missing mana. Retain all
@@ -791,7 +810,8 @@ click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure
 feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy
 nameplate, raised saturated emissive target ring, quest/reward loop, enemy
 leash, respawn protection, chat clipping, atmospheric daylight/moss-ground
-balance, 62 upright Fab actors, and all nine original-art placements. Walk the
+balance, 61 upright Fab actors, and all ten original-art placements including
+the route-facing supply chest with solid authored lid collision. Walk the
 normal route and prove each 525 cm Prowler pull stays solo while visual
 marker/band geometry remains non-colliding. Then add restrained VFX, build a
 compact original Blender village prop, pursue cohesive fantasy architecture,
