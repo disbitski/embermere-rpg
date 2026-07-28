@@ -29,8 +29,8 @@ PLACEMENTS = (
 # sightline. They stay in the same south-side foliage band but no longer erase
 # the authored boundary silhouette.
 FOLIAGE_TRANSFORMS = {
-    "FabPass_Road_Pine_05": ((600.0, -500.0, 20.0), -35.0, 0.48),
-    "FabPass_Wild_Tree_South_01": ((1600.0, -400.0, 20.0), 15.0, 0.5),
+    "FabPass_Road_Pine_05": ((600.0, -500.0, 0.0), -35.0, 0.48),
+    "FabPass_Wild_Tree_South_01": ((1600.0, -400.0, 0.0), 15.0, 0.5),
 }
 
 SHARED_MATERIALS = {
@@ -68,7 +68,7 @@ def world_from_gate_local_y(local_y):
     return (
         GATE_CENTER[0] - local_y * math.sin(yaw),
         GATE_CENTER[1] + local_y * math.cos(yaw),
-        20.0,
+        0.0,
     )
 
 

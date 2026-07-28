@@ -1,12 +1,15 @@
 #include "Characters/EmbermereEnemyCharacter.h"
+#include "Animation/AnimSequence.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereStatsComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Data/EmbermereItemData.h"
 #include "Engine/Engine.h"
+#include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
 #include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
@@ -104,20 +107,52 @@ void AEmbermereEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	SpawnTransform = GetActorTransform();
+	ApplyConfiguredVisualPresentation();
 
 	if (Stats)
 	{
 		Stats->OnDied.AddDynamic(this, &AEmbermereEnemyCharacter::HandleDeath);
 		Stats->OnHealthChanged.AddDynamic(this, &AEmbermereEnemyCharacter::HandleHealthChanged);
+		LastObservedHealth = Stats->CurrentHealth;
 	}
 
+	UpdateVisualAnimation();
 	UpdatePrototypeTargetPresentation();
+}
+
+void AEmbermereEnemyCharacter::ApplyConfiguredVisualPresentation()
+{
+	USkeletalMeshComponent* MeshComponent = GetMesh();
+	if (!MeshComponent || VisualSkeletalMesh.IsNull())
+	{
+		return;
+	}
+
+	USkeletalMesh* LoadedMesh = VisualSkeletalMesh.LoadSynchronous();
+	if (!LoadedMesh)
+	{
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Enemy '%s' could not resolve visual mesh '%s'"),
+			*GetName(),
+			*VisualSkeletalMesh.ToSoftObjectPath().ToString());
+		return;
+	}
+
+	MeshComponent->SetSkeletalMeshAsset(LoadedMesh);
+	MeshComponent->SetRelativeLocation(VisualMeshRelativeLocation);
+	MeshComponent->SetRelativeRotation(VisualMeshRelativeRotation);
+	MeshComponent->SetRelativeScale3D(VisualMeshRelativeScale);
+	MeshComponent->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 }
 
 void AEmbermereEnemyCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	bMovedThisFrame = false;
 	UpdatePrototypeAi(DeltaSeconds);
+	UpdateVisualAnimation();
 	UpdatePrototypeTargetPresentation();
 }
 
@@ -213,9 +248,9 @@ void AEmbermereEnemyCharacter::HandleDeath()
 	bSelectedByPlayer = false;
 	UpdatePrototypeTargetPresentation();
 
-	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	const float DeathAnimationDuration = PlayVisualAnimation(DeathAnimation, false, true);
 
 	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
 		this,
@@ -229,6 +264,23 @@ void AEmbermereEnemyCharacter::HandleDeath()
 
 	if (UWorld* World = GetWorld())
 	{
+		if (DeathAnimationDuration > KINDA_SMALL_NUMBER)
+		{
+			const float HideDelay = FMath::Min(
+				DeathAnimationDuration,
+				FMath::Max(0.1f, RespawnDelaySeconds - 0.1f));
+			World->GetTimerManager().SetTimer(
+				DeathHideTimerHandle,
+				this,
+				&AEmbermereEnemyCharacter::HideDeadBody,
+				HideDelay,
+				false);
+		}
+		else
+		{
+			SetActorHiddenInGame(true);
+		}
+
 		World->GetTimerManager().SetTimer(
 			RespawnTimerHandle,
 			this,
@@ -268,11 +320,23 @@ bool AEmbermereEnemyCharacter::GrantLootTo(AActor* Recipient)
 
 void AEmbermereEnemyCharacter::HandleHealthChanged(float CurrentHealth, float MaxHealth)
 {
+	if (CurrentHealth > 0.0f &&
+		LastObservedHealth >= 0.0f &&
+		CurrentHealth < LastObservedHealth)
+	{
+		PlayVisualAnimation(HitAnimation, false, true);
+	}
+	LastObservedHealth = CurrentHealth;
 	UpdatePrototypeTargetPresentation();
 }
 
 void AEmbermereEnemyCharacter::Respawn()
 {
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(DeathHideTimerHandle);
+	}
+
 	SetActorTransform(SpawnTransform);
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
@@ -284,7 +348,12 @@ void AEmbermereEnemyCharacter::Respawn()
 	if (Stats)
 	{
 		Stats->InitializeVitals();
+		LastObservedHealth = Stats->CurrentHealth;
 	}
+	CurrentVisualAnimation = nullptr;
+	bCurrentVisualAnimationLooping = false;
+	VisualAnimationLockUntilSeconds = -1.0;
+	UpdateVisualAnimation();
 	UpdatePrototypeTargetPresentation();
 
 	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
@@ -542,12 +611,23 @@ void AEmbermereEnemyCharacter::UpdateReturnHome(float DeltaSeconds)
 		(Stats ? Stats->GetMovementSpeedMultiplier() : 1.0f);
 	const float StepDistance = FMath::Min(DistanceToHome, ReturnSpeed * DeltaSeconds);
 	SetActorLocation(GetActorLocation() + Direction * StepDistance, true);
+	bMovedThisFrame = true;
 }
 
 float AEmbermereEnemyCharacter::GetEffectiveMoveSpeedCmPerSecond() const
 {
 	return FMath::Max(0.0f, MoveSpeedCmPerSecond) *
 		(Stats ? Stats->GetMovementSpeedMultiplier() : 1.0f);
+}
+
+bool AEmbermereEnemyCharacter::HasCompleteVisualAnimationSet() const
+{
+	return !IdleAnimation.IsNull() &&
+		!WalkAnimation.IsNull() &&
+		!RunAnimation.IsNull() &&
+		!AttackAnimation.IsNull() &&
+		!HitAnimation.IsNull() &&
+		!DeathAnimation.IsNull();
 }
 
 void AEmbermereEnemyCharacter::FaceTarget(const AActor* Target)
@@ -584,6 +664,7 @@ void AEmbermereEnemyCharacter::MoveTowardTarget(AActor* Target, float DeltaSecon
 
 	const FVector Step = Direction * EffectiveMoveSpeed * DeltaSeconds;
 	SetActorLocation(GetActorLocation() + Step, true);
+	bMovedThisFrame = true;
 }
 
 void AEmbermereEnemyCharacter::TryAttackTarget(AActor* Target)
@@ -611,6 +692,7 @@ void AEmbermereEnemyCharacter::TryAttackTarget(AActor* Target)
 		return;
 	}
 
+	PlayVisualAnimation(AttackAnimation, false, true);
 	const float AppliedDamage = TargetStats->ApplyDamage(AttackDamage);
 	LastAttackTimeSeconds = CurrentTimeSeconds;
 
@@ -620,5 +702,72 @@ void AEmbermereEnemyCharacter::TryAttackTarget(AActor* Target)
 			this,
 			FText::FromString(FString::Printf(TEXT("%s hits you for %.0f"), *EnemyName.ToString(), AppliedDamage)),
 			FLinearColor(1.0f, 0.18f, 0.12f, 1.0f));
+	}
+}
+
+void AEmbermereEnemyCharacter::UpdateVisualAnimation()
+{
+	if (!Stats || Stats->IsDead() || IsHidden())
+	{
+		return;
+	}
+
+	const UWorld* World = GetWorld();
+	const double CurrentTimeSeconds = World ? World->GetTimeSeconds() : 0.0;
+	if (CurrentTimeSeconds < VisualAnimationLockUntilSeconds)
+	{
+		return;
+	}
+
+	VisualAnimationLockUntilSeconds = -1.0;
+	if (bMovedThisFrame)
+	{
+		PlayVisualAnimation(bReturningHome ? RunAnimation : WalkAnimation, true);
+		return;
+	}
+
+	PlayVisualAnimation(IdleAnimation, true);
+}
+
+float AEmbermereEnemyCharacter::PlayVisualAnimation(
+	const TSoftObjectPtr<UAnimSequence>& Animation,
+	bool bLooping,
+	bool bRestartIfAlreadyPlaying)
+{
+	UAnimSequence* Sequence = Animation.LoadSynchronous();
+	USkeletalMeshComponent* CharacterMesh = GetMesh();
+	if (!Sequence || !CharacterMesh || !CharacterMesh->GetSkeletalMeshAsset())
+	{
+		return 0.0f;
+	}
+
+	if (!bRestartIfAlreadyPlaying &&
+		CurrentVisualAnimation == Sequence &&
+		bCurrentVisualAnimationLooping == bLooping)
+	{
+		return Sequence->GetPlayLength();
+	}
+
+	CharacterMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+	CharacterMesh->PlayAnimation(Sequence, bLooping);
+	CurrentVisualAnimation = Sequence;
+	bCurrentVisualAnimationLooping = bLooping;
+
+	const float PlayLength = FMath::Max(0.0f, Sequence->GetPlayLength());
+	if (!bLooping)
+	{
+		const UWorld* World = GetWorld();
+		const double CurrentTimeSeconds = World ? World->GetTimeSeconds() : 0.0;
+		VisualAnimationLockUntilSeconds = CurrentTimeSeconds + PlayLength;
+	}
+
+	return PlayLength;
+}
+
+void AEmbermereEnemyCharacter::HideDeadBody()
+{
+	if (Stats && Stats->IsDead())
+	{
+		SetActorHiddenInGame(true);
 	}
 }

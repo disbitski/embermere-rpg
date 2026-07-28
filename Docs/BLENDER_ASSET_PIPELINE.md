@@ -526,6 +526,60 @@ Defer until the pipeline is mature:
 Those tasks need stronger art direction, anatomy, topology, rigging, and
 animation review than a render-only loop can provide.
 
+The first deliberate exception is the Marsh Prowler vertical slice documented
+in `Docs/MARSH_PROWLER_ART_BRIEF.md`. It is intentionally bounded to one
+starter enemy, retains the existing character capsule and gameplay class as
+authorities, and keeps the placeholder visual as fallback until model, rig,
+locomotion, import persistence, and PIE behavior pass independently.
+
+## Eighth Asset: Marsh Prowler
+
+`SK_EmbermereMarshProwler_01` proves that the deterministic pipeline can cross
+from static props into one bounded animated creature without handing gameplay
+authority to the art asset.
+
+The reviewed build, preview, and inspection scripts are:
+
+- `Scripts/blender/build_embermere_marsh_prowler.py`;
+- `Scripts/blender/render_marsh_prowler_action_previews.py`;
+- `Scripts/blender/inspect_marsh_prowler_scene.py`.
+
+The saved Blender source contains 7,464 triangles, 3,878 vertices, five
+materials, 26 authored bones, two physics proxies, and six actions: Idle, Walk,
+Run, Attack, Hit, and Death. Unreal imports a skeletal mesh, skeleton, physics
+asset, five materials, and six animation sequences into
+`/Game/Art/Embermere/Characters/Enemies/MarshProwler`.
+
+`AEmbermereEnemyCharacter` owns six soft animation roles and routes them from
+generic movement, attack, damage, death, and respawn state. Combat rules remain
+asset-agnostic, the capsule remains authoritative, and the placeholder visual
+remains a fallback. The Blueprint CDO and all three saved map instances are
+validated independently because updating a class default does not rewrite a
+placed actor's serialized component override.
+
+## Ninth Asset: Marsh Reed Cluster
+
+`SM_EmbermereMarshReedCluster_01` is a compact visual-only environment asset
+built by `Scripts/blender/build_embermere_marsh_reed_cluster.py` and imported
+by `Scripts/import_embermere_marsh_reeds_unreal.py`.
+
+Verified result:
+
+- dimensions: `168 x 131.04 x 187.8` cm with a ground pivot;
+- 1,012 triangles, 596 vertices, one UV channel, applied scale, and no
+  non-manifold geometry;
+- four existing project materials, including `M_EmbermereGround` on the low
+  footprint so the cluster does not read as a pale planter;
+- no authored collision and four exact saved `NoCollision` placements;
+- explicit mesh package saving plus saved-map bounds, material, transform, tag,
+  and collision validation.
+
+The first render exposed a bright geometric base that technically passed but
+did not belong on the terrain. Reusing the ground material and lowering the
+moss footprint made the reeds read as growth rather than a prop. This is the
+same acceptance rule as the larger assets: metrics make the model eligible;
+the normal gameplay camera decides whether it belongs.
+
 ## Sources
 
 - Article/post: https://x.com/explosss1ve/status/2075654835597164769

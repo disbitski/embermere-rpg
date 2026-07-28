@@ -52,7 +52,12 @@ ModelContextProtocol.GenerateClientConfig Codex
 
 Epic's default MCP port is `8000`; this project uses `8123` to avoid common local port conflicts. If you use the Editor Preferences auto-start setting instead, set the server port to `8123` there too.
 
-The config generator writes the correct client config for the named agent. JSON clients such as Claude Code use `.mcp.json`; Epic's docs note that Codex uses a TOML config and that stale Codex configs may need to be removed manually before regenerating. After the config exists, Codex can connect to Unreal MCP from this workspace.
+The config generator is a one-time setup step unless the client configuration
+changes. It writes the correct client config for the named agent. JSON clients
+such as Claude Code use `.mcp.json`; Epic's docs note that Codex uses a TOML
+config and that stale Codex configs may need to be removed manually before
+regenerating. After the config exists, Codex can connect to Unreal MCP from this
+workspace.
 
 For this project, verify `.codex/config.toml` points to:
 
@@ -72,6 +77,25 @@ ModelContextProtocol.RefreshTools
 ModelContextProtocol.GenerateClientConfig <Client|All>
 ```
 
+Unreal 5.8 also supports command-line MCP autostart:
+
+```text
+-ModelContextProtocolStartServer -ModelContextProtocolPort=8123
+```
+
+The reliable macOS launch form is:
+
+```bash
+open -a "/Users/Shared/Epic Games/UE_5.8/Engine/Binaries/Mac/UnrealEditor.app" \
+  --args "/Users/wizard/Documents/Unreal Game/Embermere.uproject" \
+  -ModelContextProtocolStartServer -ModelContextProtocolPort=8123
+```
+
+The project path must come after `--args`. Putting it before `--args` caused
+`open` to launch the editor without forwarding the project. Generic
+`-ExecCmds=ModelContextProtocol.StartServer 8123` also fired too early during
+startup in testing; use the plugin's dedicated launch flags instead.
+
 ## Validate
 
 From this repo:
@@ -90,7 +114,8 @@ The expected milestone states are:
 
 It is safe to use `File > Save All` before quitting Unreal, especially when a level or asset tab shows an asterisk. Unreal may also rewrite project config or binary asset packages while saving, so check `git status` afterward and only commit intentional files.
 
-After restarting Unreal, start MCP again from the Unreal console when Codex needs editor access:
+After restarting Unreal, either use the launch flags above or start MCP again
+from the Unreal console when Codex needs editor access:
 
 ```text
 ModelContextProtocol.StartServer 8123

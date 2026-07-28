@@ -5,40 +5,83 @@ import unreal
 
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
-EXPECTED_FABPASS_COUNT = 61
-EXPECTED_ORIGINAL_ART_COUNT = 10
+EXPECTED_FABPASS_COUNT = 59
+EXPECTED_ORIGINAL_ART_COUNT = 14
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
 ORIGINAL_EMBER_LAMPS = {
-    "Embermere_EmberLamp_Mara_01": ((-1970.0, -775.0, 20.0), 5.0),
-    "Embermere_EmberLamp_Road_01": ((-1150.0, -520.0, 20.0), 8.0),
+    "Embermere_EmberLamp_Mara_01": ((-1970.0, -775.0, 0.0), 5.0),
+    "Embermere_EmberLamp_Road_01": ((-1150.0, -520.0, 0.0), 8.0),
 }
 ORIGINAL_SIGNPOST_LABEL = "Embermere_RoadSignpost_01"
 ORIGINAL_SIGNPOST_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereRoadSignpost_01.SM_EmbermereRoadSignpost_01"
-ORIGINAL_SIGNPOST_LOCATION = (20.0, -170.0, 20.0)
+ORIGINAL_SIGNPOST_LOCATION = (20.0, -170.0, 0.0)
 ORIGINAL_SIGNPOST_YAW = 22.0
 ORIGINAL_GATE_LABEL = "Embermere_RoadGate_01"
 ORIGINAL_GATE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereRoadGate_01.SM_EmbermereRoadGate_01"
-ORIGINAL_GATE_LOCATION = (1080.0, 540.0, 20.0)
+ORIGINAL_GATE_LOCATION = (1080.0, 540.0, 0.0)
 ORIGINAL_GATE_YAW = 20.0
 ORIGINAL_FENCE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereBoundaryFence_01.SM_EmbermereBoundaryFence_01"
 ORIGINAL_FENCES = {
-    "Embermere_BoundaryFence_GateSouth_01": ((1206.55, 192.35, 20.0), 20.0),
-    "Embermere_BoundaryFence_GateNorth_01": ((953.45, 887.65, 20.0), 20.0),
+    "Embermere_BoundaryFence_GateSouth_01": ((1206.55, 192.35, 0.0), 20.0),
+    "Embermere_BoundaryFence_GateNorth_01": ((953.45, 887.65, 0.0), 20.0),
 }
 ORIGINAL_BOUNDARY_STONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereBoundaryStone_01.SM_EmbermereBoundaryStone_01"
 ORIGINAL_BOUNDARY_STONES = {
-    "Embermere_BoundaryStone_GateSouth_01": ((1274.951, 4.375, 20.0), 20.0),
-    "Embermere_BoundaryStone_GateNorth_01": ((885.049, 1075.625, 20.0), 20.0),
+    "Embermere_BoundaryStone_GateSouth_01": ((1274.951, 4.375, 0.0), 20.0),
+    "Embermere_BoundaryStone_GateNorth_01": ((885.049, 1075.625, 0.0), 20.0),
 }
 ORIGINAL_SUPPLY_CHEST_LABEL = "Embermere_SupplyChest_Vendor_01"
 ORIGINAL_SUPPLY_CHEST_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereSupplyChest_01.SM_EmbermereSupplyChest_01"
-ORIGINAL_SUPPLY_CHEST_LOCATION = (-1545.0, -920.0, 20.0)
+ORIGINAL_SUPPLY_CHEST_LOCATION = (-1545.0, -920.0, 0.0)
 ORIGINAL_SUPPLY_CHEST_YAW = 108.0
+ORIGINAL_MARSH_REED_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereMarshReedCluster_01.SM_EmbermereMarshReedCluster_01"
+ORIGINAL_MARSH_REEDS = {
+    "Embermere_MarshReeds_RoadSouth_01": ((1300.0, -180.0, 0.0), 15.0, 0.78),
+    "Embermere_MarshReeds_RoadNorth_01": ((1020.0, 1650.0, 0.0), 75.0, 0.72),
+    "Embermere_MarshReeds_WildSouth_01": ((2860.0, 80.0, 0.0), -30.0, 0.85),
+    "Embermere_MarshReeds_WildNorth_01": ((3400.0, 1700.0, 0.0), 45.0, 0.80),
+}
 COMPOSITION_FOLIAGE = {
-    "FabPass_Road_Pine_05": ((600.0, -500.0, 20.0), -35.0, 0.48),
-    "FabPass_Wild_Tree_South_01": ((1600.0, -400.0, 20.0), 15.0, 0.5),
+    "FabPass_Road_Pine_05": ((600.0, -500.0, 0.0), -35.0, 0.48),
+    "FabPass_Wild_Tree_South_01": ((1600.0, -400.0, 0.0), 15.0, 0.5),
+}
+MOSS_MATERIAL_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/M_WaystoneMoss.M_WaystoneMoss"
+STONE_MATERIAL_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/M_Waystone.M_Waystone"
+TIMBER_MATERIAL_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/M_EmbermereTimber.M_EmbermereTimber"
+TREE_BILLBOARD_MATERIAL_PATH = (
+    "/Game/KiteDemo/Environments/Trees/HillTree_02/"
+    "M_CustomDepthBillboard_Inst.M_CustomDepthBillboard_Inst"
+)
+FOLIAGE_OVERRIDE_LABELS = {
+    "FabPass_Road_Fern_01",
+    "FabPass_Road_Fern_02",
+    "FabPass_Road_Flowers_01",
+    "FabPass_Road_Flowers_02",
+    "FabPass_Road_Grass_01",
+    "FabPass_Road_Grass_02",
+    "FabPass_Wild_Ferns_01",
+    "FabPass_Wild_Ferns_02",
+}
+TREE_OVERRIDE_LABELS = {
+    "FabPass_Road_Pine_01",
+    "FabPass_Road_Pine_02",
+    "FabPass_Road_Pine_03",
+    "FabPass_Road_Pine_04",
+    "FabPass_Road_Pine_05",
+    "FabPass_Road_Pine_06",
+    "FabPass_Wild_Tree_North_01",
+    "FabPass_Wild_Tree_North_02",
+    "FabPass_Wild_Tree_North_03",
+    "FabPass_Wild_Tree_South_01",
+    "FabPass_Wild_Tree_South_02",
+    "FabPass_Wild_Tree_East_01",
+}
+SPECIAL_FABPASS_Z = {
+    "FabPass_Ruin_Statue": 68.0,
+    "FabPass_Ruin_Water_Glint": 25.0,
+    "FabPass_Ruin_Fog_Sheet_A": 60.0,
 }
 ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS = {
     "/Game/Art/Embermere/Environment/PrototypeVillage/M_Waystone.M_Waystone",
@@ -48,6 +91,24 @@ ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS = {
     "/Game/Art/Embermere/Environment/PrototypeVillage/M_WaystoneEmber.M_WaystoneEmber",
 }
 GROUND_MATERIAL_PATH = "/Game/Art/Embermere/Environment/M_EmbermereGround.M_EmbermereGround"
+ORIGINAL_MARSH_REED_MATERIAL_PATHS = {
+    GROUND_MATERIAL_PATH,
+    MOSS_MATERIAL_PATH,
+    STONE_MATERIAL_PATH,
+    TIMBER_MATERIAL_PATH,
+}
+GROUND_MATERIAL_EXPRESSION_COUNT = 38
+GROUND_SCALAR_PARAMETERS = {
+    "MossRoughness",
+    "PathHalfWidthCm",
+    "PathRoughness",
+}
+GROUND_VECTOR_PARAMETERS = {
+    "MossDark",
+    "MossLight",
+    "PathDirt",
+}
+GROUND_PATH_HALF_WIDTH_CM = 300.0
 GROUND_ACTOR_LABELS = {
     "Zone_Ground_Embermere_Glen",
     "Safe_Area_Ring",
@@ -62,11 +123,14 @@ STARTER_ENEMY_LAYOUT = {
     "Starter_Enemy_02": (1700.0, 1100.0, 95.0),
     "Starter_Enemy_03": (2500.0, 1300.0, 95.0),
 }
-STARTER_MARKER_LAYOUT = {
-    "Enemy_Visual_Marker_01": (1900.0, 300.0, 90.0),
-    "Enemy_Visual_Marker_02": (1700.0, 1100.0, 90.0),
-    "Enemy_Visual_Marker_03": (2500.0, 1300.0, 90.0),
-}
+MARSH_PROWLER_MESH_PATH = (
+    "/Game/Art/Embermere/Characters/Enemies/MarshProwler/"
+    "SK_EmbermereMarshProwler_01.SK_EmbermereMarshProwler_01"
+)
+MARSH_PROWLER_IDLE_PATH = (
+    "/Game/Art/Embermere/Characters/Enemies/MarshProwler/Animations/"
+    "A_EmbermereMarshProwler_Idle.A_EmbermereMarshProwler_Idle"
+)
 STARTER_AGGRO_RADIUS = 525.0
 MIN_STARTER_ENEMY_SPACING = 800.0
 
@@ -84,7 +148,7 @@ REQUIRED_LABELS = {
     ORIGINAL_SIGNPOST_LABEL,
     ORIGINAL_GATE_LABEL,
     ORIGINAL_SUPPLY_CHEST_LABEL,
-} | set(ORIGINAL_EMBER_LAMPS) | set(ORIGINAL_FENCES) | set(ORIGINAL_BOUNDARY_STONES) | set(COMPOSITION_FOLIAGE)
+} | set(ORIGINAL_EMBER_LAMPS) | set(ORIGINAL_FENCES) | set(ORIGINAL_BOUNDARY_STONES) | set(ORIGINAL_MARSH_REEDS) | set(COMPOSITION_FOLIAGE)
 
 REMOVED_GREYBOX_LABELS = {
     "Village_Hall_Blockout",
@@ -102,6 +166,11 @@ REMOVED_GREYBOX_LABELS = {
     "FabPass_Village_Lamp_Mara",
     "FabPass_Village_Lamp_Road",
     "FabPass_Village_Crates_A",
+    "Enemy_Visual_Marker_01",
+    "Enemy_Visual_Marker_02",
+    "Enemy_Visual_Marker_03",
+    "FabPass_Ruin_Soul_Arch_Accent",
+    "FabPass_Ruin_Soul_Pillar",
 }
 
 
@@ -156,6 +225,19 @@ def main():
         fail("FabPass actors must stay upright; found {}".format(tilted_fabpass))
 
     actors_by_label = {actor_label(actor): actor for actor in actors}
+    grounding_drift = []
+    for label in fabpass_labels:
+        expected_z = SPECIAL_FABPASS_Z.get(label, 0.0)
+        actual_z = actors_by_label[label].get_actor_location().z
+        if not nearly_equal(actual_z, expected_z, 1.0):
+            grounding_drift.append({
+                "label": label,
+                "expected_z": expected_z,
+                "actual_z": round(actual_z, 3),
+            })
+    if grounding_drift:
+        fail("FabPass actor grounding drifted: {}".format(grounding_drift))
+
     original_art_labels = {
         actor_label(actor)
         for actor in actors
@@ -179,7 +261,7 @@ def main():
     if not all((
         nearly_equal(waystone_location.x, -690.0, 1.0),
         nearly_equal(waystone_location.y, -25.0, 1.0),
-        nearly_equal(waystone_location.z, 20.0, 1.0),
+        nearly_equal(waystone_location.z, 0.0, 1.0),
         nearly_equal(waystone_rotation.pitch, 0.0, 0.1),
         nearly_equal(waystone_rotation.yaw, 30.0, 0.1),
         nearly_equal(waystone_rotation.roll, 0.0, 0.1),
@@ -568,6 +650,104 @@ def main():
             ORIGINAL_SUPPLY_CHEST_LABEL,
         ))
 
+    marsh_reed_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_MARSH_REED_PATH)
+    if not marsh_reed_mesh or not isinstance(marsh_reed_mesh, unreal.StaticMesh):
+        fail("missing original marsh reed mesh {}".format(ORIGINAL_MARSH_REED_PATH))
+    marsh_reed_import_data = marsh_reed_mesh.get_editor_property("asset_import_data")
+    marsh_reed_import_class = (
+        marsh_reed_import_data.get_class().get_name()
+        if marsh_reed_import_data
+        else "None"
+    )
+    if marsh_reed_import_class != "FbxStaticMeshImportData":
+        fail("original marsh reeds must retain classic FBX import data, found {}".format(
+            marsh_reed_import_class,
+        ))
+    marsh_reed_body_setup = marsh_reed_mesh.get_editor_property("body_setup")
+    marsh_reed_aggregate = (
+        marsh_reed_body_setup.get_editor_property("agg_geom")
+        if marsh_reed_body_setup
+        else None
+    )
+    marsh_reed_collision_count = 0
+    if marsh_reed_aggregate:
+        marsh_reed_collision_count = sum(
+            len(marsh_reed_aggregate.get_editor_property(property_name))
+            for property_name in (
+                "box_elems",
+                "sphere_elems",
+                "sphyl_elems",
+                "convex_elems",
+                "tapered_capsule_elems",
+            )
+        )
+    if marsh_reed_collision_count != 0:
+        fail("visual-only marsh reeds must retain zero collision shapes, found {}".format(
+            marsh_reed_collision_count,
+        ))
+    marsh_reed_bounds = marsh_reed_mesh.get_bounds()
+    if not all((
+        nearly_equal(marsh_reed_bounds.box_extent.x, 84.0, 2.0),
+        nearly_equal(marsh_reed_bounds.box_extent.y, 65.52, 2.0),
+        nearly_equal(marsh_reed_bounds.origin.z, 93.9, 2.0),
+        nearly_equal(marsh_reed_bounds.box_extent.z, 93.9, 2.0),
+    )):
+        fail("original marsh reed bounds drifted: origin={}, extent={}".format(
+            marsh_reed_bounds.origin,
+            marsh_reed_bounds.box_extent,
+        ))
+    if marsh_reed_mesh.get_num_triangles(0) != 1012:
+        fail("original marsh reed triangle count drifted: {}".format(
+            marsh_reed_mesh.get_num_triangles(0),
+        ))
+    marsh_reed_material_paths = set()
+    for static_material in list(marsh_reed_mesh.get_editor_property("static_materials")):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            marsh_reed_material_paths.add(material.get_path_name())
+    if marsh_reed_material_paths != ORIGINAL_MARSH_REED_MATERIAL_PATHS:
+        fail("original marsh reed material set drifted: {}".format(
+            sorted(marsh_reed_material_paths),
+        ))
+
+    for label, (expected_location, expected_yaw, expected_scale) in ORIGINAL_MARSH_REEDS.items():
+        reeds = actors_by_label[label]
+        component = reeds.get_component_by_class(unreal.StaticMeshComponent)
+        actor_mesh = component.get_editor_property("static_mesh") if component else None
+        actor_mesh_path = actor_mesh.get_path_name() if actor_mesh else "None"
+        if actor_mesh_path != ORIGINAL_MARSH_REED_PATH:
+            fail("{} must use {}, found {}".format(
+                label,
+                ORIGINAL_MARSH_REED_PATH,
+                actor_mesh_path,
+            ))
+        location = reeds.get_actor_location()
+        rotation = reeds.get_actor_rotation()
+        scale = reeds.get_actor_scale3d()
+        if not all((
+            nearly_equal(location.x, expected_location[0], 1.0),
+            nearly_equal(location.y, expected_location[1], 1.0),
+            nearly_equal(location.z, expected_location[2], 1.0),
+            nearly_equal(rotation.pitch, 0.0, 0.1),
+            nearly_equal(rotation.yaw, expected_yaw, 0.1),
+            nearly_equal(rotation.roll, 0.0, 0.1),
+            nearly_equal(scale.x, expected_scale, 0.001),
+            nearly_equal(scale.y, expected_scale, 0.001),
+            nearly_equal(scale.z, expected_scale, 0.001),
+        )):
+            fail("{} transform drifted: location={}, rotation={}, scale={}".format(
+                label,
+                location,
+                rotation,
+                scale,
+            ))
+        if component.get_collision_enabled() != unreal.CollisionEnabled.NO_COLLISION:
+            fail("{} must remain visual-only NoCollision".format(label))
+        if unreal.Name("EmbermereOriginalArt") not in list(reeds.tags):
+            fail("{} must retain the EmbermereOriginalArt tag".format(label))
+        if unreal.Name("EmbermereGroundDressing") not in list(reeds.tags):
+            fail("{} must retain the EmbermereGroundDressing tag".format(label))
+
     for label, (expected_location, expected_yaw, expected_scale) in COMPOSITION_FOLIAGE.items():
         foliage = actors_by_label[label]
         location = foliage.get_actor_location()
@@ -591,6 +771,39 @@ def main():
                 scale,
             ))
 
+    expected_tree_materials = [
+        TIMBER_MATERIAL_PATH,
+        TIMBER_MATERIAL_PATH,
+        MOSS_MATERIAL_PATH,
+        MOSS_MATERIAL_PATH,
+        TREE_BILLBOARD_MATERIAL_PATH,
+    ]
+    for label in sorted(TREE_OVERRIDE_LABELS):
+        component = actors_by_label[label].get_component_by_class(unreal.StaticMeshComponent)
+        material_paths = [
+            component.get_material(index).get_path_name() if component.get_material(index) else "None"
+            for index in range(component.get_num_materials())
+        ]
+        if material_paths != expected_tree_materials:
+            fail("{} project-owned tree material override drifted: {}".format(label, material_paths))
+
+    for label in sorted(FOLIAGE_OVERRIDE_LABELS):
+        component = actors_by_label[label].get_component_by_class(unreal.StaticMeshComponent)
+        material = component.get_material(0) if component else None
+        material_path = material.get_path_name() if material else "None"
+        if material_path != MOSS_MATERIAL_PATH:
+            fail("{} project-owned foliage override drifted: {}".format(label, material_path))
+
+    boulder_component = actors_by_label["FabPass_Road_Boulder_01"].get_component_by_class(
+        unreal.StaticMeshComponent
+    )
+    boulder_material = boulder_component.get_material(0) if boulder_component else None
+    boulder_material_path = boulder_material.get_path_name() if boulder_material else "None"
+    if boulder_material_path != STONE_MATERIAL_PATH:
+        fail("FabPass_Road_Boulder_01 stone override drifted: {}".format(
+            boulder_material_path,
+        ))
+
     missing_ground_actors = sorted(GROUND_ACTOR_LABELS - set(actors_by_label))
     if missing_ground_actors:
         fail("missing ground foundation actors {}".format(missing_ground_actors))
@@ -605,6 +818,58 @@ def main():
 
     if wrong_ground_materials:
         fail("ground foundation must use {}: {}".format(GROUND_MATERIAL_PATH, wrong_ground_materials))
+
+    ground_material = unreal.EditorAssetLibrary.load_asset(GROUND_MATERIAL_PATH)
+    if not ground_material or not isinstance(ground_material, unreal.Material):
+        fail("missing project-owned ground material {}".format(GROUND_MATERIAL_PATH))
+
+    expression_count = unreal.MaterialEditingLibrary.get_num_material_expressions(
+        ground_material
+    )
+    if expression_count != GROUND_MATERIAL_EXPRESSION_COUNT:
+        fail("ground material must retain {} expressions, found {}".format(
+            GROUND_MATERIAL_EXPRESSION_COUNT,
+            expression_count,
+        ))
+
+    scalar_parameter_names = {
+        str(name)
+        for name in unreal.MaterialEditingLibrary.get_scalar_parameter_names(
+            ground_material
+        )
+    }
+    vector_parameter_names = {
+        str(name)
+        for name in unreal.MaterialEditingLibrary.get_vector_parameter_names(
+            ground_material
+        )
+    }
+    if scalar_parameter_names != GROUND_SCALAR_PARAMETERS:
+        fail("ground scalar parameters drifted: {}".format(
+            sorted(scalar_parameter_names),
+        ))
+    if vector_parameter_names != GROUND_VECTOR_PARAMETERS:
+        fail("ground vector parameters drifted: {}".format(
+            sorted(vector_parameter_names),
+        ))
+
+    path_half_width = None
+    for expression in unreal.MaterialEditingLibrary.get_material_expressions(
+        ground_material
+    ):
+        if not isinstance(expression, unreal.MaterialExpressionScalarParameter):
+            continue
+        if str(expression.get_editor_property("parameter_name")) == "PathHalfWidthCm":
+            path_half_width = expression.get_editor_property("default_value")
+            break
+    if path_half_width is None or not nearly_equal(
+        path_half_width,
+        GROUND_PATH_HALF_WIDTH_CM,
+    ):
+        fail("ground path half-width must remain {} cm, found {}".format(
+            GROUND_PATH_HALF_WIDTH_CM,
+            path_half_width,
+        ))
 
     for label in sorted(VISUAL_ONLY_GROUND_LABELS):
         component = actors_by_label[label].get_component_by_class(unreal.StaticMeshComponent)
@@ -633,7 +898,7 @@ def main():
             combat_scale,
         ))
 
-    for label, expected_location in {**STARTER_ENEMY_LAYOUT, **STARTER_MARKER_LAYOUT}.items():
+    for label, expected_location in STARTER_ENEMY_LAYOUT.items():
         actor = actors_by_label.get(label)
         if not actor:
             fail("missing starter encounter actor {}".format(label))
@@ -644,15 +909,48 @@ def main():
         )):
             fail("{} location drifted: expected {}, found {}".format(label, expected_location, location))
 
-    for label in sorted(STARTER_MARKER_LAYOUT):
-        marker_component = actors_by_label[label].get_component_by_class(unreal.StaticMeshComponent)
-        if not marker_component:
-            fail("{} has no static mesh component".format(label))
-        collision_enabled = marker_component.get_collision_enabled()
-        if collision_enabled != unreal.CollisionEnabled.NO_COLLISION:
-            fail("{} must remain visual-only with NoCollision, found {}".format(
+        mesh_component = actor.get_component_by_class(unreal.SkeletalMeshComponent)
+        if not mesh_component:
+            fail("{} has no skeletal mesh component".format(label))
+        skeletal_mesh = mesh_component.get_editor_property("skeletal_mesh_asset")
+        skeletal_mesh_path = skeletal_mesh.get_path_name() if skeletal_mesh else "None"
+        if skeletal_mesh_path != MARSH_PROWLER_MESH_PATH:
+            fail("{} must use {}, found {}".format(
                 label,
-                collision_enabled,
+                MARSH_PROWLER_MESH_PATH,
+                skeletal_mesh_path,
+            ))
+
+        relative_location = mesh_component.get_editor_property("relative_location")
+        relative_scale = mesh_component.get_editor_property("relative_scale3d")
+        if not all((
+            nearly_equal(relative_location.x, 0.0, 0.01),
+            nearly_equal(relative_location.y, 0.0, 0.01),
+            nearly_equal(relative_location.z, -95.0, 0.01),
+            nearly_equal(relative_scale.x, 0.65, 0.001),
+            nearly_equal(relative_scale.y, 0.65, 0.001),
+            nearly_equal(relative_scale.z, 0.65, 0.001),
+        )):
+            fail("{} Marsh Prowler component transform drifted: location={}, scale={}".format(
+                label,
+                relative_location,
+                relative_scale,
+            ))
+
+        animation_data = mesh_component.get_editor_property("animation_data")
+        idle_animation = animation_data.get_editor_property("anim_to_play")
+        idle_animation_path = idle_animation.get_path_name() if idle_animation else "None"
+        if idle_animation_path != MARSH_PROWLER_IDLE_PATH:
+            fail("{} must default to {}, found {}".format(
+                label,
+                MARSH_PROWLER_IDLE_PATH,
+                idle_animation_path,
+            ))
+        animation_mode = mesh_component.get_editor_property("animation_mode")
+        if animation_mode != unreal.AnimationMode.ANIMATION_SINGLE_NODE:
+            fail("{} must use single-node animation mode, found {}".format(
+                label,
+                animation_mode,
             ))
 
     enemy_locations = []
@@ -706,7 +1004,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} upright FabPass actors, {} original-art placements, separated starter pulls, visual-only encounter markers, gameplay anchors, moss ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

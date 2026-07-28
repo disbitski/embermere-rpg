@@ -1354,6 +1354,78 @@ Pipeline lesson:
   readability, physical behavior, and visual belonging still require the real
   world, the real camera, and human judgment.
 
+## 2026-07-27 Evening - The Marsh Prowler Entered Embermere
+
+The first creature pass and the first measured terrain-contact pass landed
+together. The starter enemy is no longer a placeholder shape, and the road no
+longer relies on one flat green plane to imply an environment.
+
+Original creature:
+
+- Built `SK_EmbermereMarshProwler_01` from a reviewed deterministic Blender
+  script using the user's swamp dire-wolf concept as mood and silhouette
+  guidance rather than an exact copy.
+- The saved source has 7,464 triangles, 3,878 vertices, five marsh-fantasy
+  materials, 26 authored bones, two physics proxies, and six actions: Idle,
+  Walk, Run, Attack, Hit, and Death.
+- Exported the skeletal mesh and each in-place action, then explicitly saved
+  the Unreal skeletal mesh, skeleton, physics asset, materials, and six
+  animation packages in a project-owned folder.
+- Added asset-agnostic animation roles to the generic enemy character. The
+  existing capsule, targeting, combat, loot, quest, leash, death, and respawn
+  systems remain the authorities.
+- Repaired all three saved level instances after discovering that the correct
+  Blueprint CDO did not overwrite their stale serialized mesh component state.
+- Clean PIE exercised Tab selection, Strike, Prowler retaliation, hit and death
+  presentation, target clear, Marsh Tonic loot, hide, and respawn.
+
+Ground and marsh identity:
+
+- Measured the real foundation at `Z=0` and lowered 67 ordinary art actors from
+  the inherited `Z=20` convention instead of trying to hide real gaps with
+  grass.
+- Removed two unsupported SoulCave ruin accents and three redundant enemy
+  marker meshes.
+- Applied project-owned component material overrides to 21 KiteDemo foliage
+  placements, preserving raw vendor packages.
+- Rebuilt `M_EmbermereGround` as a texture-free 38-expression moss/earth
+  material with broad crossed variation and a route-aligned `300` cm half-width
+  worn path.
+- Built `SM_EmbermereMarshReedCluster_01`, a deterministic 1,012-triangle
+  visual-only asset. The first preview's pale base technically passed but read
+  like a planter, so the accepted version shares the terrain material on its
+  low footprint. Four `NoCollision` clusters now dress the road and combat
+  pocket without blocking sightlines.
+
+Pipeline lessons:
+
+- Blueprint class defaults and saved placed instances are different
+  persistence gates.
+- Material graph edits belong outside PIE. A failed PIE-time save can leave a
+  broken live graph over a healthy disk package; restart before judging it.
+- UE 5.8's dedicated
+  `-ModelContextProtocolStartServer -ModelContextProtocolPort=8123` flags are
+  reliable for startup. On macOS, the project path must follow `open --args`.
+- A component override can make an incomplete vendor mesh visibly usable while
+  fresh commandlets still report its missing internal dependencies. Keep both
+  truths: accept the temporary presentation and plan the source replacement.
+- Fresh package validators, initialized-world physics traces, and human PIE
+  review answer different questions. None substitutes for the others.
+
+Verification:
+
+- The initialized editor passed all 27 Embermere automation tests with zero
+  failures, skips, or warnings.
+- The authoritative no-hot-reload Mac editor build succeeded.
+- Fresh saved-map and road-boundary validators emitted their success markers
+  with no Python errors.
+- A fresh headless Blender inspection reloaded the saved Prowler source and
+  confirmed topology, scale, bones, materials, and all six actions.
+- The accepted map now contains 59 grounded upright Fab actors and 14
+  project-owned placements. One honest follow-up remains: normal-route PIE
+  should reproduce a straight-line autorun contact near Mara before moving the
+  temporary village blocker.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

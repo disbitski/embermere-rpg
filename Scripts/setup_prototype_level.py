@@ -155,12 +155,6 @@ def build_level():
     for index, position in enumerate(starter_enemy_positions, start=1):
         spawn_asset("/Game/Blueprints/BP_StarterEnemy", f"Starter_Enemy_{index:02d}", position, "03_Wilderness/Enemies", tags=blockout_tag + ["Hostile"])
 
-    # Extra hostile markers remain visible even before enemy art is assigned.
-    for index, (x, y, _) in enumerate(starter_enemy_positions, start=1):
-        position = (x, y, 90)
-        marker = spawn_asset("/Engine/BasicShapes/Cone", f"Enemy_Visual_Marker_{index:02d}", position, "03_Wilderness/Enemies", (0.9, 0.9, 1.7), tags=blockout_tag + ["HostileMarker"])
-        disable_static_mesh_collision(marker)
-
     # Let the editor open on the useful overview.
     EDITOR_SUBSYSTEM.set_level_viewport_camera_info(vec(-1250, -3600, 1850), rot(-28, 36, 0))
     unreal.EditorLoadingAndSavingUtils.save_current_level()

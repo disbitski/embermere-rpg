@@ -1,0 +1,24 @@
+{
+  "dimensions_cm": [
+    168.0,
+    131.04,
+    187.8
+  ],
+  "triangles": 1012,
+  "vertices": 596,
+  "materials": [
+    "M_EmbermereGround",
+    "M_WaystoneMoss",
+    "M_Waystone",
+    "M_EmbermereTimber"
+  ],
+  "uv_channels": 1,
+  "non_manifold_edges": 0,
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "origin_z_cm": 0.0,
+  "collision_shapes": 0
+}

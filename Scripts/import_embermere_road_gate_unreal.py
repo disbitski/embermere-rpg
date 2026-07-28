@@ -14,7 +14,7 @@ ASSET_PATH = "{}/{}".format(DESTINATION_PATH, ASSET_NAME)
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 ORIGINAL_TAG = unreal.Name("EmbermereOriginalArt")
 PLACEMENT_LABEL = "Embermere_RoadGate_01"
-PLACEMENT_LOCATION = (1080.0, 540.0, 20.0)
+PLACEMENT_LOCATION = (1080.0, 540.0, 0.0)
 PLACEMENT_YAW = 20.0
 PLACEMENT_FOLDER = "04_Fab_Zone_Pass/02_Road/Embermere_Originals"
 

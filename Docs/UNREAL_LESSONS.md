@@ -541,3 +541,84 @@ For interactable-looking or directional props, validate both kinds of truth:
 technical eligibility covers mesh, materials, collision, persistence, and exact
 transform; world acceptance covers front-facing readability, terrain contact,
 route clearance, scale, and visual belonging.
+
+## Blueprint Defaults Do Not Rewrite Saved Placed Instances
+
+Changing a component or soft asset reference on a Blueprint class default
+object does not guarantee that already-placed level instances inherit it. The
+Marsh Prowler Blueprint CDO held the correct skeletal mesh and six animations,
+but all three saved map actors still serialized `CharacterMesh0=None`.
+
+For presentation migrations:
+
+- update and save the Blueprint CDO;
+- enumerate every relevant saved level instance;
+- apply the same component and presentation contract where stale overrides
+  exist;
+- save the Blueprint and level packages explicitly;
+- reload the map in a fresh process and validate every instance, not only the
+  class default.
+
+Class validity and placed-world validity are separate acceptance gates.
+
+## Build Material Graphs Outside PIE
+
+Unreal can let a script mutate a material graph while PIE is active and then
+refuse to save the package. That creates a dangerous split: the live object may
+be disconnected or partially rebuilt while the package on disk is still
+healthy. Continuing to inspect only the live graph can make a successful saved
+asset look corrupt.
+
+Stop PIE before destructive graph construction. Validate exact expression
+classes, count, parameter names, and output connections; save the package; then
+restart or reload in a fresh process before visual acceptance. If a PIE-time
+save fails, do not keep repairing the in-memory object blindly. Confirm the
+disk package first and use a controlled restart to restore its authoritative
+state.
+
+## Use The Dedicated Unreal MCP Launch Flags
+
+UE 5.8 can start the MCP listener during editor launch with:
+
+```text
+-ModelContextProtocolStartServer -ModelContextProtocolPort=8123
+```
+
+On macOS, the `.uproject` path must follow `open ... --args` so it is forwarded
+to Unreal:
+
+```bash
+open -a "/Users/Shared/Epic Games/UE_5.8/Engine/Binaries/Mac/UnrealEditor.app" \
+  --args "/Users/wizard/Documents/Unreal Game/Embermere.uproject" \
+  -ModelContextProtocolStartServer -ModelContextProtocolPort=8123
+```
+
+Putting the project before `--args` opened the editor without forwarding the
+project. Generic `-ExecCmds=ModelContextProtocol.StartServer 8123` also ran too
+early during startup. Use the plugin-specific flags or start the listener from
+the editor console after initialization.
+
+## Keep GUI And Commandlet Verification Isolated
+
+The editor GUI, PIE, and commandlets all touch shared Unreal state. Run
+commandlets sequentially with the GUI closed when authoritative package checks
+matter. A commandlet exit code is not enough for Python validators: require the
+expected success marker and reject any `LogPython: Error`.
+
+Before closing the GUI, explicitly save every intentional asset and map package.
+Do not treat a Slate Save shortcut or the editor's unsaved-status indicator as
+proof of disk persistence. A stuck status interaction can block MCP and normal
+shutdown; after explicit package saves, a fresh commandlet reload is the
+authoritative recovery check.
+
+## Component Overrides Do Not Repair Vendor Dependencies
+
+A project-owned component material override can make a vendor mesh render
+correctly in the level while the underlying static-mesh package still
+references missing vendor materials or textures. That is a valid temporary
+presentation fix, not a repaired dependency graph.
+
+Keep the override in reproducible placement scripts and validate visible
+components, but continue treating fresh-process load warnings as real. Replace
+incomplete vendor meshes with project-owned assets or a complete signed-in pack
+instead of editing or redistributing raw Marketplace packages.

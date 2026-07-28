@@ -19,8 +19,8 @@ PLACEMENT_FOLDER = "04_Fab_Zone_Pass/02_Road/Embermere_Originals"
 # inner supports overlap the gate's outer supports slightly, while the road's
 # 250 cm center opening remains untouched.
 PLACEMENTS = (
-    ("Embermere_BoundaryFence_GateSouth_01", (1206.55, 192.35, 20.0), 20.0),
-    ("Embermere_BoundaryFence_GateNorth_01", (953.45, 887.65, 20.0), 20.0),
+    ("Embermere_BoundaryFence_GateSouth_01", (1206.55, 192.35, 0.0), 20.0),
+    ("Embermere_BoundaryFence_GateNorth_01", (953.45, 887.65, 0.0), 20.0),
 )
 
 SHARED_MATERIALS = {

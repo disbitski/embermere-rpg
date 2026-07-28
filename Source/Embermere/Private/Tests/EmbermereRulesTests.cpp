@@ -1,5 +1,6 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
+#include "Animation/AnimSequence.h"
 #include "Characters/EmbermereCharacter.h"
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Components/EmbermereCombatComponent.h"
@@ -12,6 +13,8 @@
 #include "Data/EmbermereQuestData.h"
 #include "Data/EmbermereRulesData.h"
 #include "Data/EmbermereUiIconSet.h"
+#include "Engine/Blueprint.h"
+#include "Engine/SkeletalMesh.h"
 #include "Engine/Texture2D.h"
 #include "Game/EmbermerePlayerController.h"
 #include "Misc/AutomationTest.h"
@@ -1579,6 +1582,84 @@ bool FEmbermereQuestRewardTest::RunTest(const FString& Parameters)
 	}
 
 	TestFalse(TEXT("Completed quest cannot complete again"), Character->QuestLog->TryCompleteActiveQuest());
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereMarshProwlerPresentationTest,
+	"Embermere.Enemy.MarshProwlerPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereMarshProwlerPresentationTest::RunTest(const FString& Parameters)
+{
+	const FString ArtRoot = TEXT("/Game/Art/Embermere/Characters/Enemies/MarshProwler");
+	USkeletalMesh* ProwlerMesh = LoadObject<USkeletalMesh>(
+		nullptr,
+		*(ArtRoot + TEXT("/SK_EmbermereMarshProwler_01.SK_EmbermereMarshProwler_01")));
+	UBlueprint* EnemyBlueprint = LoadObject<UBlueprint>(
+		nullptr,
+		TEXT("/Game/Blueprints/BP_StarterEnemy.BP_StarterEnemy"));
+	TestNotNull(TEXT("Marsh Prowler skeletal mesh loads"), ProwlerMesh);
+	TestNotNull(TEXT("Starter enemy Blueprint loads"), EnemyBlueprint);
+	if (!ProwlerMesh || !EnemyBlueprint || !EnemyBlueprint->GeneratedClass)
+	{
+		return false;
+	}
+
+	const AEmbermereEnemyCharacter* EnemyDefaults =
+		Cast<AEmbermereEnemyCharacter>(EnemyBlueprint->GeneratedClass->GetDefaultObject());
+	TestNotNull(TEXT("Starter enemy defaults use the native enemy class"), EnemyDefaults);
+	if (!EnemyDefaults || !EnemyDefaults->GetMesh())
+	{
+		return false;
+	}
+
+	TestTrue(
+		TEXT("Starter enemy uses the Marsh Prowler mesh"),
+		EnemyDefaults->GetMesh()->GetSkeletalMeshAsset() == ProwlerMesh);
+	TestEqual(
+		TEXT("Starter enemy keeps an asset-agnostic soft mesh reference"),
+		EnemyDefaults->VisualSkeletalMesh.ToSoftObjectPath().ToString(),
+		ArtRoot + TEXT("/SK_EmbermereMarshProwler_01.SK_EmbermereMarshProwler_01"));
+	TestTrue(
+		TEXT("Marsh Prowler mesh uses the reviewed 0.65 world scale"),
+		EnemyDefaults->GetMesh()->GetRelativeScale3D().Equals(FVector(0.65f), KINDA_SMALL_NUMBER));
+	TestTrue(
+		TEXT("Marsh Prowler configured visual scale matches the component"),
+		EnemyDefaults->VisualMeshRelativeScale.Equals(FVector(0.65f), KINDA_SMALL_NUMBER));
+	TestTrue(
+		TEXT("Marsh Prowler feet align with the gameplay capsule"),
+		EnemyDefaults->GetMesh()->GetRelativeLocation().Equals(FVector(0.0f, 0.0f, -95.0f), KINDA_SMALL_NUMBER));
+	TestTrue(
+		TEXT("Marsh Prowler configured visual offset matches the component"),
+		EnemyDefaults->VisualMeshRelativeLocation.Equals(FVector(0.0f, 0.0f, -95.0f), KINDA_SMALL_NUMBER));
+	TestTrue(
+		TEXT("Starter enemy resolves all six visual animation roles"),
+		EnemyDefaults->HasCompleteVisualAnimationSet());
+
+	const TArray<TPair<FString, TSoftObjectPtr<UAnimSequence>>> AnimationRoles = {
+		{TEXT("Idle"), EnemyDefaults->IdleAnimation},
+		{TEXT("Walk"), EnemyDefaults->WalkAnimation},
+		{TEXT("Run"), EnemyDefaults->RunAnimation},
+		{TEXT("Attack"), EnemyDefaults->AttackAnimation},
+		{TEXT("Hit"), EnemyDefaults->HitAnimation},
+		{TEXT("Death"), EnemyDefaults->DeathAnimation}
+	};
+	for (const TPair<FString, TSoftObjectPtr<UAnimSequence>>& AnimationRole : AnimationRoles)
+	{
+		UAnimSequence* Sequence = AnimationRole.Value.LoadSynchronous();
+		TestNotNull(*FString::Printf(TEXT("%s animation loads"), *AnimationRole.Key), Sequence);
+		if (Sequence)
+		{
+			TestTrue(
+				*FString::Printf(TEXT("%s animation has authored time"), *AnimationRole.Key),
+				Sequence->GetPlayLength() > 0.0f);
+			TestTrue(
+				*FString::Printf(TEXT("%s animation shares the Prowler skeleton"), *AnimationRole.Key),
+				Sequence->GetSkeleton() == ProwlerMesh->GetSkeleton());
+		}
+	}
 
 	return true;
 }

@@ -1,0 +1,93 @@
+{
+  "dimensions_cm": [
+    414.734,
+    104.0,
+    209.5
+  ],
+  "bounds_min_cm": [
+    -208.734,
+    -52.0,
+    0.5
+  ],
+  "bounds_max_cm": [
+    206.0,
+    52.0,
+    210.0
+  ],
+  "triangles": 7464,
+  "vertices": 3878,
+  "materials": [
+    "M_ProwlerFur",
+    "M_ProwlerManeMoss",
+    "M_ProwlerMudDark",
+    "M_ProwlerEyes",
+    "M_ProwlerBone"
+  ],
+  "uv_channels": 1,
+  "non_manifold_edges": 0,
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "origin_cm": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "bone_count": 26,
+  "bones": [
+    "root",
+    "pelvis",
+    "spine_01",
+    "spine_02",
+    "neck_01",
+    "neck_02",
+    "head",
+    "jaw",
+    "ear_l",
+    "ear_r",
+    "front_l_upper",
+    "front_l_lower",
+    "front_l_paw",
+    "front_r_upper",
+    "front_r_lower",
+    "front_r_paw",
+    "tail_01",
+    "tail_02",
+    "tail_03",
+    "tail_04",
+    "hind_l_upper",
+    "hind_l_lower",
+    "hind_l_paw",
+    "hind_r_upper",
+    "hind_r_lower",
+    "hind_r_paw"
+  ],
+  "actions": {
+    "A_EmbermereMarshProwler_Idle": [
+      1,
+      49
+    ],
+    "A_EmbermereMarshProwler_Walk": [
+      1,
+      33
+    ],
+    "A_EmbermereMarshProwler_Run": [
+      1,
+      25
+    ],
+    "A_EmbermereMarshProwler_Attack": [
+      1,
+      25
+    ],
+    "A_EmbermereMarshProwler_Hit": [
+      1,
+      17
+    ],
+    "A_EmbermereMarshProwler_Death": [
+      1,
+      41
+    ]
+  }
+}

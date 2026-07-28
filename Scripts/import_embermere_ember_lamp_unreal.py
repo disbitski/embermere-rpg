@@ -22,13 +22,13 @@ REPLACED_LABELS = {
 PLACEMENTS = (
     {
         "label": "Embermere_EmberLamp_Mara_01",
-        "location": (-1970.0, -775.0, 20.0),
+        "location": (-1970.0, -775.0, 0.0),
         "yaw": 5.0,
         "folder": "04_Fab_Zone_Pass/01_Village/Embermere_Originals",
     },
     {
         "label": "Embermere_EmberLamp_Road_01",
-        "location": (-1150.0, -520.0, 20.0),
+        "location": (-1150.0, -520.0, 0.0),
         "yaw": 8.0,
         "folder": "04_Fab_Zone_Pass/02_Road/Embermere_Originals",
     },

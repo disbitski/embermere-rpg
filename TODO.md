@@ -6,69 +6,70 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the current 2026-07-27 module and saved supply-chest
-  map with MCP on port `8123`; restart only if the editor predates that work or
-  test discovery proves stale. Confirm Blender and its localhost bridge only
-  when another original-art pass is selected.
-- Discover and run all 26 tests, especially
-  `Embermere.UI.TimedStatusPresentation`,
-  `Embermere.UI.PaperDollPresentation`, and
-  `Embermere.Combat.StarterAbilityEffects`. The authoritative 2026-07-27
-  no-hot-reload build and fresh headless run passed 26/26. UI-art and saved-map
-  validators passed with explicit markers and no Python errors. The initialized
-  live editor passed native road-boundary traces, including the supply-chest
-  lid, with 61 upright `FabPass_` actors, ten original-art placements, exact
-  daylight, and the collision-cleared starter layout.
-- Retain the accepted data-driven timed-status rows:
-  - Warrior `Battle Shout`, Cleric `Ward`, and Ranger `Nature's Focus` should
-    appear beneath player mana with their existing ability art, name, live
-    countdown, beneficial color, and hover description;
-  - Ranger `Snare` and Wizard `Frost Root` should appear beneath the selected
-    target HP with harmful coloring and live countdown;
-  - reapplying the same effect must refresh one cell rather than duplicate it;
-  - expiration, enemy respawn, player respawn, target death, and target switch
-    must remove stale presentation;
-  - the two fixed `128x32` cells per row must not move player stats, target
-    stats, inventory, chat, or the hotbar.
-  `Meditate` remains an instantaneous mana recovery and should not create a
-  timed icon.
-- Retain the accepted utility semantics: Battle Shout and Nature's Focus grant
-  `+8 Attack Power` for 10 seconds; Ward grants `+10 Armor` for 10 seconds;
-  Snare deals light damage and applies `0.50x` movement for 6 seconds; Frost
-  Root deals light damage and applies `0.00x` movement for 4 seconds; Meditate
-  restores 18 missing mana. Confirm chat, cooldown, expiration, baseline
-  restoration, and respawn-safe clearing.
-- Reopen the `700x330` inventory empty and with Recruit Pack equipped. The
-  centered `128x160` armored-adventurer backdrop and occupied Recruit Pack
-  Back slot passed clean-PIE visual review on 2026-07-27. Confirm it remains
-  decorative, hit-test-invisible, and clear of the title,
-  bonuses, footer, hotbar, icons, labels, tooltips, click paths, and drag/drop.
-- Retain the accepted item-art and transaction baseline: fixed row/detail/slot
-  art, compact `Recruit Pack` copy, category fallback, icon-bearing reward
-  popup, fixed `236x62` fantasy drag token, gold/red drop feedback, Sort,
-  click/keyboard fallbacks, and atomic full-bag rollback. Physically inspect the
-  populated Recruit Pack and Marsh Tonic drag tokens in motion.
-- Retain `Q` autorun plus independent `W` and `S` cancellation. Physically press
-  `Ctrl+M` and confirm inversion feedback because Slate's atomic chord cannot
-  span the controller's later `PlayerTick` poll.
-- Walk the accepted road threshold and Prowler route. Preserve three clear gate
-  lanes, solid gate/fence/end-stone collision, 61 upright Fab actors, ten
-  original placements, and solo `525` cm pulls from homes at `(1900,300)`,
-  `(1700,1100)`, and `(2500,1300)`.
-- Inspect `Embermere_SupplyChest_Vendor_01` beside the village vendor table:
-  confirm the front lock and timber-plank silhouette face the PlayerStart
-  approach, the stone/moss/timber/iron/ember materials read together, the feet
-  contact terrain, the two authored body/lid boxes are solid, and the chest
-  leaves the Mara route clear.
-- Take the highest-value bounded slice: add restrained class/status VFX without
-  coupling presentation to effect rules, expand the original village-prop
-  family, begin cohesive signed-in Stylized Classic fantasy architecture, or
-  tune a concrete combat/respawn issue exposed by the normal route.
+- Restart Unreal if it predates the 2026-07-27 Marsh Prowler, terrain, and reed
+  packages. The editor can now start MCP during launch with
+  `-ModelContextProtocolStartServer -ModelContextProtocolPort=8123`; on macOS,
+  pass the `.uproject` after `--args` when using `open`. Confirm Blender and its
+  localhost bridge only when another original-art pass is selected.
+- Discover and run all 27 tests, especially
+  `Embermere.Enemy.MarshProwlerPresentation`,
+  `Embermere.Combat.StarterAbilityEffects`,
+  `Embermere.UI.TimedStatusPresentation`, and the inventory transaction suite.
+  Tonight's initialized editor passed 27/27 with zero failures, skips, or
+  warnings. The authoritative no-hot-reload Mac build, saved-map validator,
+  road-boundary traces, and saved Blender Prowler inspection also passed.
+- In clean PIE, accept the first original Marsh Prowler as a complete gameplay
+  presentation:
+  - peat, charcoal, moss, mud, bone, and amber materials read at normal camera
+    distance;
+  - paws contact terrain and the capsule, target ring, and nameplate remain
+    readable;
+  - Idle, Walk, Run, Attack, Hit, and Death route from generic enemy state;
+  - Tab targeting, Strike, retaliation, target clear, Marsh Tonic loot, death
+    hold, hide, and respawn complete without changing combat or quest rules;
+  - all three saved map instances retain the skeletal mesh and animation set,
+    not only the Blueprint CDO.
+- Recheck the completed grounding pass:
+  - 59 grounded upright `FabPass_` actors and 14 original-art placements;
+  - all ordinary art that previously sat at `Z=20` now rests at `Z=0`;
+  - the unsupported SoulCave arch/pillar accents and three enemy marker meshes
+    remain removed;
+  - the project-owned 38-expression moss/earth material keeps its broad
+    variation and `300` cm worn-road half width;
+  - four 1,012-triangle visual-only marsh-reed clusters use the terrain material
+    on their low footprint and remain `NoCollision`;
+  - foliage, reeds, rocks, enemies, target rings, and nameplates leave the road
+    and combat pocket readable.
+- Walk from PlayerStart through Mara, the road gate, and the three Prowler
+  homes. Straight-line `Q` autorun met Mara's temporary village cluster in
+  tonight's player-height pass; confirm this through normal play and move only
+  the temporary blocker if it remains reproducible. Preserve independent `W`
+  and `S` autorun cancellation, physical `Ctrl+M` feedback, three clear gate
+  lanes, and solo `525` cm pulls.
+- Retain the accepted HUD, effects, inventory, and equipment baseline:
+  fixed timed-status cells, four-class ability art and semantics, the
+  `700x330` paper-doll inventory, Recruit Pack bag/Back transactions, Marsh
+  Tonic use, tooltips/comparison, Sort, the `236x62` drag token, cooldowns,
+  clipped chat, and atomic full-bag rollback.
+- The imported KiteDemo meshes still reference some absent internal vendor
+  materials/textures in fresh commandlet logs even though project-owned
+  component overrides keep the visible zone readable. Do not edit or commit raw
+  vendor packages. Prefer replacing affected meshes with project-owned Blender
+  art or a complete signed-in Stylized Classic pack.
+- Highest-value next work:
+  1. tune Prowler attack timing, material balance, or animation transitions only
+     when normal-route PIE exposes a concrete issue;
+  2. remove the confirmed Mara-route blocker without weakening the village
+     silhouette;
+  3. extend subtle `NoCollision` marsh dressing only where sightlines remain
+     clear;
+  4. continue toward cohesive original or signed-in fantasy village
+     architecture and a true landscape/ground-detail lane.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-07-26
-  timed-status build. Current headless code passes all 26 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-07-27
+  Marsh Prowler and terrain integration. Current code passes all 27 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -106,6 +107,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.Combat.StarterAbilityEffects`
   - `Embermere.Enemy.LeashRules`
   - `Embermere.Enemy.LootRules`
+  - `Embermere.Enemy.MarshProwlerPresentation`
   - `Embermere.Equipment.SlotRules`
   - `Embermere.Equipment.InventoryTransactions`
   - `Embermere.Equipment.StatApplication`
@@ -152,6 +154,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - the nameplate accent/HP bar changes toward red/orange as enemy HP falls;
   - switching targets clears the old enemy marker;
   - killing the selected enemy clears the target and marker.
+- Manually verify the original Marsh Prowler presentation:
+  - all three saved enemies use the project-owned skeletal mesh and retain the
+    complete Idle, Walk, Run, Attack, Hit, and Death set;
+  - peat/charcoal/moss/mud, bone, and amber materials read at gameplay distance;
+  - paws contact terrain while the capsule, target ring, and nameplate remain
+    clear;
+  - targeting, Strike, retaliation, death, target clear, Marsh Tonic loot,
+    hide, and respawn preserve the existing gameplay rules.
 - Manually verify the live control fix in PIE:
   - `W`/`S` should cancel autorun.
   - `Ctrl+M` should toggle mouse Y inversion and show a temporary message.
@@ -164,9 +174,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 - Manually verify the new Mara marker in PIE:
   - Mara should show a temporary gold `!` and name marker above her.
 - Manually verify the first `FabPass_` environment layer in PIE:
-  - the map has a blue atmospheric sky, readable ambient fill, and muted moss foundation instead of the previous black sky/white ground presentation;
-  - all 61 remaining Fab art-pass actors stand upright, the original waystone sits at road elevation, both original ember lamps replace the former sci-fi lamps, the original road signpost reads clearly beside the route, and the original supply chest replaces the temporary village crate stack;
+  - the map has a blue atmospheric sky, readable ambient fill, and the
+    38-expression moss/earth road material instead of the previous black
+    sky/white or flat-green ground presentation;
+  - all 59 remaining Fab art-pass actors are grounded and upright; all 14
+    original placements remain present, including four terrain-blended
+    `NoCollision` marsh-reed clusters;
   - the three oversized sci-fi building shells are gone and PlayerStart has an unobstructed view toward Mara;
+  - the unsupported SoulCave accents and redundant enemy marker meshes remain removed;
   - village props leave Mara, PlayerStart, and the quest interaction route readable;
   - the road dressing points naturally from the village toward the wilderness pocket;
   - foliage and rocks frame the enemy pocket without hiding enemies, target rings, or nameplates;
@@ -226,12 +241,21 @@ Embermere has a working first-pass starter slice:
 - a project-owned Blender waystone, ember-lamp, road-signpost, road-gate,
   boundary-fence, boundary-stone, and supply-chest family with reviewed scripts,
   editable source, FBX, previews, authored collision, and ten validated saved
-  placements;
+  placements, plus four visual-only marsh-reed placements;
+- the first project-owned rigged enemy, `SK_EmbermereMarshProwler_01`, with
+  deterministic Blender source, 7,464 triangles, 26 authored bones, five
+  materials, six imported animations, asset-agnostic runtime routing, three
+  saved enemy instances, and placeholder fallback;
 - a project-owned fantasy inventory drag token with category sigils, contextual item text, and fixed bounds;
-- first Mac-friendly sky, ambient fill, fog-readability correction, and muted moss foundation material;
+- first Mac-friendly sky, ambient fill, fog-readability correction, and a
+  38-expression project-owned moss/earth/path material;
+- a measured grounding pass that lowered ordinary art to the real ground
+  surface, removed unsupported suspended accents and enemy marker geometry,
+  restored readable foliage overrides, and added four terrain-blended,
+  `NoCollision` marsh-reed clusters;
 - automation coverage for the race/class matrix, quest completion rewards,
   selected-target presentation, dead-caster rejection, starter ability effects,
-  timed-status presentation, enemy leash and loot rules, equipment
+  timed-status presentation, Prowler presentation, enemy leash and loot rules, equipment
   slot/stat/transaction rules, atomic inventory capacity, consumable use, item
   comparison/tooltips, identity-based inventory and drag/drop actions, autorun
   cancellation, damage immunity, enemy nameplate widget, chat log, hotbar
@@ -252,10 +276,12 @@ identity-preserving Sort, solo Prowler pulls, collision-cleared encounter
 markers, targeting, the original-art road family, transform-proven `W`/`S`
 autorun cancellation, and the empty-state paper-doll composition. Data-driven
 player and target status rows now make timed effects inspectable and passed
-clean-PIE review alongside occupied paper-doll contrast. The populated drag
-token in motion and physical `Ctrl+M` feedback remain honest physical-eye
-checks. The world remains stylistically mixed without real fantasy village
-buildings, final character art, class VFX, or audio.
+clean-PIE review alongside occupied paper-doll contrast. Embermere now has its
+first original rigged creature and a grounded moss/earth road treatment, so the
+art lane has moved beyond props without taking ownership of combat rules. The
+populated drag token in motion and physical `Ctrl+M` feedback remain honest
+physical-eye checks. The world remains stylistically mixed without real
+fantasy village buildings, player/race art, class VFX, or audio.
 
 ## Next Work
 
@@ -299,7 +325,15 @@ buildings, final character art, class VFX, or audio.
 - Add proper stylized fantasy village buildings now that the oversized sci-fi shells have been removed.
 - Expand the proven original Blender-to-Unreal lane from the waystone, ember
   lamps, road signpost, road gate, boundary fences, end stones, and supply chest
-  into compact village pieces before attempting rigged characters or creatures.
+  into compact village pieces while the accepted creature lane remains
+  independently reversible.
+- Polish the accepted Marsh Prowler only from concrete PIE feedback: attack
+  timing, action transitions, material balance, silhouette, physics bodies,
+  target-ring/nameplate clearance, and respawn presentation.
+- Retain the completed measured grounding baseline from
+  `Docs/GROUNDING_AND_TERRAIN_PASS.md`; replace incomplete vendor meshes with
+  project-owned or complete signed-in art rather than masking real placement or
+  dependency errors with more foliage.
 - Preserve the collision-cleared 525 cm solo-pull baseline while tuning leash,
   return-home speed, damage, and respawn timing only from normal-route PIE.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
@@ -730,6 +764,35 @@ buildings, final character art, class VFX, or audio.
 - Refreshed the 8:00 AM daily automation to start from the 61-Fab/10-original
   supply-chest baseline and to separate fresh-process persistence checks from
   initialized-live-world collision traces.
+- 2026-07-27 evening: built Embermere's first original rigged creature,
+  `SK_EmbermereMarshProwler_01`, from a reviewed deterministic Blender script.
+  The saved source has 7,464 triangles, 3,878 vertices, 26 authored bones, five
+  Stylized Classic marsh materials, applied transforms, and six actions:
+  Idle, Walk, Run, Attack, Hit, and Death.
+- Imported the skeletal mesh, skeleton, physics asset, materials, and six
+  animation sequences into a project-owned Unreal folder. Generic enemy state
+  now routes those animations without coupling combat, loot, target, quest, or
+  respawn rules to the art asset. All three saved Prowler map instances were
+  repaired and validated after discovering that a correct Blueprint CDO does
+  not overwrite stale placed-instance component state.
+- Completed the measured environment-grounding pass: ordinary art moved from
+  the false `Z=20` baseline to the real `Z=0` surface; unsupported SoulCave
+  accents and three visual enemy markers were removed; 21 foliage/tree
+  placements received project-owned overrides; and the ground became a
+  38-expression moss/earth material with a `300` cm worn-road half width.
+- Added `SM_EmbermereMarshReedCluster_01`, a deterministic 1,012-triangle,
+  four-material visual-only asset with a terrain-blended footprint. Four saved
+  `NoCollision` placements add marsh identity without blocking the road or
+  combat sightlines.
+- Clean PIE exercised the real Prowler targeting, Strike, retaliation, death,
+  target clear, Marsh Tonic loot, and respawn loop. Editor automation passed
+  27/27 with zero failures, skips, or warnings. The no-hot-reload Mac build,
+  fresh saved-map validator, road-boundary traces, and headless saved-Blender
+  inspection all passed.
+- Documented two honest follow-ups: straight-line autorun currently meets
+  Mara's temporary village cluster, and several KiteDemo meshes retain absent
+  internal vendor dependencies even though project-owned component overrides
+  keep the visible map readable.
 
 ## Asset Hunt
 

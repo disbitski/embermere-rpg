@@ -24,7 +24,9 @@ this snapshot. A new task should read files in this order:
 4. `Docs/PLAYTESTING.md`
 5. `Docs/UNREAL_LESSONS.md`
 6. `Docs/FAB_ASSET_PLAN.md`
-7. `JOURNEY.md` when historical detail is useful
+7. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
+8. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
+9. `JOURNEY.md` when historical detail is useful
 
 ## One-Page State
 
@@ -50,18 +52,18 @@ The project currently includes:
   sixteen data-driven starter-ability icons with tooltips, an illustrated
   paper-doll equipment backdrop, data-driven timed buff/control rows with live
   countdowns, and chat log;
-- a first local Fab/Epic art pass with 61 upright environment actors and ten
-  placements from an original Blender-built Embermere waystone, ember-lamp,
-  timber-signpost, traversable-road-gate, matching boundary-fence family, and
-  rune-topped boundary stones, plus an original village supply chest and a
-  Mac-friendly atmospheric daylight baseline;
-- 26 passing Unreal automation tests plus fresh-process UI-art/package and
+- a grounded local Fab/Epic art pass with 59 upright environment actors and 14
+  project-owned placements from an original Blender-built Embermere
+  waystone/lamp/signpost/gate/fence/boundary-stone/chest/reed family, a
+  38-expression moss/earth road material, and a Mac-friendly daylight baseline;
+- the first original rigged Marsh Prowler with six animations and
+  asset-agnostic runtime presentation across all three saved enemy instances;
+- 27 passing Unreal automation tests plus fresh-process UI-art/package and
   saved-map validators and initialized-live-world road-boundary traces.
 
 This is still prototype art. The first black-sky problem is corrected, but the
 scene remains mixed in style and is missing a cohesive fantasy village kit,
-final characters, animations, weapons, final ability VFX, audio, and
-final UI art.
+player/race characters, weapons, final ability VFX, audio, and final UI art.
 
 ## Game Vision
 
@@ -282,13 +284,13 @@ Games Launcher. Saved map references may be missing until those packs exist.
 Environment scripts:
 
 - `Scripts/place_fab_zone_pass.py`: idempotent base placement recipe; the saved
-  map retains 61 Fab actors after the original supply chest replaces one crate
-  stack.
+  map retains 59 Fab actors after project-owned replacements and removal of
+  unsupported accents and enemy markers.
 - `Scripts/place_fab_zone_pass_unreal.py`: executes placement through Unreal
   Python and saves the map.
 - `Scripts/validate_fab_zone_pass_unreal.py`: reloads and validates the saved
   map, actor count, upright rotations, gameplay anchors, collision-cleared
-  encounter layout, ten original-art placements, moss foundation, and exact
+  encounter layout, 14 original-art placements, moss/earth terrain, and exact
   Mac-friendly daylight values.
 - `Scripts/configure_starter_items.py`: idempotently migrates tracked starter
   item assets, currently the level-1 Back-slot Recruit Pack reward.
@@ -327,7 +329,7 @@ The third original asset is `SM_EmbermereRoadSignpost_01`, built by
 explicit classic-FBX lane in `Scripts/import_embermere_road_signpost_unreal.py`.
 It adds a broad timber sign silhouette while reusing stone, moss, iron, and
 ember materials. The saved actor `Embermere_RoadSignpost_01` sits beside the
-village road at `(20, -170, 20)`, yaw `22`; two authored boxes cover the base
+village road at `(20, -170, 0)`, yaw `22`; two authored boxes cover the base
 and post while its overhead arms remain non-colliding. The importer explicitly
 saves the new `M_EmbermereTimber` package so it cannot exist only in memory.
 
@@ -335,7 +337,7 @@ The fourth original asset is `SM_EmbermereRoadGate_01`, built by
 `Scripts/blender/build_embermere_road_gate.py` and imported through
 `Scripts/import_embermere_road_gate_unreal.py`. It reuses the complete
 stone/moss/timber/iron/ember material family and frames the road into the
-wilderness at `(1080, 540, 20)`, yaw `20`. Four authored boxes cover the two
+wilderness at `(1080, 540, 0)`, yaw `20`. Four authored boxes cover the two
 footings and posts while the 250 cm center opening and overhead span remain
 clear. Native traces and the saved-map validator both enforce that traversal
 contract: traces prove the opening/support behavior, while validation locks the
@@ -359,18 +361,34 @@ authored collision boxes. South and north instances terminate the fence family
 at gate-local Y `-570` and `570`, bringing the map to nine original-art
 placements. The same integration pass relocates only the two vendor trees that
 masked the south fence; exact validator assertions preserve those accepted
-foliage transforms without changing the 62-actor Fab count.
+foliage transforms.
 
 The seventh original model type is `SM_EmbermereSupplyChest_01`, built by
 `Scripts/blender/build_embermere_supply_chest.py` and imported through
 `Scripts/import_embermere_supply_chest_unreal.py`. It is a 2,364-triangle,
 `180.0 x 119.0 x 123.1` cm timber/stone/iron/ember/moss village prop with one
 UV channel and two authored body/lid boxes. The saved
-`Embermere_SupplyChest_Vendor_01` actor at `(-1545, -920, 20)`, yaw `108`,
-replaces `FabPass_Village_Crates_A`, bringing the map to 61 Fab actors and ten
-original-art placements. The validator locks classic-FBX provenance, exact
+`Embermere_SupplyChest_Vendor_01` actor at `(-1545, -920, 0)`, yaw `108`,
+replaces `FabPass_Village_Crates_A`. The validator locks classic-FBX provenance, exact
 bounds, shared materials, collision, tag, transform, and old-crate removal; a
 native live-editor trace proves the lid solid.
+
+The eighth original model type is `SK_EmbermereMarshProwler_01`, built by
+`Scripts/blender/build_embermere_marsh_prowler.py`. The saved source contains
+7,464 triangles, 3,878 vertices, five materials, 26 authored bones, two
+physics proxies, and Idle, Walk, Run, Attack, Hit, and Death actions. Unreal
+retains a skeletal mesh, skeleton, physics asset, five materials, and six
+animation sequences. Generic enemy state owns animation routing while the
+existing capsule and gameplay components remain authoritative. The Blueprint
+CDO and all three placed instances are validated independently.
+
+The ninth original model type is
+`SM_EmbermereMarshReedCluster_01`, built by
+`Scripts/blender/build_embermere_marsh_reed_cluster.py` and imported through
+`Scripts/import_embermere_marsh_reeds_unreal.py`. It is a 1,012-triangle,
+`168 x 131.04 x 187.8` cm visual-only cluster with four project materials and
+no collision. Four exact saved placements use `M_EmbermereGround` on their low
+footprints and bring the project-owned level layer to 14 placements.
 
 The chosen community bridge is `djeada/blender-mcp-server`, pinned during
 installation to commit `7eed33edf4aca2ab0ca84a6da27321f89f68b504`.
@@ -424,6 +442,16 @@ At the start of each Unreal editor session, run in the Unreal console:
 ```text
 ModelContextProtocol.StartServer 8123
 ```
+
+For unattended startup, UE 5.8 supports:
+
+```text
+-ModelContextProtocolStartServer -ModelContextProtocolPort=8123
+```
+
+On macOS, pass the `.uproject` after `open ... --args`; see
+`Docs/UNREAL_SETUP.md` for the exact command. Generic `-ExecCmds` startup was
+too early for the MCP module in testing.
 
 Client config generation is normally one-time setup:
 
@@ -546,10 +574,10 @@ Latest verified baseline (2026-07-27):
   `RecruitPack`;
 - fresh-process UI-art validation retained its explicit success marker with no
   `LogPython: Error`;
-- the validator reloaded the saved map and passed with 61 upright `FabPass_`
-  actors, ten exact original-art placements, visual-only encounter geometry,
-  required gameplay anchors, moss-ground overrides, and exact saved
-  sun/skylight/fog values;
+- the validator reloaded the saved map and passed with 59 grounded upright
+  `FabPass_` actors, 14 exact original-art placements, four `NoCollision` reed
+  clusters, required gameplay anchors, the 38-expression moss/earth road
+  material, and exact saved sun/skylight/fog values;
 - Blender MCP generated and validated the 2,364-triangle supply chest; Unreal
   imported it through `FbxFactory`, reused all five project materials, retained
   two authored colliders, replaced the temporary vendor crate stack, and saved
@@ -566,8 +594,12 @@ Latest verified baseline (2026-07-27):
 - starter Prowlers now use a `525` cm aggro radius and collision-cleared home
   points at `(1900, 300)`, `(1700, 1100)`, and `(2500, 1300)`; a focused PIE
   probe proved one enemy moved and attacked while the other two stayed home;
-- enemy markers plus safe/combat area bands are explicitly `NoCollision` in the
-  saved map and setup script;
+- the three redundant enemy markers were removed; safe/combat area bands remain
+  explicitly `NoCollision` in the saved map and setup script;
+- the original Marsh Prowler retained 7,464 triangles, 26 authored bones, five
+  materials, and six saved animations through a fresh Blender inspection and
+  Unreal package reload. Clean PIE exercised target, Strike, retaliation,
+  death, target clear, tonic loot, hide, and respawn;
 - a fresh editor loaded the 2026-07-18 controller module. Transform-based PIE
   checks proved `Q` autorun advances the player and independent `W` and `S`
   presses stop all subsequent movement. A July 22 populated-inventory capture
@@ -626,6 +658,18 @@ Read `Docs/UNREAL_LESSONS.md` for the full record. The highest-risk lessons are:
     Prefer the native implementation for known native actors, preserve
     reflected fallback for other implementers, and recheck the real Blueprint
     actor in clean PIE.
+19. **Placed Blueprint instances:** a correct Blueprint CDO does not rewrite
+    stale serialized component state on actors already saved in a map. Update,
+    save, and fresh-process validate the class and every placed instance.
+20. **Material lifecycle:** build destructive material graphs outside PIE.
+    Validate live structure, save the package, then reload it fresh; a failed
+    PIE-time save can leave a broken in-memory graph over a healthy disk asset.
+21. **MCP startup:** prefer
+    `-ModelContextProtocolStartServer -ModelContextProtocolPort=8123`; on macOS
+    put the `.uproject` after `open ... --args`.
+22. **Vendor overrides:** a component material override can repair the visible
+    level without repairing missing dependencies in the vendor mesh package.
+    Preserve the warning and replace the source asset over time.
 
 ## Known Workspace State
 
@@ -649,16 +693,21 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-07-27 supply-chest map and current module, then confirm MCP/test discovery;
-restart only if the editor or test registry proves stale.
+2026-07-27 Marsh Prowler, terrain, reed, and map packages, then confirm MCP/test
+discovery; restart only if the editor or test registry proves stale.
 
 First fresh-session checks:
 
 1. Confirm Unreal has the latest module/map and open
    `L_Embermere_Prototype`; restart only when stale.
-2. Start MCP on port `8123` and wait briefly for tool discovery.
-3. Run/discover all 26 tests.
+2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
+   dedicated startup flags documented above for unattended launches.
+3. Run/discover all 27 tests.
 4. Start PIE and verify:
+   - all three Marsh Prowlers retain the project-owned skeletal mesh and route
+     Idle, Walk, Run, Attack, Hit, and Death from generic enemy state; verify
+     paws/terrain contact, swamp palette, target-ring/nameplate clearance,
+     combat, tonic loot, hide, and respawn;
    - retain all four accepted class palettes across sixteen starter-ability
      illustrations, fixed `32x32` art inside unchanged `92x64` slots, key/name
      fit, empty and Interact stability, data-driven hover tooltips, and
@@ -702,25 +751,30 @@ First fresh-session checks:
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
-   - 61 upright Fab actors plus ten original placements from the waystone,
-     ember-lamp, timber-signpost, road-gate, boundary-fence, boundary-stone, and
-     supply-chest family; inspect the route-facing chest and solid lid, retain
-     clear gate lanes and solid fences/end stones, and retain a clear spawn/Mara route,
-     readable road/enemy pocket,
-     a ruin that does not trap the player, muted moss ground, and balanced
-     daylight/fog under the atmospheric sky.
+   - 59 grounded upright Fab actors plus 14 original placements from the
+     waystone/lamp/signpost/gate/fence/boundary-stone/chest/reed family; inspect
+     the route-facing chest and solid lid, four visual-only reed clusters,
+     clear gate lanes and solid fences/end stones, the moss/earth road, a
+     navigable spawn/Mara route, readable enemy pocket, supported ruin
+     silhouette, and balanced daylight/fog under the atmospheric sky.
 5. Walk from the village into the new Prowler triangle. Confirm each `525` cm
    pull stays solo, visual markers/bands do not block movement, and an enemy can
    leash and return home normally.
 6. Inspect the accepted road approach to both boundary fences and rune-topped
    end stones. Confirm the relocated south-side trees preserve depth without
    masking the threshold.
-7. Confirm the already-added precise daylight, moss-ground, original-art,
+7. Confirm the already-added precise daylight, moss/earth-ground, original-art,
    collision, and encounter-layout validator assertions still match the
    clean-restart visual result.
 
 High-value milestones after that:
 
+- tune Prowler animation timing, transitions, material balance, or physics only
+  when normal-route PIE exposes a concrete issue;
+- reproduce the straight-line autorun contact near Mara, then move only the
+  temporary blocker if normal player movement confirms it;
+- extend sparse `NoCollision` marsh dressing only where route and combat
+  sightlines remain clear;
 - add restrained class/status VFX for the now-visible timed effects without
   coupling presentation assets to gameplay rules;
 - expand the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest lane
@@ -780,13 +834,18 @@ Start by reading, in order:
 
 Then inspect git status and recent commits. Preserve the existing unstaged Config/DefaultEngine.ini and Config/DefaultInput.ini changes; do not stage, revert, or overwrite them unless we intentionally decide they are required.
 
-Unreal may already be open with the project loaded. If it has not been restarted since the latest C++ build, ask me to restart it before authoritative PIE checks. Unreal MCP uses port 8123 and is started inside Unreal with:
+Unreal may already be open with the project loaded. If it has not been restarted since the latest C++ build, ask me to restart it before authoritative PIE checks. Unreal MCP uses port 8123. Prefer launching UE 5.8 with:
+-ModelContextProtocolStartServer -ModelContextProtocolPort=8123
+The editor-console fallback is:
 ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-07-27 current module and
-supply-chest map, then run all 26 tests. Retain the accepted fixed player and
+Follow TODO.md's Start Here section. Confirm the 2026-07-27 current module,
+Marsh Prowler, terrain, reeds, and saved map, then run all 27 tests. Retain the
+original rigged Prowler across all three instances and verify Idle, Walk, Run,
+Attack, Hit, Death, terrain contact, target presentation, combat, tonic loot,
+hide, and respawn. Retain the accepted fixed player and
 selected-target status rows with saved ability art, names, live countdowns,
 beneficial/harmful colors, hover descriptions, duplicate refresh, and clearing
 on expiration, respawn, death, and target switch without neighboring HUD
@@ -809,14 +868,15 @@ bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback,
 click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure
 feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy
 nameplate, raised saturated emissive target ring, quest/reward loop, enemy
-leash, respawn protection, chat clipping, atmospheric daylight/moss-ground
-balance, 61 upright Fab actors, and all ten original-art placements including
-the route-facing supply chest with solid authored lid collision. Walk the
+leash, respawn protection, chat clipping, atmospheric daylight and the
+38-expression moss/earth road, 59 grounded upright Fab actors, and all 14
+original-art placements including four `NoCollision` reed clusters and the
+route-facing supply chest with solid authored lid collision. Walk the
 normal route and prove each 525 cm Prowler pull stays solo while visual
-marker/band geometry remains non-colliding. Then add restrained VFX, build a
-compact original Blender village prop, pursue cohesive fantasy architecture,
-tune concrete combat/respawn issues, or take the highest-value next milestone
-when the path is clear.
+band geometry remains non-colliding. Reproduce the possible temporary
+Mara-route blocker before moving it. Then tune only concrete Prowler issues,
+add restrained VFX, extend subtle marsh dressing, pursue cohesive fantasy
+architecture, or take the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

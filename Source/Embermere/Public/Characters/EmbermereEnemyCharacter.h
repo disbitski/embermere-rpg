@@ -9,6 +9,8 @@ class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
 class UEmbermereItemData;
 class UWidgetComponent;
+class UAnimSequence;
+class USkeletalMesh;
 
 UCLASS()
 class EMBERMERE_API AEmbermereEnemyCharacter : public AEmbermereCharacter
@@ -56,6 +58,36 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Prototype AI")
 	float ReturnHomeSpeedCmPerSecond = 260.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Visuals")
+	TSoftObjectPtr<UAnimSequence> IdleAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Visuals")
+	TSoftObjectPtr<UAnimSequence> WalkAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Visuals")
+	TSoftObjectPtr<UAnimSequence> RunAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Visuals")
+	TSoftObjectPtr<UAnimSequence> AttackAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Visuals")
+	TSoftObjectPtr<UAnimSequence> HitAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Visuals")
+	TSoftObjectPtr<UAnimSequence> DeathAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Visuals")
+	TSoftObjectPtr<USkeletalMesh> VisualSkeletalMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Visuals")
+	FVector VisualMeshRelativeLocation = FVector(0.0f, 0.0f, -95.0f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Visuals")
+	FRotator VisualMeshRelativeRotation = FRotator::ZeroRotator;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Visuals")
+	FVector VisualMeshRelativeScale = FVector(0.65f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	float NameplateHeight = 225.0f;
@@ -111,6 +143,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|AI")
 	float GetEffectiveMoveSpeedCmPerSecond() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Visuals")
+	bool HasCompleteVisualAnimationSet() const;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Loot")
 	bool ShouldDropLoot(float RandomRoll) const;
 
@@ -148,12 +183,27 @@ private:
 
 	FTransform SpawnTransform;
 	FTimerHandle RespawnTimerHandle;
+	FTimerHandle DeathHideTimerHandle;
 	TWeakObjectPtr<AActor> AggroTarget;
+	UPROPERTY(Transient)
+	TObjectPtr<UAnimSequence> CurrentVisualAnimation;
+
 	double LastAttackTimeSeconds = -1000.0;
+	double VisualAnimationLockUntilSeconds = -1.0;
+	float LastObservedHealth = -1.0f;
 	bool bSelectedByPlayer = false;
 	bool bReturningHome = false;
+	bool bMovedThisFrame = false;
+	bool bCurrentVisualAnimationLooping = false;
 
 	void UpdatePrototypeAi(float DeltaSeconds);
+	void ApplyConfiguredVisualPresentation();
+	void UpdateVisualAnimation();
+	float PlayVisualAnimation(
+		const TSoftObjectPtr<UAnimSequence>& Animation,
+		bool bLooping,
+		bool bRestartIfAlreadyPlaying = false);
+	void HideDeadBody();
 	void UpdatePrototypeTargetPresentation();
 	void UpdatePrototypeTargetRing(bool bIsVisible);
 	AActor* FindAggroTarget() const;

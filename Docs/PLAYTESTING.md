@@ -6,7 +6,12 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
-3. Confirm the map shows a blue atmospheric sky, readable ambient light, muted moss ground instead of a white foundation, 61 upright `FabPass_` actors plus ten original-art placements from the waystone, ember-lamp, road-signpost, road-gate, boundary-fence, boundary-stone, and supply-chest family, an unobstructed PlayerStart/Mara route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three starter enemies.
+3. Confirm the map shows a blue atmospheric sky, readable ambient light, the
+   varied moss/earth road surface, 59 grounded upright `FabPass_` actors plus
+   14 original-art placements from the waystone, ember-lamp, road-signpost,
+   road-gate, boundary-fence, boundary-stone, supply-chest, and four marsh-reed
+   clusters, a navigable PlayerStart/Mara route, the dressed road, wilderness
+   pocket, upgraded ruin, quest giver, and three original Marsh Prowlers.
 4. Inspect `Embermere_EmberLamp_Mara_01` and `Embermere_EmberLamp_Road_01`: pale stone/moss base, dark iron cage, warm ember crystal, terrain contact, clear route placement, and simple collision that does not trap the player.
 5. Inspect `Embermere_RoadSignpost_01`: warm timber, stone/moss footing,
    iron bands, three ember route marks, terrain contact, clear route placement,
@@ -28,6 +33,12 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
    five shared materials should remain coherent, the feet should contact
    terrain, both authored body/lid boxes should be solid, and the chest should
    leave the Mara route clear.
+10. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
+    should blend into the ground, reeds should add scale without hiding the
+    route, and the whole cluster must remain `NoCollision`.
+11. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
+    marker meshes have not returned. Foliage should use readable
+    project-owned overrides rather than white/default rendering.
 
 ## Finding Mara
 
@@ -70,53 +81,61 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 18. Move toward the ruin and enemy pocket, passing cleanly through the road gate between the two matching boundary fences and their rune-topped end stones.
 19. Press `Tab` to target a nearby hostile.
 20. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP bar, flat animated 24-segment emissive gold ground ring, and the HUD target panel range state.
-21. Inspect the starter hotbar before combat. The first four slots should show
+21. Inspect the Marsh Prowler at normal camera distance: peat/charcoal/moss/mud,
+    bone, and amber accents should separate cleanly; all four paws should meet
+    terrain; the capsule, target ring, and nameplate must remain readable.
+22. Watch Idle before aggro, Walk or Run during movement, Attack during
+    retaliation, Hit when damaged, and Death when defeated. The hidden/dead
+    interval and respawn must return to a clean living locomotion state.
+23. Inspect the starter hotbar before combat. The first four slots should show
     fixed `32x32` Warrior illustrations inside the unchanged `92x64` cells,
     with readable key/name text and no movement of empty or Interact slots.
     Hover each active slot and confirm its tooltip includes description, power,
     mana, meter-based range or Self, and cooldown. Repeat after selecting each
     starter class so all sixteen project-owned illustrations receive a viewport
     check.
-22. Press `1` to use the first starter ability.
-23. Press `1` again before the cooldown finishes and confirm the bottom-left log reports the ability ready time.
-24. Confirm the cooling hotbar icon and text dim together while the live countdown remains in the fixed two-line label area.
-25. As Warrior, press `4` for Battle Shout and confirm chat reports `+8 Attack
+24. Press `1` to use the first starter ability.
+25. Press `1` again before the cooldown finishes and confirm the bottom-left log reports the ability ready time.
+26. Confirm the cooling hotbar icon and text dim together while the live countdown remains in the fixed two-line label area.
+27. As Warrior, press `4` for Battle Shout and confirm chat reports `+8 Attack
     Power` for 10 seconds. Confirm one beneficial status cell appears beneath
     player mana with the saved Battle Shout icon, name, live countdown, and
     hover description. Reapply it after cooldown and confirm the same cell
     refreshes instead of duplicating. After it expires, the cell should clear
     and damage should return to baseline.
-26. As Cleric, press `3` for Ward and confirm chat reports `+10 Armor` for 10
+28. As Cleric, press `3` for Ward and confirm chat reports `+10 Armor` for 10
     seconds; incoming damage should be reduced during the ward and its
     beneficial status cell should clear when the effect expires.
-27. As Ranger, press `2` for Snare and confirm it deals light damage, halves
+29. As Ranger, press `2` for Snare and confirm it deals light damage, halves
     the target's movement for 6 seconds, and then restores normal movement.
     The selected-target panel should show the Snare icon, name, harmful color,
     live countdown, and hover description beneath target HP.
-28. As Ranger, press `4` for Nature's Focus and confirm the same shared timed
+30. As Ranger, press `4` for Nature's Focus and confirm the same shared timed
     Attack Power and player-status contract as Battle Shout.
-29. As Wizard, press `2` for Frost Root and confirm it deals light damage,
+31. As Wizard, press `2` for Frost Root and confirm it deals light damage,
     stops target movement for 4 seconds, shows the same generic target-status
     treatment with Frost Root data, and then releases the target.
-30. Spend mana, press Wizard `4` for Meditate, and confirm exactly 18 missing
+32. Spend mana, press Wizard `4` for Meditate, and confirm exactly 18 missing
     mana is restored without exceeding maximum mana. Because it is
     instantaneous, Meditate should not create a timed-status cell.
-31. Confirm combat, target, quest, XP, inventory, mouse, cooldown, utility
+33. Confirm combat, target, quest, XP, inventory, mouse, cooldown, utility
     effect, and death/recovery messages remain clipped as single-line rows
     inside the bottom-left chat/combat log.
-32. Expect one nearby enemy to chase and melee you when you enter its 525 cm aggro radius. The other two Prowlers should remain at their separated homes.
-33. Confirm the selected enemy can cross the visual-only combat-pocket band and visual cone marker without sticking. Pull it farther away and confirm it eventually leashes back toward its spawn instead of chasing indefinitely into the village.
-34. Confirm an enemy respawn clears any old Snare or Frost Root state instead
+34. Expect one nearby enemy to chase and melee you when you enter its 525 cm aggro radius. The other two Prowlers should remain at their separated homes.
+35. Confirm the selected enemy can cross the visual-only combat-pocket band
+    without sticking. Pull it farther away and confirm it eventually leashes
+    back toward its spawn instead of chasing indefinitely into the village.
+36. Confirm an enemy respawn clears any old Snare or Frost Root state instead
     of preserving reduced movement into its next life.
-35. Defeat a Marsh Prowler and confirm the chat reports one Marsh Tonic looted and inventory gains a stack. Repeated drops should increase the same stack up to its limit.
-36. After taking damage, select Marsh Tonic and click `Use`; confirm it restores up to 25 health and 10 mana and consumes one tonic. At full health/mana, `Use` must be disabled and preserve the stack.
-37. Defeat three starter enemies.
-38. Return to Mara and press `F` to complete the quest. Confirm the temporary
+37. Defeat a Marsh Prowler and confirm the chat reports one Marsh Tonic looted and inventory gains a stack. Repeated drops should increase the same stack up to its limit.
+38. After taking damage, select Marsh Tonic and click `Use`; confirm it restores up to 25 health and 10 mana and consumes one tonic. At full health/mana, `Use` must be disabled and preserve the stack.
+39. Defeat three starter enemies.
+40. Return to Mara and press `F` to complete the quest. Confirm the temporary
     reward popup shows the Recruit Pack art in a fixed `32x32` cell beside
     readable reward text without changing the popup bounds.
-39. With both Recruit Pack and Marsh Tonic in the bag, select one and click `Sort`; confirm armor appears before consumables, names sort alphabetically within a category, the same item stays selected, and chat reports `Inventory sorted`.
-40. Begin dragging a bag row and confirm the Sort control becomes unavailable and the bag order stays fixed until the drag ends. Recheck one valid and one invalid equipment drop afterward.
-41. Inspect the equipment column with empty slots and again with Recruit Pack
+41. With both Recruit Pack and Marsh Tonic in the bag, select one and click `Sort`; confirm armor appears before consumables, names sort alphabetically within a category, the same item stays selected, and chat reports `Inventory sorted`.
+42. Begin dragging a bag row and confirm the Sort control becomes unavailable and the bag order stays fixed until the drag ends. Recheck one valid and one invalid equipment drop afterward.
+43. Inspect the equipment column with empty slots and again with Recruit Pack
     equipped. Confirm the project-owned armored-adventurer backdrop stays
     centered behind the unchanged ten-slot grid, remains decorative and
     noninteractive, does not obscure slot icons or labels, and does not move
@@ -144,6 +163,9 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
   duplicate applications refresh, and expiration/respawn/target clearing
   removes stale presentation without moving neighboring HUD panels.
 - Enemies show red bottom-left combat log messages clipped inside the shaded chat panel when they melee the player.
+- Marsh Prowlers use the project-owned skeletal mesh and route Idle, Walk, Run,
+  Attack, Hit, and Death animations from generic enemy state. The same combat
+  capsule, loot, leash, target, quest, and respawn rules remain authoritative.
 - Enemies leash and return home if pulled too far from their spawn area.
 - If the player dies, autorun turns off, a bottom-left death message appears, and the player respawns after a short delay with a brief damage-protection message.
 - Defeating starter enemies advances `StarterEnemyDefeated`.
@@ -183,7 +205,15 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - Nameplates use a native UMG widget component and target highlighting uses a dedicated emissive material on a flat animated 24-segment ring; a future decal/texture treatment can add runes and softer edges.
 - The bottom-left chat/combat log is clipped inside its shaded panel and currently uses single-line rows; final chat history, scrolling, and fantasy styling still need a proper UI pass.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.
-- The first local Fab/Epic environment pass is upright and spawn-safe after removing three oversized sci-fi shells. Its first atmosphere/ambient-light correction is in place, but collision, scale, route readability, final lighting balance, and style cohesion still need manual PIE review.
+- The first local Fab/Epic environment pass is grounded and spawn-safe after
+  removing three oversized sci-fi shells, unsupported ruin accents, and
+  redundant enemy markers. Its atmosphere, moss/earth path, project-owned
+  foliage overrides, and sparse reeds are accepted as a prototype baseline,
+  but style cohesion and real fantasy village architecture still need work.
+- Some KiteDemo source meshes retain missing internal vendor
+  material/texture references in fresh commandlet logs. The visible component
+  overrides are intentional temporary presentation; they are not a repaired
+  vendor dependency graph.
 - The original gate/fence/end-stone family is collision-validated and keeps the
   road opening clear. The two former masking trees now sit farther into the
   south foliage band, and exact validator assertions preserve that accepted

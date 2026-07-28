@@ -6,7 +6,10 @@ Embermere does not have final high-fantasy art assets installed yet. The current
 
 - We have a playable starter map: `/Game/Maps/L_Embermere_Prototype`.
 - We have gameplay Blueprints for player, enemies, game mode, and a quest giver.
-- We have a first local environment pass using imported Epic/Fab packs, but we do not yet have production-ready fantasy buildings, creatures, weapons, icons, VFX, or UI art.
+- We have a first local environment pass using imported Epic/Fab packs plus a
+  project-owned rigged starter creature, terrain material, icons, and original
+  prop/ground-cover family. We still do not have production-ready fantasy
+  buildings, player/race art, weapons, VFX, audio, or final UI skinning.
 - We should start with free assets, then buy focused paid packs only when they clearly save time or improve cohesion.
 - Blender has begun replacing the most identity-defining temporary props and
   architecture one bounded asset family at a time; Fab remains useful for
@@ -26,15 +29,43 @@ First local placement pass:
 
 - `Scripts/place_fab_zone_pass.py` stores the idempotent placement list for the `FabPass_` art layer.
 - `Scripts/place_fab_zone_pass_unreal.py` runs that placement list through Unreal Python and saves `/Game/Maps/L_Embermere_Prototype`.
-- `Scripts/validate_fab_zone_pass_unreal.py` loads the saved map and verifies the `FabPass_` actor count, required gameplay anchors, encounter layout, original-art placements, moss foundation material, and exact Mac-friendly daylight settings.
-- The pass removes the old visual-only village blockout buildings, road markers, and ruin blockout pieces, then creates 61 tagged `EmbermereFabPass` actors in `04_Fab_Zone_Pass` outliner folders. A separate project-owned layer places `Embermere_Waystone_Road_01`, `Embermere_EmberLamp_Mara_01`, `Embermere_EmberLamp_Road_01`, `Embermere_RoadSignpost_01`, `Embermere_RoadGate_01`, two matching `Embermere_BoundaryFence_*` actors, two rune-topped `Embermere_BoundaryStone_*` end markers, and `Embermere_SupplyChest_Vendor_01`, all tagged `EmbermereOriginalArt`, for ten original placements replacing temporary props and defining the road-to-wilderness threshold and village vendor edge.
+- `Scripts/validate_fab_zone_pass_unreal.py` loads the saved map and verifies the
+  `FabPass_` actor count, required gameplay anchors, encounter layout,
+  original-art placements, moss/earth material graph, and exact Mac-friendly
+  daylight settings.
+- The pass removes the old visual-only village blockout buildings, road
+  markers, ruin blockout pieces, unsupported SoulCave accents, and three enemy
+  marker meshes, leaving 59 tagged `EmbermereFabPass` actors in
+  `04_Fab_Zone_Pass` outliner folders. A separate project-owned layer contains
+  ten solid waystone/lamp/signpost/gate/fence/boundary-stone/supply-chest
+  placements plus four visual-only marsh-reed clusters, for 14 original-art
+  placements.
 - The script keeps Mara, PlayerStart, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring intact. Starter-enemy home points are deliberately authored in the setup script so collision-safe encounter tuning is reproducible.
 - The Unreal Python helper assigns rotation fields by name. Do not use positional `unreal.Rotator(...)` arguments here; the first pass mapped intended yaw into pitch and tilted the environment.
-- Validation rejects any `FabPass_` actor with meaningful pitch or roll and requires all ten original placements, their exact meshes/tags/transforms, and clean classic-FBX bounds plus authored box colliders for the imported Blender props. It also locks the two foliage transforms that reveal the accepted south-fence silhouette and rejects restoration of the replaced `FabPass_Village_Crates_A` stack. `Scripts/validate_road_boundary_traces_unreal.py` separately proves three road-gate lanes clear, one gate support solid, both boundary-fence centers solid, both boundary-stone cores solid, and the supply-chest lid solid when run in the initialized live editor world.
+- Validation rejects any `FabPass_` actor with meaningful pitch or roll and
+  requires all 14 original placements, their exact meshes/tags/transforms, the
+  expected solid-prop colliders, and explicit `NoCollision` on the four reeds.
+  It also locks the two foliage transforms that reveal the accepted south-fence
+  silhouette and rejects restoration of the replaced crate and unsupported
+  accents. `Scripts/validate_road_boundary_traces_unreal.py` separately proves
+  three road-gate lanes clear, one gate support solid, both boundary-fence
+  centers solid, both boundary-stone cores solid, and the supply-chest lid
+  solid when run in the initialized live editor world.
 - The three Marsh Prowler homes now form a collision-cleared solo-pull triangle at `(1900, 300)`, `(1700, 1100)`, and `(2500, 1300)`, with a `525` cm aggro radius and at least `800` cm between homes. Native WorldStatic overlap queries were used to avoid hidden vendor rock/stair collision.
-- Safe-area and combat-pocket bands plus enemy marker meshes are visual guides only. Their saved components use `NoCollision`, and the validator rejects a rebuild that turns those decorations into invisible blockers.
+- Safe-area and combat-pocket bands are visual guides only. Their saved
+  components use `NoCollision`; the redundant enemy marker meshes were
+  removed.
 - The map now includes a first Mac-friendly daylight baseline: `SkyAtmosphere`, real-time movable skylight fill, and restrained height-fog color/density. The validator asserts the sun, skylight, fog, and atmosphere settings so rebuilt maps do not regress to the previous black-sky state.
-- `/Game/Art/Embermere/Environment/M_EmbermereGround` gives the zone plane and both prototype area platforms a muted moss color. The setup script reapplies it and validation rejects missing overrides.
+- `/Game/Art/Embermere/Environment/M_EmbermereGround` is now a project-owned
+  38-expression moss/earth material with broad macro variation and a
+  route-aligned path whose `PathHalfWidthCm` is `300`. The setup script
+  reapplies it and validation rejects missing parameters, connections, or
+  overrides.
+- Twenty-one KiteDemo components use project-owned material overrides for
+  current readability. Some source meshes still log absent internal vendor
+  dependencies in a fresh process; those overrides do not repair the raw
+  package graph. Replace incomplete meshes over time and never commit or resave
+  raw vendor packs merely to hide those warnings.
 
 ## How To Install Assets
 

@@ -42,6 +42,32 @@ def actor_label(actor):
         return actor.get_name()
 
 
+def apply_project_material_overrides(data, actor, label):
+    component = actor.get_component_by_class(unreal.StaticMeshComponent)
+    if not component:
+        return
+
+    material_paths = None
+    if label.startswith(("FabPass_Road_Pine_", "FabPass_Wild_Tree_")):
+        material_paths = [
+            data.TIMBER_MATERIAL,
+            data.TIMBER_MATERIAL,
+            data.MOSS_MATERIAL,
+            data.MOSS_MATERIAL,
+            data.TREE_BILLBOARD_MATERIAL,
+        ]
+    elif any(token in label for token in ("_Fern", "_Ferns", "_Flowers", "_Grass")):
+        material_paths = [data.MOSS_MATERIAL]
+    elif label == "FabPass_Road_Boulder_01":
+        material_paths = [data.STONE_MATERIAL]
+
+    if material_paths:
+        for index, material_path in enumerate(material_paths):
+            material = unreal.EditorAssetLibrary.load_asset(material_path)
+            if material:
+                component.set_material(index, material)
+
+
 def remove_visuals(data):
     removed_prior = 0
     removed_greybox = 0
@@ -70,7 +96,7 @@ def spawn_entry(data, entry):
     if asset is None:
         return {"name": entry["name"], "asset": asset_path, "status": "missing"}
 
-    location = unreal.Vector(float(entry["x"]), float(entry["y"]), float(entry.get("z", 20.0)))
+    location = unreal.Vector(float(entry["x"]), float(entry["y"]), float(entry.get("z", 0.0)))
     actor = unreal.EditorLevelLibrary.spawn_actor_from_object(asset, location, rot(entry.get("yaw", 0.0)))
     if actor is None:
         return {"name": entry["name"], "asset": asset_path, "status": "not_created"}
@@ -79,6 +105,7 @@ def spawn_entry(data, entry):
     actor.set_actor_scale3d(scale_value(entry.get("scale", 1.0)))
     actor.tags = list(actor.tags) + [unreal.Name(entry.get("tag", data.FAB_TAG))]
     actor.set_folder_path(entry["folder"])
+    apply_project_material_overrides(data, actor, entry["name"])
     return {"name": entry["name"], "asset": asset_path, "status": "created"}
 
 
