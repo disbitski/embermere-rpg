@@ -368,6 +368,97 @@ bool FEmbermereTimedStatusPresentationTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereWorldStatusVfxPresentationTest,
+	"Embermere.UI.WorldStatusVfxPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereWorldStatusVfxPresentationTest::RunTest(const FString& Parameters)
+{
+	const UEmbermereRulesData* Rules = LoadObject<UEmbermereRulesData>(
+		nullptr,
+		TEXT("/Game/Data/DA_EmbermereRules.DA_EmbermereRules"));
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	AEmbermereEnemyCharacter* Enemy = NewObject<AEmbermereEnemyCharacter>();
+	TestNotNull(TEXT("Saved rules resolve for world status VFX"), Rules);
+	TestNotNull(TEXT("Character can be created for world status VFX"), Character);
+	TestNotNull(TEXT("Enemy can be created for world status VFX"), Enemy);
+	if (!Rules || !Character || !Enemy ||
+		!Character->Combat || !Character->Stats || !Enemy->Stats)
+	{
+		return false;
+	}
+
+	FEmbermereAbilityDefinition BattleShout;
+	FEmbermereAbilityDefinition Ward;
+	FEmbermereAbilityDefinition Snare;
+	FEmbermereAbilityDefinition FrostRoot;
+	TestTrue(TEXT("Battle Shout resolves for world status VFX"), Rules->GetAbilityDefinition("BattleShout", BattleShout));
+	TestTrue(TEXT("Ward resolves for world status VFX"), Rules->GetAbilityDefinition("Ward", Ward));
+	TestTrue(TEXT("Snare resolves for world status VFX"), Rules->GetAbilityDefinition("Snare", Snare));
+	TestTrue(TEXT("Frost Root resolves for world status VFX"), Rules->GetAbilityDefinition("FrostRoot", FrostRoot));
+
+	Character->Stats->InitializeVitals();
+	Enemy->Stats->InitializeVitals();
+	Character->RefreshStatusEffectVfx();
+	TestEqual(TEXT("Status VFX uses eight stable rune segments"), Character->GetStatusEffectVfxSegmentCount(), 8);
+	TestEqual(TEXT("Status VFX starts hidden"), Character->GetVisibleStatusEffectVfxSegmentCount(), 0);
+	TestTrue(
+		TEXT("Status VFX uses the project-owned emissive material"),
+		Character->GetStatusEffectVfxMaterialPath().Contains(TEXT("M_EmbermereTargetRing")));
+
+	TestTrue(TEXT("Battle Shout activates for world status VFX"), Character->Combat->ExecuteAbility(BattleShout));
+	Character->RefreshStatusEffectVfx();
+	TestEqual(TEXT("Battle Shout shows all world-status segments"), Character->GetVisibleStatusEffectVfxSegmentCount(), 8);
+	TestTrue(TEXT("Battle Shout resolves as beneficial world VFX"), Character->IsStatusEffectVfxBeneficial());
+	const FLinearColor BattleShoutColor = Character->GetStatusEffectVfxColor();
+	TestTrue(
+		TEXT("Attack-power VFX resolves to ember gold"),
+		BattleShoutColor.R > BattleShoutColor.G && BattleShoutColor.G > BattleShoutColor.B);
+
+	Character->Stats->ClearTemporaryEffects();
+	TestTrue(TEXT("Ward activates for world status VFX"), Character->Combat->ExecuteAbility(Ward));
+	Character->RefreshStatusEffectVfx();
+	const FLinearColor WardColor = Character->GetStatusEffectVfxColor();
+	TestTrue(
+		TEXT("Armor VFX resolves to blue-white"),
+		WardColor.B > WardColor.R && WardColor.B > WardColor.G);
+
+	Character->Stats->ApplyDamage(Character->Stats->MaxHealth * 2.0f);
+	Character->RefreshStatusEffectVfx();
+	TestEqual(TEXT("Death hides world status VFX"), Character->GetVisibleStatusEffectVfxSegmentCount(), 0);
+
+	Character->Stats->ClearTemporaryEffects();
+	Character->RefreshStatusEffectVfx();
+	TestEqual(TEXT("Clearing buffs hides world status VFX"), Character->GetVisibleStatusEffectVfxSegmentCount(), 0);
+
+	Character->Stats->InitializeVitals();
+	Enemy->Stats->InitializeVitals();
+	Character->Combat->SetTarget(Enemy);
+	TestTrue(TEXT("Snare activates for world status VFX"), Character->Combat->ExecuteAbility(Snare));
+	Enemy->RefreshStatusEffectVfx();
+	TestFalse(TEXT("Snare resolves as harmful world VFX"), Enemy->IsStatusEffectVfxBeneficial());
+	TestEqual(TEXT("Snare shows all enemy world-status segments"), Enemy->GetVisibleStatusEffectVfxSegmentCount(), 8);
+	const FLinearColor SnareColor = Enemy->GetStatusEffectVfxColor();
+	TestTrue(
+		TEXT("Snare resolves to marsh green"),
+		SnareColor.G > SnareColor.R && SnareColor.G > SnareColor.B);
+
+	Enemy->Stats->InitializeVitals();
+	Character->Stats->InitializeVitals();
+	TestTrue(TEXT("Frost Root activates for world status VFX"), Character->Combat->ExecuteAbility(FrostRoot));
+	Enemy->RefreshStatusEffectVfx();
+	const FLinearColor RootColor = Enemy->GetStatusEffectVfxColor();
+	TestTrue(
+		TEXT("Root resolves to brighter frost blue than Snare"),
+		RootColor.B > RootColor.G && RootColor.B > SnareColor.B);
+
+	Enemy->Stats->InitializeVitals();
+	Enemy->RefreshStatusEffectVfx();
+	TestEqual(TEXT("Respawn-style initialization hides world status VFX"), Enemy->GetVisibleStatusEffectVfxSegmentCount(), 0);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereCombatDeadCasterRejectedTest,
 	"Embermere.Combat.DeadCasterRejected",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

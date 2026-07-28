@@ -8,10 +8,23 @@
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/EmbermereTargetingComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Data/EmbermereRulesData.h"
+#include "Engine/StaticMesh.h"
 #include "Game/EmbermerePlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Materials/MaterialInterface.h"
+#include "UObject/ConstructorHelpers.h"
+
+namespace
+{
+constexpr int32 StatusEffectVfxSegmentCount = 8;
+constexpr float StatusEffectVfxBeneficialRadius = 54.0f;
+constexpr float StatusEffectVfxHarmfulRadius = 66.0f;
+constexpr float StatusEffectVfxSegmentThickness = 3.5f;
+}
 
 AEmbermereCharacter::AEmbermereCharacter()
 {
@@ -42,6 +55,37 @@ AEmbermereCharacter::AEmbermereCharacter()
 	Equipment = CreateDefaultSubobject<UEmbermereEquipmentComponent>(TEXT("Equipment"));
 	QuestLog = CreateDefaultSubobject<UEmbermereQuestLogComponent>(TEXT("QuestLog"));
 
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> StatusSegmentMeshFinder(
+		TEXT("/Engine/BasicShapes/Plane.Plane"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> StatusMaterialFinder(
+		TEXT("/Game/Art/Embermere/Targeting/M_EmbermereTargetRing.M_EmbermereTargetRing"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> FallbackStatusMaterialFinder(
+		TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+	for (int32 SegmentIndex = 0; SegmentIndex < StatusEffectVfxSegmentCount; ++SegmentIndex)
+	{
+		UStaticMeshComponent* Segment = CreateDefaultSubobject<UStaticMeshComponent>(
+			*FString::Printf(TEXT("StatusEffectVfxSegment_%02d"), SegmentIndex));
+		Segment->SetupAttachment(RootComponent);
+		if (StatusSegmentMeshFinder.Succeeded())
+		{
+			Segment->SetStaticMesh(StatusSegmentMeshFinder.Object);
+		}
+		if (StatusMaterialFinder.Succeeded())
+		{
+			Segment->SetMaterial(0, StatusMaterialFinder.Object);
+		}
+		else if (FallbackStatusMaterialFinder.Succeeded())
+		{
+			Segment->SetMaterial(0, FallbackStatusMaterialFinder.Object);
+		}
+		Segment->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Segment->SetCanEverAffectNavigation(false);
+		Segment->SetCastShadow(false);
+		Segment->SetVisibility(false);
+		Segment->SetHiddenInGame(true);
+		StatusEffectVfxSegments.Add(Segment);
+	}
+
 	CharacterName = FText::FromString(TEXT("Embermere Adventurer"));
 }
 
@@ -65,6 +109,7 @@ void AEmbermereCharacter::Tick(float DeltaSeconds)
 		GetCharacterMovement()->MaxWalkSpeed =
 			BaseWalkSpeedCmPerSecond * Stats->GetMovementSpeedMultiplier();
 	}
+	UpdateStatusEffectVfx(DeltaSeconds);
 }
 
 void AEmbermereCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -107,6 +152,161 @@ void AEmbermereCharacter::MoveRight(float Value)
 	{
 		const FRotator YawRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
 		AddMovementInput(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y), Value);
+	}
+}
+
+void AEmbermereCharacter::RefreshStatusEffectVfx()
+{
+	UpdateStatusEffectVfx(0.0f);
+}
+
+int32 AEmbermereCharacter::GetStatusEffectVfxSegmentCount() const
+{
+	return StatusEffectVfxSegments.Num();
+}
+
+int32 AEmbermereCharacter::GetVisibleStatusEffectVfxSegmentCount() const
+{
+	return bStatusEffectVfxVisible ? StatusEffectVfxSegments.Num() : 0;
+}
+
+FLinearColor AEmbermereCharacter::GetStatusEffectVfxColor() const
+{
+	return StatusEffectVfxColor;
+}
+
+bool AEmbermereCharacter::IsStatusEffectVfxBeneficial() const
+{
+	return bStatusEffectVfxVisible && bStatusEffectVfxBeneficial;
+}
+
+FString AEmbermereCharacter::GetStatusEffectVfxMaterialPath() const
+{
+	if (StatusEffectVfxSegments.IsEmpty() || !StatusEffectVfxSegments[0])
+	{
+		return FString();
+	}
+	const UMaterialInterface* Material = StatusEffectVfxSegments[0]->GetMaterial(0);
+	return Material ? Material->GetPathName() : FString();
+}
+
+void AEmbermereCharacter::UpdateStatusEffectVfx(float DeltaSeconds)
+{
+	const TArray<FEmbermereActiveStatusEffect> Effects = Stats
+		? Stats->GetActiveStatusEffects()
+		: TArray<FEmbermereActiveStatusEffect>();
+	const FEmbermereActiveStatusEffect* PresentedEffect = nullptr;
+	for (const FEmbermereActiveStatusEffect& Effect : Effects)
+	{
+		if (!Effect.bBeneficial)
+		{
+			PresentedEffect = &Effect;
+			break;
+		}
+		if (!PresentedEffect)
+		{
+			PresentedEffect = &Effect;
+		}
+	}
+
+	bStatusEffectVfxVisible = PresentedEffect && Stats && !Stats->IsDead();
+	if (!bStatusEffectVfxVisible)
+	{
+		StatusEffectVfxColor = FLinearColor::Transparent;
+		bStatusEffectVfxBeneficial = false;
+		for (UStaticMeshComponent* Segment : StatusEffectVfxSegments)
+		{
+			if (Segment)
+			{
+				Segment->SetVisibility(false);
+				Segment->SetHiddenInGame(true);
+			}
+		}
+		return;
+	}
+
+	bStatusEffectVfxBeneficial = PresentedEffect->bBeneficial;
+	float RotationSpeedDegreesPerSecond = bStatusEffectVfxBeneficial ? 34.0f : -20.0f;
+	float RingRadius = bStatusEffectVfxBeneficial
+		? StatusEffectVfxBeneficialRadius
+		: StatusEffectVfxHarmfulRadius;
+	if (!bStatusEffectVfxBeneficial &&
+		PresentedEffect->Ability.MovementSpeedMultiplier < 1.0f)
+	{
+		const bool bRooted =
+			PresentedEffect->Ability.MovementSpeedMultiplier <= KINDA_SMALL_NUMBER;
+		StatusEffectVfxColor = bRooted
+			? FLinearColor(0.12f, 0.82f, 1.0f, 1.0f)
+			: FLinearColor(0.28f, 0.78f, 0.24f, 1.0f);
+	}
+	else if (PresentedEffect->Ability.EffectType == EEmbermereAbilityEffectType::ArmorBuff)
+	{
+		StatusEffectVfxColor = FLinearColor(0.32f, 0.64f, 1.0f, 1.0f);
+	}
+	else if (PresentedEffect->Ability.EffectType == EEmbermereAbilityEffectType::AttackPowerBuff)
+	{
+		StatusEffectVfxColor = FLinearColor(1.0f, 0.34f, 0.06f, 1.0f);
+	}
+	else
+	{
+		StatusEffectVfxColor = bStatusEffectVfxBeneficial
+			? FLinearColor(1.0f, 0.72f, 0.18f, 1.0f)
+			: FLinearColor(0.92f, 0.12f, 0.08f, 1.0f);
+	}
+
+	StatusEffectVfxRotationDegrees = FMath::Fmod(
+		StatusEffectVfxRotationDegrees + DeltaSeconds * RotationSpeedDegreesPerSecond,
+		360.0f);
+	const UWorld* World = GetWorld();
+	const float TimeSeconds = World
+		? World->GetTimeSeconds()
+		: FMath::Abs(StatusEffectVfxRotationDegrees) / FMath::Max(1.0f, FMath::Abs(RotationSpeedDegreesPerSecond));
+	const float PulseAlpha = 0.5f + 0.5f * FMath::Sin(TimeSeconds * 3.2f);
+	const float PulseScale = 1.0f + 0.07f * PulseAlpha;
+	const float Brightness = 0.78f + 0.22f * PulseAlpha;
+	FLinearColor AnimatedColor = StatusEffectVfxColor;
+	AnimatedColor.R *= Brightness;
+	AnimatedColor.G *= Brightness;
+	AnimatedColor.B *= Brightness;
+	const float SegmentLength =
+		2.0f * RingRadius * FMath::Tan(PI / static_cast<float>(StatusEffectVfxSegmentCount)) * 0.56f;
+
+	if (StatusEffectVfxMaterials.Num() != StatusEffectVfxSegments.Num())
+	{
+		StatusEffectVfxMaterials.SetNum(StatusEffectVfxSegments.Num());
+	}
+	for (int32 SegmentIndex = 0; SegmentIndex < StatusEffectVfxSegments.Num(); ++SegmentIndex)
+	{
+		UStaticMeshComponent* Segment = StatusEffectVfxSegments[SegmentIndex];
+		if (!Segment)
+		{
+			continue;
+		}
+		Segment->SetVisibility(true);
+		Segment->SetHiddenInGame(false);
+		if (!StatusEffectVfxMaterials[SegmentIndex])
+		{
+			StatusEffectVfxMaterials[SegmentIndex] = Segment->CreateDynamicMaterialInstance(0);
+		}
+		if (StatusEffectVfxMaterials[SegmentIndex])
+		{
+			StatusEffectVfxMaterials[SegmentIndex]->SetVectorParameterValue(TEXT("Color"), AnimatedColor);
+			StatusEffectVfxMaterials[SegmentIndex]->SetVectorParameterValue(TEXT("BaseColor"), AnimatedColor);
+		}
+
+		const float AngleDegrees =
+			(360.0f * static_cast<float>(SegmentIndex)) / static_cast<float>(StatusEffectVfxSegments.Num())
+			+ StatusEffectVfxRotationDegrees;
+		const float AngleRadians = FMath::DegreesToRadians(AngleDegrees);
+		Segment->SetRelativeLocation(FVector(
+			FMath::Cos(AngleRadians) * RingRadius * PulseScale,
+			FMath::Sin(AngleRadians) * RingRadius * PulseScale,
+			bStatusEffectVfxBeneficial ? 7.0f : 4.0f));
+		Segment->SetRelativeRotation(FRotator(0.0f, AngleDegrees + 90.0f, 0.0f));
+		Segment->SetRelativeScale3D(FVector(
+			SegmentLength / 100.0f,
+			StatusEffectVfxSegmentThickness / 100.0f,
+			1.0f));
 	}
 }
 

@@ -151,6 +151,27 @@ respond to concrete PIE feedback rather than increasing detail by default.
    the placeholder as fallback until a later production replacement is
    intentionally accepted.
 
+## Live Acceptance 2026-07-28
+
+Clean PIE exercised both sides of the complete prototype contract:
+
+- real 6-damage retaliation at the 2-second cadence killed the player, triggered
+  recovery protection, and sent the engaged Prowler home;
+- a bounded PIE-only zero-damage diagnostic preserved enough health to prove
+  four Strikes, target clear, Marsh Tonic loot, death hold, hide, 12-second
+  respawn, and restored `100/100` health;
+- the other two Prowlers remained at their separated homes during the focused
+  kill loop;
+- the saved skeletal mesh, six animation roles, capsule, target ring,
+  nameplate, quest, loot, leash, and respawn behavior remained independently
+  intact.
+
+The temporary damage override was never saved. It existed only to expose the
+later death/loot/respawn states without weakening the accepted combat baseline.
+Future attack, transition, material, physics, or silhouette work should start
+from a concrete normal-route observation rather than increasing complexity by
+default.
+
 ## Acceptance Questions
 
 - Does the creature read as an Embermere marsh predator at gameplay distance?

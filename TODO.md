@@ -6,18 +6,20 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Restart Unreal if it predates the 2026-07-27 Marsh Prowler, terrain, and reed
-  packages. The editor can now start MCP during launch with
+- Confirm Unreal is running the 2026-07-28 world-status VFX module and saved
+  route-repair map. The editor can start MCP during launch with
   `-ModelContextProtocolStartServer -ModelContextProtocolPort=8123`; on macOS,
   pass the `.uproject` after `--args` when using `open`. Confirm Blender and its
   localhost bridge only when another original-art pass is selected.
-- Discover and run all 27 tests, especially
+- Discover and run all 28 tests, especially
   `Embermere.Enemy.MarshProwlerPresentation`,
   `Embermere.Combat.StarterAbilityEffects`,
-  `Embermere.UI.TimedStatusPresentation`, and the inventory transaction suite.
-  Tonight's initialized editor passed 27/27 with zero failures, skips, or
-  warnings. The authoritative no-hot-reload Mac build, saved-map validator,
-  road-boundary traces, and saved Blender Prowler inspection also passed.
+  `Embermere.UI.TimedStatusPresentation`,
+  `Embermere.UI.WorldStatusVfxPresentation`, and the inventory transaction
+  suite. The initialized editor and authoritative fresh commandlet passed the
+  complete 28-test suite. The no-hot-reload Mac build, saved-map validator,
+  initialized-world route/boundary traces, and saved Blender Prowler inspection
+  also passed.
 - In clean PIE, accept the first original Marsh Prowler as a complete gameplay
   presentation:
   - peat, charcoal, moss, mud, bone, and amber materials read at normal camera
@@ -25,8 +27,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - paws contact terrain and the capsule, target ring, and nameplate remain
     readable;
   - Idle, Walk, Run, Attack, Hit, and Death route from generic enemy state;
-  - Tab targeting, Strike, retaliation, target clear, Marsh Tonic loot, death
-    hold, hide, and respawn complete without changing combat or quest rules;
+  - Tab targeting, Strike, real retaliation through player death/recovery,
+    target clear, Marsh Tonic loot, death hold, hide, and respawn complete
+    without changing combat or quest rules;
   - all three saved map instances retain the skeletal mesh and animation set,
     not only the Blueprint CDO.
 - Recheck the completed grounding pass:
@@ -41,16 +44,23 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - foliage, reeds, rocks, enemies, target rings, and nameplates leave the road
     and combat pocket readable.
 - Walk from PlayerStart through Mara, the road gate, and the three Prowler
-  homes. Straight-line `Q` autorun met Mara's temporary village cluster in
-  tonight's player-height pass; confirm this through normal play and move only
-  the temporary blocker if it remains reproducible. Preserve independent `W`
-  and `S` autorun cancellation, physical `Ctrl+M` feedback, three clear gate
-  lanes, and solo `525` cm pulls.
+  homes. The reproduced straight-line `Q` contact was
+  `Embermere_SupplyChest_Vendor_01`; its accepted transform is now
+  `(-1740, -1180, 0)`, yaw `108`. Clean PIE moved beyond the old stop point,
+  while the saved-map validator enforces a `225` cm spawn-corridor clearance
+  and the live trace validator proves the player-height corridor clear.
+  Preserve independent `W` and `S` autorun cancellation, physical `Ctrl+M`
+  feedback, three clear gate lanes, and solo `525` cm pulls.
 - Retain the accepted HUD, effects, inventory, and equipment baseline:
   fixed timed-status cells, four-class ability art and semantics, the
   `700x330` paper-doll inventory, Recruit Pack bag/Back transactions, Marsh
   Tonic use, tooltips/comparison, Sort, the `236x62` drag token, cooldowns,
   clipped chat, and atomic full-bag rollback.
+- Retain the asset-agnostic world-status presentation: eight small non-colliding
+  segments subscribe to the same successful-effect snapshots as the HUD.
+  Attack Power is orange-gold, Armor is blue-white, Snare is marsh green, and
+  Frost Root is frost cyan; harmful effects take visual priority and all
+  segments hide when no timed effect is active or the character is dead.
 - The imported KiteDemo meshes still reference some absent internal vendor
   materials/textures in fresh commandlet logs even though project-owned
   component overrides keep the visible zone readable. Do not edit or commit raw
@@ -59,8 +69,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 - Highest-value next work:
   1. tune Prowler attack timing, material balance, or animation transitions only
      when normal-route PIE exposes a concrete issue;
-  2. remove the confirmed Mara-route blocker without weakening the village
-     silhouette;
+  2. exercise Snare and Frost Root on the real Prowler route and judge the new
+     harmful world aura from normal gameplay distance;
   3. extend subtle `NoCollision` marsh dressing only where sightlines remain
      clear;
   4. continue toward cohesive original or signed-in fantasy village
@@ -68,8 +78,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-07-27
-  Marsh Prowler and terrain integration. Current code passes all 27 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-07-28
+  world-status VFX and route-repair integration. Current code passes all 28
+  tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -92,7 +103,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     termination of the fence silhouette after the south-side foliage cleanup.
   - inspect `Embermere_SupplyChest_Vendor_01` for its route-facing lock and
     plank silhouette, five shared materials, terrain contact, two solid authored
-    body/lid boxes, and clear PlayerStart-to-Mara traversal.
+    body/lid boxes, accepted `(-1740, -1180, 0)` transform, and clear
+    PlayerStart-to-Mara traversal.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -129,6 +141,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.UI.ItemComparison`
   - `Embermere.UI.PaperDollPresentation`
   - `Embermere.UI.TimedStatusPresentation`
+  - `Embermere.UI.WorldStatusVfxPresentation`
 - Manually verify the styled first-pass HUD in PIE:
   - player HP, mana, XP, health bar, and mana bar are visible;
   - target panel appears after `Tab` and shows target HP plus range state;
@@ -171,6 +184,17 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - Confirm the slot dims and displays its live cooldown countdown.
   - Press `1` again before cooldown expires and confirm the bottom-left chat/combat log shows a ready-time message.
   - Confirm non-empty failed hotbar activations show an `Unable to use ...` message instead of silently failing.
+- Manually verify world-status VFX in PIE:
+  - Battle Shout and Nature's Focus show eight restrained orange-gold segments
+    around the player while their HUD status cell remains authoritative;
+  - Ward uses the same fixed footprint with a blue-white palette;
+  - Snare shows a wider marsh-green harmful aura on the affected Prowler and
+    Frost Root uses frost cyan;
+  - harmful effects take presentation priority when both effect types overlap;
+  - expiration, death, respawn, and status clearing hide the segments, while
+    instantaneous Meditate creates no world aura;
+  - the non-colliding presentation does not move the HUD, obscure the character,
+    or become a gameplay authority.
 - Manually verify the new Mara marker in PIE:
   - Mara should show a temporary gold `!` and name marker above her.
 - Manually verify the first `FabPass_` environment layer in PIE:
@@ -234,6 +258,10 @@ Embermere has a working first-pass starter slice:
 - data-driven starter utility effects: timed Attack Power and Armor buffs,
   Snare and Frost Root movement control, Meditate mana recovery, effective-stat
   combat consumption, natural expiration, and respawn-safe effect clearing;
+- asset-agnostic world-status VFX made from eight fixed non-colliding segments
+  that read the same successful-effect snapshots as the HUD, with distinct
+  Attack Power, Armor, Snare, and Frost Root palettes and no authority over
+  gameplay rules;
 - fixed hotbar ability illustrations with class-specific palettes, data-driven
   soft references, accessible stat/description tooltips, and missing-art
   fallback;
@@ -255,12 +283,12 @@ Embermere has a working first-pass starter slice:
   `NoCollision` marsh-reed clusters;
 - automation coverage for the race/class matrix, quest completion rewards,
   selected-target presentation, dead-caster rejection, starter ability effects,
-  timed-status presentation, Prowler presentation, enemy leash and loot rules, equipment
-  slot/stat/transaction rules, atomic inventory capacity, consumable use, item
-  comparison/tooltips, identity-based inventory and drag/drop actions, autorun
-  cancellation, damage immunity, enemy nameplate widget, chat log, hotbar
-  cooldown display, item/slot/ability/paper-doll presentation, and inventory
-  toggle.
+  timed-status and world-status VFX presentation, Prowler presentation, enemy
+  leash and loot rules, equipment slot/stat/transaction rules, atomic inventory
+  capacity, consumable use, item comparison/tooltips, identity-based inventory
+  and drag/drop actions, autorun cancellation, damage immunity, enemy nameplate
+  widget, chat log, hotbar cooldown display, item/slot/ability/paper-doll
+  presentation, and inventory toggle.
 
 ## How Far We Have To Go
 
@@ -279,9 +307,15 @@ player and target status rows now make timed effects inspectable and passed
 clean-PIE review alongside occupied paper-doll contrast. Embermere now has its
 first original rigged creature and a grounded moss/earth road treatment, so the
 art lane has moved beyond props without taking ownership of combat rules. The
-populated drag token in motion and physical `Ctrl+M` feedback remain honest
-physical-eye checks. The world remains stylistically mixed without real
-fantasy village buildings, player/race art, class VFX, or audio.
+first world-status aura now consumes those same data-driven snapshots: a clean
+PIE Battle Shout check showed eight restrained orange-gold segments around the
+player without moving or obscuring the HUD. The reproduced Mara-route contact
+is also resolved by moving the supply chest away from the straight
+PlayerStart corridor and proving both geometric clearance and a live native
+trace. The populated drag token in motion and physical `Ctrl+M` feedback remain
+honest physical-eye checks. The world remains stylistically mixed without real
+fantasy village buildings, player/race art, authored Niagara/class-specific
+effects, or audio.
 
 ## Next Work
 
@@ -309,8 +343,9 @@ fantasy village buildings, player/race art, class VFX, or audio.
     damage cadence, and enemy recovery from the player's perspective;
   - visually accept the new fixed player/target status rows, live countdowns,
     hover descriptions, duplicate prevention, and clearing rules;
-  - add restrained class-appropriate VFX without coupling gameplay rules to
-    presentation assets.
+  - retain the new asset-agnostic eight-segment world aura and exercise Ward,
+    Nature's Focus, Snare, and Frost Root through normal-route play before
+    deciding whether authored Niagara/class-specific effects are warranted.
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
   - continue tuning chat panel height/line count against the hotbar and common desktop viewport sizes.
@@ -338,8 +373,8 @@ fantasy village buildings, player/race art, class VFX, or audio.
   return-home speed, damage, and respawn timing only from normal-route PIE.
 - Tune player respawn delay, protection duration, and recovery rules after in-editor playtesting.
 - Keep automation coverage growing around cooldowns, death/respawn, targeting, and hotbar behavior.
-- Add restrained class/status VFX without coupling gameplay effects to
-  presentation.
+- Keep world-status VFX subscribed to gameplay-owned status metadata; polish
+  scale, color, or motion only from normal-camera feedback.
 
 ## Last Completed
 
@@ -793,6 +828,32 @@ fantasy village buildings, player/race art, class VFX, or audio.
   Mara's temporary village cluster, and several KiteDemo meshes retain absent
   internal vendor dependencies even though project-owned component overrides
   keep the visible map readable.
+- 2026-07-28: reproduced the straight-line PlayerStart autorun stop at the
+  supply chest, moved `Embermere_SupplyChest_Vendor_01` to
+  `(-1740, -1180, 0)` without weakening its route-facing village composition,
+  and saved the exact map transform.
+- Added geometric validation requiring at least `225` cm of chest clearance
+  from the spawn corridor and an initialized-world player-height trace proving
+  the old blocked line is clear. Fresh PIE autorun moved well beyond the former
+  stop point.
+- Exercised the complete Marsh Prowler loop in clean PIE: real 6-damage
+  retaliation killed the player and triggered recovery/protection plus
+  return-home; a bounded zero-damage diagnostic then proved four Strikes,
+  target clear, Marsh Tonic loot, death hold, hide, 12-second respawn, full HP,
+  and untouched neighboring enemies.
+- Added an asset-agnostic world-status presentation to every Embermere
+  character. Eight fixed non-colliding segments consume the same successful
+  status snapshots as the HUD, with orange-gold Attack Power, blue-white Armor,
+  marsh-green Snare, frost-cyan Root, harmful priority, pulse/rotation, and
+  dead/empty hiding.
+- Added `Embermere.UI.WorldStatusVfxPresentation`; the authoritative
+  no-hot-reload build succeeded and all 28 tests passed in a fresh commandlet.
+  Saved-map validation, initialized-world road/chest traces, and fresh Blender
+  Prowler inspection all retained explicit success markers.
+- Clean PIE visually accepted Battle Shout's eight restrained orange-gold
+  segments around the player alongside its status countdown, with no HUD
+  movement or overlap. Ward, Nature's Focus, Snare, and Frost Root remain the
+  next normal-route color/readability sweep rather than unverified claims.
 
 ## Asset Hunt
 

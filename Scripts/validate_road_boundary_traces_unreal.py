@@ -101,6 +101,26 @@ def require_vertical_hit(world, description, expected_label, x, y, start_z, end_
         fail("{} should hit {}, found {}".format(description, expected_label, actual_label))
 
 
+def require_world_clear(world, description, start, end):
+    result = unreal.SystemLibrary.line_trace_single(
+        world,
+        unreal.Vector(*start),
+        unreal.Vector(*end),
+        unreal.TraceTypeQuery.ECC_VISIBILITY,
+        False,
+        [],
+        unreal.DrawDebugTrace.NONE,
+        True,
+    )
+    if result:
+        hit_data = result.to_dict()
+        fail("{} should be clear but hit {} at {}".format(
+            description,
+            actor_label(hit_actor(result)),
+            hit_data.get("impact_point"),
+        ))
+
+
 def main():
     unreal.EditorLevelLibrary.load_level(LEVEL_PATH)
     world = unreal.EditorLevelLibrary.get_editor_world()
@@ -157,14 +177,21 @@ def main():
         world,
         "village supply chest lid",
         "Embermere_SupplyChest_Vendor_01",
-        -1545.0,
-        -920.0,
+        -1740.0,
+        -1180.0,
         250.0,
         -50.0,
     )
 
+    require_world_clear(
+        world,
+        "spawn-to-Mara autorun corridor",
+        (-2400.0, -1200.0, 90.15),
+        (-1350.0, -750.0, 90.15),
+    )
+
     unreal.log(
-        "Embermere road boundary traces passed: 3 clear gate lanes, 1 solid gate support, 2 solid fence centers, 2 solid boundary stones, and 1 solid supply chest"
+        "Embermere road boundary traces passed: clear spawn autorun corridor, 3 clear gate lanes, 1 solid gate support, 2 solid fence centers, 2 solid boundary stones, and 1 solid supply chest"
     )
 
 

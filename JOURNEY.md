@@ -1426,6 +1426,74 @@ Verification:
   should reproduce a straight-line autorun contact near Mara before moving the
   temporary village blocker.
 
+## 2026-07-28 - The Route Cleared And Status Effects Entered The World
+
+Today closed the two honest follow-ups left by the Prowler pass: the direct
+spawn route now has a measured clearance contract, and timed effects no longer
+exist only in HUD cells.
+
+Route diagnosis:
+
+- A bounded `Q` autorun probe reproduced the exact stop near
+  `(-1646.9, -879.0, 90.15)` while autorun itself remained active. The issue
+  was world collision, not input state.
+- The blocker was `Embermere_SupplyChest_Vendor_01`. Because its component was
+  static, a PIE transform probe silently stayed put until mobility was
+  temporarily changed to `Movable` for the diagnostic.
+- The accepted `(-1740, -1180, 0)` transform, yaw `108`, preserved the chest's
+  lock-facing village read, terrain contact, and solid body/lid collision while
+  clearing the direct route.
+- The import script now reproduces that transform. Saved-map validation requires
+  at least `225` cm of geometric spawn-corridor clearance, and the live native
+  trace suite proves both the chest lid solid and the old player-height line
+  clear. Fresh PIE autorun traveled well beyond the former stop point.
+
+Prowler acceptance:
+
+- Real retaliation at 6 damage every 2 seconds exercised player death,
+  recovery protection, and enemy return-home behavior.
+- A bounded zero-damage diagnostic then held the route safe long enough to
+  prove four Strikes, target clear, Marsh Tonic loot, death hold, hide,
+  12-second full-health respawn, and continued isolation of the other two
+  Prowlers.
+- The skeletal mesh, Idle/Walk/Run/Attack/Hit/Death routing, capsule, target
+  ring, nameplate, loot, quest, leash, and respawn rules remained independent.
+
+World-status presentation:
+
+- Every Embermere character now owns eight fixed non-colliding plane segments
+  using the existing project-owned target-ring material.
+- The segments read only `GetActiveStatusEffects()`: Attack Power is
+  orange-gold, Armor blue-white, Snare marsh green, and Frost Root frost cyan.
+  Harmful effects take deterministic priority; empty or dead state hides the
+  complete aura.
+- Rotation and restrained pulse belong entirely to presentation. Combat and
+  stats remain the authority for success, duration, power, movement, refresh,
+  expiration, death, and respawn clearing.
+- Clean PIE accepted Battle Shout as eight readable orange-gold segments around
+  the player alongside its live HUD countdown, without moving the HUD or hiding
+  the character.
+
+Verification:
+
+- The authoritative no-hot-reload Mac editor build succeeded.
+- Fresh commandlet automation discovered and passed all 28 tests, including
+  `Embermere.UI.WorldStatusVfxPresentation`.
+- Fresh saved-map validation, initialized-world road/chest traces, and fresh
+  Blender Prowler inspection all emitted explicit success markers.
+
+Pipeline lessons:
+
+- A successful input call does not prove movement input failed; actor
+  transforms and collision isolation reveal the actual boundary.
+- Temporarily changing mobility is useful for PIE diagnosis only. Stop PIE,
+  apply the accepted transform to the editor world, save explicitly, and prove
+  persistence fresh.
+- HUD and world VFX can share gameplay-owned presentation metadata without
+  either becoming a second gameplay system.
+- Technical eligibility, physical route proof, normal-camera readability, and
+  human acceptance remain distinct gates.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

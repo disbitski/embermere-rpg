@@ -34,8 +34,11 @@ ORIGINAL_BOUNDARY_STONES = {
 }
 ORIGINAL_SUPPLY_CHEST_LABEL = "Embermere_SupplyChest_Vendor_01"
 ORIGINAL_SUPPLY_CHEST_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereSupplyChest_01.SM_EmbermereSupplyChest_01"
-ORIGINAL_SUPPLY_CHEST_LOCATION = (-1545.0, -920.0, 0.0)
+ORIGINAL_SUPPLY_CHEST_LOCATION = (-1740.0, -1180.0, 0.0)
 ORIGINAL_SUPPLY_CHEST_YAW = 108.0
+SPAWN_AUTORUN_ROUTE_START = (-2400.0, -1200.0)
+SPAWN_AUTORUN_ROUTE_END = (-1350.0, -750.0)
+SUPPLY_CHEST_ROUTE_CLEARANCE = 225.0
 ORIGINAL_MARSH_REED_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereMarshReedCluster_01.SM_EmbermereMarshReedCluster_01"
 ORIGINAL_MARSH_REEDS = {
     "Embermere_MarshReeds_RoadSouth_01": ((1300.0, -180.0, 0.0), 15.0, 0.78),
@@ -188,6 +191,24 @@ def fail(message):
 
 def nearly_equal(actual, expected, tolerance=0.0001):
     return abs(float(actual) - float(expected)) <= tolerance
+
+
+def distance_to_segment_2d(point, start, end):
+    segment_x = end[0] - start[0]
+    segment_y = end[1] - start[1]
+    length_squared = segment_x * segment_x + segment_y * segment_y
+    if length_squared <= 0.0:
+        return math.hypot(point[0] - start[0], point[1] - start[1])
+    projection = (
+        (point[0] - start[0]) * segment_x
+        + (point[1] - start[1]) * segment_y
+    ) / length_squared
+    projection = max(0.0, min(1.0, projection))
+    closest = (
+        start[0] + projection * segment_x,
+        start[1] + projection * segment_y,
+    )
+    return math.hypot(point[0] - closest[0], point[1] - closest[1])
 
 
 def main():
@@ -648,6 +669,17 @@ def main():
     if unreal.Name("EmbermereOriginalArt") not in list(supply_chest.tags):
         fail("{} must retain the EmbermereOriginalArt tag".format(
             ORIGINAL_SUPPLY_CHEST_LABEL,
+        ))
+    route_clearance = distance_to_segment_2d(
+        (supply_chest_location.x, supply_chest_location.y),
+        SPAWN_AUTORUN_ROUTE_START,
+        SPAWN_AUTORUN_ROUTE_END,
+    )
+    if route_clearance < SUPPLY_CHEST_ROUTE_CLEARANCE:
+        fail("{} is only {:.1f} cm from the spawn autorun corridor; expected at least {:.1f} cm".format(
+            ORIGINAL_SUPPLY_CHEST_LABEL,
+            route_clearance,
+            SUPPLY_CHEST_ROUTE_CLEARANCE,
         ))
 
     marsh_reed_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_MARSH_REED_PATH)

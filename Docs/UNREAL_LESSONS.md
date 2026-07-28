@@ -622,3 +622,50 @@ Keep the override in reproducible placement scripts and validate visible
 components, but continue treating fresh-process load warnings as real. Replace
 incomplete vendor meshes with project-owned assets or a complete signed-in pack
 instead of editing or redistributing raw Marketplace packages.
+
+## Let World VFX Subscribe To Gameplay-Owned Status Metadata
+
+Once timed-status metadata already has a reliable gameplay owner, world VFX
+should consume that read-only contract instead of inventing a second effect
+system. Embermere's first status aura attaches eight fixed non-colliding mesh
+segments to the base character and reads only
+`GetActiveStatusEffects()`. Gameplay does not know that those segments exist.
+
+This keeps the dependency direction clean:
+
+- combat applies the generic buff or control effect;
+- stats owns duration, refresh, expiration, death, and respawn clearing;
+- HUD and world VFX independently render the same successful-effect snapshots;
+- presentation can change material, color, scale, pulse, or rotation without
+  changing power, armor, movement, targeting, or timing.
+
+Give overlapping effects a deterministic visual priority rather than stacking
+unbounded geometry. Embermere currently lets harmful control outrank beneficial
+buff presentation, then chooses stable palettes by effect category. Test
+component count, material provenance, hidden/dead state, representative effect
+colors, priority, and clearing in automation. Use clean PIE for the acceptance
+question automation cannot answer: does the effect read at the real camera
+distance without obscuring the character, target ring, nameplate, or HUD?
+
+## Temporarily Change Mobility Only For PIE Placement Diagnosis
+
+A static mesh component can silently reject a runtime transform change in PIE
+because its mobility is `Static`. The MCP call can succeed while the actor stays
+put, making a good placement candidate look ineffective. That happened while
+diagnosing the supply chest that blocked straight autorun near Mara.
+
+For a bounded diagnostic:
+
+1. Record the original component mobility and transform.
+2. In PIE only, set the component to `Movable`.
+3. Apply the candidate transform and prove the route with pawn transforms or
+   native traces;
+4. stop PIE so the diagnostic mutation is discarded;
+5. apply the accepted transform to the editor world, restore the intended
+   static contract, save the exact map package, and validate it in a fresh
+   process.
+
+The saved-map validator should enforce both the accepted transform and a
+geometric clearance invariant. An initialized-world trace should separately
+prove the player-height route. This converts a camera-side visual fix into a
+reproducible traversal contract without leaving production scenery movable.

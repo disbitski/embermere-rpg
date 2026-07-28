@@ -32,7 +32,8 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
    route-facing ember lock and timber planks should read from PlayerStart, all
    five shared materials should remain coherent, the feet should contact
    terrain, both authored body/lid boxes should be solid, and the chest should
-   leave the Mara route clear.
+   remain at its accepted `(-1740, -1180, 0)` transform. Straight `Q` autorun
+   from spawn must pass the old contact point and leave the Mara route clear.
 10. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
     should blend into the ground, reeds should add scale without hiding the
     route, and the whole cluster must remain `NoCollision`.
@@ -102,22 +103,30 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
     player mana with the saved Battle Shout icon, name, live countdown, and
     hover description. Reapply it after cooldown and confirm the same cell
     refreshes instead of duplicating. After it expires, the cell should clear
-    and damage should return to baseline.
+    and damage should return to baseline. Eight restrained orange-gold world
+    segments should appear around the player while the effect is active, then
+    hide with the same authoritative status state.
 28. As Cleric, press `3` for Ward and confirm chat reports `+10 Armor` for 10
     seconds; incoming damage should be reduced during the ward and its
-    beneficial status cell should clear when the effect expires.
+    beneficial status cell plus blue-white world segments should clear when the
+    effect expires.
 29. As Ranger, press `2` for Snare and confirm it deals light damage, halves
     the target's movement for 6 seconds, and then restores normal movement.
     The selected-target panel should show the Snare icon, name, harmful color,
-    live countdown, and hover description beneath target HP.
+    live countdown, and hover description beneath target HP. A wider marsh-green
+    harmful aura should remain readable without hiding the Prowler, nameplate,
+    or target ring.
 30. As Ranger, press `4` for Nature's Focus and confirm the same shared timed
-    Attack Power and player-status contract as Battle Shout.
+    Attack Power, player-status, and orange-gold world-aura contract as Battle
+    Shout.
 31. As Wizard, press `2` for Frost Root and confirm it deals light damage,
     stops target movement for 4 seconds, shows the same generic target-status
-    treatment with Frost Root data, and then releases the target.
+    treatment with Frost Root data plus a frost-cyan world aura, and then
+    releases the target.
 32. Spend mana, press Wizard `4` for Meditate, and confirm exactly 18 missing
     mana is restored without exceeding maximum mana. Because it is
-    instantaneous, Meditate should not create a timed-status cell.
+    instantaneous, Meditate should not create a timed-status cell or world
+    aura.
 33. Confirm combat, target, quest, XP, inventory, mouse, cooldown, utility
     effect, and death/recovery messages remain clipped as single-line rows
     inside the bottom-left chat/combat log.
@@ -162,6 +171,11 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
   saved ability art and data for its name, countdown, and hover description;
   duplicate applications refresh, and expiration/respawn/target clearing
   removes stale presentation without moving neighboring HUD panels.
+- Timed effects also drive eight fixed non-colliding world segments from the
+  same read-only snapshots: Attack Power is orange-gold, Armor blue-white,
+  Snare marsh green, and Frost Root frost cyan. Harmful effects take visual
+  priority, and empty/dead/cleared state hides the aura without changing
+  gameplay.
 - Enemies show red bottom-left combat log messages clipped inside the shaded chat panel when they melee the player.
 - Marsh Prowlers use the project-owned skeletal mesh and route Idle, Walk, Run,
   Attack, Hit, and Death animations from generic enemy state. The same combat
@@ -183,8 +197,10 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
   and functional first-pass timed root, snare, buff, and mana-recovery rules.
   Timed buffs and selected-target controls now have data-driven first-pass
   status cells with live countdowns and hover descriptions. The player and
-  target rows passed clean-PIE visual acceptance on 2026-07-27; they still need
-  final fantasy styling, and there is no class-specific VFX/audio yet.
+  target rows passed clean-PIE visual acceptance on 2026-07-27, and the first
+  presentation-only eight-segment world aura passed a Battle Shout visual check
+  on 2026-07-28. Final fantasy styling, authored Niagara/class-specific effects,
+  and audio remain open.
 - Enemy movement and attacks are deliberately simple prototype behavior. The
   first solo-pull pass now uses three WorldStatic-cleared homes, a 525 cm aggro
   radius, visual-only pocket/marker collision, 6 damage, and a 2 second attack

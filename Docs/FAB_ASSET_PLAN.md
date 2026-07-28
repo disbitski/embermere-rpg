@@ -50,7 +50,10 @@ First local placement pass:
   accents. `Scripts/validate_road_boundary_traces_unreal.py` separately proves
   three road-gate lanes clear, one gate support solid, both boundary-fence
   centers solid, both boundary-stone cores solid, and the supply-chest lid
-  solid when run in the initialized live editor world.
+  solid when run in the initialized live editor world. It also proves the old
+  PlayerStart-to-Mara player-height line clear after the chest moved to
+  `(-1740, -1180, 0)`; the saved-map validator independently requires at least
+  `225` cm of geometric corridor clearance.
 - The three Marsh Prowler homes now form a collision-cleared solo-pull triangle at `(1900, 300)`, `(1700, 1100)`, and `(2500, 1300)`, with a `525` cm aggro radius and at least `800` cm between homes. Native WorldStatic overlap queries were used to avoid hidden vendor rock/stair collision.
 - Safe-area and combat-pocket bands are visual guides only. Their saved
   components use `NoCollision`; the redundant enemy marker meshes were

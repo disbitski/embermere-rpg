@@ -368,10 +368,12 @@ The seventh original model type is `SM_EmbermereSupplyChest_01`, built by
 `Scripts/import_embermere_supply_chest_unreal.py`. It is a 2,364-triangle,
 `180.0 x 119.0 x 123.1` cm timber/stone/iron/ember/moss village prop with one
 UV channel and two authored body/lid boxes. The saved
-`Embermere_SupplyChest_Vendor_01` actor at `(-1545, -920, 0)`, yaw `108`,
+`Embermere_SupplyChest_Vendor_01` actor at `(-1740, -1180, 0)`, yaw `108`,
 replaces `FabPass_Village_Crates_A`. The validator locks classic-FBX provenance, exact
 bounds, shared materials, collision, tag, transform, and old-crate removal; a
-native live-editor trace proves the lid solid.
+native live-editor trace proves the lid solid. A second player-height trace and
+saved `225` cm corridor-clearance invariant lock the July 28 fix for the
+reproduced straight-line autorun contact.
 
 The eighth original model type is `SK_EmbermereMarshProwler_01`, built by
 `Scripts/blender/build_embermere_marsh_prowler.py`. The saved source contains
@@ -537,15 +539,18 @@ Current automation tests:
 24. `Embermere.UI.AbilityIconPresentation`
 25. `Embermere.UI.PaperDollPresentation`
 26. `Embermere.UI.TimedStatusPresentation`
+27. `Embermere.Enemy.MarshProwlerPresentation`
+28. `Embermere.UI.WorldStatusVfxPresentation`
 
-Latest verified baseline (2026-07-27):
+Latest verified baseline (2026-07-28):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- headless automation discovered and passed 26/26 with zero test failures,
+- headless automation discovered and passed 28/28 with zero test failures,
   including saved starter-effect semantics and runtime contracts for timed
   power/armor buffs, Snare, Frost Root, Meditate, effective-stat consumption,
   respawn-safe temporary-effect clearing, fixed paper-doll presentation, and
-  source-ability-backed timed-status presentation;
+  source-ability-backed timed-status presentation, all three saved Marsh
+  Prowler instances, and the world-status VFX contract;
 - clean PIE accepted Battle Shout and Snare status rows with saved art,
   beneficial/harmful treatment, live countdowns, fixed bounds, and no
   neighboring HUD motion. Meditate remained instantaneous. The same session
@@ -559,6 +564,12 @@ Latest verified baseline (2026-07-27):
   presentation together. The HUD renders two fixed cells beneath player mana
   and two beneath selected-target HP using saved ability art, names,
   countdowns, and hover descriptions without switching on class or ability ID;
+- every Embermere character owns eight fixed non-colliding presentation
+  segments that read those same snapshots without owning gameplay. Attack
+  Power resolves orange-gold, Armor blue-white, Snare marsh green, and Frost
+  Root frost cyan; harmful state has deterministic priority and empty/dead
+  state hides all segments. Clean PIE accepted the Battle Shout composition at
+  the normal gameplay camera without HUD overlap;
 - `Scripts/configure_starter_abilities.py` reproduces the saved effect type,
   duration, movement multiplier, and player-facing descriptions. Fresh-process
   UI validation reloads and verifies those semantics for all sixteen abilities
@@ -581,12 +592,14 @@ Latest verified baseline (2026-07-27):
 - Blender MCP generated and validated the 2,364-triangle supply chest; Unreal
   imported it through `FbxFactory`, reused all five project materials, retained
   two authored colliders, replaced the temporary vendor crate stack, and saved
-  the route-facing actor at yaw `108`;
+  the route-facing actor at `(-1740, -1180, 0)`, yaw `108`;
 - native traces in the initialized live editor proved three gate lanes clear,
   one gate support solid, both fence centers solid, both boundary-stone cores
-  solid, and the supply-chest lid solid. Fresh commandlets remain authoritative
-  for package/map assertions, but a commandlet-loaded world did not register
-  native collision bodies and must not be treated as a physics result;
+  solid, the supply-chest lid solid, and the old player-height spawn corridor
+  clear. Saved-map validation independently requires at least `225` cm of
+  geometric chest clearance. Fresh commandlets remain authoritative for
+  package/map assertions, but a commandlet-loaded world did not register native
+  collision bodies and must not be treated as a physics result;
 - automatic movement is now applied separately from manual-axis cancellation,
   and the inventory drag visual is a fixed 236x62 fantasy token with resolved
   item art, category-sigil fallback, and item context. Reward feedback reuses
@@ -598,8 +611,9 @@ Latest verified baseline (2026-07-27):
   explicitly `NoCollision` in the saved map and setup script;
 - the original Marsh Prowler retained 7,464 triangles, 26 authored bones, five
   materials, and six saved animations through a fresh Blender inspection and
-  Unreal package reload. Clean PIE exercised target, Strike, retaliation,
-  death, target clear, tonic loot, hide, and respawn;
+  Unreal package reload. Clean PIE exercised target, Strike, real retaliation
+  through player death/recovery, target clear, tonic loot, death hold, hide,
+  full-health respawn, and return-home while untouched neighbors stayed home;
 - a fresh editor loaded the 2026-07-18 controller module. Transform-based PIE
   checks proved `Q` autorun advances the player and independent `W` and `S`
   presses stop all subsequent movement. A July 22 populated-inventory capture
@@ -670,6 +684,14 @@ Read `Docs/UNREAL_LESSONS.md` for the full record. The highest-risk lessons are:
 22. **Vendor overrides:** a component material override can repair the visible
     level without repairing missing dependencies in the vendor mesh package.
     Preserve the warning and replace the source asset over time.
+23. **Presentation dependency direction:** world VFX should subscribe to
+    gameplay-owned successful-effect snapshots. Gameplay must not know that the
+    VFX exists, and automation plus clean PIE answer technical and visual
+    acceptance separately.
+24. **Static PIE placement probes:** static components can silently reject
+    runtime transform changes. Temporarily use `Movable` only for a bounded PIE
+    diagnostic, discard it by stopping PIE, then apply the accepted transform
+    to the editor world and validate saved geometry plus live traversal.
 
 ## Known Workspace State
 
@@ -693,8 +715,8 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-07-27 Marsh Prowler, terrain, reed, and map packages, then confirm MCP/test
-discovery; restart only if the editor or test registry proves stale.
+2026-07-28 world-status VFX module and route-repair map package, then confirm
+MCP/test discovery; restart only if the editor or test registry proves stale.
 
 First fresh-session checks:
 
@@ -702,7 +724,7 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 27 tests.
+3. Run/discover all 28 tests.
 4. Start PIE and verify:
    - all three Marsh Prowlers retain the project-owned skeletal mesh and route
      Idle, Walk, Run, Attack, Hit, and Death from generic enemy state; verify
@@ -724,6 +746,12 @@ First fresh-session checks:
      HP with harmful coloring. Confirm duplicate refresh, expiry/respawn/target
      clearing, fixed two-cell row bounds, and no neighboring HUD movement.
      Meditate remains instantaneous and creates no timed cell;
+   - retain the eight-segment presentation-only world aura sourced from those
+     same successful-effect snapshots. Battle Shout and Nature's Focus use
+     orange-gold, Ward blue-white, Snare marsh green, and Frost Root frost
+     cyan; harmful status takes visual priority and empty/dead state hides all
+     segments. The clean PIE Battle Shout presentation is accepted; exercise
+     the remaining palettes on the normal Prowler route;
    - all ten empty equipment-slot icons, Recruit Pack and Marsh Tonic row/detail
      art, occupied-slot art, category fallback, text/tooltips, fixed icon sizes,
      the illustrated adventurer beneath the unchanged slot grid, and no
@@ -753,10 +781,11 @@ First fresh-session checks:
    - bottom-left clipped chat log;
    - 59 grounded upright Fab actors plus 14 original placements from the
      waystone/lamp/signpost/gate/fence/boundary-stone/chest/reed family; inspect
-     the route-facing chest and solid lid, four visual-only reed clusters,
-     clear gate lanes and solid fences/end stones, the moss/earth road, a
-     navigable spawn/Mara route, readable enemy pocket, supported ruin
-     silhouette, and balanced daylight/fog under the atmospheric sky.
+     the route-facing chest at `(-1740, -1180, 0)`, its solid lid, four
+     visual-only reed clusters, clear gate lanes and solid fences/end stones,
+     the moss/earth road, a navigable spawn/Mara route, readable enemy pocket,
+     supported ruin silhouette, and balanced daylight/fog under the
+     atmospheric sky.
 5. Walk from the village into the new Prowler triangle. Confirm each `525` cm
    pull stays solo, visual markers/bands do not block movement, and an enemy can
    leash and return home normally.
@@ -771,12 +800,11 @@ High-value milestones after that:
 
 - tune Prowler animation timing, transitions, material balance, or physics only
   when normal-route PIE exposes a concrete issue;
-- reproduce the straight-line autorun contact near Mara, then move only the
-  temporary blocker if normal player movement confirms it;
+- retain the resolved straight-line autorun route and chest clearance;
 - extend sparse `NoCollision` marsh dressing only where route and combat
   sightlines remain clear;
-- add restrained class/status VFX for the now-visible timed effects without
-  coupling presentation assets to gameplay rules;
+- inspect Ward, Nature's Focus, Snare, and Frost Root world-aura palettes in
+  normal gameplay, then polish only concrete readability issues;
 - expand the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest lane
   into compact village-prop modules while preserving
   deterministic scripts, FBX checks, and original-art tags;
@@ -841,15 +869,21 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-07-27 current module,
-Marsh Prowler, terrain, reeds, and saved map, then run all 27 tests. Retain the
+Follow TODO.md's Start Here section. Confirm the 2026-07-28 current module,
+world-status VFX, Marsh Prowler, terrain, reeds, and route-repair map, then run
+all 28 tests. Retain the
 original rigged Prowler across all three instances and verify Idle, Walk, Run,
 Attack, Hit, Death, terrain contact, target presentation, combat, tonic loot,
 hide, and respawn. Retain the accepted fixed player and
 selected-target status rows with saved ability art, names, live countdowns,
 beneficial/harmful colors, hover descriptions, duplicate refresh, and clearing
 on expiration, respawn, death, and target switch without neighboring HUD
-movement. The latest clean PIE also proved Q autorun plus independent W and S
+movement. Retain the data-driven eight-segment world aura that reads those same
+successful-effect snapshots without owning gameplay: orange-gold Attack Power,
+blue-white Armor, marsh-green Snare, frost-cyan Root, harmful priority, and
+empty/dead hiding. Battle Shout passed clean-PIE visual acceptance; exercise
+the remaining palettes on the normal Prowler route. The latest clean PIE also
+proved Q autorun plus independent W and S
 cancellation, all four starter-class hotbar palettes, Warrior cooldown
 presentation, the icon-bearing reward popup, a real Recruit Pack bag-to-Back
 drag, and the centered paper doll beneath both empty and occupied slot states
@@ -871,12 +905,13 @@ nameplate, raised saturated emissive target ring, quest/reward loop, enemy
 leash, respawn protection, chat clipping, atmospheric daylight and the
 38-expression moss/earth road, 59 grounded upright Fab actors, and all 14
 original-art placements including four `NoCollision` reed clusters and the
-route-facing supply chest with solid authored lid collision. Walk the
+route-facing supply chest at `(-1740, -1180, 0)` with solid authored lid
+collision, at least 225 cm of saved spawn-corridor clearance, and a clear live
+player-height trace. Walk the
 normal route and prove each 525 cm Prowler pull stays solo while visual
-band geometry remains non-colliding. Reproduce the possible temporary
-Mara-route blocker before moving it. Then tune only concrete Prowler issues,
-add restrained VFX, extend subtle marsh dressing, pursue cohesive fantasy
-architecture, or take the highest-value next milestone when the path is clear.
+band geometry remains non-colliding. Then tune only concrete Prowler or aura
+issues, extend subtle marsh dressing, pursue cohesive fantasy architecture, or
+take the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

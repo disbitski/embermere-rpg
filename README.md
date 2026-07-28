@@ -68,6 +68,9 @@ The repo currently contains the C++ gameplay scaffold for:
   art, show live countdowns and hover descriptions, distinguish beneficial from
   harmful effects, refresh duplicate applications, and clear with the same
   expiration/respawn rules as gameplay
+- eight-segment non-colliding world-status auras that subscribe to those same
+  successful-effect snapshots, distinguish Attack Power, Armor, Snare, and
+  Frost Root, and remain presentation-only
 - atomic inventory capacity and quantity operations with rollback-safe equipment replacement and full-bag unequip rejection
 - idempotent equipment stat application for health, mana, armor mitigation, and power
 - selected enemy UMG nameplate widget, HP bar/readout, and a flat animated 24-segment target ring using a dedicated emissive Embermere material
@@ -184,14 +187,15 @@ waystone/lamp/signpost/gate/fence/end-stone/chest/reed family, the first origina
 rigged and animated Marsh Prowler, grounded moss/earth road presentation,
 collision-cleared solo-pull tab-target combat, a fully illustrated data-driven
 starter hotbar with cooldown feedback, tooltips, timed buffs, root, snare, mana
-recovery, and live player/target status indicators, native HUD panels,
+recovery, live player/target status indicators, and restrained data-driven
+world-status auras, native HUD panels,
 bottom-left chat/combat feedback, first quest reward and starter-enemy loot
 flow, a clickable and draggable illustrated paper-doll equipment/inventory
 window with atomic transactions, project-owned data-driven art reused across
 rows, slots, details, drag feedback, rewards, and the equipment backdrop, safe
 consumable actions, and native selected-target nameplate/emissive-ring feedback.
 
-Next milestone: live Prowler animation/material timing polish, removal of the
-remaining temporary Mara-route blocker, restrained class/status VFX, and
-replacement of temporary village silhouettes and incomplete vendor meshes with
-cohesive Stylized Classic fantasy architecture.
+Next milestone: live Prowler animation/material timing polish only from concrete
+play feedback, normal-route Snare/Root aura acceptance, and replacement of
+temporary village silhouettes and incomplete vendor meshes with cohesive
+Stylized Classic fantasy architecture.

@@ -7,6 +7,8 @@
 #include "EmbermereCharacter.generated.h"
 
 class UCameraComponent;
+class UMaterialInstanceDynamic;
+class UStaticMeshComponent;
 class USpringArmComponent;
 class UEmbermereCombatComponent;
 class UEmbermereEquipmentComponent;
@@ -76,6 +78,24 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Movement")
 	void MoveRight(float Value);
 
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Presentation|Status Effects")
+	void RefreshStatusEffectVfx();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Status Effects")
+	int32 GetStatusEffectVfxSegmentCount() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Status Effects")
+	int32 GetVisibleStatusEffectVfxSegmentCount() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Status Effects")
+	FLinearColor GetStatusEffectVfxColor() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Status Effects")
+	bool IsStatusEffectVfxBeneficial() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Status Effects")
+	FString GetStatusEffectVfxMaterialPath() const;
+
 	virtual bool IsAlive_Implementation() const override;
 	virtual bool IsHostileTo_Implementation(const AActor* Viewer) const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
@@ -89,6 +109,18 @@ protected:
 	virtual void HandleTargetedByPlayer(bool bIsTargeted);
 	void PrimeStarterHotbar();
 	void RefreshEquipmentStats();
+	void UpdateStatusEffectVfx(float DeltaSeconds);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Presentation|Status Effects")
+	TArray<TObjectPtr<UStaticMeshComponent>> StatusEffectVfxSegments;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UMaterialInstanceDynamic>> StatusEffectVfxMaterials;
+
+	float StatusEffectVfxRotationDegrees = 0.0f;
+	FLinearColor StatusEffectVfxColor = FLinearColor::Transparent;
+	bool bStatusEffectVfxVisible = false;
+	bool bStatusEffectVfxBeneficial = false;
 
 	UFUNCTION()
 	void HandleEquipmentChanged();

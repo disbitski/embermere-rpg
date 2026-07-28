@@ -493,18 +493,24 @@ Verified result:
   the road-boundary family;
 - collision: two retained `UBX_` boxes cover the chest body and lid;
 - saved actor: `Embermere_SupplyChest_Vendor_01` at
-  `(-1545, -920, 20)`, yaw `108`, tagged `EmbermereOriginalArt`;
-- replacement: removes `FabPass_Village_Crates_A`, leaving 61 local Fab actors
-  and ten project-owned placements;
+  `(-1740, -1180, 0)`, yaw `108`, tagged `EmbermereOriginalArt`;
+- replacement: removes `FabPass_Village_Crates_A`; the later grounding,
+  Prowler, and reed pass leaves 59 local Fab actors and 14 project-owned
+  placements in the current map;
 - verification: the Blender preview, Unreal asset thumbnail, and PlayerStart
   approach were inspected; saved-map validation locks classic-FBX provenance,
-  exact bounds/materials/collision/tag/transform, and a native trace in the
-  initialized live editor proved the lid solid.
+  exact bounds/materials/collision/tag/transform plus at least `225` cm of
+  spawn-corridor clearance. Native traces in the initialized live editor proved
+  both the lid solid and the old player-height autorun line clear.
 
 The first technically valid placement presented the chest poorly from the
 normal route. Yaw was therefore treated as an acceptance property, not merely
 a valid transform: `108` exposes the lock and plank face to the PlayerStart
-approach while preserving vendor-table and Mara-route clearance.
+approach. A later clean-PIE autorun probe found that the original
+`(-1545, -920, 0)` position still intersected the direct spawn route. The
+accepted `(-1740, -1180, 0)` transform preserves the village silhouette and
+front-facing read while satisfying saved geometric clearance and live traversal
+checks.
 
 ## What To Build First
 

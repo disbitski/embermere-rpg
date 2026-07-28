@@ -123,3 +123,25 @@ texture references in a fresh commandlet. The component overrides make the
 visible map readable, but they do not repair the imported mesh package's
 dependency graph. Replace those meshes with project-owned art or a complete
 signed-in pack over time; do not edit or commit raw vendor content.
+
+## Route Clearance Follow-Up 2026-07-28
+
+Ground contact and route clearance are separate acceptance properties. Clean
+PIE reproduced a straight-line `Q` autorun stop even though the supply chest
+was correctly grounded and visually coherent. Player transforms isolated the
+contact to `Embermere_SupplyChest_Vendor_01` near the old
+`(-1545, -920, 0)` position.
+
+The accepted chest transform is now `(-1740, -1180, 0)`, yaw `108`. It keeps
+the route-facing lock, vendor-area silhouette, terrain contact, and authored
+body/lid collision while moving outside the direct spawn corridor. Validation
+now covers three distinct truths:
+
+- saved-map checks lock the exact transform and require at least `225` cm of
+  geometric clearance from the PlayerStart corridor;
+- initialized-world native traces prove both the chest lid solid and the old
+  player-height route unobstructed;
+- fresh PIE autorun moves beyond the former stop point.
+
+Do not weaken intentional prop collision to solve a traversal problem when a
+composition-preserving transform can satisfy both contracts.
