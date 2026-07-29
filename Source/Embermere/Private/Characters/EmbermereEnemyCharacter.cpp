@@ -22,7 +22,7 @@
 
 namespace
 {
-constexpr int32 TargetRingSegmentCount = 24;
+constexpr int32 TargetRingSegmentCount = 48;
 }
 
 AEmbermereEnemyCharacter::AEmbermereEnemyCharacter()
@@ -196,6 +196,55 @@ FString AEmbermereEnemyCharacter::GetTargetRingMaterialPath() const
 
 	const UMaterialInterface* RingMaterial = TargetRingSegments[0]->GetMaterial(0);
 	return RingMaterial ? RingMaterial->GetPathName() : FString();
+}
+
+FLinearColor AEmbermereEnemyCharacter::GetTargetRingColor() const
+{
+	return TargetRingColor;
+}
+
+float AEmbermereEnemyCharacter::GetResolvedTargetRingRadius() const
+{
+	float ResolvedRadius = FMath::Max(16.0f, TargetRingRadius);
+	const float Padding = FMath::Max(0.0f, TargetRingBoundsPadding);
+
+	if (const UCapsuleComponent* Capsule = GetCapsuleComponent())
+	{
+		ResolvedRadius = FMath::Max(ResolvedRadius, Capsule->GetUnscaledCapsuleRadius() + Padding);
+	}
+
+	const USkeletalMeshComponent* MeshComponent = GetMesh();
+	const USkeletalMesh* MeshAsset = MeshComponent ? MeshComponent->GetSkeletalMeshAsset() : nullptr;
+	if (MeshComponent && MeshAsset)
+	{
+		const FTransform VisualTransform(
+			MeshComponent->GetRelativeRotation(),
+			FVector::ZeroVector,
+			MeshComponent->GetRelativeScale3D());
+		const FBoxSphereBounds VisualBounds = MeshAsset->GetBounds().TransformBy(VisualTransform);
+		const float HorizontalExtent = FMath::Max(VisualBounds.BoxExtent.X, VisualBounds.BoxExtent.Y);
+		ResolvedRadius = FMath::Max(ResolvedRadius, HorizontalExtent + Padding);
+	}
+
+	return ResolvedRadius;
+}
+
+bool AEmbermereEnemyCharacter::IsTargetRingVisible() const
+{
+	return TargetRingSegments.Num() > 0 && TargetRingSegments[0] && TargetRingSegments[0]->IsVisible();
+}
+
+bool AEmbermereEnemyCharacter::AreTargetRingSegmentsNonColliding() const
+{
+	for (const UStaticMeshComponent* Segment : TargetRingSegments)
+	{
+		if (!Segment || Segment->GetCollisionEnabled() != ECollisionEnabled::NoCollision)
+		{
+			return false;
+		}
+	}
+
+	return TargetRingSegments.Num() > 0;
 }
 
 bool AEmbermereEnemyCharacter::IsLocationOutsideLeashRadius(const FVector& Location) const
@@ -480,19 +529,37 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetRing(bool bIsVisible)
 		return;
 	}
 
-	const float RingRadius = FMath::Max(16.0f, TargetRingRadius);
+	if (!bIsVisible)
+	{
+		for (UStaticMeshComponent* Segment : TargetRingSegments)
+		{
+			if (Segment)
+			{
+				Segment->SetVisibility(false);
+				Segment->SetHiddenInGame(true);
+			}
+		}
+		return;
+	}
+
+	const float RingRadius = GetResolvedTargetRingRadius();
 	const float SegmentThickness = FMath::Max(2.0f, TargetRingThickness);
-	const float SegmentLength = 2.0f * RingRadius * FMath::Tan(PI / static_cast<float>(TargetRingSegmentCount)) * 0.82f;
+	const float SegmentLength =
+		2.0f * RingRadius * FMath::Tan(PI / static_cast<float>(TargetRingSegments.Num())) *
+		FMath::Max(1.0f, TargetRingArcCoverage);
 	const UWorld* World = GetWorld();
 	const float TimeSeconds = World ? World->GetTimeSeconds() : 0.0f;
 	const float RotationOffsetDegrees = TimeSeconds * TargetRingRotationSpeedDegreesPerSecond;
 	const float PulseAlpha = 0.5f + 0.5f * FMath::Sin(TimeSeconds * 2.4f);
 	const float PulseScale = 1.0f + FMath::Max(0.0f, TargetRingPulseAmount) * PulseAlpha;
 	FLinearColor AnimatedRingColor = TargetRingColor;
-	const float Brightness = 0.82f + 0.18f * PulseAlpha;
+	const float Brightness = 0.9f + 0.1f * PulseAlpha;
 	AnimatedRingColor.R *= Brightness;
 	AnimatedRingColor.G *= Brightness;
 	AnimatedRingColor.B *= Brightness;
+	const float GroundRelativeZ = ResolveTargetRingHeightOffset();
+	const float AnimatedEmissiveStrength =
+		FMath::Max(0.0f, TargetRingEmissiveStrength) * (0.9f + 0.1f * PulseAlpha);
 
 	for (int32 SegmentIndex = 0; SegmentIndex < TargetRingSegments.Num(); ++SegmentIndex)
 	{
@@ -502,12 +569,8 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetRing(bool bIsVisible)
 			continue;
 		}
 
-		Segment->SetVisibility(bIsVisible);
-		Segment->SetHiddenInGame(!bIsVisible);
-		if (!bIsVisible)
-		{
-			continue;
-		}
+		Segment->SetVisibility(true);
+		Segment->SetHiddenInGame(false);
 
 		if (!TargetRingMaterials.IsValidIndex(SegmentIndex) || !TargetRingMaterials[SegmentIndex])
 		{
@@ -525,6 +588,7 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetRing(bool bIsVisible)
 		{
 			TargetRingMaterials[SegmentIndex]->SetVectorParameterValue(TEXT("Color"), AnimatedRingColor);
 			TargetRingMaterials[SegmentIndex]->SetVectorParameterValue(TEXT("BaseColor"), AnimatedRingColor);
+			TargetRingMaterials[SegmentIndex]->SetScalarParameterValue(TEXT("EmissiveStrength"), AnimatedEmissiveStrength);
 		}
 
 		const float AngleDegrees =
@@ -533,13 +597,34 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetRing(bool bIsVisible)
 		const FVector SegmentLocation(
 			FMath::Cos(AngleRadians) * RingRadius * PulseScale,
 			FMath::Sin(AngleRadians) * RingRadius * PulseScale,
-			TargetRingHeightOffset);
+			GroundRelativeZ);
 		const float TangentYawDegrees = AngleDegrees + 90.0f;
 
 		Segment->SetRelativeLocation(SegmentLocation);
 		Segment->SetRelativeRotation(FRotator(0.0f, TangentYawDegrees, 0.0f));
 		Segment->SetRelativeScale3D(FVector(SegmentLength / 100.0f, SegmentThickness / 100.0f, 1.0f));
 	}
+}
+
+float AEmbermereEnemyCharacter::ResolveTargetRingHeightOffset() const
+{
+	const UWorld* World = GetWorld();
+	if (!World)
+	{
+		return TargetRingHeightOffset;
+	}
+
+	const FVector ActorLocation = GetActorLocation();
+	const FVector TraceStart = ActorLocation + FVector(0.0f, 0.0f, 64.0f);
+	const FVector TraceEnd = ActorLocation - FVector(0.0f, 0.0f, 640.0f);
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EmbermereTargetRingGround), false, this);
+	FHitResult GroundHit;
+	if (World->LineTraceSingleByChannel(GroundHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+	{
+		return GroundHit.ImpactPoint.Z - ActorLocation.Z + FMath::Max(0.5f, TargetRingSurfaceClearance);
+	}
+
+	return TargetRingHeightOffset;
 }
 
 AActor* AEmbermereEnemyCharacter::FindAggroTarget() const

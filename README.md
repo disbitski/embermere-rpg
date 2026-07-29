@@ -73,7 +73,9 @@ The repo currently contains the C++ gameplay scaffold for:
   Frost Root, and remain presentation-only
 - atomic inventory capacity and quantity operations with rollback-safe equipment replacement and full-bag unequip rejection
 - idempotent equipment stat application for health, mana, armor mitigation, and power
-- selected enemy UMG nameplate widget, HP bar/readout, and a flat animated 24-segment target ring using a dedicated emissive Embermere material
+- selected enemy UMG nameplate widget, HP bar/readout, and a bounds-aware
+  cyan-blue 48-segment target circle that traces the supporting surface and
+  uses a dedicated emissive Embermere material
 - live hotbar cooldown countdowns with unavailable-state dimming
 - Unreal MCP setup notes and a local setup validator
 - first editor-created Blueprints and rules data asset

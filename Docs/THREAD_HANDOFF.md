@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-07-27
+Last updated: 2026-07-29
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -47,8 +47,9 @@ The project currently includes:
 - hostile enemy aggro, chase, attack, leash, return-home, death, and respawn;
 - player death, respawn, and short recovery damage immunity;
 - a styled native HUD with player/target status, quest tracker, hotbar,
-  clickable/draggable inventory rows and equipment slots, dialogue, loot feedback, nameplates, an emissive
-  target ring, project-owned fantasy drag tokens, data-driven item/slot icons,
+  clickable/draggable inventory rows and equipment slots, dialogue, loot
+  feedback, nameplates, a bounds-aware cyan-blue emissive target circle,
+  project-owned fantasy drag tokens, data-driven item/slot icons,
   sixteen data-driven starter-ability icons with tooltips, an illustrated
   paper-doll equipment backdrop, data-driven timed buff/control rows with live
   countdowns, and chat log;
@@ -58,7 +59,7 @@ The project currently includes:
   38-expression moss/earth road material, and a Mac-friendly daylight baseline;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
-- 27 passing Unreal automation tests plus fresh-process UI-art/package and
+- 28 passing Unreal automation tests plus fresh-process UI-art/package and
   saved-map validators and initialized-live-world road-boundary traces.
 
 This is still prototype art. The first black-sky problem is corrected, but the
@@ -190,8 +191,9 @@ Implemented presentation includes:
 - Mara's temporary gold quest marker;
 - native screen-space UMG enemy nameplate with selected marker, name, HP text,
   HP bar, and health-aware color;
-- flat 24-segment rotating/pulsing target ring using the tracked unlit opaque-emissive
-  `M_EmbermereTargetRing` material;
+- complete non-colliding 48-segment cyan-blue target circle using the tracked
+  unlit opaque-emissive `M_EmbermereTargetRing` material, transformed visual
+  bounds plus padding, and selected-state ground tracing;
 - 700x330 structured inventory/equipment window with `Slots X / 24`, eight visible rows,
   selected-item details, quantity, stack limit, description, empty/reward state,
   clickable/draggable highlighted rows, cursor-aware input mode, keyboard footer, `I`
@@ -542,7 +544,7 @@ Current automation tests:
 27. `Embermere.Enemy.MarshProwlerPresentation`
 28. `Embermere.UI.WorldStatusVfxPresentation`
 
-Latest verified baseline (2026-07-28):
+Latest verified baseline (2026-07-29):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
 - headless automation discovered and passed 28/28 with zero test failures,
@@ -551,6 +553,13 @@ Latest verified baseline (2026-07-28):
   respawn-safe temporary-effect clearing, fixed paper-doll presentation, and
   source-ability-backed timed-status presentation, all three saved Marsh
   Prowler instances, and the world-status VFX contract;
+- restarted-editor MCP rediscovered and passed the same 28/28 suite. Target
+  presentation automation now proves cyan color, 48-segment continuity,
+  restrained pulse, no rotation/collision, target switching, and clearing;
+- the selected-target circle resolves its radius from transformed capsule and
+  skeletal-mesh bounds plus `18` cm padding, then traces the supporting surface
+  and keeps `3` cm clearance. Clean daylight PIE showed it around a live Marsh
+  Prowler without obscuring the native nameplate or HUD target frame;
 - clean PIE accepted Battle Shout and Snare status rows with saved art,
   beneficial/harmful treatment, live countdowns, fixed bounds, and no
   neighboring HUD motion. Meditate remained instantaneous. The same session
@@ -775,7 +784,8 @@ First fresh-session checks:
      `[`/`]`, and cursor capture/release;
    - hotbar dimming and live cooldown countdown;
    - native nameplate and health-aware color;
-   - flat rotating/pulsing 24-segment emissive target ring clearing the raised combat platform;
+   - complete stationary cyan-blue 48-segment emissive target circle sized to
+     the Prowler footprint, clearing its paws and supporting surface;
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
@@ -808,8 +818,9 @@ High-value milestones after that:
 - expand the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest lane
   into compact village-prop modules while preserving
   deterministic scripts, FBX checks, and original-art tags;
-- optional rune/soft-edge texture treatment for the dedicated target-ring
-  material;
+- optional restrained rune/soft-edge texture treatment for the dedicated
+  target-circle material after all three normal-route Prowlers pass the
+  physical-eye sweep;
 - proper Stylized Classic fantasy village buildings from a suitable signed-in
   UE-compatible pack;
 - preserve the collision-cleared `525` cm solo-pull baseline while tuning
@@ -869,8 +880,9 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-07-28 current module,
-world-status VFX, Marsh Prowler, terrain, reeds, and route-repair map, then run
+Follow TODO.md's Start Here section. Confirm the 2026-07-29 current module,
+bounds-aware cyan target circle, world-status VFX, Marsh Prowler, terrain,
+reeds, and route-repair map, then run
 all 28 tests. Retain the
 original rigged Prowler across all three instances and verify Idle, Walk, Run,
 Attack, Hit, Death, terrain contact, target presentation, combat, tonic loot,
@@ -901,7 +913,8 @@ accepted gate/fence/end-stone threshold, exact south-side foliage cleanup, the
 bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback,
 click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure
 feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy
-nameplate, raised saturated emissive target ring, quest/reward loop, enemy
+nameplate, bounds-aware surface-traced cyan-blue target circle, quest/reward
+loop, enemy
 leash, respawn protection, chat clipping, atmospheric daylight and the
 38-expression moss/earth road, 59 grounded upright Fab actors, and all 14
 original-art placements including four `NoCollision` reed clusters and the

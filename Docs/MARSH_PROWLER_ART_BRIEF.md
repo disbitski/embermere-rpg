@@ -70,7 +70,9 @@ respond to concrete PIE feedback rather than increasing detail by default.
 
 - Read clearly at Embermere's normal third-person camera distance.
 - Feel larger and more dangerous than a real wolf while remaining compatible
-  with the current `96` cm target-ring radius and `225` cm nameplate height.
+  with the bounds-aware target circle and `225` cm nameplate height. The
+  runtime circle keeps a `96` cm minimum, then expands from the transformed
+  visual bounds plus presentation padding.
 - Initial target dimensions:
   - nose-to-tail length: `260-300` cm;
   - shoulder height: `130-150` cm;

@@ -195,18 +195,38 @@ Embermere example:
 - `save_assets(["/Game/Maps/L_Embermere_Prototype"])` persisted the map;
 - the next fresh validator found 65 upright actors and passed.
 
-## World-Space Indicators Must Clear Every Visual Layer
+## World-Space Indicators Need Surface And Footprint Contracts
 
-A target ring can be visible, unhidden, correctly materialed, and still disappear because its component height was authored against the character capsule rather than the actual surface beneath the enemy. Embermere's combat-pocket cylinder sits above the zone plane, so the original ring height placed all 24 segments inside that platform.
+A target ring can be visible, unhidden, correctly materialed, and still
+disappear because its component height was authored against the character
+capsule rather than the actual surface beneath the enemy. Embermere's
+combat-pocket cylinder sat above the zone plane, so the original fixed-height
+ring could place all of its segments inside the platform.
 
 Practical rule:
 
 - inspect the actor, indicator component, and supporting surface world Z values separately;
-- account for raised blockout platforms, decals, terrain, and future mesh swaps;
-- leave a small clearance above the highest expected walkable surface;
+- trace toward the supporting surface while the indicator is visible and keep
+  a small explicit clearance above the hit;
+- size from transformed visual bounds plus padding rather than assuming every
+  creature fits the same capsule-sized circle;
+- retain a conservative minimum and fallback offset for actors or worlds that
+  do not resolve a valid surface;
+- account for raised blockout platforms, terrain, and future mesh swaps;
 - verify again after a clean C++ reload because constructor-created component offsets do not update when only the source default changes.
 
-Also avoid assuming additive is always the most readable blend mode. The gold ring washed out over the prototype's very bright ground, so the first material pass now uses an opaque unlit/emissive treatment while the ground itself uses a muted moss material.
+Embermere's accepted target circle uses 48 overlapping, non-colliding plane
+segments, bounds-aware radius, a downward surface trace, and a restrained
+cyan-blue emissive treatment. It does not rotate, so target identity reads
+immediately instead of competing with timed-status world VFX. Selection
+automation proves that the circle appears on selection, moves to the new target,
+and clears from the old target on switch or deselect; the existing enemy
+lifecycle clears it on death, hide, and respawn transitions.
+
+Also avoid assuming additive is always the most readable blend mode. The
+earlier gold ring washed out over the prototype's bright ground, so the target
+material remains opaque unlit/emissive while the ground uses muted moss and
+earth values.
 
 ## Visual Baselines Belong In Rebuild Scripts And Validators
 

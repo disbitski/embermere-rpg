@@ -120,10 +120,19 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 	TestFalse(TEXT("First enemy starts unselected"), FirstEnemy->IsSelectedByPlayer());
 	TestFalse(TEXT("Second enemy starts unselected"), SecondEnemy->IsSelectedByPlayer());
 	TestTrue(TEXT("First enemy has a widget nameplate component"), FirstEnemy->HasNameplateWidget());
-	TestEqual(TEXT("Enemy uses a smooth 24-segment target ring"), FirstEnemy->GetTargetRingSegmentCount(), 24);
+	TestEqual(TEXT("Enemy uses a smooth 48-segment target circle"), FirstEnemy->GetTargetRingSegmentCount(), 48);
 	TestTrue(
 		TEXT("Enemy target ring uses the Embermere emissive material"),
 		FirstEnemy->GetTargetRingMaterialPath().Contains(TEXT("M_EmbermereTargetRing")));
+	const FLinearColor TargetRingColor = FirstEnemy->GetTargetRingColor();
+	TestTrue(TEXT("Target ring keeps red restrained"), TargetRingColor.R < 0.1f);
+	TestTrue(TEXT("Target ring uses a strong cyan green channel"), TargetRingColor.G > 0.6f);
+	TestTrue(TEXT("Target ring uses a bright blue channel"), TargetRingColor.B > 0.9f);
+	TestTrue(TEXT("Target ring segments overlap into a complete circle"), FirstEnemy->TargetRingArcCoverage >= 1.0f);
+	TestTrue(TEXT("Target ring uses a restrained pulse"), FirstEnemy->TargetRingPulseAmount <= 0.05f);
+	TestEqual(TEXT("Complete target circle does not rotate"), FirstEnemy->TargetRingRotationSpeedDegreesPerSecond, 0.0f);
+	TestTrue(TEXT("Target ring remains presentation-only collision"), FirstEnemy->AreTargetRingSegmentsNonColliding());
+	TestFalse(TEXT("Target ring starts hidden"), FirstEnemy->IsTargetRingVisible());
 	TestTrue(
 		TEXT("Enemy target presentation includes name and HP"),
 		FirstEnemy->GetTargetPresentationText().ToString().Contains(TEXT("Marsh Prowler\nHP 100/100")));
@@ -136,16 +145,21 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 	Character->Combat->SetTarget(FirstEnemy);
 	TestTrue(TEXT("First enemy becomes current target"), Character->Combat->CurrentTarget == FirstEnemy);
 	TestTrue(TEXT("First enemy presentation is selected"), FirstEnemy->IsSelectedByPlayer());
+	TestTrue(TEXT("First enemy target circle appears on selection"), FirstEnemy->IsTargetRingVisible());
 	TestFalse(TEXT("Second enemy remains unselected"), SecondEnemy->IsSelectedByPlayer());
+	TestFalse(TEXT("Second enemy target circle remains hidden"), SecondEnemy->IsTargetRingVisible());
 
 	Character->Combat->SetTarget(SecondEnemy);
 	TestTrue(TEXT("Second enemy becomes current target"), Character->Combat->CurrentTarget == SecondEnemy);
 	TestFalse(TEXT("First enemy presentation clears when target changes"), FirstEnemy->IsSelectedByPlayer());
+	TestFalse(TEXT("First enemy target circle clears when target changes"), FirstEnemy->IsTargetRingVisible());
 	TestTrue(TEXT("Second enemy presentation is selected"), SecondEnemy->IsSelectedByPlayer());
+	TestTrue(TEXT("Second enemy target circle appears when selected"), SecondEnemy->IsTargetRingVisible());
 
 	Character->Combat->SetTarget(nullptr);
 	TestNull(TEXT("Current target clears when target is cleared"), Character->Combat->CurrentTarget.Get());
 	TestFalse(TEXT("Second enemy presentation clears when target clears"), SecondEnemy->IsSelectedByPlayer());
+	TestFalse(TEXT("Second enemy target circle clears with the target"), SecondEnemy->IsTargetRingVisible());
 
 	return true;
 }
@@ -1719,6 +1733,12 @@ bool FEmbermereMarshProwlerPresentationTest::RunTest(const FString& Parameters)
 	TestTrue(
 		TEXT("Marsh Prowler configured visual scale matches the component"),
 		EnemyDefaults->VisualMeshRelativeScale.Equals(FVector(0.65f), KINDA_SMALL_NUMBER));
+	TestTrue(
+		TEXT("Marsh Prowler target circle expands beyond the generic minimum radius"),
+		EnemyDefaults->GetResolvedTargetRingRadius() > EnemyDefaults->TargetRingRadius);
+	TestTrue(
+		TEXT("Marsh Prowler target circle remains bounded for starter combat readability"),
+		EnemyDefaults->GetResolvedTargetRingRadius() < 220.0f);
 	TestTrue(
 		TEXT("Marsh Prowler feet align with the gameplay capsule"),
 		EnemyDefaults->GetMesh()->GetRelativeLocation().Equals(FVector(0.0f, 0.0f, -95.0f), KINDA_SMALL_NUMBER));

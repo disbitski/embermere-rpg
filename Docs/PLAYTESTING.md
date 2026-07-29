@@ -81,7 +81,10 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 17. Watch for the temporary quest/dialogue message.
 18. Move toward the ruin and enemy pocket, passing cleanly through the road gate between the two matching boundary fences and their rune-topped end stones.
 19. Press `Tab` to target a nearby hostile.
-20. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP bar, flat animated 24-segment emissive gold ground ring, and the HUD target panel range state.
+20. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP
+    bar, complete cyan-blue emissive ground circle, and the HUD target panel
+    range state. The 48-segment circle should size from the target's visual
+    bounds, sit just above the supporting surface, and leave the paws clear.
 21. Inspect the Marsh Prowler at normal camera distance: peat/charcoal/moss/mud,
     bone, and amber accents should separate cleanly; all four paws should meet
     terrain; the capsule, target ring, and nameplate must remain readable.
@@ -160,7 +163,10 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
 - `Ctrl+M` toggles mouse Y inversion and posts a bottom-left chat/combat log message.
 - Accepting the quest posts a bottom-left quest accepted message.
-- Tab targeting shows the selected target name, HP, first-ability range state, a temporary screen-space UMG nameplate, HP-aware accent/health bar coloring, and a flat animated 24-segment gold ground ring.
+- Tab targeting shows the selected target name, HP, first-ability range state,
+  a temporary screen-space UMG nameplate, HP-aware accent/health bar coloring,
+  and a restrained cyan-blue emissive ground circle around the target's
+  footprint.
 - Ability use posts a bottom-left hit message clipped inside the shaded chat panel.
 - Reusing an ability before its cooldown finishes posts a bottom-left ready-time message; the hotbar slot itself dims and counts down while cooling.
 - Battle Shout and Nature's Focus post timed Attack Power feedback; Ward posts
@@ -218,7 +224,11 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
   Recruit Pack contrast passed on 2026-07-27; the populated drag token in
   motion remains a manual check. The next phases are documented in
   `Docs/INVENTORY_INTERACTION_PLAN.md`.
-- Nameplates use a native UMG widget component and target highlighting uses a dedicated emissive material on a flat animated 24-segment ring; a future decal/texture treatment can add runes and softer edges.
+- Nameplates use a native UMG widget component and target highlighting uses a
+  dedicated emissive material on a non-colliding 48-segment circle. Runtime
+  bounds sizing and a downward surface trace keep it clear of both paws and
+  raised ground; a future texture treatment can add restrained runes or softer
+  edges without changing targeting rules.
 - The bottom-left chat/combat log is clipped inside its shaded panel and currently uses single-line rows; final chat history, scrolling, and fantasy styling still need a proper UI pass.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.
 - The first local Fab/Epic environment pass is grounded and spawn-safe after

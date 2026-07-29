@@ -98,20 +98,32 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	float TargetRingRadius = 96.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting", meta = (ClampMin = "0.0"))
+	float TargetRingBoundsPadding = 18.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	float TargetRingHeightOffset = -79.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
-	float TargetRingThickness = 8.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting", meta = (ClampMin = "0.5"))
+	float TargetRingSurfaceClearance = 3.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
-	FLinearColor TargetRingColor = FLinearColor(1.0f, 0.32f, 0.015f, 1.0f);
+	float TargetRingThickness = 5.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
-	float TargetRingRotationSpeedDegreesPerSecond = 12.0f;
+	FLinearColor TargetRingColor = FLinearColor(0.015f, 0.68f, 1.0f, 1.0f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
+	float TargetRingRotationSpeedDegreesPerSecond = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting", meta = (ClampMin = "0.0", ClampMax = "0.25"))
-	float TargetRingPulseAmount = 0.08f;
+	float TargetRingPulseAmount = 0.035f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting", meta = (ClampMin = "1.0", ClampMax = "1.2"))
+	float TargetRingArcCoverage = 1.06f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting", meta = (ClampMin = "0.0"))
+	float TargetRingEmissiveStrength = 1.35f;
 
 	virtual bool IsHostileTo_Implementation(const AActor* Viewer) const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
@@ -133,6 +145,18 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
 	FString GetTargetRingMaterialPath() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
+	FLinearColor GetTargetRingColor() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
+	float GetResolvedTargetRingRadius() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
+	bool IsTargetRingVisible() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
+	bool AreTargetRingSegmentsNonColliding() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|AI")
 	bool IsLocationOutsideLeashRadius(const FVector& Location) const;
@@ -206,6 +230,7 @@ private:
 	void HideDeadBody();
 	void UpdatePrototypeTargetPresentation();
 	void UpdatePrototypeTargetRing(bool bIsVisible);
+	float ResolveTargetRingHeightOffset() const;
 	AActor* FindAggroTarget() const;
 	bool IsValidAggroTarget(const AActor* Candidate) const;
 	bool ShouldLeashFromTarget(const AActor* Target) const;

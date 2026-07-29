@@ -1494,6 +1494,62 @@ Pipeline lessons:
 - Technical eligibility, physical route proof, normal-camera readability, and
   human acceptance remain distinct gates.
 
+## 2026-07-29 - The Target Circle Learned The Creature And The Ground
+
+The selected-target marker now reads like the classic MMO affordance we wanted
+instead of a generic animated effect.
+
+Target-circle pass:
+
+- Replaced the rotating orange-gold 24-segment marker with 48 overlapping
+  non-colliding plane segments in a restrained cyan-blue emissive treatment.
+  The circle remains stationary and uses only a subtle pulse, keeping target
+  identity distinct from the rotating timed-status world auras.
+- Removed the fixed creature-size assumption. Runtime radius now starts from a
+  conservative `96` cm minimum, expands from capsule and transformed skeletal
+  mesh bounds, and adds `18` cm of visual padding. The Marsh Prowler therefore
+  clears its paws and long silhouette without hard-coding a wolf-only value.
+- Removed the fixed-ground assumption while selected. A downward visibility
+  trace resolves the supporting surface and keeps the circle `3` cm above the
+  hit, avoiding both terrain z-fighting and the earlier raised-platform
+  burial. The previous offset remains a fallback when no initialized world or
+  surface hit exists.
+- Kept targeting authoritative. The circle owns no collision, navigation, aggro,
+  combat, status, or target-selection rules; it only mirrors selected state.
+
+Verification:
+
+- `Embermere.Combat.TargetSelectionPresentation` now proves the 48-segment cyan
+  contract, overlap, restrained pulse, no rotation/collision, initial hiding,
+  selection, switching, and clearing. The Prowler presentation test proves its
+  resolved circle grows beyond the generic minimum but remains bounded.
+- The no-hot-reload Mac editor build succeeded. Fresh commandlet automation
+  passed 28/28, and the restarted GUI editor rediscovered and passed the same
+  28/28 suite with no failures, skips, or warnings.
+- Fresh saved-map validation retained 59 grounded upright Fab actors, 14
+  project-owned placements, three saved Prowlers, reeds, moss/earth ground, and
+  daylight. Initialized-world traces retained the clear spawn corridor, three
+  clear gate lanes, solid boundary family, and solid supply chest.
+- A saved Blender inspection reloaded the 7,464-triangle, 26-bone Prowler source
+  and retained its exact dimensions and grounded paw minimum.
+- Clean daylight PIE selected a live Marsh Prowler and showed the cyan circle
+  around its footprint with the native nameplate and HUD target frame intact.
+  The remaining honest visual check is a normal-route physical-eye sweep across
+  the other two saved Prowlers and harmful world-status colors.
+
+Pipeline lessons:
+
+- A world indicator needs two contracts: what it surrounds and what it rests
+  on. Capsule-only sizing and fixed Z offsets answer neither reliably after art
+  or terrain changes.
+- Target identity benefits from calmer motion than timed-effect presentation.
+  Color, footprint, and immediate switch/clear behavior did more useful work
+  than continuous rotation.
+- A forced PIE start transform can bypass the normal PlayerStart and land in an
+  invalid or non-walkable location. Use it for bounded camera diagnostics, but
+  do not treat that result as a saved-map regression when fresh package
+  validation, initialized-world traces, and the normal route disagree.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
