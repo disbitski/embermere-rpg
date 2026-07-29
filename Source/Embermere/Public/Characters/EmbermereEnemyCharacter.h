@@ -104,8 +104,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	float TargetRingHeightOffset = -79.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting", meta = (ClampMin = "0.5"))
-	float TargetRingSurfaceClearance = 3.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting", meta = (ClampMin = "16.0"))
+	float TargetRingSurfaceClearance = 16.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	float TargetRingThickness = 5.5f;
@@ -153,10 +153,15 @@ public:
 	float GetResolvedTargetRingRadius() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
+	float GetEffectiveTargetRingSurfaceClearance() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
 	bool IsTargetRingVisible() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
 	bool AreTargetRingSegmentsNonColliding() const;
+
+	void EnsureTargetRingPresentationComponents();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|AI")
 	bool IsLocationOutsideLeashRadius(const FVector& Location) const;
@@ -177,6 +182,7 @@ public:
 	bool GrantLootTo(AActor* Recipient);
 
 protected:
+	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void HandleTargetedByPlayer(bool bIsTargeted) override;
@@ -199,7 +205,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Enemy|Targeting")
 	TObjectPtr<UWidgetComponent> NameplateWidgetComponent;
 
-	UPROPERTY(VisibleAnywhere, Category = "Enemy|Targeting")
+	UPROPERTY(VisibleAnywhere, Transient, Category = "Enemy|Targeting")
 	TArray<TObjectPtr<UStaticMeshComponent>> TargetRingSegments;
 
 	UPROPERTY(Transient)

@@ -1510,9 +1510,10 @@ Target-circle pass:
   mesh bounds, and adds `18` cm of visual padding. The Marsh Prowler therefore
   clears its paws and long silhouette without hard-coding a wolf-only value.
 - Removed the fixed-ground assumption while selected. A downward visibility
-  trace resolves the supporting surface and keeps the circle `3` cm above the
-  hit, avoiding both terrain z-fighting and the earlier raised-platform
-  burial. The previous offset remains a fallback when no initialized world or
+  trace resolves the supporting surface and keeps the circle at least `16` cm
+  above the hit. That value is visually flush in the prototype because the
+  rendered moss surface sits above the collision surface returned by the
+  trace. The previous offset remains a fallback when no initialized world or
   surface hit exists.
 - Kept targeting authoritative. The circle owns no collision, navigation, aggro,
   combat, status, or target-selection rules; it only mirrors selected state.
@@ -1549,6 +1550,30 @@ Pipeline lessons:
   invalid or non-walkable location. Use it for bounded camera diagnostics, but
   do not treat that result as a saved-map regression when fresh package
   validation, initialized-world traces, and the normal route disagree.
+
+Same-day PIE correction:
+
+- A user-run clean PIE session selected a Marsh Prowler and showed the
+  nameplate and HUD target frame but no visible circle. That screenshot
+  overruled the earlier technical acceptance.
+- Runtime inspection showed valid material, selected state, and visible
+  components. Raising the ring proved that the visibility trace was hitting
+  collision below the rendered moss surface: `3` cm remained buried, `10` cm
+  was still effectively invisible, and `16` cm produced the intended
+  visually flush cyan circle.
+- A second discrepancy was hiding behind green native tests. A native
+  `AEmbermereEnemyCharacter` constructed 48 segments, but the saved
+  `BP_StarterEnemy` generated class retained 24 older inherited component
+  templates. Recompiling the Blueprint did not rebuild that native subobject
+  template set.
+- `PostInitializeComponents` now reconciles the actual runtime actor to exactly
+  48 segments, reusing inherited components and creating only missing
+  transient components. Every segment is reasserted as non-colliding,
+  non-navigating, shadowless presentation.
+- The Prowler automation now instantiates the real Blueprint-generated class
+  and proves the reconciled component contract. The authoritative
+  no-hot-reload build and all 28 tests passed, and corrected clean PIE showed
+  the cyan circle beneath the live selected Prowler.
 
 ## Principles
 

@@ -207,7 +207,7 @@ Practical rule:
 
 - inspect the actor, indicator component, and supporting surface world Z values separately;
 - trace toward the supporting surface while the indicator is visible and keep
-  a small explicit clearance above the hit;
+  a PIE-proven explicit clearance above the hit;
 - size from transformed visual bounds plus padding rather than assuming every
   creature fits the same capsule-sized circle;
 - retain a conservative minimum and fallback offset for actors or worlds that
@@ -217,16 +217,49 @@ Practical rule:
 
 Embermere's accepted target circle uses 48 overlapping, non-colliding plane
 segments, bounds-aware radius, a downward surface trace, and a restrained
-cyan-blue emissive treatment. It does not rotate, so target identity reads
-immediately instead of competing with timed-status world VFX. Selection
-automation proves that the circle appears on selection, moves to the new target,
-and clears from the old target on switch or deselect; the existing enemy
-lifecycle clears it on death, hide, and respawn transitions.
+cyan-blue emissive treatment. Its effective `16` cm trace clearance is visually
+flush because the prototype's rendered moss surface sits above its collision
+surface. It does not rotate, so target identity reads immediately instead of
+competing with timed-status world VFX. Selection automation proves that the
+circle appears on selection, moves to the new target, and clears from the old
+target on switch or deselect; the existing enemy lifecycle clears it on death,
+hide, and respawn transitions.
 
 Also avoid assuming additive is always the most readable blend mode. The
 earlier gold ring washed out over the prototype's bright ground, so the target
 material remains opaque unlit/emissive while the ground uses muted moss and
 earth values.
+
+## Test The Actual Blueprint-Generated Runtime Class
+
+A native object-level test can pass while a saved Blueprint subclass still
+constructs different inherited native components. Embermere's native enemy
+constructor produced the intended 48 target-circle segments, but the saved
+`BP_StarterEnemy` generated class retained 24 older native component templates.
+Compiling and saving the Blueprint did not rebuild that inherited template set,
+so the native test was green while the real PIE enemy lacked the complete
+runtime contract.
+
+For native presentation-component migrations:
+
+- inspect both a direct native instance and an instance created from the saved
+  Blueprint's `GeneratedClass`;
+- assert the exact component count and collision contract on the latter;
+- do not assume Blueprint compile/save refreshes inherited native subobject
+  templates after constructor component counts or names change;
+- reconcile bounded presentation-only components during runtime initialization
+  when replacing the Blueprint is unnecessary or risky;
+- reuse valid inherited components, create only missing transient components,
+  and reassert mesh, material, mobility, collision, navigation, shadow, and
+  initial visibility properties;
+- finish with clean PIE, because runtime component eligibility still does not
+  prove surface readability.
+
+Embermere now reconciles target-circle segments in
+`PostInitializeComponents`, then its Prowler presentation test instantiates the
+actual Blueprint-generated class and proves exactly 48 non-colliding runtime
+segments. This is intentionally a presentation repair; targeting, combat,
+aggro, loot, and lifecycle authority remain unchanged.
 
 ## Visual Baselines Belong In Rebuild Scripts And Validators
 

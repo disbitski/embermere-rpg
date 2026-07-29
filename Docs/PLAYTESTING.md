@@ -84,7 +84,9 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 20. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP
     bar, complete cyan-blue emissive ground circle, and the HUD target panel
     range state. The 48-segment circle should size from the target's visual
-    bounds, sit just above the supporting surface, and leave the paws clear.
+    bounds, sit visually flush above the supporting surface, and leave the paws
+    clear. Its effective `16` cm collision-hit clearance compensates for the
+    prototype moss surface rendering above the traceable ground.
 21. Inspect the Marsh Prowler at normal camera distance: peat/charcoal/moss/mud,
     bone, and amber accents should separate cleanly; all four paws should meet
     terrain; the capsule, target ring, and nameplate must remain readable.

@@ -23,6 +23,7 @@
 namespace
 {
 constexpr int32 TargetRingSegmentCount = 48;
+constexpr float MinimumTargetRingSurfaceClearance = 16.0f;
 }
 
 AEmbermereEnemyCharacter::AEmbermereEnemyCharacter()
@@ -98,6 +99,72 @@ AEmbermereEnemyCharacter::AEmbermereEnemyCharacter()
 		Segment->SetCastShadow(false);
 		Segment->SetVisibility(false);
 		Segment->SetHiddenInGame(true);
+		TargetRingSegments.Add(Segment);
+	}
+}
+
+void AEmbermereEnemyCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	EnsureTargetRingPresentationComponents();
+}
+
+void AEmbermereEnemyCharacter::EnsureTargetRingPresentationComponents()
+{
+	TMap<FName, UStaticMeshComponent*> ExistingSegments;
+	TInlineComponentArray<UStaticMeshComponent*> StaticMeshComponents(this);
+	for (UStaticMeshComponent* Component : StaticMeshComponents)
+	{
+		if (Component && Component->GetName().StartsWith(TEXT("SelectedTargetRingSegment_")))
+		{
+			ExistingSegments.Add(Component->GetFName(), Component);
+		}
+	}
+
+	UStaticMesh* RingSegmentMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Plane.Plane"));
+	UMaterialInterface* RingMaterial = LoadObject<UMaterialInterface>(
+		nullptr,
+		TEXT("/Game/Art/Embermere/Targeting/M_EmbermereTargetRing.M_EmbermereTargetRing"));
+	if (!RingMaterial)
+	{
+		RingMaterial = LoadObject<UMaterialInterface>(
+			nullptr,
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+	}
+
+	TargetRingSegments.Reset(TargetRingSegmentCount);
+	TargetRingMaterials.Reset();
+	for (int32 SegmentIndex = 0; SegmentIndex < TargetRingSegmentCount; ++SegmentIndex)
+	{
+		const FName SegmentName(*FString::Printf(TEXT("SelectedTargetRingSegment_%02d"), SegmentIndex));
+		UStaticMeshComponent* Segment = ExistingSegments.FindRef(SegmentName);
+		if (!Segment)
+		{
+			Segment = NewObject<UStaticMeshComponent>(this, SegmentName, RF_Transient);
+			Segment->SetupAttachment(RootComponent);
+			AddInstanceComponent(Segment);
+		}
+
+		if (RingSegmentMesh)
+		{
+			Segment->SetStaticMesh(RingSegmentMesh);
+		}
+		if (RingMaterial)
+		{
+			Segment->SetMaterial(0, RingMaterial);
+		}
+		Segment->SetMobility(EComponentMobility::Movable);
+		Segment->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Segment->SetGenerateOverlapEvents(false);
+		Segment->SetCanEverAffectNavigation(false);
+		Segment->SetCastShadow(false);
+		Segment->SetVisibility(false);
+		Segment->SetHiddenInGame(true);
+
+		if (!Segment->IsRegistered() && GetWorld())
+		{
+			Segment->RegisterComponent();
+		}
 		TargetRingSegments.Add(Segment);
 	}
 }
@@ -227,6 +294,11 @@ float AEmbermereEnemyCharacter::GetResolvedTargetRingRadius() const
 	}
 
 	return ResolvedRadius;
+}
+
+float AEmbermereEnemyCharacter::GetEffectiveTargetRingSurfaceClearance() const
+{
+	return FMath::Max(MinimumTargetRingSurfaceClearance, TargetRingSurfaceClearance);
 }
 
 bool AEmbermereEnemyCharacter::IsTargetRingVisible() const
@@ -621,7 +693,7 @@ float AEmbermereEnemyCharacter::ResolveTargetRingHeightOffset() const
 	FHitResult GroundHit;
 	if (World->LineTraceSingleByChannel(GroundHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
 	{
-		return GroundHit.ImpactPoint.Z - ActorLocation.Z + FMath::Max(0.5f, TargetRingSurfaceClearance);
+		return GroundHit.ImpactPoint.Z - ActorLocation.Z + GetEffectiveTargetRingSurfaceClearance();
 	}
 
 	return TargetRingHeightOffset;

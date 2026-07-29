@@ -6,8 +6,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-07-29 bounds-aware cyan target-circle
-  module and the saved route-repair map. The editor can start MCP during launch with
+- Confirm Unreal is running the corrected 2026-07-29 bounds-aware cyan
+  target-circle module, saved `BP_StarterEnemy`, and route-repair map. Restart
+  if the editor predates the Blueprint runtime-reconciliation and 16 cm
+  effective surface-clearance fix. The editor can start MCP during launch with
   `-ModelContextProtocolStartServer -ModelContextProtocolPort=8123`; on macOS,
   pass the `.uproject` after `--args` when using `open`. Confirm Blender and its
   localhost bridge only when another original-art pass is selected.
@@ -16,10 +18,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.Combat.StarterAbilityEffects`,
   `Embermere.UI.TimedStatusPresentation`,
   `Embermere.UI.WorldStatusVfxPresentation`, and the inventory transaction
-  suite. The initialized editor and authoritative fresh commandlet passed the
-  complete 28-test suite after the target-circle build. The no-hot-reload Mac
-  build, saved-map validator, initialized-world route/boundary traces, and
-  saved Blender Prowler inspection also passed.
+  suite. The authoritative fresh commandlet passed the complete 28-test suite
+  after the target-circle correction, including construction through the real
+  `BP_StarterEnemy` generated class and reconciliation to 48 non-colliding
+  runtime segments. The no-hot-reload Mac build, saved-map validator,
+  initialized-world route/boundary traces, and saved Blender Prowler inspection
+  also passed.
 - In clean PIE, accept the first original Marsh Prowler as a complete gameplay
   presentation:
   - peat, charcoal, moss, mud, bone, and amber materials read at normal camera
@@ -67,12 +71,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. retain the accepted EverQuest-inspired cyan-blue target circle and perform
-     one normal-route physical-eye sweep across all three Marsh Prowlers. Judge
-     its 48-segment continuity, bounds-aware paw clearance, surface contact,
-     restrained glow, nameplate coexistence, and immediate target-switch/death
-     clearing. Change scale, color, or motion only for a concrete normal-camera
-     readability issue;
+  1. retain the corrected EverQuest-inspired cyan-blue target circle and
+     perform one normal-route physical-eye sweep across all three Marsh
+     Prowlers. Judge its 48-segment continuity, bounds-aware paw clearance,
+     visually flush 16 cm effective surface clearance, restrained glow,
+     nameplate coexistence, and immediate target-switch/death clearing. Change
+     scale, color, or motion only for a concrete normal-camera readability
+     issue;
   2. tune Prowler attack timing, material balance, or animation transitions only
      when normal-route PIE exposes a concrete issue;
   3. exercise Snare and Frost Root on the real Prowler route and judge the new
@@ -84,8 +89,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-07-29
-  bounds-aware cyan target-circle build. Current code passes all 28 tests.
+- Restart Unreal before manual PIE when the editor predates the corrected
+  2026-07-29 bounds-aware cyan target-circle build and saved starter-enemy
+  Blueprint. Current code passes all 28 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -874,18 +880,27 @@ effects, or audio.
   EverQuest-inspired cyan-blue target circle. Forty-eight overlapping
   non-colliding segments form a stationary complete read, resolve their radius
   from transformed capsule/mesh bounds plus `18` cm padding, and trace the
-  supporting surface with `3` cm clearance while selected.
+  supporting surface with a `16` cm effective clearance while selected. The
+  larger value is visually flush in this prototype because the moss ground's
+  rendered surface sits above the collision surface returned by the trace.
+- Corrected the user-reported clean-PIE disappearance. The saved
+  `BP_StarterEnemy` still inherited 24 older native segment templates while a
+  native-only test constructed all 48. Runtime initialization now reuses saved
+  segment components and creates any missing transient components until the
+  exact 48-segment presentation contract is satisfied.
 - Expanded `Embermere.Combat.TargetSelectionPresentation` to prove cyan color,
   continuity, restrained pulse, no rotation/collision, selection, target
-  switching, and clear behavior. Prowler presentation automation proves its
+  switching, clear behavior, and effective terrain clearance. Prowler
+  presentation automation now constructs the actual Blueprint-generated class,
+  proves runtime reconciliation to 48 non-colliding segments, and confirms its
   visual footprint expands beyond the generic minimum without becoming
   oversized.
 - The no-hot-reload Mac build, fresh commandlet suite, restarted-editor MCP
   suite, saved-map validator, initialized-world road traces, and saved Blender
-  Prowler inspection all passed. Clean daylight PIE showed the circle around a
-  live selected Prowler with the nameplate and target frame intact. A final
-  physical-eye sweep across the other two normal-route instances remains the
-  honest acceptance check.
+  Prowler inspection all passed. Corrected clean daylight PIE showed the cyan
+  circle beneath a live selected Blueprint Prowler with its nameplate and HUD
+  target frame intact. A final physical-eye sweep across the other two
+  normal-route instances remains the honest acceptance check.
 
 ## Asset Hunt
 

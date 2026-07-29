@@ -130,6 +130,9 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 	TestTrue(TEXT("Target ring uses a bright blue channel"), TargetRingColor.B > 0.9f);
 	TestTrue(TEXT("Target ring segments overlap into a complete circle"), FirstEnemy->TargetRingArcCoverage >= 1.0f);
 	TestTrue(TEXT("Target ring uses a restrained pulse"), FirstEnemy->TargetRingPulseAmount <= 0.05f);
+	TestTrue(
+		TEXT("Target ring clears the prototype terrain surface"),
+		FirstEnemy->GetEffectiveTargetRingSurfaceClearance() >= 16.0f);
 	TestEqual(TEXT("Complete target circle does not rotate"), FirstEnemy->TargetRingRotationSpeedDegreesPerSecond, 0.0f);
 	TestTrue(TEXT("Target ring remains presentation-only collision"), FirstEnemy->AreTargetRingSegmentsNonColliding());
 	TestFalse(TEXT("Target ring starts hidden"), FirstEnemy->IsTargetRingVisible());
@@ -1739,6 +1742,25 @@ bool FEmbermereMarshProwlerPresentationTest::RunTest(const FString& Parameters)
 	TestTrue(
 		TEXT("Marsh Prowler target circle remains bounded for starter combat readability"),
 		EnemyDefaults->GetResolvedTargetRingRadius() < 220.0f);
+	TestTrue(
+		TEXT("Starter enemy Blueprint resolves enough surface clearance for the prototype terrain"),
+		EnemyDefaults->GetEffectiveTargetRingSurfaceClearance() >= 16.0f);
+
+	AEmbermereEnemyCharacter* RuntimeBlueprintEnemy = NewObject<AEmbermereEnemyCharacter>(
+		GetTransientPackage(),
+		EnemyBlueprint->GeneratedClass);
+	TestNotNull(TEXT("Starter enemy Blueprint can create a runtime presentation instance"), RuntimeBlueprintEnemy);
+	if (RuntimeBlueprintEnemy)
+	{
+		RuntimeBlueprintEnemy->EnsureTargetRingPresentationComponents();
+		TestEqual(
+			TEXT("Runtime starter enemy reconciles stale Blueprint templates to 48 target-ring segments"),
+			RuntimeBlueprintEnemy->GetTargetRingSegmentCount(),
+			48);
+		TestTrue(
+			TEXT("Reconciled runtime target ring remains presentation-only collision"),
+			RuntimeBlueprintEnemy->AreTargetRingSegmentsNonColliding());
+	}
 	TestTrue(
 		TEXT("Marsh Prowler feet align with the gameplay capsule"),
 		EnemyDefaults->GetMesh()->GetRelativeLocation().Equals(FVector(0.0f, 0.0f, -95.0f), KINDA_SMALL_NUMBER));
