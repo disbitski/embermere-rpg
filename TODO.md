@@ -67,13 +67,24 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. tune Prowler attack timing, material balance, or animation transitions only
+  1. replace the current orange-gold segmented target marker with an
+     EverQuest-inspired cyan-blue emissive ground ring. Keep it a complete,
+     readable circle around the selected target's footprint with a restrained
+     glow/pulse, size it from the target bounds without touching the paws, and
+     raise or project it enough to avoid terrain z-fighting. It must remain
+     non-colliding and presentation-only, follow `Tab` target changes, clear
+     immediately on deselect/death/hide/respawn transitions, stay readable in
+     daylight, and coexist with nameplates and harmful world-status VFX. Extend
+     `Embermere.Combat.TargetSelectionPresentation` or add focused automation
+     coverage for the cyan-ring contract, then verify it on all three Marsh
+     Prowlers in normal-route PIE;
+  2. tune Prowler attack timing, material balance, or animation transitions only
      when normal-route PIE exposes a concrete issue;
-  2. exercise Snare and Frost Root on the real Prowler route and judge the new
+  3. exercise Snare and Frost Root on the real Prowler route and judge the new
      harmful world aura from normal gameplay distance;
-  3. extend subtle `NoCollision` marsh dressing only where sightlines remain
+  4. extend subtle `NoCollision` marsh dressing only where sightlines remain
      clear;
-  4. continue toward cohesive original or signed-in fantasy village
+  5. continue toward cohesive original or signed-in fantasy village
      architecture and a true landscape/ground-detail lane.
 
 ## Full Manual Regression Checklist
