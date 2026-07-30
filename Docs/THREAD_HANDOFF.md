@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-07-29
+Last updated: 2026-07-30
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -45,7 +45,8 @@ The project currently includes:
   buffs, Snare, Frost Root, and Meditate mana recovery;
 - quest, inventory, equipment, stats, combat, targeting, interactable, and hotbar systems;
 - hostile enemy aggro, chase, attack, leash, return-home, death, and respawn;
-- player death, respawn, and short recovery damage immunity;
+- player death, finite-world fall recovery, autorun cancellation, respawn,
+  velocity/movement restoration, and short recovery damage immunity;
 - a styled native HUD with player/target status, quest tracker, hotbar,
   clickable/draggable inventory rows and equipment slots, dialogue, loot
   feedback, nameplates, a bounds-aware cyan-blue emissive target circle,
@@ -59,7 +60,7 @@ The project currently includes:
   38-expression moss/earth road material, and a Mac-friendly daylight baseline;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
-- 28 passing Unreal automation tests plus fresh-process UI-art/package and
+- 29 passing Unreal automation tests plus fresh-process UI-art/package and
   saved-map validators and initialized-live-world road-boundary traces.
 
 This is still prototype art. The first black-sky problem is corrected, but the
@@ -543,23 +544,29 @@ Current automation tests:
 26. `Embermere.UI.TimedStatusPresentation`
 27. `Embermere.Enemy.MarshProwlerPresentation`
 28. `Embermere.UI.WorldStatusVfxPresentation`
+29. `Embermere.Player.OutOfBoundsRecovery`
 
-Latest verified baseline (2026-07-29):
+Latest verified baseline (2026-07-30):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- headless automation discovered and passed 28/28 with zero test failures,
+- headless automation discovered and passed 29/29 with zero test failures,
   including saved starter-effect semantics and runtime contracts for timed
   power/armor buffs, Snare, Frost Root, Meditate, effective-stat consumption,
   respawn-safe temporary-effect clearing, fixed paper-doll presentation, and
   source-ability-backed timed-status presentation, all three saved Marsh
-  Prowler instances, and the world-status VFX contract;
-- restarted-editor MCP rediscovered and passed the same 28/28 suite. Target
-  presentation automation now proves cyan color, 48-segment continuity,
+  Prowler instances, the world-status VFX contract, and finite-world player
+  recovery;
+- target presentation automation proves cyan color, 48-segment continuity,
   restrained pulse, no rotation/collision, target switching, and clearing;
 - the selected-target circle resolves its radius from transformed capsule and
   skeletal-mesh bounds plus `18` cm padding, then traces the supporting surface
-  and keeps `3` cm clearance. Clean daylight PIE showed it around a live Marsh
-  Prowler without obscuring the native nameplate or HUD target frame;
+  and keeps `16` cm effective collision-hit clearance. Clean daylight PIE
+  accepted all three live Marsh Prowler runtime contracts and proved immediate
+  `Tab` switching without obscuring the native nameplate or HUD target frame;
+- fresh PIE forced a player with autorun enabled below the `Z=-1000` recovery
+  plane and proved autorun off, both fall/recovery HUD messages, exact village
+  spawn, full health, `MOVE_Walking`, zero velocity, and three seconds of
+  protection;
 - clean PIE accepted Battle Shout and Snare status rows with saved art,
   beneficial/harmful treatment, live countdowns, fixed bounds, and no
   neighboring HUD motion. Meditate remained instantaneous. The same session
@@ -724,8 +731,9 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-07-28 world-status VFX module and route-repair map package, then confirm
-MCP/test discovery; restart only if the editor or test registry proves stale.
+2026-07-30 target-circle and finite-world recovery module plus the route-repair
+map package, then confirm MCP/test discovery; restart only if the editor or test
+registry proves stale.
 
 First fresh-session checks:
 
@@ -733,7 +741,7 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 28 tests.
+3. Run/discover all 29 tests.
 4. Start PIE and verify:
    - all three Marsh Prowlers retain the project-owned skeletal mesh and route
      Idle, Walk, Run, Attack, Hit, and Death from generic enemy state; verify
@@ -808,6 +816,10 @@ First fresh-session checks:
 
 High-value milestones after that:
 
+- retain the accepted 48-segment cyan target circle and the `Z=-1000`
+  finite-world recovery contract; fresh PIE has accepted target switching,
+  autorun cancellation, exact village respawn, full health, walking, zero
+  velocity, and protection feedback;
 - tune Prowler animation timing, transitions, material balance, or physics only
   when normal-route PIE exposes a concrete issue;
 - retain the resolved straight-line autorun route and chest clearance;
@@ -825,7 +837,8 @@ High-value milestones after that:
   UE-compatible pack;
 - preserve the collision-cleared `525` cm solo-pull baseline while tuning
   leash, attack, damage, and respawn from normal-route PIE feel;
-- player respawn timing/protection tuning;
+- player respawn timing/protection tuning only when normal-route play exposes a
+  concrete feel issue;
 - continued automation around player-facing combat and UI behavior.
 
 ## Daily Build Automation
@@ -880,10 +893,10 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-07-29 current module,
-bounds-aware cyan target circle, world-status VFX, Marsh Prowler, terrain,
-reeds, and route-repair map, then run
-all 28 tests. Retain the
+Follow TODO.md's Start Here section. Confirm the 2026-07-30 current module,
+bounds-aware cyan target circle, finite-world recovery, world-status VFX,
+Marsh Prowler, terrain, reeds, and route-repair map, then run
+all 29 tests. Retain the
 original rigged Prowler across all three instances and verify Idle, Walk, Run,
 Attack, Hit, Death, terrain contact, target presentation, combat, tonic loot,
 hide, and respawn. Retain the accepted fixed player and

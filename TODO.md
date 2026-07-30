@@ -6,24 +6,37 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the corrected 2026-07-29 bounds-aware cyan
-  target-circle module, saved `BP_StarterEnemy`, and route-repair map. Restart
-  if the editor predates the Blueprint runtime-reconciliation and 16 cm
-  effective surface-clearance fix. The editor can start MCP during launch with
-  `-ModelContextProtocolStartServer -ModelContextProtocolPort=8123`; on macOS,
-  pass the `.uproject` after `--args` when using `open`. Confirm Blender and its
-  localhost bridge only when another original-art pass is selected.
-- Discover and run all 28 tests, especially
+- Confirm Unreal is running the 2026-07-30 no-hot-reload module with the
+  accepted bounds-aware cyan target circle and finite-world player recovery.
+  Restart if the editor predates that build. The editor can start MCP during
+  launch with `-ModelContextProtocolStartServer
+  -ModelContextProtocolPort=8123`; on macOS, pass the `.uproject` after
+  `--args` when using `open`. Confirm Blender and its localhost bridge only
+  when another original-art pass is selected.
+- Discover and run all 29 tests, especially
   `Embermere.Enemy.MarshProwlerPresentation`,
+  `Embermere.Player.OutOfBoundsRecovery`,
   `Embermere.Combat.StarterAbilityEffects`,
   `Embermere.UI.TimedStatusPresentation`,
   `Embermere.UI.WorldStatusVfxPresentation`, and the inventory transaction
-  suite. The authoritative fresh commandlet passed the complete 28-test suite
-  after the target-circle correction, including construction through the real
-  `BP_StarterEnemy` generated class and reconciliation to 48 non-colliding
-  runtime segments. The no-hot-reload Mac build, saved-map validator,
-  initialized-world route/boundary traces, and saved Blender Prowler inspection
-  also passed.
+  suite. The authoritative fresh commandlet passed the complete 29-test suite,
+  including construction through the real `BP_StarterEnemy` generated class,
+  reconciliation to 48 non-colliding runtime target-circle segments, and
+  damage-immunity-bypassing fall recovery. The no-hot-reload Mac build,
+  saved-map validator, UI-art validator, and initialized-world route/boundary
+  traces also passed.
+- Retain the accepted EverQuest-inspired target circle. Clean normal-route PIE
+  proved all three Marsh Prowlers own exactly 48 stationary, non-colliding
+  cyan-blue segments at 16 cm effective surface clearance. The visible circle
+  leaves the selected Prowler's footprint readable, switches immediately with
+  `Tab`, and clears from the old target. Do not retune it without a concrete
+  normal-camera readability issue.
+- Retain finite-world recovery. A sustained transform-proven `Q` autorun probe
+  exposed that the player could leave the prototype foundation and fall
+  forever. Crossing `Z=-1000` now cancels autorun, forces death even during
+  recovery immunity, freezes movement, and uses the existing five-second
+  village respawn. Fresh PIE proved full health at `(-2400, -1200, 90.15)`,
+  `MOVE_Walking`, zero velocity, and the three-second protection message.
 - In clean PIE, accept the first original Marsh Prowler as a complete gameplay
   presentation:
   - peat, charcoal, moss, mud, bone, and amber materials read at normal camera
@@ -71,27 +84,20 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. retain the corrected EverQuest-inspired cyan-blue target circle and
-     perform one normal-route physical-eye sweep across all three Marsh
-     Prowlers. Judge its 48-segment continuity, bounds-aware paw clearance,
-     visually flush 16 cm effective surface clearance, restrained glow,
-     nameplate coexistence, and immediate target-switch/death clearing. Change
-     scale, color, or motion only for a concrete normal-camera readability
-     issue;
-  2. tune Prowler attack timing, material balance, or animation transitions only
+  1. tune Prowler attack timing, material balance, or animation transitions only
      when normal-route PIE exposes a concrete issue;
-  3. exercise Snare and Frost Root on the real Prowler route and judge the new
+  2. exercise Snare and Frost Root on the real Prowler route and judge the
      harmful world aura from normal gameplay distance;
-  4. extend subtle `NoCollision` marsh dressing only where sightlines remain
+  3. extend subtle `NoCollision` marsh dressing only where sightlines remain
      clear;
-  5. continue toward cohesive original or signed-in fantasy village
+  4. continue toward cohesive original or signed-in fantasy village
      architecture and a true landscape/ground-detail lane.
 
 ## Full Manual Regression Checklist
 
 - Restart Unreal before manual PIE when the editor predates the corrected
-  2026-07-29 bounds-aware cyan target-circle build and saved starter-enemy
-  Blueprint. Current code passes all 28 tests.
+  2026-07-30 target-circle and out-of-bounds recovery build. Current code
+  passes all 29 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -139,6 +145,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.Inventory.IdentityActions`
   - `Embermere.Inventory.StableSorting`
   - `Embermere.Input.AutorunCancellation`
+  - `Embermere.Player.OutOfBoundsRecovery`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
   - `Embermere.Stats.DamageImmunity`
@@ -193,6 +200,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 - Manually verify the live control fix in PIE:
   - `W`/`S` should cancel autorun.
   - `Ctrl+M` should toggle mouse Y inversion and show a temporary message.
+  - Crossing below the prototype world at `Z=-1000` should cancel autorun,
+    show `You have fallen`, freeze movement, and return the player to the
+    village after five seconds at full health with zero residual velocity,
+    walking restored, and three seconds of damage protection.
   - The fix now runs through the pawn/controller path known to receive live movement input, and the project builds successfully.
 - Manually verify hotbar cooldown feedback in PIE:
   - Press `1` to use `Strike`.

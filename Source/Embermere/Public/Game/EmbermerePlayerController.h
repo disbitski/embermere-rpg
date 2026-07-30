@@ -33,11 +33,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
 	float PlayerRespawnProtectionSeconds = 3.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
+	float OutOfBoundsRecoveryZ = -1000.0f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UEmbermerePlayerHudWidget> PlayerHudWidgetClass;
 
 	void NotifyManualMoveForwardInput(float Value);
 	void AddHudMessage(const FText& Message, FLinearColor MessageColor) const;
+	bool TriggerOutOfBoundsRecoveryIfNeeded(AEmbermereCharacter* Character);
 
 	virtual void PlayerTick(float DeltaTime) override;
 

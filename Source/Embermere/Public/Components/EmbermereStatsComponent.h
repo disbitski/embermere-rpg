@@ -91,6 +91,9 @@ public:
 	float ApplyDamage(float DamageAmount);
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
+	void ForceDeath();
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
 	void GrantDamageImmunity(float DurationSeconds);
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")

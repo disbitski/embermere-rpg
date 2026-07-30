@@ -43,6 +43,19 @@ float UEmbermereStatsComponent::ApplyDamage(float DamageAmount)
 	return PreviousHealth - CurrentHealth;
 }
 
+void UEmbermereStatsComponent::ForceDeath()
+{
+	if (IsDead())
+	{
+		return;
+	}
+
+	ClearDamageImmunity();
+	CurrentHealth = 0.0f;
+	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+	OnDied.Broadcast();
+}
+
 void UEmbermereStatsComponent::GrantDamageImmunity(float DurationSeconds)
 {
 	if (DurationSeconds <= 0.0f)

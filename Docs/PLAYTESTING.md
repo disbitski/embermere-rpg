@@ -154,6 +154,12 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
     centered behind the unchanged ten-slot grid, remains decorative and
     noninteractive, does not obscure slot icons or labels, and does not move
     the Equipment title, bonus text, footer, or hotbar.
+44. For a bounded finite-world recovery check, move below the prototype
+    foundation or use a PIE-only transform below `Z=-1000` while autorun is
+    active. Confirm `You have fallen` appears, autorun stops, movement freezes,
+    and the player returns to the village after five seconds at full health
+    with walking restored, zero residual velocity, and three seconds of damage
+    protection.
 
 ## Expected Temporary Feedback
 
@@ -189,7 +195,10 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
   Attack, Hit, and Death animations from generic enemy state. The same combat
   capsule, loot, leash, target, quest, and respawn rules remain authoritative.
 - Enemies leash and return home if pulled too far from their spawn area.
-- If the player dies, autorun turns off, a bottom-left death message appears, and the player respawns after a short delay with a brief damage-protection message.
+- If the player dies or crosses the `Z=-1000` recovery plane, autorun turns
+  off, a bottom-left death message appears, movement freezes, and the player
+  respawns after a short delay with zero residual velocity and a brief
+  damage-protection message.
 - Defeating starter enemies advances `StarterEnemyDefeated`.
 - Defeating a Marsh Prowler grants one stackable Marsh Tonic and reports it in chat.
 - Defeated enemies hide and respawn after a short prototype delay.
@@ -213,7 +222,10 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
   first solo-pull pass now uses three WorldStatic-cleared homes, a 525 cm aggro
   radius, visual-only pocket/marker collision, 6 damage, and a 2 second attack
   cadence; leash and respawn feel still need normal-route playtesting.
-- Player respawn is a simple prototype reset to the spawn point with short damage protection, not a full corpse run or revive system.
+- Player respawn is a simple prototype reset to the spawn point with short
+  damage protection, not a full corpse run or revive system. It now also owns
+  the finite-world recovery contract: crossing below `Z=-1000` forces death,
+  cancels autorun, and restores walking with cleared velocity.
 - Inventory presentation now has clickable and draggable rows, fixed
   project-owned item/equipment icons and fantasy drag token, category/missing-art
   fallbacks, stable identity-preserving category/name sorting, keyboard

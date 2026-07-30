@@ -97,12 +97,32 @@ void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 
 	if (AEmbermereCharacter* Character = GetEmbermereCharacter())
 	{
+		if (TriggerOutOfBoundsRecoveryIfNeeded(Character))
+		{
+			return;
+		}
+
 		if (bAutorunEnabled || (bLeftMouseDown && bRightMouseDown))
 		{
 			const FRotator YawRotation(0.0f, GetControlRotation().Yaw, 0.0f);
 			Character->AddMovementInput(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X), 1.0f);
 		}
 	}
+}
+
+bool AEmbermerePlayerController::TriggerOutOfBoundsRecoveryIfNeeded(AEmbermereCharacter* Character)
+{
+	if (!Character ||
+		!Character->Stats ||
+		Character->Stats->IsDead() ||
+		Character->GetActorLocation().Z > OutOfBoundsRecoveryZ)
+	{
+		return false;
+	}
+
+	bAutorunEnabled = false;
+	Character->Stats->ForceDeath();
+	return true;
 }
 
 void AEmbermerePlayerController::NotifyManualMoveForwardInput(float Value)
@@ -117,6 +137,15 @@ void AEmbermerePlayerController::HandleControlledCharacterDied()
 {
 	bAutorunEnabled = false;
 	SetIgnoreMoveInput(true);
+
+	if (AEmbermereCharacter* Character = GetEmbermereCharacter())
+	{
+		if (UCharacterMovementComponent* Movement = Character->GetCharacterMovement())
+		{
+			Movement->StopMovementImmediately();
+			Movement->DisableMovement();
+		}
+	}
 
 	AddHudMessage(FText::FromString(TEXT("You have fallen.")), FLinearColor(1.0f, 0.18f, 0.12f, 1.0f));
 
@@ -140,7 +169,12 @@ void AEmbermerePlayerController::RespawnControlledCharacter()
 		return;
 	}
 
-	Character->SetActorTransform(ControlledSpawnTransform);
+	Character->SetActorTransform(ControlledSpawnTransform, false, nullptr, ETeleportType::TeleportPhysics);
+	if (UCharacterMovementComponent* Movement = Character->GetCharacterMovement())
+	{
+		Movement->StopMovementImmediately();
+		Movement->SetMovementMode(MOVE_Walking);
+	}
 	Character->Stats->InitializeVitals();
 	Character->Stats->GrantDamageImmunity(PlayerRespawnProtectionSeconds);
 	SetIgnoreMoveInput(false);

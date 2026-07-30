@@ -52,6 +52,48 @@ bool FEmbermereAutorunCancellationTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereOutOfBoundsRecoveryTest,
+	"Embermere.Player.OutOfBoundsRecovery",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereOutOfBoundsRecoveryTest::RunTest(const FString& Parameters)
+{
+	AEmbermerePlayerController* Controller = NewObject<AEmbermerePlayerController>();
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	TestNotNull(TEXT("Player controller can be created"), Controller);
+	TestNotNull(TEXT("Player character can be created"), Character);
+	if (!Controller || !Character || !Character->Stats)
+	{
+		return false;
+	}
+
+	Controller->OutOfBoundsRecoveryZ = -1000.0f;
+	Character->Stats->InitializeVitals();
+	Character->SetActorLocation(FVector(0.0f, 0.0f, -999.0f));
+	Controller->bAutorunEnabled = true;
+
+	TestFalse(
+		TEXT("Character above the recovery plane remains in play"),
+		Controller->TriggerOutOfBoundsRecoveryIfNeeded(Character));
+	TestFalse(TEXT("Safe character remains alive"), Character->Stats->IsDead());
+	TestTrue(TEXT("Safe character keeps autorun state"), Controller->bAutorunEnabled);
+
+	Character->SetActorLocation(FVector(0.0f, 0.0f, -1001.0f));
+	Character->Stats->GrantDamageImmunity(10.0f);
+	TestTrue(
+		TEXT("Character below the recovery plane enters recovery"),
+		Controller->TriggerOutOfBoundsRecoveryIfNeeded(Character));
+	TestTrue(TEXT("Out-of-bounds recovery forces death"), Character->Stats->IsDead());
+	TestFalse(TEXT("Out-of-bounds recovery clears damage immunity"), Character->Stats->IsDamageImmune());
+	TestFalse(TEXT("Out-of-bounds recovery cancels autorun"), Controller->bAutorunEnabled);
+	TestFalse(
+		TEXT("Dead character cannot retrigger out-of-bounds recovery"),
+		Controller->TriggerOutOfBoundsRecoveryIfNeeded(Character));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereRaceClassRulesTest,
 	"Embermere.Rules.RaceClassMatrix",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

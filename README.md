@@ -53,7 +53,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback
 - first hotbar cooldown enforcement and ready-time feedback
 - starter enemy aggro, leash, return-home, attack, death, and respawn behavior
-- player respawn with short damage protection for recovery safety
+- player respawn with short damage protection plus a finite-world recovery
+  plane that cancels autorun, freezes death movement, clears velocity, and
+  restores walking at the village
 - structured inventory/equipment window with clickable and draggable item rows, a fixed project-owned icon-bearing fantasy drag token, ten clickable/drop-target paper-doll slots over a data-driven illustrated adventurer backdrop, gold/red drop feedback, equipment-to-bag return, aggregate bonuses, cursor-aware game/UI input, capacity, selected-item effects, icon-bearing reward feedback, empty/reward states, `[`/`]` inspection cycling, `I` show/hide behavior, transactional Equip/Unequip, and consumable Use actions
 - data-driven project-owned item and equipment-slot icons with explicit soft
   item references, category/missing-art fallbacks, fixed row/detail/slot sizes,
@@ -198,6 +200,6 @@ rows, slots, details, drag feedback, rewards, and the equipment backdrop, safe
 consumable actions, and native selected-target nameplate/emissive-ring feedback.
 
 Next milestone: live Prowler animation/material timing polish only from concrete
-play feedback, normal-route Snare/Root aura acceptance, and replacement of
-temporary village silhouettes and incomplete vendor meshes with cohesive
-Stylized Classic fantasy architecture.
+play feedback, normal-route Snare/Root aura acceptance, subtle non-colliding
+marsh dressing, and replacement of temporary village silhouettes and
+incomplete vendor meshes with cohesive Stylized Classic fantasy architecture.

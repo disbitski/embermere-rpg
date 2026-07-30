@@ -638,10 +638,11 @@ UE 5.8 can start the MCP listener during editor launch with:
 ```
 
 On macOS, the `.uproject` path must follow `open ... --args` so it is forwarded
-to Unreal:
+to Unreal. Passing the app bundle directly with `-n` avoids LaunchServices
+reducing a spaced project path to its basename:
 
 ```bash
-open -a "/Users/Shared/Epic Games/UE_5.8/Engine/Binaries/Mac/UnrealEditor.app" \
+open -n "/Users/Shared/Epic Games/UE_5.8/Engine/Binaries/Mac/UnrealEditor.app" \
   --args "/Users/wizard/Documents/Unreal Game/Embermere.uproject" \
   -ModelContextProtocolStartServer -ModelContextProtocolPort=8123
 ```
@@ -722,3 +723,28 @@ The saved-map validator should enforce both the accepted transform and a
 geometric clearance invariant. An initialized-world trace should separately
 prove the player-height route. This converts a camera-side visual fix into a
 reproducible traversal contract without leaving production scenery movable.
+
+## Finite Prototype Worlds Need A Recovery Contract
+
+A sustained synthetic `Q` probe succeeded and kept moving after it cleared the
+known village blocker. Transform sampling exposed the next truth: the player
+eventually left the finite foundation and fell to roughly `Z=-249000`.
+Input success alone would never have revealed that state.
+
+Treat long synthetic movement as a measured experiment:
+
+1. refresh and focus the current PIE viewport;
+2. pair every key press with a release unless intentionally testing a hold;
+3. sample actor transforms to prove movement and its eventual destination;
+4. restore or recover any state the probe leaves behind.
+
+For a finite prototype, define a controller-owned out-of-bounds plane and feed
+it into the existing death/recovery system. Embermere's `Z=-1000` contract
+cancels autorun and forces death even during temporary damage immunity. Recovery
+uses physics-aware teleporting, clears velocity, restores the walking movement
+mode, initializes vitals, and then reapplies short damage protection.
+
+Validate the whole state vector, not just the destination: death message,
+autorun off, frozen movement, respawn location, health, movement mode, velocity,
+and protection feedback. A teleport that leaves falling velocity or disabled
+movement behind is not a successful respawn.

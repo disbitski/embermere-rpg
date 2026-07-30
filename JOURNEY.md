@@ -1575,6 +1575,59 @@ Same-day PIE correction:
   no-hot-reload build and all 28 tests passed, and corrected clean PIE showed
   the cyan circle beneath the live selected Prowler.
 
+## 2026-07-30 - The Circle Held, And The World Got An Edge
+
+Today's acceptance sweep kept the corrected target circle unchanged and found a
+different problem that only sustained gameplay input could reveal.
+
+Target-circle acceptance:
+
+- Clean normal-route PIE confirmed all three live Marsh Prowlers reconcile to
+  exactly 48 stationary, non-colliding cyan-blue segments with the accepted
+  16 cm effective collision-hit clearance.
+- The visible circle reads around the selected Prowler's footprint alongside
+  the native nameplate and HUD target frame. `Tab` immediately moved the
+  selected presentation from the first Prowler to the third and hid the old
+  ring.
+- Runtime inspection retained the restrained pulse, zero rotation, cyan color,
+  presentation-only collision, and bounds-aware sizing. No speculative
+  retuning was made after the normal-camera pass.
+
+Finite-world recovery:
+
+- A sustained `Q` autorun probe was measured through transforms instead of
+  trusting the synthetic key call. It traveled beyond the finite prototype
+  foundation and reached roughly `(37258, 23234, -248980)`, proving the player
+  could fall forever.
+- Added a controller-owned `Z=-1000` recovery plane. Crossing it cancels
+  autorun and calls an explicit stats-component death path that bypasses active
+  damage immunity, preventing a protected player from remaining out of bounds.
+- Death disables movement; the existing five-second recovery then teleports
+  with physics semantics, clears velocity, restores `MOVE_Walking`, initializes
+  full vitals, and applies the existing three-second damage protection.
+- Fresh PIE forced the player below the recovery plane while autorun was active
+  and proved both HUD messages, exact village spawn
+  `(-2400, -1200, 90.15)`, `100/100` health, autorun off, walking restored, and
+  zero velocity.
+
+Verification:
+
+- The authoritative no-hot-reload Mac editor build succeeded.
+- Fresh commandlet automation discovered and passed all 29 tests with no
+  failures, skips, or warnings, including
+  `Embermere.Player.OutOfBoundsRecovery`.
+- Saved-zone, UI-art, and initialized-world road-boundary validators emitted
+  their explicit success markers with no Python errors.
+
+Pipeline lessons:
+
+- A synthetic input success is only an event claim. Transforms reveal whether
+  the game actually moved and where it eventually went.
+- Finite prototype maps need an explicit out-of-bounds gameplay contract before
+  traversal becomes expansive enough to expose their edges.
+- Respawn correctness includes location, vitals, movement mode, velocity,
+  input state, and protection. A teleport alone is not a complete recovery.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
