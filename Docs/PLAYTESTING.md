@@ -118,16 +118,18 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
 29. As Ranger, press `2` for Snare and confirm it deals light damage, halves
     the target's movement for 6 seconds, and then restores normal movement.
     The selected-target panel should show the Snare icon, name, harmful color,
-    live countdown, and hover description beneath target HP. A wider marsh-green
-    harmful aura should remain readable without hiding the Prowler, nameplate,
-    or target ring.
+    live countdown, and hover description beneath target HP. Eight marsh-green
+    inner segments should sit around the Prowler's grounded footprint without
+    hiding its paws, nameplate, or outer cyan target circle. The accepted mesh
+    and scale resolve to a `94.352` cm radius at `21` cm above the support hit.
 30. As Ranger, press `4` for Nature's Focus and confirm the same shared timed
     Attack Power, player-status, and orange-gold world-aura contract as Battle
     Shout.
 31. As Wizard, press `2` for Frost Root and confirm it deals light damage,
     stops target movement for 4 seconds, shows the same generic target-status
-    treatment with Frost Root data plus a frost-cyan world aura, and then
-    releases the target.
+    treatment with Frost Root data plus a lighter ice-white cyan inner aura,
+    clearly distinct from the calmer outer target circle, and then releases the
+    target.
 32. Spend mana, press Wizard `4` for Meditate, and confirm exactly 18 missing
     mana is restored without exceeding maximum mana. Because it is
     instantaneous, Meditate should not create a timed-status cell or world
@@ -187,9 +189,9 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
   removes stale presentation without moving neighboring HUD panels.
 - Timed effects also drive eight fixed non-colliding world segments from the
   same read-only snapshots: Attack Power is orange-gold, Armor blue-white,
-  Snare marsh green, and Frost Root frost cyan. Harmful effects take visual
-  priority, and empty/dead/cleared state hides the aura without changing
-  gameplay.
+  Snare marsh green, and Frost Root ice-white cyan. Harmful effects scale from
+  the transformed creature footprint, trace the supporting surface, take visual
+  priority, and hide on empty/dead/cleared state without changing gameplay.
 - Enemies show red bottom-left combat log messages clipped inside the shaded chat panel when they melee the player.
 - Marsh Prowlers use the project-owned skeletal mesh and route Idle, Walk, Run,
   Attack, Hit, and Death animations from generic enemy state. The same combat
@@ -215,8 +217,11 @@ In Play In Editor, quest givers show a temporary gold `!` and name marker above 
   Timed buffs and selected-target controls now have data-driven first-pass
   status cells with live countdowns and hover descriptions. The player and
   target rows passed clean-PIE visual acceptance on 2026-07-27, and the first
-  presentation-only eight-segment world aura passed a Battle Shout visual check
-  on 2026-07-28. Final fantasy styling, authored Niagara/class-specific effects,
+  presentation-only eight-segment world aura passed beneficial and harmful
+  visual checks by 2026-07-31. Harmful auras now scale from transformed creature
+  bounds and trace the support surface; the accepted Prowler result is a
+  `94.352` cm inner radius at `21` cm above the hit, distinct from the outer
+  target circle. Final fantasy styling, authored Niagara/class-specific effects,
   and audio remain open.
 - Enemy movement and attacks are deliberately simple prototype behavior. The
   first solo-pull pass now uses three WorldStatic-cleared homes, a 525 cm aggro

@@ -438,14 +438,21 @@ bool FEmbermereWorldStatusVfxPresentationTest::RunTest(const FString& Parameters
 		TEXT("/Game/Data/DA_EmbermereRules.DA_EmbermereRules"));
 	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
 	AEmbermereEnemyCharacter* Enemy = NewObject<AEmbermereEnemyCharacter>();
+	USkeletalMesh* ProwlerMesh = LoadObject<USkeletalMesh>(
+		nullptr,
+		TEXT("/Game/Art/Embermere/Characters/Enemies/MarshProwler/"
+			"SK_EmbermereMarshProwler_01.SK_EmbermereMarshProwler_01"));
 	TestNotNull(TEXT("Saved rules resolve for world status VFX"), Rules);
 	TestNotNull(TEXT("Character can be created for world status VFX"), Character);
 	TestNotNull(TEXT("Enemy can be created for world status VFX"), Enemy);
-	if (!Rules || !Character || !Enemy ||
+	TestNotNull(TEXT("Marsh Prowler mesh resolves for world status VFX"), ProwlerMesh);
+	if (!Rules || !Character || !Enemy || !ProwlerMesh ||
 		!Character->Combat || !Character->Stats || !Enemy->Stats)
 	{
 		return false;
 	}
+	Enemy->GetMesh()->SetSkeletalMeshAsset(ProwlerMesh);
+	Enemy->GetMesh()->SetRelativeScale3D(FVector(0.65f));
 
 	FEmbermereAbilityDefinition BattleShout;
 	FEmbermereAbilityDefinition Ward;
@@ -497,6 +504,15 @@ bool FEmbermereWorldStatusVfxPresentationTest::RunTest(const FString& Parameters
 	Enemy->RefreshStatusEffectVfx();
 	TestFalse(TEXT("Snare resolves as harmful world VFX"), Enemy->IsStatusEffectVfxBeneficial());
 	TestEqual(TEXT("Snare shows all enemy world-status segments"), Enemy->GetVisibleStatusEffectVfxSegmentCount(), 8);
+	TestTrue(
+		TEXT("Harmful Prowler VFX scales beyond the generic character radius"),
+		Enemy->GetStatusEffectVfxRadius() > 66.0f);
+	TestTrue(
+		TEXT("Harmful Prowler VFX remains inside the target identity circle"),
+		Enemy->GetStatusEffectVfxRadius() < Enemy->GetResolvedTargetRingRadius());
+	TestTrue(
+		TEXT("Harmful Prowler VFX resolves near the capsule base instead of the torso"),
+		Enemy->GetStatusEffectVfxRelativeHeight() < -40.0f);
 	const FLinearColor SnareColor = Enemy->GetStatusEffectVfxColor();
 	TestTrue(
 		TEXT("Snare resolves to marsh green"),
@@ -510,6 +526,9 @@ bool FEmbermereWorldStatusVfxPresentationTest::RunTest(const FString& Parameters
 	TestTrue(
 		TEXT("Root resolves to brighter frost blue than Snare"),
 		RootColor.B > RootColor.G && RootColor.B > SnareColor.B);
+	TestTrue(
+		TEXT("Root stays visibly lighter than the marsh-green Snare palette"),
+		RootColor.R > SnareColor.R && RootColor.G > SnareColor.G);
 
 	Enemy->Stats->InitializeVitals();
 	Enemy->RefreshStatusEffectVfx();

@@ -96,6 +96,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Status Effects")
 	FString GetStatusEffectVfxMaterialPath() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Status Effects")
+	float GetStatusEffectVfxRadius() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Status Effects")
+	float GetStatusEffectVfxRelativeHeight() const;
+
 	virtual bool IsAlive_Implementation() const override;
 	virtual bool IsHostileTo_Implementation(const AActor* Viewer) const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
@@ -110,6 +116,8 @@ protected:
 	void PrimeStarterHotbar();
 	void RefreshEquipmentStats();
 	void UpdateStatusEffectVfx(float DeltaSeconds);
+	float ResolveStatusEffectVfxRadius(bool bBeneficial) const;
+	float ResolveStatusEffectVfxHeightOffset() const;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Presentation|Status Effects")
 	TArray<TObjectPtr<UStaticMeshComponent>> StatusEffectVfxSegments;
@@ -118,6 +126,8 @@ protected:
 	TArray<TObjectPtr<UMaterialInstanceDynamic>> StatusEffectVfxMaterials;
 
 	float StatusEffectVfxRotationDegrees = 0.0f;
+	float StatusEffectVfxRadius = 0.0f;
+	float StatusEffectVfxRelativeHeight = 0.0f;
 	FLinearColor StatusEffectVfxColor = FLinearColor::Transparent;
 	bool bStatusEffectVfxVisible = false;
 	bool bStatusEffectVfxBeneficial = false;

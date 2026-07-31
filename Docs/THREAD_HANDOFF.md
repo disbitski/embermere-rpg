@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-07-30
+Last updated: 2026-07-31
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -546,7 +546,7 @@ Current automation tests:
 28. `Embermere.UI.WorldStatusVfxPresentation`
 29. `Embermere.Player.OutOfBoundsRecovery`
 
-Latest verified baseline (2026-07-30):
+Latest verified baseline (2026-07-31):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
 - headless automation discovered and passed 29/29 with zero test failures,
@@ -583,9 +583,11 @@ Latest verified baseline (2026-07-30):
 - every Embermere character owns eight fixed non-colliding presentation
   segments that read those same snapshots without owning gameplay. Attack
   Power resolves orange-gold, Armor blue-white, Snare marsh green, and Frost
-  Root frost cyan; harmful state has deterministic priority and empty/dead
-  state hides all segments. Clean PIE accepted the Battle Shout composition at
-  the normal gameplay camera without HUD overlap;
+  Root ice-white cyan; harmful state has deterministic priority and empty/dead
+  state hides all segments. Harmful auras derive a bounded radius from
+  transformed visual bounds and trace the support surface. Clean PIE accepted
+  the Prowler at a `94.352` cm inner radius and `21` cm support clearance inside
+  the unchanged outer target circle;
 - `Scripts/configure_starter_abilities.py` reproduces the saved effect type,
   duration, movement multiplier, and player-facing descriptions. Fresh-process
   UI validation reloads and verifies those semantics for all sixteen abilities
@@ -708,6 +710,10 @@ Read `Docs/UNREAL_LESSONS.md` for the full record. The highest-risk lessons are:
     runtime transform changes. Temporarily use `Movable` only for a bounded PIE
     diagnostic, discard it by stopping PIE, then apply the accepted transform
     to the editor world and validate saved geometry plus live traversal.
+25. **World-aura placement:** component count, color, and visibility do not prove
+    normal-camera readability. Resolve both the transformed creature footprint
+    and the supporting surface, assert bounded containment in automation, then
+    accept the result in clean PIE.
 
 ## Known Workspace State
 
@@ -731,9 +737,9 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-07-30 target-circle and finite-world recovery module plus the route-repair
-map package, then confirm MCP/test discovery; restart only if the editor or test
-registry proves stale.
+2026-07-31 grounded harmful-aura module, accepted target-circle and finite-world
+recovery contracts, plus the route-repair map package, then confirm MCP/test
+discovery; restart only if the editor or test registry proves stale.
 
 First fresh-session checks:
 
@@ -765,10 +771,12 @@ First fresh-session checks:
      Meditate remains instantaneous and creates no timed cell;
    - retain the eight-segment presentation-only world aura sourced from those
      same successful-effect snapshots. Battle Shout and Nature's Focus use
-     orange-gold, Ward blue-white, Snare marsh green, and Frost Root frost
-     cyan; harmful status takes visual priority and empty/dead state hides all
-     segments. The clean PIE Battle Shout presentation is accepted; exercise
-     the remaining palettes on the normal Prowler route;
+     orange-gold, Ward blue-white, Snare marsh green, and Frost Root a lighter
+     ice-white cyan. Harmful presentation scales from transformed creature
+     bounds and traces the support surface; the accepted Prowler result is a
+     `94.352` cm inner radius at `21` cm above the hit, inside the calm outer
+     target circle. Harmful status takes visual priority and empty/dead state
+     hides all segments;
    - all ten empty equipment-slot icons, Recruit Pack and Marsh Tonic row/detail
      art, occupied-slot art, category fallback, text/tooltips, fixed icon sizes,
      the illustrated adventurer beneath the unchanged slot grid, and no
@@ -825,8 +833,8 @@ High-value milestones after that:
 - retain the resolved straight-line autorun route and chest clearance;
 - extend sparse `NoCollision` marsh dressing only where route and combat
   sightlines remain clear;
-- inspect Ward, Nature's Focus, Snare, and Frost Root world-aura palettes in
-  normal gameplay, then polish only concrete readability issues;
+- retain the accepted beneficial and harmful world-aura palettes, grounding,
+  and target-circle separation; polish only concrete readability issues;
 - expand the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest lane
   into compact village-prop modules while preserving
   deterministic scripts, FBX checks, and original-art tags;
@@ -893,8 +901,9 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-07-30 current module,
-bounds-aware cyan target circle, finite-world recovery, world-status VFX,
+Follow TODO.md's Start Here section. Confirm the 2026-07-31 current module,
+bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
+world-status VFX,
 Marsh Prowler, terrain, reeds, and route-repair map, then run
 all 29 tests. Retain the
 original rigged Prowler across all three instances and verify Idle, Walk, Run,
@@ -905,9 +914,11 @@ beneficial/harmful colors, hover descriptions, duplicate refresh, and clearing
 on expiration, respawn, death, and target switch without neighboring HUD
 movement. Retain the data-driven eight-segment world aura that reads those same
 successful-effect snapshots without owning gameplay: orange-gold Attack Power,
-blue-white Armor, marsh-green Snare, frost-cyan Root, harmful priority, and
-empty/dead hiding. Battle Shout passed clean-PIE visual acceptance; exercise
-the remaining palettes on the normal Prowler route. The latest clean PIE also
+blue-white Armor, marsh-green Snare, ice-white cyan Root, harmful priority, and
+empty/dead hiding. Harmful auras now derive a bounded radius from transformed
+visual bounds and trace the support surface; clean PIE accepted the Prowler at
+`94.352` cm radius and `21` cm support clearance inside the unchanged outer cyan
+target circle. The latest clean PIE also
 proved Q autorun plus independent W and S
 cancellation, all four starter-class hotbar palettes, Warrior cooldown
 presentation, the icon-bearing reward popup, a real Recruit Pack bag-to-Back

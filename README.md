@@ -71,8 +71,9 @@ The repo currently contains the C++ gameplay scaffold for:
   harmful effects, refresh duplicate applications, and clear with the same
   expiration/respawn rules as gameplay
 - eight-segment non-colliding world-status auras that subscribe to those same
-  successful-effect snapshots, distinguish Attack Power, Armor, Snare, and
-  Frost Root, and remain presentation-only
+  successful-effect snapshots; harmful auras ground to the supporting surface,
+  scale from the creature footprint, distinguish marsh-green Snare from
+  ice-white Frost Root, and remain presentation-only
 - atomic inventory capacity and quantity operations with rollback-safe equipment replacement and full-bag unequip rejection
 - idempotent equipment stat application for health, mana, armor mitigation, and power
 - selected enemy UMG nameplate widget, HP bar/readout, and a bounds-aware
@@ -200,6 +201,6 @@ rows, slots, details, drag feedback, rewards, and the equipment backdrop, safe
 consumable actions, and native selected-target nameplate/emissive-ring feedback.
 
 Next milestone: live Prowler animation/material timing polish only from concrete
-play feedback, normal-route Snare/Root aura acceptance, subtle non-colliding
-marsh dressing, and replacement of temporary village silhouettes and
-incomplete vendor meshes with cohesive Stylized Classic fantasy architecture.
+play feedback, subtle non-colliding marsh dressing, and replacement of temporary
+village silhouettes and incomplete vendor meshes with cohesive Stylized Classic
+fantasy architecture.

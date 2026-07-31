@@ -1,5 +1,6 @@
 #include "Characters/EmbermereCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereEquipmentComponent.h"
 #include "Components/EmbermereHotbarComponent.h"
@@ -8,9 +9,12 @@
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/EmbermereTargetingComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Data/EmbermereRulesData.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/SkeletalMesh.h"
+#include "Engine/World.h"
 #include "Game/EmbermerePlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -23,6 +27,9 @@ namespace
 constexpr int32 StatusEffectVfxSegmentCount = 8;
 constexpr float StatusEffectVfxBeneficialRadius = 54.0f;
 constexpr float StatusEffectVfxHarmfulRadius = 66.0f;
+constexpr float StatusEffectVfxHarmfulFootprintScale = 0.70f;
+constexpr float StatusEffectVfxHarmfulMaximumRadius = 128.0f;
+constexpr float StatusEffectVfxSurfaceClearance = 21.0f;
 constexpr float StatusEffectVfxSegmentThickness = 3.5f;
 }
 
@@ -190,6 +197,16 @@ FString AEmbermereCharacter::GetStatusEffectVfxMaterialPath() const
 	return Material ? Material->GetPathName() : FString();
 }
 
+float AEmbermereCharacter::GetStatusEffectVfxRadius() const
+{
+	return StatusEffectVfxRadius;
+}
+
+float AEmbermereCharacter::GetStatusEffectVfxRelativeHeight() const
+{
+	return StatusEffectVfxRelativeHeight;
+}
+
 void AEmbermereCharacter::UpdateStatusEffectVfx(float DeltaSeconds)
 {
 	const TArray<FEmbermereActiveStatusEffect> Effects = Stats
@@ -227,16 +244,17 @@ void AEmbermereCharacter::UpdateStatusEffectVfx(float DeltaSeconds)
 
 	bStatusEffectVfxBeneficial = PresentedEffect->bBeneficial;
 	float RotationSpeedDegreesPerSecond = bStatusEffectVfxBeneficial ? 34.0f : -20.0f;
-	float RingRadius = bStatusEffectVfxBeneficial
-		? StatusEffectVfxBeneficialRadius
-		: StatusEffectVfxHarmfulRadius;
+	const float RingRadius = ResolveStatusEffectVfxRadius(bStatusEffectVfxBeneficial);
+	const float GroundRelativeZ = ResolveStatusEffectVfxHeightOffset();
+	StatusEffectVfxRadius = RingRadius;
+	StatusEffectVfxRelativeHeight = GroundRelativeZ;
 	if (!bStatusEffectVfxBeneficial &&
 		PresentedEffect->Ability.MovementSpeedMultiplier < 1.0f)
 	{
 		const bool bRooted =
 			PresentedEffect->Ability.MovementSpeedMultiplier <= KINDA_SMALL_NUMBER;
 		StatusEffectVfxColor = bRooted
-			? FLinearColor(0.12f, 0.82f, 1.0f, 1.0f)
+			? FLinearColor(0.46f, 0.92f, 1.0f, 1.0f)
 			: FLinearColor(0.28f, 0.78f, 0.24f, 1.0f);
 	}
 	else if (PresentedEffect->Ability.EffectType == EEmbermereAbilityEffectType::ArmorBuff)
@@ -301,13 +319,65 @@ void AEmbermereCharacter::UpdateStatusEffectVfx(float DeltaSeconds)
 		Segment->SetRelativeLocation(FVector(
 			FMath::Cos(AngleRadians) * RingRadius * PulseScale,
 			FMath::Sin(AngleRadians) * RingRadius * PulseScale,
-			bStatusEffectVfxBeneficial ? 7.0f : 4.0f));
+			GroundRelativeZ));
 		Segment->SetRelativeRotation(FRotator(0.0f, AngleDegrees + 90.0f, 0.0f));
 		Segment->SetRelativeScale3D(FVector(
 			SegmentLength / 100.0f,
 			StatusEffectVfxSegmentThickness / 100.0f,
 			1.0f));
 	}
+}
+
+float AEmbermereCharacter::ResolveStatusEffectVfxRadius(bool bBeneficial) const
+{
+	if (bBeneficial)
+	{
+		return StatusEffectVfxBeneficialRadius;
+	}
+
+	float ResolvedRadius = StatusEffectVfxHarmfulRadius;
+	const USkeletalMeshComponent* MeshComponent = GetMesh();
+	const USkeletalMesh* MeshAsset = MeshComponent ? MeshComponent->GetSkeletalMeshAsset() : nullptr;
+	if (MeshComponent && MeshAsset)
+	{
+		const FTransform VisualTransform(
+			MeshComponent->GetRelativeRotation(),
+			FVector::ZeroVector,
+			MeshComponent->GetRelativeScale3D());
+		const FBoxSphereBounds VisualBounds = MeshAsset->GetBounds().TransformBy(VisualTransform);
+		const float HorizontalExtent = FMath::Max(VisualBounds.BoxExtent.X, VisualBounds.BoxExtent.Y);
+		ResolvedRadius = FMath::Max(
+			ResolvedRadius,
+			HorizontalExtent * StatusEffectVfxHarmfulFootprintScale);
+	}
+
+	return FMath::Min(ResolvedRadius, StatusEffectVfxHarmfulMaximumRadius);
+}
+
+float AEmbermereCharacter::ResolveStatusEffectVfxHeightOffset() const
+{
+	const FVector ActorLocation = GetActorLocation();
+	const UWorld* World = GetWorld();
+	if (World)
+	{
+		const FVector TraceStart = ActorLocation + FVector(0.0f, 0.0f, 64.0f);
+		const FVector TraceEnd = ActorLocation - FVector(0.0f, 0.0f, 640.0f);
+		FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EmbermereStatusEffectGround), false, this);
+		FHitResult GroundHit;
+		if (World->LineTraceSingleByChannel(
+			GroundHit,
+			TraceStart,
+			TraceEnd,
+			ECC_Visibility,
+			QueryParams))
+		{
+			return GroundHit.ImpactPoint.Z - ActorLocation.Z + StatusEffectVfxSurfaceClearance;
+		}
+	}
+
+	const UCapsuleComponent* Capsule = GetCapsuleComponent();
+	const float CapsuleHalfHeight = Capsule ? Capsule->GetScaledCapsuleHalfHeight() : 0.0f;
+	return -CapsuleHalfHeight + StatusEffectVfxSurfaceClearance;
 }
 
 bool AEmbermereCharacter::IsAlive_Implementation() const

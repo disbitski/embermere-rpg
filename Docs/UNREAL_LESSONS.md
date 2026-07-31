@@ -701,6 +701,33 @@ colors, priority, and clearing in automation. Use clean PIE for the acceptance
 question automation cannot answer: does the effect read at the real camera
 distance without obscuring the character, target ring, nameplate, or HUD?
 
+## World VFX Need Both Footprint And Surface Contracts
+
+A presentation test can prove eight visible components, correct colors, no
+collision, and authoritative status clearing while the actual gameplay effect
+is still unreadable. Embermere's first harmful aura passed those structural
+checks but orbited the character root, which placed most of it inside the Marsh
+Prowler's torso at the normal camera distance.
+
+Grounded creature indicators need two independent answers:
+
+- footprint: derive a bounded radius from the transformed visual mesh rather
+  than assuming the player-sized default fits every creature;
+- surface: trace the supporting world surface and apply a PIE-proven clearance
+  rather than treating actor origin or capsule center as ground;
+- hierarchy: keep the harmful inner aura visually inside the calmer target
+  identity circle so status and selection do not compete;
+- fallback: retain conservative radius and capsule-base behavior when a mesh or
+  initialized world is unavailable;
+- acceptance: assert geometry, containment, state, and palette contrast in
+  automation, then use normal-camera PIE to decide whether the result reads.
+
+The accepted Marsh Prowler harmful aura resolves to a `94.352` cm radius and
+`21` cm above the support hit. Snare uses marsh green; Frost Root uses a lighter
+ice-white cyan (`0.46, 0.92, 1.0`) so its eight moving inner segments remain
+distinct from the stationary outer cyan target circle. The gameplay effect
+contract did not change; only its subscriber learned the creature and ground.
+
 ## Temporarily Change Mobility Only For PIE Placement Diagnosis
 
 A static mesh component can silently reject a runtime transform change in PIE

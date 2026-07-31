@@ -6,8 +6,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-07-30 no-hot-reload module with the
-  accepted bounds-aware cyan target circle and finite-world player recovery.
+- Confirm Unreal is running the 2026-07-31 no-hot-reload module with the
+  accepted bounds-aware cyan target circle, finite-world player recovery, and
+  grounded bounds-aware harmful status auras.
   Restart if the editor predates that build. The editor can start MCP during
   launch with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS, pass the `.uproject` after
@@ -75,9 +76,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   clipped chat, and atomic full-bag rollback.
 - Retain the asset-agnostic world-status presentation: eight small non-colliding
   segments subscribe to the same successful-effect snapshots as the HUD.
-  Attack Power is orange-gold, Armor is blue-white, Snare is marsh green, and
-  Frost Root is frost cyan; harmful effects take visual priority and all
-  segments hide when no timed effect is active or the character is dead.
+  Harmful auras now size from the transformed creature footprint and trace the
+  supporting surface instead of orbiting the actor root. On a Marsh Prowler the
+  accepted inner aura resolves to a `94.352` cm radius at `21` cm above the
+  support hit. Snare is marsh green and Frost Root is a lighter ice-white cyan
+  (`0.46, 0.92, 1.0`), leaving both distinct from the calm outer 48-segment
+  cyan target circle. Harmful effects take visual priority and all segments
+  hide when no timed effect is active or the character is dead.
 - The imported KiteDemo meshes still reference some absent internal vendor
   materials/textures in fresh commandlet logs even though project-owned
   component overrides keep the visible zone readable. Do not edit or commit raw
@@ -86,17 +91,17 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 - Highest-value next work:
   1. tune Prowler attack timing, material balance, or animation transitions only
      when normal-route PIE exposes a concrete issue;
-  2. exercise Snare and Frost Root on the real Prowler route and judge the
-     harmful world aura from normal gameplay distance;
-  3. extend subtle `NoCollision` marsh dressing only where sightlines remain
+  2. extend subtle `NoCollision` marsh dressing only where sightlines remain
      clear;
-  4. continue toward cohesive original or signed-in fantasy village
+  3. continue toward cohesive original or signed-in fantasy village
      architecture and a true landscape/ground-detail lane.
+  4. consider authored Niagara, class-specific VFX, or audio only after the
+     current asset-agnostic presentation has carried the playable slice farther.
 
 ## Full Manual Regression Checklist
 
 - Restart Unreal before manual PIE when the editor predates the corrected
-  2026-07-30 target-circle and out-of-bounds recovery build. Current code
+  2026-07-31 grounded-status-aura build. Current code
   passes all 29 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
@@ -214,8 +219,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - Battle Shout and Nature's Focus show eight restrained orange-gold segments
     around the player while their HUD status cell remains authoritative;
   - Ward uses the same fixed footprint with a blue-white palette;
-  - Snare shows a wider marsh-green harmful aura on the affected Prowler and
-    Frost Root uses frost cyan;
+  - Snare shows a grounded marsh-green inner aura on the affected Prowler and
+    Frost Root uses a visibly lighter ice-white cyan;
+  - both harmful auras resolve to the Prowler footprint (`94.352` cm in the
+    accepted mesh/scale) and `21` cm above the support hit, staying inside the
+    stationary outer cyan target circle without touching the paws;
   - harmful effects take presentation priority when both effect types overlap;
   - expiration, death, respawn, and status clearing hide the segments, while
     instantaneous Meditate creates no world aura;
@@ -335,11 +343,12 @@ player and target status rows now make timed effects inspectable and passed
 clean-PIE review alongside occupied paper-doll contrast. Embermere now has its
 first original rigged creature and a grounded moss/earth road treatment, so the
 art lane has moved beyond props without taking ownership of combat rules. The
-first world-status aura now consumes those same data-driven snapshots: a clean
-PIE Battle Shout check showed eight restrained orange-gold segments around the
-player without moving or obscuring the HUD. Selected targets now use a
-surface-traced cyan-blue circle sized from their visual footprint instead of a
-fixed rotating gold marker; clean PIE accepted the Prowler read under daylight.
+first world-status aura now consumes those same data-driven snapshots: clean
+PIE accepted the restrained orange-gold beneficial presentation plus grounded
+marsh-green Snare and ice-white cyan Frost Root segments around the Prowler.
+Selected targets now use a surface-traced cyan-blue circle sized from their
+visual footprint instead of a fixed rotating gold marker; clean PIE accepted the
+Prowler read under daylight.
 The reproduced Mara-route contact is also resolved by moving the supply chest away from the straight
 PlayerStart corridor and proving both geometric clearance and a live native
 trace. The populated drag token in motion and physical `Ctrl+M` feedback remain
@@ -352,9 +361,9 @@ effects, or audio.
 - Replace temporary selected-target text with better world readability:
   - retain the UMG nameplate widget, selected marker, HP bar, and HP-aware
     accent color;
-  - physically inspect the complete cyan-blue target circle on all three
-    Prowlers from the normal route, then add rune/soft-edge texture art only if
-    it improves rather than obscures the classic target read;
+  - retain the accepted complete cyan-blue target circle on all three Prowlers,
+    then add rune/soft-edge texture art only if it improves rather than obscures
+    the classic target read;
   - tune screen-space widget size/height against camera distance.
 - Improve inventory presentation:
   - after restarting Unreal, visually verify all ten empty equipment-slot icons,
@@ -376,9 +385,9 @@ effects, or audio.
     damage cadence, and enemy recovery from the player's perspective;
   - visually accept the new fixed player/target status rows, live countdowns,
     hover descriptions, duplicate prevention, and clearing rules;
-  - retain the new asset-agnostic eight-segment world aura and exercise Ward,
-    Nature's Focus, Snare, and Frost Root through normal-route play before
-    deciding whether authored Niagara/class-specific effects are warranted.
+  - retain the asset-agnostic eight-segment world aura, including grounded
+    footprint-aware harmful presentation, before deciding whether authored
+    Niagara or class-specific effects are warranted.
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
   - continue tuning chat panel height/line count against the hotbar and common desktop viewport sizes.
@@ -912,6 +921,21 @@ effects, or audio.
   circle beneath a live selected Blueprint Prowler with its nameplate and HUD
   target frame intact. A final physical-eye sweep across the other two
   normal-route instances remains the honest acceptance check.
+- 2026-07-30: retained the accepted cyan target circle across all three live
+  Prowlers and added finite-world recovery below `Z=-1000`, including autorun
+  cancellation, forced death through temporary immunity, frozen death movement,
+  exact village recovery, full vitals, walking restoration, zero velocity, and
+  three seconds of protection. The suite advanced to 29 tests.
+- 2026-07-31: corrected harmful world auras that were structurally active but
+  visually buried inside the Marsh Prowler. Harmful presentation now derives a
+  bounded radius from transformed skeletal bounds and traces the support
+  surface, resolving the live Prowler to a `94.352` cm inner radius at `21` cm
+  above ground. Clean PIE accepted marsh-green Snare and lighter ice-white cyan
+  Frost Root inside the unchanged outer target circle.
+- Expanded `Embermere.UI.WorldStatusVfxPresentation` with the real Prowler mesh,
+  footprint/grounding assertions, target-circle containment, and Root/Snare
+  contrast checks. The authoritative no-hot-reload Mac build, all 29 tests,
+  saved-zone and UI-art validators, and initialized-world route traces passed.
 
 ## Asset Hunt
 

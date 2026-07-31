@@ -1628,6 +1628,35 @@ Pipeline lessons:
 - Respawn correctness includes location, vitals, movement mode, velocity,
   input state, and protection. A teleport alone is not a complete recovery.
 
+## 2026-07-31 - The Aura Found The Ground
+
+The harmful status aura was mechanically active, test-green, and almost
+invisible. All eight segments existed, owned no collision, read the correct
+Snare metadata, and cleared with the gameplay effect. They also orbited the
+character root, which put them inside the Marsh Prowler's torso from the normal
+camera.
+
+The correction gave world presentation the same two contracts already proven
+by the target circle: what it surrounds and what it rests on. Harmful aura
+radius now comes from bounded transformed skeletal bounds, while a visibility
+trace resolves the supporting surface. On the live Prowler that produces a
+`94.352` cm inner ring at `21` cm above ground, safely inside the unchanged
+48-segment cyan target circle.
+
+Clean PIE accepted marsh-green Snare and a deliberately lighter ice-white cyan
+Frost Root (`0.46, 0.92, 1.0`). The latter separates control-state motion from
+the calm outer selection ring without changing combat, duration, movement, or
+targeting rules.
+
+The authoritative no-hot-reload Mac build succeeded, all 29 tests passed, both
+fresh-process package validators emitted their success markers, and the
+initialized-world road trace retained every collision and clearance contract.
+
+Lesson: component count and color can prove eligibility, but they cannot prove
+normal-camera readability. A creature-bound world effect needs both a visual
+footprint contract and a support-surface contract before human playtesting can
+decide that it belongs.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
