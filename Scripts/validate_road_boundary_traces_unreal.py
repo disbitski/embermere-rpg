@@ -1,4 +1,4 @@
-"""Validate traversable gate and solid boundary collision in the saved map."""
+"""Validate traversable routes and authored original-art collision."""
 
 import math
 import sys
@@ -17,6 +17,14 @@ BOUNDARY_STONE_LOCAL_Y = {
     "Embermere_BoundaryStone_GateSouth_01": -570.0,
     "Embermere_BoundaryStone_GateNorth_01": 570.0,
 }
+SHELTER_CENTER = (-1740.0, -700.0)
+SHELTER_YAW = -64.0
+SHELTER_SUPPORTS = (
+    (-160.0, -88.0),
+    (160.0, -88.0),
+    (-160.0, 88.0),
+    (160.0, 88.0),
+)
 
 
 def fail(message):
@@ -33,13 +41,17 @@ def actor_label(actor):
         return actor.get_name()
 
 
-def world_point(center, local_x, local_y, z):
-    yaw = math.radians(GATE_YAW)
+def world_point_yaw(center, yaw_degrees, local_x, local_y, z):
+    yaw = math.radians(yaw_degrees)
     return unreal.Vector(
         center[0] + local_x * math.cos(yaw) - local_y * math.sin(yaw),
         center[1] + local_x * math.sin(yaw) + local_y * math.cos(yaw),
         z,
     )
+
+
+def world_point(center, local_x, local_y, z):
+    return world_point_yaw(center, GATE_YAW, local_x, local_y, z)
 
 
 def trace_local_x(world, center, local_y, z, half_length):
@@ -190,8 +202,29 @@ def main():
         (-1350.0, -750.0, 90.15),
     )
 
+    shelter_center_start = world_point_yaw(SHELTER_CENTER, SHELTER_YAW, -105.0, 0.0, 90.15)
+    shelter_center_end = world_point_yaw(SHELTER_CENTER, SHELTER_YAW, 105.0, 0.0, 90.15)
+    require_world_clear(
+        world,
+        "Fenwatch shelter center opening",
+        (shelter_center_start.x, shelter_center_start.y, shelter_center_start.z),
+        (shelter_center_end.x, shelter_center_end.y, shelter_center_end.z),
+    )
+
+    for index, (local_x, local_y) in enumerate(SHELTER_SUPPORTS):
+        support = world_point_yaw(SHELTER_CENTER, SHELTER_YAW, local_x, local_y, 0.0)
+        require_vertical_hit(
+            world,
+            "Fenwatch shelter support {}".format(index + 1),
+            "Embermere_FenwatchShelter_Mara_01",
+            support.x,
+            support.y,
+            330.0,
+            -20.0,
+        )
+
     unreal.log(
-        "Embermere road boundary traces passed: clear spawn autorun corridor, 3 clear gate lanes, 1 solid gate support, 2 solid fence centers, 2 solid boundary stones, and 1 solid supply chest"
+        "Embermere road boundary traces passed: clear spawn autorun corridor, clear Fenwatch shelter center, 4 solid shelter supports, 3 clear gate lanes, 1 solid gate support, 2 solid fence centers, 2 solid boundary stones, and 1 solid supply chest"
     )
 
 

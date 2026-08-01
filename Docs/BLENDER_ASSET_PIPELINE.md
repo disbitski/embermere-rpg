@@ -178,6 +178,9 @@ ArtSource/Blender/
     RoadGate/
     BoundaryFence/
     BoundaryStone/
+    SupplyChest/
+    FenwatchShelter/
+    MarshReedCluster/
 Scripts/blender/
   build_embermere_waystone.py
   build_embermere_ember_lamp.py
@@ -185,6 +188,9 @@ Scripts/blender/
   build_embermere_road_gate.py
   build_embermere_boundary_fence.py
   build_embermere_boundary_stone.py
+  build_embermere_supply_chest.py
+  build_embermere_fenwatch_shelter.py
+  build_embermere_marsh_reed_cluster.py
 Content/Art/Embermere/
   Environment/PrototypeVillage/
 ```
@@ -495,8 +501,8 @@ Verified result:
 - saved actor: `Embermere_SupplyChest_Vendor_01` at
   `(-1740, -1180, 0)`, yaw `108`, tagged `EmbermereOriginalArt`;
 - replacement: removes `FabPass_Village_Crates_A`; the later grounding,
-  Prowler, and reed pass leaves 59 local Fab actors and 14 project-owned
-  placements in the current map;
+  Prowler, reed, and Fenwatch passes leave 57 local Fab actors and 15
+  project-owned placements in the current map;
 - verification: the Blender preview, Unreal asset thumbnail, and PlayerStart
   approach were inspected; saved-map validation locks classic-FBX provenance,
   exact bounds/materials/collision/tag/transform plus at least `225` cm of
@@ -585,6 +591,46 @@ did not belong on the terrain. Reusing the ground material and lowering the
 moss footprint made the reeds read as growth rather than a prop. This is the
 same acceptance rule as the larger assets: metrics make the model eligible;
 the normal gameplay camera decides whether it belongs.
+
+## Tenth Asset: Fenwatch Shelter
+
+`SM_EmbermereFenwatchShelter_01` is the first full village-scale module built
+from the established roadside language. Four stone-and-moss footings carry
+timber supports, iron details, a broad gabled roof, and a restrained ember
+crest. The center stays open so the shelter can frame Mara without becoming a
+new gameplay wall.
+
+The reviewed build script is
+`Scripts/blender/build_embermere_fenwatch_shelter.py`; editable source, FBX,
+preview, and deterministic metrics live under
+`ArtSource/Blender/Environment/FenwatchShelter`. The classic-FBX import and
+placement lane is `Scripts/import_embermere_fenwatch_shelter_unreal.py`.
+
+Verified result:
+
+- dimensions: `438.0 x 296.782 x 369.5` cm with a ground pivot;
+- Blender and Unreal render mesh: 4,348 triangles, one UV channel, no
+  non-manifold edges, and applied scale;
+- materials: the same five stone, moss, timber, iron, and ember assets used by
+  the road-boundary family;
+- collision: four retained `UBX_` boxes cover only the supports, leaving the
+  open center and overhead roof non-colliding;
+- saved actor: `Embermere_FenwatchShelter_Mara_01` at
+  `(-1740, -700, 0)`, yaw `-64`, tagged `EmbermereOriginalArt`;
+- replacement: removes `FabPass_Mara_Stone_Backdrop`,
+  `FabPass_Village_Market_Cover`, `Vendor_Placeholder`, and
+  `Trainer_Placeholder`, leaving 57 Fab actors and 15 original placements;
+- verification: fresh-process map validation locks classic-FBX provenance,
+  exact dimensions, triangle count, shared materials, four colliders, tag,
+  transform, and removed labels. Initialized-world traces prove all four
+  supports solid, the center clear, and the PlayerStart autorun corridor open.
+
+The first technically valid transform at `(-2180, -1060)`, yaw `160`, passed
+import, package, and collision checks but hid Mara from the gameplay camera.
+Clean PIE rejected it. The accepted transform places the shelter behind Mara,
+preserves her name and quest-marker read, and passed a transform-measured `Q`
+autorun route with independent `W` cancellation. Architecture is accepted as
+part of a composition and a route, not as an isolated valid mesh.
 
 ## Sources
 

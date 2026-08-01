@@ -775,3 +775,27 @@ Validate the whole state vector, not just the destination: death message,
 autorun off, frozen movement, respawn location, health, movement mode, velocity,
 and protection feedback. A teleport that leaves falling velocity or disabled
 movement behind is not a successful respawn.
+
+## Validate Architecture As Composition And Traversal
+
+Static-mesh acceptance does not end at topology, materials, bounds, import
+provenance, collision, and a legal actor transform. Embermere's first Fenwatch
+shelter passed all of those checks at its initial placement and still failed:
+from the normal gameplay camera it hid Mara, the first quest giver.
+
+Treat village architecture as two simultaneous contracts:
+
+- composition: the building supports NPC silhouette, marker, nameplate, and the
+  intended approach rather than competing with them;
+- traversal: authored supports are solid, intended openings and overhead spans
+  are clear, and existing player routes remain measurable;
+- persistence: the accepted mesh, transform, removed placeholders, and collider
+  count survive a fresh saved-map load;
+- judgment: clean PIE can reject a technically valid transform and require a
+  new one before the package is accepted.
+
+The final Fenwatch shelter uses four support-only `UBX_` boxes and a clear
+center. Native traces prove those physical roles independently. A transform-
+measured `Q` probe plus an independent `W` cancellation proves the real spawn
+route, while clean PIE confirms Mara reads in front of the shelter. Exact tests
+protect eligibility; the gameplay camera decides belonging.

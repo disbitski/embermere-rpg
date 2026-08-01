@@ -1657,6 +1657,41 @@ normal-camera readability. A creature-bound world effect needs both a visual
 footprint contract and a support-surface contract before human playtesting can
 decide that it belongs.
 
+## 2026-08-01 - Fenwatch Got A Roof
+
+No concrete Prowler regression appeared in the accepted normal-route baseline,
+but clean PIE exposed a village problem immediately: Mara still stood among a
+grey stone backdrop, a mismatched market cover, and placeholder service cubes.
+The next bounded milestone became Embermere's first full architectural module.
+
+The deterministic Blender build produced
+`SM_EmbermereFenwatchShelter_01`, an open-sided gabled shelter measuring
+`438.0 x 296.782 x 369.5` cm. It contains 4,348 triangles, one UV channel, no
+non-manifold edges, applied scale, a ground pivot, five existing
+stone/moss/timber/iron/ember materials, and four `UBX_` support boxes. The roof
+and center intentionally own no collision.
+
+The classic `FbxFactory` lane retained all four authored boxes and saved the
+mesh package. The first placement at `(-2180, -1060)`, yaw `160`, passed import,
+bounds, material, collision, tag, and transform checks. It also hid Mara from
+the gameplay camera. Clean PIE rejected that technically eligible placement.
+
+The accepted actor now sits at `(-1740, -700, 0)`, yaw `-64`, behind Mara. Her
+name and quest marker read in the foreground while the shelter supplies the
+first coherent village silhouette. The old backdrop, market cover, and
+vendor/trainer cubes are gone. A measured autorun probe moved the player from
+`(-2400, -1200, 90.15)` to `(-1793.188, -831.382, 90.15)` and an independent
+`W` press stopped all later movement at the same transform.
+
+The saved zone now contains 57 grounded upright Fab actors and 15 original-art
+placements. Fresh-process map and UI-art validators passed, initialized-world
+traces proved the shelter center and spawn route clear plus all four supports
+solid, the no-hot-reload Mac build succeeded, and all 29 tests passed.
+
+Lesson: architectural acceptance is contextual. A valid mesh at a valid
+transform can still fail the quest composition. Deterministic contracts make an
+asset eligible; normal-camera play decides whether it helps the world.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -89,11 +89,11 @@ The repo currently contains the C++ gameplay scaffold for:
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved
   instances, and asset-agnostic runtime presentation
-- a corrected 59-actor local Fab/Epic art pass plus 14 placements from
+- a corrected 57-actor local Fab/Epic art pass plus 15 placements from
   Embermere's original Blender-built waystone, ember-lamp, road-signpost,
-  road-gate, boundary-fence, rune-topped boundary-stone, and supply-chest
-  family plus four visual-only marsh-reed clusters over the starter village,
-  road, wilderness pocket, and ruin landmark, with grounded rotations,
+  road-gate, boundary-fence, rune-topped boundary-stone, supply-chest, and
+  Fenwatch shelter plus four visual-only marsh-reed clusters over the starter
+  village, road, wilderness pocket, and ruin landmark, with grounded rotations,
   deliberate collision, a navigable PlayerStart/Mara route, a readable gate
   silhouette, a project-owned moss/earth/path material, collision-cleared solo
   enemy pulls, and a validated Mac-friendly daylight/atmosphere baseline
@@ -132,8 +132,9 @@ The original Blender and Blender MCP workflow lives in
 [Docs/BLENDER_ASSET_PIPELINE.md](Docs/BLENDER_ASSET_PIPELINE.md). Its first
 family now includes a project-owned stylized waystone shrine, matching ember
 lamps, a timber road signpost, a traversable road gate, low boundary fences,
-rune-topped end stones, a route-facing village supply chest, visual-only marsh
-reeds, and the fully rigged Marsh Prowler, each built from reviewed scripts,
+rune-topped end stones, a route-facing village supply chest, an open-sided
+Fenwatch shelter, visual-only marsh reeds, and the fully rigged Marsh Prowler,
+each built from reviewed scripts,
 validated in Blender, imported through an explicit Unreal contract, and placed
 as a swappable project-owned layer over the local Fab environment.
 
@@ -188,8 +189,8 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 Early playable Unreal prototype scaffold with Unreal and Blender MCP connected,
 a daylight starter-zone loop mixing a local Fab pass with an original Embermere
-waystone/lamp/signpost/gate/fence/end-stone/chest/reed family, the first original
-rigged and animated Marsh Prowler, grounded moss/earth road presentation,
+waystone/lamp/signpost/gate/fence/end-stone/chest/shelter/reed family, the first
+original rigged and animated Marsh Prowler, grounded moss/earth road presentation,
 collision-cleared solo-pull tab-target combat, a fully illustrated data-driven
 starter hotbar with cooldown feedback, tooltips, timed buffs, root, snare, mana
 recovery, live player/target status indicators, and restrained data-driven
@@ -200,7 +201,7 @@ window with atomic transactions, project-owned data-driven art reused across
 rows, slots, details, drag feedback, rewards, and the equipment backdrop, safe
 consumable actions, and native selected-target nameplate/emissive-ring feedback.
 
-Next milestone: live Prowler animation/material timing polish only from concrete
-play feedback, subtle non-colliding marsh dressing, and replacement of temporary
-village silhouettes and incomplete vendor meshes with cohesive Stylized Classic
-fantasy architecture.
+Next milestone: replace Mara's remaining grey character placeholder, continue
+the Fenwatch shelter into a small cohesive Stylized Classic village kit, and
+tune Prowler timing or marsh dressing only when normal-route play exposes a
+concrete issue.

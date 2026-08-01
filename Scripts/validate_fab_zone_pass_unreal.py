@@ -5,8 +5,8 @@ import unreal
 
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
-EXPECTED_FABPASS_COUNT = 59
-EXPECTED_ORIGINAL_ART_COUNT = 14
+EXPECTED_FABPASS_COUNT = 57
+EXPECTED_ORIGINAL_ART_COUNT = 15
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -14,6 +14,10 @@ ORIGINAL_EMBER_LAMPS = {
     "Embermere_EmberLamp_Mara_01": ((-1970.0, -775.0, 0.0), 5.0),
     "Embermere_EmberLamp_Road_01": ((-1150.0, -520.0, 0.0), 8.0),
 }
+ORIGINAL_FENWATCH_SHELTER_LABEL = "Embermere_FenwatchShelter_Mara_01"
+ORIGINAL_FENWATCH_SHELTER_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereFenwatchShelter_01.SM_EmbermereFenwatchShelter_01"
+ORIGINAL_FENWATCH_SHELTER_LOCATION = (-1740.0, -700.0, 0.0)
+ORIGINAL_FENWATCH_SHELTER_YAW = -64.0
 ORIGINAL_SIGNPOST_LABEL = "Embermere_RoadSignpost_01"
 ORIGINAL_SIGNPOST_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereRoadSignpost_01.SM_EmbermereRoadSignpost_01"
 ORIGINAL_SIGNPOST_LOCATION = (20.0, -170.0, 0.0)
@@ -151,9 +155,12 @@ REQUIRED_LABELS = {
     ORIGINAL_SIGNPOST_LABEL,
     ORIGINAL_GATE_LABEL,
     ORIGINAL_SUPPLY_CHEST_LABEL,
+    ORIGINAL_FENWATCH_SHELTER_LABEL,
 } | set(ORIGINAL_EMBER_LAMPS) | set(ORIGINAL_FENCES) | set(ORIGINAL_BOUNDARY_STONES) | set(ORIGINAL_MARSH_REEDS) | set(COMPOSITION_FOLIAGE)
 
 REMOVED_GREYBOX_LABELS = {
+    "Vendor_Placeholder",
+    "Trainer_Placeholder",
     "Village_Hall_Blockout",
     "Blacksmith_Blockout",
     "Inn_Blockout",
@@ -169,6 +176,8 @@ REMOVED_GREYBOX_LABELS = {
     "FabPass_Village_Lamp_Mara",
     "FabPass_Village_Lamp_Road",
     "FabPass_Village_Crates_A",
+    "FabPass_Mara_Stone_Backdrop",
+    "FabPass_Village_Market_Cover",
     "Enemy_Visual_Marker_01",
     "Enemy_Visual_Marker_02",
     "Enemy_Visual_Marker_03",
@@ -339,6 +348,69 @@ def main():
             fail("{} transform drifted: location={}, rotation={}".format(label, location, rotation))
         if unreal.Name("EmbermereOriginalArt") not in list(lamp.tags):
             fail("{} must retain the EmbermereOriginalArt tag".format(label))
+
+    shelter_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_FENWATCH_SHELTER_PATH)
+    if not shelter_mesh or not isinstance(shelter_mesh, unreal.StaticMesh):
+        fail("missing original Fenwatch shelter mesh {}".format(ORIGINAL_FENWATCH_SHELTER_PATH))
+    shelter_import_data = shelter_mesh.get_editor_property("asset_import_data")
+    shelter_import_class = shelter_import_data.get_class().get_name() if shelter_import_data else "None"
+    if shelter_import_class != "FbxStaticMeshImportData":
+        fail("original Fenwatch shelter must retain classic FBX import data, found {}".format(shelter_import_class))
+    shelter_body_setup = shelter_mesh.get_editor_property("body_setup")
+    shelter_aggregate = shelter_body_setup.get_editor_property("agg_geom") if shelter_body_setup else None
+    shelter_box_count = len(shelter_aggregate.get_editor_property("box_elems")) if shelter_aggregate else 0
+    if shelter_box_count != 4:
+        fail("original Fenwatch shelter must retain 4 authored support colliders, found {}".format(shelter_box_count))
+    shelter_bounds = shelter_mesh.get_bounds()
+    shelter_size = shelter_bounds.box_extent * 2.0
+    shelter_xy = sorted([float(shelter_size.x), float(shelter_size.y)])
+    if not all((
+        nearly_equal(shelter_xy[0], 296.782, 2.0),
+        nearly_equal(shelter_xy[1], 438.0, 2.0),
+        nearly_equal(shelter_size.z, 369.5, 2.0),
+        nearly_equal(shelter_bounds.origin.z, shelter_bounds.box_extent.z, 1.0),
+    )):
+        fail("original Fenwatch shelter bounds drifted: origin={}, extent={}".format(
+            shelter_bounds.origin,
+            shelter_bounds.box_extent,
+        ))
+    if shelter_mesh.get_num_triangles(0) != 4348:
+        fail("original Fenwatch shelter triangle contract drifted: {}".format(shelter_mesh.get_num_triangles(0)))
+    shelter_material_paths = set()
+    for static_material in list(shelter_mesh.get_editor_property("static_materials")):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            shelter_material_paths.add(material.get_path_name())
+    if shelter_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("original Fenwatch shelter material set drifted: {}".format(sorted(shelter_material_paths)))
+
+    shelter = actors_by_label[ORIGINAL_FENWATCH_SHELTER_LABEL]
+    shelter_component = shelter.get_component_by_class(unreal.StaticMeshComponent)
+    shelter_actor_mesh = shelter_component.get_editor_property("static_mesh") if shelter_component else None
+    shelter_actor_mesh_path = shelter_actor_mesh.get_path_name() if shelter_actor_mesh else "None"
+    if shelter_actor_mesh_path != ORIGINAL_FENWATCH_SHELTER_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_FENWATCH_SHELTER_LABEL,
+            ORIGINAL_FENWATCH_SHELTER_PATH,
+            shelter_actor_mesh_path,
+        ))
+    shelter_location = shelter.get_actor_location()
+    shelter_rotation = shelter.get_actor_rotation()
+    if not all((
+        nearly_equal(shelter_location.x, ORIGINAL_FENWATCH_SHELTER_LOCATION[0], 1.0),
+        nearly_equal(shelter_location.y, ORIGINAL_FENWATCH_SHELTER_LOCATION[1], 1.0),
+        nearly_equal(shelter_location.z, ORIGINAL_FENWATCH_SHELTER_LOCATION[2], 1.0),
+        nearly_equal(shelter_rotation.pitch, 0.0, 0.1),
+        nearly_equal(shelter_rotation.yaw, ORIGINAL_FENWATCH_SHELTER_YAW, 0.1),
+        nearly_equal(shelter_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            ORIGINAL_FENWATCH_SHELTER_LABEL,
+            shelter_location,
+            shelter_rotation,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(shelter.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(ORIGINAL_FENWATCH_SHELTER_LABEL))
 
     signpost_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_SIGNPOST_PATH)
     if not signpost_mesh or not isinstance(signpost_mesh, unreal.StaticMesh):

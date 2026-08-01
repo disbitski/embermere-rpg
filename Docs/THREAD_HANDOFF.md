@@ -54,9 +54,9 @@ The project currently includes:
   sixteen data-driven starter-ability icons with tooltips, an illustrated
   paper-doll equipment backdrop, data-driven timed buff/control rows with live
   countdowns, and chat log;
-- a grounded local Fab/Epic art pass with 59 upright environment actors and 14
+- a grounded local Fab/Epic art pass with 57 upright environment actors and 15
   project-owned placements from an original Blender-built Embermere
-  waystone/lamp/signpost/gate/fence/boundary-stone/chest/reed family, a
+  waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/reed family, a
   38-expression moss/earth road material, and a Mac-friendly daylight baseline;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
@@ -287,13 +287,13 @@ Games Launcher. Saved map references may be missing until those packs exist.
 Environment scripts:
 
 - `Scripts/place_fab_zone_pass.py`: idempotent base placement recipe; the saved
-  map retains 59 Fab actors after project-owned replacements and removal of
+  map retains 57 Fab actors after project-owned replacements and removal of
   unsupported accents and enemy markers.
 - `Scripts/place_fab_zone_pass_unreal.py`: executes placement through Unreal
   Python and saves the map.
 - `Scripts/validate_fab_zone_pass_unreal.py`: reloads and validates the saved
   map, actor count, upright rotations, gameplay anchors, collision-cleared
-  encounter layout, 14 original-art placements, moss/earth terrain, and exact
+  encounter layout, 15 original-art placements, moss/earth terrain, and exact
   Mac-friendly daylight values.
 - `Scripts/configure_starter_items.py`: idempotently migrates tracked starter
   item assets, currently the level-1 Back-slot Recruit Pack reward.
@@ -394,6 +394,16 @@ The ninth original model type is
 `168 x 131.04 x 187.8` cm visual-only cluster with four project materials and
 no collision. Four exact saved placements use `M_EmbermereGround` on their low
 footprints and bring the project-owned level layer to 14 placements.
+
+The tenth original model type is `SM_EmbermereFenwatchShelter_01`, built by
+`Scripts/blender/build_embermere_fenwatch_shelter.py` and imported through
+`Scripts/import_embermere_fenwatch_shelter_unreal.py`. It is a 4,348-triangle,
+`438.0 x 296.782 x 369.5` cm open-sided stone/moss/timber/iron/ember shelter
+with one UV channel and four authored support boxes. The saved
+`Embermere_FenwatchShelter_Mara_01` actor at `(-1740, -700, 0)`, yaw `-64`,
+replaces the old Mara stone backdrop, mismatched market cover, and vendor/
+trainer cubes. Its center and roof span remain clear, bringing the map to 15
+original-art placements.
 
 The chosen community bridge is `djeada/blender-mcp-server`, pinned during
 installation to commit `7eed33edf4aca2ab0ca84a6da27321f89f68b504`.
@@ -546,7 +556,7 @@ Current automation tests:
 28. `Embermere.UI.WorldStatusVfxPresentation`
 29. `Embermere.Player.OutOfBoundsRecovery`
 
-Latest verified baseline (2026-07-31):
+Latest verified baseline (2026-08-01):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
 - headless automation discovered and passed 29/29 with zero test failures,
@@ -603,18 +613,25 @@ Latest verified baseline (2026-07-31):
   `RecruitPack`;
 - fresh-process UI-art validation retained its explicit success marker with no
   `LogPython: Error`;
-- the validator reloaded the saved map and passed with 59 grounded upright
-  `FabPass_` actors, 14 exact original-art placements, four `NoCollision` reed
+- the validator reloaded the saved map and passed with 57 grounded upright
+  `FabPass_` actors, 15 exact original-art placements, four `NoCollision` reed
   clusters, required gameplay anchors, the 38-expression moss/earth road
   material, and exact saved sun/skylight/fog values;
 - Blender MCP generated and validated the 2,364-triangle supply chest; Unreal
   imported it through `FbxFactory`, reused all five project materials, retained
   two authored colliders, replaced the temporary vendor crate stack, and saved
   the route-facing actor at `(-1740, -1180, 0)`, yaw `108`;
+- Blender MCP generated the 4,348-triangle Fenwatch shelter with five shared
+  materials and four authored support boxes. Unreal imported it through classic
+  `FbxFactory` and saved it behind Mara at `(-1740, -700, 0)`, yaw `-64`. Clean
+  PIE rejected an earlier technically valid transform because it obscured Mara;
+  the accepted composition retains her quest-marker/name read and removes the
+  old backdrop, market cover, and vendor/trainer cubes;
 - native traces in the initialized live editor proved three gate lanes clear,
   one gate support solid, both fence centers solid, both boundary-stone cores
-  solid, the supply-chest lid solid, and the old player-height spawn corridor
-  clear. Saved-map validation independently requires at least `225` cm of
+  solid, the supply-chest lid solid, all four shelter supports solid, the
+  shelter center clear, and the old player-height spawn corridor clear.
+  Saved-map validation independently requires at least `225` cm of
   geometric chest clearance. Fresh commandlets remain authoritative for
   package/map assertions, but a commandlet-loaded world did not register native
   collision bodies and must not be treated as a physics result;
@@ -805,10 +822,12 @@ First fresh-session checks:
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
-   - 59 grounded upright Fab actors plus 14 original placements from the
-     waystone/lamp/signpost/gate/fence/boundary-stone/chest/reed family; inspect
-     the route-facing chest at `(-1740, -1180, 0)`, its solid lid, four
-     visual-only reed clusters, clear gate lanes and solid fences/end stones,
+   - 57 grounded upright Fab actors plus 15 original placements from the
+     waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/reed family;
+     inspect the route-facing chest at `(-1740, -1180, 0)`, its solid lid, the
+     Fenwatch shelter behind Mara at `(-1740, -700, 0)`, its four solid supports
+     and clear center, four visual-only reed clusters, clear gate lanes and
+     solid fences/end stones,
      the moss/earth road, a navigable spawn/Mara route, readable enemy pocket,
      supported ruin silhouette, and balanced daylight/fog under the
      atmospheric sky.
@@ -835,8 +854,10 @@ High-value milestones after that:
   sightlines remain clear;
 - retain the accepted beneficial and harmful world-aura palettes, grounding,
   and target-circle separation; polish only concrete readability issues;
-- expand the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest lane
-  into compact village-prop modules while preserving
+- replace Mara's remaining oversized grey character placeholder without moving
+  or coupling the quest actor to its presentation;
+- extend the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest/
+  shelter lane into compact village modules while preserving Mara readability,
   deterministic scripts, FBX checks, and original-art tags;
 - optional restrained rune/soft-edge texture treatment for the dedicated
   target-circle material after all three normal-route Prowlers pass the
@@ -940,15 +961,18 @@ feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy
 nameplate, bounds-aware surface-traced cyan-blue target circle, quest/reward
 loop, enemy
 leash, respawn protection, chat clipping, atmospheric daylight and the
-38-expression moss/earth road, 59 grounded upright Fab actors, and all 14
-original-art placements including four `NoCollision` reed clusters and the
+38-expression moss/earth road, 57 grounded upright Fab actors, and all 15
+original-art placements including four `NoCollision` reed clusters, the
+open-sided Fenwatch shelter at `(-1740, -700, 0)`, yaw `-64`, and the
 route-facing supply chest at `(-1740, -1180, 0)` with solid authored lid
 collision, at least 225 cm of saved spawn-corridor clearance, and a clear live
 player-height trace. Walk the
 normal route and prove each 525 cm Prowler pull stays solo while visual
-band geometry remains non-colliding. Then tune only concrete Prowler or aura
-issues, extend subtle marsh dressing, pursue cohesive fantasy architecture, or
-take the highest-value next milestone when the path is clear.
+band geometry remains non-colliding. Inspect the shelter from PlayerStart and
+prove Mara's name/quest marker, the open center, four supports, and straight
+autorun route remain readable. Then replace Mara's grey character placeholder,
+extend the shelter into one matching village module, tune only concrete Prowler
+or aura issues, or take the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

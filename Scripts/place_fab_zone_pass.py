@@ -131,6 +131,7 @@ SCI_STOOL = "/Game/Scifi_desert_city/Meshes/Stool/SM_stool"
 
 EMBERMERE_WAYSTONE = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01"
 EMBERMERE_EMBER_LAMP = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01"
+EMBERMERE_FENWATCH_SHELTER = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereFenwatchShelter_01"
 TIMBER_MATERIAL = "/Game/Art/Embermere/Environment/PrototypeVillage/M_EmbermereTimber.M_EmbermereTimber"
 MOSS_MATERIAL = "/Game/Art/Embermere/Environment/PrototypeVillage/M_WaystoneMoss.M_WaystoneMoss"
 STONE_MATERIAL = "/Game/Art/Embermere/Environment/PrototypeVillage/M_Waystone.M_Waystone"
@@ -207,14 +208,24 @@ ORIGINAL_PLACEMENTS = [
         "folder": "04_Fab_Zone_Pass/02_Road/Embermere_Originals",
         "tag": ORIGINAL_TAG,
     },
+    {
+        "name": "Embermere_FenwatchShelter_Mara_01",
+        "asset": EMBERMERE_FENWATCH_SHELTER,
+        "x": -1740,
+        "y": -700,
+        "z": 0,
+        "yaw": -64,
+        "scale": 1.0,
+        "snap": False,
+        "folder": "04_Fab_Zone_Pass/01_Village/Embermere_Originals",
+        "tag": ORIGINAL_TAG,
+    },
 ]
 
 
 PLACEMENTS = [
     # Village safe-area dressing. Full sci-fi building shells were removed after
     # PIE showed that their scale and collision obscured PlayerStart and Mara.
-    {"name": FAB_PREFIX + "Mara_Stone_Backdrop", "asset": PARAGON_AGORA_PORTAL, "x": -2150, "y": -1025, "z": 0, "yaw": 35, "scale": 0.34, "folder": "04_Fab_Zone_Pass/01_Village"},
-    {"name": FAB_PREFIX + "Village_Market_Cover", "asset": SCI_FABRIC, "x": -1740, "y": -820, "z": 0, "yaw": 8, "scale": 1.25, "folder": "04_Fab_Zone_Pass/01_Village"},
     {"name": FAB_PREFIX + "Village_Table", "asset": SCI_TABLE, "x": -1705, "y": -760, "z": 0, "yaw": -18, "scale": 1.0, "folder": "04_Fab_Zone_Pass/01_Village"},
     {"name": FAB_PREFIX + "Village_Stool_A", "asset": SCI_STOOL, "x": -1645, "y": -770, "z": 0, "yaw": 22, "scale": 1.0, "folder": "04_Fab_Zone_Pass/01_Village"},
     {"name": FAB_PREFIX + "Village_Stool_B", "asset": SCI_STOOL, "x": -1745, "y": -710, "z": 0, "yaw": -44, "scale": 1.0, "folder": "04_Fab_Zone_Pass/01_Village"},
@@ -283,6 +294,8 @@ PLACEMENTS = [
 
 
 GREYBOX_LABELS_TO_REMOVE = [
+    "Vendor_Placeholder",
+    "Trainer_Placeholder",
     "Village_Hall_Blockout",
     "Blacksmith_Blockout",
     "Inn_Blockout",

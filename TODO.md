@@ -6,11 +6,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-07-31 no-hot-reload module with the
-  accepted bounds-aware cyan target circle, finite-world player recovery, and
-  grounded bounds-aware harmful status auras.
-  Restart if the editor predates that build. The editor can start MCP during
-  launch with `-ModelContextProtocolStartServer
+- Confirm Unreal is running commit `7a3e571`'s 2026-07-31 no-hot-reload module
+  plus the 2026-08-01 Fenwatch-shelter asset and saved map. The module retains
+  the accepted bounds-aware cyan target circle, finite-world player recovery,
+  and grounded bounds-aware harmful status auras. Restart if the editor
+  predates either the module or the shelter map package. The editor can start
+  MCP during launch with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS, pass the `.uproject` after
   `--args` when using `open`. Confirm Blender and its localhost bridge only
   when another original-art pass is selected.
@@ -51,7 +52,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - all three saved map instances retain the skeletal mesh and animation set,
     not only the Blueprint CDO.
 - Recheck the completed grounding pass:
-  - 59 grounded upright `FabPass_` actors and 14 original-art placements;
+  - 57 grounded upright `FabPass_` actors and 15 original-art placements;
   - all ordinary art that previously sat at `Z=20` now rests at `Z=0`;
   - the unsupported SoulCave arch/pillar accents and three enemy marker meshes
     remain removed;
@@ -69,6 +70,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   and the live trace validator proves the player-height corridor clear.
   Preserve independent `W` and `S` autorun cancellation, physical `Ctrl+M`
   feedback, three clear gate lanes, and solo `525` cm pulls.
+- Inspect `Embermere_FenwatchShelter_Mara_01` at `(-1740, -700, 0)`, yaw
+  `-64`. Its 4,348-triangle open-sided silhouette must sit behind Mara, reuse
+  all five road-family materials, keep four grounded supports solid, and leave
+  its center and overhead roof clear. The old stone backdrop, market cover,
+  vendor cube, and trainer cube must remain absent. A clean PIE route already
+  moved from `(-2400, -1200, 90.15)` to `(-1793.188, -831.382, 90.15)` under
+  `Q`, then froze at that exact transform after `W` cancellation.
 - Retain the accepted HUD, effects, inventory, and equipment baseline:
   fixed timed-status cells, four-class ability art and semantics, the
   `700x330` paper-doll inventory, Recruit Pack bag/Back transactions, Marsh
@@ -89,19 +97,22 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. tune Prowler attack timing, material balance, or animation transitions only
-     when normal-route PIE exposes a concrete issue;
-  2. extend subtle `NoCollision` marsh dressing only where sightlines remain
-     clear;
-  3. continue toward cohesive original or signed-in fantasy village
-     architecture and a true landscape/ground-detail lane.
+  1. replace Mara's remaining oversized grey character placeholder with a
+     readable Stylized Classic quest-giver presentation without coupling quest
+     logic to art;
+  2. extend the Fenwatch shelter into one bounded matching village module, such
+     as a trainer awning, timber wall, or vendor stall, while preserving the
+     PlayerStart route and Mara sightline;
+  3. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
+     normal-route PIE exposes a concrete need;
   4. consider authored Niagara, class-specific VFX, or audio only after the
      current asset-agnostic presentation has carried the playable slice farther.
 
 ## Full Manual Regression Checklist
 
 - Restart Unreal before manual PIE when the editor predates the corrected
-  2026-07-31 grounded-status-aura build. Current code
+  2026-07-31 grounded-status-aura build or the 2026-08-01 Fenwatch-shelter map.
+  Current code
   passes all 29 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
@@ -127,6 +138,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     plank silhouette, five shared materials, terrain contact, two solid authored
     body/lid boxes, accepted `(-1740, -1180, 0)` transform, and clear
     PlayerStart-to-Mara traversal.
+  - inspect `Embermere_FenwatchShelter_Mara_01` behind Mara for all five shared
+    materials, terrain contact, four solid support boxes, a clear center and
+    roof span, readable quest marker/name, and an unobstructed spawn route.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -235,10 +249,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - the map has a blue atmospheric sky, readable ambient fill, and the
     38-expression moss/earth road material instead of the previous black
     sky/white or flat-green ground presentation;
-  - all 59 remaining Fab art-pass actors are grounded and upright; all 14
+  - all 57 remaining Fab art-pass actors are grounded and upright; all 15
     original placements remain present, including four terrain-blended
     `NoCollision` marsh-reed clusters;
-  - the three oversized sci-fi building shells are gone and PlayerStart has an unobstructed view toward Mara;
+  - the three oversized sci-fi building shells, old Mara backdrop/market cover,
+    and vendor/trainer cubes are gone; PlayerStart has an unobstructed view
+    toward Mara in front of the Fenwatch shelter;
   - the unsupported SoulCave accents and redundant enemy marker meshes remain removed;
   - village props leave Mara, PlayerStart, and the quest interaction route readable;
   - the road dressing points naturally from the village toward the wilderness pocket;
@@ -936,6 +952,23 @@ effects, or audio.
   footprint/grounding assertions, target-circle containment, and Root/Snare
   contrast checks. The authoritative no-hot-reload Mac build, all 29 tests,
   saved-zone and UI-art validators, and initialized-world route traces passed.
+- 2026-08-01: built `SM_EmbermereFenwatchShelter_01`, Embermere's first full
+  village-scale original module. The reviewed Blender source is 4,348 triangles
+  at `438.0 x 296.782 x 369.5` cm with five shared materials, one UV channel,
+  applied scale, a ground pivot, and four authored support boxes.
+- Imported through classic `FbxFactory`, explicitly saved the mesh package, and
+  placed `Embermere_FenwatchShelter_Mara_01` at `(-1740, -700, 0)`, yaw `-64`.
+  It replaces the old Mara stone backdrop, mismatched market cover, and
+  vendor/trainer cubes, bringing the map to 57 Fab actors and 15 original-art
+  placements.
+- Rejected the first technically valid shelter transform because clean PIE
+  showed it hiding Mara. The accepted transform places the shelter behind her,
+  retains the quest-marker/name read, and preserves the measured straight
+  autorun route plus independent `W` cancellation.
+- The no-hot-reload Mac build succeeded; fresh-process saved-map and UI-art
+  validators emitted their success markers without `LogPython: Error`; all 29
+  automation tests passed; and initialized-world traces proved the shelter
+  center and spawn corridor clear plus all four supports solid.
 
 ## Asset Hunt
 
