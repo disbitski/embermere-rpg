@@ -6,27 +6,29 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running commit `7a3e571`'s 2026-07-31 no-hot-reload module
-  plus the 2026-08-01 Fenwatch-shelter asset and saved map. The module retains
-  the accepted bounds-aware cyan target circle, finite-world player recovery,
-  and grounded bounds-aware harmful status auras. Restart if the editor
-  predates either the module or the shelter map package. The editor can start
+- Confirm Unreal is running the 2026-08-02 no-hot-reload module plus the saved
+  Fenwatch keeper, Blueprint template, and map packages. The module retains the
+  accepted bounds-aware cyan target circle, finite-world player recovery, and
+  grounded bounds-aware harmful status auras. Restart if the editor predates
+  the keeper build or package save. The editor can start
   MCP during launch with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS, pass the `.uproject` after
   `--args` when using `open`. Confirm Blender and its localhost bridge only
   when another original-art pass is selected.
-- Discover and run all 29 tests, especially
+- Discover and run all 30 tests, especially
+  `Embermere.NPC.FenwatchKeeperPresentation`,
   `Embermere.Enemy.MarshProwlerPresentation`,
   `Embermere.Player.OutOfBoundsRecovery`,
   `Embermere.Combat.StarterAbilityEffects`,
   `Embermere.UI.TimedStatusPresentation`,
   `Embermere.UI.WorldStatusVfxPresentation`, and the inventory transaction
-  suite. The authoritative fresh commandlet passed the complete 29-test suite,
+  suite. The authoritative fresh commandlet passed the complete 30-test suite,
   including construction through the real `BP_StarterEnemy` generated class,
   reconciliation to 48 non-colliding runtime target-circle segments, and
   damage-immunity-bypassing fall recovery. The no-hot-reload Mac build,
   saved-map validator, UI-art validator, and initialized-world route/boundary
-  traces also passed.
+  traces also passed. The keeper test loads the real saved Blueprint SCS
+  template rather than a transient native actor fixture.
 - Retain the accepted EverQuest-inspired target circle. Clean normal-route PIE
   proved all three Marsh Prowlers own exactly 48 stationary, non-colliding
   cyan-blue segments at 16 cm effective surface clearance. The visible circle
@@ -52,7 +54,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - all three saved map instances retain the skeletal mesh and animation set,
     not only the Blueprint CDO.
 - Recheck the completed grounding pass:
-  - 57 grounded upright `FabPass_` actors and 15 original-art placements;
+  - 57 grounded upright `FabPass_` actors and 16 original-art placements;
   - all ordinary art that previously sat at `Z=20` now rests at `Z=0`;
   - the unsupported SoulCave arch/pillar accents and three enemy marker meshes
     remain removed;
@@ -77,6 +79,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor cube, and trainer cube must remain absent. A clean PIE route already
   moved from `(-2400, -1200, 90.15)` to `(-1793.188, -831.382, 90.15)` under
   `Q`, then froze at that exact transform after `W` cancellation.
+- Inspect Mara's project-owned `SM_EmbermereFenwatchKeeper_Mara_01`
+  presentation. The static 3,280-triangle keeper is `107.45 x 71.0 x 207.5`
+  cm, faces PlayerStart, plants its feet at ground level, and keeps the gold
+  quest marker and name readable under the shelter. Its visual component is
+  `NoCollision`; the existing quest actor and interactable component remain
+  gameplay authorities. The saved Blueprint SCS template and placed map actor
+  must both retain the mesh, local `(0, 0, -140)` offset, yaw `100`, unit scale,
+  and no-collision state.
 - Retain the accepted HUD, effects, inventory, and equipment baseline:
   fixed timed-status cells, four-class ability art and semantics, the
   `700x330` paper-doll inventory, Recruit Pack bag/Back transactions, Marsh
@@ -97,23 +107,25 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. replace Mara's remaining oversized grey character placeholder with a
-     readable Stylized Classic quest-giver presentation without coupling quest
-     logic to art;
-  2. extend the Fenwatch shelter into one bounded matching village module, such
-     as a trainer awning, timber wall, or vendor stall, while preserving the
+  1. verify the accepted keeper's scale, facing, marker clearance, and shelter
+     composition during the next normal PlayerStart playthrough; do not retune
+     it without a concrete gameplay-camera issue;
+  2. extend Fenwatch with one bounded matching vendor or trainer presentation,
+     keeping service/gameplay logic asset-agnostic and preserving the
      PlayerStart route and Mara sightline;
-  3. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
+  3. plan a reusable NPC presentation contract before adding rigging or idle
+     animation, so static art can later swap to skeletal art without moving
+     quest/service ownership;
+  4. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete need;
-  4. consider authored Niagara, class-specific VFX, or audio only after the
+  5. consider authored Niagara, class-specific VFX, or audio only after the
      current asset-agnostic presentation has carried the playable slice farther.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the corrected
-  2026-07-31 grounded-status-aura build or the 2026-08-01 Fenwatch-shelter map.
-  Current code
-  passes all 29 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-08-02
+  Fenwatch-keeper build and saved Blueprint/map packages. Current code passes
+  all 30 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -141,6 +153,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - inspect `Embermere_FenwatchShelter_Mara_01` behind Mara for all five shared
     materials, terrain contact, four solid support boxes, a clear center and
     roof span, readable quest marker/name, and an unobstructed spawn route.
+  - inspect Mara's Fenwatch keeper for grounded feet, PlayerStart-facing pose,
+    readable staff/satchel/moss-cowl silhouette, no collision, and an
+    unobstructed gold quest marker and name.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -164,6 +179,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.Inventory.IdentityActions`
   - `Embermere.Inventory.StableSorting`
   - `Embermere.Input.AutorunCancellation`
+  - `Embermere.NPC.FenwatchKeeperPresentation`
   - `Embermere.Player.OutOfBoundsRecovery`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
@@ -969,6 +985,24 @@ effects, or audio.
   validators emitted their success markers without `LogPython: Error`; all 29
   automation tests passed; and initialized-world traces proved the shelter
   center and spawn corridor clear plus all four supports solid.
+- 2026-08-02: replaced Mara's stretched engine cube with the project-owned
+  `SM_EmbermereFenwatchKeeper_Mara_01` static presentation. The reviewed
+  Blender source is 3,280 triangles at `107.45 x 71.0 x 207.5` cm with six
+  project-owned materials, one UV channel, applied scale, a ground pivot, and
+  no collision.
+- Imported through classic `FbxFactory`, explicitly saved the mesh and skin
+  material packages, and reconciled both the real saved `BP_QuestGiver` SCS
+  template and Mara's placed visual component. The actor and interactable
+  gameplay ownership remain unchanged; only the art now uses grounded local
+  offset `(0, 0, -140)`, PlayerStart-facing yaw `100`, unit scale, and
+  `NoCollision`.
+- Clean PIE accepted grounded feet, readable moss-cowl/staff/satchel silhouette,
+  shelter composition, and unobstructed quest marker/name. The map now retains
+  57 grounded upright Fab actors and 16 project-owned placements.
+- Added `Embermere.NPC.FenwatchKeeperPresentation` against the actual saved SCS
+  template. The authoritative no-hot-reload Mac build and all 30 tests passed;
+  fresh-process saved-map and UI-art validators plus initialized-world route,
+  shelter, boundary, and chest traces emitted their explicit success markers.
 
 ## Asset Hunt
 

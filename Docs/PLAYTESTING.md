@@ -8,10 +8,10 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
 3. Confirm the map shows a blue atmospheric sky, readable ambient light, the
    varied moss/earth road surface, 57 grounded upright `FabPass_` actors plus
-   15 original-art placements from the waystone, ember-lamp, road-signpost,
+   16 original-art placements from the waystone, ember-lamp, road-signpost,
    road-gate, boundary-fence, boundary-stone, supply-chest, Fenwatch shelter,
-   and four marsh-reed clusters, a navigable PlayerStart/Mara route, the dressed
-   road, wilderness pocket, upgraded ruin, quest giver, and three original
+   Mara's keeper, and four marsh-reed clusters, a navigable PlayerStart/Mara
+   route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three original
    Marsh Prowlers.
 4. Inspect `Embermere_EmberLamp_Mara_01` and `Embermere_EmberLamp_Road_01`: pale stone/moss base, dark iron cage, warm ember crystal, terrain contact, clear route placement, and simple collision that does not trap the player.
 5. Inspect `Embermere_RoadSignpost_01`: warm timber, stone/moss footing,
@@ -41,10 +41,16 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     roof should remain traversable. Mara's name and quest marker must read in
     front of it from PlayerStart, with the removed stone backdrop, market cover,
     and vendor/trainer cubes still absent.
-11. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
+11. Inspect Mara's `SM_EmbermereFenwatchKeeper_Mara_01` presentation from
+    PlayerStart and at interaction distance. Her feet should contact the
+    terrain; the moss cowl, timber-brown clothing, pale skirt, ember crest,
+    staff, and satchel should form a readable Stylized Classic silhouette. She
+    should face the approach, own no collision, and leave the existing gold
+    quest marker, name, `F` interaction, dialogue, and quest flow unobstructed.
+12. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
     should blend into the ground, reeds should add scale without hiding the
     route, and the whole cluster must remain `NoCollision`.
-12. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
+13. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
     marker meshes have not returned. Foliage should use readable
     project-owned overrides rather than white/default rendering.
 
@@ -54,7 +60,9 @@ Mara is the quest giver actor named `Quest_Giver_Mara_Fenwatch`.
 
 From the village spawn, move mostly straight ahead and slightly right toward the center of the starter village. In world coordinates, the player starts around `(-2400, -1200)` and Mara is nearby at `(-2050, -850)`, in front of the open-sided Fenwatch shelter.
 
-In Play In Editor, quest givers show a temporary gold `!` and name marker above them.
+In Play In Editor, Mara uses the project-owned static Fenwatch keeper visual,
+while the existing quest actor still owns the temporary gold `!`, name marker,
+interaction, dialogue, and quest state.
 
 ## Current Play Loop
 

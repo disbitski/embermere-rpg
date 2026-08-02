@@ -8,7 +8,8 @@ Embermere does not have final high-fantasy art assets installed yet. The current
 - We have gameplay Blueprints for player, enemies, game mode, and a quest giver.
 - We have a first local environment pass using imported Epic/Fab packs plus a
   project-owned rigged starter creature, terrain material, icons, original
-  prop/ground-cover family, and one open-sided Fenwatch shelter. We still do
+  prop/ground-cover family, one open-sided Fenwatch shelter, and Mara's
+  grounded Stylized Classic keeper presentation. We still do
   not have a cohesive production-ready fantasy building kit, player/race art,
   weapons, audio, or final UI skinning.
 - We should start with free assets, then buy focused paid packs only when they clearly save time or improve cohesion.
@@ -40,13 +41,16 @@ First local placement pass:
   vendor/trainer cubes. This leaves 57 tagged `EmbermereFabPass` actors in
   `04_Fab_Zone_Pass` outliner folders. A separate project-owned layer contains
   eleven solid waystone/lamp/signpost/gate/fence/boundary-stone/supply-chest/
-  shelter placements plus four visual-only marsh-reed clusters, for 15
-  original-art placements.
+  shelter placements, Mara's non-colliding Fenwatch keeper, plus four
+  visual-only marsh-reed clusters, for 16 original-art placements.
 - The script keeps Mara, PlayerStart, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring intact. Starter-enemy home points are deliberately authored in the setup script so collision-safe encounter tuning is reproducible.
 - The Unreal Python helper assigns rotation fields by name. Do not use positional `unreal.Rotator(...)` arguments here; the first pass mapped intended yaw into pitch and tilted the environment.
 - Validation rejects any `FabPass_` actor with meaningful pitch or roll and
-  requires all 15 original placements, their exact meshes/tags/transforms, the
+  requires all 16 original placements, their exact meshes/tags/transforms, the
   expected solid-prop colliders, and explicit `NoCollision` on the four reeds.
+  It also verifies the keeper's exact static mesh, local offset/facing, unit
+  scale, and `NoCollision` state on both the saved Blueprint SCS template and
+  the placed Mara actor, without moving quest or interaction logic into art.
   It also locks the two foliage transforms that reveal the accepted south-fence
   silhouette and rejects restoration of the replaced crate and unsupported
   accents. `Scripts/validate_road_boundary_traces_unreal.py` separately proves
@@ -101,7 +105,8 @@ For the first import pass, prefer a tiny, reversible slice over a broad art dump
 1. Keep the current first-pass art layer focused and playable.
 2. Verify scale, collision, nameplate readability, and route readability in PIE.
 3. Extend the accepted Fenwatch shelter into a cohesive Stylized Classic village
-   family and replace the remaining character/vendor presentation placeholders.
+   family. Mara now has a project-owned keeper; the next bounded replacement is
+   a matching vendor or trainer presentation.
 4. Pick one simple UI/icon or VFX candidate only after the environment pass proves scale, collision, and performance are healthy.
 5. Record future pack names, Fab URLs, licenses, install dates, and caveats in this file before committing map references.
 

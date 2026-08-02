@@ -632,6 +632,49 @@ preserves her name and quest-marker read, and passed a transform-measured `Q`
 autorun route with independent `W` cancellation. Architecture is accepted as
 part of a composition and a route, not as an isolated valid mesh.
 
+## Eleventh Asset: Fenwatch Keeper
+
+`SM_EmbermereFenwatchKeeper_Mara_01` replaces Mara's stretched engine cube
+without moving quest, dialogue, interaction, or reward ownership into the art
+asset. The static first-pass keeper uses a moss cowl, timber-brown bodice, pale
+skirt, iron and ember details, staff, and satchel to read as part of the same
+Fenwatch roadside family.
+
+The reviewed build script is
+`Scripts/blender/build_embermere_fenwatch_keeper.py`; editable source, FBX,
+preview, and deterministic metrics live under
+`ArtSource/Blender/Characters/NPCs/FenwatchKeeper`. The classic-FBX import,
+Blueprint-template reconciliation, placed-instance update, and package-saving
+lane is `Scripts/import_embermere_fenwatch_keeper_unreal.py`.
+
+Verified result:
+
+- dimensions: `107.45 x 71.0 x 207.5` cm with a ground pivot;
+- Blender and Unreal render mesh: 3,280 triangles, one UV channel, no
+  non-manifold edges, and applied scale;
+- materials: five existing stone, moss, timber, iron, and ember assets plus the
+  saved project-owned `M_FenwatchKeeperSkin` material;
+- collision: no simple collision and an explicit `NoCollision` component
+  contract, leaving the existing quest actor and interactable component as the
+  authorities;
+- saved presentation: Mara remains at `(-2050, -850, 140)`, yaw `35`; her
+  visual component uses local location `(0, 0, -140)`, local yaw `100`, and
+  unit scale so the feet meet the support surface and the keeper faces the
+  PlayerStart approach;
+- verification: fresh-process map validation locks the mesh metrics, materials,
+  project-owned tag, exact transforms, and no-collision state on both the saved
+  `BP_QuestGiver` SCS template and placed Mara actor. The focused native test
+  loads that real SCS template. Clean PIE accepted grounded feet, shelter
+  composition, staff/satchel silhouette, and unobstructed name and quest marker.
+
+Two persistence details mattered. A Blueprint's inherited component template is
+not reliably exposed by constructing or querying a transient native actor;
+editor automation must use `SubobjectDataSubsystem`, and native automation must
+inspect the saved SCS node template. The placed map actor also retained the old
+cube's local offset, scale, facing, and collision overrides after the mesh swap.
+Replacing art therefore required reconciling and saving both the class template
+and the serialized instance before fresh-process validation could accept it.
+
 ## Sources
 
 - Article/post: https://x.com/explosss1ve/status/2075654835597164769

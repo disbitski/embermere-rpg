@@ -9,14 +9,19 @@
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
 #include "Data/EmbermereRulesData.h"
 #include "Data/EmbermereUiIconSet.h"
 #include "Engine/Blueprint.h"
 #include "Engine/SkeletalMesh.h"
+#include "Engine/SCS_Node.h"
+#include "Engine/SimpleConstructionScript.h"
+#include "Engine/StaticMesh.h"
 #include "Engine/Texture2D.h"
 #include "Game/EmbermerePlayerController.h"
+#include "GameFramework/Actor.h"
 #include "Misc/AutomationTest.h"
 #include "UI/EmbermereEnemyNameplateWidget.h"
 #include "UI/EmbermereItemDragDropOperation.h"
@@ -1751,6 +1756,71 @@ bool FEmbermereQuestRewardTest::RunTest(const FString& Parameters)
 	}
 
 	TestFalse(TEXT("Completed quest cannot complete again"), Character->QuestLog->TryCompleteActiveQuest());
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereFenwatchKeeperPresentationTest,
+	"Embermere.NPC.FenwatchKeeperPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereFenwatchKeeperPresentationTest::RunTest(const FString& Parameters)
+{
+	UStaticMesh* KeeperMesh = LoadObject<UStaticMesh>(
+		nullptr,
+		TEXT("/Game/Art/Embermere/Characters/NPCs/FenwatchKeeper/SM_EmbermereFenwatchKeeper_Mara_01.SM_EmbermereFenwatchKeeper_Mara_01"));
+	UBlueprint* QuestGiverBlueprint = LoadObject<UBlueprint>(
+		nullptr,
+		TEXT("/Game/Blueprints/BP_QuestGiver.BP_QuestGiver"));
+	TestNotNull(TEXT("Fenwatch keeper mesh loads"), KeeperMesh);
+	TestNotNull(TEXT("Quest-giver Blueprint loads"), QuestGiverBlueprint);
+	if (!KeeperMesh || !QuestGiverBlueprint || !QuestGiverBlueprint->GeneratedClass)
+	{
+		return false;
+	}
+
+	TestNotNull(
+		TEXT("Quest giver retains its Simple Construction Script"),
+		QuestGiverBlueprint->SimpleConstructionScript.Get());
+	if (!QuestGiverBlueprint->SimpleConstructionScript)
+	{
+		return false;
+	}
+
+	UStaticMeshComponent* KeeperVisual = nullptr;
+	for (USCS_Node* Node : QuestGiverBlueprint->SimpleConstructionScript->GetAllNodes())
+	{
+		if (Node)
+		{
+			KeeperVisual = Cast<UStaticMeshComponent>(Node->ComponentTemplate);
+			if (KeeperVisual)
+			{
+				break;
+			}
+		}
+	}
+	TestNotNull(TEXT("Quest giver retains its static presentation component"), KeeperVisual);
+	if (!KeeperVisual)
+	{
+		return false;
+	}
+
+	TestTrue(TEXT("Quest giver uses the project-owned Fenwatch keeper mesh"), KeeperVisual->GetStaticMesh() == KeeperMesh);
+	TestTrue(
+		TEXT("Keeper feet offset preserves the legacy quest actor origin"),
+		KeeperVisual->GetRelativeLocation().Equals(FVector(0.0f, 0.0f, -140.0f), KINDA_SMALL_NUMBER));
+	TestTrue(
+		TEXT("Keeper faces the village approach"),
+		FMath::IsNearlyEqual(KeeperVisual->GetRelativeRotation().Yaw, 100.0f, KINDA_SMALL_NUMBER));
+	TestTrue(
+		TEXT("Keeper visual uses authored scale without legacy cube stretching"),
+		KeeperVisual->GetRelativeScale3D().Equals(FVector::OneVector, KINDA_SMALL_NUMBER));
+	TestEqual(
+		TEXT("Keeper presentation remains non-colliding"),
+		KeeperVisual->GetCollisionEnabled(),
+		ECollisionEnabled::NoCollision);
+	TestEqual(TEXT("Keeper mesh keeps its reviewed triangle count"), KeeperMesh->GetNumTriangles(0), 3280);
 
 	return true;
 }

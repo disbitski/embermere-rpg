@@ -799,3 +799,30 @@ center. Native traces prove those physical roles independently. A transform-
 measured `Q` probe plus an independent `W` cancellation proves the real spawn
 route, while clean PIE confirms Mara reads in front of the shelter. Exact tests
 protect eligibility; the gameplay camera decides belonging.
+
+## Reconcile Blueprint Templates And Placed Instances Separately
+
+Swapping a mesh on a Blueprint-backed actor does not guarantee that either the
+saved class template or an already placed actor has shed the placeholder's old
+state. Mara's new keeper mesh initially inherited the cube visual's offset,
+stretched scale, facing, and blocking collision even though the asset reference
+itself was correct.
+
+Treat a Blueprint visual replacement as two persistence contracts:
+
+- class template: in editor Python, use `SubobjectDataSubsystem` to locate and
+  update the real SCS component template; querying a transient CDO/native actor
+  can miss the Blueprint-authored node;
+- placed instance: reconcile the serialized component on every saved map actor
+  that can retain per-instance mesh, transform, material, or collision
+  overrides;
+- automation: when the contract belongs to an SCS component, load the saved
+  Blueprint and inspect the actual SCS node template instead of constructing a
+  transient `NewObject` fixture that never executes the construction script;
+- validation: save both packages, reload them in a fresh process, and assert the
+  mesh, relative transform, scale, collision, and instance tag independently;
+- acceptance: run clean PIE to verify grounding, facing, marker/name clearance,
+  interaction, and composition from the normal approach.
+
+This keeps gameplay ownership asset-agnostic while preventing historical
+placeholder state from silently surviving an otherwise successful art swap.

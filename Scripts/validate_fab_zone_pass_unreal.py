@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 57
-EXPECTED_ORIGINAL_ART_COUNT = 15
+EXPECTED_ORIGINAL_ART_COUNT = 16
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -18,6 +18,19 @@ ORIGINAL_FENWATCH_SHELTER_LABEL = "Embermere_FenwatchShelter_Mara_01"
 ORIGINAL_FENWATCH_SHELTER_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereFenwatchShelter_01.SM_EmbermereFenwatchShelter_01"
 ORIGINAL_FENWATCH_SHELTER_LOCATION = (-1740.0, -700.0, 0.0)
 ORIGINAL_FENWATCH_SHELTER_YAW = -64.0
+FENWATCH_KEEPER_LABEL = "Quest_Giver_Mara_Fenwatch"
+FENWATCH_KEEPER_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchKeeper/"
+    "SM_EmbermereFenwatchKeeper_Mara_01.SM_EmbermereFenwatchKeeper_Mara_01"
+)
+FENWATCH_KEEPER_SKIN_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchKeeper/"
+    "M_FenwatchKeeperSkin.M_FenwatchKeeperSkin"
+)
+FENWATCH_KEEPER_LOCATION = (-2050.0, -850.0, 140.0)
+FENWATCH_KEEPER_YAW = 35.0
+FENWATCH_KEEPER_VISUAL_LOCATION = (0.0, 0.0, -140.0)
+FENWATCH_KEEPER_VISUAL_YAW = 100.0
 ORIGINAL_SIGNPOST_LABEL = "Embermere_RoadSignpost_01"
 ORIGINAL_SIGNPOST_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereRoadSignpost_01.SM_EmbermereRoadSignpost_01"
 ORIGINAL_SIGNPOST_LOCATION = (20.0, -170.0, 0.0)
@@ -411,6 +424,112 @@ def main():
         ))
     if unreal.Name("EmbermereOriginalArt") not in list(shelter.tags):
         fail("{} must retain the EmbermereOriginalArt tag".format(ORIGINAL_FENWATCH_SHELTER_LABEL))
+
+    keeper_mesh = unreal.EditorAssetLibrary.load_asset(FENWATCH_KEEPER_PATH)
+    if not keeper_mesh or not isinstance(keeper_mesh, unreal.StaticMesh):
+        fail("missing original Fenwatch keeper mesh {}".format(FENWATCH_KEEPER_PATH))
+    keeper_import_data = keeper_mesh.get_editor_property("asset_import_data")
+    keeper_import_class = keeper_import_data.get_class().get_name() if keeper_import_data else "None"
+    if keeper_import_class != "FbxStaticMeshImportData":
+        fail("Fenwatch keeper must retain classic FBX import data, found {}".format(keeper_import_class))
+    keeper_body_setup = keeper_mesh.get_editor_property("body_setup")
+    keeper_aggregate = keeper_body_setup.get_editor_property("agg_geom") if keeper_body_setup else None
+    keeper_collision_count = sum(
+        len(keeper_aggregate.get_editor_property(property_name))
+        for property_name in ("box_elems", "sphere_elems", "sphyl_elems", "convex_elems")
+    ) if keeper_aggregate else 0
+    if keeper_collision_count != 0:
+        fail("Fenwatch keeper must remain presentation-only, found {} collision shapes".format(
+            keeper_collision_count,
+        ))
+    keeper_bounds = keeper_mesh.get_bounds()
+    keeper_size = keeper_bounds.box_extent * 2.0
+    if not all((
+        nearly_equal(keeper_size.x, 107.45, 1.0),
+        nearly_equal(keeper_size.y, 71.0, 1.0),
+        nearly_equal(keeper_size.z, 207.5, 1.0),
+        nearly_equal(keeper_bounds.origin.z, keeper_bounds.box_extent.z, 1.0),
+    )):
+        fail("Fenwatch keeper bounds drifted: origin={}, extent={}".format(
+            keeper_bounds.origin,
+            keeper_bounds.box_extent,
+        ))
+    if keeper_mesh.get_num_triangles(0) != 3280:
+        fail("Fenwatch keeper triangle contract drifted: {}".format(keeper_mesh.get_num_triangles(0)))
+    keeper_material_paths = set()
+    for static_material in list(keeper_mesh.get_editor_property("static_materials")):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            keeper_material_paths.add(material.get_path_name())
+    expected_keeper_materials = set(ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS)
+    expected_keeper_materials.add(FENWATCH_KEEPER_SKIN_PATH)
+    if keeper_material_paths != expected_keeper_materials:
+        fail("Fenwatch keeper material set drifted: {}".format(sorted(keeper_material_paths)))
+
+    keeper = actors_by_label[FENWATCH_KEEPER_LABEL]
+    keeper_component = keeper.get_component_by_class(unreal.StaticMeshComponent)
+    keeper_actor_mesh = keeper_component.get_editor_property("static_mesh") if keeper_component else None
+    keeper_actor_mesh_path = keeper_actor_mesh.get_path_name() if keeper_actor_mesh else "None"
+    if keeper_actor_mesh_path != FENWATCH_KEEPER_PATH:
+        fail("{} must use {}, found {}".format(
+            FENWATCH_KEEPER_LABEL,
+            FENWATCH_KEEPER_PATH,
+            keeper_actor_mesh_path,
+        ))
+    keeper_location = keeper.get_actor_location()
+    keeper_rotation = keeper.get_actor_rotation()
+    if not all((
+        nearly_equal(keeper_location.x, FENWATCH_KEEPER_LOCATION[0], 1.0),
+        nearly_equal(keeper_location.y, FENWATCH_KEEPER_LOCATION[1], 1.0),
+        nearly_equal(keeper_location.z, FENWATCH_KEEPER_LOCATION[2], 1.0),
+        nearly_equal(keeper_rotation.pitch, 0.0, 0.1),
+        nearly_equal(keeper_rotation.yaw, FENWATCH_KEEPER_YAW, 0.1),
+        nearly_equal(keeper_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            FENWATCH_KEEPER_LABEL,
+            keeper_location,
+            keeper_rotation,
+        ))
+    keeper_relative_location = keeper_component.get_editor_property("relative_location")
+    keeper_relative_rotation = keeper_component.get_editor_property("relative_rotation")
+    keeper_relative_scale = keeper_component.get_editor_property("relative_scale3d")
+    if not all((
+        nearly_equal(keeper_relative_location.x, FENWATCH_KEEPER_VISUAL_LOCATION[0], 0.1),
+        nearly_equal(keeper_relative_location.y, FENWATCH_KEEPER_VISUAL_LOCATION[1], 0.1),
+        nearly_equal(keeper_relative_location.z, FENWATCH_KEEPER_VISUAL_LOCATION[2], 0.1),
+        nearly_equal(keeper_relative_rotation.pitch, 0.0, 0.1),
+        nearly_equal(keeper_relative_rotation.yaw, FENWATCH_KEEPER_VISUAL_YAW, 0.1),
+        nearly_equal(keeper_relative_rotation.roll, 0.0, 0.1),
+        nearly_equal(keeper_relative_scale.x, 1.0, 0.001),
+        nearly_equal(keeper_relative_scale.y, 1.0, 0.001),
+        nearly_equal(keeper_relative_scale.z, 1.0, 0.001),
+    )):
+        fail("Fenwatch keeper local presentation drifted: location={}, rotation={}, scale={}".format(
+            keeper_relative_location,
+            keeper_relative_rotation,
+            keeper_relative_scale,
+        ))
+    if keeper_component.get_collision_enabled() != unreal.CollisionEnabled.NO_COLLISION:
+        fail("Fenwatch keeper visual must remain non-colliding")
+    if unreal.Name("EmbermereOriginalArt") not in list(keeper.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(FENWATCH_KEEPER_LABEL))
+
+    keeper_blueprint = unreal.EditorAssetLibrary.load_asset("/Game/Blueprints/BP_QuestGiver")
+    subobject_subsystem = unreal.get_engine_subsystem(unreal.SubobjectDataSubsystem)
+    keeper_template = None
+    for handle in subobject_subsystem.k2_gather_subobject_data_for_blueprint(keeper_blueprint):
+        data = subobject_subsystem.k2_find_subobject_data_from_handle(handle)
+        candidate = unreal.SubobjectDataBlueprintFunctionLibrary.get_object(data)
+        if isinstance(candidate, unreal.StaticMeshComponent):
+            keeper_template = candidate
+            break
+    if not keeper_template:
+        fail("BP_QuestGiver is missing its Fenwatch keeper visual template")
+    if keeper_template.get_editor_property("static_mesh") != keeper_mesh:
+        fail("BP_QuestGiver template does not use the Fenwatch keeper mesh")
+    if keeper_template.get_collision_enabled() != unreal.CollisionEnabled.NO_COLLISION:
+        fail("BP_QuestGiver keeper template must remain non-colliding")
 
     signpost_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_SIGNPOST_PATH)
     if not signpost_mesh or not isinstance(signpost_mesh, unreal.StaticMesh):
@@ -1108,7 +1227,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's Fenwatch keeper and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

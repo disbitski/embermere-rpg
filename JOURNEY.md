@@ -1692,6 +1692,43 @@ Lesson: architectural acceptance is contextual. A valid mesh at a valid
 transform can still fail the quest composition. Deterministic contracts make an
 asset eligible; normal-camera play decides whether it helps the world.
 
+## 2026-08-02 - Mara Became A Fenwatch Keeper
+
+Mara's quest logic, dialogue, marker, and rewards already worked, but her world
+presentation was still a stretched engine cube. Today's bounded art pass kept
+all of those systems untouched and replaced only the visual component with the
+first original Embermere humanoid silhouette.
+
+The deterministic Blender script produced
+`SM_EmbermereFenwatchKeeper_Mara_01`, a static `107.45 x 71.0 x 207.5` cm
+keeper with 3,280 triangles, one UV channel, no non-manifold edges, applied
+scale, a ground pivot, and six project-owned materials. Moss cowl, timber-brown
+clothing, pale skirt, ember crest, staff, and satchel connect her to the
+Fenwatch shelter and roadside family without pretending this first pass is a
+finished rigged character.
+
+The classic `FbxFactory` lane saved the mesh and the new skin material, then
+reconciled both `BP_QuestGiver`'s saved SCS component template and Mara's
+serialized map instance. That second step mattered: the old cube left behind a
+`-140` cm visual offset, stretched scale, world-facing rotation, and blocking
+collision. The accepted keeper uses the grounded offset intentionally, unit
+scale, local yaw `100` toward PlayerStart, and `NoCollision`, while the existing
+interactable component remains authoritative.
+
+Clean PIE accepted Mara's grounded feet, front-facing silhouette, shelter
+composition, and unobstructed gold marker/name. The initialized-world validator
+retained the clear spawn corridor, shelter center, four solid supports, all
+three gate lanes, and the rest of the road boundary. The no-hot-reload Mac build
+succeeded, all 30 tests passed, and fresh-process map and UI validators emitted
+their success markers. The map now contains 57 grounded upright Fab actors and
+16 project-owned placements.
+
+Lesson: replacing a Blueprint visual is a two-layer persistence problem. The
+saved class template and the placed actor can each carry different historical
+overrides. Inspect both, clear inherited placeholder state deliberately, then
+let fresh-process tests and normal-camera play decide whether the new art truly
+belongs.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
