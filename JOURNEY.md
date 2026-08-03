@@ -1729,6 +1729,44 @@ overrides. Inspect both, clear inherited placeholder state deliberately, then
 let fresh-process tests and normal-camera play decide whether the new art truly
 belongs.
 
+## 2026-08-03 - Fenwatch Gained A Quartermaster Contract
+
+Mara's accepted keeper proved that project-owned humanoid art could replace a
+placeholder without taking over quest logic. The next question was whether we
+could repeat that visual language for a future service NPC without baking a
+vendor implementation into a static mesh or one-off actor.
+
+The deterministic Blender pass produced
+`SM_EmbermereFenwatchQuartermaster_01`, a stocky static quartermaster measuring
+`120.842 x 93.0 x 217.0` cm. It contains 3,632 triangles, one UV channel, no
+non-manifold edges, applied scale, a ground pivot, and six project-owned
+materials. A moss cap and shoulder wrap, pale apron, beard, ledger, pouches,
+keys, and ember details distinguish the merchant silhouette while keeping it
+inside the Fenwatch shelter/roadside family.
+
+This asset introduced a reusable native boundary rather than another special
+case. `AEmbermereNpcPresentationActor` owns soft static and skeletal art
+references, an optional animation class, one shared visual transform, and a
+permanent `NoCollision` presentation contract. It owns no interaction, stock,
+currency, trainer, dialogue, or quest behavior. The accepted static instance,
+`Embermere_FenwatchQuartermaster_Vendor_01`, sits beside the supply chest at
+`(-1530, -1190, 0)`, yaw `100`; the same wrapper can later select a rigged lane
+without moving the service location or changing gameplay ownership.
+
+Clean PIE accepted grounded contact, the chest-side merchant read, Mara's
+unobstructed shelter silhouette, and the open PlayerStart route. Independent
+measured runs moved under `Q` from `(-2400, -1200, 90.15)` to approximately
+`(-1793.18, -831.38, 90.15)` and then held the exact transform after `W` and
+`S` cancellation. Initialized-world traces retained every route and collision
+contract. The no-hot-reload Mac build succeeded, all 32 tests passed, and
+fresh-process map/UI validators accepted 57 Fab actors plus 17 project-owned
+placements.
+
+Lesson: asset agnosticism becomes real only when the replacement boundary is
+executable. A dual-lane visual wrapper, exact persistence tests, and a strict
+absence of service authority let today's static NPC become tomorrow's animated
+NPC without turning art into gameplay architecture.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

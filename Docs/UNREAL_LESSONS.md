@@ -826,3 +826,30 @@ Treat a Blueprint visual replacement as two persistence contracts:
 
 This keeps gameplay ownership asset-agnostic while preventing historical
 placeholder state from silently surviving an otherwise successful art swap.
+
+## Make Static-To-Skeletal NPC Swaps An Executable Contract
+
+Saying that NPC art is "swappable" is not enough. Without a concrete owner for
+both presentation lanes, a static placeholder tends to accumulate interaction,
+service, transform, and collision assumptions that make a later rigged upgrade
+another migration.
+
+Embermere's `AEmbermereNpcPresentationActor` makes the boundary executable:
+
+- static and skeletal components live behind one project-owned wrapper;
+- both consume one authored relative transform;
+- mesh and animation references are soft and presentation-only;
+- only the resolved lane is visible, with deterministic fallback;
+- both lanes are permanently non-colliding and nav-irrelevant;
+- the actor exposes no interaction, vendor, trainer, dialogue, or quest state.
+
+Test the swap itself, not only the first asset. The native contract test loads
+a static NPC, switches to a real skeletal asset, verifies that the transform is
+unchanged, and rejects collision or interaction ownership in both modes. A
+second test loads the saved quartermaster mesh and exact world-facing contract.
+Fresh map validation then proves the chosen lane and transform survived disk,
+while clean PIE decides whether the merchant silhouette belongs beside the
+chest without competing with Mara or the player route.
+
+This pattern does not replace a service actor. It gives that future service a
+stable visual dependency whose implementation can evolve independently.

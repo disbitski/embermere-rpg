@@ -3,9 +3,11 @@
 #include "Animation/AnimSequence.h"
 #include "Characters/EmbermereCharacter.h"
 #include "Characters/EmbermereEnemyCharacter.h"
+#include "Characters/EmbermereNpcPresentationActor.h"
 #include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereEquipmentComponent.h"
 #include "Components/EmbermereHotbarComponent.h"
+#include "Components/EmbermereInteractableComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
@@ -22,7 +24,9 @@
 #include "Engine/Texture2D.h"
 #include "Game/EmbermerePlayerController.h"
 #include "GameFramework/Actor.h"
+#include "Materials/MaterialInterface.h"
 #include "Misc/AutomationTest.h"
+#include "PhysicsEngine/BodySetup.h"
 #include "UI/EmbermereEnemyNameplateWidget.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermerePlayerHudWidget.h"
@@ -1821,6 +1825,125 @@ bool FEmbermereFenwatchKeeperPresentationTest::RunTest(const FString& Parameters
 		KeeperVisual->GetCollisionEnabled(),
 		ECollisionEnabled::NoCollision);
 	TestEqual(TEXT("Keeper mesh keeps its reviewed triangle count"), KeeperMesh->GetNumTriangles(0), 3280);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereNpcPresentationContractTest,
+	"Embermere.NPC.PresentationContract",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereNpcPresentationContractTest::RunTest(const FString& Parameters)
+{
+	UStaticMesh* StaticMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+	USkeletalMesh* SkeletalMesh = LoadObject<USkeletalMesh>(
+		nullptr,
+		TEXT("/Game/Art/Embermere/Characters/Enemies/MarshProwler/SK_EmbermereMarshProwler_01.SK_EmbermereMarshProwler_01"));
+	AEmbermereNpcPresentationActor* Presentation = NewObject<AEmbermereNpcPresentationActor>();
+	TestNotNull(TEXT("Static presentation fixture loads"), StaticMesh);
+	TestNotNull(TEXT("Skeletal presentation fixture loads"), SkeletalMesh);
+	TestNotNull(TEXT("NPC presentation actor can be created"), Presentation);
+	if (!StaticMesh || !SkeletalMesh || !Presentation)
+	{
+		return false;
+	}
+
+	const FTransform AuthoredTransform(
+		FRotator(0.0f, 25.0f, 0.0f),
+		FVector(3.0f, 4.0f, 5.0f),
+		FVector::OneVector);
+	Presentation->StaticVisualMesh = StaticMesh;
+	Presentation->VisualRelativeTransform = AuthoredTransform;
+	Presentation->bPreferSkeletalVisual = false;
+	Presentation->RefreshPresentation();
+
+	TestEqual(
+		TEXT("Static art resolves when no skeletal art is preferred"),
+		Presentation->GetResolvedVisualMode(),
+		EEmbermereNpcVisualMode::StaticMesh);
+	TestTrue(TEXT("Static lane owns the resolved mesh"), Presentation->StaticVisual->GetStaticMesh() == StaticMesh);
+	TestTrue(TEXT("Static lane keeps the authored local transform"), Presentation->StaticVisual->GetRelativeTransform().Equals(AuthoredTransform));
+	TestTrue(TEXT("Both art lanes remain non-colliding"), Presentation->IsPresentationCollisionDisabled());
+	TestNull(
+		TEXT("Presentation wrapper does not invent interaction or service behavior"),
+		Presentation->FindComponentByClass<UEmbermereInteractableComponent>());
+
+	Presentation->SkeletalVisualMesh = SkeletalMesh;
+	Presentation->bPreferSkeletalVisual = true;
+	Presentation->RefreshPresentation();
+
+	TestEqual(
+		TEXT("Skeletal art can replace static art without changing the actor contract"),
+		Presentation->GetResolvedVisualMode(),
+		EEmbermereNpcVisualMode::SkeletalMesh);
+	TestTrue(TEXT("Skeletal lane owns the resolved mesh"), Presentation->SkeletalVisual->GetSkeletalMeshAsset() == SkeletalMesh);
+	TestNull(TEXT("Inactive static lane releases its mesh"), Presentation->StaticVisual->GetStaticMesh());
+	TestTrue(TEXT("Skeletal lane keeps the same authored local transform"), Presentation->SkeletalVisual->GetRelativeTransform().Equals(AuthoredTransform));
+	TestTrue(TEXT("Skeletal swap keeps both art lanes non-colliding"), Presentation->IsPresentationCollisionDisabled());
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereFenwatchQuartermasterPresentationTest,
+	"Embermere.NPC.FenwatchQuartermasterPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereFenwatchQuartermasterPresentationTest::RunTest(const FString& Parameters)
+{
+	UStaticMesh* QuartermasterMesh = LoadObject<UStaticMesh>(
+		nullptr,
+		TEXT("/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster/SM_EmbermereFenwatchQuartermaster_01.SM_EmbermereFenwatchQuartermaster_01"));
+	AEmbermereNpcPresentationActor* Presentation = NewObject<AEmbermereNpcPresentationActor>();
+	TestNotNull(TEXT("Fenwatch quartermaster mesh loads"), QuartermasterMesh);
+	TestNotNull(TEXT("Fenwatch quartermaster presentation can be created"), Presentation);
+	if (!QuartermasterMesh || !Presentation)
+	{
+		return false;
+	}
+
+	const FVector Size = QuartermasterMesh->GetBounds().BoxExtent * 2.0f;
+	TestTrue(TEXT("Quartermaster width retains its authored contract"), FMath::IsNearlyEqual(Size.X, 120.842f, 1.0f));
+	TestTrue(TEXT("Quartermaster depth retains its authored contract"), FMath::IsNearlyEqual(Size.Y, 93.0f, 1.0f));
+	TestTrue(TEXT("Quartermaster height retains its authored contract"), FMath::IsNearlyEqual(Size.Z, 217.0f, 1.0f));
+	TestEqual(TEXT("Quartermaster keeps its reviewed triangle count"), QuartermasterMesh->GetNumTriangles(0), 3632);
+	TestEqual(TEXT("Quartermaster keeps six authored material slots"), QuartermasterMesh->GetStaticMaterials().Num(), 6);
+
+	TSet<FString> MaterialPaths;
+	for (const FStaticMaterial& StaticMaterial : QuartermasterMesh->GetStaticMaterials())
+	{
+		if (StaticMaterial.MaterialInterface)
+		{
+			MaterialPaths.Add(StaticMaterial.MaterialInterface->GetPathName());
+		}
+	}
+	TestTrue(
+		TEXT("Quartermaster keeps its project-owned skin material"),
+		MaterialPaths.Contains(TEXT("/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster/M_FenwatchQuartermasterSkin.M_FenwatchQuartermasterSkin")));
+	TestNotNull(TEXT("Quartermaster mesh retains a body setup"), QuartermasterMesh->GetBodySetup());
+	if (QuartermasterMesh->GetBodySetup())
+	{
+		TestEqual(
+			TEXT("Quartermaster mesh carries no authored collision shapes"),
+			QuartermasterMesh->GetBodySetup()->AggGeom.GetElementCount(),
+			0);
+	}
+
+	Presentation->StaticVisualMesh = QuartermasterMesh;
+	Presentation->bPreferSkeletalVisual = false;
+	Presentation->RefreshPresentation();
+	TestEqual(
+		TEXT("Quartermaster resolves through the static presentation lane"),
+		Presentation->GetResolvedVisualMode(),
+		EEmbermereNpcVisualMode::StaticMesh);
+	TestTrue(
+		TEXT("Quartermaster presentation resolves the project-owned mesh"),
+		Presentation->StaticVisual->GetStaticMesh() == QuartermasterMesh);
+	TestTrue(TEXT("Quartermaster visual lanes remain non-colliding"), Presentation->IsPresentationCollisionDisabled());
+	TestNull(
+		TEXT("Quartermaster presentation does not invent interaction or vendor behavior"),
+		Presentation->FindComponentByClass<UEmbermereInteractableComponent>());
 
 	return true;
 }

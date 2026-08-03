@@ -48,6 +48,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - hotbar bindings for `1`, `2`, `3`, `4`, `Alt+R`, `Alt+E`, `R`, `X`, `E`, and `F`
 - inventory, equipment, quest log, interactables, stats, combat, targeting, and hotbar components
 - player/enemy character classes
+- an asset-agnostic NPC presentation wrapper with interchangeable static and
+  skeletal visual lanes, shared authored transforms, soft art references, and
+  no quest/service/interaction ownership
 - UMG base classes for character creation and HUD widgets
 - native first-pass HUD panels for status, target, range state, quest tracking, dialogue, loot, and hotbar labels
 - bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback
@@ -89,11 +92,12 @@ The repo currently contains the C++ gameplay scaffold for:
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved
   instances, and asset-agnostic runtime presentation
-- a corrected 57-actor local Fab/Epic art pass plus 16 placements from
+- a corrected 57-actor local Fab/Epic art pass plus 17 placements from
   Embermere's original Blender-built waystone, ember-lamp, road-signpost,
   road-gate, boundary-fence, rune-topped boundary-stone, supply-chest, and
-  Fenwatch shelter, Mara's Fenwatch keeper, plus four visual-only marsh-reed
-  clusters over the starter village, road, wilderness pocket, and ruin
+  Fenwatch shelter, Mara's Fenwatch keeper, the Fenwatch quartermaster, plus
+  four visual-only marsh-reed clusters over the starter village, road,
+  wilderness pocket, and ruin
   landmark, with grounded rotations,
   deliberate collision, a navigable PlayerStart/Mara route, a readable gate
   silhouette, a project-owned moss/earth/path material, collision-cleared solo
@@ -135,10 +139,13 @@ family now includes a project-owned stylized waystone shrine, matching ember
 lamps, a timber road signpost, a traversable road gate, low boundary fences,
 rune-topped end stones, a route-facing village supply chest, an open-sided
 Fenwatch shelter, Mara's grounded Stylized Classic Fenwatch keeper,
-visual-only marsh reeds, and the fully rigged Marsh Prowler,
-each built from reviewed scripts,
+the Fenwatch quartermaster, visual-only marsh reeds, and the fully rigged Marsh
+Prowler, each built from reviewed scripts,
 validated in Blender, imported through an explicit Unreal contract, and placed
 as a swappable project-owned layer over the local Fab environment.
+
+The reusable art-only static/skeletal NPC boundary lives in
+[Docs/NPC_PRESENTATION_CONTRACT.md](Docs/NPC_PRESENTATION_CONTRACT.md).
 
 ## Unreal And MCP Setup
 
@@ -191,8 +198,9 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 
 Early playable Unreal prototype scaffold with Unreal and Blender MCP connected,
 a daylight starter-zone loop mixing a local Fab pass with an original Embermere
-waystone/lamp/signpost/gate/fence/end-stone/chest/shelter/keeper/reed family, the first
-original rigged and animated Marsh Prowler, grounded moss/earth road presentation,
+waystone/lamp/signpost/gate/fence/end-stone/chest/shelter/keeper/
+quartermaster/reed family, the first original rigged and animated Marsh
+Prowler, grounded moss/earth road presentation,
 collision-cleared solo-pull tab-target combat, a fully illustrated data-driven
 starter hotbar with cooldown feedback, tooltips, timed buffs, root, snare, mana
 recovery, live player/target status indicators, and restrained data-driven
@@ -201,9 +209,11 @@ bottom-left chat/combat feedback, first quest reward and starter-enemy loot
 flow, a clickable and draggable illustrated paper-doll equipment/inventory
 window with atomic transactions, project-owned data-driven art reused across
 rows, slots, details, drag feedback, rewards, and the equipment backdrop, safe
-consumable actions, and native selected-target nameplate/emissive-ring feedback.
+consumable actions, native selected-target nameplate/emissive-ring feedback,
+and a reusable static-to-skeletal NPC presentation contract demonstrated by
+the grounded Fenwatch quartermaster beside the village supply chest.
 
-Next milestone: extend the accepted Fenwatch shelter and keeper into one
-matching vendor or trainer presentation, define the reusable NPC presentation
-contract before introducing rigged humanoids, and tune Prowler timing or marsh
-dressing only when normal-route play exposes a concrete issue.
+Next milestone: give the accepted Fenwatch quartermaster a bounded vendor
+service loop while keeping stock, currency, transactions, and interaction
+outside the art wrapper; then prove the wrapper's skeletal/idle upgrade lane or
+add a matching trainer presentation.

@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 57
-EXPECTED_ORIGINAL_ART_COUNT = 16
+EXPECTED_ORIGINAL_ART_COUNT = 17
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -31,6 +31,18 @@ FENWATCH_KEEPER_LOCATION = (-2050.0, -850.0, 140.0)
 FENWATCH_KEEPER_YAW = 35.0
 FENWATCH_KEEPER_VISUAL_LOCATION = (0.0, 0.0, -140.0)
 FENWATCH_KEEPER_VISUAL_YAW = 100.0
+FENWATCH_QUARTERMASTER_LABEL = "Embermere_FenwatchQuartermaster_Vendor_01"
+FENWATCH_QUARTERMASTER_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster/"
+    "SM_EmbermereFenwatchQuartermaster_01.SM_EmbermereFenwatchQuartermaster_01"
+)
+FENWATCH_QUARTERMASTER_SKIN_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster/"
+    "M_FenwatchQuartermasterSkin.M_FenwatchQuartermasterSkin"
+)
+FENWATCH_QUARTERMASTER_LOCATION = (-1530.0, -1190.0, 0.0)
+FENWATCH_QUARTERMASTER_YAW = 100.0
+FENWATCH_QUARTERMASTER_ROUTE_CLEARANCE = 275.0
 ORIGINAL_SIGNPOST_LABEL = "Embermere_RoadSignpost_01"
 ORIGINAL_SIGNPOST_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereRoadSignpost_01.SM_EmbermereRoadSignpost_01"
 ORIGINAL_SIGNPOST_LOCATION = (20.0, -170.0, 0.0)
@@ -169,6 +181,7 @@ REQUIRED_LABELS = {
     ORIGINAL_GATE_LABEL,
     ORIGINAL_SUPPLY_CHEST_LABEL,
     ORIGINAL_FENWATCH_SHELTER_LABEL,
+    FENWATCH_QUARTERMASTER_LABEL,
 } | set(ORIGINAL_EMBER_LAMPS) | set(ORIGINAL_FENCES) | set(ORIGINAL_BOUNDARY_STONES) | set(ORIGINAL_MARSH_REEDS) | set(COMPOSITION_FOLIAGE)
 
 REMOVED_GREYBOX_LABELS = {
@@ -530,6 +543,128 @@ def main():
         fail("BP_QuestGiver template does not use the Fenwatch keeper mesh")
     if keeper_template.get_collision_enabled() != unreal.CollisionEnabled.NO_COLLISION:
         fail("BP_QuestGiver keeper template must remain non-colliding")
+
+    quartermaster_mesh = unreal.EditorAssetLibrary.load_asset(FENWATCH_QUARTERMASTER_PATH)
+    if not quartermaster_mesh or not isinstance(quartermaster_mesh, unreal.StaticMesh):
+        fail("missing original Fenwatch quartermaster mesh {}".format(
+            FENWATCH_QUARTERMASTER_PATH,
+        ))
+    quartermaster_import_data = quartermaster_mesh.get_editor_property("asset_import_data")
+    quartermaster_import_class = (
+        quartermaster_import_data.get_class().get_name()
+        if quartermaster_import_data
+        else "None"
+    )
+    if quartermaster_import_class != "FbxStaticMeshImportData":
+        fail("Fenwatch quartermaster must retain classic FBX import data, found {}".format(
+            quartermaster_import_class,
+        ))
+    quartermaster_body_setup = quartermaster_mesh.get_editor_property("body_setup")
+    quartermaster_aggregate = (
+        quartermaster_body_setup.get_editor_property("agg_geom")
+        if quartermaster_body_setup
+        else None
+    )
+    quartermaster_collision_count = sum(
+        len(quartermaster_aggregate.get_editor_property(property_name))
+        for property_name in ("box_elems", "sphere_elems", "sphyl_elems", "convex_elems")
+    ) if quartermaster_aggregate else 0
+    if quartermaster_collision_count != 0:
+        fail("Fenwatch quartermaster must remain presentation-only, found {} collision shapes".format(
+            quartermaster_collision_count,
+        ))
+    quartermaster_bounds = quartermaster_mesh.get_bounds()
+    quartermaster_size = quartermaster_bounds.box_extent * 2.0
+    if not all((
+        nearly_equal(quartermaster_size.x, 120.842, 1.0),
+        nearly_equal(quartermaster_size.y, 93.0, 1.0),
+        nearly_equal(quartermaster_size.z, 217.0, 1.0),
+        nearly_equal(quartermaster_bounds.origin.z, quartermaster_bounds.box_extent.z, 1.0),
+    )):
+        fail("Fenwatch quartermaster bounds drifted: origin={}, extent={}".format(
+            quartermaster_bounds.origin,
+            quartermaster_bounds.box_extent,
+        ))
+    if quartermaster_mesh.get_num_triangles(0) != 3632:
+        fail("Fenwatch quartermaster triangle contract drifted: {}".format(
+            quartermaster_mesh.get_num_triangles(0),
+        ))
+    quartermaster_material_paths = set()
+    for static_material in list(quartermaster_mesh.get_editor_property("static_materials")):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            quartermaster_material_paths.add(material.get_path_name())
+    expected_quartermaster_materials = set(ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS)
+    expected_quartermaster_materials.add(FENWATCH_QUARTERMASTER_SKIN_PATH)
+    if quartermaster_material_paths != expected_quartermaster_materials:
+        fail("Fenwatch quartermaster material set drifted: {}".format(
+            sorted(quartermaster_material_paths),
+        ))
+
+    quartermaster = actors_by_label[FENWATCH_QUARTERMASTER_LABEL]
+    if quartermaster.get_class().get_name() != "EmbermereNpcPresentationActor":
+        fail("{} must use the reusable NPC presentation wrapper, found {}".format(
+            FENWATCH_QUARTERMASTER_LABEL,
+            quartermaster.get_class().get_name(),
+        ))
+    quartermaster_component = quartermaster.get_component_by_class(unreal.StaticMeshComponent)
+    quartermaster_actor_mesh = (
+        quartermaster_component.get_editor_property("static_mesh")
+        if quartermaster_component
+        else None
+    )
+    quartermaster_actor_mesh_path = (
+        quartermaster_actor_mesh.get_path_name()
+        if quartermaster_actor_mesh
+        else "None"
+    )
+    if quartermaster_actor_mesh_path != FENWATCH_QUARTERMASTER_PATH:
+        fail("{} must use {}, found {}".format(
+            FENWATCH_QUARTERMASTER_LABEL,
+            FENWATCH_QUARTERMASTER_PATH,
+            quartermaster_actor_mesh_path,
+        ))
+    quartermaster_location = quartermaster.get_actor_location()
+    quartermaster_rotation = quartermaster.get_actor_rotation()
+    quartermaster_scale = quartermaster.get_actor_scale3d()
+    if not all((
+        nearly_equal(quartermaster_location.x, FENWATCH_QUARTERMASTER_LOCATION[0], 1.0),
+        nearly_equal(quartermaster_location.y, FENWATCH_QUARTERMASTER_LOCATION[1], 1.0),
+        nearly_equal(quartermaster_location.z, FENWATCH_QUARTERMASTER_LOCATION[2], 1.0),
+        nearly_equal(quartermaster_rotation.pitch, 0.0, 0.1),
+        nearly_equal(quartermaster_rotation.yaw, FENWATCH_QUARTERMASTER_YAW, 0.1),
+        nearly_equal(quartermaster_rotation.roll, 0.0, 0.1),
+        nearly_equal(quartermaster_scale.x, 1.0, 0.001),
+        nearly_equal(quartermaster_scale.y, 1.0, 0.001),
+        nearly_equal(quartermaster_scale.z, 1.0, 0.001),
+    )):
+        fail("{} transform drifted: location={}, rotation={}, scale={}".format(
+            FENWATCH_QUARTERMASTER_LABEL,
+            quartermaster_location,
+            quartermaster_rotation,
+            quartermaster_scale,
+        ))
+    if quartermaster.get_resolved_visual_mode() != unreal.EmbermereNpcVisualMode.STATIC_MESH:
+        fail("Fenwatch quartermaster must currently resolve through the static visual lane")
+    if not quartermaster.is_presentation_collision_disabled():
+        fail("Fenwatch quartermaster visual lanes must remain non-colliding")
+    if quartermaster.get_component_by_class(unreal.EmbermereInteractableComponent):
+        fail("Fenwatch quartermaster presentation must not own interaction or vendor behavior")
+    if unreal.Name("EmbermereOriginalArt") not in list(quartermaster.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            FENWATCH_QUARTERMASTER_LABEL,
+        ))
+    quartermaster_route_clearance = distance_to_segment_2d(
+        (quartermaster_location.x, quartermaster_location.y),
+        SPAWN_AUTORUN_ROUTE_START,
+        SPAWN_AUTORUN_ROUTE_END,
+    )
+    if quartermaster_route_clearance < FENWATCH_QUARTERMASTER_ROUTE_CLEARANCE:
+        fail("{} is only {:.1f} cm from the spawn autorun corridor; expected at least {:.1f} cm".format(
+            FENWATCH_QUARTERMASTER_LABEL,
+            quartermaster_route_clearance,
+            FENWATCH_QUARTERMASTER_ROUTE_CLEARANCE,
+        ))
 
     signpost_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_SIGNPOST_PATH)
     if not signpost_mesh or not isinstance(signpost_mesh, unreal.StaticMesh):
@@ -1227,7 +1362,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's Fenwatch keeper and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's Fenwatch keeper, the presentation-only Fenwatch quartermaster, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

@@ -6,23 +6,26 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-02 no-hot-reload module plus the saved
-  Fenwatch keeper, Blueprint template, and map packages. The module retains the
+- Confirm Unreal is running the 2026-08-03 no-hot-reload module plus the saved
+  Fenwatch keeper, quartermaster, NPC wrapper, Blueprint template, and map
+  packages. The module retains the
   accepted bounds-aware cyan target circle, finite-world player recovery, and
   grounded bounds-aware harmful status auras. Restart if the editor predates
-  the keeper build or package save. The editor can start
+  the quartermaster build or package save. The editor can start
   MCP during launch with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS, pass the `.uproject` after
   `--args` when using `open`. Confirm Blender and its localhost bridge only
   when another original-art pass is selected.
-- Discover and run all 30 tests, especially
+- Discover and run all 32 tests, especially
+  `Embermere.NPC.PresentationContract`,
+  `Embermere.NPC.FenwatchQuartermasterPresentation`,
   `Embermere.NPC.FenwatchKeeperPresentation`,
   `Embermere.Enemy.MarshProwlerPresentation`,
   `Embermere.Player.OutOfBoundsRecovery`,
   `Embermere.Combat.StarterAbilityEffects`,
   `Embermere.UI.TimedStatusPresentation`,
   `Embermere.UI.WorldStatusVfxPresentation`, and the inventory transaction
-  suite. The authoritative fresh commandlet passed the complete 30-test suite,
+  suite. The authoritative fresh commandlet passed the complete 32-test suite,
   including construction through the real `BP_StarterEnemy` generated class,
   reconciliation to 48 non-colliding runtime target-circle segments, and
   damage-immunity-bypassing fall recovery. The no-hot-reload Mac build,
@@ -54,7 +57,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - all three saved map instances retain the skeletal mesh and animation set,
     not only the Blueprint CDO.
 - Recheck the completed grounding pass:
-  - 57 grounded upright `FabPass_` actors and 16 original-art placements;
+  - 57 grounded upright `FabPass_` actors and 17 original-art placements;
   - all ordinary art that previously sat at `Z=20` now rests at `Z=0`;
   - the unsupported SoulCave arch/pillar accents and three enemy marker meshes
     remain removed;
@@ -87,6 +90,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   gameplay authorities. The saved Blueprint SCS template and placed map actor
   must both retain the mesh, local `(0, 0, -140)` offset, yaw `100`, unit scale,
   and no-collision state.
+- Inspect `Embermere_FenwatchQuartermaster_Vendor_01` beside the accepted
+  supply chest. Its 3,632-triangle, `120.842 x 93.0 x 217.0` cm static mesh
+  uses six project-owned materials and should read as a stocky moss-capped
+  merchant with apron, ledger, pouches, and keys. Retain `(-1530, -1190, 0)`,
+  yaw `100`, unit scale, grounded feet, `NoCollision`, and clear Mara/chest/
+  PlayerStart sightlines. The native `AEmbermereNpcPresentationActor` owns only
+  interchangeable static/skeletal visuals and one shared transform; it must
+  remain free of interaction, vendor, trainer, quest, and dialogue authority.
 - Retain the accepted HUD, effects, inventory, and equipment baseline:
   fixed timed-status cells, four-class ability art and semantics, the
   `700x330` paper-doll inventory, Recruit Pack bag/Back transactions, Marsh
@@ -107,15 +118,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. verify the accepted keeper's scale, facing, marker clearance, and shelter
-     composition during the next normal PlayerStart playthrough; do not retune
-     it without a concrete gameplay-camera issue;
-  2. extend Fenwatch with one bounded matching vendor or trainer presentation,
-     keeping service/gameplay logic asset-agnostic and preserving the
-     PlayerStart route and Mara sightline;
-  3. plan a reusable NPC presentation contract before adding rigging or idle
-     animation, so static art can later swap to skeletal art without moving
-     quest/service ownership;
+  1. implement a bounded vendor service actor/component for the accepted
+     quartermaster, keeping stock, prices, currency, transactions, prompts, and
+     interaction outside `AEmbermereNpcPresentationActor`;
+  2. retain the accepted keeper/quartermaster scale, grounding, marker
+     clearance, chest composition, and PlayerStart route; do not retune either
+     without a concrete gameplay-camera issue;
+  3. prove the wrapper's intended skeletal/idle upgrade lane with a bounded
+     prototype, or add a matching trainer presentation that consumes the same
+     visual contract;
   4. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete need;
   5. consider authored Niagara, class-specific VFX, or audio only after the
@@ -123,9 +134,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-02
-  Fenwatch-keeper build and saved Blueprint/map packages. Current code passes
-  all 30 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-08-03
+  quartermaster/NPC-wrapper build and saved map packages. Current code passes
+  all 32 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -156,6 +167,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - inspect Mara's Fenwatch keeper for grounded feet, PlayerStart-facing pose,
     readable staff/satchel/moss-cowl silhouette, no collision, and an
     unobstructed gold quest marker and name.
+  - inspect the Fenwatch quartermaster beside the supply chest for grounded
+    feet, readable moss-cap/apron/ledger/pouch silhouette, no collision, no
+    interaction prompt, a clear route, and separation from Mara and her marker.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -180,6 +194,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.Inventory.StableSorting`
   - `Embermere.Input.AutorunCancellation`
   - `Embermere.NPC.FenwatchKeeperPresentation`
+  - `Embermere.NPC.FenwatchQuartermasterPresentation`
+  - `Embermere.NPC.PresentationContract`
   - `Embermere.Player.OutOfBoundsRecovery`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
@@ -1003,6 +1019,25 @@ effects, or audio.
   template. The authoritative no-hot-reload Mac build and all 30 tests passed;
   fresh-process saved-map and UI-art validators plus initialized-world route,
   shelter, boundary, and chest traces emitted their explicit success markers.
+- 2026-08-03: built `SM_EmbermereFenwatchQuartermaster_01`, a deterministic
+  3,632-triangle static merchant at `120.842 x 93.0 x 217.0` cm with six
+  project-owned materials, one UV channel, applied scale, a ground pivot, and
+  no collision. The accepted actor sits beside the supply chest at
+  `(-1530, -1190, 0)`, yaw `100`, without obscuring Mara or the route.
+- Added `AEmbermereNpcPresentationActor`, a reusable art-only wrapper with soft
+  static/skeletal references, optional animation class, one shared authored
+  transform, deterministic lane fallback, and permanent non-colliding visuals.
+  It intentionally owns no interaction, vendor, trainer, dialogue, or quest
+  behavior; the contract is recorded in `Docs/NPC_PRESENTATION_CONTRACT.md`.
+- Added `Embermere.NPC.PresentationContract` and
+  `Embermere.NPC.FenwatchQuartermasterPresentation`. The authoritative
+  no-hot-reload Mac build and all 32 tests passed. Fresh-process saved-map and
+  UI-art validators accepted 57 Fab actors plus 17 original placements, and
+  initialized-world route/shelter/boundary/chest traces emitted their success
+  marker without `LogPython: Error`.
+- Clean PIE accepted the grounded chest-side quartermaster, Mara's readable
+  shelter composition, and the open route. Separate transform-measured runs
+  proved Q movement plus exact W and S autorun cancellation on the final map.
 
 ## Asset Hunt
 

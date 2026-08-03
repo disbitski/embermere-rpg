@@ -675,6 +675,44 @@ cube's local offset, scale, facing, and collision overrides after the mesh swap.
 Replacing art therefore required reconciling and saving both the class template
 and the serialized instance before fresh-process validation could accept it.
 
+## Twelfth Asset: Fenwatch Quartermaster
+
+`SM_EmbermereFenwatchQuartermaster_01` establishes the first reusable
+standalone service-NPC presentation lane. The static figure uses a moss cap and
+shoulder wrap, timber clothing, pale apron, beard, ledger, pouches, keys, iron,
+and ember details to read as a stocky quartermaster beside the supply chest
+without owning vendor behavior.
+
+The reviewed build script is
+`Scripts/blender/build_embermere_fenwatch_quartermaster.py`; editable source,
+FBX, preview, and deterministic metrics live under
+`ArtSource/Blender/Characters/NPCs/FenwatchQuartermaster`. The classic-FBX
+import, material creation, wrapper placement, and package-saving lane is
+`Scripts/import_embermere_fenwatch_quartermaster_unreal.py`.
+
+Verified result:
+
+- dimensions: `120.842 x 93.0 x 217.0` cm with a ground pivot;
+- Blender and Unreal render mesh: 3,632 triangles, one UV channel, no
+  non-manifold edges, and applied scale;
+- materials: five existing stone, moss, timber, iron, and ember assets plus the
+  saved project-owned `M_FenwatchQuartermasterSkin` material;
+- collision: no simple collision and explicit `NoCollision`, no overlap, and
+  no navigation contribution on both wrapper visual lanes;
+- saved presentation: `Embermere_FenwatchQuartermaster_Vendor_01` at
+  `(-1530, -1190, 0)`, yaw `100`, unit scale, static-preferred mode, and the
+  `EmbermereOriginalArt` tag;
+- verification: fresh-process validation locks mesh metrics, materials,
+  provenance, wrapper class, transform, lane, tag, and absence of interaction;
+  native tests prove both static and skeletal resolution through one shared
+  transform; clean PIE accepted grounded chest-side composition, Mara
+  readability, and the open PlayerStart route.
+
+The companion contract is documented in
+`Docs/NPC_PRESENTATION_CONTRACT.md`. Vendor stock, prices, transactions,
+interaction, dialogue, and training remain future gameplay systems rather than
+properties of this art actor.
+
 ## Sources
 
 - Article/post: https://x.com/explosss1ve/status/2075654835597164769
