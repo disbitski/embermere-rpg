@@ -1767,6 +1767,46 @@ executable. A dual-lane visual wrapper, exact persistence tests, and a strict
 absence of service authority let today's static NPC become tomorrow's animated
 NPC without turning art into gameplay architecture.
 
+## 2026-08-04 - Fenwatch Opened For Trade
+
+The quartermaster began as a deliberate test of whether Embermere could swap
+NPC art without inheriting gameplay responsibilities. Today that boundary paid
+off: the accepted static merchant stayed untouched while a separate invisible
+service actor gained interaction and vendor behavior.
+
+- Added `UEmbermereVendorStockData`, a player wallet component, an art-free
+  vendor service actor, and a vendor component with finite or unlimited stock.
+- Defined `DA_FenwatchQuartermasterStock` with unlimited Marsh Tonic at 8
+  copper and one Recruit Pack at 30 copper. Players start this prototype slice
+  with 40 copper.
+- Made purchases transactional. The vendor validates the whole request,
+  affordability, stock, and bag capacity before mutation; unexpected item-add
+  failure refunds the exact charge; finite stock changes only after success.
+- Added a fixed native `Fenwatch Supplies` panel with resolved item art, purse,
+  stock counts, detail copy, Buy/close controls, two-line result space, and
+  bottom-left chat feedback. The first live screenshot rejected a technically
+  working version because its wrapped purchase text crossed the footer; the
+  accepted layout reserves fixed status space and keeps every line inside.
+- Kept the architecture executable: the presentation actor has no vendor or
+  interaction component, while the service actor has no static/skeletal mesh,
+  collision, or navigation effect. The saved map co-locates them without
+  making either responsible for the other.
+- Added deterministic configuration and fresh-process validation for the stock
+  asset and saved service actor, including exact rows, prices, quantities,
+  transform, tags, references, and absence of art/service leakage.
+- Added four automation tests for transaction rollback, service ownership,
+  saved stock, and panel behavior. The no-hot-reload Mac build and all 36 tests
+  passed alongside saved-map, UI-art, vendor, and initialized-world route
+  validators.
+- Clean PIE exercised the actual `F` path. A tonic changed 40 to 32 copper and
+  entered the bag; the one Recruit Pack changed 32 to 2 and sold out; selecting
+  tonic then showed an insufficient-funds disabled state. Chat, inventory,
+  fixed panel copy, and close/input restoration all held.
+
+The transferable lesson is the same one that shaped Embermere's asset lane:
+separate ownership makes iteration cheap. Art can become skeletal, stock can
+change, and the UI can be reskinned without rewriting the transaction core.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

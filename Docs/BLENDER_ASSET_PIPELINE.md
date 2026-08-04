@@ -709,9 +709,12 @@ Verified result:
   readability, and the open PlayerStart route.
 
 The companion contract is documented in
-`Docs/NPC_PRESENTATION_CONTRACT.md`. Vendor stock, prices, transactions,
-interaction, dialogue, and training remain future gameplay systems rather than
-properties of this art actor.
+`Docs/NPC_PRESENTATION_CONTRACT.md`. The later
+`Embermere_FenwatchQuartermaster_Service_01` and
+`DA_FenwatchQuartermasterStock` add interaction, stock, prices, and
+transactions as a separate art-free gameplay lane documented in
+`Docs/VENDOR_SERVICE_CONTRACT.md`; none of those responsibilities became
+properties of this Blender asset or its presentation actor.
 
 ## Sources
 

@@ -6,11 +6,16 @@
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
+#include "Components/EmbermereVendorComponent.h"
+#include "Components/EmbermereWalletComponent.h"
 #include "Data/EmbermereItemData.h"
+#include "Data/EmbermereVendorStockData.h"
 #include "Data/EmbermereUiIconSet.h"
+#include "Game/EmbermerePlayerController.h"
 #include "UI/EmbermereEquipmentSlotButton.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermereInventoryRowButton.h"
+#include "UI/EmbermereVendorStockButton.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
@@ -36,6 +41,7 @@ namespace
 {
 	constexpr int32 ChatMessageLimit = 6;
 	constexpr int32 InventoryVisibleRowCount = 8;
+	constexpr int32 VendorVisibleRowCount = 4;
 	constexpr float InventoryRowIconSize = 18.0f;
 	constexpr float InventoryDetailIconSize = 42.0f;
 	constexpr float EquipmentSlotIconSize = 18.0f;
@@ -306,6 +312,7 @@ void UEmbermerePlayerHudWidget::BindToCharacter(AEmbermereCharacter* Character)
 	QuestLog = Character ? Character->QuestLog : nullptr;
 	Inventory = Character ? Character->Inventory : nullptr;
 	Equipment = Character ? Character->Equipment : nullptr;
+	Wallet = Character ? Character->Wallet : nullptr;
 	BindComponentEvents();
 	RefreshHudText();
 }
@@ -525,6 +532,14 @@ void UEmbermerePlayerHudWidget::NativeOnDragCancelled(
 
 bool UEmbermerePlayerHudWidget::ToggleInventoryPanel()
 {
+	if (bVendorPanelVisible)
+	{
+		CloseVendor();
+		bInventoryPanelVisible = true;
+		UpdateInventoryPanelVisibility();
+		return true;
+	}
+
 	bInventoryPanelVisible = !bInventoryPanelVisible;
 	UpdateInventoryPanelVisibility();
 	return bInventoryPanelVisible;
@@ -533,6 +548,124 @@ bool UEmbermerePlayerHudWidget::ToggleInventoryPanel()
 bool UEmbermerePlayerHudWidget::IsInventoryPanelVisible() const
 {
 	return bInventoryPanelVisible;
+}
+
+bool UEmbermerePlayerHudWidget::ShowVendor(UEmbermereVendorComponent* Vendor)
+{
+	if (!Vendor || !Vendor->StockData)
+	{
+		return false;
+	}
+
+	ActiveVendor = Vendor;
+	bVendorPanelVisible = true;
+	bInventoryPanelVisible = false;
+	SelectedVendorStockIndex = 0;
+	if (VendorStatusText)
+	{
+		VendorStatusText->SetText(FText::GetEmpty());
+	}
+	UpdateInventoryPanelVisibility();
+	UpdateVendorPanelVisibility();
+	RefreshVendorWindow();
+	return true;
+}
+
+void UEmbermerePlayerHudWidget::CloseVendor()
+{
+	bVendorPanelVisible = false;
+	ActiveVendor = nullptr;
+	SelectedVendorStockIndex = 0;
+	UpdateVendorPanelVisibility();
+}
+
+bool UEmbermerePlayerHudWidget::IsVendorPanelVisible() const
+{
+	return bVendorPanelVisible;
+}
+
+bool UEmbermerePlayerHudWidget::SelectVendorStockItem(int32 StockIndex)
+{
+	if (!ActiveVendor || StockIndex < 0 || StockIndex >= ActiveVendor->GetStockEntryCount())
+	{
+		return false;
+	}
+
+	SelectedVendorStockIndex = StockIndex;
+	if (VendorStatusText)
+	{
+		VendorStatusText->SetText(FText::GetEmpty());
+	}
+	RefreshVendorWindow();
+	return true;
+}
+
+bool UEmbermerePlayerHudWidget::PurchaseSelectedVendorItem()
+{
+	if (!ActiveVendor || !Inventory || !Wallet)
+	{
+		return false;
+	}
+
+	const EEmbermereVendorPurchaseResult Result = ActiveVendor->TryPurchase(
+		SelectedVendorStockIndex,
+		1,
+		Inventory,
+		Wallet);
+	const FText ResultText = ActiveVendor->GetPurchaseResultText(Result, SelectedVendorStockIndex, 1);
+	const bool bSucceeded = Result == EEmbermereVendorPurchaseResult::Success;
+	AddChatMessage(
+		ResultText,
+		bSucceeded
+			? FLinearColor(0.52f, 0.95f, 0.58f, 1.0f)
+			: FLinearColor(1.0f, 0.38f, 0.24f, 1.0f));
+	if (VendorStatusText)
+	{
+		VendorStatusText->SetText(ResultText);
+		VendorStatusText->SetColorAndOpacity(FSlateColor(
+			bSucceeded
+				? FLinearColor(0.62f, 1.0f, 0.68f, 1.0f)
+				: FLinearColor(1.0f, 0.48f, 0.34f, 1.0f)));
+	}
+	RefreshVendorWindow();
+	RefreshInventoryWindow();
+	return bSucceeded;
+}
+
+int32 UEmbermerePlayerHudWidget::GetSelectedVendorStockIndex() const
+{
+	return SelectedVendorStockIndex;
+}
+
+FText UEmbermerePlayerHudWidget::GetVendorDisplayText() const
+{
+	if (!ActiveVendor || !ActiveVendor->StockData)
+	{
+		return FText::FromString(TEXT("Vendor unavailable"));
+	}
+
+	TArray<FString> Lines;
+	Lines.Add(ActiveVendor->StockData->VendorName.IsEmpty()
+		? TEXT("Vendor")
+		: ActiveVendor->StockData->VendorName.ToString());
+	Lines.Add(FString::Printf(TEXT("Copper: %d"), Wallet ? Wallet->Copper : 0));
+	for (int32 StockIndex = 0; StockIndex < ActiveVendor->GetStockEntryCount(); ++StockIndex)
+	{
+		FEmbermereVendorStockEntry Entry;
+		if (!ActiveVendor->GetStockEntry(StockIndex, Entry) || !Entry.Item)
+		{
+			continue;
+		}
+
+		const int32 Remaining = ActiveVendor->GetRemainingQuantity(StockIndex);
+		Lines.Add(FString::Printf(
+			TEXT("%s%s - %d copper%s"),
+			StockIndex == SelectedVendorStockIndex ? TEXT("> ") : TEXT("  "),
+			*Entry.Item->DisplayName.ToString(),
+			Entry.UnitPriceCopper,
+			Remaining >= 0 ? *FString::Printf(TEXT(" (%d left)"), Remaining) : TEXT("")));
+	}
+	return FText::FromString(FString::Join(Lines, TEXT("\n")));
 }
 
 bool UEmbermerePlayerHudWidget::SelectNextInventoryItem(int32 Direction)
@@ -1535,6 +1668,239 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	UpdateInventoryPanelVisibility();
 	RefreshInventoryWindow();
 
+	VendorPanel = MakePanel(WidgetTree, TEXT("VendorPanel"), FLinearColor(0.025f, 0.027f, 0.022f, 0.96f));
+	UVerticalBox* VendorStack = MakePanelStack(WidgetTree, VendorPanel, TEXT("VendorStack"));
+	UHorizontalBox* VendorHeader = WidgetTree->ConstructWidget<UHorizontalBox>(
+		UHorizontalBox::StaticClass(),
+		TEXT("VendorHeader"));
+	VendorTitleText = MakeHudText(
+		WidgetTree,
+		TEXT("VendorTitleText"),
+		FLinearColor(1.0f, 0.82f, 0.38f, 1.0f),
+		18.0f);
+	VendorWalletText = MakeHudText(
+		WidgetTree,
+		TEXT("VendorWalletText"),
+		FLinearColor(0.78f, 0.82f, 0.68f, 1.0f),
+		12.0f);
+	VendorCloseButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("VendorCloseButton"));
+	VendorCloseText = MakeHudText(
+		WidgetTree,
+		TEXT("VendorCloseText"),
+		FLinearColor(0.95f, 0.88f, 0.7f, 1.0f),
+		14.0f);
+	if (VendorHeader && VendorTitleText && VendorWalletText && VendorCloseButton && VendorCloseText)
+	{
+		VendorTitleText->SetText(FText::FromString(TEXT("Fenwatch Supplies")));
+		VendorWalletText->SetText(FText::FromString(TEXT("Purse: 0 copper")));
+		VendorWalletText->SetJustification(ETextJustify::Right);
+		VendorCloseText->SetText(FText::FromString(TEXT("X")));
+		VendorCloseText->SetJustification(ETextJustify::Center);
+		VendorCloseButton->SetBackgroundColor(FLinearColor(0.16f, 0.07f, 0.04f, 0.9f));
+		VendorCloseButton->SetToolTipText(FText::FromString(TEXT("Close vendor")));
+		VendorCloseButton->OnClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleVendorCloseClicked);
+		VendorCloseButton->AddChild(VendorCloseText);
+
+		if (UHorizontalBoxSlot* TitleSlot = VendorHeader->AddChildToHorizontalBox(VendorTitleText))
+		{
+			TitleSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+			TitleSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		if (UHorizontalBoxSlot* WalletSlot = VendorHeader->AddChildToHorizontalBox(VendorWalletText))
+		{
+			WalletSlot->SetPadding(FMargin(8.0f, 0.0f));
+			WalletSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		if (UHorizontalBoxSlot* CloseSlot = VendorHeader->AddChildToHorizontalBox(
+			MakeSizedWidget(WidgetTree, VendorCloseButton, TEXT("VendorCloseSize"), 28.0f, 24.0f)))
+		{
+			CloseSlot->SetVerticalAlignment(VAlign_Center);
+		}
+	}
+	AddStackChild(VendorStack, VendorHeader, 10.0f);
+
+	UHorizontalBox* VendorBody = WidgetTree->ConstructWidget<UHorizontalBox>(
+		UHorizontalBox::StaticClass(),
+		TEXT("VendorBody"));
+	UVerticalBox* VendorListStack = WidgetTree->ConstructWidget<UVerticalBox>(
+		UVerticalBox::StaticClass(),
+		TEXT("VendorListStack"));
+	UVerticalBox* VendorDetailStack = WidgetTree->ConstructWidget<UVerticalBox>(
+		UVerticalBox::StaticClass(),
+		TEXT("VendorDetailStack"));
+	VendorRowButtons.Reset();
+	VendorRowIcons.Reset();
+	VendorRowTexts.Reset();
+	for (int32 RowIndex = 0; RowIndex < VendorVisibleRowCount; ++RowIndex)
+	{
+		UEmbermereVendorStockButton* RowButton = WidgetTree->ConstructWidget<UEmbermereVendorStockButton>(
+			UEmbermereVendorStockButton::StaticClass(),
+			*FString::Printf(TEXT("VendorRowButton_%d"), RowIndex));
+		UHorizontalBox* RowContent = WidgetTree->ConstructWidget<UHorizontalBox>(
+			UHorizontalBox::StaticClass(),
+			*FString::Printf(TEXT("VendorRowContent_%d"), RowIndex));
+		UImage* RowIcon = WidgetTree->ConstructWidget<UImage>(
+			UImage::StaticClass(),
+			*FString::Printf(TEXT("VendorRowIcon_%d"), RowIndex));
+		UTextBlock* RowText = MakeHudText(
+			WidgetTree,
+			*FString::Printf(TEXT("VendorRowText_%d"), RowIndex),
+			FLinearColor(0.92f, 0.88f, 0.7f, 1.0f),
+			11.0f);
+		if (!RowButton || !RowContent || !RowIcon || !RowText)
+		{
+			continue;
+		}
+
+		RowButton->SetStockIndex(RowIndex);
+		RowButton->OnVendorStockClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleVendorStockClicked);
+		RowButton->SetBackgroundColor(FLinearColor(0.075f, 0.08f, 0.065f, 0.88f));
+		RowText->SetAutoWrapText(false);
+		RowText->SetClipping(EWidgetClipping::ClipToBounds);
+		RowText->SetLineHeightPercentage(0.82f);
+		RowIcon->SetVisibility(ESlateVisibility::Collapsed);
+		if (UHorizontalBoxSlot* IconSlot = RowContent->AddChildToHorizontalBox(MakeSizedWidget(
+			WidgetTree,
+			RowIcon,
+			*FString::Printf(TEXT("VendorRowIconSize_%d"), RowIndex),
+			28.0f,
+			28.0f)))
+		{
+			IconSlot->SetPadding(FMargin(5.0f, 2.0f, 7.0f, 2.0f));
+			IconSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		if (UHorizontalBoxSlot* TextSlot = RowContent->AddChildToHorizontalBox(RowText))
+		{
+			TextSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+			TextSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		RowButton->AddChild(RowContent);
+		VendorRowButtons.Add(RowButton);
+		VendorRowIcons.Add(RowIcon);
+		VendorRowTexts.Add(RowText);
+		AddStackChild(
+			VendorListStack,
+			MakeSizedWidget(
+				WidgetTree,
+				RowButton,
+				*FString::Printf(TEXT("VendorRowSize_%d"), RowIndex),
+				215.0f,
+				44.0f),
+			4.0f);
+	}
+
+	VendorDetailIcon = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), TEXT("VendorDetailIcon"));
+	VendorDetailNameText = MakeHudText(
+		WidgetTree,
+		TEXT("VendorDetailNameText"),
+		FLinearColor(1.0f, 0.84f, 0.44f, 1.0f),
+		16.0f);
+	VendorDetailMetaText = MakeHudText(
+		WidgetTree,
+		TEXT("VendorDetailMetaText"),
+		FLinearColor(0.7f, 0.82f, 0.72f, 1.0f),
+		11.0f);
+	VendorDetailDescriptionText = MakeHudText(
+		WidgetTree,
+		TEXT("VendorDetailDescriptionText"),
+		FLinearColor(0.84f, 0.83f, 0.76f, 1.0f),
+		12.0f);
+	VendorBuyButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("VendorBuyButton"));
+	VendorBuyText = MakeHudText(
+		WidgetTree,
+		TEXT("VendorBuyText"),
+		FLinearColor(0.98f, 0.88f, 0.58f, 1.0f),
+		13.0f);
+	VendorStatusText = MakeHudText(
+		WidgetTree,
+		TEXT("VendorStatusText"),
+		FLinearColor(0.72f, 0.76f, 0.68f, 1.0f),
+		10.0f);
+	UHorizontalBox* VendorDetailHeader = WidgetTree->ConstructWidget<UHorizontalBox>(
+		UHorizontalBox::StaticClass(),
+		TEXT("VendorDetailHeader"));
+	if (VendorDetailHeader && VendorDetailIcon && VendorDetailNameText)
+	{
+		VendorDetailIcon->SetVisibility(ESlateVisibility::Collapsed);
+		if (UHorizontalBoxSlot* IconSlot = VendorDetailHeader->AddChildToHorizontalBox(MakeSizedWidget(
+			WidgetTree,
+			VendorDetailIcon,
+			TEXT("VendorDetailIconSize"),
+			42.0f,
+			42.0f)))
+		{
+			IconSlot->SetPadding(FMargin(0.0f, 0.0f, 8.0f, 0.0f));
+			IconSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		if (UHorizontalBoxSlot* NameSlot = VendorDetailHeader->AddChildToHorizontalBox(VendorDetailNameText))
+		{
+			NameSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+			NameSlot->SetVerticalAlignment(VAlign_Center);
+		}
+	}
+	if (VendorDetailDescriptionText)
+	{
+		VendorDetailDescriptionText->SetAutoWrapText(true);
+	}
+	if (VendorStatusText)
+	{
+		VendorStatusText->SetAutoWrapText(true);
+		VendorStatusText->SetClipping(EWidgetClipping::ClipToBounds);
+	}
+	AddStackChild(VendorDetailStack, VendorDetailHeader, 7.0f);
+	AddStackChild(VendorDetailStack, VendorDetailMetaText, 9.0f);
+	AddStackChild(VendorDetailStack, VendorDetailDescriptionText, 10.0f);
+	if (VendorBuyButton && VendorBuyText)
+	{
+		VendorBuyButton->SetBackgroundColor(FLinearColor(0.28f, 0.19f, 0.055f, 0.94f));
+		VendorBuyButton->OnClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleVendorBuyClicked);
+		VendorBuyText->SetJustification(ETextJustify::Center);
+		VendorBuyButton->AddChild(VendorBuyText);
+		AddStackChild(
+			VendorDetailStack,
+			MakeSizedWidget(WidgetTree, VendorBuyButton, TEXT("VendorBuySize"), 185.0f, 30.0f),
+			8.0f);
+	}
+	AddStackChild(
+		VendorDetailStack,
+		MakeSizedWidget(WidgetTree, VendorStatusText, TEXT("VendorStatusSize"), 235.0f, 38.0f),
+		0.0f);
+	if (VendorBody)
+	{
+		if (UHorizontalBoxSlot* ListSlot = VendorBody->AddChildToHorizontalBox(MakeSizedWidget(
+			WidgetTree,
+			VendorListStack,
+			TEXT("VendorListSize"),
+			215.0f,
+			225.0f)))
+		{
+			ListSlot->SetPadding(FMargin(0.0f, 0.0f, 16.0f, 0.0f));
+		}
+		VendorBody->AddChildToHorizontalBox(MakeSizedWidget(
+			WidgetTree,
+			VendorDetailStack,
+			TEXT("VendorDetailSize"),
+			235.0f,
+			225.0f));
+	}
+	AddStackChild(VendorStack, VendorBody, 8.0f);
+	UTextBlock* VendorFooterText = MakeHudText(
+		WidgetTree,
+		TEXT("VendorFooterText"),
+		FLinearColor(0.64f, 0.68f, 0.6f, 1.0f),
+		10.0f);
+	if (VendorFooterText)
+	{
+		VendorFooterText->SetText(FText::FromString(TEXT("Select stock   |   Buy one   |   X Close")));
+		VendorFooterText->SetJustification(ETextJustify::Center);
+	}
+	AddStackChild(VendorStack, VendorFooterText, 0.0f);
+	if (VendorPanel)
+	{
+		VendorPanel->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+	}
+	UpdateVendorPanelVisibility();
+
 	ChatPanel = MakePanel(WidgetTree, TEXT("ChatPanel"), FLinearColor(0.015f, 0.018f, 0.022f, 0.76f));
 	ChatMessageStack = MakePanelStack(WidgetTree, ChatPanel, TEXT("ChatMessageStack"));
 	if (ChatPanel)
@@ -1680,6 +2046,17 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			InventorySlot->SetAlignment(FVector2D(1.0f, 0.0f));
 			InventorySlot->SetPosition(FVector2D(-24.0f, 24.0f));
 			InventorySlot->SetSize(FVector2D(700.0f, 330.0f));
+		}
+	}
+
+	if (VendorPanel)
+	{
+		if (UCanvasPanelSlot* VendorSlot = RootCanvas->AddChildToCanvas(VendorPanel))
+		{
+			VendorSlot->SetAnchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f));
+			VendorSlot->SetAlignment(FVector2D(0.5f, 0.5f));
+			VendorSlot->SetPosition(FVector2D(180.0f, -20.0f));
+			VendorSlot->SetSize(FVector2D(500.0f, 325.0f));
 		}
 	}
 
@@ -1925,6 +2302,7 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 
 	ClampSelectedInventoryStackIndex();
 	RefreshInventoryWindow();
+	RefreshVendorWindow();
 
 	for (int32 SlotIndex = 0; SlotIndex < HotbarSlotTexts.Num(); ++SlotIndex)
 	{
@@ -1969,6 +2347,135 @@ void UEmbermerePlayerHudWidget::UpdateInventoryPanelVisibility()
 	if (InventoryPanel)
 	{
 		InventoryPanel->SetVisibility(bInventoryPanelVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
+}
+
+void UEmbermerePlayerHudWidget::UpdateVendorPanelVisibility()
+{
+	if (VendorPanel)
+	{
+		VendorPanel->SetVisibility(bVendorPanelVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
+}
+
+void UEmbermerePlayerHudWidget::RefreshVendorWindow()
+{
+	if (!ActiveVendor || !ActiveVendor->StockData)
+	{
+		if (VendorBuyButton)
+		{
+			VendorBuyButton->SetIsEnabled(false);
+		}
+		return;
+	}
+
+	const int32 StockCount = ActiveVendor->GetStockEntryCount();
+	SelectedVendorStockIndex = StockCount > 0
+		? FMath::Clamp(SelectedVendorStockIndex, 0, StockCount - 1)
+		: 0;
+	if (VendorTitleText)
+	{
+		VendorTitleText->SetText(
+			ActiveVendor->StockData->VendorName.IsEmpty()
+				? FText::FromString(TEXT("Fenwatch Supplies"))
+				: ActiveVendor->StockData->VendorName);
+	}
+	if (VendorWalletText)
+	{
+		VendorWalletText->SetText(FText::FromString(FString::Printf(
+			TEXT("Purse: %d copper"),
+			Wallet ? Wallet->Copper : 0)));
+	}
+
+	for (int32 RowIndex = 0; RowIndex < VendorRowButtons.Num(); ++RowIndex)
+	{
+		UEmbermereVendorStockButton* RowButton = VendorRowButtons[RowIndex];
+		UImage* RowIcon = VendorRowIcons.IsValidIndex(RowIndex) ? VendorRowIcons[RowIndex] : nullptr;
+		UTextBlock* RowText = VendorRowTexts.IsValidIndex(RowIndex) ? VendorRowTexts[RowIndex] : nullptr;
+		FEmbermereVendorStockEntry Entry;
+		if (!RowButton || !RowText || !ActiveVendor->GetStockEntry(RowIndex, Entry) || !Entry.Item)
+		{
+			if (RowButton)
+			{
+				RowButton->SetVisibility(ESlateVisibility::Collapsed);
+			}
+			SetIconImage(RowIcon, nullptr);
+			continue;
+		}
+
+		const int32 Remaining = ActiveVendor->GetRemainingQuantity(RowIndex);
+		const bool bOutOfStock = Remaining == 0;
+		RowButton->SetVisibility(ESlateVisibility::Visible);
+		RowButton->SetIsEnabled(!bOutOfStock);
+		RowButton->SetBackgroundColor(
+			RowIndex == SelectedVendorStockIndex
+				? FLinearColor(0.32f, 0.22f, 0.065f, 0.96f)
+				: FLinearColor(0.075f, 0.08f, 0.065f, 0.88f));
+		RowButton->SetToolTipText(FText::FromString(FString::Printf(
+			TEXT("%s\n%s\n%d copper"),
+			*Entry.Item->DisplayName.ToString(),
+			*Entry.Item->Description.ToString(),
+			Entry.UnitPriceCopper)));
+		RowText->SetText(FText::FromString(FString::Printf(
+			TEXT("%s\n%d copper%s"),
+			*Entry.Item->DisplayName.ToString(),
+			Entry.UnitPriceCopper,
+			Remaining >= 0 ? *FString::Printf(TEXT("  |  %d left"), Remaining) : TEXT(""))));
+		RowText->SetColorAndOpacity(FSlateColor(
+			bOutOfStock
+				? FLinearColor(0.48f, 0.48f, 0.44f, 1.0f)
+				: FLinearColor(0.92f, 0.88f, 0.7f, 1.0f)));
+		SetIconImage(RowIcon, ResolveItemIconForUi(Entry.Item));
+	}
+
+	FEmbermereVendorStockEntry SelectedEntry;
+	const bool bHasSelection = ActiveVendor->GetStockEntry(SelectedVendorStockIndex, SelectedEntry) &&
+		SelectedEntry.Item;
+	if (VendorDetailNameText)
+	{
+		VendorDetailNameText->SetText(bHasSelection
+			? SelectedEntry.Item->DisplayName
+			: FText::FromString(TEXT("No stock available")));
+	}
+	SetIconImage(VendorDetailIcon, bHasSelection ? ResolveItemIconForUi(SelectedEntry.Item) : nullptr);
+	if (VendorDetailMetaText)
+	{
+		const int32 Remaining = bHasSelection ? ActiveVendor->GetRemainingQuantity(SelectedVendorStockIndex) : 0;
+		VendorDetailMetaText->SetText(bHasSelection
+			? FText::FromString(FString::Printf(
+				TEXT("%s  |  %d copper  |  %s"),
+				*SelectedEntry.Item->GetCategoryDisplayName().ToString(),
+				SelectedEntry.UnitPriceCopper,
+				Remaining < 0 ? TEXT("In stock") : *FString::Printf(TEXT("%d remaining"), Remaining)))
+			: FText::GetEmpty());
+	}
+	if (VendorDetailDescriptionText)
+	{
+		VendorDetailDescriptionText->SetText(bHasSelection
+			? SelectedEntry.Item->Description
+			: FText::GetEmpty());
+	}
+
+	const EEmbermereVendorPurchaseResult PurchaseState = bHasSelection
+		? ActiveVendor->CanPurchase(SelectedVendorStockIndex, 1, Inventory, Wallet)
+		: EEmbermereVendorPurchaseResult::InvalidRequest;
+	if (VendorBuyButton)
+	{
+		VendorBuyButton->SetIsEnabled(PurchaseState == EEmbermereVendorPurchaseResult::Success);
+	}
+	if (VendorBuyText)
+	{
+		VendorBuyText->SetText(bHasSelection
+			? FText::FromString(FString::Printf(TEXT("Buy  |  %d copper"), SelectedEntry.UnitPriceCopper))
+			: FText::FromString(TEXT("Buy")));
+	}
+	if (VendorStatusText && VendorStatusText->GetText().IsEmpty())
+	{
+		VendorStatusText->SetText(
+			PurchaseState == EEmbermereVendorPurchaseResult::Success
+				? FText::FromString(TEXT("Select an item and buy one at a time."))
+				: ActiveVendor->GetPurchaseResultText(PurchaseState, SelectedVendorStockIndex, 1));
+		VendorStatusText->SetColorAndOpacity(FSlateColor(FLinearColor(0.72f, 0.76f, 0.68f, 1.0f)));
 	}
 }
 
@@ -2228,6 +2735,25 @@ void UEmbermerePlayerHudWidget::HandleInventoryActionClicked()
 void UEmbermerePlayerHudWidget::HandleInventorySortClicked()
 {
 	SortInventory();
+}
+
+void UEmbermerePlayerHudWidget::HandleVendorStockClicked(int32 StockIndex)
+{
+	SelectVendorStockItem(StockIndex);
+}
+
+void UEmbermerePlayerHudWidget::HandleVendorBuyClicked()
+{
+	PurchaseSelectedVendorItem();
+}
+
+void UEmbermerePlayerHudWidget::HandleVendorCloseClicked()
+{
+	CloseVendor();
+	if (AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer()))
+	{
+		Controller->RefreshInteractiveInputMode();
+	}
 }
 
 void UEmbermerePlayerHudWidget::HandleEquipmentSlotClicked(EEmbermereEquipmentSlot EquipmentSlot)

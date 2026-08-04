@@ -19,6 +19,9 @@ class UEmbermereUiIconSet;
 class UEmbermereInventoryRowButton;
 class UEmbermereInventoryComponent;
 class UEmbermereQuestLogComponent;
+class UEmbermereVendorComponent;
+class UEmbermereVendorStockButton;
+class UEmbermereWalletComponent;
 class UBorder;
 class UButton;
 class UHorizontalBox;
@@ -57,6 +60,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Embermere|HUD")
 	TObjectPtr<UEmbermereEquipmentComponent> Equipment;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Embermere|HUD")
+	TObjectPtr<UEmbermereWalletComponent> Wallet;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Embermere|HUD")
+	TObjectPtr<UEmbermereVendorComponent> ActiveVendor;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Embermere|HUD|Icons")
 	TSoftObjectPtr<UEmbermereUiIconSet> UiIconSet;
 
@@ -86,6 +95,27 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	bool IsInventoryPanelVisible() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
+	bool ShowVendor(UEmbermereVendorComponent* Vendor);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
+	void CloseVendor();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Vendor")
+	bool IsVendorPanelVisible() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
+	bool SelectVendorStockItem(int32 StockIndex);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
+	bool PurchaseSelectedVendorItem();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Vendor")
+	int32 GetSelectedVendorStockIndex() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Vendor")
+	FText GetVendorDisplayText() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool SelectNextInventoryItem(int32 Direction);
@@ -326,6 +356,51 @@ private:
 	TObjectPtr<UTextBlock> InventoryFooterText;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UBorder> VendorPanel;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> VendorTitleText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> VendorWalletText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> VendorCloseButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> VendorCloseText;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UEmbermereVendorStockButton>> VendorRowButtons;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UImage>> VendorRowIcons;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UTextBlock>> VendorRowTexts;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UImage> VendorDetailIcon;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> VendorDetailNameText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> VendorDetailMetaText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> VendorDetailDescriptionText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> VendorBuyButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> VendorBuyText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> VendorStatusText;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UBorder> ChatPanel;
 
 	UPROPERTY(Transient)
@@ -364,7 +439,9 @@ private:
 	float DialogueHideTimeSeconds = 0.0f;
 	float LootHideTimeSeconds = 0.0f;
 	bool bInventoryPanelVisible = true;
+	bool bVendorPanelVisible = false;
 	int32 SelectedInventoryStackIndex = 0;
+	int32 SelectedVendorStockIndex = 0;
 	int32 FirstDisplayedInventoryStackIndex = 0;
 	TArray<TPair<FText, FLinearColor>> ChatMessages;
 	TObjectPtr<UEmbermereItemData> PendingDragItem;
@@ -387,6 +464,8 @@ private:
 	void BindComponentEvents();
 	void UpdateInventoryPanelVisibility();
 	void RefreshInventoryWindow();
+	void UpdateVendorPanelVisibility();
+	void RefreshVendorWindow();
 	void RefreshChatMessages();
 	void ShowLootPopupWithIcon(const FText& LootText, UTexture2D* Icon);
 	void ClampSelectedInventoryStackIndex();
@@ -411,6 +490,15 @@ private:
 
 	UFUNCTION()
 	void HandleInventorySortClicked();
+
+	UFUNCTION()
+	void HandleVendorStockClicked(int32 StockIndex);
+
+	UFUNCTION()
+	void HandleVendorBuyClicked();
+
+	UFUNCTION()
+	void HandleVendorCloseClicked();
 
 	UFUNCTION()
 	void HandleEquipmentSlotClicked(EEmbermereEquipmentSlot EquipmentSlot);

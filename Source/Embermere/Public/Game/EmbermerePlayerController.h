@@ -42,6 +42,7 @@ public:
 	void NotifyManualMoveForwardInput(float Value);
 	void AddHudMessage(const FText& Message, FLinearColor MessageColor) const;
 	bool TriggerOutOfBoundsRecoveryIfNeeded(AEmbermereCharacter* Character);
+	void RefreshInteractiveInputMode();
 
 	virtual void PlayerTick(float DeltaTime) override;
 

@@ -18,6 +18,7 @@ class UEmbermereQuestLogComponent;
 class UEmbermereRulesData;
 class UEmbermereStatsComponent;
 class UEmbermereTargetingComponent;
+class UEmbermereWalletComponent;
 
 UCLASS()
 class EMBERMERE_API AEmbermereCharacter : public ACharacter, public IEmbermereTargetable
@@ -53,6 +54,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UEmbermereQuestLogComponent> QuestLog;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UEmbermereWalletComponent> Wallet;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Identity")
 	EEmbermereRace Race = EEmbermereRace::Human;

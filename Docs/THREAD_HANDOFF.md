@@ -62,9 +62,12 @@ The project currently includes:
   Mac-friendly daylight baseline;
 - a reusable art-only NPC wrapper with static and skeletal lanes, shared
   transforms, soft references, and no interaction or service ownership;
+- a separate Fenwatch vendor vertical slice with an art-free interactable
+  service actor, data-driven stock/prices, player copper, atomic buy/rollback,
+  fixed native stock UI, and saved ownership validation;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
-- 32 passing Unreal automation tests plus fresh-process UI-art/package and
+- 36 passing Unreal automation tests plus fresh-process vendor, UI-art/package and
   saved-map validators and initialized-live-world road-boundary traces.
 
 This is still prototype art. The first black-sky problem is corrected, but the
@@ -247,6 +250,9 @@ Components:
 - `EmbermereEquipmentComponent`: slot eligibility, equip/replace/unequip state.
 - `EmbermereQuestLogComponent`: quest state and completion.
 - `EmbermereInteractableComponent`: interaction range/behavior.
+- `EmbermereWalletComponent`: player-owned copper.
+- `EmbermereVendorComponent`: stock state, purchase preflight, commit, and
+  rollback-safe transaction rules.
 
 Data and types:
 
@@ -255,6 +261,8 @@ Data and types:
 - `Data/EmbermereUiIconSet.*`: item-category, equipment-slot, and missing-art
   icon resolution through soft texture references.
 - `Data/EmbermereQuestData.h`: quest definition.
+- `Data/EmbermereVendorStockData.h`: vendor name, item soft references,
+  prices, and finite/unlimited initial quantities.
 - `Types/EmbermereTypes.h`: shared gameplay enums/structs.
 - `Types/EmbermereItemTypes.h`: item categories, equipment slots, and stat bonuses.
 - `Interfaces/EmbermereTargetable.h`: targetable contract.
@@ -265,6 +273,14 @@ UI:
 - `UI/EmbermereEnemyNameplateWidget.*`: selected enemy nameplate.
 - `UI/EmbermereCharacterCreationWidget.*`: race/class creation scaffold.
 - `UI/EmbermereGameplayMessageLibrary.*`: routes gameplay feedback into HUD.
+- `UI/EmbermereVendorStockButton.*`: indexed native stock-row interaction.
+
+Vendor service:
+
+- `Characters/EmbermereVendorServiceActor.*`: art-free interaction and vendor
+  owner saved beside the independent quartermaster presentation.
+- `Docs/VENDOR_SERVICE_CONTRACT.md`: ownership, transaction, validation, and
+  current prototype limits.
 
 Automation lives in:
 
@@ -589,11 +605,15 @@ Current automation tests:
 30. `Embermere.NPC.FenwatchKeeperPresentation`
 31. `Embermere.NPC.PresentationContract`
 32. `Embermere.NPC.FenwatchQuartermasterPresentation`
+33. `Embermere.Vendor.TransactionRules`
+34. `Embermere.Vendor.ServiceContract`
+35. `Embermere.Vendor.FenwatchStockData`
+36. `Embermere.UI.VendorPanel`
 
-Latest verified baseline (2026-08-03):
+Latest verified baseline (2026-08-04):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- headless automation discovered and passed 32/32 with zero test failures,
+- headless automation discovered and passed 36/36 with zero test failures,
   including saved starter-effect semantics and runtime contracts for timed
   power/armor buffs, Snare, Frost Root, Meditate, effective-stat consumption,
   respawn-safe temporary-effect clearing, fixed paper-doll presentation, and
@@ -601,7 +621,15 @@ Latest verified baseline (2026-08-03):
   Prowler instances, the world-status VFX contract, and finite-world player
   recovery, the real saved Fenwatch-keeper SCS presentation contract, the
   generic static-to-skeletal NPC wrapper contract, and the saved quartermaster
-  presentation;
+  presentation, plus vendor transactions, art/service separation, saved
+  Fenwatch stock, and native panel behavior;
+- fresh-process vendor validation accepted the exact two stock rows, prices,
+  finite/unlimited quantities, co-located service transform/tags/reference, no
+  art on the service, and no service component on the presentation;
+- clean PIE opened the service through normal `F`, bought Marsh Tonic from
+  `40` to `32` copper, bought the one Recruit Pack from `32` to `2`, updated
+  inventory and chat, exposed sold-out and insufficient-funds states, kept the
+  two-line result clear of the footer, and restored input on close;
 - target presentation automation proves cyan color, 48-segment continuity,
   restrained pulse, no rotation/collision, target switching, and clearing;
 - the selected-target circle resolves its radius from transformed capsule and
@@ -817,9 +845,9 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-03 no-hot-reload module plus the saved Fenwatch keeper, quartermaster,
-NPC wrapper, Blueprint, and map packages, then confirm MCP/test discovery;
-restart only if the editor or test registry proves stale.
+2026-08-04 no-hot-reload module plus the saved Fenwatch stock/service, keeper,
+quartermaster, NPC wrapper, Blueprint, and map packages, then confirm MCP/test
+discovery; restart only if the editor or test registry proves stale.
 
 First fresh-session checks:
 
@@ -827,7 +855,7 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 32 tests, including
+3. Run/discover all 36 tests, including the four vendor tests,
    `Embermere.NPC.FenwatchKeeperPresentation`,
    `Embermere.NPC.PresentationContract`, and
    `Embermere.NPC.FenwatchQuartermasterPresentation`.
@@ -895,12 +923,18 @@ First fresh-session checks:
      Fenwatch shelter behind Mara at `(-1740, -700, 0)`, its four solid supports
      and clear center, Mara's grounded front-facing non-colliding Fenwatch
      keeper with readable marker/name, the non-colliding quartermaster beside
-     the supply chest with no interaction authority, four visual-only reed
+     the supply chest with no interaction authority, its co-located art-free
+     vendor service, four visual-only reed
      clusters, clear
      gate lanes and solid fences/end stones,
      the moss/earth road, a navigable spawn/Mara route, readable enemy pocket,
      supported ruin silhouette, and balanced daylight/fog under the
      atmospheric sky.
+   - approach the quartermaster and press `F`; confirm 40 starting copper,
+     tonic at 8, one Recruit Pack at 30, both successful purchases, exact
+     wallet/inventory/finite-stock changes, sold-out and insufficient-funds
+     states, fixed non-overlapping result/footer copy, chat, and close/input
+     restoration.
 5. Walk from the village into the new Prowler triangle. Confirm each `525` cm
    pull stays solo, visual markers/bands do not block movement, and an enemy can
    leash and return home normally.
@@ -926,9 +960,9 @@ High-value milestones after that:
   and target-circle separation; polish only concrete readability issues;
 - retain Mara's accepted static Fenwatch keeper and verify it from the normal
   PlayerStart route before any rigged-humanoid work;
-- implement a bounded vendor service actor/component for the accepted
-  quartermaster while keeping stock, currency, transactions, prompts, and
-  interaction outside the art wrapper;
+- award copper through the normal quest/combat loop and add one bounded
+  rollback-safe sell or buyback path without moving currency, stock,
+  transactions, prompts, or interaction into the art wrapper;
 - retain the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest/
   shelter/keeper/quartermaster lane and its deterministic scripts, FBX checks,
   original-art tags, and route composition;
@@ -988,6 +1022,7 @@ Start by reading, in order:
 5. Docs/UNREAL_LESSONS.md
 6. Docs/FAB_ASSET_PLAN.md
 7. Docs/NPC_PRESENTATION_CONTRACT.md
+8. Docs/VENDOR_SERVICE_CONTRACT.md
 
 Then inspect git status and recent commits. Preserve the existing unstaged Config/DefaultEngine.ini and Config/DefaultInput.ini changes; do not stage, revert, or overwrite them unless we intentionally decide they are required.
 
@@ -998,11 +1033,12 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-03 current module,
+Follow TODO.md's Start Here section. Confirm the 2026-08-04 current module,
 bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
-Blueprint/map packages, and route-repair map, then run all 32 tests. Retain the
+vendor stock/service, Blueprint/map packages, and route-repair map, then run
+all 36 tests. Retain the
 original rigged Prowler across all three instances and verify Idle, Walk, Run,
 Attack, Hit, Death, terrain contact, target presentation, combat, tonic loot,
 hide, and respawn. Retain the accepted fixed player and
@@ -1043,17 +1079,22 @@ open-sided Fenwatch shelter at `(-1740, -700, 0)`, yaw `-64`, and the
 grounded front-facing non-colliding Mara keeper with its marker/name clear, the
 non-colliding Fenwatch quartermaster at `(-1530, -1190, 0)`, yaw `100`, using
 the static lane of the reusable NPC presentation wrapper with no service or
-interaction authority, plus
+interaction authority, plus its co-located art-free vendor service and saved
+stock asset. Exercise the normal `F` vendor loop: 40 starting copper, tonic at
+8, one Recruit Pack at 30, exact wallet/inventory/stock mutation, sold-out and
+insufficient-funds states, fixed result/footer copy, chat, and close/input
+restoration. Re-run the four focused vendor tests and fresh-process validator.
+Also retain
 the route-facing supply chest at `(-1740, -1180, 0)` with solid authored lid
 collision, at least 225 cm of saved spawn-corridor clearance, and a clear live
 player-height trace. Walk the
 normal route and prove each 525 cm Prowler pull stays solo while visual
 band geometry remains non-colliding. Inspect the shelter from PlayerStart and
 prove Mara's name/quest marker, keeper, open center, four supports, and straight
-autorun route remain readable. Then implement a bounded vendor service
-actor/component for the accepted quartermaster without moving stock, currency,
-transactions, or interaction into art; prove the wrapper's skeletal/idle lane,
-add a matching trainer presentation, tune only concrete Prowler or aura issues,
+autorun route remain readable. Then award copper through the normal quest or
+combat loop and add one rollback-safe sell/buyback path without moving economy
+rules into art; prove the wrapper's skeletal/idle lane, add a matching trainer
+presentation and separate service, tune only concrete Prowler or aura issues,
 or take the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.

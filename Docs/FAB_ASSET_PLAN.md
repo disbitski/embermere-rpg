@@ -10,6 +10,8 @@ Embermere does not have final high-fantasy art assets installed yet. The current
   project-owned rigged starter creature, terrain material, icons, original
   prop/ground-cover family, one open-sided Fenwatch shelter, and Mara's
   grounded Stylized Classic keeper plus a matching quartermaster presentation.
+  The quartermaster now has a separate project-owned vendor service and stock
+  data asset; this gameplay layer does not change the 17-piece art baseline.
   We still do
   not have a cohesive production-ready fantasy building kit, player/race art,
   weapons, audio, or final UI skinning.
@@ -56,6 +58,9 @@ First local placement pass:
   The quartermaster assertion independently locks the native presentation
   wrapper class, static lane, exact transform, mesh metrics, six materials,
   project-owned tag, zero collision, and absence of interaction authority.
+  `Scripts/validate_fenwatch_vendor_unreal.py` independently locks the
+  co-located art-free vendor service, its stock asset, prices, quantities,
+  transform, tags, and ownership separation.
   It also locks the two foliage transforms that reveal the accepted south-fence
   silhouette and rejects restoration of the replaced crate and unsupported
   accents. `Scripts/validate_road_boundary_traces_unreal.py` separately proves
@@ -110,9 +115,10 @@ For the first import pass, prefer a tiny, reversible slice over a broad art dump
 1. Keep the current first-pass art layer focused and playable.
 2. Verify scale, collision, nameplate readability, and route readability in PIE.
 3. Extend the accepted Fenwatch shelter into a cohesive Stylized Classic village
-   family. Mara and the quartermaster now have project-owned presentations;
-   the next bounded step is a vendor service loop outside the art wrapper or a
-   matching trainer presentation.
+   family. Mara and the quartermaster now have project-owned presentations,
+   and the quartermaster has a separate bounded vendor service. The next art
+   step can be a matching trainer presentation without coupling art to service
+   rules.
 4. Pick one simple UI/icon or VFX candidate only after the environment pass proves scale, collision, and performance are healthy.
 5. Record future pack names, Fab URLs, licenses, install dates, and caveats in this file before committing map references.
 

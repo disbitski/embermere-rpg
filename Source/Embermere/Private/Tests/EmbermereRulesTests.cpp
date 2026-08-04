@@ -4,6 +4,7 @@
 #include "Characters/EmbermereCharacter.h"
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Characters/EmbermereNpcPresentationActor.h"
+#include "Characters/EmbermereVendorServiceActor.h"
 #include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereEquipmentComponent.h"
 #include "Components/EmbermereHotbarComponent.h"
@@ -11,11 +12,14 @@
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
+#include "Components/EmbermereVendorComponent.h"
+#include "Components/EmbermereWalletComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
 #include "Data/EmbermereRulesData.h"
 #include "Data/EmbermereUiIconSet.h"
+#include "Data/EmbermereVendorStockData.h"
 #include "Engine/Blueprint.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/SCS_Node.h"
@@ -30,6 +34,206 @@
 #include "UI/EmbermereEnemyNameplateWidget.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermerePlayerHudWidget.h"
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereVendorTransactionRulesTest,
+	"Embermere.Vendor.TransactionRules",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereVendorTransactionRulesTest::RunTest(const FString& Parameters)
+{
+	UEmbermereVendorComponent* Vendor = NewObject<UEmbermereVendorComponent>();
+	UEmbermereVendorStockData* Stock = NewObject<UEmbermereVendorStockData>();
+	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereWalletComponent* Wallet = NewObject<UEmbermereWalletComponent>();
+	UEmbermereItemData* Tonic = NewObject<UEmbermereItemData>();
+	UEmbermereItemData* RecruitPack = NewObject<UEmbermereItemData>();
+	if (!Vendor || !Stock || !Inventory || !Wallet || !Tonic || !RecruitPack)
+	{
+		AddError(TEXT("Could not create vendor transaction fixtures"));
+		return false;
+	}
+
+	Tonic->DisplayName = FText::FromString(TEXT("Marsh Tonic"));
+	Tonic->MaxStack = 5;
+	RecruitPack->DisplayName = FText::FromString(TEXT("Recruit Pack"));
+	RecruitPack->MaxStack = 1;
+	FEmbermereVendorStockEntry TonicEntry;
+	TonicEntry.Item = Tonic;
+	TonicEntry.UnitPriceCopper = 8;
+	TonicEntry.InitialQuantity = -1;
+	FEmbermereVendorStockEntry PackEntry;
+	PackEntry.Item = RecruitPack;
+	PackEntry.UnitPriceCopper = 30;
+	PackEntry.InitialQuantity = 1;
+	Stock->Entries = {TonicEntry, PackEntry};
+	Vendor->SetStockData(Stock);
+	Wallet->SetCopperForPrototype(40);
+
+	TestEqual(
+		TEXT("Affordable purchase passes preflight"),
+		Vendor->CanPurchase(0, 1, Inventory, Wallet),
+		EEmbermereVendorPurchaseResult::Success);
+	TestEqual(
+		TEXT("Purchase succeeds transactionally"),
+		Vendor->TryPurchase(0, 1, Inventory, Wallet),
+		EEmbermereVendorPurchaseResult::Success);
+	TestEqual(TEXT("Successful purchase charges exact copper"), Wallet->Copper, 32);
+	TestEqual(TEXT("Successful purchase grants exact inventory quantity"), Inventory->GetItemQuantity(Tonic), 1);
+	TestEqual(TEXT("Unlimited stock remains unlimited"), Vendor->GetRemainingQuantity(0), -1);
+
+	TestEqual(
+		TEXT("Finite-stock purchase succeeds"),
+		Vendor->TryPurchase(1, 1, Inventory, Wallet),
+		EEmbermereVendorPurchaseResult::Success);
+	TestEqual(TEXT("Finite purchase charges exact copper"), Wallet->Copper, 2);
+	TestEqual(TEXT("Finite purchase grants the pack"), Inventory->GetItemQuantity(RecruitPack), 1);
+	TestEqual(TEXT("Finite stock decrements exactly once"), Vendor->GetRemainingQuantity(1), 0);
+	TestEqual(
+		TEXT("Depleted stock rejects later purchases"),
+		Vendor->TryPurchase(1, 1, Inventory, Wallet),
+		EEmbermereVendorPurchaseResult::OutOfStock);
+	TestEqual(TEXT("Out-of-stock rejection preserves copper"), Wallet->Copper, 2);
+	TestEqual(TEXT("Out-of-stock rejection does not duplicate inventory"), Inventory->GetItemQuantity(RecruitPack), 1);
+
+	UEmbermereInventoryComponent* FullInventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereWalletComponent* FullInventoryWallet = NewObject<UEmbermereWalletComponent>();
+	UEmbermereItemData* Blocker = NewObject<UEmbermereItemData>();
+	FullInventory->MaxSlots = 1;
+	Blocker->DisplayName = FText::FromString(TEXT("Packed Supplies"));
+	Blocker->MaxStack = 1;
+	FullInventoryWallet->SetCopperForPrototype(40);
+	TestTrue(TEXT("Full-bag fixture fills its only slot"), FullInventory->AddItem(Blocker, 1));
+	TestEqual(
+		TEXT("Full inventory rejects purchase before charging"),
+		Vendor->TryPurchase(0, 1, FullInventory, FullInventoryWallet),
+		EEmbermereVendorPurchaseResult::InventoryFull);
+	TestEqual(TEXT("Full-inventory rejection preserves copper"), FullInventoryWallet->Copper, 40);
+	TestEqual(TEXT("Full-inventory rejection grants no item"), FullInventory->GetItemQuantity(Tonic), 0);
+
+	UEmbermereInventoryComponent* PoorInventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereWalletComponent* PoorWallet = NewObject<UEmbermereWalletComponent>();
+	PoorWallet->SetCopperForPrototype(7);
+	TestEqual(
+		TEXT("Insufficient funds reject purchase before inventory mutation"),
+		Vendor->TryPurchase(0, 1, PoorInventory, PoorWallet),
+		EEmbermereVendorPurchaseResult::InsufficientFunds);
+	TestEqual(TEXT("Insufficient-funds rejection preserves copper"), PoorWallet->Copper, 7);
+	TestEqual(TEXT("Insufficient-funds rejection grants no item"), PoorInventory->GetItemQuantity(Tonic), 0);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereVendorServiceContractTest,
+	"Embermere.Vendor.ServiceContract",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereVendorServiceContractTest::RunTest(const FString& Parameters)
+{
+	AEmbermereVendorServiceActor* Service = NewObject<AEmbermereVendorServiceActor>();
+	TestNotNull(TEXT("Vendor service actor can be created"), Service);
+	if (!Service)
+	{
+		return false;
+	}
+
+	TestNotNull(TEXT("Vendor service owns interaction"), Service->Interactable.Get());
+	TestNotNull(TEXT("Vendor service owns stock and transaction behavior"), Service->Vendor.Get());
+	TestNull(TEXT("Vendor service owns no static presentation"), Service->FindComponentByClass<UStaticMeshComponent>());
+	TestNull(TEXT("Vendor service owns no skeletal presentation"), Service->FindComponentByClass<USkeletalMeshComponent>());
+	TestEqual(
+		TEXT("Vendor interaction uses the quartermaster display name"),
+		Service->Interactable->DisplayName.ToString(),
+		FString(TEXT("Fenwatch Quartermaster")));
+	TestTrue(TEXT("Vendor interaction supplies a world marker"), Service->Interactable->bShowWorldMarker);
+
+	AEmbermereNpcPresentationActor* Presentation = NewObject<AEmbermereNpcPresentationActor>();
+	TestNull(
+		TEXT("Art-only NPC wrapper remains free of vendor behavior"),
+		Presentation ? Presentation->FindComponentByClass<UEmbermereVendorComponent>() : nullptr);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereVendorPanelTest,
+	"Embermere.UI.VendorPanel",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereVendorPanelTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereVendorComponent* Vendor = NewObject<UEmbermereVendorComponent>();
+	UEmbermereVendorStockData* Stock = NewObject<UEmbermereVendorStockData>();
+	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereWalletComponent* Wallet = NewObject<UEmbermereWalletComponent>();
+	UEmbermereItemData* Tonic = NewObject<UEmbermereItemData>();
+	if (!Hud || !Vendor || !Stock || !Inventory || !Wallet || !Tonic)
+	{
+		AddError(TEXT("Could not create vendor panel fixtures"));
+		return false;
+	}
+
+	Tonic->DisplayName = FText::FromString(TEXT("Marsh Tonic"));
+	Tonic->Description = FText::FromString(TEXT("A sharp herbal tonic."));
+	Tonic->MaxStack = 5;
+	FEmbermereVendorStockEntry Entry;
+	Entry.Item = Tonic;
+	Entry.UnitPriceCopper = 8;
+	Entry.InitialQuantity = -1;
+	Stock->VendorName = FText::FromString(TEXT("Fenwatch Supplies"));
+	Stock->Entries.Add(Entry);
+	Vendor->SetStockData(Stock);
+	Wallet->SetCopperForPrototype(40);
+	Hud->Inventory = Inventory;
+	Hud->Wallet = Wallet;
+
+	TestTrue(TEXT("Vendor panel opens for configured stock"), Hud->ShowVendor(Vendor));
+	TestTrue(TEXT("Vendor panel reports visible"), Hud->IsVendorPanelVisible());
+	TestFalse(TEXT("Opening vendor hides inventory to avoid overlap"), Hud->IsInventoryPanelVisible());
+	const FString VendorText = Hud->GetVendorDisplayText().ToString();
+	TestTrue(TEXT("Vendor display reports its data-driven name"), VendorText.Contains(TEXT("Fenwatch Supplies")));
+	TestTrue(TEXT("Vendor display reports player currency"), VendorText.Contains(TEXT("Copper: 40")));
+	TestTrue(TEXT("Vendor display reports stock and price"), VendorText.Contains(TEXT("Marsh Tonic - 8 copper")));
+	TestEqual(TEXT("Vendor selection starts at first stock row"), Hud->GetSelectedVendorStockIndex(), 0);
+	TestTrue(TEXT("Vendor panel can buy selected stock"), Hud->PurchaseSelectedVendorItem());
+	TestEqual(TEXT("Panel purchase updates wallet"), Wallet->Copper, 32);
+	TestEqual(TEXT("Panel purchase updates inventory"), Inventory->GetItemQuantity(Tonic), 1);
+	Hud->CloseVendor();
+	TestFalse(TEXT("Close hides vendor panel"), Hud->IsVendorPanelVisible());
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereFenwatchVendorStockDataTest,
+	"Embermere.Vendor.FenwatchStockData",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereFenwatchVendorStockDataTest::RunTest(const FString& Parameters)
+{
+	const UEmbermereVendorStockData* Stock = LoadObject<UEmbermereVendorStockData>(
+		nullptr,
+		TEXT("/Game/Data/Vendors/DA_FenwatchQuartermasterStock.DA_FenwatchQuartermasterStock"));
+	TestNotNull(TEXT("Fenwatch quartermaster stock data loads"), Stock);
+	if (!Stock)
+	{
+		return false;
+	}
+
+	TestEqual(TEXT("Stock data keeps reviewed vendor name"), Stock->VendorName.ToString(), FString(TEXT("Fenwatch Supplies")));
+	TestEqual(TEXT("Stock data exposes two starter wares"), Stock->Entries.Num(), 2);
+	if (Stock->Entries.Num() == 2)
+	{
+		TestTrue(TEXT("First ware is Marsh Tonic"), Stock->Entries[0].Item && Stock->Entries[0].Item->ItemId == FName(TEXT("MarshTonic")));
+		TestEqual(TEXT("Marsh Tonic costs eight copper"), Stock->Entries[0].UnitPriceCopper, 8);
+		TestEqual(TEXT("Marsh Tonic stock is unlimited"), Stock->Entries[0].InitialQuantity, -1);
+		TestTrue(TEXT("Second ware is Recruit Pack"), Stock->Entries[1].Item && Stock->Entries[1].Item->ItemId == FName(TEXT("RecruitPack")));
+		TestEqual(TEXT("Recruit Pack costs thirty copper"), Stock->Entries[1].UnitPriceCopper, 30);
+		TestEqual(TEXT("Recruit Pack stock is finite"), Stock->Entries[1].InitialQuantity, 1);
+	}
+	return true;
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereAutorunCancellationTest,

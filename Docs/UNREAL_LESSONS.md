@@ -853,3 +853,38 @@ chest without competing with Mara or the player route.
 
 This pattern does not replace a service actor. It gives that future service a
 stable visual dependency whose implementation can evolve independently.
+
+## Do Not Make Native CDOs Depend On Generated Data Assets
+
+The first vendor-service build used a constructor `FObjectFinder` for
+`DA_FenwatchQuartermasterStock`. It worked after the asset existed, but a fresh
+commandlet exposed load errors during the bootstrap pass that creates the data
+asset itself. The class default object had made generic service construction
+depend on project content that was not guaranteed to exist yet.
+
+Keep reusable native classes content-neutral. Let the saved actor instance,
+Blueprint default, or explicit setup script assign generated data assets, then
+validate that serialized reference in a fresh process. This lets the service
+class construct during asset creation, tests, migrations, and stripped maps
+without producing false load failures or silently inheriting one merchant's
+stock.
+
+## Transaction Tests Need Rejection State, Not Only Success
+
+A vendor purchase is not safe because the happy path subtracts copper and adds
+an item. It is safe when every rejected path leaves all owners unchanged.
+
+Embermere's purchase contract preflights request validity, finite stock,
+affordability, and complete bag capacity before mutation. Commit charges the
+wallet, attempts the complete inventory add, refunds an unexpected add failure,
+and decrements finite stock only after success. Tests assert copper, stock, and
+item quantity after success, sold-out retry, full bag, and insufficient funds.
+
+The UI consumes the same preflight result to disable impossible actions and
+show useful copy, but it is not a security boundary. The component remains
+authoritative when called from tests, future Blueprints, or another UI.
+
+Clean PIE added the final judgment gate: the first successful purchase worked
+but its wrapped result crossed the footer. Reserving a fixed two-line status
+cell and repeating the actual buy proved the transaction and its presentation
+belonged together without making layout part of gameplay rules.

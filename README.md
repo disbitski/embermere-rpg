@@ -51,6 +51,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - an asset-agnostic NPC presentation wrapper with interchangeable static and
   skeletal visual lanes, shared authored transforms, soft art references, and
   no quest/service/interaction ownership
+- a separate data-driven Fenwatch vendor service with player copper,
+  finite/unlimited stock, complete buy preflight, rollback-safe transactions,
+  native fixed stock UI, inventory/chat feedback, and no art ownership
 - UMG base classes for character creation and HUD widgets
 - native first-pass HUD panels for status, target, range state, quest tracking, dialogue, loot, and hotbar labels
 - bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback
@@ -193,6 +196,8 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 - [TODO.md](TODO.md) keeps the daily next steps and automation handoff visible.
 - [Docs/PLAYTESTING.md](Docs/PLAYTESTING.md) tracks the current editor smoke test.
 - [Docs/UNREAL_LESSONS.md](Docs/UNREAL_LESSONS.md) captures Unreal-specific lessons learned during implementation.
+- [Docs/VENDOR_SERVICE_CONTRACT.md](Docs/VENDOR_SERVICE_CONTRACT.md) records
+  the merchant art/service/economy boundary and transaction guarantees.
 
 ## Status
 
@@ -211,9 +216,12 @@ window with atomic transactions, project-owned data-driven art reused across
 rows, slots, details, drag feedback, rewards, and the equipment backdrop, safe
 consumable actions, native selected-target nameplate/emissive-ring feedback,
 and a reusable static-to-skeletal NPC presentation contract demonstrated by
-the grounded Fenwatch quartermaster beside the village supply chest.
+the grounded Fenwatch quartermaster beside the village supply chest. A
+co-located art-free service now turns that quartermaster into Embermere's first
+working merchant without coupling stock, prices, currency, transactions, or
+interaction to the model.
 
-Next milestone: give the accepted Fenwatch quartermaster a bounded vendor
-service loop while keeping stock, currency, transactions, and interaction
-outside the art wrapper; then prove the wrapper's skeletal/idle upgrade lane or
-add a matching trainer presentation.
+Next milestone: award copper through the real quest/combat loop and add one
+rollback-safe sell or buyback path on the accepted vendor contract; then prove
+the NPC wrapper's skeletal/idle upgrade lane or add a matching trainer
+presentation and separate service.

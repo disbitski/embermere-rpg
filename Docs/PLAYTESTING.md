@@ -186,12 +186,38 @@ interaction, dialogue, and quest state.
     with walking restored, zero residual velocity, and three seconds of damage
     protection.
 
+## Fenwatch Vendor Loop
+
+1. Start a fresh PIE session, hide Inventory with `I`, approach the
+   quartermaster beside the supply chest, and press `F`.
+2. Confirm `Fenwatch Supplies` opens with `Purse: 40 copper`, Marsh Tonic at
+   `8 copper`, Recruit Pack at `30 copper | 1 left`, resolved icons, selected
+   item details, Buy, close, and no overlapping Inventory panel.
+3. Buy Marsh Tonic. Confirm the purse becomes `32 copper`, Inventory gains one
+   tonic, and identical readable success copy appears inside the fixed vendor
+   result cell and bottom-left chat.
+4. Select and buy Recruit Pack. Confirm the purse becomes `2 copper`, Inventory
+   gains the pack, its row reports `0 left`, and the row is disabled.
+5. Select Marsh Tonic again. Confirm Buy is disabled and the fixed result cell
+   reads `You do not have enough copper.` without crossing the footer.
+6. Click `X`. Confirm the panel disappears, normal game-only mouse input is
+   restored, and movement/camera controls still work.
+7. Retain the visual/service split: the visible quartermaster is non-colliding
+   art; the co-located interaction marker and stock come from the invisible
+   service actor. Neither should obstruct Mara, the chest, or traversal.
+
+The full ownership and rollback contract is in
+[VENDOR_SERVICE_CONTRACT.md](VENDOR_SERVICE_CONTRACT.md).
+
 ## Expected Temporary Feedback
 
 - A styled first-pass HUD overlay shows player HP, mana, XP, current target, target HP, range state, quest progress, and all hotbar slots.
 - A 700x330 structured inventory/equipment window appears in the top-right with `Slots X / 24`, an explicit category/name Sort control, clickable/draggable highlighted item rows, fixed project-owned item/slot icons and fantasy drag token, selected-item effects and net equipment comparison, row/occupied-slot tooltips, ten stable clickable/drop-target paper-doll slots layered over a restrained illustrated adventurer, gold/red drag feedback, equipment-to-bag return, aggregate bonuses, description, empty/reward state, `[`/`]` cycling, `I` close/show behavior, and Equip or Use actions when supported.
 - Opening the inventory shows the cursor and permits UI clicks; closing it hides the cursor and restores classic game-only mouse input.
 - Interacting with Mara shows a temporary bottom-screen dialogue panel.
+- Interacting with the Fenwatch quartermaster shows a fixed native stock panel
+  with purse, wares, prices, finite stock, details, transaction state, and chat
+  feedback.
 - Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
 - `Ctrl+M` toggles mouse Y inversion and posts a bottom-left chat/combat log message.
@@ -266,6 +292,11 @@ interaction, dialogue, and quest state.
   Recruit Pack contrast passed on 2026-07-27; the populated drag token in
   motion remains a manual check. The next phases are documented in
   `Docs/INVENTORY_INTERACTION_PLAN.md`.
+- The first vendor supports exact one-at-a-time buying, finite/unlimited stock,
+  full-bag/affordability rollback, and native feedback. Copper and stock are
+  session-only, copper is not yet earned through gameplay, and selling,
+  buyback, quantity entry, persistence, and reputation pricing remain open.
+  See `Docs/VENDOR_SERVICE_CONTRACT.md`.
 - Nameplates use a native UMG widget component and target highlighting uses a
   dedicated emissive material on a non-colliding 48-segment circle. Runtime
   bounds sizing and a downward surface trace keep it clear of both paws and

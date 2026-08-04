@@ -40,7 +40,14 @@ instance. It uses the static lane and
 `SM_EmbermereFenwatchQuartermaster_01` at `(-1530, -1190, 0)`, yaw `100`, unit
 scale. The 3,632-triangle mesh measures `120.842 x 93.0 x 217.0` cm, uses six
 project-owned materials, has no collision, and reads as a quartermaster beside
-the existing supply chest. It is intentionally not yet interactable.
+the existing supply chest.
+
+The co-located `Embermere_FenwatchQuartermaster_Service_01` now owns the
+interaction marker and vendor component. It has no art or collision and reads
+`DA_FenwatchQuartermasterStock` for stock and prices. The presentation actor
+still has no interaction or vendor component. The full boundary and
+transaction model are documented in
+[VENDOR_SERVICE_CONTRACT.md](VENDOR_SERVICE_CONTRACT.md).
 
 Mara remains a Blueprint-backed quest actor because her existing component owns
 real gameplay. Her Fenwatch keeper visual follows the same ownership rule even
@@ -67,10 +74,12 @@ The current focused tests are:
 - `Embermere.NPC.PresentationContract`
 - `Embermere.NPC.FenwatchQuartermasterPresentation`
 - `Embermere.NPC.FenwatchKeeperPresentation`
+- `Embermere.Vendor.ServiceContract`
+- `Embermere.Vendor.FenwatchStockData`
 
 ## Next Step
 
-Build the first vendor gameplay actor/component as a separate bounded system,
-then associate it with the accepted quartermaster presentation. Later, replace
-the static visual with a skeletal mesh and idle animation through the wrapper
-without changing service ownership or the saved world transform.
+Prove the static-to-skeletal idle upgrade through the wrapper without changing
+the accepted service actor, stock data, interaction, or saved world transform.
+The next service expansion should add earned currency and rollback-safe selling
+without moving any economy rule into NPC art.

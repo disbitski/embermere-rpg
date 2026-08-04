@@ -5,6 +5,7 @@
 #include "Components/EmbermereInteractableComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/EmbermereTargetingComponent.h"
+#include "Components/EmbermereVendorComponent.h"
 #include "Components/InputComponent.h"
 #include "Engine/Engine.h"
 #include "EngineUtils.h"
@@ -237,7 +238,7 @@ void AEmbermerePlayerController::ToggleInventoryPanel()
 	}
 
 	const bool bNowVisible = PlayerHudWidget->ToggleInventoryPanel();
-	UpdateInventoryInputMode(bNowVisible);
+	RefreshInteractiveInputMode();
 	AddHudMessage(
 		FText::FromString(bNowVisible ? TEXT("Inventory shown") : TEXT("Inventory hidden")),
 		FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
@@ -383,6 +384,14 @@ bool AEmbermerePlayerController::InteractWithNearestActor()
 	}
 
 	BestInteractable->Interact(Character);
+	if (UEmbermereVendorComponent* Vendor = BestInteractable->GetOwner()->FindComponentByClass<UEmbermereVendorComponent>())
+	{
+		if (PlayerHudWidget)
+		{
+			PlayerHudWidget->ShowVendor(Vendor);
+			RefreshInteractiveInputMode();
+		}
+	}
 	return true;
 }
 
@@ -411,7 +420,14 @@ void AEmbermerePlayerController::EnsurePlayerHud()
 
 	PlayerHudWidget->AddToViewport();
 	PlayerHudWidget->BindToCharacter(GetEmbermereCharacter());
-	UpdateInventoryInputMode(PlayerHudWidget->IsInventoryPanelVisible());
+	RefreshInteractiveInputMode();
+}
+
+void AEmbermerePlayerController::RefreshInteractiveInputMode()
+{
+	const bool bInteractiveUiVisible = PlayerHudWidget &&
+		(PlayerHudWidget->IsInventoryPanelVisible() || PlayerHudWidget->IsVendorPanelVisible());
+	UpdateInventoryInputMode(bInteractiveUiVisible);
 }
 
 void AEmbermerePlayerController::AddHudMessage(const FText& Message, FLinearColor MessageColor) const

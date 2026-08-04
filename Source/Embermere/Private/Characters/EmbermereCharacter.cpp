@@ -8,6 +8,7 @@
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/EmbermereTargetingComponent.h"
+#include "Components/EmbermereWalletComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -61,6 +62,7 @@ AEmbermereCharacter::AEmbermereCharacter()
 	Inventory = CreateDefaultSubobject<UEmbermereInventoryComponent>(TEXT("Inventory"));
 	Equipment = CreateDefaultSubobject<UEmbermereEquipmentComponent>(TEXT("Equipment"));
 	QuestLog = CreateDefaultSubobject<UEmbermereQuestLogComponent>(TEXT("QuestLog"));
+	Wallet = CreateDefaultSubobject<UEmbermereWalletComponent>(TEXT("Wallet"));
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> StatusSegmentMeshFinder(
 		TEXT("/Engine/BasicShapes/Plane.Plane"));

@@ -6,32 +6,40 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-03 no-hot-reload module plus the saved
-  Fenwatch keeper, quartermaster, NPC wrapper, Blueprint template, and map
-  packages. The module retains the
-  accepted bounds-aware cyan target circle, finite-world player recovery, and
-  grounded bounds-aware harmful status auras. Restart if the editor predates
-  the quartermaster build or package save. The editor can start
-  MCP during launch with `-ModelContextProtocolStartServer
-  -ModelContextProtocolPort=8123`; on macOS, pass the `.uproject` after
-  `--args` when using `open`. Confirm Blender and its localhost bridge only
-  when another original-art pass is selected.
-- Discover and run all 32 tests, especially
-  `Embermere.NPC.PresentationContract`,
-  `Embermere.NPC.FenwatchQuartermasterPresentation`,
-  `Embermere.NPC.FenwatchKeeperPresentation`,
-  `Embermere.Enemy.MarshProwlerPresentation`,
-  `Embermere.Player.OutOfBoundsRecovery`,
-  `Embermere.Combat.StarterAbilityEffects`,
-  `Embermere.UI.TimedStatusPresentation`,
-  `Embermere.UI.WorldStatusVfxPresentation`, and the inventory transaction
-  suite. The authoritative fresh commandlet passed the complete 32-test suite,
-  including construction through the real `BP_StarterEnemy` generated class,
-  reconciliation to 48 non-colliding runtime target-circle segments, and
-  damage-immunity-bypassing fall recovery. The no-hot-reload Mac build,
-  saved-map validator, UI-art validator, and initialized-world route/boundary
-  traces also passed. The keeper test loads the real saved Blueprint SCS
-  template rather than a transient native actor fixture.
+- Confirm Unreal is running the 2026-08-04 no-hot-reload module plus the saved
+  Fenwatch vendor stock/service and current map packages. Restart if the editor
+  predates that build or test discovery exposes fewer than 36 Embermere tests.
+  Start MCP with `-ModelContextProtocolStartServer
+  -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
+  `open ... --args`. Confirm Blender only when original-art work is selected.
+- Discover and run all 36 tests, especially
+  `Embermere.Vendor.TransactionRules`,
+  `Embermere.Vendor.ServiceContract`,
+  `Embermere.Vendor.FenwatchStockData`,
+  `Embermere.UI.VendorPanel`, the three NPC presentation tests, Prowler/world
+  presentation, player recovery, and inventory transaction suites. The
+  authoritative 2026-08-04 commandlet passed 36/36; the no-hot-reload Mac
+  build, saved-map, UI-art, Fenwatch-vendor, and initialized-world route
+  validators also passed.
+- Recheck the accepted Fenwatch vendor loop through normal `F` interaction:
+  - presentation actor `Embermere_FenwatchQuartermaster_Vendor_01` remains
+    art-only at `(-1530, -1190, 0)`, yaw `100`, unit scale and `NoCollision`;
+  - co-located `Embermere_FenwatchQuartermaster_Service_01` owns interaction
+    and vendor behavior but no mesh, collision, navigation, or art;
+  - `DA_FenwatchQuartermasterStock` offers unlimited Marsh Tonic at `8` copper
+    and one Recruit Pack at `30` copper;
+  - a new player starts with `40` copper; buying both wares produces `32` then
+    `2`, grants both items, leaves the Recruit Pack sold out, and disables the
+    tonic buy action for insufficient funds;
+  - the fixed `500x325` native panel keeps title, purse, stock, icon/detail,
+    two-line result, Buy, and footer inside bounds, hides Inventory while open,
+    posts chat feedback, and restores game-only input when closed;
+  - full-bag, insufficient-funds, and sold-out rejections preserve copper,
+    stock, and inventory without partial mutation.
+- Treat [Docs/VENDOR_SERVICE_CONTRACT.md](Docs/VENDOR_SERVICE_CONTRACT.md) as
+  the economy boundary. The NPC wrapper owns only art; the service owns
+  interaction and stock; the wallet and inventory own player state; the HUD
+  only presents and requests transactions.
 - Retain the accepted EverQuest-inspired target circle. Clean normal-route PIE
   proved all three Marsh Prowlers own exactly 48 stationary, non-colliding
   cyan-blue segments at 16 cm effective surface clearance. The visible circle
@@ -118,25 +126,21 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. implement a bounded vendor service actor/component for the accepted
-     quartermaster, keeping stock, prices, currency, transactions, prompts, and
-     interaction outside `AEmbermereNpcPresentationActor`;
-  2. retain the accepted keeper/quartermaster scale, grounding, marker
-     clearance, chest composition, and PlayerStart route; do not retune either
-     without a concrete gameplay-camera issue;
-  3. prove the wrapper's intended skeletal/idle upgrade lane with a bounded
-     prototype, or add a matching trainer presentation that consumes the same
-     visual contract;
+  1. add earned copper to the real quest/combat loop, then design a bounded
+     rollback-safe sell or buyback transaction on the current vendor contract;
+  2. retain the accepted keeper/quartermaster/service scale, marker clearance,
+     chest composition, panel layout, and PlayerStart route;
+  3. prove the NPC wrapper's skeletal/idle upgrade lane, or build a matching
+     trainer presentation and separate trainer service;
   4. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
-     normal-route PIE exposes a concrete need;
+     normal-route PIE exposes a concrete issue;
   5. consider authored Niagara, class-specific VFX, or audio only after the
      current asset-agnostic presentation has carried the playable slice farther.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-03
-  quartermaster/NPC-wrapper build and saved map packages. Current code passes
-  all 32 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-08-04
+  vendor module and saved stock/map packages. Current code passes all 36 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -168,8 +172,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     readable staff/satchel/moss-cowl silhouette, no collision, and an
     unobstructed gold quest marker and name.
   - inspect the Fenwatch quartermaster beside the supply chest for grounded
-    feet, readable moss-cap/apron/ledger/pouch silhouette, no collision, no
-    interaction prompt, a clear route, and separation from Mara and her marker.
+    feet, readable moss-cap/apron/ledger/pouch silhouette, no collision, a
+    readable service marker, a clear route, and separation from Mara and her
+    marker;
+  - press `F` in range and run the vendor acceptance sequence from Start Here,
+    including both successful buys, sold-out/insufficient-funds states, chat,
+    item inventory changes, fixed panel copy, and close/input restoration.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -211,6 +219,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.UI.PaperDollPresentation`
   - `Embermere.UI.TimedStatusPresentation`
   - `Embermere.UI.WorldStatusVfxPresentation`
+  - `Embermere.UI.VendorPanel`
+  - `Embermere.Vendor.FenwatchStockData`
+  - `Embermere.Vendor.ServiceContract`
+  - `Embermere.Vendor.TransactionRules`
 - Manually verify the styled first-pass HUD in PIE:
   - player HP, mana, XP, health bar, and mana bar are visible;
   - target panel appears after `Tab` and shows target HP plus range state;
@@ -316,6 +328,10 @@ Embermere has a working first-pass starter slice:
 - classic mouse camera behavior;
 - `WASD`, `Q` autorun, tab target, and hotbar ability input;
 - first quest giver, quest data, and reward item data;
+- a separated Fenwatch vendor vertical slice with art-only quartermaster,
+  art-free interactable service actor, data-driven stock/prices, player copper,
+  atomic buy/rollback rules, finite/unlimited stock, native fixed vendor UI,
+  inventory/chat feedback, and saved-package validation;
 - hostile starter enemies that aggro, chase, attack, die, and respawn;
 - starter enemy leash and return-home behavior for safer village/wilderness boundaries;
 - player respawn protection for safer recovery during prototype combat;
@@ -372,7 +388,8 @@ Embermere has a working first-pass starter slice:
   capacity, consumable use, item comparison/tooltips, identity-based inventory
   and drag/drop actions, autorun cancellation, damage immunity, enemy nameplate
   widget, chat log, hotbar cooldown display, item/slot/ability/paper-doll
-  presentation, and inventory toggle.
+  presentation, inventory toggle, vendor transactions, service ownership,
+  saved stock, and native vendor-panel behavior, for 36 authoritative tests.
 
 ## How Far We Have To Go
 
@@ -406,6 +423,15 @@ effects, or audio.
 
 ## Next Work
 
+- Extend the accepted vendor/economy loop without weakening its boundaries:
+  - award copper through the normal quest/combat loop rather than only
+    prototype starting state;
+  - design one rollback-safe sell or buyback transaction with explicit pricing,
+    bag identity, capacity, stock, and currency invariants;
+  - keep save persistence, quantity buying, reputation pricing, and final
+    merchant audio outside this bounded next slice unless the path is clear;
+  - retain the fixed vendor panel, visual/service split, and click/input
+    fallbacks while adding tests before UI behavior.
 - Replace temporary selected-target text with better world readability:
   - retain the UMG nameplate widget, selected marker, HP bar, and HP-aware
     accent color;
@@ -1038,6 +1064,30 @@ effects, or audio.
 - Clean PIE accepted the grounded chest-side quartermaster, Mara's readable
   shelter composition, and the open route. Separate transform-measured runs
   proved Q movement plus exact W and S autorun cancellation on the final map.
+- 2026-08-04: added the first complete Fenwatch vendor service without moving
+  economy rules into quartermaster art. `AEmbermereVendorServiceActor` owns an
+  interactable and `UEmbermereVendorComponent` but no mesh or collision;
+  `AEmbermereNpcPresentationActor` remains art-only.
+- Added player copper, `UEmbermereVendorStockData`, finite/unlimited runtime
+  stock, complete transaction preflight, exact charge/grant behavior, refund
+  on an unexpected add failure, and mutation-free full-bag, sold-out, and
+  insufficient-funds rejection.
+- Saved `DA_FenwatchQuartermasterStock` with unlimited Marsh Tonic at 8 copper
+  and one Recruit Pack at 30, plus the co-located art-free
+  `Embermere_FenwatchQuartermaster_Service_01`. The focused fresh-process
+  validator locks stock, transform, tags, references, and art/service
+  separation.
+- Built a fixed native `Fenwatch Supplies` panel with purse balance, four
+  stable stock rows, item icons/details, Buy, close, readable two-line status,
+  inventory exclusion, game/UI input, and bottom-left chat feedback.
+- Added four focused tests for vendor transactions, service ownership, saved
+  stock, and panel behavior. The authoritative no-hot-reload build and all
+  36 tests passed; saved-map, UI-art, vendor, and initialized-world route
+  validators passed without `LogPython: Error`.
+- Clean live PIE proved normal `F` opening; 40 -> 32 copper tonic purchase;
+  32 -> 2 finite Recruit Pack purchase; inventory updates; sold-out and
+  insufficient-funds button states; non-overlapping result/footer copy; and
+  close/input restoration.
 
 ## Asset Hunt
 
