@@ -888,3 +888,28 @@ Clean PIE added the final judgment gate: the first successful purchase worked
 but its wrapped result crossed the footer. Reserving a fixed two-line status
 cell and repeating the actual buy proved the transaction and its presentation
 belonged together without making layout part of gameplay rules.
+
+## Rollback Needs An Exact Inverse At Each Ownership Boundary
+
+Buying, selling, and buyback are related UI verbs, but they are not one generic
+transaction. Each crosses wallet and inventory ownership in a different order,
+and each needs a deliberate inverse for the mutation that can fail second.
+
+Embermere's accepted order is explicit:
+
+- purchase spends copper, attempts the full inventory add, and refunds before
+  finite stock changes if delivery unexpectedly fails;
+- sale credits copper, removes the exact selected item identity, and retracts
+  the credit if removal unexpectedly fails;
+- buyback spends the recorded sale price, restores that exact identity without
+  fake loot feedback, and refunds if capacity changed before delivery.
+
+Preflight prevents normal rejection paths from mutating anything. The inverse
+operation protects against the narrow gap between preflight and commit. Buyback
+history is recorded only after a sale commits, and decremented only after a
+buyback delivers, so rollback never fabricates or destroys a history entry.
+
+Test the complete state vector after every failure: copper, item quantity and
+identity, finite stock, and buyback quantity. Then exercise the same sequence in
+PIE because correct numbers do not prove that selection, disabled states, chat,
+or fixed panel copy communicate the transaction correctly.

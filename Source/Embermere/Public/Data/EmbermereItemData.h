@@ -25,6 +25,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item")
 	int32 MaxStack = 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Economy", meta = (ClampMin = "0"))
+	int32 SellValueCopper = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item")
 	EEmbermereItemCategory Category = EEmbermereItemCategory::Misc;
 

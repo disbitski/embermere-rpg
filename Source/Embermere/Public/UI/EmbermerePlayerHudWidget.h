@@ -111,6 +111,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
 	bool PurchaseSelectedVendorItem();
 
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
+	bool SellSelectedInventoryItem();
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
+	bool BuyBackMostRecentVendorItem();
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Vendor")
 	int32 GetSelectedVendorStockIndex() const;
 
@@ -398,6 +404,18 @@ private:
 	TObjectPtr<UTextBlock> VendorBuyText;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UButton> VendorSellButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> VendorSellText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> VendorBuybackButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> VendorBuybackText;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> VendorStatusText;
 
 	UPROPERTY(Transient)
@@ -476,6 +494,7 @@ private:
 	bool IsInventoryListAtScreenPosition(const FVector2D& ScreenPosition) const;
 	void ClearPendingDrag();
 	void ClearDropFeedback();
+	UEmbermereItemData* GetSelectedInventoryItem() const;
 	TArray<FEmbermereActiveStatusEffect> GetTargetStatusEffects() const;
 	FText BuildStatusEffectDisplayText(const FEmbermereActiveStatusEffect& Effect) const;
 
@@ -496,6 +515,12 @@ private:
 
 	UFUNCTION()
 	void HandleVendorBuyClicked();
+
+	UFUNCTION()
+	void HandleVendorSellClicked();
+
+	UFUNCTION()
+	void HandleVendorBuybackClicked();
 
 	UFUNCTION()
 	void HandleVendorCloseClicked();

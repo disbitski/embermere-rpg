@@ -125,6 +125,120 @@ bool FEmbermereVendorTransactionRulesTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereVendorSellBuybackTransactionsTest,
+	"Embermere.Vendor.SellBuybackTransactions",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereVendorSellBuybackTransactionsTest::RunTest(const FString& Parameters)
+{
+	UEmbermereVendorComponent* Vendor = NewObject<UEmbermereVendorComponent>();
+	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereWalletComponent* Wallet = NewObject<UEmbermereWalletComponent>();
+	UEmbermereItemData* Tonic = NewObject<UEmbermereItemData>();
+	UEmbermereItemData* QuestItem = NewObject<UEmbermereItemData>();
+	if (!Vendor || !Inventory || !Wallet || !Tonic || !QuestItem)
+	{
+		AddError(TEXT("Could not create sell and buyback transaction fixtures"));
+		return false;
+	}
+
+	Tonic->DisplayName = FText::FromString(TEXT("Marsh Tonic"));
+	Tonic->MaxStack = 5;
+	Tonic->SellValueCopper = 3;
+	QuestItem->DisplayName = FText::FromString(TEXT("Fenwatch Seal"));
+	QuestItem->MaxStack = 1;
+	QuestItem->SellValueCopper = 10;
+	QuestItem->Category = EEmbermereItemCategory::Quest;
+	Wallet->SetCopperForPrototype(0);
+	TestTrue(TEXT("Sell fixture receives two tonics"), Inventory->AddItem(Tonic, 2));
+
+	TestEqual(
+		TEXT("Owned sellable item passes preflight"),
+		Vendor->CanSell(Tonic, 1, Inventory, Wallet),
+		EEmbermereVendorSellResult::Success);
+	TestEqual(
+		TEXT("Selling commits atomically"),
+		Vendor->TrySell(Tonic, 1, Inventory, Wallet),
+		EEmbermereVendorSellResult::Success);
+	TestEqual(TEXT("Sale removes exactly one item"), Inventory->GetItemQuantity(Tonic), 1);
+	TestEqual(TEXT("Sale grants exact data-driven copper"), Wallet->Copper, 3);
+	TestEqual(TEXT("Sale creates one buyback row"), Vendor->GetBuybackEntryCount(), 1);
+	FEmbermereVendorBuybackEntry Buyback;
+	TestTrue(TEXT("Most recent buyback entry resolves"), Vendor->GetBuybackEntry(0, Buyback));
+	TestTrue(TEXT("Buyback preserves item identity"), Buyback.Item == Tonic);
+	TestEqual(TEXT("Buyback preserves quantity"), Buyback.Quantity, 1);
+	TestEqual(TEXT("Buyback preserves sale price"), Buyback.UnitPriceCopper, 3);
+
+	TestEqual(
+		TEXT("Affordable buyback passes preflight"),
+		Vendor->CanBuyback(0, 1, Inventory, Wallet),
+		EEmbermereVendorBuybackResult::Success);
+	TestEqual(
+		TEXT("Buyback commits atomically"),
+		Vendor->TryBuyback(0, 1, Inventory, Wallet),
+		EEmbermereVendorBuybackResult::Success);
+	TestEqual(TEXT("Buyback returns the exact item"), Inventory->GetItemQuantity(Tonic), 2);
+	TestEqual(TEXT("Buyback charges the original sale price"), Wallet->Copper, 0);
+	TestEqual(TEXT("Depleted buyback row is removed"), Vendor->GetBuybackEntryCount(), 0);
+
+	TestTrue(TEXT("Quest-item fixture enters inventory"), Inventory->AddItem(QuestItem, 1));
+	TestEqual(
+		TEXT("Quest items remain unsellable even with an accidental value"),
+		Vendor->TrySell(QuestItem, 1, Inventory, Wallet),
+		EEmbermereVendorSellResult::Unsellable);
+	TestEqual(TEXT("Unsellable rejection preserves the item"), Inventory->GetItemQuantity(QuestItem), 1);
+	TestEqual(TEXT("Unsellable rejection preserves copper"), Wallet->Copper, 0);
+
+	UEmbermereVendorComponent* OverflowVendor = NewObject<UEmbermereVendorComponent>();
+	UEmbermereInventoryComponent* OverflowInventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereWalletComponent* OverflowWallet = NewObject<UEmbermereWalletComponent>();
+	OverflowWallet->SetCopperForPrototype(MAX_int32);
+	TestTrue(TEXT("Overflow fixture receives an item"), OverflowInventory->AddItem(Tonic, 1));
+	TestEqual(
+		TEXT("Full purse rejects sale before item mutation"),
+		OverflowVendor->TrySell(Tonic, 1, OverflowInventory, OverflowWallet),
+		EEmbermereVendorSellResult::WalletFull);
+	TestEqual(TEXT("Full-purse rejection preserves inventory"), OverflowInventory->GetItemQuantity(Tonic), 1);
+	TestEqual(TEXT("Full-purse rejection preserves copper"), OverflowWallet->Copper, MAX_int32);
+	TestEqual(TEXT("Rejected sale creates no buyback"), OverflowVendor->GetBuybackEntryCount(), 0);
+
+	UEmbermereVendorComponent* RollbackVendor = NewObject<UEmbermereVendorComponent>();
+	UEmbermereInventoryComponent* RollbackInventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereWalletComponent* RollbackWallet = NewObject<UEmbermereWalletComponent>();
+	UEmbermereItemData* Blocker = NewObject<UEmbermereItemData>();
+	RollbackInventory->MaxSlots = 1;
+	RollbackWallet->SetCopperForPrototype(0);
+	Blocker->DisplayName = FText::FromString(TEXT("Packed Supplies"));
+	Blocker->MaxStack = 1;
+	TestTrue(TEXT("Rollback fixture receives one tonic"), RollbackInventory->AddItem(Tonic, 1));
+	TestEqual(
+		TEXT("Rollback fixture sells one tonic"),
+		RollbackVendor->TrySell(Tonic, 1, RollbackInventory, RollbackWallet),
+		EEmbermereVendorSellResult::Success);
+	TestTrue(TEXT("Rollback fixture fills the freed slot"), RollbackInventory->AddItem(Blocker, 1));
+	TestEqual(
+		TEXT("Full bag rejects buyback before charging"),
+		RollbackVendor->TryBuyback(0, 1, RollbackInventory, RollbackWallet),
+		EEmbermereVendorBuybackResult::InventoryFull);
+	TestEqual(TEXT("Full-bag buyback preserves copper"), RollbackWallet->Copper, 3);
+	TestEqual(TEXT("Full-bag buyback grants no tonic"), RollbackInventory->GetItemQuantity(Tonic), 0);
+	TestTrue(TEXT("Rejected buyback remains available"), RollbackVendor->GetBuybackEntry(0, Buyback));
+	TestEqual(TEXT("Rejected buyback preserves quantity"), Buyback.Quantity, 1);
+
+	RollbackInventory->RemoveItem(Blocker, 1);
+	RollbackWallet->SetCopperForPrototype(2);
+	TestEqual(
+		TEXT("Insufficient copper rejects buyback before inventory mutation"),
+		RollbackVendor->TryBuyback(0, 1, RollbackInventory, RollbackWallet),
+		EEmbermereVendorBuybackResult::InsufficientFunds);
+	TestEqual(TEXT("Insufficient buyback preserves copper"), RollbackWallet->Copper, 2);
+	TestEqual(TEXT("Insufficient buyback grants no tonic"), RollbackInventory->GetItemQuantity(Tonic), 0);
+	TestTrue(TEXT("Insufficient buyback remains available"), RollbackVendor->GetBuybackEntry(0, Buyback));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereVendorServiceContractTest,
 	"Embermere.Vendor.ServiceContract",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -177,6 +291,7 @@ bool FEmbermereVendorPanelTest::RunTest(const FString& Parameters)
 	Tonic->DisplayName = FText::FromString(TEXT("Marsh Tonic"));
 	Tonic->Description = FText::FromString(TEXT("A sharp herbal tonic."));
 	Tonic->MaxStack = 5;
+	Tonic->SellValueCopper = 3;
 	FEmbermereVendorStockEntry Entry;
 	Entry.Item = Tonic;
 	Entry.UnitPriceCopper = 8;
@@ -199,6 +314,13 @@ bool FEmbermereVendorPanelTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Vendor panel can buy selected stock"), Hud->PurchaseSelectedVendorItem());
 	TestEqual(TEXT("Panel purchase updates wallet"), Wallet->Copper, 32);
 	TestEqual(TEXT("Panel purchase updates inventory"), Inventory->GetItemQuantity(Tonic), 1);
+	TestTrue(TEXT("Vendor panel sells the selected bag item"), Hud->SellSelectedInventoryItem());
+	TestEqual(TEXT("Panel sale updates wallet"), Wallet->Copper, 35);
+	TestEqual(TEXT("Panel sale removes the selected item"), Inventory->GetItemQuantity(Tonic), 0);
+	TestTrue(TEXT("Vendor display reports the buyback row"), Hud->GetVendorDisplayText().ToString().Contains(TEXT("Buyback: Marsh Tonic x1 - 3 copper")));
+	TestTrue(TEXT("Vendor panel buys back the most recent item"), Hud->BuyBackMostRecentVendorItem());
+	TestEqual(TEXT("Panel buyback restores the prior wallet balance"), Wallet->Copper, 32);
+	TestEqual(TEXT("Panel buyback restores the item"), Inventory->GetItemQuantity(Tonic), 1);
 	Hud->CloseVendor();
 	TestFalse(TEXT("Close hides vendor panel"), Hud->IsVendorPanelVisible());
 
@@ -231,6 +353,40 @@ bool FEmbermereFenwatchVendorStockDataTest::RunTest(const FString& Parameters)
 		TestTrue(TEXT("Second ware is Recruit Pack"), Stock->Entries[1].Item && Stock->Entries[1].Item->ItemId == FName(TEXT("RecruitPack")));
 		TestEqual(TEXT("Recruit Pack costs thirty copper"), Stock->Entries[1].UnitPriceCopper, 30);
 		TestEqual(TEXT("Recruit Pack stock is finite"), Stock->Entries[1].InitialQuantity, 1);
+	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereFenwatchEconomyDataTest,
+	"Embermere.Economy.FenwatchRewardsAndValues",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereFenwatchEconomyDataTest::RunTest(const FString& Parameters)
+{
+	const UEmbermereItemData* Tonic = LoadObject<UEmbermereItemData>(
+		nullptr,
+		TEXT("/Game/Data/Items/DI_MarshTonic.DI_MarshTonic"));
+	const UEmbermereItemData* RecruitPack = LoadObject<UEmbermereItemData>(
+		nullptr,
+		TEXT("/Game/Data/Items/DI_EmbermereRecruitPack.DI_EmbermereRecruitPack"));
+	const UEmbermereQuestData* Quest = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	TestNotNull(TEXT("Marsh Tonic economy data loads"), Tonic);
+	TestNotNull(TEXT("Recruit Pack economy data loads"), RecruitPack);
+	TestNotNull(TEXT("Fenwatch starter quest economy data loads"), Quest);
+	if (Tonic)
+	{
+		TestEqual(TEXT("Marsh Tonic sells for three copper"), Tonic->SellValueCopper, 3);
+	}
+	if (RecruitPack)
+	{
+		TestEqual(TEXT("Recruit Pack sells for twelve copper"), RecruitPack->SellValueCopper, 12);
+	}
+	if (Quest)
+	{
+		TestEqual(TEXT("Starter quest awards twenty copper"), Quest->RewardCopper, 20);
 	}
 	return true;
 }
@@ -1928,7 +2084,8 @@ bool FEmbermereQuestRewardTest::RunTest(const FString& Parameters)
 	TestNotNull(TEXT("Character has stats"), Character->Stats.Get());
 	TestNotNull(TEXT("Character has inventory"), Character->Inventory.Get());
 	TestNotNull(TEXT("Character has quest log"), Character->QuestLog.Get());
-	if (!Character->Stats || !Character->Inventory || !Character->QuestLog)
+	TestNotNull(TEXT("Character has wallet"), Character->Wallet.Get());
+	if (!Character->Stats || !Character->Inventory || !Character->QuestLog || !Character->Wallet)
 	{
 		return false;
 	}
@@ -1944,6 +2101,7 @@ bool FEmbermereQuestRewardTest::RunTest(const FString& Parameters)
 	Quest->ObjectiveId = "StarterEnemyDefeated";
 	Quest->RequiredObjectiveCount = 2;
 	Quest->RewardExperience = 75;
+	Quest->RewardCopper = 20;
 	Quest->RewardItem = RewardItem;
 
 	Character->Stats->InitializeVitals();
@@ -1956,6 +2114,7 @@ bool FEmbermereQuestRewardTest::RunTest(const FString& Parameters)
 
 	TestTrue(TEXT("Quest state is completed"), Character->QuestLog->ActiveQuest.bCompleted);
 	TestEqual(TEXT("XP reward is granted"), Character->Stats->CurrentExperience, 75);
+	TestEqual(TEXT("Copper reward is granted exactly once"), Character->Wallet->Copper, 60);
 	TestEqual(TEXT("Reward item creates one inventory stack"), Character->Inventory->Stacks.Num(), 1);
 	if (Character->Inventory->Stacks.Num() > 0)
 	{
@@ -1964,6 +2123,7 @@ bool FEmbermereQuestRewardTest::RunTest(const FString& Parameters)
 	}
 
 	TestFalse(TEXT("Completed quest cannot complete again"), Character->QuestLog->TryCompleteActiveQuest());
+	TestEqual(TEXT("Completed quest cannot duplicate copper"), Character->Wallet->Copper, 60);
 
 	return true;
 }

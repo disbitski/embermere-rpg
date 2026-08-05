@@ -9,6 +9,7 @@ import unreal
 
 RECRUIT_PACK_PATH = "/Game/Data/Items/DI_EmbermereRecruitPack"
 MARSH_TONIC_PATH = "/Game/Data/Items/DI_MarshTonic"
+STARTER_QUEST_PATH = "/Game/Data/Quests/DQ_FirstSignsAtTheRuin"
 RECRUIT_PACK_ICON_PATH = "/Game/UI/Icons/T_Icon_Item_RecruitPack"
 MARSH_TONIC_ICON_PATH = "/Game/UI/Icons/T_Icon_Item_MarshTonic"
 
@@ -44,6 +45,7 @@ def main():
     recruit_pack.set_editor_property("category", unreal.EmbermereItemCategory.ARMOR)
     recruit_pack.set_editor_property("equipment_slot", unreal.EmbermereEquipmentSlot.BACK)
     recruit_pack.set_editor_property("required_level", 1)
+    recruit_pack.set_editor_property("sell_value_copper", 12)
 
     bonuses = unreal.EmbermereItemStatBonuses()
     bonuses.set_editor_property("max_health", 5.0)
@@ -63,6 +65,7 @@ def main():
     marsh_tonic.set_editor_property("description", "A sharp herbal tonic brewed from reeds gathered near the Embermere ruins.")
     marsh_tonic.set_editor_property("max_stack", 5)
     marsh_tonic.set_editor_property("category", unreal.EmbermereItemCategory.CONSUMABLE)
+    marsh_tonic.set_editor_property("sell_value_copper", 3)
 
     effects = unreal.EmbermereConsumableEffects()
     effects.set_editor_property("heal_health", 25.0)
@@ -76,7 +79,16 @@ def main():
     if not unreal.EditorAssetLibrary.save_loaded_asset(marsh_tonic, only_if_is_dirty=False):
         raise RuntimeError(f"Could not save starter item: {MARSH_TONIC_PATH}")
 
-    unreal.log("Embermere starter items configured: Recruit Pack gear and Marsh Tonic consumable")
+    starter_quest = unreal.EditorAssetLibrary.load_asset(STARTER_QUEST_PATH)
+    if not starter_quest or not isinstance(starter_quest, unreal.EmbermereQuestData):
+        raise RuntimeError(f"Could not load starter quest: {STARTER_QUEST_PATH}")
+    starter_quest.set_editor_property("reward_copper", 20)
+    if not unreal.EditorAssetLibrary.save_loaded_asset(starter_quest, only_if_is_dirty=False):
+        raise RuntimeError(f"Could not save starter quest: {STARTER_QUEST_PATH}")
+
+    unreal.log(
+        "Embermere starter economy configured: Recruit Pack and Marsh Tonic sell values plus starter-quest copper"
+    )
 
 
 if __name__ == "__main__":

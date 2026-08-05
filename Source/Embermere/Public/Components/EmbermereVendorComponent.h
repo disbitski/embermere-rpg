@@ -18,6 +18,46 @@ enum class EEmbermereVendorPurchaseResult : uint8
 	InventoryFull
 };
 
+UENUM(BlueprintType)
+enum class EEmbermereVendorSellResult : uint8
+{
+	Success,
+	InvalidRequest,
+	NotOwned,
+	Unsellable,
+	WalletFull
+};
+
+UENUM(BlueprintType)
+enum class EEmbermereVendorBuybackResult : uint8
+{
+	Success,
+	InvalidRequest,
+	OutOfStock,
+	InsufficientFunds,
+	InventoryFull
+};
+
+USTRUCT(BlueprintType)
+struct FEmbermereVendorBuybackEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Vendor")
+	TObjectPtr<UEmbermereItemData> Item;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Vendor")
+	int32 Quantity = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Vendor")
+	int32 UnitPriceCopper = 0;
+
+	bool IsValid() const
+	{
+		return Item && Quantity > 0 && UnitPriceCopper > 0;
+	}
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEmbermereVendorStockChangedSignature);
 
 UCLASS(ClassGroup = (Embermere), meta = (BlueprintSpawnableComponent))
@@ -33,6 +73,12 @@ public:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Vendor")
 	TArray<int32> RemainingQuantities;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Vendor")
+	TArray<FEmbermereVendorBuybackEntry> BuybackEntries;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vendor", meta = (ClampMin = "1", ClampMax = "16"))
+	int32 MaxBuybackEntries = 8;
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FEmbermereVendorStockChangedSignature OnStockChanged;
@@ -69,6 +115,56 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Vendor")
 	FText GetPurchaseResultText(EEmbermereVendorPurchaseResult Result, int32 StockIndex, int32 Quantity = 1) const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Vendor")
+	EEmbermereVendorSellResult CanSell(
+		const UEmbermereItemData* Item,
+		int32 Quantity,
+		const UEmbermereInventoryComponent* Inventory,
+		const UEmbermereWalletComponent* Wallet) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Vendor")
+	EEmbermereVendorSellResult TrySell(
+		UEmbermereItemData* Item,
+		int32 Quantity,
+		UEmbermereInventoryComponent* Inventory,
+		UEmbermereWalletComponent* Wallet);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Vendor")
+	FText GetSellResultText(
+		EEmbermereVendorSellResult Result,
+		const UEmbermereItemData* Item,
+		int32 Quantity = 1) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Vendor")
+	int32 GetBuybackEntryCount() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Vendor")
+	bool GetBuybackEntry(int32 BuybackIndex, FEmbermereVendorBuybackEntry& OutEntry) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Vendor")
+	EEmbermereVendorBuybackResult CanBuyback(
+		int32 BuybackIndex,
+		int32 Quantity,
+		const UEmbermereInventoryComponent* Inventory,
+		const UEmbermereWalletComponent* Wallet) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Vendor")
+	EEmbermereVendorBuybackResult TryBuyback(
+		int32 BuybackIndex,
+		int32 Quantity,
+		UEmbermereInventoryComponent* Inventory,
+		UEmbermereWalletComponent* Wallet);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Vendor")
+	FText GetBuybackResultText(
+		EEmbermereVendorBuybackResult Result,
+		const UEmbermereItemData* Item,
+		int32 UnitPriceCopper,
+		int32 Quantity = 1) const;
+
 protected:
 	virtual void BeginPlay() override;
+
+private:
+	void RecordBuyback(UEmbermereItemData* Item, int32 Quantity, int32 UnitPriceCopper);
 };

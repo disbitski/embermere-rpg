@@ -1807,6 +1807,42 @@ The transferable lesson is the same one that shaped Embermere's asset lane:
 separate ownership makes iteration cheap. Art can become skeletal, stock can
 change, and the UI can be reskinned without rewriting the transaction core.
 
+## 2026-08-05 - Copper Entered The Loop
+
+Fenwatch's first merchant could spend the player's prototype purse, but the
+world could not replenish it and the vendor could not take items back. Today's
+economy pass closed both sides without moving a rule into the quartermaster art
+or HUD.
+
+- Added data-driven sell values: Marsh Tonic sells for `3` copper and Recruit
+  Pack for `12`. Quest items and zero-value items are explicitly unsellable.
+- Mara's first quest now grants `20` copper exactly once alongside `125` XP and
+  its Recruit Pack, so currency is earned through the playable quest loop.
+- Added authoritative sell and bounded buyback preflight to the existing vendor
+  component. Sales remove the exact selected item identity, credit the wallet,
+  and record buyback only after commit. Buyback checks purse and full quantity
+  capacity before restoring that same identity at the recorded price.
+- Every unexpected second-step failure has an inverse operation: a failed
+  removal retracts the sale credit, while a failed buyback add refunds the
+  charge. Rejected paths leave wallet, inventory, stock, and buyback unchanged.
+- Extended the fixed `500x325` panel with Sell selected and latest Buyback while
+  preserving its stock/detail/status/footer bounds and chat feedback.
+
+Clean PIE exercised the real runtime state: tonic purchase `40 -> 32`, sale
+`32 -> 35`, buyback `35 -> 32`, finite Recruit Pack purchase `32 -> 2`, and an
+insufficient-funds retry that held at `2`. The live quest component then moved
+`2 -> 22`, posted `Reward: 20 copper`, granted XP and the reward item, and
+rejected a second completion without another payout. The inventory finished
+with the bought-back tonic and both independently owned Recruit Packs.
+
+The no-hot-reload Mac build succeeded, all `38/38` automation tests passed,
+saved economy data and map/UI validators emitted their exact success markers,
+and initialized-world route traces retained the accepted Fenwatch composition.
+
+Lesson: rollback is not one generic undo. Each ownership boundary needs a
+preflight, a deliberate commit order, and an exact inverse for the mutation it
+performs. Buyback history is valid only after the sale itself has committed.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

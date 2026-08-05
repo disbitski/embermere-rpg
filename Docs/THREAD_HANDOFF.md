@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-03
+Last updated: 2026-08-05
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -63,12 +63,14 @@ The project currently includes:
 - a reusable art-only NPC wrapper with static and skeletal lanes, shared
   transforms, soft references, and no interaction or service ownership;
 - a separate Fenwatch vendor vertical slice with an art-free interactable
-  service actor, data-driven stock/prices, player copper, atomic buy/rollback,
-  fixed native stock UI, and saved ownership validation;
+  service actor, data-driven stock/prices/sell values, earned player copper,
+  atomic buy/sell/buyback rollback, fixed native stock UI, and saved ownership
+  validation;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
-- 36 passing Unreal automation tests plus fresh-process vendor, UI-art/package and
-  saved-map validators and initialized-live-world road-boundary traces.
+- 38 passing Unreal automation tests plus fresh-process vendor,
+  UI-art/package and saved-map validators and initialized-live-world
+  road-boundary traces.
 
 This is still prototype art. The first black-sky problem is corrected, but the
 scene remains mixed in style and is missing a cohesive fantasy village kit,
@@ -251,8 +253,8 @@ Components:
 - `EmbermereQuestLogComponent`: quest state and completion.
 - `EmbermereInteractableComponent`: interaction range/behavior.
 - `EmbermereWalletComponent`: player-owned copper.
-- `EmbermereVendorComponent`: stock state, purchase preflight, commit, and
-  rollback-safe transaction rules.
+- `EmbermereVendorComponent`: stock and bounded buyback state plus purchase,
+  sell, and buyback preflight, commit, and rollback-safe transaction rules.
 
 Data and types:
 
@@ -609,11 +611,13 @@ Current automation tests:
 34. `Embermere.Vendor.ServiceContract`
 35. `Embermere.Vendor.FenwatchStockData`
 36. `Embermere.UI.VendorPanel`
+37. `Embermere.Vendor.SellBuybackTransactions`
+38. `Embermere.Economy.FenwatchRewardsAndValues`
 
-Latest verified baseline (2026-08-04):
+Latest verified baseline (2026-08-05):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- headless automation discovered and passed 36/36 with zero test failures,
+- headless automation discovered and passed 38/38 with zero test failures,
   including saved starter-effect semantics and runtime contracts for timed
   power/armor buffs, Snare, Frost Root, Meditate, effective-stat consumption,
   respawn-safe temporary-effect clearing, fixed paper-doll presentation, and
@@ -622,14 +626,21 @@ Latest verified baseline (2026-08-04):
   recovery, the real saved Fenwatch-keeper SCS presentation contract, the
   generic static-to-skeletal NPC wrapper contract, and the saved quartermaster
   presentation, plus vendor transactions, art/service separation, saved
-  Fenwatch stock, and native panel behavior;
+  Fenwatch stock, native panel behavior, exact saved quest/item economy values,
+  and rollback-safe sell/buyback transactions;
 - fresh-process vendor validation accepted the exact two stock rows, prices,
   finite/unlimited quantities, co-located service transform/tags/reference, no
   art on the service, and no service component on the presentation;
 - clean PIE opened the service through normal `F`, bought Marsh Tonic from
-  `40` to `32` copper, bought the one Recruit Pack from `32` to `2`, updated
-  inventory and chat, exposed sold-out and insufficient-funds states, kept the
-  two-line result clear of the footer, and restored input on close;
+  `40` to `32` copper, sold it by selected identity from `32` to `35`, bought
+  it back from `35` to `32`, bought the one Recruit Pack from `32` to `2`, and
+  rejected another tonic without mutation. The live quest component then paid
+  the saved `20` copper reward exactly once, moving `2` to `22` alongside XP
+  and the Recruit Pack reward;
+- the fixed panel and chat exposed purchase, sale, buyback, sold-out, and
+  insufficient-funds states without crossing the footer or hotbar. Inventory
+  retained the bought-back tonic plus independently owned bought and rewarded
+  Recruit Packs;
 - target presentation automation proves cyan color, 48-segment continuity,
   restrained pulse, no rotation/collision, target switching, and clearing;
 - the selected-target circle resolves its radius from transformed capsule and
@@ -845,9 +856,10 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-04 no-hot-reload module plus the saved Fenwatch stock/service, keeper,
-quartermaster, NPC wrapper, Blueprint, and map packages, then confirm MCP/test
-discovery; restart only if the editor or test registry proves stale.
+2026-08-05 no-hot-reload economy module plus the saved Fenwatch stock/service,
+item, quest, keeper, quartermaster, NPC wrapper, Blueprint, and map packages,
+then confirm MCP/test discovery; restart only if the editor or test registry
+proves stale.
 
 First fresh-session checks:
 
@@ -855,7 +867,7 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 36 tests, including the four vendor tests,
+3. Run/discover all 38 tests, including the six economy/vendor tests,
    `Embermere.NPC.FenwatchKeeperPresentation`,
    `Embermere.NPC.PresentationContract`, and
    `Embermere.NPC.FenwatchQuartermasterPresentation`.
@@ -931,10 +943,13 @@ First fresh-session checks:
      supported ruin silhouette, and balanced daylight/fog under the
      atmospheric sky.
    - approach the quartermaster and press `F`; confirm 40 starting copper,
-     tonic at 8, one Recruit Pack at 30, both successful purchases, exact
-     wallet/inventory/finite-stock changes, sold-out and insufficient-funds
-     states, fixed non-overlapping result/footer copy, chat, and close/input
-     restoration.
+     tonic at 8 with sell value 3, one Recruit Pack at 30 with sell value 12,
+     tonic purchase/sale/buyback at `40 -> 32 -> 35 -> 32`, pack purchase at
+     `32 -> 2`, exact wallet/inventory/finite-stock/buyback changes, sold-out
+     and insufficient-funds states, fixed non-overlapping result/footer copy,
+     chat, and close/input restoration;
+   - complete Mara's quest and confirm its saved 20-copper reward pays exactly
+     once alongside XP and Recruit Pack, with repeat completion rejected.
 5. Walk from the village into the new Prowler triangle. Confirm each `525` cm
    pull stays solo, visual markers/bands do not block movement, and an enemy can
    leash and return home normally.
@@ -960,9 +975,9 @@ High-value milestones after that:
   and target-circle separation; polish only concrete readability issues;
 - retain Mara's accepted static Fenwatch keeper and verify it from the normal
   PlayerStart route before any rigged-humanoid work;
-- award copper through the normal quest/combat loop and add one bounded
-  rollback-safe sell or buyback path without moving currency, stock,
-  transactions, prompts, or interaction into the art wrapper;
+- define a versioned save-game contract for wallet, inventory/equipment item
+  identity, quest completion, and finite vendor stock; explicitly decide
+  whether bounded vendor-local buyback survives a loaded session;
 - retain the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest/
   shelter/keeper/quartermaster lane and its deterministic scripts, FBX checks,
   original-art tags, and route composition;
@@ -1033,12 +1048,12 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-04 current module,
+Follow TODO.md's Start Here section. Confirm the 2026-08-05 current module,
 bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
-vendor stock/service, Blueprint/map packages, and route-repair map, then run
-all 36 tests. Retain the
+vendor stock/service, item/quest economy data, Blueprint/map packages, and
+route-repair map, then run all 38 tests. Retain the
 original rigged Prowler across all three instances and verify Idle, Walk, Run,
 Attack, Hit, Death, terrain contact, target presentation, combat, tonic loot,
 hide, and respawn. Retain the accepted fixed player and
@@ -1081,9 +1096,12 @@ non-colliding Fenwatch quartermaster at `(-1530, -1190, 0)`, yaw `100`, using
 the static lane of the reusable NPC presentation wrapper with no service or
 interaction authority, plus its co-located art-free vendor service and saved
 stock asset. Exercise the normal `F` vendor loop: 40 starting copper, tonic at
-8, one Recruit Pack at 30, exact wallet/inventory/stock mutation, sold-out and
-insufficient-funds states, fixed result/footer copy, chat, and close/input
-restoration. Re-run the four focused vendor tests and fresh-process validator.
+8/sell 3, one Recruit Pack at 30/sell 12, tonic purchase/sale/buyback at
+`40 -> 32 -> 35 -> 32`, pack purchase at `32 -> 2`, exact wallet/inventory/
+stock/buyback mutation, sold-out and insufficient-funds states, fixed result/
+footer copy, chat, and close/input restoration. Complete Mara's quest and prove
+its 20-copper reward pays exactly once. Re-run the six focused economy/vendor
+tests and fresh-process validator.
 Also retain
 the route-facing supply chest at `(-1740, -1180, 0)` with solid authored lid
 collision, at least 225 cm of saved spawn-corridor clearance, and a clear live
@@ -1091,11 +1109,12 @@ player-height trace. Walk the
 normal route and prove each 525 cm Prowler pull stays solo while visual
 band geometry remains non-colliding. Inspect the shelter from PlayerStart and
 prove Mara's name/quest marker, keeper, open center, four supports, and straight
-autorun route remain readable. Then award copper through the normal quest or
-combat loop and add one rollback-safe sell/buyback path without moving economy
-rules into art; prove the wrapper's skeletal/idle lane, add a matching trainer
-presentation and separate service, tune only concrete Prowler or aura issues,
-or take the highest-value next milestone when the path is clear.
+autorun route remain readable. Then define the first versioned save-game
+contract for wallet, inventory/equipment identity, quest completion, and finite
+vendor stock, with an explicit buyback-persistence decision; prove the
+wrapper's skeletal/idle lane, add a matching trainer presentation and separate
+service, tune only concrete Prowler or aura issues, or take the highest-value
+next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

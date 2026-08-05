@@ -22,6 +22,11 @@ bool UEmbermereWalletComponent::CanAfford(int32 Amount) const
 	return Amount >= 0 && Copper >= Amount;
 }
 
+bool UEmbermereWalletComponent::CanAddCopper(int32 Amount) const
+{
+	return Amount > 0 && Copper <= MAX_int32 - Amount;
+}
+
 bool UEmbermereWalletComponent::TrySpendCopper(int32 Amount)
 {
 	if (Amount <= 0 || !CanAfford(Amount))
@@ -36,7 +41,7 @@ bool UEmbermereWalletComponent::TrySpendCopper(int32 Amount)
 
 bool UEmbermereWalletComponent::AddCopper(int32 Amount)
 {
-	if (Amount <= 0 || Copper > MAX_int32 - Amount)
+	if (!CanAddCopper(Amount))
 	{
 		return false;
 	}

@@ -1,6 +1,7 @@
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereStatsComponent.h"
+#include "Components/EmbermereWalletComponent.h"
 #include "Engine/Engine.h"
 #include "UI/EmbermereGameplayMessageLibrary.h"
 
@@ -64,6 +65,22 @@ bool UEmbermereQuestLogComponent::TryCompleteActiveQuest()
 		if (UEmbermereStatsComponent* Stats = Owner->FindComponentByClass<UEmbermereStatsComponent>())
 		{
 			Stats->AddExperience(ActiveQuest.Quest->RewardExperience);
+		}
+
+		if (ActiveQuest.Quest->RewardCopper > 0)
+		{
+			if (UEmbermereWalletComponent* Wallet = Owner->FindComponentByClass<UEmbermereWalletComponent>())
+			{
+				if (Wallet->AddCopper(ActiveQuest.Quest->RewardCopper))
+				{
+					UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+						this,
+						FText::FromString(FString::Printf(
+							TEXT("Reward: %d copper"),
+							ActiveQuest.Quest->RewardCopper)),
+						FLinearColor(1.0f, 0.82f, 0.38f, 1.0f));
+				}
+			}
 		}
 
 		if (UEmbermereInventoryComponent* Inventory = Owner->FindComponentByClass<UEmbermereInventoryComponent>())

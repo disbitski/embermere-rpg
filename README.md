@@ -52,8 +52,12 @@ The repo currently contains the C++ gameplay scaffold for:
   skeletal visual lanes, shared authored transforms, soft art references, and
   no quest/service/interaction ownership
 - a separate data-driven Fenwatch vendor service with player copper,
-  finite/unlimited stock, complete buy preflight, rollback-safe transactions,
-  native fixed stock UI, inventory/chat feedback, and no art ownership
+  finite/unlimited stock, complete buy/sell/buyback preflight, rollback-safe
+  transactions, native fixed stock UI, inventory/chat feedback, and no art
+  ownership
+- data-driven item sell values plus an earned-currency loop: Mara's first quest
+  grants copper exactly once, selected bag items can be sold by identity, and
+  the latest sale can be bought back at its recorded price
 - UMG base classes for character creation and HUD widgets
 - native first-pass HUD panels for status, target, range state, quest tracking, dialogue, loot, and hotbar labels
 - bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback
@@ -219,9 +223,12 @@ and a reusable static-to-skeletal NPC presentation contract demonstrated by
 the grounded Fenwatch quartermaster beside the village supply chest. A
 co-located art-free service now turns that quartermaster into Embermere's first
 working merchant without coupling stock, prices, currency, transactions, or
-interaction to the model.
+interaction to the model. The playable loop now earns `20` copper from Mara's
+first quest and supports rollback-safe selling and latest-item buyback through
+the same fixed vendor panel.
 
-Next milestone: award copper through the real quest/combat loop and add one
-rollback-safe sell or buyback path on the accepted vendor contract; then prove
-the NPC wrapper's skeletal/idle upgrade lane or add a matching trainer
-presentation and separate service.
+Next milestone: define and implement the first save-game persistence slice for
+wallet, inventory/equipment identity, quest completion, and finite vendor stock,
+with an explicit decision about transient buyback history; then prove the NPC
+wrapper's skeletal/idle upgrade lane or add a matching trainer presentation and
+separate service.

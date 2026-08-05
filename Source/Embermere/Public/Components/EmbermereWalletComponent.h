@@ -29,6 +29,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Currency")
 	bool CanAfford(int32 Amount) const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Currency")
+	bool CanAddCopper(int32 Amount) const;
+
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Currency")
 	bool TrySpendCopper(int32 Amount);
 

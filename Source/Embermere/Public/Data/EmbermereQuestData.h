@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rewards")
 	int32 RewardExperience = 100;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rewards", meta = (ClampMin = "0"))
+	int32 RewardCopper = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rewards")
 	TSoftObjectPtr<UEmbermereItemData> RewardItem;
 };

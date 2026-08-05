@@ -7,6 +7,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 STOCK_PATH = "/Game/Data/Vendors/DA_FenwatchQuartermasterStock"
+QUEST_PATH = "/Game/Data/Quests/DQ_FirstSignsAtTheRuin"
 SERVICE_LABEL = "Embermere_FenwatchQuartermaster_Service_01"
 PRESENTATION_LABEL = "Embermere_FenwatchQuartermaster_Vendor_01"
 EXPECTED_LOCATION = unreal.Vector(-1530.0, -1190.0, 0.0)
@@ -36,10 +37,10 @@ def main():
         fail("expected two stock entries, found {}".format(len(entries)))
 
     expected = [
-        ("MarshTonic", 8, -1),
-        ("RecruitPack", 30, 1),
+        ("MarshTonic", 8, -1, 3),
+        ("RecruitPack", 30, 1, 12),
     ]
-    for index, (item_id, price, quantity) in enumerate(expected):
+    for index, (item_id, price, quantity, sell_value) in enumerate(expected):
         entry = entries[index]
         item = entry.get_editor_property("item")
         if not item or str(item.get_editor_property("item_id")) != item_id:
@@ -48,6 +49,14 @@ def main():
             fail("stock row {} price drifted".format(index))
         if int(entry.get_editor_property("initial_quantity")) != quantity:
             fail("stock row {} quantity drifted".format(index))
+        if int(item.get_editor_property("sell_value_copper")) != sell_value:
+            fail("stock row {} sell value drifted".format(index))
+
+    quest = unreal.EditorAssetLibrary.load_asset(QUEST_PATH)
+    if not quest or not isinstance(quest, unreal.EmbermereQuestData):
+        fail("starter quest is missing or has the wrong class")
+    if int(quest.get_editor_property("reward_copper")) != 20:
+        fail("starter quest copper reward drifted")
 
     unreal.EditorLevelLibrary.load_level(LEVEL_PATH)
     actor_subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
@@ -100,7 +109,7 @@ def main():
         fail("presentation unexpectedly owns vendor behavior")
 
     unreal.log(
-        "Embermere Fenwatch vendor validation passed: two data-driven wares, atomic service component, one saved art-free service actor, and presentation/service ownership separation intact"
+        "Embermere Fenwatch economy validation passed: two data-driven wares and sell values, twenty-copper quest reward, atomic buy/sell/buyback service, one saved art-free service actor, and presentation/service ownership separation intact"
     )
 
 

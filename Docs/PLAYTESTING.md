@@ -192,17 +192,25 @@ interaction, dialogue, and quest state.
    quartermaster beside the supply chest, and press `F`.
 2. Confirm `Fenwatch Supplies` opens with `Purse: 40 copper`, Marsh Tonic at
    `8 copper`, Recruit Pack at `30 copper | 1 left`, resolved icons, selected
-   item details, Buy, close, and no overlapping Inventory panel.
+   item details, Buy, Sell selected, latest Buyback, close, and no overlapping
+   Inventory panel.
 3. Buy Marsh Tonic. Confirm the purse becomes `32 copper`, Inventory gains one
    tonic, and identical readable success copy appears inside the fixed vendor
    result cell and bottom-left chat.
-4. Select and buy Recruit Pack. Confirm the purse becomes `2 copper`, Inventory
+4. Sell the selected tonic. Confirm the purse becomes `35 copper`, the exact
+   tonic leaves Inventory, and Buyback offers `Marsh Tonic x1 | 3 copper`.
+5. Buy it back. Confirm the purse returns to `32 copper`, the same item identity
+   returns to Inventory, and Buyback becomes empty.
+6. Select and buy Recruit Pack. Confirm the purse becomes `2 copper`, Inventory
    gains the pack, its row reports `0 left`, and the row is disabled.
-5. Select Marsh Tonic again. Confirm Buy is disabled and the fixed result cell
+7. Select Marsh Tonic again. Confirm Buy is disabled and the fixed result cell
    reads `You do not have enough copper.` without crossing the footer.
-6. Click `X`. Confirm the panel disappears, normal game-only mouse input is
+8. Complete Mara's quest. Confirm the chat reports `Reward: 20 copper`, the
+   purse becomes `22 copper`, XP and Recruit Pack rewards still arrive, and a
+   repeated completion cannot pay again.
+9. Click `X`. Confirm the panel disappears, normal game-only mouse input is
    restored, and movement/camera controls still work.
-7. Retain the visual/service split: the visible quartermaster is non-colliding
+10. Retain the visual/service split: the visible quartermaster is non-colliding
    art; the co-located interaction marker and stock come from the invisible
    service actor. Neither should obstruct Mara, the chest, or traversal.
 
@@ -216,8 +224,8 @@ The full ownership and rollback contract is in
 - Opening the inventory shows the cursor and permits UI clicks; closing it hides the cursor and restores classic game-only mouse input.
 - Interacting with Mara shows a temporary bottom-screen dialogue panel.
 - Interacting with the Fenwatch quartermaster shows a fixed native stock panel
-  with purse, wares, prices, finite stock, details, transaction state, and chat
-  feedback.
+  with purse, wares, prices, finite stock, details, Buy, Sell selected, latest
+  Buyback, transaction state, and chat feedback.
 - Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
 - `Ctrl+M` toggles mouse Y inversion and posts a bottom-left chat/combat log message.
@@ -253,9 +261,9 @@ The full ownership and rollback contract is in
 - Defeating starter enemies advances `StarterEnemyDefeated`.
 - Defeating a Marsh Prowler grants one stackable Marsh Tonic and reports it in chat.
 - Defeated enemies hide and respawn after a short prototype delay.
-- Completing the quest shows bottom-left completion/XP messages, a temporary
-  loot/reward popup with fixed item art, and the reward item in the inventory
-  panel.
+- Completing the quest shows bottom-left completion/XP and `20` copper reward
+  messages, a temporary loot/reward popup with fixed item art, and the reward
+  item in the inventory panel. Repeated completion must not pay twice.
 
 ## Known Prototype Gaps
 
@@ -293,9 +301,10 @@ The full ownership and rollback contract is in
   motion remains a manual check. The next phases are documented in
   `Docs/INVENTORY_INTERACTION_PLAN.md`.
 - The first vendor supports exact one-at-a-time buying, finite/unlimited stock,
-  full-bag/affordability rollback, and native feedback. Copper and stock are
-  session-only, copper is not yet earned through gameplay, and selling,
-  buyback, quantity entry, persistence, and reputation pricing remain open.
+  data-driven one-at-a-time selling, bounded latest-item buyback, full-bag/
+  affordability/wallet rollback, and native feedback. Mara's first quest now
+  awards copper. Copper, stock, and buyback are still session-only; quantity
+  entry, persistence, confirmation, and reputation pricing remain open.
   See `Docs/VENDOR_SERVICE_CONTRACT.md`.
 - Nameplates use a native UMG widget component and target highlighting uses a
   dedicated emissive material on a non-colliding 48-segment circle. Runtime

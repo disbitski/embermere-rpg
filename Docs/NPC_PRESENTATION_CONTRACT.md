@@ -81,5 +81,7 @@ The current focused tests are:
 
 Prove the static-to-skeletal idle upgrade through the wrapper without changing
 the accepted service actor, stock data, interaction, or saved world transform.
-The next service expansion should add earned currency and rollback-safe selling
-without moving any economy rule into NPC art.
+The service now supports earned currency, rollback-safe selling, and buyback
+without moving any economy rule into NPC art. The next service expansion should
+preserve that boundary while adding save-game persistence or a separate trainer
+service.

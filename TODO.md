@@ -6,19 +6,22 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-04 no-hot-reload module plus the saved
-  Fenwatch vendor stock/service and current map packages. Restart if the editor
-  predates that build or test discovery exposes fewer than 36 Embermere tests.
+- Confirm Unreal is running the 2026-08-05 no-hot-reload economy module plus
+  the saved Fenwatch vendor stock/service, item, quest, and current map
+  packages. Restart if the editor predates that build or test discovery exposes
+  fewer than 38 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 36 tests, especially
+- Discover and run all 38 tests, especially
+  `Embermere.Economy.FenwatchRewardsAndValues`,
   `Embermere.Vendor.TransactionRules`,
+  `Embermere.Vendor.SellBuybackTransactions`,
   `Embermere.Vendor.ServiceContract`,
   `Embermere.Vendor.FenwatchStockData`,
   `Embermere.UI.VendorPanel`, the three NPC presentation tests, Prowler/world
   presentation, player recovery, and inventory transaction suites. The
-  authoritative 2026-08-04 commandlet passed 36/36; the no-hot-reload Mac
+  authoritative 2026-08-05 commandlet passed 38/38; the no-hot-reload Mac
   build, saved-map, UI-art, Fenwatch-vendor, and initialized-world route
   validators also passed.
 - Recheck the accepted Fenwatch vendor loop through normal `F` interaction:
@@ -28,14 +31,23 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     and vendor behavior but no mesh, collision, navigation, or art;
   - `DA_FenwatchQuartermasterStock` offers unlimited Marsh Tonic at `8` copper
     and one Recruit Pack at `30` copper;
-  - a new player starts with `40` copper; buying both wares produces `32` then
-    `2`, grants both items, leaves the Recruit Pack sold out, and disables the
-    tonic buy action for insufficient funds;
+  - a new player starts with `40` copper; buying a tonic produces `32`, selling
+    that exact selected stack produces `35`, and buying it back for the same
+    `3` copper produces `32` with the original item identity restored;
+  - buying the one Recruit Pack then produces `2`, grants the item, leaves its
+    stock at zero, and a second tonic request is rejected for insufficient
+    funds without mutation;
+  - Marsh Tonic and Recruit Pack sell values are data-driven at `3` and `12`
+    copper; quest-category or zero-value items are unsellable;
+  - completing Mara's quest grants `20` copper exactly once alongside `125` XP
+    and the Recruit Pack reward, making currency part of the playable loop;
   - the fixed `500x325` native panel keeps title, purse, stock, icon/detail,
-    two-line result, Buy, and footer inside bounds, hides Inventory while open,
-    posts chat feedback, and restores game-only input when closed;
-  - full-bag, insufficient-funds, and sold-out rejections preserve copper,
-    stock, and inventory without partial mutation.
+    two-line result, Buy, Sell selected, latest Buyback, and footer inside
+    bounds, hides Inventory while open, posts chat feedback, and restores
+    game-only input when closed;
+  - full-bag, insufficient-funds, sold-out, not-owned, unsellable, and wallet-
+    overflow rejections preserve copper, stock, buyback, and inventory without
+    partial mutation.
 - Treat [Docs/VENDOR_SERVICE_CONTRACT.md](Docs/VENDOR_SERVICE_CONTRACT.md) as
   the economy boundary. The NPC wrapper owns only art; the service owns
   interaction and stock; the wallet and inventory own player state; the HUD
@@ -126,8 +138,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. add earned copper to the real quest/combat loop, then design a bounded
-     rollback-safe sell or buyback transaction on the current vendor contract;
+  1. define the first save-game persistence contract for player copper,
+     inventory/equipment identity, quest completion, and finite vendor stock;
+     explicitly decide whether transient buyback history belongs in a save;
   2. retain the accepted keeper/quartermaster/service scale, marker clearance,
      chest composition, panel layout, and PlayerStart route;
   3. prove the NPC wrapper's skeletal/idle upgrade lane, or build a matching
@@ -139,8 +152,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-04
-  vendor module and saved stock/map packages. Current code passes all 36 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-08-05
+  economy module and saved item/quest/stock packages. Current code passes all
+  38 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -193,6 +207,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.Enemy.LeashRules`
   - `Embermere.Enemy.LootRules`
   - `Embermere.Enemy.MarshProwlerPresentation`
+  - `Embermere.Economy.FenwatchRewardsAndValues`
   - `Embermere.Equipment.SlotRules`
   - `Embermere.Equipment.InventoryTransactions`
   - `Embermere.Equipment.StatApplication`
@@ -222,6 +237,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.UI.VendorPanel`
   - `Embermere.Vendor.FenwatchStockData`
   - `Embermere.Vendor.ServiceContract`
+  - `Embermere.Vendor.SellBuybackTransactions`
   - `Embermere.Vendor.TransactionRules`
 - Manually verify the styled first-pass HUD in PIE:
   - player HP, mana, XP, health bar, and mana bar are visible;
@@ -388,8 +404,9 @@ Embermere has a working first-pass starter slice:
   capacity, consumable use, item comparison/tooltips, identity-based inventory
   and drag/drop actions, autorun cancellation, damage immunity, enemy nameplate
   widget, chat log, hotbar cooldown display, item/slot/ability/paper-doll
-  presentation, inventory toggle, vendor transactions, service ownership,
-  saved stock, and native vendor-panel behavior, for 36 authoritative tests.
+  presentation, inventory toggle, buy/sell/buyback transactions, saved
+  economy values, service ownership, saved stock, and native vendor-panel
+  behavior, for 38 authoritative tests.
 
 ## How Far We Have To Go
 
@@ -424,14 +441,14 @@ effects, or audio.
 ## Next Work
 
 - Extend the accepted vendor/economy loop without weakening its boundaries:
-  - award copper through the normal quest/combat loop rather than only
-    prototype starting state;
-  - design one rollback-safe sell or buyback transaction with explicit pricing,
-    bag identity, capacity, stock, and currency invariants;
-  - keep save persistence, quantity buying, reputation pricing, and final
-    merchant audio outside this bounded next slice unless the path is clear;
-  - retain the fixed vendor panel, visual/service split, and click/input
-    fallbacks while adding tests before UI behavior.
+  - define a versioned save-game data contract for wallet, item identities and
+    quantities, equipped slots, quest progress/completion, and finite stock;
+  - decide deliberately whether vendor-local buyback history is transient or
+    persisted, rather than serializing runtime component state accidentally;
+  - prove load-time validation and atomic restore without duplicating items,
+    repaying quest copper, or resetting sold-out stock;
+  - retain one-at-a-time quantity behavior, the fixed vendor panel,
+    visual/service split, and click/input fallbacks until persistence is sound.
 - Replace temporary selected-target text with better world readability:
   - retain the UMG nameplate widget, selected marker, HP bar, and HP-aware
     accent color;

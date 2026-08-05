@@ -15,9 +15,11 @@ vertical slice of that contract.
 - `UEmbermereVendorStockData` owns the merchant name, item references, prices,
   and initial finite/unlimited quantities.
 - `UEmbermereWalletComponent` owns player copper. The existing inventory owns
-  item stacks and capacity.
-- `UEmbermerePlayerHudWidget` presents stock and sends selected buy requests;
-  it does not decide price, stock, affordability, or capacity.
+  item identity, stacks, and capacity. Item data owns sell value; quest data
+  owns copper reward value.
+- `UEmbermerePlayerHudWidget` presents stock, selected inventory, and buyback
+  state and sends buy, sell, and buyback requests. It does not decide price,
+  stock, sellability, affordability, ownership, or capacity.
 
 Changing the quartermaster mesh cannot change prices. Changing stock cannot
 move the merchant. Replacing the HUD cannot bypass transaction rules.
@@ -38,11 +40,19 @@ The saved map contains two co-located but independent actors at
 
 Players currently start with `40` prototype copper. Pressing `F` in range opens
 the fixed native `Fenwatch Supplies` panel with purse balance, stock rows,
-resolved item icons, detail copy, remaining quantity, Buy, close, and chat
-feedback. Opening it hides Inventory to prevent overlapping interactive panels;
-closing restores the normal game-only input path.
+resolved item icons, detail copy, remaining quantity, Buy, Sell selected, the
+most recent Buyback entry, close, and chat feedback. `[` and `]` can move the
+selected bag identity while the panel is open. Opening it hides Inventory to
+prevent overlapping interactive panels; closing restores the normal game-only
+input path.
 
-## Transaction Order
+Saved economy values currently define:
+
+- Marsh Tonic: `3` copper sell value;
+- Recruit Pack: `12` copper sell value;
+- First Signs at the Ruin: `20` copper completion reward, paid exactly once.
+
+## Purchase Transaction Order
 
 Every purchase preflights the complete request before mutation:
 
@@ -56,6 +66,36 @@ finite stock only after both mutations succeed. An unexpected inventory add
 failure refunds the exact charge. Rejected purchases preserve copper, stock,
 and inventory without partial state or duplication.
 
+## Sell Transaction Order
+
+Every sale preflights before mutation:
+
+1. Valid item, positive quantity, inventory, and wallet.
+2. A positive data-driven sell value and a non-quest item category.
+3. Exact ownership of the requested quantity.
+4. Safe total-value arithmetic and enough wallet headroom.
+5. Safe aggregation into the bounded buyback history.
+
+Commit credits the exact sale value, removes the exact item identity, then
+records buyback only after both mutations succeed. An unexpected remove failure
+retracts the credited copper. Rejected sales do not create buyback entries.
+
+## Buyback Transaction Order
+
+Buyback is vendor runtime state, not global inventory state. The current panel
+offers the newest entry first and records the item identity, quantity, and exact
+sale-unit price.
+
+1. Validate the entry and requested quantity.
+2. Preflight exact affordability and complete inventory capacity.
+3. Spend the exact recorded price.
+4. Restore the exact item identity without a fake loot notification.
+5. Decrement or remove the entry only after successful delivery.
+
+An unexpected add failure refunds the exact charge. Full inventory,
+insufficient funds, missing entries, and exhausted quantities preserve all
+owners unchanged.
+
 ## Persistence And Validation
 
 `Scripts/configure_fenwatch_vendor_unreal.py` creates or reconciles the stock
@@ -66,25 +106,37 @@ service behavior on the presentation.
 
 Focused automation:
 
+- `Embermere.Economy.FenwatchRewardsAndValues`
 - `Embermere.Vendor.TransactionRules`
+- `Embermere.Vendor.SellBuybackTransactions`
 - `Embermere.Vendor.ServiceContract`
 - `Embermere.Vendor.FenwatchStockData`
 - `Embermere.UI.VendorPanel`
 
-Clean PIE acceptance on 2026-08-04 proved normal `F` opening, a tonic purchase
-from `40` to `32` copper, a finite Recruit Pack purchase from `32` to `2`,
-sold-out state, insufficient-funds state, inventory mutation, chat feedback,
-non-overlapping fixed panel copy, and close/input restoration.
+Clean PIE acceptance on 2026-08-05 proved the complete runtime sequence:
+
+- tonic purchase `40 -> 32`;
+- selected-identity tonic sale `32 -> 35`;
+- tonic buyback `35 -> 32` with the same item restored;
+- finite Recruit Pack purchase `32 -> 2` and stock `1 -> 0`;
+- rejected tonic purchase holding the purse at `2`;
+- Mara quest completion `2 -> 22`, `125` XP, and Recruit Pack reward;
+- repeated completion rejected with the purse still at `22`.
+
+The fixed panel, bottom-left chat, inventory stack count, sold-out row, latest
+buyback row, and result copy all updated without footer or hotbar overlap. All
+`38/38` automation tests and fresh-process economy validation passed.
 
 ## Current Limits
 
-- Copper and runtime stock are not persisted between sessions.
-- Copper is prototype starting state; quests and loot do not yet award it.
-- Selling, stack quantities, buyback, confirmation, and reputation pricing are
-  intentionally absent.
+- Copper, runtime stock, and buyback are not persisted between sessions.
+- Selling and buyback are intentionally one item at a time; quantity entry,
+  confirmation, and reputation pricing remain absent.
+- Buyback history is bounded and vendor-local. Its future persistence policy is
+  deliberately undecided rather than accidentally serialized.
 - The service uses the existing generic interactable marker; final merchant
   prompt and audio presentation remain future work.
 
-The next useful economy slice is earning copper through the playable loop and
-adding rollback-safe selling or buyback without weakening this ownership
-boundary.
+The next useful economy slice is a versioned save-game contract for wallet,
+inventory/equipment identity, quest completion, and finite stock, with an
+explicit decision about whether buyback survives a loaded session.

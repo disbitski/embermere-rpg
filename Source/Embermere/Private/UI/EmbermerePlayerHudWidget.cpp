@@ -632,6 +632,74 @@ bool UEmbermerePlayerHudWidget::PurchaseSelectedVendorItem()
 	return bSucceeded;
 }
 
+bool UEmbermerePlayerHudWidget::SellSelectedInventoryItem()
+{
+	UEmbermereItemData* Item = GetSelectedInventoryItem();
+	if (!ActiveVendor || !Item || !Inventory || !Wallet)
+	{
+		return false;
+	}
+
+	const EEmbermereVendorSellResult Result = ActiveVendor->TrySell(Item, 1, Inventory, Wallet);
+	const FText ResultText = ActiveVendor->GetSellResultText(Result, Item, 1);
+	const bool bSucceeded = Result == EEmbermereVendorSellResult::Success;
+	AddChatMessage(
+		ResultText,
+		bSucceeded
+			? FLinearColor(0.52f, 0.95f, 0.58f, 1.0f)
+			: FLinearColor(1.0f, 0.38f, 0.24f, 1.0f));
+	if (VendorStatusText)
+	{
+		VendorStatusText->SetText(ResultText);
+		VendorStatusText->SetColorAndOpacity(FSlateColor(
+			bSucceeded
+				? FLinearColor(0.62f, 1.0f, 0.68f, 1.0f)
+				: FLinearColor(1.0f, 0.48f, 0.34f, 1.0f)));
+	}
+	ClampSelectedInventoryStackIndex();
+	RefreshVendorWindow();
+	RefreshInventoryWindow();
+	return bSucceeded;
+}
+
+bool UEmbermerePlayerHudWidget::BuyBackMostRecentVendorItem()
+{
+	if (!ActiveVendor || !Inventory || !Wallet)
+	{
+		return false;
+	}
+
+	FEmbermereVendorBuybackEntry Entry;
+	if (!ActiveVendor->GetBuybackEntry(0, Entry))
+	{
+		return false;
+	}
+
+	const EEmbermereVendorBuybackResult Result = ActiveVendor->TryBuyback(0, 1, Inventory, Wallet);
+	const FText ResultText = ActiveVendor->GetBuybackResultText(
+		Result,
+		Entry.Item,
+		Entry.UnitPriceCopper,
+		1);
+	const bool bSucceeded = Result == EEmbermereVendorBuybackResult::Success;
+	AddChatMessage(
+		ResultText,
+		bSucceeded
+			? FLinearColor(0.52f, 0.95f, 0.58f, 1.0f)
+			: FLinearColor(1.0f, 0.38f, 0.24f, 1.0f));
+	if (VendorStatusText)
+	{
+		VendorStatusText->SetText(ResultText);
+		VendorStatusText->SetColorAndOpacity(FSlateColor(
+			bSucceeded
+				? FLinearColor(0.62f, 1.0f, 0.68f, 1.0f)
+				: FLinearColor(1.0f, 0.48f, 0.34f, 1.0f)));
+	}
+	RefreshVendorWindow();
+	RefreshInventoryWindow();
+	return bSucceeded;
+}
+
 int32 UEmbermerePlayerHudWidget::GetSelectedVendorStockIndex() const
 {
 	return SelectedVendorStockIndex;
@@ -664,6 +732,26 @@ FText UEmbermerePlayerHudWidget::GetVendorDisplayText() const
 			*Entry.Item->DisplayName.ToString(),
 			Entry.UnitPriceCopper,
 			Remaining >= 0 ? *FString::Printf(TEXT(" (%d left)"), Remaining) : TEXT("")));
+	}
+
+	if (const UEmbermereItemData* SellItem = GetSelectedInventoryItem())
+	{
+		Lines.Add(SellItem->SellValueCopper > 0 && SellItem->Category != EEmbermereItemCategory::Quest
+			? FString::Printf(
+				TEXT("Sell: %s - %d copper"),
+				*SellItem->DisplayName.ToString(),
+				SellItem->SellValueCopper)
+			: FString::Printf(TEXT("Sell: %s - unavailable"), *SellItem->DisplayName.ToString()));
+	}
+
+	FEmbermereVendorBuybackEntry BuybackEntry;
+	if (ActiveVendor->GetBuybackEntry(0, BuybackEntry))
+	{
+		Lines.Add(FString::Printf(
+			TEXT("Buyback: %s x%d - %d copper"),
+			*BuybackEntry.Item->DisplayName.ToString(),
+			BuybackEntry.Quantity,
+			BuybackEntry.UnitPriceCopper));
 	}
 	return FText::FromString(FString::Join(Lines, TEXT("\n")));
 }
@@ -1811,6 +1899,18 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		TEXT("VendorBuyText"),
 		FLinearColor(0.98f, 0.88f, 0.58f, 1.0f),
 		13.0f);
+	VendorSellButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("VendorSellButton"));
+	VendorSellText = MakeHudText(
+		WidgetTree,
+		TEXT("VendorSellText"),
+		FLinearColor(0.7f, 0.92f, 0.72f, 1.0f),
+		12.0f);
+	VendorBuybackButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("VendorBuybackButton"));
+	VendorBuybackText = MakeHudText(
+		WidgetTree,
+		TEXT("VendorBuybackText"),
+		FLinearColor(0.82f, 0.86f, 0.68f, 1.0f),
+		11.0f);
 	VendorStatusText = MakeHudText(
 		WidgetTree,
 		TEXT("VendorStatusText"),
@@ -1850,16 +1950,39 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	AddStackChild(VendorDetailStack, VendorDetailHeader, 7.0f);
 	AddStackChild(VendorDetailStack, VendorDetailMetaText, 9.0f);
 	AddStackChild(VendorDetailStack, VendorDetailDescriptionText, 10.0f);
-	if (VendorBuyButton && VendorBuyText)
+	UHorizontalBox* VendorActionRow = WidgetTree->ConstructWidget<UHorizontalBox>(
+		UHorizontalBox::StaticClass(),
+		TEXT("VendorActionRow"));
+	if (VendorActionRow && VendorBuyButton && VendorBuyText && VendorSellButton && VendorSellText)
 	{
 		VendorBuyButton->SetBackgroundColor(FLinearColor(0.28f, 0.19f, 0.055f, 0.94f));
 		VendorBuyButton->OnClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleVendorBuyClicked);
 		VendorBuyText->SetJustification(ETextJustify::Center);
 		VendorBuyButton->AddChild(VendorBuyText);
+		VendorSellButton->SetBackgroundColor(FLinearColor(0.08f, 0.2f, 0.1f, 0.94f));
+		VendorSellButton->OnClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleVendorSellClicked);
+		VendorSellText->SetJustification(ETextJustify::Center);
+		VendorSellButton->AddChild(VendorSellText);
+
+		if (UHorizontalBoxSlot* BuySlot = VendorActionRow->AddChildToHorizontalBox(
+			MakeSizedWidget(WidgetTree, VendorBuyButton, TEXT("VendorBuySize"), 112.0f, 30.0f)))
+		{
+			BuySlot->SetPadding(FMargin(0.0f, 0.0f, 8.0f, 0.0f));
+		}
+		VendorActionRow->AddChildToHorizontalBox(
+			MakeSizedWidget(WidgetTree, VendorSellButton, TEXT("VendorSellSize"), 112.0f, 30.0f));
+		AddStackChild(VendorDetailStack, VendorActionRow, 6.0f);
+	}
+	if (VendorBuybackButton && VendorBuybackText)
+	{
+		VendorBuybackButton->SetBackgroundColor(FLinearColor(0.13f, 0.15f, 0.08f, 0.94f));
+		VendorBuybackButton->OnClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleVendorBuybackClicked);
+		VendorBuybackText->SetJustification(ETextJustify::Center);
+		VendorBuybackButton->AddChild(VendorBuybackText);
 		AddStackChild(
 			VendorDetailStack,
-			MakeSizedWidget(WidgetTree, VendorBuyButton, TEXT("VendorBuySize"), 185.0f, 30.0f),
-			8.0f);
+			MakeSizedWidget(WidgetTree, VendorBuybackButton, TEXT("VendorBuybackSize"), 235.0f, 26.0f),
+			5.0f);
 	}
 	AddStackChild(
 		VendorDetailStack,
@@ -1891,7 +2014,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		10.0f);
 	if (VendorFooterText)
 	{
-		VendorFooterText->SetText(FText::FromString(TEXT("Select stock   |   Buy one   |   X Close")));
+		VendorFooterText->SetText(FText::FromString(TEXT("Buy stock   |   Sell selected bag item   |   Buyback   |   X Close")));
 		VendorFooterText->SetJustification(ETextJustify::Center);
 	}
 	AddStackChild(VendorStack, VendorFooterText, 0.0f);
@@ -2469,12 +2592,70 @@ void UEmbermerePlayerHudWidget::RefreshVendorWindow()
 			? FText::FromString(FString::Printf(TEXT("Buy  |  %d copper"), SelectedEntry.UnitPriceCopper))
 			: FText::FromString(TEXT("Buy")));
 	}
+
+	UEmbermereItemData* SellItem = GetSelectedInventoryItem();
+	const EEmbermereVendorSellResult SellState = SellItem
+		? ActiveVendor->CanSell(SellItem, 1, Inventory, Wallet)
+		: EEmbermereVendorSellResult::InvalidRequest;
+	if (VendorSellButton)
+	{
+		VendorSellButton->SetIsEnabled(SellState == EEmbermereVendorSellResult::Success);
+		VendorSellButton->SetToolTipText(SellItem
+			? FText::FromString(FString::Printf(
+				TEXT("Sell one %s from your selected bag stack for %d copper."),
+				*SellItem->DisplayName.ToString(),
+				SellItem->SellValueCopper))
+			: FText::FromString(TEXT("Select an inventory item before opening the vendor.")));
+	}
+	if (VendorSellText)
+	{
+		VendorSellText->SetText(SellItem && SellItem->SellValueCopper > 0
+			? FText::FromString(FString::Printf(TEXT("Sell  |  %d copper"), SellItem->SellValueCopper))
+			: FText::FromString(TEXT("Sell selected")));
+	}
+
+	FEmbermereVendorBuybackEntry BuybackEntry;
+	const bool bHasBuyback = ActiveVendor->GetBuybackEntry(0, BuybackEntry);
+	const EEmbermereVendorBuybackResult BuybackState = bHasBuyback
+		? ActiveVendor->CanBuyback(0, 1, Inventory, Wallet)
+		: EEmbermereVendorBuybackResult::InvalidRequest;
+	if (VendorBuybackButton)
+	{
+		VendorBuybackButton->SetIsEnabled(BuybackState == EEmbermereVendorBuybackResult::Success);
+		VendorBuybackButton->SetToolTipText(bHasBuyback
+			? FText::FromString(FString::Printf(
+				TEXT("Buy back one %s. %d available at %d copper each."),
+				*BuybackEntry.Item->DisplayName.ToString(),
+				BuybackEntry.Quantity,
+				BuybackEntry.UnitPriceCopper))
+			: FText::FromString(TEXT("Items you sell to this merchant appear here.")));
+	}
+	if (VendorBuybackText)
+	{
+		VendorBuybackText->SetText(bHasBuyback
+			? FText::FromString(FString::Printf(
+				TEXT("Buyback %s x%d  |  %d copper"),
+				*BuybackEntry.Item->DisplayName.ToString(),
+				BuybackEntry.Quantity,
+				BuybackEntry.UnitPriceCopper))
+			: FText::FromString(TEXT("Buyback  |  Empty")));
+	}
 	if (VendorStatusText && VendorStatusText->GetText().IsEmpty())
 	{
-		VendorStatusText->SetText(
-			PurchaseState == EEmbermereVendorPurchaseResult::Success
-				? FText::FromString(TEXT("Select an item and buy one at a time."))
-				: ActiveVendor->GetPurchaseResultText(PurchaseState, SelectedVendorStockIndex, 1));
+		if (SellItem && SellState == EEmbermereVendorSellResult::Success)
+		{
+			VendorStatusText->SetText(FText::FromString(FString::Printf(
+				TEXT("Bag: %s sells for %d copper.\n[ ] changes bag selection."),
+				*SellItem->DisplayName.ToString(),
+				SellItem->SellValueCopper)));
+		}
+		else
+		{
+			VendorStatusText->SetText(
+				PurchaseState == EEmbermereVendorPurchaseResult::Success
+					? FText::FromString(TEXT("Select stock and buy one at a time."))
+					: ActiveVendor->GetPurchaseResultText(PurchaseState, SelectedVendorStockIndex, 1));
+		}
 		VendorStatusText->SetColorAndOpacity(FSlateColor(FLinearColor(0.72f, 0.76f, 0.68f, 1.0f)));
 	}
 }
@@ -2747,6 +2928,16 @@ void UEmbermerePlayerHudWidget::HandleVendorBuyClicked()
 	PurchaseSelectedVendorItem();
 }
 
+void UEmbermerePlayerHudWidget::HandleVendorSellClicked()
+{
+	SellSelectedInventoryItem();
+}
+
+void UEmbermerePlayerHudWidget::HandleVendorBuybackClicked()
+{
+	BuyBackMostRecentVendorItem();
+}
+
 void UEmbermerePlayerHudWidget::HandleVendorCloseClicked()
 {
 	CloseVendor();
@@ -2814,6 +3005,13 @@ void UEmbermerePlayerHudWidget::ClearDropFeedback()
 	bHighlightedDropSlotValid = false;
 	bInventoryListDropHighlighted = false;
 	bInventoryListDropValid = false;
+}
+
+UEmbermereItemData* UEmbermerePlayerHudWidget::GetSelectedInventoryItem() const
+{
+	return Inventory && Inventory->Stacks.IsValidIndex(SelectedInventoryStackIndex)
+		? Inventory->Stacks[SelectedInventoryStackIndex].Item.Get()
+		: nullptr;
 }
 
 void UEmbermerePlayerHudWidget::ClampSelectedInventoryStackIndex()
