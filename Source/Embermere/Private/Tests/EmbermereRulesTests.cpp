@@ -27,10 +27,14 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/Texture2D.h"
 #include "Game/EmbermerePlayerController.h"
+#include "GameFramework/SaveGame.h"
 #include "GameFramework/Actor.h"
+#include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInterface.h"
 #include "Misc/AutomationTest.h"
 #include "PhysicsEngine/BodySetup.h"
+#include "Save/EmbermerePersistenceLibrary.h"
+#include "Save/EmbermereSaveGame.h"
 #include "UI/EmbermereEnemyNameplateWidget.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermerePlayerHudWidget.h"
@@ -261,6 +265,10 @@ bool FEmbermereVendorServiceContractTest::RunTest(const FString& Parameters)
 		Service->Interactable->DisplayName.ToString(),
 		FString(TEXT("Fenwatch Quartermaster")));
 	TestTrue(TEXT("Vendor interaction supplies a world marker"), Service->Interactable->bShowWorldMarker);
+	TestEqual(
+		TEXT("Vendor service owns a stable persistence ID"),
+		Service->Vendor->PersistenceId,
+		FName(TEXT("FenwatchQuartermaster")));
 
 	AEmbermereNpcPresentationActor* Presentation = NewObject<AEmbermereNpcPresentationActor>();
 	TestNull(
@@ -388,6 +396,285 @@ bool FEmbermereFenwatchEconomyDataTest::RunTest(const FString& Parameters)
 	{
 		TestEqual(TEXT("Starter quest awards twenty copper"), Quest->RewardCopper, 20);
 	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermerePersistenceRoundTripTest,
+	"Embermere.Persistence.RoundTrip",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermerePersistenceRoundTripTest::RunTest(const FString& Parameters)
+{
+	UEmbermereItemData* Tonic = LoadObject<UEmbermereItemData>(
+		nullptr,
+		TEXT("/Game/Data/Items/DI_MarshTonic.DI_MarshTonic"));
+	UEmbermereItemData* RecruitPack = LoadObject<UEmbermereItemData>(
+		nullptr,
+		TEXT("/Game/Data/Items/DI_EmbermereRecruitPack.DI_EmbermereRecruitPack"));
+	UEmbermereQuestData* Quest = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	UEmbermereVendorStockData* Stock = LoadObject<UEmbermereVendorStockData>(
+		nullptr,
+		TEXT("/Game/Data/Vendors/DA_FenwatchQuartermasterStock.DA_FenwatchQuartermasterStock"));
+	AEmbermereCharacter* Source = NewObject<AEmbermereCharacter>();
+	AEmbermereCharacter* Target = NewObject<AEmbermereCharacter>();
+	UEmbermereVendorComponent* SourceVendor = NewObject<UEmbermereVendorComponent>();
+	UEmbermereVendorComponent* TargetVendor = NewObject<UEmbermereVendorComponent>();
+	if (!Tonic || !RecruitPack || !Quest || !Stock || !Source || !Target ||
+		!SourceVendor || !TargetVendor)
+	{
+		AddError(TEXT("Could not create persistence round-trip fixtures"));
+		return false;
+	}
+
+	SourceVendor->PersistenceId = TEXT("FenwatchQuartermaster");
+	TargetVendor->PersistenceId = TEXT("FenwatchQuartermaster");
+	SourceVendor->SetStockData(Stock);
+	TargetVendor->SetStockData(Stock);
+	SourceVendor->RestoreStockForSaveGame({-1, 0});
+	Source->Wallet->SetCopperForPrototype(22);
+	Source->Stats->RestoreExperienceForSaveGame(125);
+	TestTrue(TEXT("Source receives two tonic items"), Source->Inventory->AddItem(Tonic, 2));
+	TestTrue(TEXT("Source receives the Recruit Pack"), Source->Inventory->AddItem(RecruitPack, 1));
+	TestTrue(
+		TEXT("Source equips Recruit Pack from the bag"),
+		Source->Equipment->EquipFromInventory(RecruitPack, Source->Stats->Level, Source->Inventory));
+	FEmbermereQuestState CompletedQuest;
+	CompletedQuest.Quest = Quest;
+	CompletedQuest.CurrentObjectiveCount = Quest->RequiredObjectiveCount;
+	CompletedQuest.bCompleted = true;
+	Source->QuestLog->RestoreQuestStateForSaveGame(CompletedQuest);
+	FEmbermereVendorBuybackEntry SourceBuyback;
+	SourceBuyback.Item = Tonic;
+	SourceBuyback.Quantity = 1;
+	SourceBuyback.UnitPriceCopper = 3;
+	SourceVendor->BuybackEntries.Add(SourceBuyback);
+
+	UEmbermereSaveGame* CapturedSave = nullptr;
+	FText PersistenceMessage;
+	TestEqual(
+		TEXT("Live progression captures successfully"),
+		UEmbermerePersistenceLibrary::CaptureGameState(
+			Source,
+			{SourceVendor},
+			CapturedSave,
+			PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestNotNull(TEXT("Capture creates an Embermere save object"), CapturedSave);
+	if (!CapturedSave)
+	{
+		return false;
+	}
+	TestEqual(TEXT("Save uses the current format version"), CapturedSave->FormatVersion, EmbermereSaveGameVersion::Current);
+	TestEqual(TEXT("Save captures wallet copper"), CapturedSave->Copper, 22);
+	TestEqual(TEXT("Save captures XP"), CapturedSave->CurrentExperience, 125);
+	TestEqual(TEXT("Equipped item is absent from bag records"), CapturedSave->InventoryStacks.Num(), 1);
+	TestEqual(TEXT("Save captures one equipment record"), CapturedSave->EquippedItems.Num(), 1);
+	TestTrue(TEXT("Save captures completed quest state"), CapturedSave->QuestState.bCompleted);
+	TestEqual(TEXT("Save captures one persistent vendor"), CapturedSave->VendorStocks.Num(), 1);
+	TestEqual(TEXT("Save captures exhausted finite stock"), CapturedSave->VendorStocks[0].RemainingQuantities[1], 0);
+
+	TArray<uint8> SerializedBytes;
+	TestTrue(
+		TEXT("Save serializes through Unreal's SaveGame archive"),
+		UGameplayStatics::SaveGameToMemory(CapturedSave, SerializedBytes));
+	USaveGame* LoadedBase = UGameplayStatics::LoadGameFromMemory(SerializedBytes);
+	UEmbermereSaveGame* LoadedSave = Cast<UEmbermereSaveGame>(LoadedBase);
+	TestNotNull(TEXT("Serialized bytes reload as Embermere save data"), LoadedSave);
+	if (!LoadedSave)
+	{
+		return false;
+	}
+
+	Target->Wallet->SetCopperForPrototype(5);
+	Target->Stats->RestoreExperienceForSaveGame(9);
+	TargetVendor->BuybackEntries.Add(SourceBuyback);
+	TestEqual(
+		TEXT("Resolved save applies successfully"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Target,
+			{TargetVendor},
+			LoadedSave,
+			PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Load restores wallet copper"), Target->Wallet->Copper, 22);
+	TestEqual(TEXT("Load restores XP"), Target->Stats->CurrentExperience, 125);
+	TestEqual(TEXT("Load restores exact tonic quantity"), Target->Inventory->GetItemQuantity(Tonic), 2);
+	TestTrue(
+		TEXT("Load restores Recruit Pack to Back slot"),
+		Target->Equipment->GetEquippedItem(EEmbermereEquipmentSlot::Back) == RecruitPack);
+	TestEqual(TEXT("Equipment bonuses apply once to maximum health"), Target->Stats->MaxHealth, 105.0f);
+	TestEqual(TEXT("Equipment bonuses apply once to armor"), Target->Stats->Armor, 1.0f);
+	TestEqual(TEXT("Load resets health to the equipped maximum"), Target->Stats->CurrentHealth, 105.0f);
+	TestTrue(TEXT("Load restores completed quest identity"), Target->QuestLog->ActiveQuest.Quest == Quest);
+	TestTrue(TEXT("Load restores completed quest state"), Target->QuestLog->ActiveQuest.bCompleted);
+	TestEqual(
+		TEXT("Load restores exact completed objective count"),
+		Target->QuestLog->ActiveQuest.CurrentObjectiveCount,
+		Quest->RequiredObjectiveCount);
+	TestEqual(TEXT("Load restores exhausted finite vendor stock"), TargetVendor->GetRemainingQuantity(1), 0);
+	TestEqual(TEXT("Successful load clears session-only buyback"), TargetVendor->GetBuybackEntryCount(), 0);
+	TestFalse(TEXT("Loaded completed quest cannot pay rewards again"), Target->QuestLog->TryCompleteActiveQuest());
+	TestEqual(TEXT("Rejected repeat completion preserves loaded copper"), Target->Wallet->Copper, 22);
+
+	TestEqual(
+		TEXT("Applying the same save twice remains valid"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Target,
+			{TargetVendor},
+			LoadedSave,
+			PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Repeat load does not duplicate bag items"), Target->Inventory->GetItemQuantity(Tonic), 2);
+	TestEqual(TEXT("Repeat load does not double equipment health"), Target->Stats->MaxHealth, 105.0f);
+	TestEqual(TEXT("Repeat load does not double equipment armor"), Target->Stats->Armor, 1.0f);
+	TestEqual(TEXT("Repeat load does not duplicate XP"), Target->Stats->CurrentExperience, 125);
+	TestEqual(TEXT("Repeat load does not duplicate copper"), Target->Wallet->Copper, 22);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermerePersistenceValidationRollbackTest,
+	"Embermere.Persistence.ValidationRollback",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermerePersistenceValidationRollbackTest::RunTest(const FString& Parameters)
+{
+	UEmbermereItemData* Tonic = LoadObject<UEmbermereItemData>(
+		nullptr,
+		TEXT("/Game/Data/Items/DI_MarshTonic.DI_MarshTonic"));
+	UEmbermereQuestData* Quest = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	UEmbermereVendorStockData* Stock = LoadObject<UEmbermereVendorStockData>(
+		nullptr,
+		TEXT("/Game/Data/Vendors/DA_FenwatchQuartermasterStock.DA_FenwatchQuartermasterStock"));
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	UEmbermereVendorComponent* Vendor = NewObject<UEmbermereVendorComponent>();
+	if (!Tonic || !Quest || !Stock || !Character || !Vendor)
+	{
+		AddError(TEXT("Could not create persistence rollback fixtures"));
+		return false;
+	}
+
+	Vendor->PersistenceId = TEXT("FenwatchQuartermaster");
+	Vendor->SetStockData(Stock);
+	Character->Wallet->SetCopperForPrototype(17);
+	TestTrue(TEXT("Rollback fixture receives one tonic"), Character->Inventory->AddItem(Tonic, 1));
+	FEmbermereVendorBuybackEntry ExistingBuyback;
+	ExistingBuyback.Item = Tonic;
+	ExistingBuyback.Quantity = 1;
+	ExistingBuyback.UnitPriceCopper = 3;
+	Vendor->BuybackEntries.Add(ExistingBuyback);
+
+	UEmbermereSaveGame* GoodSave = nullptr;
+	FText PersistenceMessage;
+	TestEqual(
+		TEXT("Rollback baseline captures successfully"),
+		UEmbermerePersistenceLibrary::CaptureGameState(
+			Character,
+			{Vendor},
+			GoodSave,
+			PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	if (!GoodSave || GoodSave->InventoryStacks.IsEmpty() || GoodSave->VendorStocks.IsEmpty())
+	{
+		AddError(TEXT("Rollback baseline save is incomplete"));
+		return false;
+	}
+
+	auto AssertLiveStateUnchanged = [this, Character, Vendor, Tonic]()
+	{
+		TestEqual(TEXT("Rejected load preserves copper"), Character->Wallet->Copper, 17);
+		TestEqual(TEXT("Rejected load preserves exact inventory"), Character->Inventory->GetItemQuantity(Tonic), 1);
+		TestEqual(TEXT("Rejected load preserves finite stock"), Vendor->GetRemainingQuantity(1), 1);
+		TestEqual(TEXT("Rejected load preserves session buyback"), Vendor->GetBuybackEntryCount(), 1);
+	};
+
+	UEmbermereSaveGame* WrongVersion = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	WrongVersion->FormatVersion = EmbermereSaveGameVersion::Current + 1;
+	TestEqual(
+		TEXT("Unsupported versions are rejected before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {Vendor}, WrongVersion, PersistenceMessage),
+		EEmbermerePersistenceResult::UnsupportedVersion);
+	AssertLiveStateUnchanged();
+
+	UEmbermereSaveGame* MissingAsset = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	MissingAsset->InventoryStacks[0].ItemAsset = FSoftObjectPath(
+		TEXT("/Game/Data/Items/DI_MissingItem.DI_MissingItem"));
+	TestEqual(
+		TEXT("Missing item assets are rejected before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {Vendor}, MissingAsset, PersistenceMessage),
+		EEmbermerePersistenceResult::MissingAsset);
+	AssertLiveStateUnchanged();
+
+	UEmbermereSaveGame* InvalidQuantity = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	InvalidQuantity->InventoryStacks[0].Quantity = Tonic->MaxStack + 1;
+	TestEqual(
+		TEXT("Invalid stack quantities are rejected before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {Vendor}, InvalidQuantity, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertLiveStateUnchanged();
+
+	UEmbermereSaveGame* CapacityConflict = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	const FEmbermereSavedInventoryStack OneTonic = CapacityConflict->InventoryStacks[0];
+	CapacityConflict->InventoryStacks.Reset();
+	for (int32 Index = 0; Index < Character->Inventory->MaxSlots + 1; ++Index)
+	{
+		CapacityConflict->InventoryStacks.Add(OneTonic);
+	}
+	TestEqual(
+		TEXT("Over-capacity bags are rejected before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {Vendor}, CapacityConflict, PersistenceMessage),
+		EEmbermerePersistenceResult::CapacityConflict);
+	AssertLiveStateUnchanged();
+
+	UEmbermereSaveGame* InvalidQuest = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	InvalidQuest->QuestState.bHasActiveQuest = true;
+	InvalidQuest->QuestState.QuestId = Quest->QuestId;
+	InvalidQuest->QuestState.QuestAsset = FSoftObjectPath(Quest);
+	InvalidQuest->QuestState.CurrentObjectiveCount = Quest->RequiredObjectiveCount + 1;
+	TestEqual(
+		TEXT("Out-of-range quest progress is rejected before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {Vendor}, InvalidQuest, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertLiveStateUnchanged();
+
+	UEmbermereSaveGame* VendorMismatch = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	VendorMismatch->VendorStocks[0].VendorId = TEXT("UnknownQuartermaster");
+	TestEqual(
+		TEXT("Unknown vendor IDs are rejected before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {Vendor}, VendorMismatch, PersistenceMessage),
+		EEmbermerePersistenceResult::VendorMismatch);
+	AssertLiveStateUnchanged();
+
+	UEmbermereSaveGame* InvalidStock = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	InvalidStock->VendorStocks[0].RemainingQuantities[1] = 2;
+	TestEqual(
+		TEXT("Stock above its finite initial quantity is rejected before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {Vendor}, InvalidStock, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertLiveStateUnchanged();
+
+	TestEqual(
+		TEXT("Validated baseline applies after all rejected candidates"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {Vendor}, GoodSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Successful load keeps captured copper"), Character->Wallet->Copper, 17);
+	TestEqual(TEXT("Successful load keeps captured inventory"), Character->Inventory->GetItemQuantity(Tonic), 1);
+	TestEqual(TEXT("Successful load resets session buyback"), Vendor->GetBuybackEntryCount(), 0);
+
 	return true;
 }
 

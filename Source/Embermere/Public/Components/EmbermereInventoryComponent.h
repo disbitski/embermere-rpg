@@ -57,4 +57,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Inventory")
 	bool SortStacksByCategoryAndName();
+
+	bool CanRestoreStacksForSaveGame(const TArray<FEmbermereInventoryStack>& NewStacks) const;
+	void RestoreStacksForSaveGame(const TArray<FEmbermereInventoryStack>& NewStacks);
 };

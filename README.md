@@ -58,6 +58,10 @@ The repo currently contains the C++ gameplay scaffold for:
 - data-driven item sell values plus an earned-currency loop: Mara's first quest
   grants copper exactly once, selected bag items can be sold by identity, and
   the latest sale can be bought back at its recorded price
+- a versioned save-game contract for copper, XP, inventory/equipment identity,
+  quest progress/completion, and finite vendor stock; loads resolve and
+  validate the complete candidate before mutation, restore atomically, reject
+  malformed records without partial state, and keep buyback session-only
 - UMG base classes for character creation and HUD widgets
 - native first-pass HUD panels for status, target, range state, quest tracking, dialogue, loot, and hotbar labels
 - bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback
@@ -202,6 +206,9 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 - [Docs/UNREAL_LESSONS.md](Docs/UNREAL_LESSONS.md) captures Unreal-specific lessons learned during implementation.
 - [Docs/VENDOR_SERVICE_CONTRACT.md](Docs/VENDOR_SERVICE_CONTRACT.md) records
   the merchant art/service/economy boundary and transaction guarantees.
+- [Docs/SAVE_GAME_CONTRACT.md](Docs/SAVE_GAME_CONTRACT.md) records the versioned
+  progression schema, validation/rollback rules, session-only state, and live
+  PIE verification lane.
 
 ## Status
 
@@ -225,10 +232,13 @@ co-located art-free service now turns that quartermaster into Embermere's first
 working merchant without coupling stock, prices, currency, transactions, or
 interaction to the model. The playable loop now earns `20` copper from Mara's
 first quest and supports rollback-safe selling and latest-item buyback through
-the same fixed vendor panel.
+the same fixed vendor panel. Explicit `EmbermereSave` and `EmbermereLoad`
+prototype commands now persist the resulting copper, XP, exact item/equipment
+identity, completed quest, and finite merchant stock across fresh PIE worlds;
+the same file can be loaded repeatedly without duplicate rewards or bonuses.
 
-Next milestone: define and implement the first save-game persistence slice for
-wallet, inventory/equipment identity, quest completion, and finite vendor stock,
-with an explicit decision about transient buyback history; then prove the NPC
-wrapper's skeletal/idle upgrade lane or add a matching trainer presentation and
-separate service.
+Next milestone: add a small player-facing save/load menu and deliberate slot
+lifecycle on top of the proven data contract, or prove the NPC wrapper's
+skeletal/idle upgrade lane by adding a matching trainer presentation and
+separate service. Autosave, multiple profiles, migrations, and position
+persistence remain later product decisions.

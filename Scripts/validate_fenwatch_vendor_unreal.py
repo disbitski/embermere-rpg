@@ -91,6 +91,8 @@ def main():
     interactable = service.get_component_by_class(unreal.EmbermereInteractableComponent)
     if not vendor or vendor.get_editor_property("stock_data") != stock:
         fail("service does not reference the reviewed stock data")
+    if str(vendor.get_editor_property("persistence_id")) != "FenwatchQuartermaster":
+        fail("service persistence ID drifted")
     if not interactable:
         fail("service is not interactable")
     if str(interactable.get_editor_property("display_name")) != "Fenwatch Quartermaster":
@@ -109,7 +111,7 @@ def main():
         fail("presentation unexpectedly owns vendor behavior")
 
     unreal.log(
-        "Embermere Fenwatch economy validation passed: two data-driven wares and sell values, twenty-copper quest reward, atomic buy/sell/buyback service, one saved art-free service actor, and presentation/service ownership separation intact"
+        "Embermere Fenwatch economy validation passed: stable vendor ID, two data-driven wares and sell values, twenty-copper quest reward, atomic buy/sell/buyback service, one saved art-free service actor, and presentation/service ownership separation intact"
     )
 
 

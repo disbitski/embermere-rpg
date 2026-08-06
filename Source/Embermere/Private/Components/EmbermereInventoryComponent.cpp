@@ -186,3 +186,29 @@ bool UEmbermereInventoryComponent::SortStacksByCategoryAndName()
 	}
 	return bOrderChanged;
 }
+
+bool UEmbermereInventoryComponent::CanRestoreStacksForSaveGame(
+	const TArray<FEmbermereInventoryStack>& NewStacks) const
+{
+	if (NewStacks.Num() > MaxSlots)
+	{
+		return false;
+	}
+
+	for (const FEmbermereInventoryStack& Stack : NewStacks)
+	{
+		if (!Stack.Item || Stack.Item->MaxStack <= 0 ||
+			Stack.Quantity <= 0 || Stack.Quantity > Stack.Item->MaxStack)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void UEmbermereInventoryComponent::RestoreStacksForSaveGame(
+	const TArray<FEmbermereInventoryStack>& NewStacks)
+{
+	Stacks = NewStacks;
+	OnInventoryChanged.Broadcast();
+}

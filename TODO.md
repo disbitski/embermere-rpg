@@ -6,14 +6,16 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-05 no-hot-reload economy module plus
+- Confirm Unreal is running the 2026-08-06 no-hot-reload persistence module plus
   the saved Fenwatch vendor stock/service, item, quest, and current map
   packages. Restart if the editor predates that build or test discovery exposes
-  fewer than 38 Embermere tests.
+  fewer than 40 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 38 tests, especially
+- Discover and run all 40 tests, especially
+  `Embermere.Persistence.RoundTrip`,
+  `Embermere.Persistence.ValidationRollback`,
   `Embermere.Economy.FenwatchRewardsAndValues`,
   `Embermere.Vendor.TransactionRules`,
   `Embermere.Vendor.SellBuybackTransactions`,
@@ -21,7 +23,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.Vendor.FenwatchStockData`,
   `Embermere.UI.VendorPanel`, the three NPC presentation tests, Prowler/world
   presentation, player recovery, and inventory transaction suites. The
-  authoritative 2026-08-05 commandlet passed 38/38; the no-hot-reload Mac
+  authoritative 2026-08-06 commandlet passed 40/40; the no-hot-reload Mac
   build, saved-map, UI-art, Fenwatch-vendor, and initialized-world route
   validators also passed.
 - Recheck the accepted Fenwatch vendor loop through normal `F` interaction:
@@ -52,6 +54,23 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   the economy boundary. The NPC wrapper owns only art; the service owns
   interaction and stock; the wallet and inventory own player state; the HUD
   only presents and requests transactions.
+- Treat [Docs/SAVE_GAME_CONTRACT.md](Docs/SAVE_GAME_CONTRACT.md) as the durable
+  state boundary. Version 1 stores copper, XP, inventory stack identity and
+  quantity, equipped-item identity and slot, quest state/progress, and finite
+  vendor stock through stable IDs plus validated soft paths. Capture and load
+  are preflighted before mutation; unknown assets, bad versions, invalid
+  quantities, capacity conflicts, mismatched IDs/slots, and malformed vendor
+  records reject the entire restore. Equipment stats are rebuilt once instead
+  of double-applying bonuses, and quest rewards are not replayed.
+- Retain the accepted live persistence proof. In one normal PIE session the
+  vendor and quest loop saved exactly `22` copper, `125` XP, one Marsh Tonic,
+  one bagged Recruit Pack, one equipped Back-slot Recruit Pack, completed Mara
+  state, and exhausted finite Recruit Pack stock. A fresh PIE session restored
+  that exact state through `EmbermereLoad`, and a second load remained
+  idempotent with no duplication or stat inflation. `EmbermereSave` and
+  `EmbermereLoad` use prototype slot `EmbermerePrototype`; buyback history,
+  transient combat, cooldowns, temporary effects, and world position are
+  intentionally session-only/reset state.
 - Retain the accepted EverQuest-inspired target circle. Clean normal-route PIE
   proved all three Marsh Prowlers own exactly 48 stationary, non-colliding
   cyan-blue segments at 16 cm effective surface clearance. The visible circle
@@ -138,9 +157,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. define the first save-game persistence contract for player copper,
-     inventory/equipment identity, quest completion, and finite vendor stock;
-     explicitly decide whether transient buyback history belongs in a save;
+  1. add a small player-facing Save/Load surface and deliberate slot lifecycle
+     on top of the proven versioned contract; keep the two console commands as
+     test/debug fallbacks and do not add autosave or multiple profiles until
+     their lifecycle is explicitly designed;
   2. retain the accepted keeper/quartermaster/service scale, marker clearance,
      chest composition, panel layout, and PlayerStart route;
   3. prove the NPC wrapper's skeletal/idle upgrade lane, or build a matching
@@ -152,9 +172,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-05
-  economy module and saved item/quest/stock packages. Current code passes all
-  38 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-08-06
+  persistence module and saved item/quest/stock packages. Current code passes
+  all 40 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -219,6 +239,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.NPC.FenwatchKeeperPresentation`
   - `Embermere.NPC.FenwatchQuartermasterPresentation`
   - `Embermere.NPC.PresentationContract`
+  - `Embermere.Persistence.RoundTrip`
+  - `Embermere.Persistence.ValidationRollback`
   - `Embermere.Player.OutOfBoundsRecovery`
   - `Embermere.Quests.CompletionRewards`
   - `Embermere.Rules.RaceClassMatrix`
@@ -259,6 +281,17 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - after taking damage, selecting Marsh Tonic and clicking `Use` restores up to 25 health and 10 mana and consumes one tonic, while full resources disable use and preserve inventory;
   - quest completion/reward shows the loot popup and the inventory panel lists the reward item;
   - combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log instead of overlapping the top-left player status panel or spilling beyond the chat panel border.
+- Manually verify prototype persistence in two clean PIE sessions:
+  - complete the exact vendor and Mara sequence from Start Here, equip one
+    Recruit Pack in Back, then run `EmbermereSave` and confirm success feedback;
+  - stop PIE, start a fresh PIE session, run `EmbermereLoad`, and confirm `22`
+    copper, `125` XP, the exact bag/equipment identities and quantities,
+    completed quest state, zero finite Recruit Pack stock, and correct
+    equipment-derived stats;
+  - run `EmbermereLoad` again and confirm no duplicate items, repeated quest
+    payment, or doubled equipment bonuses;
+  - confirm vendor buyback history is empty after load because version 1 keeps
+    it session-only.
 - Manually verify selected-target world readability in PIE:
   - `Tab` shows the selected enemy's UMG nameplate, selected marker, HP text,
     HP bar, and complete cyan-blue emissive circle around its footprint rather
@@ -348,6 +381,11 @@ Embermere has a working first-pass starter slice:
   art-free interactable service actor, data-driven stock/prices, player copper,
   atomic buy/rollback rules, finite/unlimited stock, native fixed vendor UI,
   inventory/chat feedback, and saved-package validation;
+- a versioned, atomic prototype save/load contract for copper, XP, inventory
+  and equipment identity, quest state, and finite vendor stock, with stable
+  asset/service identifiers, malformed-record rollback, session-only buyback,
+  explicit `EmbermereSave`/`EmbermereLoad` commands, and fresh-session PIE
+  round-trip proof;
 - hostile starter enemies that aggro, chase, attack, die, and respawn;
 - starter enemy leash and return-home behavior for safer village/wilderness boundaries;
 - player respawn protection for safer recovery during prototype combat;
@@ -405,8 +443,8 @@ Embermere has a working first-pass starter slice:
   and drag/drop actions, autorun cancellation, damage immunity, enemy nameplate
   widget, chat log, hotbar cooldown display, item/slot/ability/paper-doll
   presentation, inventory toggle, buy/sell/buyback transactions, saved
-  economy values, service ownership, saved stock, and native vendor-panel
-  behavior, for 38 authoritative tests.
+  economy values, service ownership, saved stock, native vendor-panel behavior,
+  and persistence round-trip/rollback rules, for 40 authoritative tests.
 
 ## How Far We Have To Go
 
@@ -438,17 +476,24 @@ honest physical-eye checks. The world remains stylistically mixed without real
 fantasy village buildings, player/race art, authored Niagara/class-specific
 effects, or audio.
 
+The first durable-state lane is now complete as a bounded prototype contract:
+wallet, XP, inventory/equipment identity, quest state, and finite vendor stock
+survive a fresh PIE session through validated atomic restore. Buyback and
+combat-temporary state remain deliberately transient. The next persistence
+work is player-facing lifecycle and corruption/version feedback, not adding
+more serialized fields by accident.
+
 ## Next Work
 
-- Extend the accepted vendor/economy loop without weakening its boundaries:
-  - define a versioned save-game data contract for wallet, item identities and
-    quantities, equipped slots, quest progress/completion, and finite stock;
-  - decide deliberately whether vendor-local buyback history is transient or
-    persisted, rather than serializing runtime component state accidentally;
-  - prove load-time validation and atomic restore without duplicating items,
-    repaying quest copper, or resetting sold-out stock;
-  - retain one-at-a-time quantity behavior, the fixed vendor panel,
-    visual/service split, and click/input fallbacks until persistence is sound.
+- Extend the accepted persistence/economy loop without weakening its boundaries:
+  - build a minimal native Save/Load panel or pause/settings surface over the
+    proven `EmbermereSave`/`EmbermereLoad` lifecycle;
+  - expose readable empty-slot, success, rejected-version, and corrupt/missing-
+    asset feedback without partially mutating runtime state;
+  - keep buyback history session-only and document any future schema migration
+    before changing `EmbermereSaveGameVersion::Current`;
+  - retain one-at-a-time vendor quantities, the fixed vendor panel,
+    visual/service split, stable IDs, and atomic transaction/load invariants.
 - Replace temporary selected-target text with better world readability:
   - retain the UMG nameplate widget, selected marker, HP bar, and HP-aware
     accent color;

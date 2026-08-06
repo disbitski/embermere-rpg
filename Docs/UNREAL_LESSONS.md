@@ -913,3 +913,27 @@ Test the complete state vector after every failure: copper, item quantity and
 identity, finite stock, and buyback quantity. Then exercise the same sequence in
 PIE because correct numbers do not prove that selection, disabled states, chat,
 or fixed panel copy communicate the transaction correctly.
+
+## Treat A Save File As An Untrusted Multi-Owner Transaction
+
+A save that deserializes is not necessarily safe to apply. It can reference a
+deleted asset, carry an old format version, exceed current bag capacity, name a
+vendor that no longer exists, or encode quest progress that would pay a reward
+twice. Mutating each owner while resolving later records turns one bad field
+into a partially loaded world.
+
+Embermere loads in two phases. First it resolves every data-asset path and
+checks the paired stable ID, version, quantity, slot, level, capacity, quest,
+vendor-set, and finite-stock invariant. Only a completely eligible candidate
+reaches the commit phase. Rejection leaves the live wallet, inventory,
+equipment, quest, stock, and session buyback unchanged.
+
+Make restore operations idempotent too. Equipment bonuses must replace prior
+bonuses rather than stack on them, and a completed quest must remain unable to
+pay again. Test the same valid save twice, not only once.
+
+Finally, prove disk persistence across world lifetimes. Embermere's live
+validator builds progression through real vendor, quest, inventory, and
+equipment APIs, saves, ends PIE, starts a fresh PIE world, loads, and checks the
+whole state vector twice. An in-memory archive test proves serialization logic;
+the two-session run proves the actual slot and lifecycle integration.

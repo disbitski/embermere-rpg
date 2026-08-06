@@ -217,6 +217,27 @@ interaction, dialogue, and quest state.
 The full ownership and rollback contract is in
 [VENDOR_SERVICE_CONTRACT.md](VENDOR_SERVICE_CONTRACT.md).
 
+## Prototype Save And Load
+
+1. Complete the Fenwatch vendor sequence through the `22` copper quest state.
+2. Equip one Recruit Pack in Back, leaving the quest reward pack and Marsh
+   Tonic in the bag.
+3. Run `EmbermereSave` in the Unreal console and confirm green HUD/chat
+   feedback names the `EmbermerePrototype` slot.
+4. Stop PIE and start a second fresh PIE session. Confirm its live objects begin
+   at the normal 40-copper, empty-bag, stock-one baseline before loading.
+5. Run `EmbermereLoad` and confirm exact restoration: `22` copper, `125` XP,
+   one tonic, one bagged Recruit Pack, one Recruit Pack equipped in Back,
+   `105/105` HP, `1` Armor, completed quest progress, and Recruit Pack vendor
+   stock at zero.
+6. Confirm buyback history is empty after load and the completed quest cannot
+   award XP, copper, or another item again.
+7. Run `EmbermereLoad` a second time. Confirm quantities, XP, copper, and
+   equipment bonuses remain unchanged rather than doubling.
+8. For the tracked two-session acceptance lane, run `prepare_and_save()` and
+   `load_and_validate()` from `Scripts/validate_persistence_live_unreal.py` as
+   documented in [SAVE_GAME_CONTRACT.md](SAVE_GAME_CONTRACT.md).
+
 ## Expected Temporary Feedback
 
 - A styled first-pass HUD overlay shows player HP, mana, XP, current target, target HP, range state, quest progress, and all hotbar slots.
@@ -303,9 +324,11 @@ The full ownership and rollback contract is in
 - The first vendor supports exact one-at-a-time buying, finite/unlimited stock,
   data-driven one-at-a-time selling, bounded latest-item buyback, full-bag/
   affordability/wallet rollback, and native feedback. Mara's first quest now
-  awards copper. Copper, stock, and buyback are still session-only; quantity
-  entry, persistence, confirmation, and reputation pricing remain open.
-  See `Docs/VENDOR_SERVICE_CONTRACT.md`.
+  awards copper. Versioned prototype persistence now keeps copper, XP, exact
+  bag/equipment identity, quest progression, and finite stock across sessions;
+  buyback remains session-only by policy. Quantity entry, confirmation,
+  reputation pricing, save-slot UI, and autosave remain open. See
+  `Docs/VENDOR_SERVICE_CONTRACT.md` and `Docs/SAVE_GAME_CONTRACT.md`.
 - Nameplates use a native UMG widget component and target highlighting uses a
   dedicated emissive material on a non-colliding 48-segment circle. Runtime
   bounds sizing and a downward surface trace keep it clear of both paws and

@@ -1843,6 +1843,46 @@ Lesson: rollback is not one generic undo. Each ownership boundary needs a
 preflight, a deliberate commit order, and an exact inverse for the mutation it
 performs. Buyback history is valid only after the sale itself has committed.
 
+## 2026-08-06 - Progress Survived The World
+
+The Fenwatch economy finally gave Embermere progression worth keeping. Today's
+work made that state survive beyond the objects that created it.
+
+- Added format-version `1` save records for copper, XP, exact inventory stacks,
+  equipped item identity/slot, quest progress/completion, and persistent vendor
+  stock.
+- Paired every item, quest, and stock soft path with its authored stable ID.
+  The Fenwatch service now owns `FenwatchQuartermaster`, a world-stable identity
+  independent of the quartermaster model and transform.
+- Made load a two-phase transaction. Every path, ID, quantity, slot, level,
+  capacity, quest, vendor-set, and finite-stock rule resolves before any live
+  owner changes. Unsupported or malformed candidates leave wallet, bag,
+  equipment, quest, stock, and existing buyback untouched.
+- Defined buyback as session-only. A successful load clears it along with
+  target, cooldown, and temporary-effect state, restores equipped bonuses
+  idempotently, and initializes full health/mana. World position remains the
+  fresh session's safe spawn.
+- Added explicit `EmbermereSave` and `EmbermereLoad` console commands with HUD
+  feedback plus a tracked two-session live validator.
+
+The runtime acceptance deliberately crossed a world boundary. Fresh PIE built
+the real commerce chain (`40 -> 32 -> 35 -> 32 -> 2`), completed Mara's quest
+to reach `22` copper and `125` XP, equipped one Recruit Pack, left one pack and
+one tonic in the bag, exhausted finite stock, and wrote
+`EmbermerePrototype.sav`. After PIE ended, a second fresh world began at its
+normal defaults, loaded the file, and restored every identity and stat. Loading
+the same file again did not duplicate items, rewards, XP, copper, or equipment
+bonuses.
+
+The no-hot-reload Mac build succeeded, all `40/40` automation tests passed,
+fresh-process vendor/UI/map validators retained their exact success markers,
+and initialized-world traces kept the spawn corridor, Fenwatch shelter, and
+three gate lanes clear.
+
+Lesson: deserialization is not acceptance. A save file is an untrusted
+multi-owner transaction; make the entire candidate eligible before committing
+any part of it, then prove it against a genuinely fresh world.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

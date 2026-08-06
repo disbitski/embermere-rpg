@@ -58,4 +58,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Equipment")
 	FEmbermereItemStatBonuses GetTotalStatBonuses() const;
+
+	bool CanRestoreEquippedItemsForSaveGame(
+		const TArray<FEmbermereEquippedItem>& NewEquippedItems,
+		int32 CharacterLevel) const;
+	void RestoreEquippedItemsForSaveGame(const TArray<FEmbermereEquippedItem>& NewEquippedItems);
 };

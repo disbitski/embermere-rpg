@@ -100,3 +100,28 @@ bool UEmbermereQuestLogComponent::TryCompleteActiveQuest()
 		FLinearColor(0.42f, 1.0f, 0.48f, 1.0f));
 	return true;
 }
+
+bool UEmbermereQuestLogComponent::CanRestoreQuestStateForSaveGame(
+	const FEmbermereQuestState& NewState) const
+{
+	if (!NewState.Quest)
+	{
+		return NewState.CurrentObjectiveCount == 0 && !NewState.bCompleted;
+	}
+
+	if (NewState.Quest->RequiredObjectiveCount <= 0 ||
+		NewState.CurrentObjectiveCount < 0 ||
+		NewState.CurrentObjectiveCount > NewState.Quest->RequiredObjectiveCount)
+	{
+		return false;
+	}
+	return !NewState.bCompleted ||
+		NewState.CurrentObjectiveCount == NewState.Quest->RequiredObjectiveCount;
+}
+
+void UEmbermereQuestLogComponent::RestoreQuestStateForSaveGame(
+	const FEmbermereQuestState& NewState)
+{
+	ActiveQuest = NewState;
+	OnQuestStateChanged.Broadcast(ActiveQuest);
+}

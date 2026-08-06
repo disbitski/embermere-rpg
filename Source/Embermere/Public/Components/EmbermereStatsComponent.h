@@ -147,6 +147,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
 	void ApplyEquipmentBonuses(const FEmbermereItemStatBonuses& NewBonuses);
 
+	void RestoreExperienceForSaveGame(int32 NewExperience);
+
 protected:
 	virtual void BeginPlay() override;
 

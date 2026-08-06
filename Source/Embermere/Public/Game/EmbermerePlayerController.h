@@ -39,6 +39,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UEmbermerePlayerHudWidget> PlayerHudWidgetClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Persistence")
+	FString PrototypeSaveSlotName = TEXT("EmbermerePrototype");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Persistence", meta = (ClampMin = "0"))
+	int32 PrototypeSaveUserIndex = 0;
+
+	UFUNCTION(Exec, BlueprintCallable, Category = "Embermere|Persistence")
+	void EmbermereSave();
+
+	UFUNCTION(Exec, BlueprintCallable, Category = "Embermere|Persistence")
+	void EmbermereLoad();
+
 	void NotifyManualMoveForwardInput(float Value);
 	void AddHudMessage(const FText& Message, FLinearColor MessageColor) const;
 	bool TriggerOutOfBoundsRecoveryIfNeeded(AEmbermereCharacter* Character);

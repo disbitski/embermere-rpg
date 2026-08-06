@@ -16,4 +16,5 @@ AEmbermereVendorServiceActor::AEmbermereVendorServiceActor()
 	Interactable->MarkerHeight = 238.0f;
 
 	Vendor = CreateDefaultSubobject<UEmbermereVendorComponent>(TEXT("Vendor"));
+	Vendor->PersistenceId = TEXT("FenwatchQuartermaster");
 }

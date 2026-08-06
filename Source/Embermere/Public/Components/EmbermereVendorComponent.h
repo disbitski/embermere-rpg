@@ -71,6 +71,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vendor")
 	TObjectPtr<UEmbermereVendorStockData> StockData;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vendor|Persistence")
+	FName PersistenceId = NAME_None;
+
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Vendor")
 	TArray<int32> RemainingQuantities;
 
@@ -161,6 +164,9 @@ public:
 		const UEmbermereItemData* Item,
 		int32 UnitPriceCopper,
 		int32 Quantity = 1) const;
+
+	bool CanRestoreStockForSaveGame(const TArray<int32>& NewRemainingQuantities) const;
+	void RestoreStockForSaveGame(const TArray<int32>& NewRemainingQuantities);
 
 protected:
 	virtual void BeginPlay() override;

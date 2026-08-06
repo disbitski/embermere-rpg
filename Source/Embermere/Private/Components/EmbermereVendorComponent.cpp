@@ -356,6 +356,36 @@ FText UEmbermereVendorComponent::GetBuybackResultText(
 	}
 }
 
+bool UEmbermereVendorComponent::CanRestoreStockForSaveGame(
+	const TArray<int32>& NewRemainingQuantities) const
+{
+	if (!StockData || NewRemainingQuantities.Num() != StockData->Entries.Num())
+	{
+		return false;
+	}
+
+	for (int32 Index = 0; Index < StockData->Entries.Num(); ++Index)
+	{
+		const int32 InitialQuantity = StockData->Entries[Index].InitialQuantity;
+		const int32 RemainingQuantity = NewRemainingQuantities[Index];
+		if ((InitialQuantity < 0 && RemainingQuantity != -1) ||
+			(InitialQuantity >= 0 &&
+				(RemainingQuantity < 0 || RemainingQuantity > InitialQuantity)))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void UEmbermereVendorComponent::RestoreStockForSaveGame(
+	const TArray<int32>& NewRemainingQuantities)
+{
+	RemainingQuantities = NewRemainingQuantities;
+	BuybackEntries.Reset();
+	OnStockChanged.Broadcast();
+}
+
 void UEmbermereVendorComponent::RecordBuyback(
 	UEmbermereItemData* Item,
 	int32 Quantity,

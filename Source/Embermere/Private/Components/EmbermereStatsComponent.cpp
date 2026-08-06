@@ -316,6 +316,12 @@ void UEmbermereStatsComponent::ApplyEquipmentBonuses(const FEmbermereItemStatBon
 	OnManaChanged.Broadcast(CurrentMana, MaxMana);
 }
 
+void UEmbermereStatsComponent::RestoreExperienceForSaveGame(int32 NewExperience)
+{
+	CurrentExperience = FMath::Max(0, NewExperience);
+	OnExperienceChanged.Broadcast(CurrentExperience);
+}
+
 bool UEmbermereStatsComponent::IsTimedEffectActive(float EndTimeSeconds) const
 {
 	return GetEffectRemainingSeconds(EndTimeSeconds) > 0.0f;

@@ -102,7 +102,19 @@ owners unchanged.
 asset and saved service actor without touching the presentation mesh.
 `Scripts/validate_fenwatch_vendor_unreal.py` reloads the packages and rejects
 incorrect stock, transforms, tags, component ownership, art on the service, or
-service behavior on the presentation.
+service behavior on the presentation. It also locks the art-free service's
+stable persistence ID to `FenwatchQuartermaster`.
+
+Format-version `1` persistence now stores that ID, the exact stock data-asset
+path, and every remaining quantity. A load resolves and preflights the complete
+vendor set before committing any player or merchant state. Unknown/duplicate
+IDs, changed stock assets, missing vendors, and quantities outside an authored
+finite-stock range reject the whole candidate without mutation.
+
+Buyback is explicitly session-only. It is not included in the save schema and
+is cleared after a successful load. See
+[SAVE_GAME_CONTRACT.md](SAVE_GAME_CONTRACT.md) for the full progression
+boundary.
 
 Focused automation:
 
@@ -124,19 +136,19 @@ Clean PIE acceptance on 2026-08-05 proved the complete runtime sequence:
 - repeated completion rejected with the purse still at `22`.
 
 The fixed panel, bottom-left chat, inventory stack count, sold-out row, latest
-buyback row, and result copy all updated without footer or hotbar overlap. All
-`38/38` automation tests and fresh-process economy validation passed.
+buyback row, and result copy all updated without footer or hotbar overlap. The
+subsequent persistence pass retained this sequence and brought the full suite
+to `40/40` automation tests.
 
 ## Current Limits
 
-- Copper, runtime stock, and buyback are not persisted between sessions.
+- Copper and runtime finite stock persist through the versioned prototype
+  save. Buyback intentionally does not.
 - Selling and buyback are intentionally one item at a time; quantity entry,
   confirmation, and reputation pricing remain absent.
-- Buyback history is bounded and vendor-local. Its future persistence policy is
-  deliberately undecided rather than accidentally serialized.
+- Buyback history is bounded, vendor-local, and session-only by policy.
 - The service uses the existing generic interactable marker; final merchant
   prompt and audio presentation remain future work.
 
-The next useful economy slice is a versioned save-game contract for wallet,
-inventory/equipment identity, quest completion, and finite stock, with an
-explicit decision about whether buyback survives a loaded session.
+The next useful economy slice is deliberate save-slot/menu presentation or a
+second merchant/service that proves stable vendor IDs scale beyond one actor.

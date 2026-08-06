@@ -155,3 +155,30 @@ FEmbermereItemStatBonuses UEmbermereEquipmentComponent::GetTotalStatBonuses() co
 	}
 	return Total;
 }
+
+bool UEmbermereEquipmentComponent::CanRestoreEquippedItemsForSaveGame(
+	const TArray<FEmbermereEquippedItem>& NewEquippedItems,
+	int32 CharacterLevel) const
+{
+	TSet<EEmbermereEquipmentSlot> SeenSlots;
+	for (const FEmbermereEquippedItem& EquippedItem : NewEquippedItems)
+	{
+		if (EquippedItem.Slot == EEmbermereEquipmentSlot::None ||
+			!EquippedItem.Item ||
+			EquippedItem.Item->EquipmentSlot != EquippedItem.Slot ||
+			!CanEquip(EquippedItem.Item, CharacterLevel) ||
+			SeenSlots.Contains(EquippedItem.Slot))
+		{
+			return false;
+		}
+		SeenSlots.Add(EquippedItem.Slot);
+	}
+	return true;
+}
+
+void UEmbermereEquipmentComponent::RestoreEquippedItemsForSaveGame(
+	const TArray<FEmbermereEquippedItem>& NewEquippedItems)
+{
+	EquippedItems = NewEquippedItems;
+	OnEquipmentChanged.Broadcast();
+}

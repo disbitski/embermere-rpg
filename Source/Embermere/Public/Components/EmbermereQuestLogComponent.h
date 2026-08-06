@@ -44,4 +44,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Quest")
 	bool TryCompleteActiveQuest();
+
+	bool CanRestoreQuestStateForSaveGame(const FEmbermereQuestState& NewState) const;
+	void RestoreQuestStateForSaveGame(const FEmbermereQuestState& NewState);
 };

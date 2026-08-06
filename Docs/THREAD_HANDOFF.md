@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-05
+Last updated: 2026-08-06
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -24,10 +24,14 @@ this snapshot. A new task should read files in this order:
 4. `Docs/PLAYTESTING.md`
 5. `Docs/UNREAL_LESSONS.md`
 6. `Docs/FAB_ASSET_PLAN.md`
-7. `Docs/NPC_PRESENTATION_CONTRACT.md` when NPC/service work is active
-8. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
-9. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
-10. `JOURNEY.md` when historical detail is useful
+7. `Docs/INVENTORY_INTERACTION_PLAN.md` when item interaction work is active
+8. `Docs/BLENDER_ASSET_PIPELINE.md` when original-art work is active
+9. `Docs/NPC_PRESENTATION_CONTRACT.md` when NPC/service work is active
+10. `Docs/VENDOR_SERVICE_CONTRACT.md` when economy work is active
+11. `Docs/SAVE_GAME_CONTRACT.md` when persistence/lifecycle work is active
+12. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
+13. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
+14. `JOURNEY.md` when historical detail is useful
 
 ## One-Page State
 
@@ -66,11 +70,15 @@ The project currently includes:
   service actor, data-driven stock/prices/sell values, earned player copper,
   atomic buy/sell/buyback rollback, fixed native stock UI, and saved ownership
   validation;
+- a versioned save-game contract that atomically captures and restores copper,
+  XP, inventory/equipment identity, quest state, and finite vendor stock using
+  stable identifiers plus validated soft paths. Buyback, combat, cooldowns,
+  temporary effects, and position remain intentionally session-only;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
-- 38 passing Unreal automation tests plus fresh-process vendor,
+- 40 passing Unreal automation tests plus fresh-process vendor,
   UI-art/package and saved-map validators and initialized-live-world
-  road-boundary traces.
+  road-boundary traces, plus a fresh two-session PIE save/load proof.
 
 This is still prototype art. The first black-sky problem is corrected, but the
 scene remains mixed in style and is missing a cohesive fantasy village kit,
@@ -283,6 +291,18 @@ Vendor service:
   owner saved beside the independent quartermaster presentation.
 - `Docs/VENDOR_SERVICE_CONTRACT.md`: ownership, transaction, validation, and
   current prototype limits.
+
+Persistence:
+
+- `Save/EmbermereSaveGame.h`: versioned durable records for wallet, XP,
+  inventory/equipment identity, quest state, and finite vendor stock.
+- `Save/EmbermerePersistenceLibrary.*`: stable-ID capture, whole-snapshot
+  preflight, atomic restore, slot save/load, and session-only-state reset.
+- `Docs/SAVE_GAME_CONTRACT.md`: version 1 ownership, validation, lifecycle, and
+  explicit non-goals.
+- `Scripts/validate_persistence_live_unreal.py`: two-phase live PIE proof that
+  saves the real economy/quest/equipment state and restores it in a fresh PIE
+  session without duplication.
 
 Automation lives in:
 
@@ -613,11 +633,13 @@ Current automation tests:
 36. `Embermere.UI.VendorPanel`
 37. `Embermere.Vendor.SellBuybackTransactions`
 38. `Embermere.Economy.FenwatchRewardsAndValues`
+39. `Embermere.Persistence.RoundTrip`
+40. `Embermere.Persistence.ValidationRollback`
 
-Latest verified baseline (2026-08-05):
+Latest verified baseline (2026-08-06):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- headless automation discovered and passed 38/38 with zero test failures,
+- headless automation discovered and passed 40/40 with zero test failures,
   including saved starter-effect semantics and runtime contracts for timed
   power/armor buffs, Snare, Frost Root, Meditate, effective-stat consumption,
   respawn-safe temporary-effect clearing, fixed paper-doll presentation, and
@@ -627,7 +649,18 @@ Latest verified baseline (2026-08-05):
   generic static-to-skeletal NPC wrapper contract, and the saved quartermaster
   presentation, plus vendor transactions, art/service separation, saved
   Fenwatch stock, native panel behavior, exact saved quest/item economy values,
-  and rollback-safe sell/buyback transactions;
+  rollback-safe sell/buyback transactions, and versioned persistence
+  round-trip plus whole-snapshot validation/rollback;
+- a real first PIE session ran the vendor sequence `40 -> 32 -> 35 -> 32 -> 2`,
+  completed Mara's quest to `22` copper and `125` XP, retained one Marsh Tonic,
+  one bagged Recruit Pack, one Back-equipped Recruit Pack, and exhausted finite
+  Recruit Pack stock, then wrote `EmbermerePrototype.sav` through
+  `EmbermereSave`;
+- a fresh second PIE session restored that exact durable state through
+  `EmbermereLoad`. Loading it a second time remained idempotent: no item
+  duplication, repeated quest reward, equipment bonus inflation, or stock
+  reset. Buyback history correctly cleared because version 1 defines it as
+  session-only;
 - fresh-process vendor validation accepted the exact two stock rows, prices,
   finite/unlimited quantities, co-located service transform/tags/reference, no
   art on the service, and no service component on the presentation;
@@ -856,7 +889,7 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-05 no-hot-reload economy module plus the saved Fenwatch stock/service,
+2026-08-06 no-hot-reload persistence module plus the saved Fenwatch stock/service,
 item, quest, keeper, quartermaster, NPC wrapper, Blueprint, and map packages,
 then confirm MCP/test discovery; restart only if the editor or test registry
 proves stale.
@@ -867,7 +900,9 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 38 tests, including the six economy/vendor tests,
+3. Run/discover all 40 tests, including the six economy/vendor tests,
+   `Embermere.Persistence.RoundTrip`,
+   `Embermere.Persistence.ValidationRollback`,
    `Embermere.NPC.FenwatchKeeperPresentation`,
    `Embermere.NPC.PresentationContract`, and
    `Embermere.NPC.FenwatchQuartermasterPresentation`.
@@ -950,6 +985,10 @@ First fresh-session checks:
      chat, and close/input restoration;
    - complete Mara's quest and confirm its saved 20-copper reward pays exactly
      once alongside XP and Recruit Pack, with repeat completion rejected.
+   - run the documented two-session persistence flow: save the accepted
+     `22`-copper/`125`-XP/equipped-pack state, start fresh PIE, load it, and
+     prove exact item identity, quest, finite stock, stats, and idempotent
+     second load. Confirm buyback does not persist.
 5. Walk from the village into the new Prowler triangle. Confirm each `525` cm
    pull stays solo, visual markers/bands do not block movement, and an enemy can
    leash and return home normally.
@@ -975,9 +1014,10 @@ High-value milestones after that:
   and target-circle separation; polish only concrete readability issues;
 - retain Mara's accepted static Fenwatch keeper and verify it from the normal
   PlayerStart route before any rigged-humanoid work;
-- define a versioned save-game contract for wallet, inventory/equipment item
-  identity, quest completion, and finite vendor stock; explicitly decide
-  whether bounded vendor-local buyback survives a loaded session;
+- add a minimal player-facing Save/Load surface and deliberate slot lifecycle
+  over the proven version 1 contract, including readable empty/malformed/
+  rejected-version feedback; retain console commands as debug fallbacks and
+  keep buyback session-only;
 - retain the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest/
   shelter/keeper/quartermaster lane and its deterministic scripts, FBX checks,
   original-art tags, and route composition;
@@ -1038,6 +1078,7 @@ Start by reading, in order:
 6. Docs/FAB_ASSET_PLAN.md
 7. Docs/NPC_PRESENTATION_CONTRACT.md
 8. Docs/VENDOR_SERVICE_CONTRACT.md
+9. Docs/SAVE_GAME_CONTRACT.md
 
 Then inspect git status and recent commits. Preserve the existing unstaged Config/DefaultEngine.ini and Config/DefaultInput.ini changes; do not stage, revert, or overwrite them unless we intentionally decide they are required.
 
@@ -1048,12 +1089,13 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-05 current module,
+Follow TODO.md's Start Here section. Confirm the 2026-08-06 current module,
 bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 38 tests. Retain the
+route-repair map, then run all 40 tests, including the persistence round-trip
+and validation/rollback contracts. Retain the
 original rigged Prowler across all three instances and verify Idle, Walk, Run,
 Attack, Hit, Death, terrain contact, target presentation, combat, tonic loot,
 hide, and respawn. Retain the accepted fixed player and
@@ -1102,6 +1144,12 @@ stock/buyback mutation, sold-out and insufficient-funds states, fixed result/
 footer copy, chat, and close/input restoration. Complete Mara's quest and prove
 its 20-copper reward pays exactly once. Re-run the six focused economy/vendor
 tests and fresh-process validator.
+Retain the accepted version 1 persistence contract and live two-session proof:
+`EmbermereSave` captured 22 copper, 125 XP, exact inventory/equipment identity,
+completed Mara state, and exhausted finite Recruit Pack stock; a fresh PIE
+session restored it through `EmbermereLoad`, and a second load produced no
+duplication, repeated reward, or stat inflation. Buyback, combat, cooldowns,
+temporary effects, and position remain intentionally session-only.
 Also retain
 the route-facing supply chest at `(-1740, -1180, 0)` with solid authored lid
 collision, at least 225 cm of saved spawn-corridor clearance, and a clear live
@@ -1109,9 +1157,10 @@ player-height trace. Walk the
 normal route and prove each 525 cm Prowler pull stays solo while visual
 band geometry remains non-colliding. Inspect the shelter from PlayerStart and
 prove Mara's name/quest marker, keeper, open center, four supports, and straight
-autorun route remain readable. Then define the first versioned save-game
-contract for wallet, inventory/equipment identity, quest completion, and finite
-vendor stock, with an explicit buyback-persistence decision; prove the
+autorun route remain readable. Then add the first small player-facing Save/Load
+surface and deliberate slot lifecycle over the proven atomic contract, with
+clear empty/malformed/rejected-version feedback and the console commands kept
+as debug fallbacks; prove the
 wrapper's skeletal/idle lane, add a matching trainer presentation and separate
 service, tune only concrete Prowler or aura issues, or take the highest-value
 next milestone when the path is clear.
