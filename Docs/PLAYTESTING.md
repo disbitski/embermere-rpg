@@ -222,19 +222,32 @@ The full ownership and rollback contract is in
 1. Complete the Fenwatch vendor sequence through the `22` copper quest state.
 2. Equip one Recruit Pack in Back, leaving the quest reward pack and Marsh
    Tonic in the bag.
-3. Run `EmbermereSave` in the Unreal console and confirm green HUD/chat
-   feedback names the `EmbermerePrototype` slot.
-4. Stop PIE and start a second fresh PIE session. Confirm its live objects begin
+3. Press `M` or click `Chronicle`. Confirm the centered fixed panel opens with
+   cursor input and shows `22 copper | 125 XP`, `2 bag stacks | 1 equipped`,
+   and `Quest complete` without covering the hotbar or chat.
+4. Choose Save Journey. Because the acceptance slot already exists, confirm
+   that `Confirm Overwrite` and Cancel appear; cancel once and verify no state
+   changes, then confirm the save and its success feedback.
+5. Close Chronicle with `M` or `X`. Confirm game-only input returns. Opening
+   Inventory or Vendor must hide Chronicle, and opening Chronicle must hide
+   either of those panels.
+6. Stop PIE and start a second fresh PIE session. Confirm its live objects begin
    at the normal 40-copper, empty-bag, stock-one baseline before loading.
-5. Run `EmbermereLoad` and confirm exact restoration: `22` copper, `125` XP,
+7. Open Chronicle, choose Load Journey, and verify `Confirm Load` appears before
+   any mutation. Confirm it and verify exact restoration: `22` copper, `125` XP,
    one tonic, one bagged Recruit Pack, one Recruit Pack equipped in Back,
    `105/105` HP, `1` Armor, completed quest progress, and Recruit Pack vendor
    stock at zero.
-6. Confirm buyback history is empty after load and the completed quest cannot
+8. Confirm buyback history is empty after load and the completed quest cannot
    award XP, copper, or another item again.
-7. Run `EmbermereLoad` a second time. Confirm quantities, XP, copper, and
+9. Load through Chronicle a second time. Confirm quantities, XP, copper, and
    equipment bonuses remain unchanged rather than doubling.
-8. For the tracked two-session acceptance lane, run `prepare_and_save()` and
+10. Confirm an empty or rejected slot disables Load and displays readable
+    missing, malformed, missing-asset, or unsupported-version feedback without
+    partially changing the current session.
+11. `EmbermereSave` and `EmbermereLoad` remain equivalent console fallbacks for
+    debug and automated acceptance.
+12. For the tracked two-session acceptance lane, run `prepare_and_save()` and
    `load_and_validate()` from `Scripts/validate_persistence_live_unreal.py` as
    documented in [SAVE_GAME_CONTRACT.md](SAVE_GAME_CONTRACT.md).
 
@@ -247,6 +260,9 @@ The full ownership and rollback contract is in
 - Interacting with the Fenwatch quartermaster shows a fixed native stock panel
   with purse, wares, prices, finite stock, details, Buy, Sell selected, latest
   Buyback, transaction state, and chat feedback.
+- Pressing `M` or the top-center Chronicle command opens the fixed one-slot
+  Save/Load panel with slot summary, deliberate confirmations, cancel/close
+  controls, readable rejection feedback, and clean cursor/input handoff.
 - Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
 - `Ctrl+M` toggles mouse Y inversion and posts a bottom-left chat/combat log message.
@@ -326,8 +342,9 @@ The full ownership and rollback contract is in
   affordability/wallet rollback, and native feedback. Mara's first quest now
   awards copper. Versioned prototype persistence now keeps copper, XP, exact
   bag/equipment identity, quest progression, and finite stock across sessions;
-  buyback remains session-only by policy. Quantity entry, confirmation,
-  reputation pricing, save-slot UI, and autosave remain open. See
+  buyback remains session-only by policy. Chronicle now supplies the deliberate
+  one-slot lifecycle and confirmations; quantity entry, reputation pricing,
+  autosave, deletion, profiles, and migrations remain open. See
   `Docs/VENDOR_SERVICE_CONTRACT.md` and `Docs/SAVE_GAME_CONTRACT.md`.
 - Nameplates use a native UMG widget component and target highlighting uses a
   dedicated emissive material on a non-colliding 48-segment circle. Runtime

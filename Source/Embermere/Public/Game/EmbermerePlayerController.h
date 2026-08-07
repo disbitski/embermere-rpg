@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Save/EmbermerePersistenceLibrary.h"
 #include "EmbermerePlayerController.generated.h"
 
 class AEmbermereCharacter;
@@ -51,6 +52,18 @@ public:
 	UFUNCTION(Exec, BlueprintCallable, Category = "Embermere|Persistence")
 	void EmbermereLoad();
 
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Persistence")
+	EEmbermerePersistenceResult SavePrototypeProgress(FText& OutMessage);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Persistence")
+	EEmbermerePersistenceResult LoadPrototypeProgress(FText& OutMessage);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Persistence")
+	EEmbermerePersistenceResult InspectPrototypeSave(FText& OutSummary) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Persistence")
+	bool DoesPrototypeSaveExist() const;
+
 	void NotifyManualMoveForwardInput(float Value);
 	void AddHudMessage(const FText& Message, FLinearColor MessageColor) const;
 	bool TriggerOutOfBoundsRecoveryIfNeeded(AEmbermereCharacter* Character);
@@ -76,6 +89,7 @@ protected:
 	void ToggleAutorun();
 	void ToggleInvertMouseY();
 	void ToggleInventoryPanel();
+	void ToggleSaveLoadPanel();
 	void SelectPreviousInventoryItem();
 	void SelectNextInventoryItem();
 	void CycleTarget();

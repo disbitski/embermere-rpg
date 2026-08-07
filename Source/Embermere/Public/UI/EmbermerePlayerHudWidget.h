@@ -105,6 +105,18 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Vendor")
 	bool IsVendorPanelVisible() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Persistence")
+	bool ToggleSaveLoadPanel();
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Persistence")
+	void CloseSaveLoadPanel();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Persistence")
+	bool IsSaveLoadPanelVisible() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Persistence")
+	FVector2D GetSaveLoadPanelDimensions() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
 	bool SelectVendorStockItem(int32 StockIndex);
 
@@ -419,6 +431,51 @@ private:
 	TObjectPtr<UTextBlock> VendorStatusText;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UButton> MenuButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> MenuText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UBorder> SaveLoadPanel;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> SaveLoadTitleText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> SaveLoadSlotText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> SaveLoadSummaryText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> SaveLoadStatusText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> SaveLoadSaveButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> SaveLoadSaveText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> SaveLoadLoadButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> SaveLoadLoadText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> SaveLoadCancelButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> SaveLoadCancelText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> SaveLoadCloseButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> SaveLoadCloseText;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UBorder> ChatPanel;
 
 	UPROPERTY(Transient)
@@ -458,6 +515,15 @@ private:
 	float LootHideTimeSeconds = 0.0f;
 	bool bInventoryPanelVisible = true;
 	bool bVendorPanelVisible = false;
+	bool bSaveLoadPanelVisible = false;
+	enum class ESaveLoadConfirmation : uint8
+	{
+		None,
+		Save,
+		Load
+	};
+	ESaveLoadConfirmation PendingSaveLoadConfirmation = ESaveLoadConfirmation::None;
+	FText SaveLoadResultMessage;
 	int32 SelectedInventoryStackIndex = 0;
 	int32 SelectedVendorStockIndex = 0;
 	int32 FirstDisplayedInventoryStackIndex = 0;
@@ -484,6 +550,8 @@ private:
 	void RefreshInventoryWindow();
 	void UpdateVendorPanelVisibility();
 	void RefreshVendorWindow();
+	void UpdateSaveLoadPanelVisibility();
+	void RefreshSaveLoadWindow();
 	void RefreshChatMessages();
 	void ShowLootPopupWithIcon(const FText& LootText, UTexture2D* Icon);
 	void ClampSelectedInventoryStackIndex();
@@ -524,6 +592,21 @@ private:
 
 	UFUNCTION()
 	void HandleVendorCloseClicked();
+
+	UFUNCTION()
+	void HandleMenuClicked();
+
+	UFUNCTION()
+	void HandleSaveLoadSaveClicked();
+
+	UFUNCTION()
+	void HandleSaveLoadLoadClicked();
+
+	UFUNCTION()
+	void HandleSaveLoadCancelClicked();
+
+	UFUNCTION()
+	void HandleSaveLoadCloseClicked();
 
 	UFUNCTION()
 	void HandleEquipmentSlotClicked(EEmbermereEquipmentSlot EquipmentSlot);

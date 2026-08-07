@@ -54,5 +54,11 @@ public:
 		int32 UserIndex,
 		FText& OutMessage);
 
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Persistence")
+	static EEmbermerePersistenceResult InspectSaveSlot(
+		const FString& SlotName,
+		int32 UserIndex,
+		FText& OutSummary);
+
 	static TArray<UEmbermereVendorComponent*> CollectPersistentVendors(const UWorld* World);
 };

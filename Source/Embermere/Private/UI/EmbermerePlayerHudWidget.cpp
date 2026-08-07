@@ -53,6 +53,8 @@ namespace
 	constexpr float StatusEffectIconSize = 22.0f;
 	constexpr float StatusEffectSlotWidth = 128.0f;
 	constexpr float StatusEffectSlotHeight = 32.0f;
+	constexpr float SaveLoadPanelWidth = 460.0f;
+	constexpr float SaveLoadPanelHeight = 260.0f;
 
 	const TCHAR* GetEquipmentSlotLabel(EEmbermereEquipmentSlot Slot)
 	{
@@ -539,6 +541,13 @@ bool UEmbermerePlayerHudWidget::ToggleInventoryPanel()
 		UpdateInventoryPanelVisibility();
 		return true;
 	}
+	if (bSaveLoadPanelVisible)
+	{
+		CloseSaveLoadPanel();
+		bInventoryPanelVisible = true;
+		UpdateInventoryPanelVisibility();
+		return true;
+	}
 
 	bInventoryPanelVisible = !bInventoryPanelVisible;
 	UpdateInventoryPanelVisibility();
@@ -557,6 +566,7 @@ bool UEmbermerePlayerHudWidget::ShowVendor(UEmbermereVendorComponent* Vendor)
 		return false;
 	}
 
+	CloseSaveLoadPanel();
 	ActiveVendor = Vendor;
 	bVendorPanelVisible = true;
 	bInventoryPanelVisible = false;
@@ -582,6 +592,43 @@ void UEmbermerePlayerHudWidget::CloseVendor()
 bool UEmbermerePlayerHudWidget::IsVendorPanelVisible() const
 {
 	return bVendorPanelVisible;
+}
+
+bool UEmbermerePlayerHudWidget::ToggleSaveLoadPanel()
+{
+	if (bSaveLoadPanelVisible)
+	{
+		CloseSaveLoadPanel();
+		return false;
+	}
+
+	CloseVendor();
+	bInventoryPanelVisible = false;
+	bSaveLoadPanelVisible = true;
+	PendingSaveLoadConfirmation = ESaveLoadConfirmation::None;
+	SaveLoadResultMessage = FText::GetEmpty();
+	UpdateInventoryPanelVisibility();
+	UpdateSaveLoadPanelVisibility();
+	RefreshSaveLoadWindow();
+	return true;
+}
+
+void UEmbermerePlayerHudWidget::CloseSaveLoadPanel()
+{
+	bSaveLoadPanelVisible = false;
+	PendingSaveLoadConfirmation = ESaveLoadConfirmation::None;
+	SaveLoadResultMessage = FText::GetEmpty();
+	UpdateSaveLoadPanelVisibility();
+}
+
+bool UEmbermerePlayerHudWidget::IsSaveLoadPanelVisible() const
+{
+	return bSaveLoadPanelVisible;
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetSaveLoadPanelDimensions() const
+{
+	return FVector2D(SaveLoadPanelWidth, SaveLoadPanelHeight);
 }
 
 bool UEmbermerePlayerHudWidget::SelectVendorStockItem(int32 StockIndex)
@@ -2024,6 +2071,194 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	}
 	UpdateVendorPanelVisibility();
 
+	MenuButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("MenuButton"));
+	MenuText = MakeHudText(
+		WidgetTree,
+		TEXT("MenuText"),
+		FLinearColor(0.94f, 0.84f, 0.58f, 1.0f),
+		12.0f);
+	if (MenuButton && MenuText)
+	{
+		MenuButton->SetBackgroundColor(FLinearColor(0.07f, 0.09f, 0.065f, 0.92f));
+		MenuButton->SetToolTipText(FText::FromString(TEXT("Open the Embermere Chronicle (M)")));
+		MenuButton->OnClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleMenuClicked);
+		MenuText->SetText(FText::FromString(TEXT("Chronicle")));
+		MenuText->SetJustification(ETextJustify::Center);
+		MenuButton->AddChild(MenuText);
+	}
+
+	SaveLoadPanel = MakePanel(WidgetTree, TEXT("SaveLoadPanel"), FLinearColor(0.025f, 0.03f, 0.024f, 0.97f));
+	UVerticalBox* SaveLoadStack = MakePanelStack(WidgetTree, SaveLoadPanel, TEXT("SaveLoadStack"));
+	UHorizontalBox* SaveLoadHeader = WidgetTree->ConstructWidget<UHorizontalBox>(
+		UHorizontalBox::StaticClass(),
+		TEXT("SaveLoadHeader"));
+	SaveLoadTitleText = MakeHudText(
+		WidgetTree,
+		TEXT("SaveLoadTitleText"),
+		FLinearColor(1.0f, 0.82f, 0.38f, 1.0f),
+		20.0f);
+	SaveLoadCloseButton = WidgetTree->ConstructWidget<UButton>(
+		UButton::StaticClass(),
+		TEXT("SaveLoadCloseButton"));
+	SaveLoadCloseText = MakeHudText(
+		WidgetTree,
+		TEXT("SaveLoadCloseText"),
+		FLinearColor(0.96f, 0.88f, 0.72f, 1.0f),
+		14.0f);
+	if (SaveLoadHeader && SaveLoadTitleText && SaveLoadCloseButton && SaveLoadCloseText)
+	{
+		SaveLoadTitleText->SetText(FText::FromString(TEXT("Embermere Chronicle")));
+		SaveLoadCloseText->SetText(FText::FromString(TEXT("X")));
+		SaveLoadCloseText->SetJustification(ETextJustify::Center);
+		SaveLoadCloseButton->SetBackgroundColor(FLinearColor(0.16f, 0.07f, 0.04f, 0.9f));
+		SaveLoadCloseButton->SetToolTipText(FText::FromString(TEXT("Close Chronicle")));
+		SaveLoadCloseButton->OnClicked.AddUniqueDynamic(
+			this,
+			&UEmbermerePlayerHudWidget::HandleSaveLoadCloseClicked);
+		SaveLoadCloseButton->AddChild(SaveLoadCloseText);
+		if (UHorizontalBoxSlot* TitleSlot = SaveLoadHeader->AddChildToHorizontalBox(SaveLoadTitleText))
+		{
+			TitleSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+			TitleSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		if (UHorizontalBoxSlot* CloseSlot = SaveLoadHeader->AddChildToHorizontalBox(MakeSizedWidget(
+			WidgetTree,
+			SaveLoadCloseButton,
+			TEXT("SaveLoadCloseSize"),
+			28.0f,
+			24.0f)))
+		{
+			CloseSlot->SetVerticalAlignment(VAlign_Center);
+		}
+	}
+	AddStackChild(SaveLoadStack, SaveLoadHeader, 7.0f);
+
+	SaveLoadSlotText = MakeHudText(
+		WidgetTree,
+		TEXT("SaveLoadSlotText"),
+		FLinearColor(0.72f, 0.86f, 0.72f, 1.0f),
+		12.0f);
+	SaveLoadSummaryText = MakeHudText(
+		WidgetTree,
+		TEXT("SaveLoadSummaryText"),
+		FLinearColor(0.88f, 0.88f, 0.8f, 1.0f),
+		14.0f);
+	SaveLoadStatusText = MakeHudText(
+		WidgetTree,
+		TEXT("SaveLoadStatusText"),
+		FLinearColor(0.7f, 0.76f, 0.68f, 1.0f),
+		11.0f);
+	if (SaveLoadSlotText)
+	{
+		SaveLoadSlotText->SetText(FText::FromString(TEXT("Local Chronicle  |  One journey slot")));
+	}
+	if (SaveLoadSummaryText)
+	{
+		SaveLoadSummaryText->SetAutoWrapText(true);
+		SaveLoadSummaryText->SetClipping(EWidgetClipping::ClipToBounds);
+	}
+	if (SaveLoadStatusText)
+	{
+		SaveLoadStatusText->SetAutoWrapText(true);
+		SaveLoadStatusText->SetClipping(EWidgetClipping::ClipToBounds);
+	}
+	AddStackChild(SaveLoadStack, SaveLoadSlotText, 5.0f);
+	AddStackChild(
+		SaveLoadStack,
+		MakeSizedWidget(WidgetTree, SaveLoadSummaryText, TEXT("SaveLoadSummarySize"), 420.0f, 62.0f),
+		10.0f);
+
+	UHorizontalBox* SaveLoadActionRow = WidgetTree->ConstructWidget<UHorizontalBox>(
+		UHorizontalBox::StaticClass(),
+		TEXT("SaveLoadActionRow"));
+	SaveLoadSaveButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("SaveLoadSaveButton"));
+	SaveLoadLoadButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("SaveLoadLoadButton"));
+	SaveLoadCancelButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("SaveLoadCancelButton"));
+	SaveLoadSaveText = MakeHudText(
+		WidgetTree,
+		TEXT("SaveLoadSaveText"),
+		FLinearColor(1.0f, 0.9f, 0.62f, 1.0f),
+		13.0f);
+	SaveLoadLoadText = MakeHudText(
+		WidgetTree,
+		TEXT("SaveLoadLoadText"),
+		FLinearColor(0.68f, 0.9f, 0.82f, 1.0f),
+		13.0f);
+	SaveLoadCancelText = MakeHudText(
+		WidgetTree,
+		TEXT("SaveLoadCancelText"),
+		FLinearColor(0.84f, 0.84f, 0.78f, 1.0f),
+		12.0f);
+	if (SaveLoadSaveButton && SaveLoadSaveText)
+	{
+		SaveLoadSaveButton->SetBackgroundColor(FLinearColor(0.25f, 0.17f, 0.045f, 0.96f));
+		SaveLoadSaveButton->SetToolTipText(FText::FromString(TEXT("Save current journey")));
+		SaveLoadSaveButton->OnClicked.AddUniqueDynamic(
+			this,
+			&UEmbermerePlayerHudWidget::HandleSaveLoadSaveClicked);
+		SaveLoadSaveText->SetJustification(ETextJustify::Center);
+		SaveLoadSaveButton->AddChild(SaveLoadSaveText);
+	}
+	if (SaveLoadLoadButton && SaveLoadLoadText)
+	{
+		SaveLoadLoadButton->SetBackgroundColor(FLinearColor(0.055f, 0.2f, 0.16f, 0.96f));
+		SaveLoadLoadButton->SetToolTipText(FText::FromString(TEXT("Load saved journey")));
+		SaveLoadLoadButton->OnClicked.AddUniqueDynamic(
+			this,
+			&UEmbermerePlayerHudWidget::HandleSaveLoadLoadClicked);
+		SaveLoadLoadText->SetJustification(ETextJustify::Center);
+		SaveLoadLoadButton->AddChild(SaveLoadLoadText);
+	}
+	if (SaveLoadCancelButton && SaveLoadCancelText)
+	{
+		SaveLoadCancelButton->SetBackgroundColor(FLinearColor(0.11f, 0.12f, 0.1f, 0.96f));
+		SaveLoadCancelButton->SetToolTipText(FText::FromString(TEXT("Cancel confirmation")));
+		SaveLoadCancelButton->OnClicked.AddUniqueDynamic(
+			this,
+			&UEmbermerePlayerHudWidget::HandleSaveLoadCancelClicked);
+		SaveLoadCancelText->SetText(FText::FromString(TEXT("Cancel")));
+		SaveLoadCancelText->SetJustification(ETextJustify::Center);
+		SaveLoadCancelButton->AddChild(SaveLoadCancelText);
+	}
+	if (SaveLoadActionRow)
+	{
+		if (UHorizontalBoxSlot* SaveSlot = SaveLoadActionRow->AddChildToHorizontalBox(MakeSizedWidget(
+			WidgetTree,
+			SaveLoadSaveButton,
+			TEXT("SaveLoadSaveSize"),
+			135.0f,
+			34.0f)))
+		{
+			SaveSlot->SetPadding(FMargin(0.0f, 0.0f, 8.0f, 0.0f));
+		}
+		if (UHorizontalBoxSlot* LoadSlot = SaveLoadActionRow->AddChildToHorizontalBox(MakeSizedWidget(
+			WidgetTree,
+			SaveLoadLoadButton,
+			TEXT("SaveLoadLoadSize"),
+			135.0f,
+			34.0f)))
+		{
+			LoadSlot->SetPadding(FMargin(0.0f, 0.0f, 8.0f, 0.0f));
+		}
+		SaveLoadActionRow->AddChildToHorizontalBox(MakeSizedWidget(
+			WidgetTree,
+			SaveLoadCancelButton,
+			TEXT("SaveLoadCancelSize"),
+			104.0f,
+			34.0f));
+	}
+	AddStackChild(SaveLoadStack, SaveLoadActionRow, 8.0f);
+	AddStackChild(
+		SaveLoadStack,
+		MakeSizedWidget(WidgetTree, SaveLoadStatusText, TEXT("SaveLoadStatusSize"), 420.0f, 42.0f),
+		0.0f);
+	if (SaveLoadPanel)
+	{
+		SaveLoadPanel->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+	}
+	UpdateSaveLoadPanelVisibility();
+	RefreshSaveLoadWindow();
+
 	ChatPanel = MakePanel(WidgetTree, TEXT("ChatPanel"), FLinearColor(0.015f, 0.018f, 0.022f, 0.76f));
 	ChatMessageStack = MakePanelStack(WidgetTree, ChatPanel, TEXT("ChatMessageStack"));
 	if (ChatPanel)
@@ -2172,6 +2407,17 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		}
 	}
 
+	if (MenuButton)
+	{
+		if (UCanvasPanelSlot* MenuSlot = RootCanvas->AddChildToCanvas(MenuButton))
+		{
+			MenuSlot->SetAnchors(FAnchors(0.5f, 0.0f, 0.5f, 0.0f));
+			MenuSlot->SetAlignment(FVector2D(0.5f, 0.0f));
+			MenuSlot->SetPosition(FVector2D(280.0f, 24.0f));
+			MenuSlot->SetSize(FVector2D(104.0f, 28.0f));
+		}
+	}
+
 	if (VendorPanel)
 	{
 		if (UCanvasPanelSlot* VendorSlot = RootCanvas->AddChildToCanvas(VendorPanel))
@@ -2180,6 +2426,17 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			VendorSlot->SetAlignment(FVector2D(0.5f, 0.5f));
 			VendorSlot->SetPosition(FVector2D(180.0f, -20.0f));
 			VendorSlot->SetSize(FVector2D(500.0f, 325.0f));
+		}
+	}
+
+	if (SaveLoadPanel)
+	{
+		if (UCanvasPanelSlot* SaveLoadSlot = RootCanvas->AddChildToCanvas(SaveLoadPanel))
+		{
+			SaveLoadSlot->SetAnchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f));
+			SaveLoadSlot->SetAlignment(FVector2D(0.5f, 0.5f));
+			SaveLoadSlot->SetPosition(FVector2D(0.0f, -20.0f));
+			SaveLoadSlot->SetSize(FVector2D(SaveLoadPanelWidth, SaveLoadPanelHeight));
 		}
 	}
 
@@ -2478,6 +2735,92 @@ void UEmbermerePlayerHudWidget::UpdateVendorPanelVisibility()
 	if (VendorPanel)
 	{
 		VendorPanel->SetVisibility(bVendorPanelVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
+}
+
+void UEmbermerePlayerHudWidget::UpdateSaveLoadPanelVisibility()
+{
+	if (SaveLoadPanel)
+	{
+		SaveLoadPanel->SetVisibility(
+			bSaveLoadPanelVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
+}
+
+void UEmbermerePlayerHudWidget::RefreshSaveLoadWindow()
+{
+	AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer());
+	FText SlotSummary = FText::FromString(TEXT("No saved journey yet."));
+	const EEmbermerePersistenceResult InspectResult = Controller
+		? Controller->InspectPrototypeSave(SlotSummary)
+		: EEmbermerePersistenceResult::InvalidRequest;
+	const bool bCanLoad = InspectResult == EEmbermerePersistenceResult::Success;
+
+	if (SaveLoadSummaryText)
+	{
+		SaveLoadSummaryText->SetText(SlotSummary);
+		SaveLoadSummaryText->SetColorAndOpacity(FSlateColor(
+			bCanLoad
+				? FLinearColor(0.88f, 0.88f, 0.8f, 1.0f)
+				: FLinearColor(0.94f, 0.62f, 0.38f, 1.0f)));
+	}
+	if (SaveLoadSaveText)
+	{
+		SaveLoadSaveText->SetText(FText::FromString(
+			PendingSaveLoadConfirmation == ESaveLoadConfirmation::Save
+				? TEXT("Confirm Overwrite")
+				: TEXT("Save Journey")));
+	}
+	if (SaveLoadLoadText)
+	{
+		SaveLoadLoadText->SetText(FText::FromString(
+			PendingSaveLoadConfirmation == ESaveLoadConfirmation::Load
+				? TEXT("Confirm Load")
+				: TEXT("Load Journey")));
+	}
+	if (SaveLoadSaveButton)
+	{
+		SaveLoadSaveButton->SetIsEnabled(
+			Controller && PendingSaveLoadConfirmation != ESaveLoadConfirmation::Load);
+	}
+	if (SaveLoadLoadButton)
+	{
+		SaveLoadLoadButton->SetIsEnabled(
+			Controller && bCanLoad && PendingSaveLoadConfirmation != ESaveLoadConfirmation::Save);
+	}
+	if (SaveLoadCancelButton)
+	{
+		SaveLoadCancelButton->SetVisibility(
+			PendingSaveLoadConfirmation == ESaveLoadConfirmation::None
+				? ESlateVisibility::Collapsed
+				: ESlateVisibility::Visible);
+	}
+
+	FText StatusMessage = SaveLoadResultMessage;
+	FLinearColor StatusColor(0.7f, 0.76f, 0.68f, 1.0f);
+	if (PendingSaveLoadConfirmation == ESaveLoadConfirmation::Save)
+	{
+		StatusMessage = FText::FromString(TEXT("Overwrite the existing local journey?"));
+		StatusColor = FLinearColor(1.0f, 0.76f, 0.32f, 1.0f);
+	}
+	else if (PendingSaveLoadConfirmation == ESaveLoadConfirmation::Load)
+	{
+		StatusMessage = FText::FromString(TEXT("Replace the current session with this saved journey?"));
+		StatusColor = FLinearColor(0.58f, 0.9f, 0.82f, 1.0f);
+	}
+	else if (StatusMessage.IsEmpty())
+	{
+		StatusMessage = bCanLoad
+			? FText::FromString(TEXT("Local journey ready."))
+			: SlotSummary;
+		StatusColor = bCanLoad
+			? FLinearColor(0.7f, 0.82f, 0.68f, 1.0f)
+			: FLinearColor(0.94f, 0.62f, 0.38f, 1.0f);
+	}
+	if (SaveLoadStatusText)
+	{
+		SaveLoadStatusText->SetText(StatusMessage);
+		SaveLoadStatusText->SetColorAndOpacity(FSlateColor(StatusColor));
 	}
 }
 
@@ -2941,6 +3284,103 @@ void UEmbermerePlayerHudWidget::HandleVendorBuybackClicked()
 void UEmbermerePlayerHudWidget::HandleVendorCloseClicked()
 {
 	CloseVendor();
+	if (AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer()))
+	{
+		Controller->RefreshInteractiveInputMode();
+	}
+}
+
+void UEmbermerePlayerHudWidget::HandleMenuClicked()
+{
+	ToggleSaveLoadPanel();
+	if (AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer()))
+	{
+		Controller->RefreshInteractiveInputMode();
+	}
+}
+
+void UEmbermerePlayerHudWidget::HandleSaveLoadSaveClicked()
+{
+	AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer());
+	if (!Controller)
+	{
+		SaveLoadResultMessage = FText::FromString(TEXT("The player controller is not ready."));
+		RefreshSaveLoadWindow();
+		return;
+	}
+
+	if (Controller->DoesPrototypeSaveExist() &&
+		PendingSaveLoadConfirmation != ESaveLoadConfirmation::Save)
+	{
+		PendingSaveLoadConfirmation = ESaveLoadConfirmation::Save;
+		SaveLoadResultMessage = FText::GetEmpty();
+		RefreshSaveLoadWindow();
+		return;
+	}
+
+	FText ResultMessage;
+	const EEmbermerePersistenceResult Result = Controller->SavePrototypeProgress(ResultMessage);
+	PendingSaveLoadConfirmation = ESaveLoadConfirmation::None;
+	SaveLoadResultMessage = ResultMessage;
+	AddChatMessage(
+		ResultMessage,
+		Result == EEmbermerePersistenceResult::Success
+			? FLinearColor(0.45f, 0.95f, 0.58f, 1.0f)
+			: FLinearColor(1.0f, 0.24f, 0.16f, 1.0f));
+	RefreshSaveLoadWindow();
+}
+
+void UEmbermerePlayerHudWidget::HandleSaveLoadLoadClicked()
+{
+	AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer());
+	if (!Controller)
+	{
+		SaveLoadResultMessage = FText::FromString(TEXT("The player controller is not ready."));
+		RefreshSaveLoadWindow();
+		return;
+	}
+
+	FText SlotSummary;
+	const EEmbermerePersistenceResult InspectResult = Controller->InspectPrototypeSave(SlotSummary);
+	if (InspectResult != EEmbermerePersistenceResult::Success)
+	{
+		PendingSaveLoadConfirmation = ESaveLoadConfirmation::None;
+		SaveLoadResultMessage = SlotSummary;
+		RefreshSaveLoadWindow();
+		return;
+	}
+	if (PendingSaveLoadConfirmation != ESaveLoadConfirmation::Load)
+	{
+		PendingSaveLoadConfirmation = ESaveLoadConfirmation::Load;
+		SaveLoadResultMessage = FText::GetEmpty();
+		RefreshSaveLoadWindow();
+		return;
+	}
+
+	FText ResultMessage;
+	const EEmbermerePersistenceResult Result = Controller->LoadPrototypeProgress(ResultMessage);
+	PendingSaveLoadConfirmation = ESaveLoadConfirmation::None;
+	SaveLoadResultMessage = ResultMessage;
+	AddChatMessage(
+		ResultMessage,
+		Result == EEmbermerePersistenceResult::Success
+			? FLinearColor(0.45f, 0.95f, 0.58f, 1.0f)
+			: FLinearColor(1.0f, 0.24f, 0.16f, 1.0f));
+	RefreshHudText();
+	RefreshInventoryWindow();
+	RefreshSaveLoadWindow();
+}
+
+void UEmbermerePlayerHudWidget::HandleSaveLoadCancelClicked()
+{
+	PendingSaveLoadConfirmation = ESaveLoadConfirmation::None;
+	SaveLoadResultMessage = FText::FromString(TEXT("No changes made."));
+	RefreshSaveLoadWindow();
+}
+
+void UEmbermerePlayerHudWidget::HandleSaveLoadCloseClicked()
+{
+	CloseSaveLoadPanel();
 	if (AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer()))
 	{
 		Controller->RefreshInteractiveInputMode();

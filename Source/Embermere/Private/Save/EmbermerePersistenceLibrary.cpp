@@ -582,6 +582,63 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::LoadWorldStateFromSlot
 		OutMessage);
 }
 
+EEmbermerePersistenceResult UEmbermerePersistenceLibrary::InspectSaveSlot(
+	const FString& SlotName,
+	int32 UserIndex,
+	FText& OutSummary)
+{
+	if (SlotName.IsEmpty() || UserIndex < 0)
+	{
+		return Fail(
+			EEmbermerePersistenceResult::InvalidRequest,
+			OutSummary,
+			TEXT("A save-slot name and non-negative user index are required."));
+	}
+	if (!UGameplayStatics::DoesSaveGameExist(SlotName, UserIndex))
+	{
+		return Fail(
+			EEmbermerePersistenceResult::SlotUnavailable,
+			OutSummary,
+			TEXT("No saved journey yet."));
+	}
+
+	const UEmbermereSaveGame* SaveGame = Cast<UEmbermereSaveGame>(
+		UGameplayStatics::LoadGameFromSlot(SlotName, UserIndex));
+	if (!SaveGame)
+	{
+		return Fail(
+			EEmbermerePersistenceResult::InvalidData,
+			OutSummary,
+			TEXT("The local save cannot be read as an Embermere journey."));
+	}
+	if (SaveGame->FormatVersion != EmbermereSaveGameVersion::Current)
+	{
+		return Fail(
+			EEmbermerePersistenceResult::UnsupportedVersion,
+			OutSummary,
+			FString::Printf(
+				TEXT("Save version %d is unsupported; this build expects version %d."),
+				SaveGame->FormatVersion,
+				EmbermereSaveGameVersion::Current));
+	}
+
+	FString QuestSummary = TEXT("No active quest");
+	if (SaveGame->QuestState.bHasActiveQuest)
+	{
+		QuestSummary = SaveGame->QuestState.bCompleted
+			? TEXT("Quest complete")
+			: FString::Printf(TEXT("Quest progress %d"), SaveGame->QuestState.CurrentObjectiveCount);
+	}
+	OutSummary = FText::FromString(FString::Printf(
+		TEXT("%d copper  |  %d XP\n%d bag stacks  |  %d equipped  |  %s"),
+		SaveGame->Copper,
+		SaveGame->CurrentExperience,
+		SaveGame->InventoryStacks.Num(),
+		SaveGame->EquippedItems.Num(),
+		*QuestSummary));
+	return EEmbermerePersistenceResult::Success;
+}
+
 TArray<UEmbermereVendorComponent*> UEmbermerePersistenceLibrary::CollectPersistentVendors(
 	const UWorld* World)
 {

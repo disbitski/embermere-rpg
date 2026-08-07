@@ -679,6 +679,85 @@ bool FEmbermerePersistenceValidationRollbackTest::RunTest(const FString& Paramet
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermerePersistenceSlotInspectionTest,
+	"Embermere.Persistence.SlotInspection",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermerePersistenceSlotInspectionTest::RunTest(const FString& Parameters)
+{
+	const FString SlotName = TEXT("EmbermereAutomationSlotInspection");
+	constexpr int32 UserIndex = 87;
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, UserIndex))
+	{
+		UGameplayStatics::DeleteGameInSlot(SlotName, UserIndex);
+	}
+
+	FText Summary;
+	TestEqual(
+		TEXT("Missing local slot reports an explicit empty state"),
+		UEmbermerePersistenceLibrary::InspectSaveSlot(SlotName, UserIndex, Summary),
+		EEmbermerePersistenceResult::SlotUnavailable);
+	TestTrue(
+		TEXT("Empty-state copy identifies the absent journey"),
+		Summary.ToString().Contains(TEXT("No saved journey")));
+
+	UEmbermereSaveGame* SaveGame = Cast<UEmbermereSaveGame>(
+		UGameplayStatics::CreateSaveGameObject(UEmbermereSaveGame::StaticClass()));
+	if (!SaveGame)
+	{
+		AddError(TEXT("Could not create save-slot inspection fixture"));
+		return false;
+	}
+	SaveGame->Copper = 22;
+	SaveGame->CurrentExperience = 125;
+	FEmbermereSavedInventoryStack InventoryStack;
+	InventoryStack.ItemId = TEXT("MarshTonic");
+	InventoryStack.ItemAsset = FSoftObjectPath(TEXT("/Game/Data/Items/DI_MarshTonic.DI_MarshTonic"));
+	InventoryStack.Quantity = 1;
+	SaveGame->InventoryStacks.Add(InventoryStack);
+	FEmbermereSavedEquipmentItem EquipmentItem;
+	EquipmentItem.Slot = EEmbermereEquipmentSlot::Back;
+	EquipmentItem.ItemId = TEXT("RecruitPack");
+	EquipmentItem.ItemAsset = FSoftObjectPath(
+		TEXT("/Game/Data/Items/DI_EmbermereRecruitPack.DI_EmbermereRecruitPack"));
+	SaveGame->EquippedItems.Add(EquipmentItem);
+	SaveGame->QuestState.bHasActiveQuest = true;
+	SaveGame->QuestState.bCompleted = true;
+	SaveGame->QuestState.CurrentObjectiveCount = 3;
+	TestTrue(
+		TEXT("Valid inspection fixture saves through the one-slot lifecycle"),
+		UGameplayStatics::SaveGameToSlot(SaveGame, SlotName, UserIndex));
+
+	TestEqual(
+		TEXT("Current-version local slot inspects successfully"),
+		UEmbermerePersistenceLibrary::InspectSaveSlot(SlotName, UserIndex, Summary),
+		EEmbermerePersistenceResult::Success);
+	const FString ValidSummary = Summary.ToString();
+	TestTrue(TEXT("Slot summary reports exact copper"), ValidSummary.Contains(TEXT("22 copper")));
+	TestTrue(TEXT("Slot summary reports exact XP"), ValidSummary.Contains(TEXT("125 XP")));
+	TestTrue(TEXT("Slot summary reports bag stack count"), ValidSummary.Contains(TEXT("1 bag stacks")));
+	TestTrue(TEXT("Slot summary reports equipment count"), ValidSummary.Contains(TEXT("1 equipped")));
+	TestTrue(TEXT("Slot summary reports completed quest state"), ValidSummary.Contains(TEXT("Quest complete")));
+
+	SaveGame->FormatVersion = EmbermereSaveGameVersion::Current + 1;
+	TestTrue(
+		TEXT("Unsupported-version fixture overwrites the test slot"),
+		UGameplayStatics::SaveGameToSlot(SaveGame, SlotName, UserIndex));
+	TestEqual(
+		TEXT("Unsupported local versions are rejected before player-facing load"),
+		UEmbermerePersistenceLibrary::InspectSaveSlot(SlotName, UserIndex, Summary),
+		EEmbermerePersistenceResult::UnsupportedVersion);
+	TestTrue(
+		TEXT("Rejected-version copy identifies the format mismatch"),
+		Summary.ToString().Contains(TEXT("unsupported")));
+
+	TestTrue(
+		TEXT("Slot inspection test removes its local save artifact"),
+		UGameplayStatics::DeleteGameInSlot(SlotName, UserIndex));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereAutorunCancellationTest,
 	"Embermere.Input.AutorunCancellation",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -1426,6 +1505,40 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Returned item is appended to the bag"), Inventory->Stacks[1].Item == FirstItem);
 	TestTrue(TEXT("Returned item can be selected"), HudWidget->SelectInventoryItem(1));
 	TestEqual(TEXT("Unequipped item action returns to Equip"), HudWidget->GetSelectedInventoryActionLabel().ToString(), FString(TEXT("Equip")));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereSaveLoadPanelTest,
+	"Embermere.UI.SaveLoadPanel",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereSaveLoadPanelTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	if (!Hud)
+	{
+		AddError(TEXT("Could not create Chronicle panel fixture"));
+		return false;
+	}
+
+	TestFalse(TEXT("Chronicle panel starts hidden"), Hud->IsSaveLoadPanelVisible());
+	TestTrue(TEXT("Chronicle toggle opens the panel"), Hud->ToggleSaveLoadPanel());
+	TestTrue(TEXT("Chronicle panel reports visible"), Hud->IsSaveLoadPanelVisible());
+	TestFalse(TEXT("Opening Chronicle hides inventory"), Hud->IsInventoryPanelVisible());
+	TestFalse(TEXT("Opening Chronicle leaves vendor hidden"), Hud->IsVendorPanelVisible());
+	TestEqual(
+		TEXT("Chronicle uses stable reviewed dimensions"),
+		Hud->GetSaveLoadPanelDimensions(),
+		FVector2D(460.0f, 260.0f));
+
+	TestTrue(TEXT("Inventory command opens inventory from Chronicle"), Hud->ToggleInventoryPanel());
+	TestFalse(TEXT("Inventory command closes Chronicle"), Hud->IsSaveLoadPanelVisible());
+	TestTrue(TEXT("Inventory remains visible after handoff"), Hud->IsInventoryPanelVisible());
+	TestTrue(TEXT("Chronicle reopens after inventory handoff"), Hud->ToggleSaveLoadPanel());
+	Hud->CloseSaveLoadPanel();
+	TestFalse(TEXT("Explicit close hides Chronicle"), Hud->IsSaveLoadPanelVisible());
 
 	return true;
 }

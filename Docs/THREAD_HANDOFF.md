@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-06
+Last updated: 2026-08-07
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -635,11 +635,14 @@ Current automation tests:
 38. `Embermere.Economy.FenwatchRewardsAndValues`
 39. `Embermere.Persistence.RoundTrip`
 40. `Embermere.Persistence.ValidationRollback`
+41. `Embermere.Persistence.SlotInspection`
+42. `Embermere.UI.SaveLoadPanel`
 
-Latest verified baseline (2026-08-06):
+Latest verified baseline (2026-08-07):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- headless automation discovered and passed 40/40 with zero test failures,
+- headless automation and the restarted live editor each discovered and passed
+  42/42 with zero test failures,
   including saved starter-effect semantics and runtime contracts for timed
   power/armor buffs, Snare, Frost Root, Meditate, effective-stat consumption,
   respawn-safe temporary-effect clearing, fixed paper-doll presentation, and
@@ -661,6 +664,16 @@ Latest verified baseline (2026-08-06):
   duplication, repeated quest reward, equipment bonus inflation, or stock
   reset. Buyback history correctly cleared because version 1 defines it as
   session-only;
+- the centered `460x260` Embermere Chronicle opened through `M`, inspected the
+  same slot without mutation, and displayed `22` copper, `125` XP, two bag
+  stacks, one equipped item, and completed quest state. Save exposed an
+  overwrite confirmation and cancel path; Load exposed a separate replacement
+  confirmation and restored through the same atomic persistence authority;
+- empty, unreadable, unsupported-version, and load-time validation failures now
+  surface readable persistence feedback. Inventory, Vendor, and Chronicle are
+  mutually exclusive, and closing Chronicle restores game-only input. Console
+  Save/Load commands remain debug fallbacks; autosave, deletion, profiles, and
+  implicit migration remain intentionally absent;
 - fresh-process vendor validation accepted the exact two stock rows, prices,
   finite/unlimited quantities, co-located service transform/tags/reference, no
   art on the service, and no service component on the presentation;
@@ -889,7 +902,7 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-06 no-hot-reload persistence module plus the saved Fenwatch stock/service,
+2026-08-07 no-hot-reload Chronicle module plus the saved Fenwatch stock/service,
 item, quest, keeper, quartermaster, NPC wrapper, Blueprint, and map packages,
 then confirm MCP/test discovery; restart only if the editor or test registry
 proves stale.
@@ -900,9 +913,11 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 40 tests, including the six economy/vendor tests,
+3. Run/discover all 42 tests, including the six economy/vendor tests,
    `Embermere.Persistence.RoundTrip`,
    `Embermere.Persistence.ValidationRollback`,
+   `Embermere.Persistence.SlotInspection`,
+   `Embermere.UI.SaveLoadPanel`,
    `Embermere.NPC.FenwatchKeeperPresentation`,
    `Embermere.NPC.PresentationContract`, and
    `Embermere.NPC.FenwatchQuartermasterPresentation`.
@@ -1014,10 +1029,10 @@ High-value milestones after that:
   and target-circle separation; polish only concrete readability issues;
 - retain Mara's accepted static Fenwatch keeper and verify it from the normal
   PlayerStart route before any rigged-humanoid work;
-- add a minimal player-facing Save/Load surface and deliberate slot lifecycle
-  over the proven version 1 contract, including readable empty/malformed/
-  rejected-version feedback; retain console commands as debug fallbacks and
-  keep buyback session-only;
+- retain the accepted Chronicle one-slot lifecycle, readable empty/malformed/
+  rejected-version feedback, overwrite/load confirmations, panel handoff, and
+  two-session idempotence; retain console commands as debug fallbacks and keep
+  buyback session-only;
 - retain the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest/
   shelter/keeper/quartermaster lane and its deterministic scripts, FBX checks,
   original-art tags, and route composition;
@@ -1089,13 +1104,14 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-06 current module,
+Follow TODO.md's Start Here section. Confirm the 2026-08-07 Chronicle module,
 bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 40 tests, including the persistence round-trip
-and validation/rollback contracts. Retain the
+route-repair map, then run all 42 tests, including the persistence round-trip,
+validation/rollback, slot-inspection, and native Chronicle panel contracts.
+Retain the
 original rigged Prowler across all three instances and verify Idle, Walk, Run,
 Attack, Hit, Death, terrain contact, target presentation, combat, tonic loot,
 hide, and respawn. Retain the accepted fixed player and
@@ -1157,13 +1173,13 @@ player-height trace. Walk the
 normal route and prove each 525 cm Prowler pull stays solo while visual
 band geometry remains non-colliding. Inspect the shelter from PlayerStart and
 prove Mara's name/quest marker, keeper, open center, four supports, and straight
-autorun route remain readable. Then add the first small player-facing Save/Load
-surface and deliberate slot lifecycle over the proven atomic contract, with
-clear empty/malformed/rejected-version feedback and the console commands kept
-as debug fallbacks; prove the
-wrapper's skeletal/idle lane, add a matching trainer presentation and separate
-service, tune only concrete Prowler or aura issues, or take the highest-value
-next milestone when the path is clear.
+autorun route remain readable. Retain the accepted player-facing Chronicle:
+plain `M`, exact slot summary, overwrite/load confirmations and cancel paths,
+empty/rejected feedback, mutually exclusive panel handoff, and console-command
+fallbacks over the same atomic contract. Then prove the wrapper's skeletal/idle
+lane, add a matching trainer presentation and separate service, tune only
+concrete Prowler or aura issues, or take the highest-value next milestone when
+the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

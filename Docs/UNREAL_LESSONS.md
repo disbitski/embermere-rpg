@@ -937,3 +937,23 @@ validator builds progression through real vendor, quest, inventory, and
 equipment APIs, saves, ends PIE, starts a fresh PIE world, loads, and checks the
 whole state vector twice. An in-memory archive test proves serialization logic;
 the two-session run proves the actual slot and lifecycle integration.
+
+## Let Save UI Request A Proven Contract
+
+A player-facing Save/Load panel should not become a second persistence system.
+Embermere Chronicle only inspects the local slot, presents its summary, asks for
+deliberate confirmation, and forwards Save or Load to the controller's existing
+atomic persistence boundary. The persistence library still owns validation,
+error meaning, and mutation.
+
+Keep inspection read-only and loading authoritative. A lightweight slot summary
+can identify an empty, unreadable, or unsupported-version file before enabling
+Load, but missing assets and full cross-owner eligibility still belong to the
+real load preflight. Surface that returned failure to the player instead of
+duplicating asset-resolution rules in the widget.
+
+Confirmation is transient UI state, not durable game state. Test the cancel
+path independently, make Inventory/Vendor/Save panels mutually exclusive, and
+restore game-only input on close. Then repeat the existing two-session proof
+through the new surface. A polished button proves nothing if it bypasses the
+idempotent load contract beneath it.

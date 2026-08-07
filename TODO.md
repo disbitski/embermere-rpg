@@ -6,16 +6,18 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-06 no-hot-reload persistence module plus
+- Confirm Unreal is running the 2026-08-07 no-hot-reload Chronicle module plus
   the saved Fenwatch vendor stock/service, item, quest, and current map
   packages. Restart if the editor predates that build or test discovery exposes
-  fewer than 40 Embermere tests.
+  fewer than 42 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 40 tests, especially
+- Discover and run all 42 tests, especially
   `Embermere.Persistence.RoundTrip`,
   `Embermere.Persistence.ValidationRollback`,
+  `Embermere.Persistence.SlotInspection`,
+  `Embermere.UI.SaveLoadPanel`,
   `Embermere.Economy.FenwatchRewardsAndValues`,
   `Embermere.Vendor.TransactionRules`,
   `Embermere.Vendor.SellBuybackTransactions`,
@@ -23,7 +25,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.Vendor.FenwatchStockData`,
   `Embermere.UI.VendorPanel`, the three NPC presentation tests, Prowler/world
   presentation, player recovery, and inventory transaction suites. The
-  authoritative 2026-08-06 commandlet passed 40/40; the no-hot-reload Mac
+  authoritative 2026-08-07 commandlet passed 42/42; the no-hot-reload Mac
   build, saved-map, UI-art, Fenwatch-vendor, and initialized-world route
   validators also passed.
 - Recheck the accepted Fenwatch vendor loop through normal `F` interaction:
@@ -71,6 +73,18 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `EmbermereLoad` use prototype slot `EmbermerePrototype`; buyback history,
   transient combat, cooldowns, temporary effects, and world position are
   intentionally session-only/reset state.
+- Retain the accepted player-facing Chronicle. `M` opens a centered `460x260`
+  one-slot panel while `Ctrl+M` still toggles mouse inversion. The panel
+  inspects `EmbermerePrototype` without mutating it and displays the accepted
+  `22 copper | 125 XP`, `2 bag stacks | 1 equipped | Quest complete` summary.
+  Save requires explicit overwrite confirmation when the slot exists; Load
+  always confirms replacement of the current session. Empty, unreadable,
+  unsupported-version, missing-asset, and other rejected states surface the
+  persistence result and keep Load disabled or leave live state unchanged.
+  Inventory, Vendor, and Chronicle remain mutually exclusive, and closing the
+  panel restores game-only input. `EmbermereSave` and `EmbermereLoad` remain
+  console fallbacks; there is still no autosave, deletion, multiple profiles,
+  or implicit migration.
 - Retain the accepted EverQuest-inspired target circle. Clean normal-route PIE
   proved all three Marsh Prowlers own exactly 48 stationary, non-colliding
   cyan-blue segments at 16 cm effective surface clearance. The visible circle
@@ -157,24 +171,25 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. add a small player-facing Save/Load surface and deliberate slot lifecycle
-     on top of the proven versioned contract; keep the two console commands as
-     test/debug fallbacks and do not add autosave or multiple profiles until
-     their lifecycle is explicitly designed;
-  2. retain the accepted keeper/quartermaster/service scale, marker clearance,
+  1. prove the NPC wrapper's skeletal/idle upgrade lane without moving quest,
+     vendor, trainer, dialogue, or interaction authority into presentation;
+  2. if that bounded contract is accepted, build a matching trainer
+     presentation and separate trainer service;
+  3. retain the accepted Chronicle slot inspection, confirmation, rejection,
+     panel handoff, and two-session idempotence contracts; keep console commands
+     as debug fallbacks and defer autosave, deletion, profiles, and migrations;
+  4. retain the accepted keeper/quartermaster/service scale, marker clearance,
      chest composition, panel layout, and PlayerStart route;
-  3. prove the NPC wrapper's skeletal/idle upgrade lane, or build a matching
-     trainer presentation and separate trainer service;
-  4. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
+  5. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete issue;
-  5. consider authored Niagara, class-specific VFX, or audio only after the
+  6. consider authored Niagara, class-specific VFX, or audio only after the
      current asset-agnostic presentation has carried the playable slice farther.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-06
-  persistence module and saved item/quest/stock packages. Current code passes
-  all 40 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-08-07
+  Chronicle module and saved item/quest/stock packages. Current code passes
+  all 42 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -240,6 +255,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.NPC.FenwatchQuartermasterPresentation`
   - `Embermere.NPC.PresentationContract`
   - `Embermere.Persistence.RoundTrip`
+  - `Embermere.Persistence.SlotInspection`
   - `Embermere.Persistence.ValidationRollback`
   - `Embermere.Player.OutOfBoundsRecovery`
   - `Embermere.Quests.CompletionRewards`
@@ -254,6 +270,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.UI.InventoryToggle`
   - `Embermere.UI.ItemComparison`
   - `Embermere.UI.PaperDollPresentation`
+  - `Embermere.UI.SaveLoadPanel`
   - `Embermere.UI.TimedStatusPresentation`
   - `Embermere.UI.WorldStatusVfxPresentation`
   - `Embermere.UI.VendorPanel`
@@ -283,15 +300,20 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log instead of overlapping the top-left player status panel or spilling beyond the chat panel border.
 - Manually verify prototype persistence in two clean PIE sessions:
   - complete the exact vendor and Mara sequence from Start Here, equip one
-    Recruit Pack in Back, then run `EmbermereSave` and confirm success feedback;
-  - stop PIE, start a fresh PIE session, run `EmbermereLoad`, and confirm `22`
+    Recruit Pack in Back, open Chronicle with `M`, inspect the exact slot
+    summary, cancel one overwrite request, then confirm Save Journey;
+  - stop PIE, start a fresh PIE session, open Chronicle, confirm Load Journey,
+    and confirm `22`
     copper, `125` XP, the exact bag/equipment identities and quantities,
     completed quest state, zero finite Recruit Pack stock, and correct
     equipment-derived stats;
-  - run `EmbermereLoad` again and confirm no duplicate items, repeated quest
+  - load again and confirm no duplicate items, repeated quest
     payment, or doubled equipment bonuses;
+  - confirm Chronicle, Inventory, and Vendor hand off visibility and cursor
+    mode cleanly, and that `M`/`X` closes Chronicle back to game-only input;
   - confirm vendor buyback history is empty after load because version 1 keeps
-    it session-only.
+    it session-only. Retain `EmbermereSave` and `EmbermereLoad` as debug
+    fallbacks.
 - Manually verify selected-target world readability in PIE:
   - `Tab` shows the selected enemy's UMG nameplate, selected marker, HP text,
     HP bar, and complete cyan-blue emissive circle around its footprint rather

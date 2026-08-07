@@ -1883,6 +1883,39 @@ Lesson: deserialization is not acceptance. A save file is an untrusted
 multi-owner transaction; make the entire candidate eligible before committing
 any part of it, then prove it against a genuinely fresh world.
 
+## 2026-08-07 - The Chronicle Gave Persistence A Player Surface
+
+Version 1 already survived a real world boundary, but only console commands
+could reach it. Today's pass added `Embermere Chronicle`, a centered fixed
+one-slot Save/Load panel that requests the proven persistence contract without
+becoming another owner of durable state.
+
+- `InspectSaveSlot` reads slot metadata without mutating gameplay and reports
+  empty, valid, unreadable, or unsupported-version state.
+- The accepted slot summary showed `22` copper, `125` XP, two bag stacks, one
+  equipped item, and completed quest state.
+- Save requires explicit overwrite confirmation when the local slot exists;
+  Load always confirms replacement of the current session. Both have real
+  cancel paths.
+- Inventory, Vendor, and Chronicle hand off cursor/input mode without overlap.
+  Plain `M` toggles Chronicle while `Ctrl+M` keeps its existing mouse-inversion
+  behavior.
+- Empty and rejected slots expose persistence-layer feedback. Console
+  `EmbermereSave` and `EmbermereLoad` remain debug fallbacks; autosave,
+  deletion, profiles, and implicit migration remain intentionally out of scope.
+
+The authoritative no-hot-reload Mac build succeeded. Fresh commandlet and live
+editor runs each passed all `42/42` tests, including new slot-inspection and
+fixed-panel contracts. UI-art, vendor, saved-map, and initialized-world route
+validators retained their success markers. A clean first PIE session exercised
+the native overwrite/cancel and load-confirmation paths, and a second fresh PIE
+session restored the exact accepted state twice without duplication, reward
+replay, stock reset, or equipment-stat inflation.
+
+Lesson: save UI is a lifecycle and communication layer, not a serialization
+authority. Let it inspect, confirm, and report; let the already-tested atomic
+contract decide whether a world may change.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

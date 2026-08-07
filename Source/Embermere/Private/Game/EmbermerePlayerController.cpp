@@ -12,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "InputCoreTypes.h"
 #include "Interfaces/EmbermereTargetable.h"
+#include "Kismet/GameplayStatics.h"
 #include "Save/EmbermerePersistenceLibrary.h"
 #include "TimerManager.h"
 #include "UI/EmbermerePlayerHudWidget.h"
@@ -83,6 +84,10 @@ void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 	if (bControlDown && WasInputKeyJustPressed(EKeys::M))
 	{
 		ToggleInvertMouseY();
+	}
+	else if (WasInputKeyJustPressed(EKeys::M))
+	{
+		ToggleSaveLoadPanel();
 	}
 	if (WasInputKeyJustPressed(EKeys::I))
 	{
@@ -234,11 +239,7 @@ void AEmbermerePlayerController::ToggleInvertMouseY()
 void AEmbermerePlayerController::EmbermereSave()
 {
 	FText ResultMessage;
-	const EEmbermerePersistenceResult Result = UEmbermerePersistenceLibrary::SaveWorldStateToSlot(
-		GetEmbermereCharacter(),
-		PrototypeSaveSlotName,
-		PrototypeSaveUserIndex,
-		ResultMessage);
+	const EEmbermerePersistenceResult Result = SavePrototypeProgress(ResultMessage);
 	AddHudMessage(
 		ResultMessage,
 		Result == EEmbermerePersistenceResult::Success
@@ -249,16 +250,44 @@ void AEmbermerePlayerController::EmbermereSave()
 void AEmbermerePlayerController::EmbermereLoad()
 {
 	FText ResultMessage;
-	const EEmbermerePersistenceResult Result = UEmbermerePersistenceLibrary::LoadWorldStateFromSlot(
-		GetEmbermereCharacter(),
-		PrototypeSaveSlotName,
-		PrototypeSaveUserIndex,
-		ResultMessage);
+	const EEmbermerePersistenceResult Result = LoadPrototypeProgress(ResultMessage);
 	AddHudMessage(
 		ResultMessage,
 		Result == EEmbermerePersistenceResult::Success
 			? FLinearColor(0.42f, 1.0f, 0.48f, 1.0f)
 			: FLinearColor(1.0f, 0.24f, 0.16f, 1.0f));
+}
+
+EEmbermerePersistenceResult AEmbermerePlayerController::SavePrototypeProgress(FText& OutMessage)
+{
+	return UEmbermerePersistenceLibrary::SaveWorldStateToSlot(
+		GetEmbermereCharacter(),
+		PrototypeSaveSlotName,
+		PrototypeSaveUserIndex,
+		OutMessage);
+}
+
+EEmbermerePersistenceResult AEmbermerePlayerController::LoadPrototypeProgress(FText& OutMessage)
+{
+	return UEmbermerePersistenceLibrary::LoadWorldStateFromSlot(
+		GetEmbermereCharacter(),
+		PrototypeSaveSlotName,
+		PrototypeSaveUserIndex,
+		OutMessage);
+}
+
+EEmbermerePersistenceResult AEmbermerePlayerController::InspectPrototypeSave(FText& OutSummary) const
+{
+	return UEmbermerePersistenceLibrary::InspectSaveSlot(
+		PrototypeSaveSlotName,
+		PrototypeSaveUserIndex,
+		OutSummary);
+}
+
+bool AEmbermerePlayerController::DoesPrototypeSaveExist() const
+{
+	return !PrototypeSaveSlotName.IsEmpty() && PrototypeSaveUserIndex >= 0 &&
+		UGameplayStatics::DoesSaveGameExist(PrototypeSaveSlotName, PrototypeSaveUserIndex);
 }
 
 void AEmbermerePlayerController::ToggleInventoryPanel()
@@ -273,6 +302,17 @@ void AEmbermerePlayerController::ToggleInventoryPanel()
 	AddHudMessage(
 		FText::FromString(bNowVisible ? TEXT("Inventory shown") : TEXT("Inventory hidden")),
 		FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
+}
+
+void AEmbermerePlayerController::ToggleSaveLoadPanel()
+{
+	if (!PlayerHudWidget)
+	{
+		return;
+	}
+
+	PlayerHudWidget->ToggleSaveLoadPanel();
+	RefreshInteractiveInputMode();
 }
 
 void AEmbermerePlayerController::SelectPreviousInventoryItem()
@@ -457,7 +497,8 @@ void AEmbermerePlayerController::EnsurePlayerHud()
 void AEmbermerePlayerController::RefreshInteractiveInputMode()
 {
 	const bool bInteractiveUiVisible = PlayerHudWidget &&
-		(PlayerHudWidget->IsInventoryPanelVisible() || PlayerHudWidget->IsVendorPanelVisible());
+		(PlayerHudWidget->IsInventoryPanelVisible() || PlayerHudWidget->IsVendorPanelVisible() ||
+			PlayerHudWidget->IsSaveLoadPanelVisible());
 	UpdateInventoryInputMode(bInteractiveUiVisible);
 }
 

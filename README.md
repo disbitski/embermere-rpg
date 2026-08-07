@@ -232,13 +232,15 @@ co-located art-free service now turns that quartermaster into Embermere's first
 working merchant without coupling stock, prices, currency, transactions, or
 interaction to the model. The playable loop now earns `20` copper from Mara's
 first quest and supports rollback-safe selling and latest-item buyback through
-the same fixed vendor panel. Explicit `EmbermereSave` and `EmbermereLoad`
-prototype commands now persist the resulting copper, XP, exact item/equipment
-identity, completed quest, and finite merchant stock across fresh PIE worlds;
-the same file can be loaded repeatedly without duplicate rewards or bonuses.
+the same fixed vendor panel. The native `Embermere Chronicle` now gives players
+a deliberate one-slot Save/Load surface with non-mutating slot inspection,
+overwrite/load confirmation, exact progression summaries, and readable
+rejection feedback. Explicit `EmbermereSave` and `EmbermereLoad` commands remain
+debug fallbacks. Version 1 persists copper, XP, exact item/equipment identity,
+completed quest, and finite merchant stock across fresh PIE worlds; repeated
+loads do not duplicate rewards or bonuses.
 
-Next milestone: add a small player-facing save/load menu and deliberate slot
-lifecycle on top of the proven data contract, or prove the NPC wrapper's
-skeletal/idle upgrade lane by adding a matching trainer presentation and
-separate service. Autosave, multiple profiles, migrations, and position
-persistence remain later product decisions.
+Next milestone: prove the NPC wrapper's skeletal/idle upgrade lane, then use
+that boundary for a matching trainer presentation and separate service.
+Autosave, deletion, multiple profiles, migrations, and position persistence
+remain later product decisions.
