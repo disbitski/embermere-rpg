@@ -5,6 +5,7 @@
 #include "EmbermereNpcPresentationActor.generated.h"
 
 class UAnimInstance;
+class UAnimationAsset;
 class USceneComponent;
 class USkeletalMesh;
 class USkeletalMeshComponent;
@@ -17,6 +18,14 @@ enum class EEmbermereNpcVisualMode : uint8
 	None,
 	StaticMesh,
 	SkeletalMesh
+};
+
+UENUM(BlueprintType)
+enum class EEmbermereNpcAnimationMode : uint8
+{
+	None,
+	AnimationBlueprint,
+	SingleNodeIdle
 };
 
 /**
@@ -52,6 +61,15 @@ public:
 	TSoftClassPtr<UAnimInstance> AnimationClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation")
+	TSoftObjectPtr<UAnimationAsset> IdleAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation")
+	bool bLoopIdleAnimation = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation", meta = (ClampMin = "0.01"))
+	float IdleAnimationPlayRate = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation")
 	bool bPreferSkeletalVisual = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation")
@@ -62,6 +80,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|NPC|Presentation")
 	EEmbermereNpcVisualMode GetResolvedVisualMode() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|NPC|Presentation")
+	EEmbermereNpcAnimationMode GetResolvedAnimationMode() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|NPC|Presentation")
 	bool IsPresentationCollisionDisabled() const;

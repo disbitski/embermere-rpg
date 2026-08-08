@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-07
+Last updated: 2026-08-08
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -65,7 +65,9 @@ The project currently includes:
   quartermaster/reed family, a 38-expression moss/earth road material, and a
   Mac-friendly daylight baseline;
 - a reusable art-only NPC wrapper with static and skeletal lanes, shared
-  transforms, soft references, and no interaction or service ownership;
+  transforms, soft references, Anim Blueprint precedence, a
+  skeleton-compatible single-node Idle lane, and no interaction or service
+  ownership;
 - a separate Fenwatch vendor vertical slice with an art-free interactable
   service actor, data-driven stock/prices/sell values, earned player copper,
   atomic buy/sell/buyback rollback, fixed native stock UI, and saved ownership
@@ -76,7 +78,7 @@ The project currently includes:
   temporary effects, and position remain intentionally session-only;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
-- 40 passing Unreal automation tests plus fresh-process vendor,
+- 43 passing Unreal automation tests plus fresh-process vendor,
   UI-art/package and saved-map validators and initialized-live-world
   road-boundary traces, plus a fresh two-session PIE save/load proof.
 
@@ -637,23 +639,30 @@ Current automation tests:
 40. `Embermere.Persistence.ValidationRollback`
 41. `Embermere.Persistence.SlotInspection`
 42. `Embermere.UI.SaveLoadPanel`
+43. `Embermere.NPC.SkeletalIdlePresentation`
 
-Latest verified baseline (2026-08-07):
+Latest verified baseline (2026-08-08):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
-- headless automation and the restarted live editor each discovered and passed
-  42/42 with zero test failures,
+- headless automation discovered and passed 43/43 with zero test failures,
   including saved starter-effect semantics and runtime contracts for timed
   power/armor buffs, Snare, Frost Root, Meditate, effective-stat consumption,
   respawn-safe temporary-effect clearing, fixed paper-doll presentation, and
   source-ability-backed timed-status presentation, all three saved Marsh
   Prowler instances, the world-status VFX contract, and finite-world player
   recovery, the real saved Fenwatch-keeper SCS presentation contract, the
-  generic static-to-skeletal NPC wrapper contract, and the saved quartermaster
-  presentation, plus vendor transactions, art/service separation, saved
+  generic static-to-skeletal NPC wrapper contract, the real-asset single-node
+  Idle contract, and the saved quartermaster presentation, plus vendor
+  transactions, art/service separation, saved
   Fenwatch stock, native panel behavior, exact saved quest/item economy values,
   rollback-safe sell/buyback transactions, and versioned persistence
   round-trip plus whole-snapshot validation/rollback;
+- a PIE-only swap on the accepted quartermaster wrapper used the real Marsh
+  Prowler mesh and Idle sequence to prove the lightweight skeletal lane. The
+  component remained visible and `NoCollision`, reported `playing=true` at
+  `0.75x`, and advanced from `0.0` to `1.4153` seconds. Stopping PIE discarded
+  the swap, while a fresh validator proved the saved quartermaster remained
+  static with no animation reference;
 - a real first PIE session ran the vendor sequence `40 -> 32 -> 35 -> 32 -> 2`,
   completed Mara's quest to `22` copper and `125` XP, retained one Marsh Tonic,
   one bagged Recruit Pack, one Back-equipped Recruit Pack, and exhausted finite
@@ -879,6 +888,11 @@ Read `Docs/UNREAL_LESSONS.md` for the full record. The highest-risk lessons are:
     lanes, keep both visual-only and non-colliding, test mode resolution, and
     leave interaction, services, dialogue, and quests in separate gameplay
     owners.
+28. **Saved animation is not live playback:** clearing an Anim Blueprint class
+    can destroy the transient instance while leaving single-node mode
+    unchanged. Store construction-safe `AnimationData`, explicitly reinitialize
+    registered components, then prove `IsPlaying`, play rate, and two advancing
+    positions in PIE. Property inspection alone can accept a frozen pose.
 
 ## Known Workspace State
 
@@ -902,7 +916,7 @@ The latest intentional gameplay/map/docs work is already committed and pushed.
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-07 no-hot-reload Chronicle module plus the saved Fenwatch stock/service,
+2026-08-08 no-hot-reload NPC Idle module plus the accepted Chronicle and saved Fenwatch stock/service,
 item, quest, keeper, quartermaster, NPC wrapper, Blueprint, and map packages,
 then confirm MCP/test discovery; restart only if the editor or test registry
 proves stale.
@@ -913,13 +927,14 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 42 tests, including the six economy/vendor tests,
+3. Run/discover all 43 tests, including the six economy/vendor tests,
    `Embermere.Persistence.RoundTrip`,
    `Embermere.Persistence.ValidationRollback`,
    `Embermere.Persistence.SlotInspection`,
    `Embermere.UI.SaveLoadPanel`,
    `Embermere.NPC.FenwatchKeeperPresentation`,
-   `Embermere.NPC.PresentationContract`, and
+   `Embermere.NPC.PresentationContract`,
+   `Embermere.NPC.SkeletalIdlePresentation`, and
    `Embermere.NPC.FenwatchQuartermasterPresentation`.
 4. Start PIE and verify:
    - all three Marsh Prowlers retain the project-owned skeletal mesh and route
@@ -1036,8 +1051,8 @@ High-value milestones after that:
 - retain the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest/
   shelter/keeper/quartermaster lane and its deterministic scripts, FBX checks,
   original-art tags, and route composition;
-- prove the accepted reusable static-to-skeletal NPC presentation contract with
-  a bounded idle-animation upgrade or use it for a matching trainer visual;
+- retain the accepted static-to-skeletal Idle contract and use it for a
+  matching trainer visual paired with a separate trainer service;
 - optional restrained rune/soft-edge texture treatment for the dedicated
   target-circle material after all three normal-route Prowlers pass the
   physical-eye sweep;
@@ -1104,12 +1119,12 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-07 Chronicle module,
+Follow TODO.md's Start Here section. Confirm the 2026-08-08 NPC Idle module and accepted Chronicle,
 bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 42 tests, including the persistence round-trip,
+route-repair map, then run all 43 tests, including the persistence round-trip,
 validation/rollback, slot-inspection, and native Chronicle panel contracts.
 Retain the
 original rigged Prowler across all three instances and verify Idle, Walk, Run,
@@ -1176,8 +1191,8 @@ prove Mara's name/quest marker, keeper, open center, four supports, and straight
 autorun route remain readable. Retain the accepted player-facing Chronicle:
 plain `M`, exact slot summary, overwrite/load confirmations and cancel paths,
 empty/rejected feedback, mutually exclusive panel handoff, and console-command
-fallbacks over the same atomic contract. Then prove the wrapper's skeletal/idle
-lane, add a matching trainer presentation and separate service, tune only
+fallbacks over the same atomic contract. Retain the wrapper's measured
+skeletal/Idle lane, add a matching trainer presentation and separate service, tune only
 concrete Prowler or aura issues, or take the highest-value next milestone when
 the path is clear.
 

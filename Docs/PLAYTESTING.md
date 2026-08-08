@@ -72,6 +72,32 @@ In Play In Editor, Mara uses the project-owned static Fenwatch keeper visual,
 while the existing quest actor still owns the temporary gold `!`, name marker,
 interaction, dialogue, and quest state.
 
+## NPC Skeletal Idle Acceptance
+
+Use this focused lane when upgrading wrapper-based NPC art. It is an engineering
+acceptance check, not a saved quartermaster art change.
+
+1. Start clean PIE on the current no-hot-reload module.
+2. On the PIE-only copy of a presentation wrapper, assign a real skeletal mesh,
+   a skeleton-compatible Idle animation, looping intent, and a deliberate play
+   rate, then call `RefreshPresentation()`.
+3. Confirm the skeletal lane is visible, the static lane is hidden, the exact
+   mesh and Idle asset resolve, mode is `AnimationSingleNode`, and collision
+   remains `NoCollision`.
+4. Confirm runtime playback reports `playing=true` and the authored play rate.
+   Sample animation position twice far enough apart to prove it advances.
+   Saved `AnimationData` by itself is not playback proof.
+5. Confirm the wrapper still has no quest, dialogue, vendor, trainer, or
+   interaction authority.
+6. Stop PIE and rerun the fresh Fenwatch validator. The accepted saved
+   quartermaster must still use its static lane with no Idle or Anim Blueprint
+   reference.
+
+The 2026-08-08 acceptance used the project-owned Marsh Prowler rig and Idle
+sequence as a temporary fixture. Playback advanced from `0.0` to `1.4153`
+seconds at `0.75x`, remained visible and non-colliding, and the diagnostic world
+was discarded on PIE stop.
+
 ## Current Play Loop
 
 1. Press Play.

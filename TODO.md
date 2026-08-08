@@ -6,14 +6,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-07 no-hot-reload Chronicle module plus
-  the saved Fenwatch vendor stock/service, item, quest, and current map
-  packages. Restart if the editor predates that build or test discovery exposes
-  fewer than 42 Embermere tests.
+- Confirm Unreal is running the 2026-08-08 no-hot-reload NPC Idle module plus
+  the accepted Chronicle, Fenwatch vendor stock/service, item, quest, and
+  current map packages. Restart if the editor predates that build or test
+  discovery exposes fewer than 43 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 42 tests, especially
+- Discover and run all 43 tests, especially
   `Embermere.Persistence.RoundTrip`,
   `Embermere.Persistence.ValidationRollback`,
   `Embermere.Persistence.SlotInspection`,
@@ -23,9 +23,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.Vendor.SellBuybackTransactions`,
   `Embermere.Vendor.ServiceContract`,
   `Embermere.Vendor.FenwatchStockData`,
-  `Embermere.UI.VendorPanel`, the three NPC presentation tests, Prowler/world
-  presentation, player recovery, and inventory transaction suites. The
-  authoritative 2026-08-07 commandlet passed 42/42; the no-hot-reload Mac
+  `Embermere.UI.VendorPanel`,
+  `Embermere.NPC.SkeletalIdlePresentation`, the three established NPC
+  presentation tests, Prowler/world presentation, player recovery, and
+  inventory transaction suites. The authoritative 2026-08-08 commandlet
+  passed 43/43; the no-hot-reload Mac
   build, saved-map, UI-art, Fenwatch-vendor, and initialized-world route
   validators also passed.
 - Recheck the accepted Fenwatch vendor loop through normal `F` interaction:
@@ -151,6 +153,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   PlayerStart sightlines. The native `AEmbermereNpcPresentationActor` owns only
   interchangeable static/skeletal visuals and one shared transform; it must
   remain free of interaction, vendor, trainer, quest, and dialogue authority.
+- Retain the accepted wrapper Idle lane. Anim Blueprint art takes precedence;
+  otherwise a skeleton-compatible soft Idle asset uses `AnimationSingleNode`
+  with data-driven loop and play rate. The real Prowler fixture passed native
+  asset/transform/collision checks, and a PIE-only quartermaster swap advanced
+  from `0.0` to `1.4153` seconds at `0.75x` with `playing=true` and
+  `NoCollision`. Stopping PIE discarded that diagnostic; the saved
+  quartermaster remains static with no animation reference. Do not accept a
+  future NPC animation from serialized `AnimationData` alone: prove the live
+  position advances.
 - Retain the accepted HUD, effects, inventory, and equipment baseline:
   fixed timed-status cells, four-class ability art and semantics, the
   `700x330` paper-doll inventory, Recruit Pack bag/Back transactions, Marsh
@@ -171,10 +182,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. prove the NPC wrapper's skeletal/idle upgrade lane without moving quest,
-     vendor, trainer, dialogue, or interaction authority into presentation;
-  2. if that bounded contract is accepted, build a matching trainer
-     presentation and separate trainer service;
+  1. build a matching Fenwatch trainer presentation and separate trainer
+     service on top of the accepted static/skeletal/Idle wrapper contract;
+  2. keep offerings, progression, prompts, costs, and interaction authority
+     outside presentation, with focused ownership and rollback tests;
   3. retain the accepted Chronicle slot inspection, confirmation, rejection,
      panel handoff, and two-session idempotence contracts; keep console commands
      as debug fallbacks and defer autosave, deletion, profiles, and migrations;
@@ -187,9 +198,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-07
-  Chronicle module and saved item/quest/stock packages. Current code passes
-  all 42 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-08-08 NPC
+  Idle module and accepted Chronicle/item/quest/stock packages. Current code
+  passes all 43 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -254,6 +265,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.NPC.FenwatchKeeperPresentation`
   - `Embermere.NPC.FenwatchQuartermasterPresentation`
   - `Embermere.NPC.PresentationContract`
+  - `Embermere.NPC.SkeletalIdlePresentation`
   - `Embermere.Persistence.RoundTrip`
   - `Embermere.Persistence.SlotInspection`
   - `Embermere.Persistence.ValidationRollback`
@@ -466,7 +478,8 @@ Embermere has a working first-pass starter slice:
   widget, chat log, hotbar cooldown display, item/slot/ability/paper-doll
   presentation, inventory toggle, buy/sell/buyback transactions, saved
   economy values, service ownership, saved stock, native vendor-panel behavior,
-  and persistence round-trip/rollback rules, for 40 authoritative tests.
+  persistence round-trip/rollback rules, and construction-safe plus live NPC
+  Idle presentation, for 43 authoritative tests.
 
 ## How Far We Have To Go
 
@@ -501,17 +514,23 @@ effects, or audio.
 The first durable-state lane is now complete as a bounded prototype contract:
 wallet, XP, inventory/equipment identity, quest state, and finite vendor stock
 survive a fresh PIE session through validated atomic restore. Buyback and
-combat-temporary state remain deliberately transient. The next persistence
-work is player-facing lifecycle and corruption/version feedback, not adding
-more serialized fields by accident.
+combat-temporary state remain deliberately transient. Chronicle now provides
+the deliberate player-facing lifecycle and corruption/version feedback. Keep
+the bounded one-slot contract stable instead of adding serialized fields by
+accident.
 
 ## Next Work
 
-- Extend the accepted persistence/economy loop without weakening its boundaries:
-  - build a minimal native Save/Load panel or pause/settings surface over the
-    proven `EmbermereSave`/`EmbermereLoad` lifecycle;
-  - expose readable empty-slot, success, rejected-version, and corrupt/missing-
-    asset feedback without partially mutating runtime state;
+- Build the first Fenwatch trainer vertical slice without weakening ownership:
+  - create a matching presentation through the accepted art-only wrapper;
+  - keep trainer offerings, progression rules, costs, prompts, and interaction
+    on a separate service actor/component;
+  - define one bounded data-driven training action with atomic rejection and
+    readable native UI/chat feedback;
+  - add focused presentation, ownership, transaction, and panel tests.
+- Retain the accepted persistence/economy loop without weakening its boundaries:
+  - preserve Chronicle's one-slot inspection, confirmation, cancel, rejection,
+    and panel-handoff behavior over the proven atomic contract;
   - keep buyback history session-only and document any future schema migration
     before changing `EmbermereSaveGameVersion::Current`;
   - retain one-at-a-time vendor quantities, the fixed vendor panel,

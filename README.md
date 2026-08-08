@@ -49,7 +49,8 @@ The repo currently contains the C++ gameplay scaffold for:
 - inventory, equipment, quest log, interactables, stats, combat, targeting, and hotbar components
 - player/enemy character classes
 - an asset-agnostic NPC presentation wrapper with interchangeable static and
-  skeletal visual lanes, shared authored transforms, soft art references, and
+  skeletal visual lanes, shared authored transforms, soft art references,
+  Anim Blueprint precedence, a skeleton-validated single-node Idle lane, and
   no quest/service/interaction ownership
 - a separate data-driven Fenwatch vendor service with player copper,
   finite/unlimited stock, complete buy/sell/buyback preflight, rollback-safe
@@ -240,7 +241,8 @@ debug fallbacks. Version 1 persists copper, XP, exact item/equipment identity,
 completed quest, and finite merchant stock across fresh PIE worlds; repeated
 loads do not duplicate rewards or bonuses.
 
-Next milestone: prove the NPC wrapper's skeletal/idle upgrade lane, then use
-that boundary for a matching trainer presentation and separate service.
+The NPC wrapper's skeletal/Idle lane is now proven with the real Marsh Prowler
+rig, exact animation data, and measured live PIE playback. Next milestone: use
+that boundary for a matching trainer presentation and separate trainer service.
 Autosave, deletion, multiple profiles, migrations, and position persistence
 remain later product decisions.

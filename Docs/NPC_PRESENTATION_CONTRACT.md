@@ -11,8 +11,10 @@ dialogue, inventory, training, quest, or interaction authority into art.
 standalone NPC art. It owns:
 
 - one `UStaticMeshComponent` for the current static lane;
-- one `USkeletalMeshComponent` for a future rigged lane;
-- soft references to the static mesh, skeletal mesh, and animation class;
+- one `USkeletalMeshComponent` for the rigged lane;
+- soft references to the static mesh, skeletal mesh, animation class, and
+  lightweight Idle animation;
+- explicit Idle looping and play-rate settings;
 - one shared authored relative transform used by either visual lane;
 - an explicit preference flag and resolved visual mode;
 - a permanent presentation-only collision contract.
@@ -20,6 +22,19 @@ standalone NPC art. It owns:
 Only the resolved lane is visible. Switching from static to skeletal art does
 not change the actor transform or require service logic to know which component
 is active. Missing preferred art falls back to the available lane.
+
+Animation resolution is also explicit. A compatible Anim Blueprint class wins
+when assigned. Otherwise, a skeleton-compatible `IdleAnimation` uses Unreal's
+single-node lane with the authored loop and play rate. An incompatible or
+missing animation leaves the skeletal presentation unanimated instead of
+quietly binding the wrong skeleton.
+
+`OverrideAnimationData` stores the construction-safe single-node contract. A
+registered component is then reinitialized with `InitAnim(true)` so the same
+data creates a live `UAnimSingleNodeInstance` after a runtime art swap. This
+extra step matters because clearing an Anim Blueprint class destroys the
+transient instance without changing `AnimationSingleNode` mode; another mode
+assignment alone therefore does not recreate playback.
 
 The wrapper deliberately does not own:
 
@@ -64,14 +79,18 @@ Every wrapper-based NPC presentation should prove:
 3. Exact saved actor class, art reference, transform, preference, tag, and
    `NoCollision` state in a fresh process.
 4. Native automation for static resolution, skeletal resolution, fallback,
-   shared transform, and absence of interaction authority.
+   shared transform, animation precedence, exact Idle asset/loop/play rate,
+   and absence of interaction authority.
 5. Initialized-world route traces where nearby solid props matter.
 6. Clean PIE grounding, silhouette, marker/name clearance, service-area
-   composition, and normal player traversal.
+   composition, and normal player traversal. A single-node lane must also
+   report `playing`, retain its authored rate, and advance between two measured
+   positions; serialized animation data alone is insufficient acceptance.
 
 The current focused tests are:
 
 - `Embermere.NPC.PresentationContract`
+- `Embermere.NPC.SkeletalIdlePresentation`
 - `Embermere.NPC.FenwatchQuartermasterPresentation`
 - `Embermere.NPC.FenwatchKeeperPresentation`
 - `Embermere.Vendor.ServiceContract`
@@ -79,9 +98,13 @@ The current focused tests are:
 
 ## Next Step
 
-Prove the static-to-skeletal idle upgrade through the wrapper without changing
-the accepted service actor, stock data, interaction, or saved world transform.
-The service now supports earned currency, rollback-safe selling, and buyback
-without moving any economy rule into NPC art. The next service expansion should
-preserve that boundary while adding save-game persistence or a separate trainer
-service.
+The static-to-skeletal Idle lane is now proven with the real project-owned
+Marsh Prowler rig and animation. Fresh automation validates the exact asset,
+loop, rate, transform, collision, and ownership contract; a PIE-only swap
+proved playback advancing from `0.0` to `1.4153` seconds at `0.75x` without
+altering the saved quartermaster.
+
+Keep the accepted quartermaster static until matching rigged art exists. The
+next bounded use of this boundary is a Fenwatch trainer presentation paired
+with a separate trainer service, with offerings, progression, prompts, and
+transactions remaining outside the art wrapper.

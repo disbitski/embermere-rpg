@@ -2645,6 +2645,102 @@ bool FEmbermereNpcPresentationContractTest::RunTest(const FString& Parameters)
 	TestNull(TEXT("Inactive static lane releases its mesh"), Presentation->StaticVisual->GetStaticMesh());
 	TestTrue(TEXT("Skeletal lane keeps the same authored local transform"), Presentation->SkeletalVisual->GetRelativeTransform().Equals(AuthoredTransform));
 	TestTrue(TEXT("Skeletal swap keeps both art lanes non-colliding"), Presentation->IsPresentationCollisionDisabled());
+	TestEqual(
+		TEXT("Skeletal art without animation remains an explicit unanimated lane"),
+		Presentation->GetResolvedAnimationMode(),
+		EEmbermereNpcAnimationMode::None);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereNpcSkeletalIdlePresentationTest,
+	"Embermere.NPC.SkeletalIdlePresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereNpcSkeletalIdlePresentationTest::RunTest(const FString& Parameters)
+{
+	UStaticMesh* StaticMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+	USkeletalMesh* SkeletalMesh = LoadObject<USkeletalMesh>(
+		nullptr,
+		TEXT("/Game/Art/Embermere/Characters/Enemies/MarshProwler/SK_EmbermereMarshProwler_01.SK_EmbermereMarshProwler_01"));
+	UAnimSequence* IdleAnimation = LoadObject<UAnimSequence>(
+		nullptr,
+		TEXT("/Game/Art/Embermere/Characters/Enemies/MarshProwler/Animations/A_EmbermereMarshProwler_Idle.A_EmbermereMarshProwler_Idle"));
+	AEmbermereNpcPresentationActor* Presentation = NewObject<AEmbermereNpcPresentationActor>();
+	TestNotNull(TEXT("Static fallback fixture loads"), StaticMesh);
+	TestNotNull(TEXT("Project-owned skeletal fixture loads"), SkeletalMesh);
+	TestNotNull(TEXT("Project-owned Idle animation loads"), IdleAnimation);
+	TestNotNull(TEXT("Skeletal Idle presentation actor can be created"), Presentation);
+	if (!StaticMesh || !SkeletalMesh || !IdleAnimation || !Presentation)
+	{
+		return false;
+	}
+
+	const FTransform AuthoredTransform(
+		FRotator(0.0f, -35.0f, 0.0f),
+		FVector(11.0f, 12.0f, 13.0f),
+		FVector(0.8f));
+	Presentation->StaticVisualMesh = StaticMesh;
+	Presentation->SkeletalVisualMesh = SkeletalMesh;
+	Presentation->IdleAnimation = IdleAnimation;
+	Presentation->bLoopIdleAnimation = true;
+	Presentation->IdleAnimationPlayRate = 0.75f;
+	Presentation->VisualRelativeTransform = AuthoredTransform;
+	Presentation->bPreferSkeletalVisual = true;
+	Presentation->RefreshPresentation();
+
+	TestEqual(
+		TEXT("Preferred skeletal art resolves through the rigged lane"),
+		Presentation->GetResolvedVisualMode(),
+		EEmbermereNpcVisualMode::SkeletalMesh);
+	TestEqual(
+		TEXT("Compatible project-owned Idle art resolves through the single-node lane"),
+		Presentation->GetResolvedAnimationMode(),
+		EEmbermereNpcAnimationMode::SingleNodeIdle);
+	TestEqual(
+		TEXT("Idle lane uses Unreal single-node animation mode"),
+		Presentation->SkeletalVisual->GetAnimationMode(),
+		EAnimationMode::AnimationSingleNode);
+	TestTrue(
+		TEXT("Idle lane serializes the exact project-owned animation"),
+		Presentation->SkeletalVisual->AnimationData.AnimToPlay == IdleAnimation);
+	TestTrue(
+		TEXT("Idle lane serializes looping intent"),
+		Presentation->SkeletalVisual->AnimationData.bSavedLooping);
+	TestTrue(
+		TEXT("Idle lane serializes playing intent"),
+		Presentation->SkeletalVisual->AnimationData.bSavedPlaying);
+	TestTrue(
+		TEXT("Idle lane serializes the authored play rate"),
+		FMath::IsNearlyEqual(Presentation->SkeletalVisual->AnimationData.SavedPlayRate, 0.75f));
+	TestTrue(
+		TEXT("Skeletal Idle lane preserves the shared authored transform"),
+		Presentation->SkeletalVisual->GetRelativeTransform().Equals(AuthoredTransform));
+	TestTrue(TEXT("Animated presentation remains non-colliding"), Presentation->IsPresentationCollisionDisabled());
+	TestNull(
+		TEXT("Animated presentation still owns no interaction authority"),
+		Presentation->FindComponentByClass<UEmbermereInteractableComponent>());
+	TestNull(
+		TEXT("Animated presentation still owns no vendor authority"),
+		Presentation->FindComponentByClass<UEmbermereVendorComponent>());
+
+	Presentation->bPreferSkeletalVisual = false;
+	Presentation->RefreshPresentation();
+	TestEqual(
+		TEXT("Static preference restores the accepted fallback lane"),
+		Presentation->GetResolvedVisualMode(),
+		EEmbermereNpcVisualMode::StaticMesh);
+	TestEqual(
+		TEXT("Static fallback clears resolved animation state"),
+		Presentation->GetResolvedAnimationMode(),
+		EEmbermereNpcAnimationMode::None);
+	TestNull(
+		TEXT("Static fallback releases the prior serialized Idle clip"),
+		Presentation->SkeletalVisual->AnimationData.AnimToPlay.Get());
+	TestTrue(
+		TEXT("Static fallback preserves the same authored transform"),
+		Presentation->StaticVisual->GetRelativeTransform().Equals(AuthoredTransform));
 
 	return true;
 }

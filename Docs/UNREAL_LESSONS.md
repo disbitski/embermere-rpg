@@ -957,3 +957,42 @@ path independently, make Inventory/Vendor/Save panels mutually exclusive, and
 restore game-only input on close. Then repeat the existing two-session proof
 through the new surface. A polished button proves nothing if it bypasses the
 idempotent load contract beneath it.
+
+## Separate Saved Animation Intent From Live Playback State
+
+A skeletal component can look fully configured while no animation player
+exists. Embermere's first NPC Idle pass held the exact skeletal mesh, exact
+animation asset, `AnimationSingleNode` mode, looping intent, playing intent,
+and `0.75` saved play rate. Native tests and fresh package inspection were all
+green, but live PIE remained at position `0.0`, reported `playing=false`, and
+returned a runtime play rate of `0.0`.
+
+The UE 5.8 lifecycle explained the mismatch. `SetAnimInstanceClass(nullptr)`
+clears the transient animation instance but does not change the component's
+single-node mode. `OverrideAnimationData()` then sees no mode transition, so it
+serializes correct intent without calling the path that creates a new
+`UAnimSingleNodeInstance`. Calling `SetAnimation`, `SetPlayRate`, or `Play`
+cannot repair that state because each operation first asks for the missing
+single-node instance.
+
+The accepted sequence is:
+
+1. Resolve a skeletal mesh and skeleton-compatible Idle asset.
+2. Clear any Anim Blueprint class.
+3. Store the exact asset, loop, playing, position, and rate through
+   `OverrideAnimationData()` so construction and package state remain durable.
+4. If the component is registered, call `InitAnim(true)` to create a runtime
+   instance from that saved data.
+5. Prove playback, not configuration: sample `IsPlaying()`, `GetPlayRate()`,
+   and `GetPosition()` twice in live PIE.
+
+The final Embermere run moved from `0.0` to `1.4153` seconds while remaining
+playing at `0.75x` and `NoCollision`. The diagnostic changed only the PIE copy
+of the quartermaster wrapper and was discarded when PIE stopped; a fresh
+validator separately proved the saved quartermaster still uses its reviewed
+static lane.
+
+The broader lesson is useful beyond animation. Serialized intent, resolved
+component state, and active runtime behavior are three different claims. Test
+all three whenever an Unreal feature has both construction-time and transient
+instances.

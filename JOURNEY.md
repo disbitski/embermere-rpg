@@ -1916,6 +1916,39 @@ Lesson: save UI is a lifecycle and communication layer, not a serialization
 authority. Let it inspect, confirm, and report; let the already-tested atomic
 contract decide whether a world may change.
 
+## 2026-08-08 - The NPC Wrapper Learned To Idle
+
+The quartermaster proved that one art-only wrapper could hold either static or
+skeletal presentation, but the skeletal lane still lacked a bounded ambient
+animation contract. Today's pass added a soft Idle animation, explicit looping
+and play rate, skeleton compatibility checks, Anim Blueprint precedence, and a
+resolved animation mode without moving any service rule into art.
+
+The real lesson arrived after the first green build. Native automation proved
+the exact Marsh Prowler mesh, Idle asset, single-node mode, loop flag, saved
+playing flag, `0.75` rate, shared transform, and `NoCollision`. Fresh package
+validators also passed. Live PIE still sat at frame zero.
+
+Reading UE 5.8's local engine source exposed the lifecycle gap:
+`SetAnimInstanceClass(nullptr)` clears the transient instance but leaves the
+component in `AnimationSingleNode` mode. `OverrideAnimationData()` then stores
+correct construction data without seeing a mode change, so no new
+`UAnimSingleNodeInstance` is created. The wrapper now stores the durable data
+and explicitly calls `InitAnim(true)` when the component is registered.
+
+The repeated PIE-only swap then reported `playing=true`, `0.75x`,
+`NoCollision`, and advanced from `0.0` to `1.4153` seconds on the real Prowler
+Idle clip. Stopping PIE discarded the diagnostic swap, while the fresh
+Fenwatch validator proved the saved quartermaster remained on its accepted
+static lane.
+
+The no-hot-reload Mac build succeeded, all `43/43` tests passed, and UI-art,
+Fenwatch, and saved-zone validators retained their exact success markers.
+
+Lesson: configuration, serialized intent, and active runtime state are three
+different claims. A swappable animation lane is not accepted until the runtime
+clock moves.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

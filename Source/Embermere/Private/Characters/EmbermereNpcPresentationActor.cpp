@@ -1,6 +1,7 @@
 #include "Characters/EmbermereNpcPresentationActor.h"
 
 #include "Animation/AnimInstance.h"
+#include "Animation/AnimationAsset.h"
 #include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -58,6 +59,12 @@ void AEmbermereNpcPresentationActor::RefreshPresentation()
 	USkeletalMesh* ResolvedSkeletalMesh = SkeletalVisualMesh.IsNull()
 		? nullptr
 		: SkeletalVisualMesh.LoadSynchronous();
+	UClass* ResolvedAnimationClass = AnimationClass.IsNull()
+		? nullptr
+		: AnimationClass.LoadSynchronous();
+	UAnimationAsset* ResolvedIdleAnimation = IdleAnimation.IsNull()
+		? nullptr
+		: IdleAnimation.LoadSynchronous();
 
 	const bool bUseSkeletalVisual = ResolvedSkeletalMesh &&
 		(bPreferSkeletalVisual || !ResolvedStaticMesh);
@@ -70,10 +77,42 @@ void AEmbermereNpcPresentationActor::RefreshPresentation()
 
 	SkeletalVisual->SetRelativeTransform(VisualRelativeTransform);
 	SkeletalVisual->SetSkeletalMeshAsset(bUseSkeletalVisual ? ResolvedSkeletalMesh : nullptr);
-	SkeletalVisual->SetAnimInstanceClass(
-		bUseSkeletalVisual && !AnimationClass.IsNull()
-			? AnimationClass.LoadSynchronous()
-			: nullptr);
+
+	const bool bUseAnimationBlueprint = bUseSkeletalVisual && ResolvedAnimationClass;
+	const bool bIdleAnimationCompatible = bUseSkeletalVisual &&
+		ResolvedIdleAnimation &&
+		ResolvedIdleAnimation->GetSkeleton() &&
+		ResolvedSkeletalMesh->GetSkeleton() == ResolvedIdleAnimation->GetSkeleton();
+	if (bUseAnimationBlueprint)
+	{
+		SkeletalVisual->OverrideAnimationData(nullptr, false, false, 0.0f, 1.0f);
+		SkeletalVisual->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+		SkeletalVisual->SetAnimInstanceClass(ResolvedAnimationClass);
+	}
+	else if (bIdleAnimationCompatible)
+	{
+		const float ResolvedPlayRate = FMath::Max(IdleAnimationPlayRate, 0.01f);
+		SkeletalVisual->SetAnimInstanceClass(nullptr);
+		SkeletalVisual->OverrideAnimationData(
+			ResolvedIdleAnimation,
+			bLoopIdleAnimation,
+			true,
+			0.0f,
+			ResolvedPlayRate);
+
+		// Clearing an Anim Blueprint class destroys the runtime instance without
+		// changing SingleNode mode. Reinitialize registered components explicitly
+		// so a live art swap consumes the same serialized data as construction.
+		if (SkeletalVisual->IsRegistered())
+		{
+			SkeletalVisual->InitAnim(true);
+		}
+	}
+	else
+	{
+		SkeletalVisual->SetAnimInstanceClass(nullptr);
+		SkeletalVisual->OverrideAnimationData(nullptr, false, false, 0.0f, 1.0f);
+	}
 	SkeletalVisual->SetVisibility(bUseSkeletalVisual, true);
 	SkeletalVisual->SetHiddenInGame(!bUseSkeletalVisual, true);
 }
@@ -91,6 +130,27 @@ EEmbermereNpcVisualMode AEmbermereNpcPresentationActor::GetResolvedVisualMode() 
 	}
 
 	return EEmbermereNpcVisualMode::None;
+}
+
+EEmbermereNpcAnimationMode AEmbermereNpcPresentationActor::GetResolvedAnimationMode() const
+{
+	if (GetResolvedVisualMode() != EEmbermereNpcVisualMode::SkeletalMesh || !SkeletalVisual)
+	{
+		return EEmbermereNpcAnimationMode::None;
+	}
+
+	if (SkeletalVisual->GetAnimationMode() == EAnimationMode::AnimationBlueprint && AnimationClass.Get())
+	{
+		return EEmbermereNpcAnimationMode::AnimationBlueprint;
+	}
+
+	if (SkeletalVisual->GetAnimationMode() == EAnimationMode::AnimationSingleNode &&
+		SkeletalVisual->AnimationData.AnimToPlay)
+	{
+		return EEmbermereNpcAnimationMode::SingleNodeIdle;
+	}
+
+	return EEmbermereNpcAnimationMode::None;
 }
 
 bool AEmbermereNpcPresentationActor::IsPresentationCollisionDisabled() const

@@ -109,9 +109,19 @@ def main():
         fail("presentation unexpectedly owns interaction")
     if presentation.get_component_by_class(unreal.EmbermereVendorComponent):
         fail("presentation unexpectedly owns vendor behavior")
+    if presentation.get_editor_property("skeletal_visual_mesh"):
+        fail("accepted quartermaster unexpectedly switched to skeletal art")
+    if presentation.get_editor_property("animation_class"):
+        fail("accepted static quartermaster unexpectedly owns an animation class")
+    if presentation.get_editor_property("idle_animation"):
+        fail("accepted static quartermaster unexpectedly owns an Idle animation")
+    if presentation.get_editor_property("prefer_skeletal_visual"):
+        fail("accepted quartermaster no longer prefers its reviewed static lane")
+    if abs(float(presentation.get_editor_property("idle_animation_play_rate")) - 1.0) > 0.001:
+        fail("quartermaster default Idle play rate drifted")
 
     unreal.log(
-        "Embermere Fenwatch economy validation passed: stable vendor ID, two data-driven wares and sell values, twenty-copper quest reward, atomic buy/sell/buyback service, one saved art-free service actor, and presentation/service ownership separation intact"
+        "Embermere Fenwatch economy validation passed: stable vendor ID, two data-driven wares and sell values, twenty-copper quest reward, atomic buy/sell/buyback service, one saved art-free service actor, accepted static quartermaster fallback, and presentation/service ownership separation intact"
     )
 
 
