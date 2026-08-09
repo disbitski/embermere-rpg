@@ -66,6 +66,14 @@ buyback state. Current focused coverage rejects:
 Applying the same valid save repeatedly is safe: items, XP, copper, quest
 rewards, and equipment bonuses do not duplicate.
 
+The Fenwatch trainer adds no version-1 schema field. An accepted training
+transaction mutates the already-owned copper and XP values, so those results
+flow through the existing wallet/stats records. Trainer offerings, panel
+selection, interaction range, and rejection copy remain data or transient
+session state. The next integrated acceptance proof is therefore a normal
+train-at-40/0 to save-at-30/25 flow followed by a fresh-world load and a second
+idempotent load, not a save-format expansion.
+
 ## Prototype Commands
 
 The player-facing `Embermere Chronicle` opens with `M` or the top-center

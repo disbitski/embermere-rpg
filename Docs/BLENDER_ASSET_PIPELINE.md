@@ -716,6 +716,49 @@ transactions as a separate art-free gameplay lane documented in
 `Docs/VENDOR_SERVICE_CONTRACT.md`; none of those responsibilities became
 properties of this Blender asset or its presentation actor.
 
+## Thirteenth Asset: Fenwatch Armsmaster
+
+`SM_EmbermereFenwatchArmsmaster_01` gives the first trainer service a distinct
+project-owned identity without putting offerings or progression into the
+model. A moss hood, timber tunic, pale guard tabard, ember crest, round shield,
+and ember-tipped staff keep the figure in the Fenwatch family while separating
+its silhouette from Mara and the quartermaster.
+
+The reviewed build script is
+`Scripts/blender/build_embermere_fenwatch_armsmaster.py`; editable source, FBX,
+preview, and deterministic metrics live under
+`ArtSource/Blender/Characters/NPCs/FenwatchArmsmaster`. Classic-FBX import is
+handled by `Scripts/import_embermere_fenwatch_armsmaster_unreal.py`; data and
+service placement use `Scripts/configure_fenwatch_trainer_unreal.py`.
+
+Verified result:
+
+- dimensions: `154.5 x 87.0 x 228.0` cm with a ground pivot;
+- Blender source: 2,824 triangles, one UV channel, no non-manifold edges, and
+  applied unit scale;
+- Unreal package: 2,800 triangles after classic FBX removes 24 degenerate
+  triangles during import;
+- materials: five existing stone, moss, timber, iron, and ember assets plus
+  the saved project-owned `M_FenwatchArmsmasterSkin` material;
+- collision: no simple collision and explicit `NoCollision` on the art-only
+  wrapper;
+- saved presentation: `Embermere_FenwatchArmsmaster_Trainer_01` at
+  `(-1320, -920, 0)`, yaw `100`, unit scale, static mode, and the
+  `EmbermereOriginalArt` tag;
+- saved service: a separate co-located
+  `Embermere_FenwatchArmsmaster_Service_01` owns interaction and the soft
+  reference to `DA_FenwatchArmsmasterOfferings` without owning art.
+
+The first preview clipped the staff's ember tip even though the model metrics
+passed. The authored camera was corrected and the preview rerendered before the
+asset was accepted. Import then exposed a second useful distinction: Blender's
+source triangle count and Unreal's post-import triangle count describe
+different eligible artifacts. Recording and testing both avoids either tool
+silently becoming the only truth.
+
+The full art/service/progression boundary is documented in
+`Docs/TRAINER_SERVICE_CONTRACT.md`.
+
 ## Sources
 
 - Article/post: https://x.com/explosss1ve/status/2075654835597164769

@@ -913,11 +913,51 @@ requires those config values.
 
 The latest intentional gameplay/map/docs work is already committed and pushed.
 
+## 2026-08-09 Trainer And Armsmaster Update
+
+Fenwatch now has a complete trainer vertical slice whose art, service, data,
+player state, and UI remain separately owned.
+
+- `Embermere_FenwatchArmsmaster_Trainer_01` is an art-only
+  `AEmbermereNpcPresentationActor` at `(-1320, -920, 0)`, yaw `100`, unit
+  scale, and `NoCollision`. Its grounded Stylized Classic shield/staff
+  silhouette is readable from the normal village route.
+- The reviewed Blender source is `154.5 x 87.0 x 228.0` cm with 2,824 source
+  triangles and six project-owned materials. Classic `FbxFactory` import
+  removes 24 degenerate triangles and persists a 2,800-triangle Unreal mesh;
+  these are deliberately separate source and imported-topology contracts.
+- The co-located, art-free
+  `Embermere_FenwatchArmsmaster_Service_01` exclusively owns interaction and
+  `UEmbermereTrainerComponent`. It has no static/skeletal mesh, collision,
+  navigation, vendor, quest, or dialogue authority.
+- `DA_FenwatchArmsmasterOfferings` defines one repeatable level-1 `Combat
+  Drills` action costing 10 copper and granting 25 XP. Level, funds, malformed
+  data, and XP overflow reject before mutation; an unexpected progression
+  failure after spend refunds the exact copper.
+- The fixed `500x300` native Fenwatch Training panel owns presentation and
+  requests only. It keeps offering/detail/result/footer copy in bounds and
+  hands off mutually exclusively to Inventory and Chronicle.
+- Clean PIE proved 40 copper/0 XP becomes exactly 30 copper/25 XP, repeated
+  training reaches zero without underflow, and an additional request reports
+  insufficient funds without mutation. Inventory, Chronicle, and close paths
+  all restore coherent cursor/input ownership.
+- The no-hot-reload Mac build, all 48 automation tests, trainer/saved-map/UI
+  validators, and initialized-world route traces passed. The map now retains
+  57 grounded upright Fab actors plus 18 original-art placements.
+
+Two durable tool lessons also came from the pass. Blender source topology and
+Unreal post-import topology can both be correct acceptance metrics when the
+importer removes degenerates. In Unreal MCP, the Output Log's Python textbox
+may not appear in a root Slate snapshot; observing the `SOutputLog` subtree
+directly exposes its internal `SMultiLineEditableTextBox` for supported
+localhost automation without OS-level keystroke injection.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-08 no-hot-reload NPC Idle module plus the accepted Chronicle and saved Fenwatch stock/service,
-item, quest, keeper, quartermaster, NPC wrapper, Blueprint, and map packages,
+2026-08-09 no-hot-reload Fenwatch trainer module plus the accepted armsmaster,
+offering, Chronicle, Fenwatch stock/service, item, quest, keeper,
+quartermaster, NPC wrapper, Blueprint, and map packages,
 then confirm MCP/test discovery; restart only if the editor or test registry
 proves stale.
 
@@ -927,7 +967,12 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 43 tests, including the six economy/vendor tests,
+3. Run/discover all 48 tests, including the six economy/vendor tests,
+   `Embermere.Trainer.TransactionRules`,
+   `Embermere.Trainer.ServiceContract`,
+   `Embermere.Trainer.FenwatchOfferingsData`,
+   `Embermere.NPC.FenwatchArmsmasterPresentation`,
+   `Embermere.UI.TrainerPanel`,
    `Embermere.Persistence.RoundTrip`,
    `Embermere.Persistence.ValidationRollback`,
    `Embermere.Persistence.SlotInspection`,
@@ -993,9 +1038,9 @@ First fresh-session checks:
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
-   - 57 grounded upright Fab actors plus 17 original placements from the
+   - 57 grounded upright Fab actors plus 18 original placements from the
      waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
-     quartermaster/reed family;
+     quartermaster/armsmaster/reed family;
      inspect the route-facing chest at `(-1740, -1180, 0)`, its solid lid, the
      Fenwatch shelter behind Mara at `(-1740, -700, 0)`, its four solid supports
      and clear center, Mara's grounded front-facing non-colliding Fenwatch
@@ -1015,6 +1060,11 @@ First fresh-session checks:
      chat, and close/input restoration;
    - complete Mara's quest and confirm its saved 20-copper reward pays exactly
      once alongside XP and Recruit Pack, with repeat completion rejected.
+   - approach the armsmaster and press `F`; confirm the fixed Fenwatch Training
+     panel, one data-driven Combat Drills offering, 40-to-30 copper and 0-to-25
+     XP transaction, exact chat/panel feedback, insufficient-funds rejection,
+     and clean Inventory/Chronicle/close handoffs. The visual actor must remain
+     art-only while the co-located service owns all interaction/progression.
    - run the documented two-session persistence flow: save the accepted
      `22`-copper/`125`-XP/equipped-pack state, start fresh PIE, load it, and
      prove exact item identity, quest, finite stock, stats, and idempotent
@@ -1051,8 +1101,12 @@ High-value milestones after that:
 - retain the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest/
   shelter/keeper/quartermaster lane and its deterministic scripts, FBX checks,
   original-art tags, and route composition;
-- retain the accepted static-to-skeletal Idle contract and use it for a
-  matching trainer visual paired with a separate trainer service;
+- retain the accepted armsmaster/trainer ownership and transaction contracts;
+  next prove trainer-produced 30-copper/25-XP state through Chronicle in a
+  fresh PIE world and a second idempotent load without changing save version 1;
+- after that proof, build a compact Fenwatch practice dummy/training-yard prop
+  through the reviewed Blender/classic-FBX lane, or begin a dedicated rigged
+  Idle armsmaster presentation without moving trainer authority into art;
 - optional restrained rune/soft-edge texture treatment for the dedicated
   target-circle material after all three normal-route Prowlers pass the
   physical-eye sweep;
@@ -1108,7 +1162,8 @@ Start by reading, in order:
 6. Docs/FAB_ASSET_PLAN.md
 7. Docs/NPC_PRESENTATION_CONTRACT.md
 8. Docs/VENDOR_SERVICE_CONTRACT.md
-9. Docs/SAVE_GAME_CONTRACT.md
+9. Docs/TRAINER_SERVICE_CONTRACT.md
+10. Docs/SAVE_GAME_CONTRACT.md
 
 Then inspect git status and recent commits. Preserve the existing unstaged Config/DefaultEngine.ini and Config/DefaultInput.ini changes; do not stage, revert, or overwrite them unless we intentionally decide they are required.
 
@@ -1119,13 +1174,15 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-08 NPC Idle module and accepted Chronicle,
+Follow TODO.md's Start Here section. Confirm the 2026-08-09 Fenwatch trainer module and accepted armsmaster/offering/Chronicle,
 bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 43 tests, including the persistence round-trip,
-validation/rollback, slot-inspection, and native Chronicle panel contracts.
+route-repair map, then run all 48 tests, including the persistence round-trip,
+validation/rollback, slot-inspection, native Chronicle panel, trainer
+transaction/service/offering, armsmaster presentation, and trainer-panel
+contracts.
 Retain the
 original rigged Prowler across all three instances and verify Idle, Walk, Run,
 Attack, Hit, Death, terrain contact, target presentation, combat, tonic loot,
@@ -1161,7 +1218,7 @@ feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy
 nameplate, bounds-aware surface-traced cyan-blue target circle, quest/reward
 loop, enemy
 leash, respawn protection, chat clipping, atmospheric daylight and the
-38-expression moss/earth road, 57 grounded upright Fab actors, and all 17
+38-expression moss/earth road, 57 grounded upright Fab actors, and all 18
 original-art placements including four `NoCollision` reed clusters, the
 open-sided Fenwatch shelter at `(-1740, -700, 0)`, yaw `-64`, and the
 grounded front-facing non-colliding Mara keeper with its marker/name clear, the
@@ -1175,6 +1232,13 @@ stock/buyback mutation, sold-out and insufficient-funds states, fixed result/
 footer copy, chat, and close/input restoration. Complete Mara's quest and prove
 its 20-copper reward pays exactly once. Re-run the six focused economy/vendor
 tests and fresh-process validator.
+Retain the accepted Fenwatch armsmaster and trainer separation: the grounded,
+non-colliding art-only armsmaster and co-located art-free service sit at
+`(-1320, -920, 0)`, yaw `100`; the saved offering exposes repeatable level-1
+Combat Drills for 10 copper and 25 XP. Exercise the normal `F` trainer loop and
+prove `40 -> 30` copper plus `0 -> 25` XP, insufficient-funds rejection,
+fixed-panel bounds, chat, and Inventory/Chronicle/close handoff. Preserve the
+2,824 Blender-source versus 2,800 post-import Unreal topology distinction.
 Retain the accepted version 1 persistence contract and live two-session proof:
 `EmbermereSave` captured 22 copper, 125 XP, exact inventory/equipment identity,
 completed Mara state, and exhausted finite Recruit Pack stock; a fresh PIE
@@ -1192,9 +1256,12 @@ autorun route remain readable. Retain the accepted player-facing Chronicle:
 plain `M`, exact slot summary, overwrite/load confirmations and cancel paths,
 empty/rejected feedback, mutually exclusive panel handoff, and console-command
 fallbacks over the same atomic contract. Retain the wrapper's measured
-skeletal/Idle lane, add a matching trainer presentation and separate service, tune only
-concrete Prowler or aura issues, or take the highest-value next milestone when
-the path is clear.
+skeletal/Idle lane and the accepted trainer ownership contract. First prove
+trainer-produced 30-copper/25-XP state through Chronicle in a fresh PIE world
+and a second idempotent load without changing save version 1. Then build a
+compact Fenwatch practice-dummy/training-yard prop or begin a dedicated rigged
+Idle armsmaster lane, tune only concrete Prowler or aura issues, or take the
+highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

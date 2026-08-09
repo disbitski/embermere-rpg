@@ -8,9 +8,9 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
 3. Confirm the map shows a blue atmospheric sky, readable ambient light, the
    varied moss/earth road surface, 57 grounded upright `FabPass_` actors plus
-   17 original-art placements from the waystone, ember-lamp, road-signpost,
+   18 original-art placements from the waystone, ember-lamp, road-signpost,
    road-gate, boundary-fence, boundary-stone, supply-chest, Fenwatch shelter,
-   Mara's keeper, the Fenwatch quartermaster, and four marsh-reed clusters, a
+   Mara's keeper, the Fenwatch quartermaster and armsmaster, and four marsh-reed clusters, a
    navigable PlayerStart/Mara
    route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three original
    Marsh Prowlers.
@@ -55,10 +55,17 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     and clear of the spawn route, chest silhouette, Mara, and her marker/name.
     The saved actor uses `(-1530, -1190, 0)`, yaw `100`, unit scale, and the
     static lane of `AEmbermereNpcPresentationActor`.
-13. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
+13. Inspect `Embermere_FenwatchArmsmaster_Trainer_01` near the quartermaster.
+    The moss hood, timber tunic, pale guard tabard, ember crest, shield, and
+    ember-tipped staff should form a distinct guard-trainer silhouette. Its
+    feet must contact terrain; it must remain `NoCollision`, carry no
+    interaction or progression component, and preserve the chest, Mara, and
+    PlayerStart sightlines. The saved presentation and separate service use
+    `(-1320, -920, 0)`, yaw `100`, and unit scale.
+14. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
     should blend into the ground, reeds should add scale without hiding the
     route, and the whole cluster must remain `NoCollision`.
-14. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
+15. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
     marker meshes have not returned. Foliage should use readable
     project-owned overrides rather than white/default rendering.
 
@@ -243,6 +250,31 @@ was discarded on PIE stop.
 The full ownership and rollback contract is in
 [VENDOR_SERVICE_CONTRACT.md](VENDOR_SERVICE_CONTRACT.md).
 
+## Fenwatch Trainer Loop
+
+1. Start a fresh PIE session, hide Inventory with `I`, approach the armsmaster
+   near the quartermaster, and press `F`.
+2. Confirm `Fenwatch Training` opens with `Purse: 40 copper`, one selected
+   `Combat Drills` row, level 1 requirement, `10 copper`, `+25 XP`, description,
+   Train, close, and no overlapping Inventory, Vendor, Chronicle, hotbar, or
+   chat panel.
+3. Train once. Confirm the purse becomes `30 copper`, player XP becomes `25`,
+   and identical completion feedback appears in the fixed result cell and
+   bottom-left chat.
+4. Repeat until the purse reaches zero. Confirm the action disables, the panel
+   reports insufficient copper, and no extra XP or negative currency appears.
+5. Press `I` while the trainer is open. Confirm the trainer closes and Inventory
+   opens in its place. Reopen the trainer and click Chronicle; confirm the same
+   exclusive handoff.
+6. Close the trainer with `X`. Confirm the panel disappears, game-only input
+   returns, and movement/camera controls still work.
+7. Retain the visual/service split: the armsmaster remains non-colliding art;
+   the separate service actor owns the marker, `F` interaction, offering data,
+   and transaction authority.
+
+The full ownership and rollback contract is in
+[TRAINER_SERVICE_CONTRACT.md](TRAINER_SERVICE_CONTRACT.md).
+
 ## Prototype Save And Load
 
 1. Complete the Fenwatch vendor sequence through the `22` copper quest state.
@@ -286,6 +318,9 @@ The full ownership and rollback contract is in
 - Interacting with the Fenwatch quartermaster shows a fixed native stock panel
   with purse, wares, prices, finite stock, details, Buy, Sell selected, latest
   Buyback, transaction state, and chat feedback.
+- Interacting with the Fenwatch armsmaster shows a fixed native training panel
+  with purse, data-driven offerings, requirements, costs, XP rewards, Train,
+  rejection state, and clean peer-panel handoff.
 - Pressing `M` or the top-center Chronicle command opens the fixed one-slot
   Save/Load panel with slot summary, deliberate confirmations, cancel/close
   controls, readable rejection feedback, and clean cursor/input handoff.

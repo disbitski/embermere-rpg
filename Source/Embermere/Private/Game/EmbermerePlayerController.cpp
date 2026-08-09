@@ -5,6 +5,7 @@
 #include "Components/EmbermereInteractableComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/EmbermereTargetingComponent.h"
+#include "Components/EmbermereTrainerComponent.h"
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/InputComponent.h"
 #include "Engine/Engine.h"
@@ -317,6 +318,12 @@ void AEmbermerePlayerController::ToggleSaveLoadPanel()
 
 void AEmbermerePlayerController::SelectPreviousInventoryItem()
 {
+	if (PlayerHudWidget && PlayerHudWidget->IsTrainerPanelVisible())
+	{
+		PlayerHudWidget->SelectNextTrainerOffering(-1);
+		return;
+	}
+
 	if (PlayerHudWidget && PlayerHudWidget->SelectNextInventoryItem(-1))
 	{
 		AddHudMessage(FText::FromString(TEXT("Inventory inspect previous")), FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
@@ -325,6 +332,12 @@ void AEmbermerePlayerController::SelectPreviousInventoryItem()
 
 void AEmbermerePlayerController::SelectNextInventoryItem()
 {
+	if (PlayerHudWidget && PlayerHudWidget->IsTrainerPanelVisible())
+	{
+		PlayerHudWidget->SelectNextTrainerOffering(1);
+		return;
+	}
+
 	if (PlayerHudWidget && PlayerHudWidget->SelectNextInventoryItem(1))
 	{
 		AddHudMessage(FText::FromString(TEXT("Inventory inspect next")), FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
@@ -463,6 +476,15 @@ bool AEmbermerePlayerController::InteractWithNearestActor()
 			RefreshInteractiveInputMode();
 		}
 	}
+	else if (UEmbermereTrainerComponent* Trainer =
+		BestInteractable->GetOwner()->FindComponentByClass<UEmbermereTrainerComponent>())
+	{
+		if (PlayerHudWidget)
+		{
+			PlayerHudWidget->ShowTrainer(Trainer);
+			RefreshInteractiveInputMode();
+		}
+	}
 	return true;
 }
 
@@ -498,7 +520,7 @@ void AEmbermerePlayerController::RefreshInteractiveInputMode()
 {
 	const bool bInteractiveUiVisible = PlayerHudWidget &&
 		(PlayerHudWidget->IsInventoryPanelVisible() || PlayerHudWidget->IsVendorPanelVisible() ||
-			PlayerHudWidget->IsSaveLoadPanelVisible());
+			PlayerHudWidget->IsTrainerPanelVisible() || PlayerHudWidget->IsSaveLoadPanelVisible());
 	UpdateInventoryInputMode(bInteractiveUiVisible);
 }
 

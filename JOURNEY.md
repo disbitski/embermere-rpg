@@ -1949,6 +1949,51 @@ Lesson: configuration, serialized intent, and active runtime state are three
 different claims. A swappable animation lane is not accepted until the runtime
 clock moves.
 
+## 2026-08-09 - The Armsmaster Trained Progression, Not Art
+
+The static-to-skeletal wrapper was ready for another NPC, but today's goal was
+not merely to place a guard-shaped model. Embermere needed a trainer whose
+visual identity, interaction, offering data, currency spend, XP reward, and UI
+could all evolve independently.
+
+- Added an art-free Fenwatch trainer service and data-driven offering asset.
+  The first bounded `Combat Drills` action requires level 1 and converts 10
+  copper into 25 XP.
+- Made training atomic. Level, funds, malformed data, and XP overflow reject
+  before mutation; an unexpected progression failure after spend refunds the
+  exact copper amount.
+- Added a fixed `500x300` native Fenwatch Training panel with selected-offering
+  details, purse, action/rejection feedback, bracket selection, close control,
+  and mutually exclusive Inventory, Vendor, and Chronicle handoff.
+- Built the project-owned Fenwatch armsmaster through the deterministic Blender
+  lane. The grounded source has 2,824 triangles and six materials; classic FBX
+  import removes 24 degenerate triangles and saves a 2,800-triangle Unreal
+  mesh. Both metrics are now separate tested contracts.
+- Saved the art-only armsmaster wrapper and the invisible trainer service as
+  separate co-located actors at `(-1320, -920, 0)`, yaw `100`.
+
+The first asset preview technically passed but clipped the ember tip of the
+staff, so the authored camera was corrected before import. In Unreal, the full
+48-test suite passed with no warnings or failures. Fresh trainer, zone, and UI
+validators emitted their exact success markers, and initialized-world traces
+retained the clear spawn corridor, shelter center, and three gate lanes.
+
+Clean PIE then proved the real loop: 40 copper and 0 XP became 30 copper and 25
+XP, repeated training reached zero copper without an illegal mutation, the
+panel displayed its insufficient-funds state, and Inventory and Chronicle each
+replaced the trainer cleanly. The armsmaster remained grounded, readable, and
+non-colliding behind the native panel.
+
+One MCP detail was worth keeping. Unreal's visible bottom Python input did not
+receive a Slate ref from the root snapshot. Observing the `SOutputLog` subtree
+directly exposed its internal `SMultiLineEditableTextBox`, allowing the live
+trace validator to run through supported localhost MCP instead of OS-level
+keystroke injection.
+
+Lesson: model, service, data, player state, and UI are separate acceptance
+claims. Let art establish identity, let deterministic owners decide whether a
+transaction is eligible, and prove the integrated result in the world.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -280,9 +280,19 @@ float UEmbermereStatsComponent::GetMovementSpeedMultiplier() const
 
 void UEmbermereStatsComponent::AddExperience(int32 ExperienceAmount)
 {
-	if (ExperienceAmount <= 0)
+	TryAddExperience(ExperienceAmount);
+}
+
+bool UEmbermereStatsComponent::CanAddExperience(int32 ExperienceAmount) const
+{
+	return ExperienceAmount > 0 && CurrentExperience >= 0 && CurrentExperience <= MAX_int32 - ExperienceAmount;
+}
+
+bool UEmbermereStatsComponent::TryAddExperience(int32 ExperienceAmount)
+{
+	if (!CanAddExperience(ExperienceAmount))
 	{
-		return;
+		return false;
 	}
 
 	CurrentExperience += ExperienceAmount;
@@ -291,6 +301,7 @@ void UEmbermereStatsComponent::AddExperience(int32 ExperienceAmount)
 		this,
 		FText::FromString(FString::Printf(TEXT("Gained %d XP (Total: %d)"), ExperienceAmount, CurrentExperience)),
 		FLinearColor(1.0f, 0.86f, 0.22f, 1.0f));
+	return true;
 }
 
 bool UEmbermereStatsComponent::IsDead() const

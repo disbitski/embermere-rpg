@@ -48,7 +48,7 @@ Those responsibilities belong to separate gameplay actors or components. A
 service actor may reference or accompany a presentation actor, but the art is
 never the service authority.
 
-## First Use
+## First Uses
 
 `Embermere_FenwatchQuartermaster_Vendor_01` is the first saved wrapper
 instance. It uses the static lane and
@@ -63,6 +63,18 @@ interaction marker and vendor component. It has no art or collision and reads
 still has no interaction or vendor component. The full boundary and
 transaction model are documented in
 [VENDOR_SERVICE_CONTRACT.md](VENDOR_SERVICE_CONTRACT.md).
+
+`Embermere_FenwatchArmsmaster_Trainer_01` is the second saved wrapper
+instance. It uses `SM_EmbermereFenwatchArmsmaster_01` at
+`(-1320, -920, 0)`, yaw `100`, unit scale. Blender authors `2,824` triangles;
+classic FBX import removes 24 degenerate triangles and saves a `2,800`-triangle
+Unreal mesh with `154.5 x 87.0 x 228.0` cm bounds, six project-owned
+materials, grounded feet, and no collision.
+
+The separate `Embermere_FenwatchArmsmaster_Service_01` owns the interaction
+marker and trainer component. It reads `DA_FenwatchArmsmasterOfferings` and
+contains no art or collision. The full progression boundary is documented in
+[TRAINER_SERVICE_CONTRACT.md](TRAINER_SERVICE_CONTRACT.md).
 
 Mara remains a Blueprint-backed quest actor because her existing component owns
 real gameplay. Her Fenwatch keeper visual follows the same ownership rule even
@@ -92,9 +104,12 @@ The current focused tests are:
 - `Embermere.NPC.PresentationContract`
 - `Embermere.NPC.SkeletalIdlePresentation`
 - `Embermere.NPC.FenwatchQuartermasterPresentation`
+- `Embermere.NPC.FenwatchArmsmasterPresentation`
 - `Embermere.NPC.FenwatchKeeperPresentation`
 - `Embermere.Vendor.ServiceContract`
 - `Embermere.Vendor.FenwatchStockData`
+- `Embermere.Trainer.ServiceContract`
+- `Embermere.Trainer.FenwatchOfferingsData`
 
 ## Next Step
 
@@ -104,7 +119,8 @@ loop, rate, transform, collision, and ownership contract; a PIE-only swap
 proved playback advancing from `0.0` to `1.4153` seconds at `0.75x` without
 altering the saved quartermaster.
 
-Keep the accepted quartermaster static until matching rigged art exists. The
-next bounded use of this boundary is a Fenwatch trainer presentation paired
-with a separate trainer service, with offerings, progression, prompts, and
-transactions remaining outside the art wrapper.
+Keep the accepted quartermaster and armsmaster static until matching rigged art
+exists. The next bounded use of this boundary can give one of them a dedicated
+project-owned skeleton and Idle clip, but the service actors must remain
+unchanged. Any future trainer class restrictions, skill unlocks, or finite
+lesson state belong in the data/service/persistence lanes, never the wrapper.

@@ -142,6 +142,12 @@ public:
 	void AddExperience(int32 ExperienceAmount);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats")
+	bool CanAddExperience(int32 ExperienceAmount) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
+	bool TryAddExperience(int32 ExperienceAmount);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats")
 	bool IsDead() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")

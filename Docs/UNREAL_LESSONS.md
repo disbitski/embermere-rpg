@@ -996,3 +996,45 @@ The broader lesson is useful beyond animation. Serialized intent, resolved
 component state, and active runtime behavior are three different claims. Test
 all three whenever an Unreal feature has both construction-time and transient
 instances.
+
+## Keep Source And Imported Topology As Separate Contracts
+
+An FBX importer may legally change geometry even when the asset succeeds.
+Blender reported 2,824 triangles for the Fenwatch armsmaster, while Unreal's
+classic `FbxFactory` removed 24 degenerate triangles and saved a 2,800-triangle
+static mesh. Treating either number as universally authoritative would make the
+other acceptance gate look broken.
+
+Record both artifacts deliberately:
+
+- the Blender metrics file locks authored topology, dimensions, UV channels,
+  manifold state, pivot, and scale;
+- the Unreal package test locks the post-import triangle count, bounds,
+  materials, collision, and import provenance.
+
+The difference itself is not a failure. An unexplained or drifting difference
+is. This distinction also makes future Blender or Unreal importer upgrades
+reviewable instead of silently normalizing the baseline.
+
+## Observe SOutputLog Before Driving Its Python Textbox
+
+The Unreal MCP Slate snapshot initially exposed the bottom Output Log as one
+menu containing only the `Cmd`/`Python` selector. The visible command textbox
+had no ref, so reported-success paste and key calls could not execute the live
+road validator. macOS accessibility correctly rejected a process-level
+keystroke fallback.
+
+The supported solution is narrower and more reliable:
+
+1. Snapshot the editor window and identify the Output Log menu ref.
+2. Select Python mode.
+3. Call `Observe` on the Output Log menu itself with sufficient depth.
+4. Snapshot that subtree. The internal `SMultiLineEditableTextBox` then appears
+   as a focused `textbox` ref.
+5. Use Slate `Type` on that exact ref with `submit=true`.
+6. Read logs through `EditorToolset.LogsToolset` and require the validator's
+   explicit success marker with no `LogPython: Error`.
+
+This preserves the localhost MCP and native Slate boundary, avoids OS-level UI
+injection, and works for initialized-world validators that cannot be accepted
+from a null-render commandlet alone.

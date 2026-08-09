@@ -6,6 +6,7 @@
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
+#include "Components/EmbermereTrainerComponent.h"
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/EmbermereWalletComponent.h"
 #include "Data/EmbermereItemData.h"
@@ -15,6 +16,7 @@
 #include "UI/EmbermereEquipmentSlotButton.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermereInventoryRowButton.h"
+#include "UI/EmbermereTrainerOfferingButton.h"
 #include "UI/EmbermereVendorStockButton.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Blueprint/WidgetTree.h"
@@ -42,6 +44,7 @@ namespace
 	constexpr int32 ChatMessageLimit = 6;
 	constexpr int32 InventoryVisibleRowCount = 8;
 	constexpr int32 VendorVisibleRowCount = 4;
+	constexpr int32 TrainerVisibleRowCount = 3;
 	constexpr float InventoryRowIconSize = 18.0f;
 	constexpr float InventoryDetailIconSize = 42.0f;
 	constexpr float EquipmentSlotIconSize = 18.0f;
@@ -55,6 +58,8 @@ namespace
 	constexpr float StatusEffectSlotHeight = 32.0f;
 	constexpr float SaveLoadPanelWidth = 460.0f;
 	constexpr float SaveLoadPanelHeight = 260.0f;
+	constexpr float TrainerPanelWidth = 500.0f;
+	constexpr float TrainerPanelHeight = 300.0f;
 
 	const TCHAR* GetEquipmentSlotLabel(EEmbermereEquipmentSlot Slot)
 	{
@@ -541,6 +546,13 @@ bool UEmbermerePlayerHudWidget::ToggleInventoryPanel()
 		UpdateInventoryPanelVisibility();
 		return true;
 	}
+	if (bTrainerPanelVisible)
+	{
+		CloseTrainer();
+		bInventoryPanelVisible = true;
+		UpdateInventoryPanelVisibility();
+		return true;
+	}
 	if (bSaveLoadPanelVisible)
 	{
 		CloseSaveLoadPanel();
@@ -566,6 +578,7 @@ bool UEmbermerePlayerHudWidget::ShowVendor(UEmbermereVendorComponent* Vendor)
 		return false;
 	}
 
+	CloseTrainer();
 	CloseSaveLoadPanel();
 	ActiveVendor = Vendor;
 	bVendorPanelVisible = true;
@@ -603,6 +616,7 @@ bool UEmbermerePlayerHudWidget::ToggleSaveLoadPanel()
 	}
 
 	CloseVendor();
+	CloseTrainer();
 	bInventoryPanelVisible = false;
 	bSaveLoadPanelVisible = true;
 	PendingSaveLoadConfirmation = ESaveLoadConfirmation::None;
@@ -801,6 +815,149 @@ FText UEmbermerePlayerHudWidget::GetVendorDisplayText() const
 			BuybackEntry.UnitPriceCopper));
 	}
 	return FText::FromString(FString::Join(Lines, TEXT("\n")));
+}
+
+bool UEmbermerePlayerHudWidget::ShowTrainer(UEmbermereTrainerComponent* Trainer)
+{
+	if (!Trainer || !Trainer->OfferingsData || Trainer->GetOfferingCount() <= 0)
+	{
+		return false;
+	}
+
+	CloseVendor();
+	CloseSaveLoadPanel();
+	ActiveTrainer = Trainer;
+	bTrainerPanelVisible = true;
+	bInventoryPanelVisible = false;
+	SelectedTrainerOfferingIndex = 0;
+	if (TrainerStatusText)
+	{
+		TrainerStatusText->SetText(FText::GetEmpty());
+	}
+	UpdateInventoryPanelVisibility();
+	UpdateTrainerPanelVisibility();
+	RefreshTrainerWindow();
+	return true;
+}
+
+void UEmbermerePlayerHudWidget::CloseTrainer()
+{
+	bTrainerPanelVisible = false;
+	ActiveTrainer = nullptr;
+	SelectedTrainerOfferingIndex = 0;
+	UpdateTrainerPanelVisibility();
+}
+
+bool UEmbermerePlayerHudWidget::IsTrainerPanelVisible() const
+{
+	return bTrainerPanelVisible;
+}
+
+bool UEmbermerePlayerHudWidget::SelectTrainerOffering(int32 OfferingIndex)
+{
+	if (!ActiveTrainer || OfferingIndex < 0 || OfferingIndex >= ActiveTrainer->GetOfferingCount())
+	{
+		return false;
+	}
+
+	SelectedTrainerOfferingIndex = OfferingIndex;
+	if (TrainerStatusText)
+	{
+		TrainerStatusText->SetText(FText::GetEmpty());
+	}
+	RefreshTrainerWindow();
+	return true;
+}
+
+bool UEmbermerePlayerHudWidget::SelectNextTrainerOffering(int32 Direction)
+{
+	if (!ActiveTrainer || ActiveTrainer->GetOfferingCount() <= 1 || Direction == 0)
+	{
+		return false;
+	}
+
+	const int32 OfferingCount = ActiveTrainer->GetOfferingCount();
+	const int32 Step = Direction > 0 ? 1 : -1;
+	SelectedTrainerOfferingIndex = (SelectedTrainerOfferingIndex + Step + OfferingCount) % OfferingCount;
+	if (TrainerStatusText)
+	{
+		TrainerStatusText->SetText(FText::GetEmpty());
+	}
+	RefreshTrainerWindow();
+	return true;
+}
+
+bool UEmbermerePlayerHudWidget::TrainSelectedOffering()
+{
+	if (!ActiveTrainer || !Stats || !Wallet)
+	{
+		return false;
+	}
+
+	const EEmbermereTrainingResult Result = ActiveTrainer->TryTrain(
+		SelectedTrainerOfferingIndex,
+		Stats,
+		Wallet);
+	const FText ResultText = ActiveTrainer->GetTrainingResultText(Result, SelectedTrainerOfferingIndex);
+	const bool bSucceeded = Result == EEmbermereTrainingResult::Success;
+	AddChatMessage(
+		ResultText,
+		bSucceeded
+			? FLinearColor(0.52f, 0.95f, 0.58f, 1.0f)
+			: FLinearColor(1.0f, 0.38f, 0.24f, 1.0f));
+	if (TrainerStatusText)
+	{
+		TrainerStatusText->SetText(ResultText);
+		TrainerStatusText->SetColorAndOpacity(FSlateColor(
+			bSucceeded
+				? FLinearColor(0.62f, 1.0f, 0.68f, 1.0f)
+				: FLinearColor(1.0f, 0.48f, 0.34f, 1.0f)));
+	}
+	RefreshTrainerWindow();
+	return bSucceeded;
+}
+
+int32 UEmbermerePlayerHudWidget::GetSelectedTrainerOfferingIndex() const
+{
+	return SelectedTrainerOfferingIndex;
+}
+
+FText UEmbermerePlayerHudWidget::GetTrainerDisplayText() const
+{
+	if (!ActiveTrainer || !ActiveTrainer->OfferingsData)
+	{
+		return FText::FromString(TEXT("Trainer unavailable"));
+	}
+
+	TArray<FString> Lines;
+	Lines.Add(ActiveTrainer->OfferingsData->TrainerName.IsEmpty()
+		? TEXT("Trainer")
+		: ActiveTrainer->OfferingsData->TrainerName.ToString());
+	Lines.Add(FString::Printf(TEXT("Copper: %d  |  Level: %d  |  XP: %d"),
+		Wallet ? Wallet->Copper : 0,
+		Stats ? Stats->Level : 0,
+		Stats ? Stats->CurrentExperience : 0));
+	for (int32 OfferingIndex = 0; OfferingIndex < ActiveTrainer->GetOfferingCount(); ++OfferingIndex)
+	{
+		FEmbermereTrainerOffering Offering;
+		if (!ActiveTrainer->GetOffering(OfferingIndex, Offering))
+		{
+			continue;
+		}
+
+		Lines.Add(FString::Printf(
+			TEXT("%s%s - %d copper - +%d XP"),
+			OfferingIndex == SelectedTrainerOfferingIndex ? TEXT("> ") : TEXT("  "),
+			*Offering.DisplayName.ToString(),
+			Offering.CopperCost,
+			Offering.ExperienceReward));
+	}
+	return FText::FromString(FString::Join(Lines, TEXT("\n")));
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetTrainerPanelDimensions() const
+{
+	return FVector2D(TrainerPanelWidth, TrainerPanelHeight);
 }
 
 bool UEmbermerePlayerHudWidget::SelectNextInventoryItem(int32 Direction)
@@ -2071,6 +2228,199 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	}
 	UpdateVendorPanelVisibility();
 
+	TrainerPanel = MakePanel(WidgetTree, TEXT("TrainerPanel"), FLinearColor(0.022f, 0.031f, 0.026f, 0.97f));
+	UVerticalBox* TrainerStack = MakePanelStack(WidgetTree, TrainerPanel, TEXT("TrainerStack"));
+	UHorizontalBox* TrainerHeader = WidgetTree->ConstructWidget<UHorizontalBox>(
+		UHorizontalBox::StaticClass(),
+		TEXT("TrainerHeader"));
+	TrainerTitleText = MakeHudText(
+		WidgetTree,
+		TEXT("TrainerTitleText"),
+		FLinearColor(0.78f, 0.94f, 0.66f, 1.0f),
+		18.0f);
+	TrainerWalletText = MakeHudText(
+		WidgetTree,
+		TEXT("TrainerWalletText"),
+		FLinearColor(0.82f, 0.78f, 0.62f, 1.0f),
+		12.0f);
+	TrainerCloseButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("TrainerCloseButton"));
+	TrainerCloseText = MakeHudText(
+		WidgetTree,
+		TEXT("TrainerCloseText"),
+		FLinearColor(0.95f, 0.88f, 0.7f, 1.0f),
+		14.0f);
+	if (TrainerHeader && TrainerTitleText && TrainerWalletText && TrainerCloseButton && TrainerCloseText)
+	{
+		TrainerTitleText->SetText(FText::FromString(TEXT("Fenwatch Training")));
+		TrainerWalletText->SetText(FText::FromString(TEXT("Purse: 0 copper")));
+		TrainerWalletText->SetJustification(ETextJustify::Right);
+		TrainerCloseText->SetText(FText::FromString(TEXT("X")));
+		TrainerCloseText->SetJustification(ETextJustify::Center);
+		TrainerCloseButton->SetBackgroundColor(FLinearColor(0.16f, 0.07f, 0.04f, 0.9f));
+		TrainerCloseButton->SetToolTipText(FText::FromString(TEXT("Close trainer")));
+		TrainerCloseButton->OnClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleTrainerCloseClicked);
+		TrainerCloseButton->AddChild(TrainerCloseText);
+
+		if (UHorizontalBoxSlot* TitleSlot = TrainerHeader->AddChildToHorizontalBox(TrainerTitleText))
+		{
+			TitleSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+			TitleSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		if (UHorizontalBoxSlot* WalletSlot = TrainerHeader->AddChildToHorizontalBox(TrainerWalletText))
+		{
+			WalletSlot->SetPadding(FMargin(8.0f, 0.0f));
+			WalletSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		if (UHorizontalBoxSlot* CloseSlot = TrainerHeader->AddChildToHorizontalBox(
+			MakeSizedWidget(WidgetTree, TrainerCloseButton, TEXT("TrainerCloseSize"), 28.0f, 24.0f)))
+		{
+			CloseSlot->SetVerticalAlignment(VAlign_Center);
+		}
+	}
+	AddStackChild(TrainerStack, TrainerHeader, 10.0f);
+
+	UHorizontalBox* TrainerBody = WidgetTree->ConstructWidget<UHorizontalBox>(
+		UHorizontalBox::StaticClass(),
+		TEXT("TrainerBody"));
+	UVerticalBox* TrainerListStack = WidgetTree->ConstructWidget<UVerticalBox>(
+		UVerticalBox::StaticClass(),
+		TEXT("TrainerListStack"));
+	UVerticalBox* TrainerDetailStack = WidgetTree->ConstructWidget<UVerticalBox>(
+		UVerticalBox::StaticClass(),
+		TEXT("TrainerDetailStack"));
+	TrainerRowButtons.Reset();
+	TrainerRowTexts.Reset();
+	for (int32 RowIndex = 0; RowIndex < TrainerVisibleRowCount; ++RowIndex)
+	{
+		UEmbermereTrainerOfferingButton* RowButton = WidgetTree->ConstructWidget<UEmbermereTrainerOfferingButton>(
+			UEmbermereTrainerOfferingButton::StaticClass(),
+			*FString::Printf(TEXT("TrainerRowButton_%d"), RowIndex));
+		UTextBlock* RowText = MakeHudText(
+			WidgetTree,
+			*FString::Printf(TEXT("TrainerRowText_%d"), RowIndex),
+			FLinearColor(0.84f, 0.9f, 0.7f, 1.0f),
+			12.0f);
+		if (!RowButton || !RowText)
+		{
+			continue;
+		}
+
+		RowButton->SetOfferingIndex(RowIndex);
+		RowButton->OnTrainerOfferingClicked.AddUniqueDynamic(
+			this,
+			&UEmbermerePlayerHudWidget::HandleTrainerOfferingClicked);
+		RowButton->SetBackgroundColor(FLinearColor(0.06f, 0.085f, 0.065f, 0.9f));
+		RowText->SetAutoWrapText(false);
+		RowText->SetClipping(EWidgetClipping::ClipToBounds);
+		RowText->SetLineHeightPercentage(0.86f);
+		RowText->SetMargin(FMargin(8.0f, 3.0f));
+		RowButton->AddChild(RowText);
+		TrainerRowButtons.Add(RowButton);
+		TrainerRowTexts.Add(RowText);
+		AddStackChild(
+			TrainerListStack,
+			MakeSizedWidget(
+				WidgetTree,
+				RowButton,
+				*FString::Printf(TEXT("TrainerRowSize_%d"), RowIndex),
+				205.0f,
+				48.0f),
+			6.0f);
+	}
+
+	TrainerDetailNameText = MakeHudText(
+		WidgetTree,
+		TEXT("TrainerDetailNameText"),
+		FLinearColor(0.86f, 1.0f, 0.68f, 1.0f),
+		17.0f);
+	TrainerDetailMetaText = MakeHudText(
+		WidgetTree,
+		TEXT("TrainerDetailMetaText"),
+		FLinearColor(0.68f, 0.83f, 0.7f, 1.0f),
+		11.0f);
+	TrainerDetailDescriptionText = MakeHudText(
+		WidgetTree,
+		TEXT("TrainerDetailDescriptionText"),
+		FLinearColor(0.84f, 0.83f, 0.76f, 1.0f),
+		12.0f);
+	TrainerActionButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("TrainerActionButton"));
+	TrainerActionText = MakeHudText(
+		WidgetTree,
+		TEXT("TrainerActionText"),
+		FLinearColor(0.96f, 0.91f, 0.65f, 1.0f),
+		13.0f);
+	TrainerStatusText = MakeHudText(
+		WidgetTree,
+		TEXT("TrainerStatusText"),
+		FLinearColor(0.72f, 0.78f, 0.68f, 1.0f),
+		10.0f);
+	if (TrainerDetailDescriptionText)
+	{
+		TrainerDetailDescriptionText->SetAutoWrapText(true);
+		TrainerDetailDescriptionText->SetClipping(EWidgetClipping::ClipToBounds);
+	}
+	if (TrainerActionButton && TrainerActionText)
+	{
+		TrainerActionButton->SetBackgroundColor(FLinearColor(0.18f, 0.27f, 0.075f, 0.96f));
+		TrainerActionButton->OnClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleTrainerActionClicked);
+		TrainerActionText->SetJustification(ETextJustify::Center);
+		TrainerActionButton->AddChild(TrainerActionText);
+	}
+	if (TrainerStatusText)
+	{
+		TrainerStatusText->SetAutoWrapText(true);
+		TrainerStatusText->SetClipping(EWidgetClipping::ClipToBounds);
+	}
+	AddStackChild(TrainerDetailStack, TrainerDetailNameText, 5.0f);
+	AddStackChild(TrainerDetailStack, TrainerDetailMetaText, 9.0f);
+	AddStackChild(
+		TrainerDetailStack,
+		MakeSizedWidget(WidgetTree, TrainerDetailDescriptionText, TEXT("TrainerDescriptionSize"), 240.0f, 58.0f),
+		8.0f);
+	AddStackChild(
+		TrainerDetailStack,
+		MakeSizedWidget(WidgetTree, TrainerActionButton, TEXT("TrainerActionSize"), 240.0f, 32.0f),
+		7.0f);
+	AddStackChild(
+		TrainerDetailStack,
+		MakeSizedWidget(WidgetTree, TrainerStatusText, TEXT("TrainerStatusSize"), 240.0f, 42.0f),
+		0.0f);
+	if (TrainerBody)
+	{
+		if (UHorizontalBoxSlot* ListSlot = TrainerBody->AddChildToHorizontalBox(MakeSizedWidget(
+			WidgetTree,
+			TrainerListStack,
+			TEXT("TrainerListSize"),
+			205.0f,
+			190.0f)))
+		{
+			ListSlot->SetPadding(FMargin(0.0f, 0.0f, 16.0f, 0.0f));
+		}
+		TrainerBody->AddChildToHorizontalBox(MakeSizedWidget(
+			WidgetTree,
+			TrainerDetailStack,
+			TEXT("TrainerDetailSize"),
+			240.0f,
+			190.0f));
+	}
+	AddStackChild(TrainerStack, TrainerBody, 7.0f);
+	UTextBlock* TrainerFooterText = MakeHudText(
+		WidgetTree,
+		TEXT("TrainerFooterText"),
+		FLinearColor(0.64f, 0.7f, 0.6f, 1.0f),
+		10.0f);
+	if (TrainerFooterText)
+	{
+		TrainerFooterText->SetText(FText::FromString(TEXT("[ / ] Select   |   Train   |   X Close")));
+		TrainerFooterText->SetJustification(ETextJustify::Center);
+	}
+	AddStackChild(TrainerStack, TrainerFooterText, 0.0f);
+	if (TrainerPanel)
+	{
+		TrainerPanel->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+	}
+	UpdateTrainerPanelVisibility();
+
 	MenuButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("MenuButton"));
 	MenuText = MakeHudText(
 		WidgetTree,
@@ -2429,6 +2779,17 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		}
 	}
 
+	if (TrainerPanel)
+	{
+		if (UCanvasPanelSlot* TrainerSlot = RootCanvas->AddChildToCanvas(TrainerPanel))
+		{
+			TrainerSlot->SetAnchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f));
+			TrainerSlot->SetAlignment(FVector2D(0.5f, 0.5f));
+			TrainerSlot->SetPosition(FVector2D(180.0f, -20.0f));
+			TrainerSlot->SetSize(FVector2D(TrainerPanelWidth, TrainerPanelHeight));
+		}
+	}
+
 	if (SaveLoadPanel)
 	{
 		if (UCanvasPanelSlot* SaveLoadSlot = RootCanvas->AddChildToCanvas(SaveLoadPanel))
@@ -2683,6 +3044,7 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 	ClampSelectedInventoryStackIndex();
 	RefreshInventoryWindow();
 	RefreshVendorWindow();
+	RefreshTrainerWindow();
 
 	for (int32 SlotIndex = 0; SlotIndex < HotbarSlotTexts.Num(); ++SlotIndex)
 	{
@@ -2735,6 +3097,15 @@ void UEmbermerePlayerHudWidget::UpdateVendorPanelVisibility()
 	if (VendorPanel)
 	{
 		VendorPanel->SetVisibility(bVendorPanelVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
+}
+
+void UEmbermerePlayerHudWidget::UpdateTrainerPanelVisibility()
+{
+	if (TrainerPanel)
+	{
+		TrainerPanel->SetVisibility(
+			bTrainerPanelVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 	}
 }
 
@@ -3000,6 +3371,126 @@ void UEmbermerePlayerHudWidget::RefreshVendorWindow()
 					: ActiveVendor->GetPurchaseResultText(PurchaseState, SelectedVendorStockIndex, 1));
 		}
 		VendorStatusText->SetColorAndOpacity(FSlateColor(FLinearColor(0.72f, 0.76f, 0.68f, 1.0f)));
+	}
+}
+
+void UEmbermerePlayerHudWidget::RefreshTrainerWindow()
+{
+	if (!ActiveTrainer || !ActiveTrainer->OfferingsData)
+	{
+		if (TrainerActionButton)
+		{
+			TrainerActionButton->SetIsEnabled(false);
+		}
+		return;
+	}
+
+	const int32 OfferingCount = ActiveTrainer->GetOfferingCount();
+	SelectedTrainerOfferingIndex = OfferingCount > 0
+		? FMath::Clamp(SelectedTrainerOfferingIndex, 0, OfferingCount - 1)
+		: 0;
+	if (TrainerTitleText)
+	{
+		TrainerTitleText->SetText(
+			ActiveTrainer->OfferingsData->TrainerName.IsEmpty()
+				? FText::FromString(TEXT("Fenwatch Training"))
+				: ActiveTrainer->OfferingsData->TrainerName);
+	}
+	if (TrainerWalletText)
+	{
+		TrainerWalletText->SetText(FText::FromString(FString::Printf(
+			TEXT("Purse: %d copper"),
+			Wallet ? Wallet->Copper : 0)));
+	}
+
+	for (int32 RowIndex = 0; RowIndex < TrainerRowButtons.Num(); ++RowIndex)
+	{
+		UEmbermereTrainerOfferingButton* RowButton = TrainerRowButtons[RowIndex];
+		UTextBlock* RowText = TrainerRowTexts.IsValidIndex(RowIndex) ? TrainerRowTexts[RowIndex] : nullptr;
+		FEmbermereTrainerOffering Offering;
+		if (!RowButton || !RowText || !ActiveTrainer->GetOffering(RowIndex, Offering) || !Offering.IsValid())
+		{
+			if (RowButton)
+			{
+				RowButton->SetVisibility(ESlateVisibility::Collapsed);
+			}
+			continue;
+		}
+
+		RowButton->SetVisibility(ESlateVisibility::Visible);
+		RowButton->SetIsEnabled(true);
+		RowButton->SetBackgroundColor(
+			RowIndex == SelectedTrainerOfferingIndex
+				? FLinearColor(0.2f, 0.31f, 0.09f, 0.97f)
+				: FLinearColor(0.06f, 0.085f, 0.065f, 0.9f));
+		RowButton->SetToolTipText(FText::FromString(FString::Printf(
+			TEXT("%s\n%s\nLevel %d  |  %d copper  |  +%d XP"),
+			*Offering.DisplayName.ToString(),
+			*Offering.Description.ToString(),
+			Offering.RequiredLevel,
+			Offering.CopperCost,
+			Offering.ExperienceReward)));
+		RowText->SetText(FText::FromString(FString::Printf(
+			TEXT("%s\n%d copper  |  +%d XP"),
+			*Offering.DisplayName.ToString(),
+			Offering.CopperCost,
+			Offering.ExperienceReward)));
+	}
+
+	FEmbermereTrainerOffering SelectedOffering;
+	const bool bHasSelection = ActiveTrainer->GetOffering(
+		SelectedTrainerOfferingIndex,
+		SelectedOffering) && SelectedOffering.IsValid();
+	if (TrainerDetailNameText)
+	{
+		TrainerDetailNameText->SetText(bHasSelection
+			? SelectedOffering.DisplayName
+			: FText::FromString(TEXT("No training available")));
+	}
+	if (TrainerDetailMetaText)
+	{
+		TrainerDetailMetaText->SetText(bHasSelection
+			? FText::FromString(FString::Printf(
+				TEXT("Level %d  |  %d copper  |  +%d XP"),
+				SelectedOffering.RequiredLevel,
+				SelectedOffering.CopperCost,
+				SelectedOffering.ExperienceReward))
+			: FText::GetEmpty());
+	}
+	if (TrainerDetailDescriptionText)
+	{
+		TrainerDetailDescriptionText->SetText(
+			bHasSelection ? SelectedOffering.Description : FText::GetEmpty());
+	}
+
+	const EEmbermereTrainingResult TrainingState = bHasSelection
+		? ActiveTrainer->CanTrain(SelectedTrainerOfferingIndex, Stats, Wallet)
+		: EEmbermereTrainingResult::InvalidRequest;
+	if (TrainerActionButton)
+	{
+		TrainerActionButton->SetIsEnabled(TrainingState == EEmbermereTrainingResult::Success);
+		TrainerActionButton->SetToolTipText(bHasSelection
+			? FText::FromString(FString::Printf(
+				TEXT("Complete %s for %d copper."),
+				*SelectedOffering.DisplayName.ToString(),
+				SelectedOffering.CopperCost))
+			: FText::FromString(TEXT("No training selected.")));
+	}
+	if (TrainerActionText)
+	{
+		TrainerActionText->SetText(bHasSelection
+			? FText::FromString(FString::Printf(TEXT("Train  |  %d copper"), SelectedOffering.CopperCost))
+			: FText::FromString(TEXT("Train")));
+	}
+	if (TrainerStatusText && TrainerStatusText->GetText().IsEmpty())
+	{
+		TrainerStatusText->SetText(
+			TrainingState == EEmbermereTrainingResult::Success
+				? FText::FromString(FString::Printf(
+					TEXT("Ready. Current XP: %d."),
+					Stats ? Stats->CurrentExperience : 0))
+				: ActiveTrainer->GetTrainingResultText(TrainingState, SelectedTrainerOfferingIndex));
+		TrainerStatusText->SetColorAndOpacity(FSlateColor(FLinearColor(0.72f, 0.78f, 0.68f, 1.0f)));
 	}
 }
 
@@ -3284,6 +3775,25 @@ void UEmbermerePlayerHudWidget::HandleVendorBuybackClicked()
 void UEmbermerePlayerHudWidget::HandleVendorCloseClicked()
 {
 	CloseVendor();
+	if (AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer()))
+	{
+		Controller->RefreshInteractiveInputMode();
+	}
+}
+
+void UEmbermerePlayerHudWidget::HandleTrainerOfferingClicked(int32 OfferingIndex)
+{
+	SelectTrainerOffering(OfferingIndex);
+}
+
+void UEmbermerePlayerHudWidget::HandleTrainerActionClicked()
+{
+	TrainSelectedOffering();
+}
+
+void UEmbermerePlayerHudWidget::HandleTrainerCloseClicked()
+{
+	CloseTrainer();
 	if (AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer()))
 	{
 		Controller->RefreshInteractiveInputMode();

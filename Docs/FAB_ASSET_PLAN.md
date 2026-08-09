@@ -9,9 +9,11 @@ Embermere does not have final high-fantasy art assets installed yet. The current
 - We have a first local environment pass using imported Epic/Fab packs plus a
   project-owned rigged starter creature, terrain material, icons, original
   prop/ground-cover family, one open-sided Fenwatch shelter, and Mara's
-  grounded Stylized Classic keeper plus a matching quartermaster presentation.
+  grounded Stylized Classic keeper plus matching quartermaster and armsmaster
+  presentations.
   The quartermaster now has a separate project-owned vendor service and stock
-  data asset; this gameplay layer does not change the 17-piece art baseline.
+  data asset; the armsmaster has a separate trainer service and offerings data
+  asset. Service actors do not change the 18-piece art baseline.
   We still do
   not have a cohesive production-ready fantasy building kit, player/race art,
   weapons, audio, or final UI skinning.
@@ -45,12 +47,12 @@ First local placement pass:
   `04_Fab_Zone_Pass` outliner folders. A separate project-owned layer contains
   eleven solid waystone/lamp/signpost/gate/fence/boundary-stone/supply-chest/
   shelter placements, Mara's non-colliding Fenwatch keeper, the non-colliding
-  Fenwatch quartermaster, plus four visual-only marsh-reed clusters, for 17
+  Fenwatch quartermaster and armsmaster, plus four visual-only marsh-reed clusters, for 18
   original-art placements.
 - The script keeps Mara, PlayerStart, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring intact. Starter-enemy home points are deliberately authored in the setup script so collision-safe encounter tuning is reproducible.
 - The Unreal Python helper assigns rotation fields by name. Do not use positional `unreal.Rotator(...)` arguments here; the first pass mapped intended yaw into pitch and tilted the environment.
 - Validation rejects any `FabPass_` actor with meaningful pitch or roll and
-  requires all 17 original placements, their exact meshes/tags/transforms, the
+  requires all 18 original placements, their exact meshes/tags/transforms, the
   expected solid-prop colliders, and explicit `NoCollision` on the four reeds.
   It also verifies the keeper's exact static mesh, local offset/facing, unit
   scale, and `NoCollision` state on both the saved Blueprint SCS template and
@@ -61,6 +63,9 @@ First local placement pass:
   `Scripts/validate_fenwatch_vendor_unreal.py` independently locks the
   co-located art-free vendor service, its stock asset, prices, quantities,
   transform, tags, and ownership separation.
+  `Scripts/validate_fenwatch_trainer_unreal.py` independently locks the
+  co-located art-free trainer service, one Combat Drills offering, imported
+  armsmaster mesh, transform, tags, and ownership separation.
   It also locks the two foliage transforms that reveal the accepted south-fence
   silhouette and rejects restoration of the replaced crate and unsupported
   accents. `Scripts/validate_road_boundary_traces_unreal.py` separately proves
@@ -115,10 +120,11 @@ For the first import pass, prefer a tiny, reversible slice over a broad art dump
 1. Keep the current first-pass art layer focused and playable.
 2. Verify scale, collision, nameplate readability, and route readability in PIE.
 3. Extend the accepted Fenwatch shelter into a cohesive Stylized Classic village
-   family. Mara and the quartermaster now have project-owned presentations,
-   and the quartermaster has a separate bounded vendor service. The next art
-   step can be a matching trainer presentation without coupling art to service
-   rules.
+   family. Mara, the quartermaster, and the armsmaster now have project-owned
+   presentations, while the latter two use separate bounded service actors.
+   The next art step can extend the settlement with another compact module or
+   give one accepted wrapper dedicated rigged/Idle art without coupling art to
+   service rules.
 4. Pick one simple UI/icon or VFX candidate only after the environment pass proves scale, collision, and performance are healthy.
 5. Record future pack names, Fab URLs, licenses, install dates, and caveats in this file before committing map references.
 

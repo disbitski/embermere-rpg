@@ -4,6 +4,7 @@
 #include "Characters/EmbermereCharacter.h"
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Characters/EmbermereNpcPresentationActor.h"
+#include "Characters/EmbermereTrainerServiceActor.h"
 #include "Characters/EmbermereVendorServiceActor.h"
 #include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereEquipmentComponent.h"
@@ -12,12 +13,14 @@
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
+#include "Components/EmbermereTrainerComponent.h"
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/EmbermereWalletComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
 #include "Data/EmbermereRulesData.h"
+#include "Data/EmbermereTrainerOfferingsData.h"
 #include "Data/EmbermereUiIconSet.h"
 #include "Data/EmbermereVendorStockData.h"
 #include "Engine/Blueprint.h"
@@ -38,6 +41,209 @@
 #include "UI/EmbermereEnemyNameplateWidget.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermerePlayerHudWidget.h"
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereTrainerTransactionRulesTest,
+	"Embermere.Trainer.TransactionRules",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereTrainerTransactionRulesTest::RunTest(const FString& Parameters)
+{
+	UEmbermereTrainerComponent* Trainer = NewObject<UEmbermereTrainerComponent>();
+	UEmbermereTrainerOfferingsData* Offerings = NewObject<UEmbermereTrainerOfferingsData>();
+	UEmbermereStatsComponent* Stats = NewObject<UEmbermereStatsComponent>();
+	UEmbermereWalletComponent* Wallet = NewObject<UEmbermereWalletComponent>();
+	if (!Trainer || !Offerings || !Stats || !Wallet)
+	{
+		AddError(TEXT("Could not create trainer transaction fixtures"));
+		return false;
+	}
+
+	FEmbermereTrainerOffering CombatDrills;
+	CombatDrills.OfferingId = TEXT("CombatDrills");
+	CombatDrills.DisplayName = FText::FromString(TEXT("Combat Drills"));
+	CombatDrills.Description = FText::FromString(TEXT("Practice the Fenwatch guard forms."));
+	CombatDrills.CopperCost = 10;
+	CombatDrills.RequiredLevel = 1;
+	CombatDrills.ExperienceReward = 25;
+	Offerings->Offerings.Add(CombatDrills);
+	Trainer->SetOfferingsData(Offerings);
+	Wallet->SetCopperForPrototype(40);
+
+	TestEqual(
+		TEXT("Eligible training passes preflight"),
+		Trainer->CanTrain(0, Stats, Wallet),
+		EEmbermereTrainingResult::Success);
+	TestEqual(
+		TEXT("Training commits transactionally"),
+		Trainer->TryTrain(0, Stats, Wallet),
+		EEmbermereTrainingResult::Success);
+	TestEqual(TEXT("Training charges exact copper"), Wallet->Copper, 30);
+	TestEqual(TEXT("Training grants exact experience"), Stats->CurrentExperience, 25);
+
+	Wallet->SetCopperForPrototype(9);
+	TestEqual(
+		TEXT("Insufficient funds reject before progression mutation"),
+		Trainer->TryTrain(0, Stats, Wallet),
+		EEmbermereTrainingResult::InsufficientFunds);
+	TestEqual(TEXT("Insufficient-funds rejection preserves copper"), Wallet->Copper, 9);
+	TestEqual(TEXT("Insufficient-funds rejection preserves experience"), Stats->CurrentExperience, 25);
+
+	Offerings->Offerings[0].RequiredLevel = 2;
+	Wallet->SetCopperForPrototype(40);
+	TestEqual(
+		TEXT("Level requirement rejects before wallet mutation"),
+		Trainer->TryTrain(0, Stats, Wallet),
+		EEmbermereTrainingResult::LevelTooLow);
+	TestEqual(TEXT("Level rejection preserves copper"), Wallet->Copper, 40);
+	TestEqual(TEXT("Level rejection preserves experience"), Stats->CurrentExperience, 25);
+
+	Offerings->Offerings[0].RequiredLevel = 1;
+	Stats->RestoreExperienceForSaveGame(MAX_int32 - 10);
+	TestEqual(
+		TEXT("Experience overflow rejects before wallet mutation"),
+		Trainer->TryTrain(0, Stats, Wallet),
+		EEmbermereTrainingResult::ProgressionCap);
+	TestEqual(TEXT("Progression-cap rejection preserves copper"), Wallet->Copper, 40);
+	TestEqual(TEXT("Progression-cap rejection preserves experience"), Stats->CurrentExperience, MAX_int32 - 10);
+
+	Offerings->Offerings[0].CopperCost = 0;
+	TestEqual(
+		TEXT("Malformed offerings are rejected"),
+		Trainer->TryTrain(0, Stats, Wallet),
+		EEmbermereTrainingResult::InvalidRequest);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereTrainerServiceContractTest,
+	"Embermere.Trainer.ServiceContract",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereTrainerServiceContractTest::RunTest(const FString& Parameters)
+{
+	AEmbermereTrainerServiceActor* Service = NewObject<AEmbermereTrainerServiceActor>();
+	TestNotNull(TEXT("Trainer service actor can be created"), Service);
+	if (!Service)
+	{
+		return false;
+	}
+
+	TestNotNull(TEXT("Trainer service owns interaction"), Service->Interactable.Get());
+	TestNotNull(TEXT("Trainer service owns offering and transaction behavior"), Service->Trainer.Get());
+	TestNull(TEXT("Trainer service owns no static presentation"), Service->FindComponentByClass<UStaticMeshComponent>());
+	TestNull(TEXT("Trainer service owns no skeletal presentation"), Service->FindComponentByClass<USkeletalMeshComponent>());
+	TestEqual(
+		TEXT("Trainer interaction uses the armsmaster display name"),
+		Service->Interactable->DisplayName.ToString(),
+		FString(TEXT("Fenwatch Armsmaster")));
+	TestTrue(TEXT("Trainer interaction supplies a world marker"), Service->Interactable->bShowWorldMarker);
+
+	AEmbermereNpcPresentationActor* Presentation = NewObject<AEmbermereNpcPresentationActor>();
+	TestNull(
+		TEXT("Art-only NPC wrapper remains free of trainer behavior"),
+		Presentation ? Presentation->FindComponentByClass<UEmbermereTrainerComponent>() : nullptr);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereTrainerPanelTest,
+	"Embermere.UI.TrainerPanel",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereTrainerPanelTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereTrainerComponent* Trainer = NewObject<UEmbermereTrainerComponent>();
+	UEmbermereTrainerOfferingsData* Offerings = NewObject<UEmbermereTrainerOfferingsData>();
+	UEmbermereStatsComponent* Stats = NewObject<UEmbermereStatsComponent>();
+	UEmbermereWalletComponent* Wallet = NewObject<UEmbermereWalletComponent>();
+	if (!Hud || !Trainer || !Offerings || !Stats || !Wallet)
+	{
+		AddError(TEXT("Could not create trainer panel fixtures"));
+		return false;
+	}
+
+	FEmbermereTrainerOffering CombatDrills;
+	CombatDrills.OfferingId = TEXT("CombatDrills");
+	CombatDrills.DisplayName = FText::FromString(TEXT("Combat Drills"));
+	CombatDrills.Description = FText::FromString(TEXT("Practice the Fenwatch guard forms."));
+	CombatDrills.CopperCost = 10;
+	CombatDrills.RequiredLevel = 1;
+	CombatDrills.ExperienceReward = 25;
+	FEmbermereTrainerOffering AdvancedForms = CombatDrills;
+	AdvancedForms.OfferingId = TEXT("AdvancedForms");
+	AdvancedForms.DisplayName = FText::FromString(TEXT("Advanced Forms"));
+	AdvancedForms.RequiredLevel = 2;
+	Offerings->TrainerName = FText::FromString(TEXT("Fenwatch Training"));
+	Offerings->Offerings = {CombatDrills, AdvancedForms};
+	Trainer->SetOfferingsData(Offerings);
+	Wallet->SetCopperForPrototype(40);
+	Hud->Stats = Stats;
+	Hud->Wallet = Wallet;
+
+	TestTrue(TEXT("Trainer panel opens for configured offerings"), Hud->ShowTrainer(Trainer));
+	TestTrue(TEXT("Trainer panel reports visible"), Hud->IsTrainerPanelVisible());
+	TestFalse(TEXT("Opening trainer hides inventory to avoid overlap"), Hud->IsInventoryPanelVisible());
+	TestEqual(TEXT("Trainer panel keeps fixed dimensions"), Hud->GetTrainerPanelDimensions(), FVector2D(500.0f, 300.0f));
+	const FString TrainerText = Hud->GetTrainerDisplayText().ToString();
+	TestTrue(TEXT("Trainer display reports its data-driven name"), TrainerText.Contains(TEXT("Fenwatch Training")));
+	TestTrue(TEXT("Trainer display reports purse and progression"), TrainerText.Contains(TEXT("Copper: 40")) && TrainerText.Contains(TEXT("XP: 0")));
+	TestTrue(TEXT("Trainer display reports offering cost and reward"), TrainerText.Contains(TEXT("Combat Drills - 10 copper - +25 XP")));
+	TestEqual(TEXT("Trainer selection starts at first offering"), Hud->GetSelectedTrainerOfferingIndex(), 0);
+	TestTrue(TEXT("Bracket-style selection advances offerings"), Hud->SelectNextTrainerOffering(1));
+	TestEqual(TEXT("Selection advances to the second offering"), Hud->GetSelectedTrainerOfferingIndex(), 1);
+	TestTrue(TEXT("Selection wraps backward"), Hud->SelectNextTrainerOffering(-1));
+	TestEqual(TEXT("Wrapped selection returns to first offering"), Hud->GetSelectedTrainerOfferingIndex(), 0);
+	TestTrue(TEXT("Trainer panel completes selected training"), Hud->TrainSelectedOffering());
+	TestEqual(TEXT("Panel training updates wallet"), Wallet->Copper, 30);
+	TestEqual(TEXT("Panel training updates experience"), Stats->CurrentExperience, 25);
+	TestTrue(TEXT("Inventory toggle hands off from trainer"), Hud->ToggleInventoryPanel());
+	TestFalse(TEXT("Inventory handoff closes trainer"), Hud->IsTrainerPanelVisible());
+	TestTrue(TEXT("Inventory handoff shows inventory"), Hud->IsInventoryPanelVisible());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereFenwatchTrainerOfferingsDataTest,
+	"Embermere.Trainer.FenwatchOfferingsData",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereFenwatchTrainerOfferingsDataTest::RunTest(const FString& Parameters)
+{
+	const UEmbermereTrainerOfferingsData* Offerings = LoadObject<UEmbermereTrainerOfferingsData>(
+		nullptr,
+		TEXT("/Game/Data/Trainers/DA_FenwatchArmsmasterOfferings.DA_FenwatchArmsmasterOfferings"));
+	TestNotNull(TEXT("Fenwatch armsmaster offerings data loads"), Offerings);
+	if (!Offerings)
+	{
+		return false;
+	}
+
+	TestEqual(
+		TEXT("Trainer data keeps the reviewed service name"),
+		Offerings->TrainerName.ToString(),
+		FString(TEXT("Fenwatch Training")));
+	TestEqual(TEXT("Trainer data exposes one bounded starter offering"), Offerings->Offerings.Num(), 1);
+	if (Offerings->Offerings.Num() == 1)
+	{
+		const FEmbermereTrainerOffering& CombatDrills = Offerings->Offerings[0];
+		TestEqual(TEXT("Offering identity remains stable"), CombatDrills.OfferingId, FName(TEXT("CombatDrills")));
+		TestEqual(
+			TEXT("Offering keeps its player-facing name"),
+			CombatDrills.DisplayName.ToString(),
+			FString(TEXT("Combat Drills")));
+		TestEqual(TEXT("Combat Drills costs ten copper"), CombatDrills.CopperCost, 10);
+		TestEqual(TEXT("Combat Drills remains available at level one"), CombatDrills.RequiredLevel, 1);
+		TestEqual(
+			TEXT("Combat Drills uses the experience effect lane"),
+			CombatDrills.EffectType,
+			EEmbermereTrainingEffectType::Experience);
+		TestEqual(TEXT("Combat Drills grants twenty-five experience"), CombatDrills.ExperienceReward, 25);
+		TestTrue(TEXT("Saved Combat Drills data passes the native validity contract"), CombatDrills.IsValid());
+	}
+	return true;
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereVendorTransactionRulesTest,
@@ -2804,6 +3010,75 @@ bool FEmbermereFenwatchQuartermasterPresentationTest::RunTest(const FString& Par
 	TestNull(
 		TEXT("Quartermaster presentation does not invent interaction or vendor behavior"),
 		Presentation->FindComponentByClass<UEmbermereInteractableComponent>());
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereFenwatchArmsmasterPresentationTest,
+	"Embermere.NPC.FenwatchArmsmasterPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereFenwatchArmsmasterPresentationTest::RunTest(const FString& Parameters)
+{
+	UStaticMesh* ArmsmasterMesh = LoadObject<UStaticMesh>(
+		nullptr,
+		TEXT("/Game/Art/Embermere/Characters/NPCs/FenwatchArmsmaster/SM_EmbermereFenwatchArmsmaster_01.SM_EmbermereFenwatchArmsmaster_01"));
+	AEmbermereNpcPresentationActor* Presentation = NewObject<AEmbermereNpcPresentationActor>();
+	TestNotNull(TEXT("Fenwatch armsmaster mesh loads"), ArmsmasterMesh);
+	TestNotNull(TEXT("Fenwatch armsmaster presentation can be created"), Presentation);
+	if (!ArmsmasterMesh || !Presentation)
+	{
+		return false;
+	}
+
+	const FVector Size = ArmsmasterMesh->GetBounds().BoxExtent * 2.0f;
+	TestTrue(TEXT("Armsmaster width retains its imported contract"), FMath::IsNearlyEqual(Size.X, 154.5f, 1.0f));
+	TestTrue(TEXT("Armsmaster depth retains its authored contract"), FMath::IsNearlyEqual(Size.Y, 87.0f, 1.0f));
+	TestTrue(TEXT("Armsmaster height retains its authored contract"), FMath::IsNearlyEqual(Size.Z, 228.0f, 1.0f));
+	TestEqual(
+		TEXT("Armsmaster keeps the classic-FBX imported triangle count"),
+		ArmsmasterMesh->GetNumTriangles(0),
+		2800);
+	TestEqual(TEXT("Armsmaster keeps six authored material slots"), ArmsmasterMesh->GetStaticMaterials().Num(), 6);
+
+	TSet<FString> MaterialPaths;
+	for (const FStaticMaterial& StaticMaterial : ArmsmasterMesh->GetStaticMaterials())
+	{
+		if (StaticMaterial.MaterialInterface)
+		{
+			MaterialPaths.Add(StaticMaterial.MaterialInterface->GetPathName());
+		}
+	}
+	TestTrue(
+		TEXT("Armsmaster keeps its project-owned skin material"),
+		MaterialPaths.Contains(TEXT("/Game/Art/Embermere/Characters/NPCs/FenwatchArmsmaster/M_FenwatchArmsmasterSkin.M_FenwatchArmsmasterSkin")));
+	TestNotNull(TEXT("Armsmaster mesh retains a body setup"), ArmsmasterMesh->GetBodySetup());
+	if (ArmsmasterMesh->GetBodySetup())
+	{
+		TestEqual(
+			TEXT("Armsmaster mesh carries no authored collision shapes"),
+			ArmsmasterMesh->GetBodySetup()->AggGeom.GetElementCount(),
+			0);
+	}
+
+	Presentation->StaticVisualMesh = ArmsmasterMesh;
+	Presentation->bPreferSkeletalVisual = false;
+	Presentation->RefreshPresentation();
+	TestEqual(
+		TEXT("Armsmaster resolves through the static presentation lane"),
+		Presentation->GetResolvedVisualMode(),
+		EEmbermereNpcVisualMode::StaticMesh);
+	TestTrue(
+		TEXT("Armsmaster presentation resolves the project-owned mesh"),
+		Presentation->StaticVisual->GetStaticMesh() == ArmsmasterMesh);
+	TestTrue(TEXT("Armsmaster visual lanes remain non-colliding"), Presentation->IsPresentationCollisionDisabled());
+	TestNull(
+		TEXT("Armsmaster presentation owns no interaction authority"),
+		Presentation->FindComponentByClass<UEmbermereInteractableComponent>());
+	TestNull(
+		TEXT("Armsmaster presentation owns no trainer authority"),
+		Presentation->FindComponentByClass<UEmbermereTrainerComponent>());
 
 	return true;
 }

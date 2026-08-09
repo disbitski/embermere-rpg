@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 57
-EXPECTED_ORIGINAL_ART_COUNT = 17
+EXPECTED_ORIGINAL_ART_COUNT = 18
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -43,6 +43,22 @@ FENWATCH_QUARTERMASTER_SKIN_PATH = (
 FENWATCH_QUARTERMASTER_LOCATION = (-1530.0, -1190.0, 0.0)
 FENWATCH_QUARTERMASTER_YAW = 100.0
 FENWATCH_QUARTERMASTER_ROUTE_CLEARANCE = 275.0
+FENWATCH_ARMSMASTER_LABEL = "Embermere_FenwatchArmsmaster_Trainer_01"
+FENWATCH_ARMSMASTER_SERVICE_LABEL = "Embermere_FenwatchArmsmaster_Service_01"
+FENWATCH_ARMSMASTER_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchArmsmaster/"
+    "SM_EmbermereFenwatchArmsmaster_01.SM_EmbermereFenwatchArmsmaster_01"
+)
+FENWATCH_ARMSMASTER_SKIN_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchArmsmaster/"
+    "M_FenwatchArmsmasterSkin.M_FenwatchArmsmasterSkin"
+)
+FENWATCH_ARMSMASTER_OFFERINGS_PATH = (
+    "/Game/Data/Trainers/"
+    "DA_FenwatchArmsmasterOfferings.DA_FenwatchArmsmasterOfferings"
+)
+FENWATCH_ARMSMASTER_LOCATION = (-1320.0, -920.0, 0.0)
+FENWATCH_ARMSMASTER_YAW = 100.0
 ORIGINAL_SIGNPOST_LABEL = "Embermere_RoadSignpost_01"
 ORIGINAL_SIGNPOST_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereRoadSignpost_01.SM_EmbermereRoadSignpost_01"
 ORIGINAL_SIGNPOST_LOCATION = (20.0, -170.0, 0.0)
@@ -182,6 +198,8 @@ REQUIRED_LABELS = {
     ORIGINAL_SUPPLY_CHEST_LABEL,
     ORIGINAL_FENWATCH_SHELTER_LABEL,
     FENWATCH_QUARTERMASTER_LABEL,
+    FENWATCH_ARMSMASTER_LABEL,
+    FENWATCH_ARMSMASTER_SERVICE_LABEL,
 } | set(ORIGINAL_EMBER_LAMPS) | set(ORIGINAL_FENCES) | set(ORIGINAL_BOUNDARY_STONES) | set(ORIGINAL_MARSH_REEDS) | set(COMPOSITION_FOLIAGE)
 
 REMOVED_GREYBOX_LABELS = {
@@ -665,6 +683,157 @@ def main():
             quartermaster_route_clearance,
             FENWATCH_QUARTERMASTER_ROUTE_CLEARANCE,
         ))
+
+    armsmaster_mesh = unreal.EditorAssetLibrary.load_asset(FENWATCH_ARMSMASTER_PATH)
+    if not armsmaster_mesh or not isinstance(armsmaster_mesh, unreal.StaticMesh):
+        fail("missing original Fenwatch armsmaster mesh {}".format(
+            FENWATCH_ARMSMASTER_PATH,
+        ))
+    armsmaster_import_data = armsmaster_mesh.get_editor_property("asset_import_data")
+    armsmaster_import_class = (
+        armsmaster_import_data.get_class().get_name()
+        if armsmaster_import_data
+        else "None"
+    )
+    if armsmaster_import_class != "FbxStaticMeshImportData":
+        fail("Fenwatch armsmaster must retain classic FBX import data, found {}".format(
+            armsmaster_import_class,
+        ))
+    armsmaster_body_setup = armsmaster_mesh.get_editor_property("body_setup")
+    armsmaster_aggregate = (
+        armsmaster_body_setup.get_editor_property("agg_geom")
+        if armsmaster_body_setup
+        else None
+    )
+    armsmaster_collision_count = sum(
+        len(armsmaster_aggregate.get_editor_property(property_name))
+        for property_name in ("box_elems", "sphere_elems", "sphyl_elems", "convex_elems")
+    ) if armsmaster_aggregate else 0
+    if armsmaster_collision_count != 0:
+        fail("Fenwatch armsmaster must remain presentation-only, found {} collision shapes".format(
+            armsmaster_collision_count,
+        ))
+    armsmaster_bounds = armsmaster_mesh.get_bounds()
+    armsmaster_size = armsmaster_bounds.box_extent * 2.0
+    if not all((
+        nearly_equal(armsmaster_size.x, 154.5, 1.0),
+        nearly_equal(armsmaster_size.y, 87.0, 1.0),
+        nearly_equal(armsmaster_size.z, 228.0, 1.0),
+        nearly_equal(armsmaster_bounds.origin.z, armsmaster_bounds.box_extent.z, 1.0),
+    )):
+        fail("Fenwatch armsmaster bounds drifted: origin={}, extent={}".format(
+            armsmaster_bounds.origin,
+            armsmaster_bounds.box_extent,
+        ))
+    if armsmaster_mesh.get_num_triangles(0) != 2800:
+        fail("Fenwatch armsmaster imported triangle contract drifted: {}".format(
+            armsmaster_mesh.get_num_triangles(0),
+        ))
+    armsmaster_material_paths = set()
+    for static_material in list(armsmaster_mesh.get_editor_property("static_materials")):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            armsmaster_material_paths.add(material.get_path_name())
+    expected_armsmaster_materials = set(ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS)
+    expected_armsmaster_materials.add(FENWATCH_ARMSMASTER_SKIN_PATH)
+    if armsmaster_material_paths != expected_armsmaster_materials:
+        fail("Fenwatch armsmaster material set drifted: {}".format(
+            sorted(armsmaster_material_paths),
+        ))
+
+    armsmaster = actors_by_label[FENWATCH_ARMSMASTER_LABEL]
+    if armsmaster.get_class().get_name() != "EmbermereNpcPresentationActor":
+        fail("{} must use the reusable NPC presentation wrapper, found {}".format(
+            FENWATCH_ARMSMASTER_LABEL,
+            armsmaster.get_class().get_name(),
+        ))
+    armsmaster_component = armsmaster.get_component_by_class(unreal.StaticMeshComponent)
+    armsmaster_actor_mesh = (
+        armsmaster_component.get_editor_property("static_mesh")
+        if armsmaster_component
+        else None
+    )
+    armsmaster_actor_mesh_path = (
+        armsmaster_actor_mesh.get_path_name()
+        if armsmaster_actor_mesh
+        else "None"
+    )
+    if armsmaster_actor_mesh_path != FENWATCH_ARMSMASTER_PATH:
+        fail("{} must use {}, found {}".format(
+            FENWATCH_ARMSMASTER_LABEL,
+            FENWATCH_ARMSMASTER_PATH,
+            armsmaster_actor_mesh_path,
+        ))
+    armsmaster_location = armsmaster.get_actor_location()
+    armsmaster_rotation = armsmaster.get_actor_rotation()
+    armsmaster_scale = armsmaster.get_actor_scale3d()
+    if not all((
+        nearly_equal(armsmaster_location.x, FENWATCH_ARMSMASTER_LOCATION[0], 1.0),
+        nearly_equal(armsmaster_location.y, FENWATCH_ARMSMASTER_LOCATION[1], 1.0),
+        nearly_equal(armsmaster_location.z, FENWATCH_ARMSMASTER_LOCATION[2], 1.0),
+        nearly_equal(armsmaster_rotation.pitch, 0.0, 0.1),
+        nearly_equal(armsmaster_rotation.yaw, FENWATCH_ARMSMASTER_YAW, 0.1),
+        nearly_equal(armsmaster_rotation.roll, 0.0, 0.1),
+        nearly_equal(armsmaster_scale.x, 1.0, 0.001),
+        nearly_equal(armsmaster_scale.y, 1.0, 0.001),
+        nearly_equal(armsmaster_scale.z, 1.0, 0.001),
+    )):
+        fail("{} transform drifted: location={}, rotation={}, scale={}".format(
+            FENWATCH_ARMSMASTER_LABEL,
+            armsmaster_location,
+            armsmaster_rotation,
+            armsmaster_scale,
+        ))
+    if armsmaster.get_resolved_visual_mode() != unreal.EmbermereNpcVisualMode.STATIC_MESH:
+        fail("Fenwatch armsmaster must currently resolve through the static visual lane")
+    if not armsmaster.is_presentation_collision_disabled():
+        fail("Fenwatch armsmaster visual lanes must remain non-colliding")
+    if armsmaster.get_component_by_class(unreal.EmbermereInteractableComponent):
+        fail("Fenwatch armsmaster presentation must not own interaction behavior")
+    if armsmaster.get_component_by_class(unreal.EmbermereTrainerComponent):
+        fail("Fenwatch armsmaster presentation must not own trainer behavior")
+    if unreal.Name("EmbermereOriginalArt") not in list(armsmaster.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            FENWATCH_ARMSMASTER_LABEL,
+        ))
+
+    armsmaster_service = actors_by_label[FENWATCH_ARMSMASTER_SERVICE_LABEL]
+    if armsmaster_service.get_class().get_name() != "EmbermereTrainerServiceActor":
+        fail("{} must use the art-free trainer service class, found {}".format(
+            FENWATCH_ARMSMASTER_SERVICE_LABEL,
+            armsmaster_service.get_class().get_name(),
+        ))
+    service_location = armsmaster_service.get_actor_location()
+    service_rotation = armsmaster_service.get_actor_rotation()
+    if not all((
+        nearly_equal(service_location.x, FENWATCH_ARMSMASTER_LOCATION[0], 1.0),
+        nearly_equal(service_location.y, FENWATCH_ARMSMASTER_LOCATION[1], 1.0),
+        nearly_equal(service_location.z, FENWATCH_ARMSMASTER_LOCATION[2], 1.0),
+        nearly_equal(service_rotation.pitch, 0.0, 0.1),
+        nearly_equal(service_rotation.yaw, FENWATCH_ARMSMASTER_YAW, 0.1),
+        nearly_equal(service_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            FENWATCH_ARMSMASTER_SERVICE_LABEL,
+            service_location,
+            service_rotation,
+        ))
+    trainer_component = armsmaster_service.get_component_by_class(
+        unreal.EmbermereTrainerComponent
+    )
+    interactable_component = armsmaster_service.get_component_by_class(
+        unreal.EmbermereInteractableComponent
+    )
+    if not trainer_component or not interactable_component:
+        fail("Fenwatch armsmaster service is missing native trainer or interaction authority")
+    offerings = trainer_component.get_editor_property("offerings_data")
+    offerings_path = offerings.get_path_name() if offerings else "None"
+    if offerings_path != FENWATCH_ARMSMASTER_OFFERINGS_PATH:
+        fail("Fenwatch armsmaster service offerings drifted: {}".format(offerings_path))
+    if armsmaster_service.get_component_by_class(unreal.StaticMeshComponent):
+        fail("Fenwatch armsmaster service must not own static art")
+    if armsmaster_service.get_component_by_class(unreal.SkeletalMeshComponent):
+        fail("Fenwatch armsmaster service must not own skeletal art")
 
     signpost_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_SIGNPOST_PATH)
     if not signpost_mesh or not isinstance(signpost_mesh, unreal.StaticMesh):
@@ -1362,7 +1531,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's Fenwatch keeper, the presentation-only Fenwatch quartermaster, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

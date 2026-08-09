@@ -19,6 +19,8 @@ class UEmbermereUiIconSet;
 class UEmbermereInventoryRowButton;
 class UEmbermereInventoryComponent;
 class UEmbermereQuestLogComponent;
+class UEmbermereTrainerComponent;
+class UEmbermereTrainerOfferingButton;
 class UEmbermereVendorComponent;
 class UEmbermereVendorStockButton;
 class UEmbermereWalletComponent;
@@ -65,6 +67,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Embermere|HUD")
 	TObjectPtr<UEmbermereVendorComponent> ActiveVendor;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Embermere|HUD")
+	TObjectPtr<UEmbermereTrainerComponent> ActiveTrainer;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Embermere|HUD|Icons")
 	TSoftObjectPtr<UEmbermereUiIconSet> UiIconSet;
@@ -134,6 +139,33 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Vendor")
 	FText GetVendorDisplayText() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Trainer")
+	bool ShowTrainer(UEmbermereTrainerComponent* Trainer);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Trainer")
+	void CloseTrainer();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Trainer")
+	bool IsTrainerPanelVisible() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Trainer")
+	bool SelectTrainerOffering(int32 OfferingIndex);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Trainer")
+	bool SelectNextTrainerOffering(int32 Direction);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Trainer")
+	bool TrainSelectedOffering();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Trainer")
+	int32 GetSelectedTrainerOfferingIndex() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Trainer")
+	FText GetTrainerDisplayText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Trainer")
+	FVector2D GetTrainerPanelDimensions() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool SelectNextInventoryItem(int32 Direction);
@@ -431,6 +463,45 @@ private:
 	TObjectPtr<UTextBlock> VendorStatusText;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UBorder> TrainerPanel;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> TrainerTitleText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> TrainerWalletText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> TrainerCloseButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> TrainerCloseText;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UEmbermereTrainerOfferingButton>> TrainerRowButtons;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UTextBlock>> TrainerRowTexts;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> TrainerDetailNameText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> TrainerDetailMetaText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> TrainerDetailDescriptionText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> TrainerActionButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> TrainerActionText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> TrainerStatusText;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UButton> MenuButton;
 
 	UPROPERTY(Transient)
@@ -515,6 +586,7 @@ private:
 	float LootHideTimeSeconds = 0.0f;
 	bool bInventoryPanelVisible = true;
 	bool bVendorPanelVisible = false;
+	bool bTrainerPanelVisible = false;
 	bool bSaveLoadPanelVisible = false;
 	enum class ESaveLoadConfirmation : uint8
 	{
@@ -526,6 +598,7 @@ private:
 	FText SaveLoadResultMessage;
 	int32 SelectedInventoryStackIndex = 0;
 	int32 SelectedVendorStockIndex = 0;
+	int32 SelectedTrainerOfferingIndex = 0;
 	int32 FirstDisplayedInventoryStackIndex = 0;
 	TArray<TPair<FText, FLinearColor>> ChatMessages;
 	TObjectPtr<UEmbermereItemData> PendingDragItem;
@@ -550,6 +623,8 @@ private:
 	void RefreshInventoryWindow();
 	void UpdateVendorPanelVisibility();
 	void RefreshVendorWindow();
+	void UpdateTrainerPanelVisibility();
+	void RefreshTrainerWindow();
 	void UpdateSaveLoadPanelVisibility();
 	void RefreshSaveLoadWindow();
 	void RefreshChatMessages();
@@ -592,6 +667,15 @@ private:
 
 	UFUNCTION()
 	void HandleVendorCloseClicked();
+
+	UFUNCTION()
+	void HandleTrainerOfferingClicked(int32 OfferingIndex);
+
+	UFUNCTION()
+	void HandleTrainerActionClicked();
+
+	UFUNCTION()
+	void HandleTrainerCloseClicked();
 
 	UFUNCTION()
 	void HandleMenuClicked();

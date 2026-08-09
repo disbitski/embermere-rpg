@@ -6,14 +6,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-08 no-hot-reload NPC Idle module plus
-  the accepted Chronicle, Fenwatch vendor stock/service, item, quest, and
-  current map packages. Restart if the editor predates that build or test
-  discovery exposes fewer than 43 Embermere tests.
+- Confirm Unreal is running the 2026-08-09 no-hot-reload Fenwatch trainer
+  module plus the accepted armsmaster, offering, Chronicle, vendor, item,
+  quest, and current map packages. Restart if the editor predates that build or
+  test discovery exposes fewer than 48 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 43 tests, especially
+- Discover and run all 48 tests, especially
   `Embermere.Persistence.RoundTrip`,
   `Embermere.Persistence.ValidationRollback`,
   `Embermere.Persistence.SlotInspection`,
@@ -24,11 +24,16 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.Vendor.ServiceContract`,
   `Embermere.Vendor.FenwatchStockData`,
   `Embermere.UI.VendorPanel`,
+  `Embermere.Trainer.TransactionRules`,
+  `Embermere.Trainer.ServiceContract`,
+  `Embermere.Trainer.FenwatchOfferingsData`,
+  `Embermere.NPC.FenwatchArmsmasterPresentation`,
+  `Embermere.UI.TrainerPanel`,
   `Embermere.NPC.SkeletalIdlePresentation`, the three established NPC
   presentation tests, Prowler/world presentation, player recovery, and
-  inventory transaction suites. The authoritative 2026-08-08 commandlet
-  passed 43/43; the no-hot-reload Mac
-  build, saved-map, UI-art, Fenwatch-vendor, and initialized-world route
+  inventory transaction suites. The authoritative 2026-08-09 commandlet
+  passed 48/48; the no-hot-reload Mac
+  build, saved-map, UI-art, Fenwatch-trainer, and initialized-world route
   validators also passed.
 - Recheck the accepted Fenwatch vendor loop through normal `F` interaction:
   - presentation actor `Embermere_FenwatchQuartermaster_Vendor_01` remains
@@ -54,10 +59,30 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - full-bag, insufficient-funds, sold-out, not-owned, unsellable, and wallet-
     overflow rejections preserve copper, stock, buyback, and inventory without
     partial mutation.
+- Recheck the accepted Fenwatch trainer loop through normal `F` interaction:
+  - presentation actor `Embermere_FenwatchArmsmaster_Trainer_01` remains
+    grounded art-only at `(-1320, -920, 0)`, yaw `100`, unit scale and
+    `NoCollision`;
+  - co-located `Embermere_FenwatchArmsmaster_Service_01` exclusively owns the
+    marker, interaction, offering data, and transaction behavior without art;
+  - `DA_FenwatchArmsmasterOfferings` exposes one repeatable level-1 Combat
+    Drills action costing `10` copper and granting `25` XP;
+  - fresh PIE starts at `40` copper and `0` XP; one accepted action must produce
+    exactly `30` copper and `25` XP with matching panel/chat feedback;
+  - exhausting the purse disables training, reports insufficient funds, and
+    preserves nonnegative copper and exact XP;
+  - the fixed `500x300` panel keeps the offering, level/cost/reward details,
+    result, footer, and close control inside bounds and clear of chat/hotbar;
+  - Inventory and Chronicle each replace the trainer cleanly, while closing the
+    final interactive panel restores classic game-only input.
 - Treat [Docs/VENDOR_SERVICE_CONTRACT.md](Docs/VENDOR_SERVICE_CONTRACT.md) as
   the economy boundary. The NPC wrapper owns only art; the service owns
   interaction and stock; the wallet and inventory own player state; the HUD
   only presents and requests transactions.
+- Treat [Docs/TRAINER_SERVICE_CONTRACT.md](Docs/TRAINER_SERVICE_CONTRACT.md) as
+  the progression boundary. The armsmaster owns only art; the service owns
+  interaction and offerings; wallet/stats own player state; the HUD only
+  presents and requests a transaction.
 - Treat [Docs/SAVE_GAME_CONTRACT.md](Docs/SAVE_GAME_CONTRACT.md) as the durable
   state boundary. Version 1 stores copper, XP, inventory stack identity and
   quantity, equipped-item identity and slot, quest state/progress, and finite
@@ -112,7 +137,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - all three saved map instances retain the skeletal mesh and animation set,
     not only the Blueprint CDO.
 - Recheck the completed grounding pass:
-  - 57 grounded upright `FabPass_` actors and 17 original-art placements;
+  - 57 grounded upright `FabPass_` actors and 18 original-art placements;
   - all ordinary art that previously sat at `Z=20` now rests at `Z=0`;
   - the unsupported SoulCave arch/pillar accents and three enemy marker meshes
     remain removed;
@@ -153,6 +178,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   PlayerStart sightlines. The native `AEmbermereNpcPresentationActor` owns only
   interchangeable static/skeletal visuals and one shared transform; it must
   remain free of interaction, vendor, trainer, quest, and dialogue authority.
+- Inspect `Embermere_FenwatchArmsmaster_Trainer_01` beside the Fenwatch service
+  cluster. Its Blender source is a grounded `154.5 x 87.0 x 228.0` cm,
+  2,824-triangle model with six project-owned materials; classic FBX import
+  removes 24 degenerate triangles and persists a 2,800-triangle Unreal mesh.
+  Retain `(-1320, -920, 0)`, yaw `100`, unit scale, `NoCollision`, readable
+  shield/staff silhouette, and clear route/marker sightlines. The co-located
+  trainer service owns interaction and progression; the armsmaster owns none.
 - Retain the accepted wrapper Idle lane. Anim Blueprint art takes precedence;
   otherwise a skeleton-compatible soft Idle asset uses `AnimationSingleNode`
   with data-driven loop and play rate. The real Prowler fixture passed native
@@ -182,10 +214,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. build a matching Fenwatch trainer presentation and separate trainer
-     service on top of the accepted static/skeletal/Idle wrapper contract;
-  2. keep offerings, progression, prompts, costs, and interaction authority
-     outside presentation, with focused ownership and rollback tests;
+  1. prove trainer-produced state across the accepted Chronicle lifecycle:
+     train once, save exactly `30` copper and `25` XP, enter a fresh PIE world,
+     load, and load again with no duplicate XP, currency drift, reward replay,
+     or schema change;
+  2. if that integrated proof remains clean, build one compact Fenwatch
+     practice-dummy or training-yard prop through the reviewed Blender/classic-
+     FBX/import/validation lane, or begin a dedicated rigged Idle presentation
+     for the armsmaster without moving trainer authority into art;
   3. retain the accepted Chronicle slot inspection, confirmation, rejection,
      panel handoff, and two-session idempotence contracts; keep console commands
      as debug fallbacks and defer autosave, deletion, profiles, and migrations;
@@ -198,9 +234,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-08 NPC
-  Idle module and accepted Chronicle/item/quest/stock packages. Current code
-  passes all 43 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-08-09
+  Fenwatch trainer module and accepted armsmaster/offering/Chronicle/item/
+  quest/stock packages. Current code passes all 48 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -238,6 +274,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - press `F` in range and run the vendor acceptance sequence from Start Here,
     including both successful buys, sold-out/insufficient-funds states, chat,
     item inventory changes, fixed panel copy, and close/input restoration.
+  - inspect the Fenwatch armsmaster for grounded feet, readable shield/staff
+    silhouette, no collision, clear route separation, and its nearby service
+    marker; press `F` and run the trainer acceptance sequence from Start Here,
+    including `40 -> 30` copper, `0 -> 25` XP, insufficient-funds rejection,
+    fixed panel bounds, chat, and Inventory/Chronicle/close handoffs.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -266,6 +307,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.NPC.FenwatchQuartermasterPresentation`
   - `Embermere.NPC.PresentationContract`
   - `Embermere.NPC.SkeletalIdlePresentation`
+  - `Embermere.NPC.FenwatchArmsmasterPresentation`
   - `Embermere.Persistence.RoundTrip`
   - `Embermere.Persistence.SlotInspection`
   - `Embermere.Persistence.ValidationRollback`
@@ -284,12 +326,16 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.UI.PaperDollPresentation`
   - `Embermere.UI.SaveLoadPanel`
   - `Embermere.UI.TimedStatusPresentation`
+  - `Embermere.UI.TrainerPanel`
   - `Embermere.UI.WorldStatusVfxPresentation`
   - `Embermere.UI.VendorPanel`
   - `Embermere.Vendor.FenwatchStockData`
   - `Embermere.Vendor.ServiceContract`
   - `Embermere.Vendor.SellBuybackTransactions`
   - `Embermere.Vendor.TransactionRules`
+  - `Embermere.Trainer.FenwatchOfferingsData`
+  - `Embermere.Trainer.ServiceContract`
+  - `Embermere.Trainer.TransactionRules`
 - Manually verify the styled first-pass HUD in PIE:
   - player HP, mana, XP, health bar, and mana bar are visible;
   - target panel appears after `Tab` and shows target HP plus range state;
@@ -376,7 +422,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - the map has a blue atmospheric sky, readable ambient fill, and the
     38-expression moss/earth road material instead of the previous black
     sky/white or flat-green ground presentation;
-  - all 57 remaining Fab art-pass actors are grounded and upright; all 15
+  - all 57 remaining Fab art-pass actors are grounded and upright; all 18
     original placements remain present, including four terrain-blended
     `NoCollision` marsh-reed clusters;
   - the three oversized sci-fi building shells, old Mara backdrop/market cover,
@@ -415,6 +461,10 @@ Embermere has a working first-pass starter slice:
   art-free interactable service actor, data-driven stock/prices, player copper,
   atomic buy/rollback rules, finite/unlimited stock, native fixed vendor UI,
   inventory/chat feedback, and saved-package validation;
+- a separated Fenwatch trainer vertical slice with an art-only original
+  armsmaster, art-free interactable service actor, data-driven offerings,
+  level/currency/XP eligibility checks, rollback-safe progression, a fixed
+  native training panel, chat feedback, and saved-package validation;
 - a versioned, atomic prototype save/load contract for copper, XP, inventory
   and equipment identity, quest state, and finite vendor stock, with stable
   asset/service identifiers, malformed-record rollback, session-only buyback,
@@ -479,7 +529,9 @@ Embermere has a working first-pass starter slice:
   presentation, inventory toggle, buy/sell/buyback transactions, saved
   economy values, service ownership, saved stock, native vendor-panel behavior,
   persistence round-trip/rollback rules, and construction-safe plus live NPC
-  Idle presentation, for 43 authoritative tests.
+  Idle presentation, plus trainer transactions, service ownership, offering
+  data, armsmaster presentation, and native trainer-panel behavior, for 48
+  authoritative tests.
 
 ## How Far We Have To Go
 
@@ -521,13 +573,18 @@ accident.
 
 ## Next Work
 
-- Build the first Fenwatch trainer vertical slice without weakening ownership:
-  - create a matching presentation through the accepted art-only wrapper;
-  - keep trainer offerings, progression rules, costs, prompts, and interaction
-    on a separate service actor/component;
-  - define one bounded data-driven training action with atomic rejection and
-    readable native UI/chat feedback;
-  - add focused presentation, ownership, transaction, and panel tests.
+- Prove trainer-produced progression survives the existing Chronicle contract
+  without expanding save version 1:
+  - train once from fresh state and confirm `30` copper plus `25` XP;
+  - save deliberately, begin fresh PIE, load, then load again;
+  - prove exact copper/XP restoration, idempotence, and no reward replay or
+    duplicate mutation;
+  - retain console commands as debug fallbacks and keep autosave, deletion,
+    profiles, migration, and transient trainer-panel state out of scope.
+- After that integrated proof, extend the accepted Fenwatch identity lane with
+  one compact practice-dummy/training-yard prop, or begin a dedicated rigged
+  Idle armsmaster presentation. Keep all progression and interaction authority
+  on the separate service regardless of the visual lane.
 - Retain the accepted persistence/economy loop without weakening its boundaries:
   - preserve Chronicle's one-slot inspection, confirmation, cancel, rejection,
     and panel-handoff behavior over the proven atomic contract;
@@ -1191,6 +1248,37 @@ accident.
   32 -> 2 finite Recruit Pack purchase; inventory updates; sold-out and
   insufficient-funds button states; non-overlapping result/footer copy; and
   close/input restoration.
+- 2026-08-05: completed the two-sided Fenwatch economy loop. Data-driven sell
+  values, exact-identity Sell/latest Buyback, wallet-overflow guards, and Mara's
+  one-time 20-copper reward now preserve atomic wallet/inventory/stock state.
+  Clean PIE proved `40 -> 32 -> 35 -> 32 -> 2 -> 22`; all 38 tests passed.
+- 2026-08-06: added version-1 atomic persistence for copper, XP, inventory and
+  equipped identities, quest state, and finite vendor stock through stable IDs
+  and validated soft paths. A real fresh-world load restored the accepted
+  22-copper/125-XP state twice without duplication, reward replay, stock reset,
+  or equipment-stat inflation; all 40 tests passed.
+- 2026-08-07: added the one-slot `Embermere Chronicle` player surface with
+  non-mutating slot inspection, explicit overwrite/load confirmations, cancel
+  paths, readable rejected-state feedback, panel handoff, and console-command
+  fallbacks. Two-session PIE retained the accepted state; all 42 tests passed.
+- 2026-08-08: completed the reusable NPC wrapper's skeletal Idle lane with soft
+  animation data, Anim Blueprint precedence, compatibility checks, looping and
+  play-rate controls, and explicit registered-component initialization. The
+  live animation clock advanced at `0.75x`; all 43 tests passed.
+- 2026-08-09: built the project-owned Fenwatch armsmaster and a separate,
+  art-free trainer service. `DA_FenwatchArmsmasterOfferings` defines repeatable
+  level-1 Combat Drills at 10 copper for 25 XP; preflight and exact refund keep
+  the transaction atomic. The fixed `500x300` panel, chat, Inventory,
+  Chronicle, and close handoffs all passed live PIE.
+- The armsmaster's reviewed Blender source is 2,824 triangles; classic FBX
+  correctly removes 24 degenerates and persists a 2,800-triangle Unreal mesh.
+  The source and imported topology counts are intentionally separate acceptance
+  metrics. The art-only and service actors remain co-located but independent at
+  `(-1320, -920, 0)`, yaw `100`.
+- Clean PIE proved the real trainer chain from 40 copper/0 XP to 30 copper/25
+  XP, then exhaustion to zero copper with mutation-free insufficient-funds
+  feedback. The no-hot-reload build, all 48 tests, trainer/map/UI validators,
+  and initialized-world route traces passed.
 
 ## Asset Hunt
 
