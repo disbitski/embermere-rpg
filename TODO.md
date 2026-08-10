@@ -7,9 +7,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 ## Start Here
 
 - Confirm Unreal is running the 2026-08-09 no-hot-reload Fenwatch trainer
-  module plus the accepted armsmaster, offering, Chronicle, vendor, item,
-  quest, and current map packages. Restart if the editor predates that build or
-  test discovery exposes fewer than 48 Embermere tests.
+  module plus the accepted 2026-08-10 practice-dummy/map package, armsmaster,
+  offering, Chronicle, vendor, item, and quest packages. Restart if the editor
+  predates that work or test discovery exposes fewer than 48 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
@@ -31,10 +31,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.UI.TrainerPanel`,
   `Embermere.NPC.SkeletalIdlePresentation`, the three established NPC
   presentation tests, Prowler/world presentation, player recovery, and
-  inventory transaction suites. The authoritative 2026-08-09 commandlet
-  passed 48/48; the no-hot-reload Mac
-  build, saved-map, UI-art, Fenwatch-trainer, and initialized-world route
-  validators also passed.
+  inventory transaction suites. The authoritative 2026-08-10 run passed
+  48/48 in the live editor; the no-hot-reload Mac build and fresh-process
+  practice-dummy, saved-map, UI-art, Fenwatch-trainer, vendor-economy, and
+  initialized-world route validators also passed.
 - Recheck the accepted Fenwatch vendor loop through normal `F` interaction:
   - presentation actor `Embermere_FenwatchQuartermaster_Vendor_01` remains
     art-only at `(-1530, -1190, 0)`, yaw `100`, unit scale and `NoCollision`;
@@ -100,6 +100,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `EmbermereLoad` use prototype slot `EmbermerePrototype`; buyback history,
   transient combat, cooldowns, temporary effects, and world position are
   intentionally session-only/reset state.
+- Retain the accepted trainer-to-Chronicle persistence proof. Fresh PIE trained
+  exactly once from `40` copper/`0` XP to `30` copper/`25` XP, saved through the
+  real Chronicle control, stopped PIE, and began a second world at the normal
+  `40`/`0` baseline. The first Chronicle load restored `30`/`25`; a second load
+  remained exactly `30`/`25` with no items, equipment, quest, vendor-stock, or
+  buyback mutation. Trainer offerings, selection, panel state, and interaction
+  remain transient, and save version 1 gained no trainer-specific field.
 - Retain the accepted player-facing Chronicle. `M` opens a centered `460x260`
   one-slot panel while `Ctrl+M` still toggles mouse inversion. The panel
   inspects `EmbermerePrototype` without mutating it and displays the accepted
@@ -137,7 +144,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - all three saved map instances retain the skeletal mesh and animation set,
     not only the Blueprint CDO.
 - Recheck the completed grounding pass:
-  - 57 grounded upright `FabPass_` actors and 18 original-art placements;
+  - 56 grounded upright `FabPass_` actors and 19 original-art placements;
   - all ordinary art that previously sat at `Z=20` now rests at `Z=0`;
   - the unsupported SoulCave arch/pillar accents and three enemy marker meshes
     remain removed;
@@ -185,6 +192,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   Retain `(-1320, -920, 0)`, yaw `100`, unit scale, `NoCollision`, readable
   shield/staff silhouette, and clear route/marker sightlines. The co-located
   trainer service owns interaction and progression; the armsmaster owns none.
+- Inspect `Embermere_FenwatchPracticeDummy_TrainingYard_01` at
+  `(-1120, -1120, 0)`, yaw `45`. Its `252.0 x 100.879 x 245.0` cm,
+  2,572-triangle silhouette reuses the five shared stone, moss, timber, iron,
+  and ember materials. Keep the front target facing the armsmaster, the base
+  and torso/core solid through exactly two authored boxes, both outstretched
+  arms clear, terrain contact grounded, and the replaced
+  `FabPass_Village_Crate_C` absent. It is world art, not trainer authority.
 - Retain the accepted wrapper Idle lane. Anim Blueprint art takes precedence;
   otherwise a skeleton-compatible soft Idle asset uses `AnimationSingleNode`
   with data-driven loop and play rate. The real Prowler fixture passed native
@@ -214,19 +228,18 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. prove trainer-produced state across the accepted Chronicle lifecycle:
-     train once, save exactly `30` copper and `25` XP, enter a fresh PIE world,
-     load, and load again with no duplicate XP, currency drift, reward replay,
-     or schema change;
-  2. if that integrated proof remains clean, build one compact Fenwatch
-     practice-dummy or training-yard prop through the reviewed Blender/classic-
-     FBX/import/validation lane, or begin a dedicated rigged Idle presentation
-     for the armsmaster without moving trainer authority into art;
-  3. retain the accepted Chronicle slot inspection, confirmation, rejection,
+  1. in clean-restart PIE, recheck the accepted practice dummy from the normal
+     village route: grounded base, front target facing the armsmaster, solid
+     base/core, clear arms, open PlayerStart route, and readable spacing;
+  2. begin a dedicated rigged Idle presentation for the armsmaster through the
+     proven static-to-skeletal wrapper lane without moving trainer authority,
+     offering data, or interaction into art;
+  3. retain both accepted Chronicle proofs, including trainer-produced
+     `30`-copper/`25`-XP state, slot inspection, confirmation, rejection,
      panel handoff, and two-session idempotence contracts; keep console commands
      as debug fallbacks and defer autosave, deletion, profiles, and migrations;
-  4. retain the accepted keeper/quartermaster/service scale, marker clearance,
-     chest composition, panel layout, and PlayerStart route;
+  4. retain the accepted keeper/quartermaster/armsmaster/service/dummy scale,
+     marker clearance, training-yard composition, panel layout, and route;
   5. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete issue;
   6. consider authored Niagara, class-specific VFX, or audio only after the
@@ -279,6 +292,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     marker; press `F` and run the trainer acceptance sequence from Start Here,
     including `40 -> 30` copper, `0 -> 25` XP, insufficient-funds rejection,
     fixed panel bounds, chat, and Inventory/Chronicle/close handoffs.
+  - inspect the Fenwatch practice dummy at `(-1120, -1120, 0)`, yaw `45`, for
+    grounded contact, a target face aimed toward the armsmaster, five shared
+    materials, a solid base and torso/core, clear outstretched arms, open route
+    spacing, and the absence of the generic crate it replaced.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -422,9 +439,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - the map has a blue atmospheric sky, readable ambient fill, and the
     38-expression moss/earth road material instead of the previous black
     sky/white or flat-green ground presentation;
-  - all 57 remaining Fab art-pass actors are grounded and upright; all 18
-    original placements remain present, including four terrain-blended
-    `NoCollision` marsh-reed clusters;
+  - all 56 remaining Fab art-pass actors are grounded and upright; all 19
+    original placements remain present, including the practice dummy and four
+    terrain-blended `NoCollision` marsh-reed clusters;
   - the three oversized sci-fi building shells, old Mara backdrop/market cover,
     and vendor/trainer cubes are gone; PlayerStart has an unobstructed view
     toward Mara in front of the Fenwatch shelter;
@@ -464,7 +481,8 @@ Embermere has a working first-pass starter slice:
 - a separated Fenwatch trainer vertical slice with an art-only original
   armsmaster, art-free interactable service actor, data-driven offerings,
   level/currency/XP eligibility checks, rollback-safe progression, a fixed
-  native training panel, chat feedback, and saved-package validation;
+  native training panel, chat feedback, saved-package validation, and an
+  accepted two-world Chronicle proof for trainer-produced `30` copper/`25` XP;
 - a versioned, atomic prototype save/load contract for copper, XP, inventory
   and equipment identity, quest state, and finite vendor stock, with stable
   asset/service identifiers, malformed-record rollback, session-only buyback,
@@ -507,7 +525,8 @@ Embermere has a working first-pass starter slice:
 - a project-owned Blender waystone, ember-lamp, road-signpost, road-gate,
   boundary-fence, boundary-stone, and supply-chest family with reviewed scripts,
   editable source, FBX, previews, authored collision, and ten validated saved
-  placements, plus four visual-only marsh-reed placements;
+  placements, plus a solid-core, clear-arm Fenwatch practice dummy and four
+  visual-only marsh-reed placements;
 - the first project-owned rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   materials, six imported animations, asset-agnostic runtime routing, three
@@ -569,22 +588,30 @@ survive a fresh PIE session through validated atomic restore. Buyback and
 combat-temporary state remain deliberately transient. Chronicle now provides
 the deliberate player-facing lifecycle and corruption/version feedback. Keep
 the bounded one-slot contract stable instead of adding serialized fields by
-accident.
+accident. Trainer-produced progression has now passed the same lifecycle:
+`30` copper and `25` XP restored exactly across a fresh world and a second
+idempotent load without adding trainer-specific schema.
 
 ## Next Work
 
-- Prove trainer-produced progression survives the existing Chronicle contract
-  without expanding save version 1:
-  - train once from fresh state and confirm `30` copper plus `25` XP;
+- Recheck the accepted Fenwatch practice dummy in clean-restart PIE:
+  - inspect its grounded target-facing composition from the armsmaster and
+    PlayerStart approaches;
+  - prove the authored base/core collision and clear visual-only arms while
+    preserving the open training-yard and village routes;
+  - retain the exact `(-1120, -1120, 0)`, yaw `45`, two-collider, five-material
+    contract and keep the replaced generic crate absent.
+- Begin a dedicated rigged Idle armsmaster presentation through the accepted
+  NPC wrapper lane. Keep all progression, offering, marker, and interaction
+  authority on the separate trainer service, and require runtime animation-
+  clock advancement before accepting the saved skeletal lane.
+- Retain the accepted trainer Chronicle proof without expanding save version 1:
+  - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
-  - prove exact copper/XP restoration, idempotence, and no reward replay or
-    duplicate mutation;
+  - prove exact restoration, idempotence, and no item, equipment, quest,
+    vendor-stock, buyback, reward, or schema mutation;
   - retain console commands as debug fallbacks and keep autosave, deletion,
     profiles, migration, and transient trainer-panel state out of scope.
-- After that integrated proof, extend the accepted Fenwatch identity lane with
-  one compact practice-dummy/training-yard prop, or begin a dedicated rigged
-  Idle armsmaster presentation. Keep all progression and interaction authority
-  on the separate service regardless of the visual lane.
 - Retain the accepted persistence/economy loop without weakening its boundaries:
   - preserve Chronicle's one-slot inspection, confirmation, cancel, rejection,
     and panel-handoff behavior over the proven atomic contract;
@@ -1279,6 +1306,24 @@ accident.
   XP, then exhaustion to zero copper with mutation-free insufficient-funds
   feedback. The no-hot-reload build, all 48 tests, trainer/map/UI validators,
   and initialized-world route traces passed.
+- 2026-08-10: proved trainer-produced progression through the real Chronicle
+  lifecycle without changing save version 1. A fresh `40`/`0` world trained to
+  `30`/`25`, saved through Chronicle, restored exactly in a second world, and
+  stayed exact through a second load with no unrelated durable or transient
+  state mutation.
+- Built `SM_EmbermereFenwatchPracticeDummy_01` through a factory-clean Blender
+  process after the live bridge correctly rejected a scene-resetting script.
+  The accepted source is `252.0 x 100.879 x 245.0` cm, 2,572 triangles, five
+  shared materials, two authored UBX boxes, a solid base/core, and clear arms.
+- Replaced `FabPass_Village_Crate_C` with
+  `Embermere_FenwatchPracticeDummy_TrainingYard_01` at
+  `(-1120, -1120, 0)`, yaw `45`. Human viewport review rejected the first
+  technically valid orientation, and the deterministic import/placement script
+  resaved the corrected target-facing composition.
+- All 48 tests passed again. Fresh-process practice-dummy, zone (`56` Fab plus
+  `19` original), trainer, vendor-economy, and UI-art validators emitted their
+  success markers with no `LogPython: Error`; initialized-world native traces
+  proved the dummy base/core solid and both arms clear.
 
 ## Asset Hunt
 

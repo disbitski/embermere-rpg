@@ -25,6 +25,9 @@ SHELTER_SUPPORTS = (
     (-160.0, 88.0),
     (160.0, 88.0),
 )
+PRACTICE_DUMMY_LABEL = "Embermere_FenwatchPracticeDummy_TrainingYard_01"
+PRACTICE_DUMMY_CENTER = (-1120.0, -1120.0)
+PRACTICE_DUMMY_YAW = 45.0
 
 
 def fail(message):
@@ -69,6 +72,21 @@ def trace_local_x(world, center, local_y, z, half_length):
     )
 
 
+def trace_local_y(world, center, yaw_degrees, local_x, z, half_length):
+    start = world_point_yaw(center, yaw_degrees, local_x, -half_length, z)
+    end = world_point_yaw(center, yaw_degrees, local_x, half_length, z)
+    return unreal.SystemLibrary.line_trace_single(
+        world,
+        start,
+        end,
+        unreal.TraceTypeQuery.ECC_VISIBILITY,
+        False,
+        [],
+        unreal.DrawDebugTrace.NONE,
+        True,
+    )
+
+
 def hit_actor(hit_result):
     # UE 5.8 protects direct component access but exposes resolved hit objects
     # through the struct's public dictionary representation.
@@ -88,6 +106,43 @@ def require_clear(world, description, center, local_y, z, half_length):
 
 def require_hit(world, description, expected_label, center, local_y, z, half_length):
     result = trace_local_x(world, center, local_y, z, half_length)
+    if not result:
+        fail("{} should block but the trace was clear".format(description))
+    actual_label = actor_label(hit_actor(result))
+    if actual_label != expected_label:
+        fail("{} should hit {}, found {}".format(description, expected_label, actual_label))
+
+
+def require_local_y_clear(
+    world,
+    description,
+    center,
+    yaw_degrees,
+    local_x,
+    z,
+    half_length,
+):
+    result = trace_local_y(world, center, yaw_degrees, local_x, z, half_length)
+    if result:
+        hit_data = result.to_dict()
+        fail("{} should be clear but hit {} at {}".format(
+            description,
+            actor_label(hit_actor(result)),
+            hit_data.get("impact_point"),
+        ))
+
+
+def require_local_y_hit(
+    world,
+    description,
+    expected_label,
+    center,
+    yaw_degrees,
+    local_x,
+    z,
+    half_length,
+):
+    result = trace_local_y(world, center, yaw_degrees, local_x, z, half_length)
     if not result:
         fail("{} should block but the trace was clear".format(description))
     actual_label = actor_label(hit_actor(result))
@@ -223,8 +278,39 @@ def main():
             -20.0,
         )
 
+    require_local_y_hit(
+        world,
+        "Fenwatch practice dummy torso",
+        PRACTICE_DUMMY_LABEL,
+        PRACTICE_DUMMY_CENTER,
+        PRACTICE_DUMMY_YAW,
+        0.0,
+        151.0,
+        100.0,
+    )
+    require_local_y_hit(
+        world,
+        "Fenwatch practice dummy base",
+        PRACTICE_DUMMY_LABEL,
+        PRACTICE_DUMMY_CENTER,
+        PRACTICE_DUMMY_YAW,
+        0.0,
+        11.0,
+        100.0,
+    )
+    for side, local_x in (("left", -115.0), ("right", 115.0)):
+        require_local_y_clear(
+            world,
+            "Fenwatch practice dummy {} arm".format(side),
+            PRACTICE_DUMMY_CENTER,
+            PRACTICE_DUMMY_YAW,
+            local_x,
+            125.0,
+            100.0,
+        )
+
     unreal.log(
-        "Embermere road boundary traces passed: clear spawn autorun corridor, clear Fenwatch shelter center, 4 solid shelter supports, 3 clear gate lanes, 1 solid gate support, 2 solid fence centers, 2 solid boundary stones, and 1 solid supply chest"
+        "Embermere road boundary traces passed: clear spawn autorun corridor, clear Fenwatch shelter center, 4 solid shelter supports, 3 clear gate lanes, 1 solid gate support, 2 solid fence centers, 2 solid boundary stones, 1 solid supply chest, and a solid-core Fenwatch practice dummy with 2 clear arms"
     )
 
 

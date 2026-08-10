@@ -7,10 +7,11 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 1. Open `/Game/Maps/L_Embermere_Prototype`.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
 3. Confirm the map shows a blue atmospheric sky, readable ambient light, the
-   varied moss/earth road surface, 57 grounded upright `FabPass_` actors plus
-   18 original-art placements from the waystone, ember-lamp, road-signpost,
+   varied moss/earth road surface, 56 grounded upright `FabPass_` actors plus
+   19 original-art placements from the waystone, ember-lamp, road-signpost,
    road-gate, boundary-fence, boundary-stone, supply-chest, Fenwatch shelter,
-   Mara's keeper, the Fenwatch quartermaster and armsmaster, and four marsh-reed clusters, a
+   Mara's keeper, the Fenwatch quartermaster and armsmaster, the practice
+   dummy, and four marsh-reed clusters, a
    navigable PlayerStart/Mara
    route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three original
    Marsh Prowlers.
@@ -62,10 +63,17 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     interaction or progression component, and preserve the chest, Mara, and
     PlayerStart sightlines. The saved presentation and separate service use
     `(-1320, -920, 0)`, yaw `100`, and unit scale.
-14. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
+14. Inspect `Embermere_FenwatchPracticeDummy_TrainingYard_01` at
+    `(-1120, -1120, 0)`, yaw `45`. Its timber target face should point toward
+    the armsmaster, its stone/moss footing should contact terrain, and its iron
+    bands plus ember bullseye should read from the training-yard approach. The
+    authored base and torso/core must be solid, both outstretched arms must be
+    clear, and the open village route must remain traversable. Confirm the
+    generic `FabPass_Village_Crate_C` it replaced is absent.
+15. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
     should blend into the ground, reeds should add scale without hiding the
     route, and the whole cluster must remain `NoCollision`.
-15. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
+16. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
     marker meshes have not returned. Foliage should use readable
     project-owned overrides rather than white/default rendering.
 
@@ -271,6 +279,11 @@ The full ownership and rollback contract is in
 7. Retain the visual/service split: the armsmaster remains non-colliding art;
    the separate service actor owns the marker, `F` interaction, offering data,
    and transaction authority.
+8. For the trainer persistence lane, begin again at `40` copper and `0` XP,
+   train once to `30`/`25`, and save deliberately through Chronicle. Stop PIE,
+   start a fresh world, confirm the normal `40`/`0` baseline, then load through
+   Chronicle twice. Both loads must resolve to exactly `30`/`25` with no items,
+   equipment, quest, vendor-stock, buyback, reward, or schema mutation.
 
 The full ownership and rollback contract is in
 [TRAINER_SERVICE_CONTRACT.md](TRAINER_SERVICE_CONTRACT.md).
@@ -308,6 +321,11 @@ The full ownership and rollback contract is in
 12. For the tracked two-session acceptance lane, run `prepare_and_save()` and
    `load_and_validate()` from `Scripts/validate_persistence_live_unreal.py` as
    documented in [SAVE_GAME_CONTRACT.md](SAVE_GAME_CONTRACT.md).
+13. For the trainer-only lane, use
+    `prepare_trainer_progression_for_chronicle()`, begin a fresh PIE world,
+    verify it with `validate_fresh_trainer_session_before_chronicle_load()`,
+    then validate each confirmed Chronicle load with
+    `validate_trainer_chronicle_load()`.
 
 ## Expected Temporary Feedback
 

@@ -5,8 +5,8 @@ import unreal
 
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
-EXPECTED_FABPASS_COUNT = 57
-EXPECTED_ORIGINAL_ART_COUNT = 18
+EXPECTED_FABPASS_COUNT = 56
+EXPECTED_ORIGINAL_ART_COUNT = 19
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -81,6 +81,10 @@ ORIGINAL_SUPPLY_CHEST_LABEL = "Embermere_SupplyChest_Vendor_01"
 ORIGINAL_SUPPLY_CHEST_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereSupplyChest_01.SM_EmbermereSupplyChest_01"
 ORIGINAL_SUPPLY_CHEST_LOCATION = (-1740.0, -1180.0, 0.0)
 ORIGINAL_SUPPLY_CHEST_YAW = 108.0
+ORIGINAL_PRACTICE_DUMMY_LABEL = "Embermere_FenwatchPracticeDummy_TrainingYard_01"
+ORIGINAL_PRACTICE_DUMMY_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereFenwatchPracticeDummy_01.SM_EmbermereFenwatchPracticeDummy_01"
+ORIGINAL_PRACTICE_DUMMY_LOCATION = (-1120.0, -1120.0, 0.0)
+ORIGINAL_PRACTICE_DUMMY_YAW = 45.0
 SPAWN_AUTORUN_ROUTE_START = (-2400.0, -1200.0)
 SPAWN_AUTORUN_ROUTE_END = (-1350.0, -750.0)
 SUPPLY_CHEST_ROUTE_CLEARANCE = 225.0
@@ -196,6 +200,7 @@ REQUIRED_LABELS = {
     ORIGINAL_SIGNPOST_LABEL,
     ORIGINAL_GATE_LABEL,
     ORIGINAL_SUPPLY_CHEST_LABEL,
+    ORIGINAL_PRACTICE_DUMMY_LABEL,
     ORIGINAL_FENWATCH_SHELTER_LABEL,
     FENWATCH_QUARTERMASTER_LABEL,
     FENWATCH_ARMSMASTER_LABEL,
@@ -227,6 +232,7 @@ REMOVED_GREYBOX_LABELS = {
     "Enemy_Visual_Marker_03",
     "FabPass_Ruin_Soul_Arch_Accent",
     "FabPass_Ruin_Soul_Pillar",
+    "FabPass_Village_Crate_C",
 }
 
 
@@ -1177,6 +1183,119 @@ def main():
             SUPPLY_CHEST_ROUTE_CLEARANCE,
         ))
 
+    practice_dummy_mesh = unreal.EditorAssetLibrary.load_asset(
+        ORIGINAL_PRACTICE_DUMMY_PATH
+    )
+    if not practice_dummy_mesh or not isinstance(practice_dummy_mesh, unreal.StaticMesh):
+        fail("missing original Fenwatch practice dummy {}".format(
+            ORIGINAL_PRACTICE_DUMMY_PATH,
+        ))
+    practice_dummy_import_data = practice_dummy_mesh.get_editor_property(
+        "asset_import_data"
+    )
+    practice_dummy_import_class = (
+        practice_dummy_import_data.get_class().get_name()
+        if practice_dummy_import_data
+        else "None"
+    )
+    if practice_dummy_import_class != "FbxStaticMeshImportData":
+        fail("Fenwatch practice dummy must retain classic FBX import data, found {}".format(
+            practice_dummy_import_class,
+        ))
+    practice_dummy_body_setup = practice_dummy_mesh.get_editor_property("body_setup")
+    practice_dummy_aggregate = (
+        practice_dummy_body_setup.get_editor_property("agg_geom")
+        if practice_dummy_body_setup
+        else None
+    )
+    practice_dummy_box_count = (
+        len(practice_dummy_aggregate.get_editor_property("box_elems"))
+        if practice_dummy_aggregate
+        else 0
+    )
+    if practice_dummy_box_count != 2:
+        fail("Fenwatch practice dummy must retain 2 authored box colliders, found {}".format(
+            practice_dummy_box_count,
+        ))
+    practice_dummy_bounds = practice_dummy_mesh.get_bounds()
+    if not all((
+        nearly_equal(practice_dummy_bounds.box_extent.x, 126.0, 1.0),
+        nearly_equal(practice_dummy_bounds.box_extent.y, 50.4395, 1.0),
+        nearly_equal(practice_dummy_bounds.origin.z, 122.5, 1.0),
+        nearly_equal(practice_dummy_bounds.box_extent.z, 122.5, 1.0),
+    )):
+        fail("Fenwatch practice dummy bounds drifted: origin={}, extent={}".format(
+            practice_dummy_bounds.origin,
+            practice_dummy_bounds.box_extent,
+        ))
+    if practice_dummy_mesh.get_num_triangles(0) != 2572:
+        fail("Fenwatch practice dummy triangle count drifted: {}".format(
+            practice_dummy_mesh.get_num_triangles(0),
+        ))
+    practice_dummy_material_paths = set()
+    for static_material in list(practice_dummy_mesh.get_editor_property("static_materials")):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            practice_dummy_material_paths.add(material.get_path_name())
+    if practice_dummy_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("Fenwatch practice dummy material set drifted: {}".format(
+            sorted(practice_dummy_material_paths),
+        ))
+
+    practice_dummy = actors_by_label[ORIGINAL_PRACTICE_DUMMY_LABEL]
+    practice_dummy_component = practice_dummy.get_component_by_class(
+        unreal.StaticMeshComponent
+    )
+    actor_practice_dummy_mesh = (
+        practice_dummy_component.get_editor_property("static_mesh")
+        if practice_dummy_component
+        else None
+    )
+    actor_practice_dummy_path = (
+        actor_practice_dummy_mesh.get_path_name()
+        if actor_practice_dummy_mesh
+        else "None"
+    )
+    if actor_practice_dummy_path != ORIGINAL_PRACTICE_DUMMY_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_PRACTICE_DUMMY_LABEL,
+            ORIGINAL_PRACTICE_DUMMY_PATH,
+            actor_practice_dummy_path,
+        ))
+    practice_dummy_location = practice_dummy.get_actor_location()
+    practice_dummy_rotation = practice_dummy.get_actor_rotation()
+    if not all((
+        nearly_equal(practice_dummy_location.x, ORIGINAL_PRACTICE_DUMMY_LOCATION[0], 1.0),
+        nearly_equal(practice_dummy_location.y, ORIGINAL_PRACTICE_DUMMY_LOCATION[1], 1.0),
+        nearly_equal(practice_dummy_location.z, ORIGINAL_PRACTICE_DUMMY_LOCATION[2], 1.0),
+        nearly_equal(practice_dummy_rotation.pitch, 0.0, 0.1),
+        nearly_equal(practice_dummy_rotation.yaw, ORIGINAL_PRACTICE_DUMMY_YAW, 0.1),
+        nearly_equal(practice_dummy_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            ORIGINAL_PRACTICE_DUMMY_LABEL,
+            practice_dummy_location,
+            practice_dummy_rotation,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(practice_dummy.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_PRACTICE_DUMMY_LABEL,
+        ))
+    if str(practice_dummy_component.get_collision_profile_name()) != "BlockAll":
+        fail("{} collision profile drifted: {}".format(
+            ORIGINAL_PRACTICE_DUMMY_LABEL,
+            practice_dummy_component.get_collision_profile_name(),
+        ))
+    armsmaster_distance = math.hypot(
+        practice_dummy_location.x - FENWATCH_ARMSMASTER_LOCATION[0],
+        practice_dummy_location.y - FENWATCH_ARMSMASTER_LOCATION[1],
+    )
+    if not nearly_equal(armsmaster_distance, 282.843, 1.0):
+        fail("{} training-yard spacing from the armsmaster drifted: {:.1f} cm".format(
+            ORIGINAL_PRACTICE_DUMMY_LABEL,
+            armsmaster_distance,
+        ))
+
     marsh_reed_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_MARSH_REED_PATH)
     if not marsh_reed_mesh or not isinstance(marsh_reed_mesh, unreal.StaticMesh):
         fail("missing original marsh reed mesh {}".format(ORIGINAL_MARSH_REED_PATH))
@@ -1531,7 +1650,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

@@ -759,6 +759,54 @@ silently becoming the only truth.
 The full art/service/progression boundary is documented in
 `Docs/TRAINER_SERVICE_CONTRACT.md`.
 
+## Fourteenth Asset: Fenwatch Practice Dummy
+
+`SM_EmbermereFenwatchPracticeDummy_01` gives the armsmaster a readable
+training-yard focal point without putting interaction or progression into world
+art. Its broad timber target, ember bullseye, stone-and-moss footing, iron
+bands, and outstretched sparring arms extend the existing Fenwatch material and
+silhouette language.
+
+The reviewed build script is
+`Scripts/blender/build_embermere_fenwatch_practice_dummy.py`; editable source,
+FBX, preview, and deterministic metrics live under
+`ArtSource/Blender/Environment/FenwatchPracticeDummy`. Classic-FBX import and
+idempotent map placement are handled by
+`Scripts/import_embermere_fenwatch_practice_dummy_unreal.py`.
+
+Verified result:
+
+- dimensions: `252.0 x 100.879 x 245.0` cm with a ground pivot;
+- topology: 2,572 triangles, one UV channel, zero non-manifold edges, and
+  applied unit scale;
+- materials: the existing `M_Waystone`, `M_WaystoneMoss`,
+  `M_EmbermereTimber`, `M_EmberLampIron`, and `M_WaystoneEmber` assets;
+- collision: exactly two authored UBX boxes make the base and torso/core solid
+  while both outstretched arms remain visual-only and traversable;
+- saved placement: `Embermere_FenwatchPracticeDummy_TrainingYard_01` at
+  `(-1120, -1120, 0)`, yaw `45`, unit scale, `BlockAll`, and the
+  `EmbermereOriginalArt` tag;
+- replacement: the generic `FabPass_Village_Crate_C` is removed, leaving 56
+  Fab placements plus 19 project-owned placements.
+
+The live Blender bridge correctly refused the build script because the script
+resets the active scene. Rather than weaken Safe Mode or disturb the artist's
+open file, the same reviewed script ran in a factory-clean headless Blender
+process. That refusal is part of the pipeline working: live-scene safety and
+deterministic asset generation use different execution contexts.
+
+The first Unreal placement passed its numeric contract but aimed the target
+away from the armsmaster. Human viewport review rejected the composition, and
+the deterministic import/placement script was corrected and rerun instead of
+leaving an untracked in-memory transform. Fresh-process asset and map
+validators then proved exact metrics, materials, package persistence, tag, and
+transform; initialized-world native traces proved the base/core solid and both
+arms clear.
+
+Lesson: a safe tool refusal, deterministic technical eligibility, and human
+composition acceptance are complementary gates. Passing one does not waive the
+others.
+
 ## Sources
 
 - Article/post: https://x.com/explosss1ve/status/2075654835597164769

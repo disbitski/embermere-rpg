@@ -70,9 +70,12 @@ The Fenwatch trainer adds no version-1 schema field. An accepted training
 transaction mutates the already-owned copper and XP values, so those results
 flow through the existing wallet/stats records. Trainer offerings, panel
 selection, interaction range, and rejection copy remain data or transient
-session state. The next integrated acceptance proof is therefore a normal
-train-at-40/0 to save-at-30/25 flow followed by a fresh-world load and a second
-idempotent load, not a save-format expansion.
+session state. The 2026-08-10 integrated proof exercised that exact boundary:
+a normal `40` copper/`0` XP world trained once, saved at `30`/`25` through the
+real Chronicle control, began a second world at the normal `40`/`0` baseline,
+and restored `30`/`25` through two confirmed loads. Neither load created items,
+equipment, quest state, vendor-stock changes, buyback history, repeated rewards,
+or currency/XP drift. Save version 1 did not expand.
 
 ## Prototype Commands
 
@@ -125,6 +128,21 @@ duplication. The same state was inspected and loaded through Chronicle: the
 visible summary showed `22` copper, `125` XP, two bag stacks, one equipped item,
 and a completed quest; overwrite and load confirmations both preserved their
 cancel paths.
+
+The accepted 2026-08-10 trainer lane uses the same validator and Chronicle
+surface without replacing the established commerce fixture:
+
+1. run `prepare_trainer_progression_for_chronicle()` in fresh PIE;
+2. save through Chronicle at exactly `30` copper and `25` XP;
+3. stop PIE, start a second world, and run
+   `validate_fresh_trainer_session_before_chronicle_load()` to prove `40`/`0`;
+4. confirm Chronicle Load and run `validate_trainer_chronicle_load()`;
+5. confirm Load a second time and run the same validation again.
+
+The trainer helper also proves one transient offering remains available while
+inventory, equipment, quest, finite vendor stock, and buyback remain untouched.
+This is an integration proof over existing durable owners, not a new serialized
+trainer record.
 
 ## Verification
 

@@ -111,6 +111,22 @@ exhausted the purse without an illegal mutation, displayed the insufficient-
 funds result, handed off cleanly to Inventory and Chronicle, and kept the
 armsmaster readable without blocking the village route.
 
+The 2026-08-10 persistence acceptance then saved that trainer-produced `30`
+copper/`25` XP state through Chronicle, stopped PIE, proved a second world began
+at `40`/`0`, and loaded the slot twice. Both loads restored exactly `30`/`25`
+without duplicate XP, currency drift, reward replay, item/equipment/quest/
+vendor-stock mutation, buyback persistence, or a save-version change.
+
+## Training-Yard Presentation
+
+`Embermere_FenwatchPracticeDummy_TrainingYard_01` is a separate world-art
+actor at `(-1120, -1120, 0)`, yaw `45`. It reuses five project-owned Fenwatch
+materials, grounds a `252.0 x 100.879 x 245.0` cm target silhouette, and owns
+only two support/core collision boxes. Its sparring arms remain clear. The
+dummy has no trainer component, offering data, interaction marker, wallet/XP
+access, panel ownership, or persistence state; removing it cannot change the
+trainer loop.
+
 ## Working Rule
 
 Trainer art may change, animate, or disappear without changing progression.

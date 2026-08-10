@@ -1994,6 +1994,51 @@ Lesson: model, service, data, player state, and UI are separate acceptance
 claims. Let art establish identity, let deterministic owners decide whether a
 transaction is eligible, and prove the integrated result in the world.
 
+## 2026-08-10 - Training Progress Survived, Then Gained A Yard
+
+The trainer already mutated the same wallet and XP owners that Chronicle knew
+how to save, but that architectural argument was only a hypothesis until the
+whole lifecycle ran across two worlds.
+
+Fresh PIE began at 40 copper and 0 XP. One real Combat Drills transaction made
+that exactly 30 copper and 25 XP, and Chronicle saved through its normal player-
+facing control. After PIE stopped, a second world proved its untouched 40/0
+baseline before Load restored 30/25. A second confirmed load stayed at 30/25.
+No item, equipment, quest, vendor-stock, buyback, reward, or schema mutation
+appeared. Trainer offerings and panel state remained transient, and save version
+1 remained unchanged.
+
+With progression durable, the armsmaster needed a place that looked like
+training rather than a generic crate. The new Fenwatch practice dummy came
+through the same deterministic Blender/classic-FBX lane as the roadside family:
+
+- `252.0 x 100.879 x 245.0` cm, 2,572 triangles, one UV channel, no
+  non-manifold edges, applied scale, and a ground pivot;
+- five shared Fenwatch materials rather than a new one-off palette;
+- two authored collision boxes for the base and torso/core, with both
+  outstretched sparring arms intentionally clear;
+- one exact saved placement at `(-1120, -1120, 0)`, yaw `45`, replacing
+  `FabPass_Village_Crate_C`.
+
+The live Blender bridge refused the script because it clears the active scene.
+That was a useful success, not an obstacle: Safe Mode protected the artist's
+open file, while a factory-clean headless Blender process gave the reviewed
+script the isolated context it required.
+
+The first Unreal placement then passed every numeric check but aimed the target
+away from the armsmaster. Human viewport review rejected it. Instead of leaving
+an in-memory rotation behind, the deterministic placement script was corrected
+and rerun, making the accepted composition reproducible.
+
+All 48 tests passed. Fresh-process practice-dummy, saved-zone, trainer, vendor-
+economy, and UI-art validators emitted their success markers with no Python
+errors. The saved zone now contains 56 Fab placements and 19 original-art
+placements, while initialized-world traces prove the dummy core solid and both
+arms clear.
+
+Lesson: safe tool refusal, deterministic eligibility, and human composition
+review are all production gates. None is a substitute for the others.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
