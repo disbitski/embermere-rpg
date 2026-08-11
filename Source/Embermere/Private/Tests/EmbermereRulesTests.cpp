@@ -3084,6 +3084,115 @@ bool FEmbermereFenwatchArmsmasterPresentationTest::RunTest(const FString& Parame
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereFenwatchArmsmasterIdlePresentationTest,
+	"Embermere.NPC.FenwatchArmsmasterIdlePresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereFenwatchArmsmasterIdlePresentationTest::RunTest(const FString& Parameters)
+{
+	const FString ArtRoot = TEXT("/Game/Art/Embermere/Characters/NPCs/FenwatchArmsmaster");
+	UStaticMesh* StaticFallback = LoadObject<UStaticMesh>(
+		nullptr,
+		*(ArtRoot + TEXT("/SM_EmbermereFenwatchArmsmaster_01.SM_EmbermereFenwatchArmsmaster_01")));
+	USkeletalMesh* SkeletalMesh = LoadObject<USkeletalMesh>(
+		nullptr,
+		*(ArtRoot + TEXT("/SK_EmbermereFenwatchArmsmaster_01.SK_EmbermereFenwatchArmsmaster_01")));
+	UAnimSequence* IdleAnimation = LoadObject<UAnimSequence>(
+		nullptr,
+		*(ArtRoot + TEXT("/Animations/A_EmbermereFenwatchArmsmaster_Idle.A_EmbermereFenwatchArmsmaster_Idle")));
+	AEmbermereNpcPresentationActor* Presentation = NewObject<AEmbermereNpcPresentationActor>();
+	TestNotNull(TEXT("Accepted armsmaster static fallback loads"), StaticFallback);
+	TestNotNull(TEXT("Rigged armsmaster skeletal mesh loads"), SkeletalMesh);
+	TestNotNull(TEXT("Rigged armsmaster Idle loads"), IdleAnimation);
+	TestNotNull(TEXT("Rigged armsmaster presentation can be created"), Presentation);
+	if (!StaticFallback || !SkeletalMesh || !IdleAnimation || !Presentation)
+	{
+		return false;
+	}
+
+	const FVector Size = SkeletalMesh->GetBounds().BoxExtent * 2.0f;
+	TestTrue(TEXT("Rigged armsmaster width retains the accepted silhouette"), FMath::IsNearlyEqual(Size.X, 154.5f, 1.0f));
+	TestTrue(TEXT("Rigged armsmaster depth retains the accepted silhouette"), FMath::IsNearlyEqual(Size.Y, 87.0f, 1.0f));
+	TestTrue(TEXT("Rigged armsmaster height retains the accepted silhouette"), FMath::IsNearlyEqual(Size.Z, 228.0f, 1.0f));
+	TestEqual(TEXT("Rigged armsmaster keeps six project materials"), SkeletalMesh->GetMaterials().Num(), 6);
+	const FReferenceSkeleton& ReferenceSkeleton = SkeletalMesh->GetRefSkeleton();
+	TestEqual(
+		TEXT("Classic FBX keeps one Armature root plus the nine reviewed authored bones"),
+		ReferenceSkeleton.GetRawBoneNum(),
+		10);
+	const TArray<FName> AuthoredBoneNames = {
+		TEXT("root"),
+		TEXT("pelvis"),
+		TEXT("spine"),
+		TEXT("neck"),
+		TEXT("head"),
+		TEXT("upper_arm_l"),
+		TEXT("forearm_l"),
+		TEXT("upper_arm_r"),
+		TEXT("forearm_r"),
+	};
+	for (const FName BoneName : AuthoredBoneNames)
+	{
+		TestTrue(
+			*FString::Printf(TEXT("Rigged armsmaster retains authored bone %s"), *BoneName.ToString()),
+			ReferenceSkeleton.FindBoneIndex(BoneName) != INDEX_NONE);
+	}
+	const int32 AuthoredRootIndex = ReferenceSkeleton.FindBoneIndex(TEXT("root"));
+	TestTrue(
+		TEXT("Authored root remains beneath the classic FBX Armature root"),
+		AuthoredRootIndex > 0 && ReferenceSkeleton.GetParentIndex(AuthoredRootIndex) == 0);
+	TestTrue(
+		TEXT("Idle animation uses the rigged armsmaster Skeleton"),
+		IdleAnimation->GetSkeleton() == SkeletalMesh->GetSkeleton());
+	TestTrue(
+		TEXT("Idle animation keeps its reviewed 3.2-second cycle"),
+		FMath::IsNearlyEqual(IdleAnimation->GetPlayLength(), 3.2f, 0.12f));
+
+	Presentation->StaticVisualMesh = StaticFallback;
+	Presentation->SkeletalVisualMesh = SkeletalMesh;
+	Presentation->IdleAnimation = IdleAnimation;
+	Presentation->bLoopIdleAnimation = true;
+	Presentation->IdleAnimationPlayRate = 1.0f;
+	Presentation->bPreferSkeletalVisual = true;
+	Presentation->RefreshPresentation();
+
+	TestEqual(
+		TEXT("Saved-style armsmaster configuration resolves the skeletal lane"),
+		Presentation->GetResolvedVisualMode(),
+		EEmbermereNpcVisualMode::SkeletalMesh);
+	TestEqual(
+		TEXT("Saved-style armsmaster configuration resolves looping single-node Idle"),
+		Presentation->GetResolvedAnimationMode(),
+		EEmbermereNpcAnimationMode::SingleNodeIdle);
+	TestTrue(
+		TEXT("Production Idle is the exact serialized animation"),
+		Presentation->SkeletalVisual->AnimationData.AnimToPlay == IdleAnimation);
+	TestTrue(
+		TEXT("Production Idle remains marked playing and looping"),
+		Presentation->SkeletalVisual->AnimationData.bSavedPlaying &&
+			Presentation->SkeletalVisual->AnimationData.bSavedLooping);
+	TestTrue(TEXT("Rigged armsmaster remains non-colliding"), Presentation->IsPresentationCollisionDisabled());
+	TestNull(
+		TEXT("Rigged armsmaster presentation owns no interaction authority"),
+		Presentation->FindComponentByClass<UEmbermereInteractableComponent>());
+	TestNull(
+		TEXT("Rigged armsmaster presentation owns no trainer authority"),
+		Presentation->FindComponentByClass<UEmbermereTrainerComponent>());
+
+	Presentation->bPreferSkeletalVisual = false;
+	Presentation->RefreshPresentation();
+	TestEqual(
+		TEXT("Disabling skeletal preference restores the accepted static fallback"),
+		Presentation->GetResolvedVisualMode(),
+		EEmbermereNpcVisualMode::StaticMesh);
+	TestTrue(
+		TEXT("Static fallback remains the exact accepted mesh"),
+		Presentation->StaticVisual->GetStaticMesh() == StaticFallback);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereMarshProwlerPresentationTest,
 	"Embermere.Enemy.MarshProwlerPresentation",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

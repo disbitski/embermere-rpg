@@ -76,18 +76,21 @@ last interactive panel restores the classic game-only mouse mode.
 `Embermere_FenwatchArmsmaster_Service_01`. Both are saved at
 `(-1320, -920, 0)`, yaw `100`, but they remain separate actors.
 
-The deterministic Blender source produces:
+The deterministic rigged Blender source produces:
 
 - `154.5 x 87.0 x 228.0` cm grounded bounds;
 - `2,824` source triangles;
 - six project-owned stone, moss, timber, iron, ember, and skin materials;
-- one UV channel, zero non-manifold edges, unit scale, and a ground pivot.
+- one UV channel, zero non-manifold edges, unit scale, and a ground pivot;
+- nine authored bones with rigid one-bone weights and a 3.2-second Idle.
 
-Classic `FbxFactory` import removes 24 degenerate triangles, so Unreal's saved
-mesh contract is `2,800` triangles. Both counts are intentional: Blender proves
-the authored source, while Unreal proves the actual runtime package. The
-presentation remains `NoCollision`; the separate service marker is the only
-trainer interaction surface.
+Classic skeletal `FbxFactory` import adds one Armature root, so Unreal's saved
+reference skeleton contains ten bones while retaining all nine authored names.
+The rigged mesh preserves the exact grounded source bounds and six material
+assignments; the exact 3.2-second Idle runs through the wrapper's single-node
+lane. The original `2,800`-triangle imported static mesh remains a reversible
+fallback. The presentation remains `NoCollision`; the separate service marker
+is the only trainer interaction surface.
 
 ## Acceptance Gates
 
@@ -100,6 +103,7 @@ The trainer slice is eligible only when all layers pass:
 - `Embermere.Trainer.ServiceContract`;
 - `Embermere.Trainer.FenwatchOfferingsData`;
 - `Embermere.NPC.FenwatchArmsmasterPresentation`;
+- `Embermere.NPC.FenwatchArmsmasterIdlePresentation`;
 - `Embermere.UI.TrainerPanel`;
 - full Embermere regression automation;
 - fresh saved-map and initialized-world route validation;
@@ -116,6 +120,13 @@ copper/`25` XP state through Chronicle, stopped PIE, proved a second world began
 at `40`/`0`, and loaded the slot twice. Both loads restored exactly `30`/`25`
 without duplicate XP, currency drift, reward replay, item/equipment/quest/
 vendor-stock mutation, buyback persistence, or a save-version change.
+
+The 2026-08-11 art upgrade then moved only the presentation wrapper onto its
+project-owned skeletal mesh and 3.2-second Idle. All 49 tests passed, fresh
+rig/trainer/zone validators accepted the saved packages, and live PIE measured
+the Idle advancing from `0.193888` to `1.670905` seconds while remaining
+`playing=true` and `NoCollision`. The trainer service, offering, marker, wallet,
+XP transaction, panel, and save schema did not change.
 
 ## Training-Yard Presentation
 

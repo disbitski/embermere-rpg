@@ -67,25 +67,27 @@ The project currently includes:
 - a reusable art-only NPC wrapper with static and skeletal lanes, shared
   transforms, soft references, Anim Blueprint precedence, a
   skeleton-compatible single-node Idle lane, and no interaction or service
-  ownership;
+  ownership, now used by the saved production rigged Fenwatch armsmaster with
+  a reversible static fallback;
 - a separate Fenwatch vendor vertical slice with an art-free interactable
   service actor, data-driven stock/prices/sell values, earned player copper,
   atomic buy/sell/buyback rollback, fixed native stock UI, and saved ownership
   validation;
-- a separate Fenwatch trainer vertical slice with an art-only armsmaster,
-  art-free interactable service, data-driven Combat Drills, atomic copper-to-XP
-  progression, fixed native training UI, and a matching solid-core practice
-  dummy that owns no service authority;
+- a separate Fenwatch trainer vertical slice with an art-only rigged and
+  Idle-animated armsmaster, art-free interactable service, data-driven Combat
+  Drills, atomic copper-to-XP progression, fixed native training UI, and a
+  matching solid-core practice dummy that owns no service authority;
 - a versioned save-game contract that atomically captures and restores copper,
   XP, inventory/equipment identity, quest state, and finite vendor stock using
   stable identifiers plus validated soft paths. Buyback, combat, cooldowns,
   temporary effects, and position remain intentionally session-only;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
-- 48 passing Unreal automation tests plus fresh-process practice-dummy,
-  trainer, vendor, UI-art/package, and saved-map validators, initialized-live-
-  world route/collision traces, and accepted two-session Chronicle proofs for
-  both the full commerce/quest fixture and trainer-produced progression.
+- 49 passing Unreal automation tests plus fresh-process armsmaster-rig,
+  practice-dummy, trainer, vendor, UI-art/package, and saved-map validators,
+  initialized-live-world route/collision traces, measured live armsmaster Idle
+  advancement, and accepted two-session Chronicle proofs for both the full
+  commerce/quest fixture and trainer-produced progression.
 
 This is still prototype art. The first black-sky problem is corrected, but the
 scene remains mixed in style and is missing a cohesive fantasy village kit,
@@ -988,14 +990,37 @@ errors, and initialized-world traces proved the dummy base/core solid and both
 arms clear. The saved map now contains 56 Fab actors plus 19 original-art
 placements.
 
+## 2026-08-11 Rigged Armsmaster Idle Update
+
+The accepted armsmaster wrapper now prefers a dedicated project-owned skeletal
+lane while preserving the original static mesh as a reversible fallback.
+
+- Blender retains the `154.5 x 87.0 x 228.0` cm grounded bounds, 2,824 source
+  triangles, six materials, and adds nine authored bones with complete rigid
+  weights plus a 97-frame, 30-fps, 3.2-second Idle.
+- Classic skeletal `FbxFactory` preserves one Armature object as an imported
+  root. Unreal therefore validates ten reference-skeleton bones, all nine
+  authored names, and the authored `root` beneath that importer-owned node.
+- The saved wrapper uses `SK_EmbermereFenwatchArmsmaster_01` and
+  `A_EmbermereFenwatchArmsmaster_Idle`, stays `NoCollision`, keeps the static
+  soft fallback, and does not gain any trainer authority.
+- The importer replaces skeletal packages in place and reuses the valid saved
+  Skeleton. Deleting and recreating both in one commandlet produced stale
+  UObject state and is now explicitly avoided.
+- The no-hot-reload build, all 49 tests, fresh rig/trainer/zone/dummy/UI
+  validators, and initialized-world route traces passed.
+- Clean PIE kept the Idle `playing=true` and advanced its position from
+  `0.193888` to `1.670905` seconds while the grounded training-yard composition
+  stayed readable.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-09 no-hot-reload Fenwatch trainer module plus the accepted 2026-08-10
-practice-dummy/map package, armsmaster, offering, Chronicle, Fenwatch stock/
-service, item, quest, keeper, quartermaster, NPC wrapper, and Blueprint packages,
-then confirm MCP/test discovery; restart only if the editor or test registry
-proves stale.
+2026-08-11 no-hot-reload rigged Fenwatch armsmaster module plus the accepted
+skeletal-mesh/Skeleton/Idle, practice-dummy/map, offering, Chronicle, Fenwatch
+stock/service, item, quest, keeper, quartermaster, NPC wrapper, and Blueprint
+packages, then confirm MCP/test discovery; restart only if the editor or test
+registry proves stale.
 
 First fresh-session checks:
 
@@ -1003,11 +1028,12 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 48 tests, including the six economy/vendor tests,
+3. Run/discover all 49 tests, including the six economy/vendor tests,
    `Embermere.Trainer.TransactionRules`,
    `Embermere.Trainer.ServiceContract`,
    `Embermere.Trainer.FenwatchOfferingsData`,
    `Embermere.NPC.FenwatchArmsmasterPresentation`,
+   `Embermere.NPC.FenwatchArmsmasterIdlePresentation`,
    `Embermere.UI.TrainerPanel`,
    `Embermere.Persistence.RoundTrip`,
    `Embermere.Persistence.ValidationRollback`,
@@ -1101,6 +1127,9 @@ First fresh-session checks:
      XP transaction, exact chat/panel feedback, insufficient-funds rejection,
      and clean Inventory/Chronicle/close handoffs. The visual actor must remain
      art-only while the co-located service owns all interaction/progression.
+     Confirm the project-owned 3.2-second Idle is playing and advancing,
+     grounded feet and staff remain planted, the marker and route stay clear,
+     and the static soft-reference fallback remains intact.
    - inspect `Embermere_FenwatchPracticeDummy_TrainingYard_01` at
      `(-1120, -1120, 0)`, yaw `45`; retain its grounded target-facing
      composition, five shared materials, solid base/core, clear arms, open
@@ -1145,12 +1174,17 @@ High-value milestones after that:
 - retain the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest/
   shelter/keeper/quartermaster/armsmaster/practice-dummy lane and its
   deterministic scripts, FBX checks, original-art tags, and route composition;
-- retain the accepted armsmaster/trainer ownership and transaction contracts;
+- retain the accepted rigged-armsmaster/trainer ownership and transaction
+  contracts;
   retain the accepted trainer-produced 30-copper/25-XP Chronicle restore across
   a fresh world and second idempotent load without changing save version 1;
-- begin a dedicated rigged Idle armsmaster presentation through the accepted
-  wrapper lane without moving trainer authority into art; require a live
-  advancing animation clock before accepting the saved skeletal lane;
+- retain the accepted production armsmaster skeletal lane: exact mesh,
+  ten-bone imported hierarchy containing all nine authored bones, 3.2-second
+  Idle, live advancing clock, static fallback, and no collision or service
+  authority;
+- rerun the trainer-to-Chronicle proof with the rigged presentation active,
+  then consider another NPC rig only when it adds enough visual value to earn
+  the same deterministic import, fresh-package, fallback, and live-clock gates;
 - optional restrained rune/soft-edge texture treatment for the dedicated
   target-circle material after all three normal-route Prowlers pass the
   physical-eye sweep;
@@ -1218,17 +1252,17 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-09 Fenwatch trainer
-module and accepted 2026-08-10 practice-dummy/map package plus the armsmaster/
+Follow TODO.md's Start Here section. Confirm the 2026-08-11 rigged Fenwatch
+armsmaster module and accepted skeletal-mesh/Skeleton/Idle, practice-dummy/map,
 offering/Chronicle,
 bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 48 tests, including the persistence round-trip,
+route-repair map, then run all 49 tests, including the persistence round-trip,
 validation/rollback, slot-inspection, native Chronicle panel, trainer
-transaction/service/offering, armsmaster presentation, and trainer-panel
-contracts.
+transaction/service/offering, static armsmaster presentation, production
+armsmaster Idle presentation, and trainer-panel contracts.
 Retain the
 original rigged Prowler across all three instances and verify Idle, Walk, Run,
 Attack, Hit, Death, terrain contact, target presentation, combat, tonic loot,
@@ -1279,8 +1313,10 @@ footer copy, chat, and close/input restoration. Complete Mara's quest and prove
 its 20-copper reward pays exactly once. Re-run the six focused economy/vendor
 tests and fresh-process validator.
 Retain the accepted Fenwatch armsmaster and trainer separation: the grounded,
-non-colliding art-only armsmaster and co-located art-free service sit at
-`(-1320, -920, 0)`, yaw `100`; the saved offering exposes repeatable level-1
+non-colliding art-only rigged armsmaster and co-located art-free service sit at
+`(-1320, -920, 0)`, yaw `100`; the skeletal lane has nine authored Blender
+bones plus one imported Unreal Armature root, an exact 3.2-second Idle, measured
+live playback, and the reviewed static-mesh fallback. The saved offering exposes repeatable level-1
 Combat Drills for 10 copper and 25 XP. Exercise the normal `F` trainer loop and
 prove `40 -> 30` copper plus `0 -> 25` XP, insufficient-funds rejection,
 fixed-panel bounds, chat, and Inventory/Chronicle/close handoff. Preserve the
@@ -1304,14 +1340,14 @@ prove Mara's name/quest marker, keeper, open center, four supports, and straight
 autorun route remain readable. Retain the accepted player-facing Chronicle:
 plain `M`, exact slot summary, overwrite/load confirmations and cancel paths,
 empty/rejected feedback, mutually exclusive panel handoff, and console-command
-fallbacks over the same atomic contract. Retain the wrapper's measured
+fallbacks over the same atomic contract. Retain the wrapper's production
 skeletal/Idle lane and the accepted trainer ownership contract. First prove
 the accepted trainer-produced 30-copper/25-XP Chronicle state remains exact in
 a fresh PIE world and a second idempotent load without changing save version 1.
-Then begin a dedicated rigged Idle armsmaster lane through the wrapper, keeping
-all service authority outside art and requiring live animation-clock movement;
-tune only concrete Prowler or aura issues, or take the highest-value next
-milestone when the path is clear.
+Then retain grounded normal-camera armsmaster motion, clear marker/route,
+playing animation-clock movement, and the static fallback; tune only concrete
+Prowler or aura issues, extend another NPC rig only through the same acceptance
+gates, or take the highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

@@ -2039,6 +2039,49 @@ arms clear.
 Lesson: safe tool refusal, deterministic eligibility, and human composition
 review are all production gates. None is a substitute for the others.
 
+## 2026-08-11 - The Armsmaster Became Embermere's First Rigged NPC
+
+The temporary quartermaster experiment had proven that the presentation wrapper
+could play a skeletal Idle. Today tested the harder claim: could a production
+NPC adopt its own rig and animation without trainer behavior noticing?
+
+The deterministic rigged build reused the reviewed armsmaster geometry and
+produced a grounded `154.5 x 87.0 x 228.0` cm SkeletalMesh source with 2,824
+triangles, six existing Fenwatch materials, nine authored bones, complete rigid
+one-bone weights, and a restrained 97-frame Idle at 30 fps. The exact 3.2-second
+clip moves the spine, neck, head, and shield hand while keeping feet and staff
+planted. Blender Safe Mode stayed enabled; the scene-resetting build ran in a
+factory-clean headless process.
+
+The import pass earned three useful lessons:
+
+- Unreal Python does not expose `USkeletalMesh.set_material()`. The importer
+  updates each skeletal-material struct and writes the array back before saving.
+- Deleting a SkeletalMesh and Skeleton immediately before recreating them in
+  one commandlet can leave stale UObject references. The accepted importer
+  replaces packages in place, reuses the valid Skeleton, and rejects a mesh
+  whose expected Skeleton is missing.
+- Classic FBX preserved Blender's Armature object as one additional root.
+  Blender still authors nine reviewed bones; Unreal deliberately validates ten
+  reference-skeleton bones, all nine authored names, and the authored `root`
+  beneath the imported root.
+
+The saved `Embermere_FenwatchArmsmaster_Trainer_01` now prefers
+`SK_EmbermereFenwatchArmsmaster_01` and its exact Idle while retaining the
+original static mesh as a reversible fallback. It remains `NoCollision` and
+owns no marker, interaction, offering, wallet, XP, panel, or persistence state.
+The co-located trainer service did not change.
+
+Fresh rig, trainer, zone, practice-dummy, UI-art, and initialized-world route
+validators all passed. The no-hot-reload build passed, and the expanded suite
+finished 49/49. Clean PIE supplied the final gate: the Idle remained
+`playing=true` while its clock advanced from `0.193888` to `1.670905` seconds,
+with the grounded silhouette and training-yard route intact.
+
+Lesson: a reusable architecture becomes real when the second implementation
+uses it without special treatment. Art changed lanes; trainer authority did
+not move.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

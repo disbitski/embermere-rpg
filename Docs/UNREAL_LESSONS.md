@@ -1038,3 +1038,47 @@ The supported solution is narrower and more reliable:
 This preserves the localhost MCP and native Slate boundary, avoids OS-level UI
 injection, and works for initialized-world validators that cannot be accepted
 from a null-render commandlet alone.
+
+## Replace Skeletal Packages In Place During One Import Process
+
+Deleting a SkeletalMesh and its Skeleton immediately before rebuilding both in
+one Unreal commandlet looks deterministic, but the editor process can still
+hold UObject references to the deleted packages. Embermere's first rigged
+armsmaster import reached a half-valid state: the files had been recreated, yet
+the imported mesh no longer exposed a valid Skeleton to the next operation.
+
+The durable importer now treats a valid saved Skeleton as shared state:
+
+1. List existing generated assets and load the expected Skeleton first.
+2. Reject an existing SkeletalMesh whose Skeleton is unexpectedly missing.
+3. Import with replacement enabled and explicitly reuse the valid Skeleton.
+4. Save the SkeletalMesh, Skeleton, and AnimationSequence packages.
+5. Validate all three from a fresh commandlet before opening PIE.
+
+Use deletion only as a separate cleanup lifecycle, not as the first half of an
+in-process reimport. This also makes reruns idempotent and keeps animation
+packages bound to a stable Skeleton.
+
+Unreal Python exposed a related API boundary during the same pass:
+`USkeletalMesh.set_material()` is not available. Update each
+`FSkeletalMaterial.material_interface` in the mesh's material array, write the
+array back, save, and validate exact slot order in a fresh process.
+
+## Validate Authored Bones And The Imported Root Separately
+
+Blender authored nine named bones for the Fenwatch armsmaster, but Unreal's
+classic FBX pipeline preserved the Blender Armature object as one additional
+root. A native test that expected only nine Unreal bones failed even though all
+nine authored bones, weights, animation, and hierarchy were correct.
+
+The accepted contract records both artifacts:
+
+- Blender metrics require the nine reviewed authored names, applied armature
+  scale, complete rigid weights, and the exact 3.2-second action;
+- Unreal requires ten reference-skeleton bones, all nine authored names, and
+  the authored `root` parented beneath the one imported root;
+- the AnimationSequence must share that exact Skeleton and advance in live PIE.
+
+Raw bone count alone is not a portable truth. Validate the authored semantic
+hierarchy and document any importer-owned node so a future exporter or engine
+upgrade produces a reviewable contract change instead of a mysterious failure.

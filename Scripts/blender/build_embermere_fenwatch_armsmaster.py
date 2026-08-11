@@ -274,7 +274,7 @@ def join_render_mesh(parts: list[bpy.types.Object]) -> bpy.types.Object:
     return result
 
 
-def build_armsmaster() -> bpy.types.Object:
+def build_armsmaster_parts() -> list[bpy.types.Object]:
     skin = make_material("M_FenwatchArmsmasterSkin", (0.45, 0.24, 0.14, 1.0), 0.84)
     stone = make_material("M_Waystone", (0.34, 0.40, 0.37, 1.0), 0.88)
     moss = make_material("M_WaystoneMoss", (0.25, 0.39, 0.16, 1.0), 0.95)
@@ -339,7 +339,11 @@ def build_armsmaster() -> bpy.types.Object:
             add_box("TrainingPouch", (25.0, 14.0, 28.0), (27.0, -5.0, 82.0), timber, 3.0),
         ]
     )
-    return join_render_mesh(parts)
+    return parts
+
+
+def build_armsmaster() -> bpy.types.Object:
+    return join_render_mesh(build_armsmaster_parts())
 
 
 def mesh_metrics(obj: bpy.types.Object) -> dict:
@@ -494,4 +498,5 @@ def main() -> dict:
     }
 
 
-__result__ = main()
+if not globals().get("EMBERMERE_IMPORT_ONLY", False):
+    __result__ = main()

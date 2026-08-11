@@ -65,11 +65,21 @@ transaction model are documented in
 [VENDOR_SERVICE_CONTRACT.md](VENDOR_SERVICE_CONTRACT.md).
 
 `Embermere_FenwatchArmsmaster_Trainer_01` is the second saved wrapper
-instance. It uses `SM_EmbermereFenwatchArmsmaster_01` at
-`(-1320, -920, 0)`, yaw `100`, unit scale. Blender authors `2,824` triangles;
-classic FBX import removes 24 degenerate triangles and saves a `2,800`-triangle
-Unreal mesh with `154.5 x 87.0 x 228.0` cm bounds, six project-owned
-materials, grounded feet, and no collision.
+instance. Its preferred lane now uses
+`SK_EmbermereFenwatchArmsmaster_01` and
+`A_EmbermereFenwatchArmsmaster_Idle` at `(-1320, -920, 0)`, yaw `100`, unit
+scale. Blender authors `2,824` triangles, six project-owned materials, nine
+named bones with rigid one-bone weights, and a 3.2-second Idle. Classic FBX
+adds one imported Armature root, so Unreal's accepted reference skeleton has
+ten bones while retaining all nine authored names and the authored `root`
+beneath that imported root. The mesh retains `154.5 x 87.0 x 228.0` cm bounds,
+grounded feet, and no collision.
+
+`SM_EmbermereFenwatchArmsmaster_01` remains the exact reversible static
+fallback. Activating the skeletal lane clears the inactive static component's
+render mesh but does not erase the wrapper's soft fallback reference. This
+distinction lets the current art switch lanes without changing its world
+transform or requiring the service actor to understand presentation state.
 
 The separate `Embermere_FenwatchArmsmaster_Service_01` owns the interaction
 marker and trainer component. It reads `DA_FenwatchArmsmasterOfferings` and
@@ -105,22 +115,28 @@ The current focused tests are:
 - `Embermere.NPC.SkeletalIdlePresentation`
 - `Embermere.NPC.FenwatchQuartermasterPresentation`
 - `Embermere.NPC.FenwatchArmsmasterPresentation`
+- `Embermere.NPC.FenwatchArmsmasterIdlePresentation`
 - `Embermere.NPC.FenwatchKeeperPresentation`
 - `Embermere.Vendor.ServiceContract`
 - `Embermere.Vendor.FenwatchStockData`
 - `Embermere.Trainer.ServiceContract`
 - `Embermere.Trainer.FenwatchOfferingsData`
 
-## Next Step
+## Production Skeletal Lane
 
-The static-to-skeletal Idle lane is now proven with the real project-owned
-Marsh Prowler rig and animation. Fresh automation validates the exact asset,
-loop, rate, transform, collision, and ownership contract; a PIE-only swap
-proved playback advancing from `0.0` to `1.4153` seconds at `0.75x` without
-altering the saved quartermaster.
+The 2026-08-11 armsmaster pass is the first persisted production NPC on the
+skeletal lane. Fresh-process validation locks the exact skeletal mesh,
+Skeleton, 3.2-second Idle, material order, bounds, wrapper transform, loop/rate,
+static fallback, and separate trainer service. Native automation also rejects
+collision or gameplay authority on the presentation actor.
 
-Keep the accepted quartermaster and armsmaster static until matching rigged art
-exists. The next bounded use of this boundary can give one of them a dedicated
-project-owned skeleton and Idle clip, but the service actors must remain
-unchanged. Any future trainer class restrictions, skill unlocks, or finite
-lesson state belong in the data/service/persistence lanes, never the wrapper.
+Clean PIE then supplied the runtime gate that package inspection cannot: the
+single-node player remained `playing=true` while position advanced from
+`0.193888` to `1.670905` seconds. The visual remained grounded and readable
+beside the practice dummy, and initialized-world traces kept the training-yard
+route clear. The quartermaster remains static.
+
+Future Mara, vendor, trainer, or ambient-rig upgrades should reuse this exact
+contract. Any class restriction, skill unlock, finite lesson, stock rule, quest
+state, or persistence field still belongs in its data/service owner, never in
+the wrapper.

@@ -9,8 +9,8 @@ Embermere does not have final high-fantasy art assets installed yet. The current
 - We have a first local environment pass using imported Epic/Fab packs plus a
   project-owned rigged starter creature, terrain material, icons, original
   prop/ground-cover family, one open-sided Fenwatch shelter, and Mara's
-  grounded Stylized Classic keeper plus matching quartermaster and armsmaster
-  presentations.
+  grounded Stylized Classic keeper plus matching quartermaster and rigged,
+  Idle-animated armsmaster presentations.
   The quartermaster now has a separate project-owned vendor service and stock
   data asset; the armsmaster has a separate trainer service and offerings data
   asset. A project-owned practice dummy now gives that service cluster a
@@ -68,7 +68,8 @@ First local placement pass:
   transform, tags, and ownership separation.
   `Scripts/validate_fenwatch_trainer_unreal.py` independently locks the
   co-located art-free trainer service, one Combat Drills offering, imported
-  armsmaster mesh, transform, tags, and ownership separation.
+  armsmaster skeletal mesh/Skeleton/Idle, reversible static fallback,
+  transform, tags, and ownership separation.
   `Scripts/validate_fenwatch_practice_dummy_unreal.py` locks the project-owned
   target's dimensions, topology, five shared materials, two authored support/
   core collision boxes, exact target-facing transform, and replacement of the
@@ -130,10 +131,10 @@ For the first import pass, prefer a tiny, reversible slice over a broad art dump
 3. Extend the accepted Fenwatch shelter into a cohesive Stylized Classic village
    family. Mara, the quartermaster, and the armsmaster now have project-owned
    presentations, the training yard has its first project-owned dummy, and the
-   latter two NPCs use separate bounded service actors. The next art step can
-   give the accepted armsmaster wrapper dedicated rigged/Idle art without
-   coupling art to service rules, then extend the yard or settlement only when
-   the added composition remains useful.
+   latter two NPCs use separate bounded service actors. The armsmaster wrapper
+   now has accepted dedicated rigged/Idle art without coupling art to service
+   rules; extend another NPC, the yard, or the settlement only when the added
+   composition remains useful.
 4. Pick one simple UI/icon or VFX candidate only after the environment pass proves scale, collision, and performance are healthy.
 5. Record future pack names, Fab URLs, licenses, install dates, and caveats in this file before committing map references.
 

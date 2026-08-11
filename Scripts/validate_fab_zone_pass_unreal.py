@@ -49,6 +49,14 @@ FENWATCH_ARMSMASTER_PATH = (
     "/Game/Art/Embermere/Characters/NPCs/FenwatchArmsmaster/"
     "SM_EmbermereFenwatchArmsmaster_01.SM_EmbermereFenwatchArmsmaster_01"
 )
+FENWATCH_ARMSMASTER_SKELETAL_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchArmsmaster/"
+    "SK_EmbermereFenwatchArmsmaster_01.SK_EmbermereFenwatchArmsmaster_01"
+)
+FENWATCH_ARMSMASTER_IDLE_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchArmsmaster/Animations/"
+    "A_EmbermereFenwatchArmsmaster_Idle.A_EmbermereFenwatchArmsmaster_Idle"
+)
 FENWATCH_ARMSMASTER_SKIN_PATH = (
     "/Game/Art/Embermere/Characters/NPCs/FenwatchArmsmaster/"
     "M_FenwatchArmsmasterSkin.M_FenwatchArmsmasterSkin"
@@ -747,28 +755,75 @@ def main():
             sorted(armsmaster_material_paths),
         ))
 
+    armsmaster_skeletal_mesh = unreal.EditorAssetLibrary.load_asset(
+        FENWATCH_ARMSMASTER_SKELETAL_PATH
+    )
+    armsmaster_idle = unreal.EditorAssetLibrary.load_asset(
+        FENWATCH_ARMSMASTER_IDLE_PATH
+    )
+    if not armsmaster_skeletal_mesh or not isinstance(
+        armsmaster_skeletal_mesh,
+        unreal.SkeletalMesh,
+    ):
+        fail("missing rigged Fenwatch armsmaster mesh {}".format(
+            FENWATCH_ARMSMASTER_SKELETAL_PATH,
+        ))
+    if not armsmaster_idle or not isinstance(armsmaster_idle, unreal.AnimSequence):
+        fail("missing Fenwatch armsmaster Idle {}".format(
+            FENWATCH_ARMSMASTER_IDLE_PATH,
+        ))
+    if (
+        armsmaster_idle.get_editor_property("skeleton")
+        != armsmaster_skeletal_mesh.get_editor_property("skeleton")
+    ):
+        fail("Fenwatch armsmaster mesh and Idle must share one Skeleton")
+
     armsmaster = actors_by_label[FENWATCH_ARMSMASTER_LABEL]
     if armsmaster.get_class().get_name() != "EmbermereNpcPresentationActor":
         fail("{} must use the reusable NPC presentation wrapper, found {}".format(
             FENWATCH_ARMSMASTER_LABEL,
             armsmaster.get_class().get_name(),
         ))
-    armsmaster_component = armsmaster.get_component_by_class(unreal.StaticMeshComponent)
-    armsmaster_actor_mesh = (
-        armsmaster_component.get_editor_property("static_mesh")
-        if armsmaster_component
+    armsmaster_static_component = armsmaster.get_component_by_class(
+        unreal.StaticMeshComponent
+    )
+    armsmaster_actor_static_mesh = (
+        armsmaster_static_component.get_editor_property("static_mesh")
+        if armsmaster_static_component
         else None
     )
-    armsmaster_actor_mesh_path = (
-        armsmaster_actor_mesh.get_path_name()
-        if armsmaster_actor_mesh
+    armsmaster_actor_static_path = (
+        armsmaster_actor_static_mesh.get_path_name()
+        if armsmaster_actor_static_mesh
         else "None"
     )
-    if armsmaster_actor_mesh_path != FENWATCH_ARMSMASTER_PATH:
-        fail("{} must use {}, found {}".format(
+    if not armsmaster_static_component:
+        fail("{} is missing its reusable static fallback component".format(
             FENWATCH_ARMSMASTER_LABEL,
-            FENWATCH_ARMSMASTER_PATH,
-            armsmaster_actor_mesh_path,
+        ))
+    if armsmaster_actor_static_mesh:
+        fail("{} inactive static component must be cleared while rigged art is active, found {}".format(
+            FENWATCH_ARMSMASTER_LABEL,
+            armsmaster_actor_static_path,
+        ))
+    armsmaster_skeletal_component = armsmaster.get_component_by_class(
+        unreal.SkeletalMeshComponent
+    )
+    armsmaster_actor_skeletal_mesh = (
+        armsmaster_skeletal_component.get_editor_property("skeletal_mesh_asset")
+        if armsmaster_skeletal_component
+        else None
+    )
+    armsmaster_actor_skeletal_path = (
+        armsmaster_actor_skeletal_mesh.get_path_name()
+        if armsmaster_actor_skeletal_mesh
+        else "None"
+    )
+    if armsmaster_actor_skeletal_path != FENWATCH_ARMSMASTER_SKELETAL_PATH:
+        fail("{} must use rigged mesh {}, found {}".format(
+            FENWATCH_ARMSMASTER_LABEL,
+            FENWATCH_ARMSMASTER_SKELETAL_PATH,
+            armsmaster_actor_skeletal_path,
         ))
     armsmaster_location = armsmaster.get_actor_location()
     armsmaster_rotation = armsmaster.get_actor_rotation()
@@ -790,8 +845,35 @@ def main():
             armsmaster_rotation,
             armsmaster_scale,
         ))
-    if armsmaster.get_resolved_visual_mode() != unreal.EmbermereNpcVisualMode.STATIC_MESH:
-        fail("Fenwatch armsmaster must currently resolve through the static visual lane")
+    if armsmaster.get_editor_property("static_visual_mesh") != armsmaster_mesh:
+        fail("Fenwatch armsmaster saved static fallback reference drifted")
+    if (
+        armsmaster.get_editor_property("skeletal_visual_mesh")
+        != armsmaster_skeletal_mesh
+    ):
+        fail("Fenwatch armsmaster saved rigged mesh reference drifted")
+    if armsmaster.get_editor_property("idle_animation") != armsmaster_idle:
+        fail("Fenwatch armsmaster saved Idle reference drifted")
+    if not bool(armsmaster.get_editor_property("prefer_skeletal_visual")):
+        fail("Fenwatch armsmaster must prefer the rigged visual lane")
+    if not bool(armsmaster.get_editor_property("loop_idle_animation")):
+        fail("Fenwatch armsmaster Idle must remain looping")
+    if not nearly_equal(
+        float(armsmaster.get_editor_property("idle_animation_play_rate")),
+        1.0,
+        0.001,
+    ):
+        fail("Fenwatch armsmaster Idle play rate drifted")
+    if (
+        armsmaster.get_resolved_visual_mode()
+        != unreal.EmbermereNpcVisualMode.SKELETAL_MESH
+    ):
+        fail("Fenwatch armsmaster must resolve through the rigged visual lane")
+    if (
+        armsmaster.get_resolved_animation_mode()
+        != unreal.EmbermereNpcAnimationMode.SINGLE_NODE_IDLE
+    ):
+        fail("Fenwatch armsmaster must resolve the single-node Idle lane")
     if not armsmaster.is_presentation_collision_disabled():
         fail("Fenwatch armsmaster visual lanes must remain non-colliding")
     if armsmaster.get_component_by_class(unreal.EmbermereInteractableComponent):

@@ -1,0 +1,49 @@
+{
+  "dimensions_cm": [
+    154.5,
+    87.0,
+    228.0
+  ],
+  "triangles": 2824,
+  "materials": [
+    "M_EmberLampIron",
+    "M_EmbermereTimber",
+    "M_Waystone",
+    "M_WaystoneMoss",
+    "M_FenwatchArmsmasterSkin",
+    "M_WaystoneEmber"
+  ],
+  "uv_channels": 1,
+  "non_manifold_edges": 0,
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "origin_z_cm": 0.0,
+  "armature_scale": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "bones": [
+    "root",
+    "pelvis",
+    "spine",
+    "neck",
+    "head",
+    "upper_arm_l",
+    "forearm_l",
+    "upper_arm_r",
+    "forearm_r"
+  ],
+  "unweighted_vertices": 0,
+  "multiply_weighted_vertices": 0,
+  "action": "A_EmbermereFenwatchArmsmaster_Idle",
+  "action_frames": [
+    1,
+    97
+  ],
+  "fps": 30,
+  "duration_seconds": 3.2
+}

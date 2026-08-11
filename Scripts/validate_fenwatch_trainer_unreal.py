@@ -11,6 +11,14 @@ MESH_PATH = (
     "/Game/Art/Embermere/Characters/NPCs/FenwatchArmsmaster/"
     "SM_EmbermereFenwatchArmsmaster_01"
 )
+SKELETAL_MESH_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchArmsmaster/"
+    "SK_EmbermereFenwatchArmsmaster_01"
+)
+IDLE_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchArmsmaster/Animations/"
+    "A_EmbermereFenwatchArmsmaster_Idle"
+)
 SERVICE_LABEL = "Embermere_FenwatchArmsmaster_Service_01"
 PRESENTATION_LABEL = "Embermere_FenwatchArmsmaster_Trainer_01"
 EXPECTED_LOCATION = unreal.Vector(-1320.0, -920.0, 0.0)
@@ -55,6 +63,14 @@ def main():
         fail("armsmaster mesh is missing")
     if mesh.get_num_triangles(0) != 2800:
         fail("armsmaster triangle count drifted")
+    skeletal_mesh = unreal.EditorAssetLibrary.load_asset(SKELETAL_MESH_PATH)
+    idle = unreal.EditorAssetLibrary.load_asset(IDLE_PATH)
+    if not skeletal_mesh or not isinstance(skeletal_mesh, unreal.SkeletalMesh):
+        fail("rigged armsmaster mesh is missing")
+    if not idle or not isinstance(idle, unreal.AnimSequence):
+        fail("rigged armsmaster Idle is missing")
+    if idle.get_editor_property("skeleton") != skeletal_mesh.get_editor_property("skeleton"):
+        fail("rigged armsmaster mesh and Idle do not share one Skeleton")
 
     unreal.EditorLevelLibrary.load_level(LEVEL_PATH)
     actor_subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
@@ -111,13 +127,21 @@ def main():
         fail("presentation unexpectedly owns trainer behavior")
     if presentation.get_editor_property("static_visual_mesh") != mesh:
         fail("presentation does not reference the reviewed armsmaster mesh")
+    if presentation.get_editor_property("skeletal_visual_mesh") != skeletal_mesh:
+        fail("presentation does not reference the reviewed rigged armsmaster mesh")
+    if presentation.get_editor_property("idle_animation") != idle:
+        fail("presentation does not reference the reviewed armsmaster Idle")
+    if not bool(presentation.get_editor_property("prefer_skeletal_visual")):
+        fail("presentation no longer prefers the rigged armsmaster lane")
     if not presentation.is_presentation_collision_disabled():
         fail("presentation collision is enabled")
-    if presentation.get_resolved_visual_mode() != unreal.EmbermereNpcVisualMode.STATIC_MESH:
-        fail("presentation no longer resolves through the static lane")
+    if presentation.get_resolved_visual_mode() != unreal.EmbermereNpcVisualMode.SKELETAL_MESH:
+        fail("presentation no longer resolves through the skeletal lane")
+    if presentation.get_resolved_animation_mode() != unreal.EmbermereNpcAnimationMode.SINGLE_NODE_IDLE:
+        fail("presentation no longer resolves the single-node Idle lane")
 
     unreal.log(
-        "Embermere Fenwatch trainer validation passed: one data-driven Combat Drills offering, one saved art-free service, one grounded presentation-only armsmaster, and trainer/art ownership separation intact"
+        "Embermere Fenwatch trainer validation passed: one data-driven Combat Drills offering, one saved art-free service, one grounded rigged Idle presentation with static fallback, and trainer/art ownership separation intact"
     )
 
 

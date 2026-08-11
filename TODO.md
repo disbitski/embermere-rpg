@@ -6,14 +6,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-09 no-hot-reload Fenwatch trainer
-  module plus the accepted 2026-08-10 practice-dummy/map package, armsmaster,
-  offering, Chronicle, vendor, item, and quest packages. Restart if the editor
-  predates that work or test discovery exposes fewer than 48 Embermere tests.
+- Confirm Unreal is running the 2026-08-11 no-hot-reload rigged Fenwatch
+  armsmaster module plus the accepted skeletal mesh, Skeleton, Idle, practice-
+  dummy/map, offering, Chronicle, vendor, item, and quest packages. Restart if
+  the editor predates that work or test discovery exposes fewer than 49
+  Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 48 tests, especially
+- Discover and run all 49 tests, especially
   `Embermere.Persistence.RoundTrip`,
   `Embermere.Persistence.ValidationRollback`,
   `Embermere.Persistence.SlotInspection`,
@@ -28,13 +29,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.Trainer.ServiceContract`,
   `Embermere.Trainer.FenwatchOfferingsData`,
   `Embermere.NPC.FenwatchArmsmasterPresentation`,
+  `Embermere.NPC.FenwatchArmsmasterIdlePresentation`,
   `Embermere.UI.TrainerPanel`,
   `Embermere.NPC.SkeletalIdlePresentation`, the three established NPC
   presentation tests, Prowler/world presentation, player recovery, and
-  inventory transaction suites. The authoritative 2026-08-10 run passed
-  48/48 in the live editor; the no-hot-reload Mac build and fresh-process
+  inventory transaction suites. The authoritative 2026-08-11 run passed
+  49/49; the no-hot-reload Mac build and fresh-process armsmaster-rig,
   practice-dummy, saved-map, UI-art, Fenwatch-trainer, vendor-economy, and
-  initialized-world route validators also passed.
+  initialized-world route validators also passed. The current interactive
+  editor independently discovers all 49 tests.
 - Recheck the accepted Fenwatch vendor loop through normal `F` interaction:
   - presentation actor `Embermere_FenwatchQuartermaster_Vendor_01` remains
     art-only at `(-1530, -1190, 0)`, yaw `100`, unit scale and `NoCollision`;
@@ -186,12 +189,17 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   interchangeable static/skeletal visuals and one shared transform; it must
   remain free of interaction, vendor, trainer, quest, and dialogue authority.
 - Inspect `Embermere_FenwatchArmsmaster_Trainer_01` beside the Fenwatch service
-  cluster. Its Blender source is a grounded `154.5 x 87.0 x 228.0` cm,
-  2,824-triangle model with six project-owned materials; classic FBX import
-  removes 24 degenerate triangles and persists a 2,800-triangle Unreal mesh.
-  Retain `(-1320, -920, 0)`, yaw `100`, unit scale, `NoCollision`, readable
-  shield/staff silhouette, and clear route/marker sightlines. The co-located
-  trainer service owns interaction and progression; the armsmaster owns none.
+  cluster. Its deterministic rigged Blender source is a grounded
+  `154.5 x 87.0 x 228.0` cm, 2,824-triangle model with six project-owned
+  materials, nine authored bones, rigid one-bone weights, and a 3.2-second
+  Idle. Classic FBX adds one imported Armature root, so the saved Unreal
+  reference skeleton deliberately has ten bones while retaining all nine
+  authored names and the authored `root` beneath that imported root. Retain
+  `(-1320, -920, 0)`, yaw `100`, unit scale, `NoCollision`, readable shield/
+  staff silhouette, clear route/marker sightlines, and the exact project-owned
+  Idle in `AnimationSingleNode` mode. The original static mesh remains the
+  reversible fallback. The co-located trainer service owns interaction and
+  progression; the armsmaster owns none.
 - Inspect `Embermere_FenwatchPracticeDummy_TrainingYard_01` at
   `(-1120, -1120, 0)`, yaw `45`. Its `252.0 x 100.879 x 245.0` cm,
   2,572-triangle silhouette reuses the five shared stone, moss, timber, iron,
@@ -201,13 +209,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `FabPass_Village_Crate_C` absent. It is world art, not trainer authority.
 - Retain the accepted wrapper Idle lane. Anim Blueprint art takes precedence;
   otherwise a skeleton-compatible soft Idle asset uses `AnimationSingleNode`
-  with data-driven loop and play rate. The real Prowler fixture passed native
-  asset/transform/collision checks, and a PIE-only quartermaster swap advanced
-  from `0.0` to `1.4153` seconds at `0.75x` with `playing=true` and
-  `NoCollision`. Stopping PIE discarded that diagnostic; the saved
-  quartermaster remains static with no animation reference. Do not accept a
-  future NPC animation from serialized `AnimationData` alone: prove the live
-  position advances.
+  with data-driven loop and play rate. The production armsmaster is the first
+  saved NPC to use that rigged lane: fresh package validation locks its exact
+  mesh, Skeleton, 3.2-second Idle, loop/rate, transform, static fallback, and
+  absence of collision or service authority. Clean PIE kept `playing=true`
+  while the animation position advanced from `0.193888` to `1.670905` seconds.
+  The quartermaster remains static. Do not accept future NPC animation from
+  serialized `AnimationData` alone: prove the live position advances.
 - Retain the accepted HUD, effects, inventory, and equipment baseline:
   fixed timed-status cells, four-class ability art and semantics, the
   `700x330` paper-doll inventory, Recruit Pack bag/Back transactions, Marsh
@@ -228,17 +236,18 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. in clean-restart PIE, recheck the accepted practice dummy from the normal
-     village route: grounded base, front target facing the armsmaster, solid
-     base/core, clear arms, open PlayerStart route, and readable spacing;
-  2. begin a dedicated rigged Idle presentation for the armsmaster through the
-     proven static-to-skeletal wrapper lane without moving trainer authority,
-     offering data, or interaction into art;
+  1. in clean-restart PIE, retain the accepted production armsmaster Idle from
+     the normal village route: grounded feet, planted staff, restrained motion,
+     readable shield/staff silhouette, live advancing clock, clear marker and
+     path, and unchanged trainer interaction;
+  2. rerun the trainer-to-Chronicle `40/0 -> 30/25` save, fresh-world load, and
+     second idempotent load with the rigged presentation active, proving the art
+     upgrade cannot alter service or persistence state;
   3. retain both accepted Chronicle proofs, including trainer-produced
      `30`-copper/`25`-XP state, slot inspection, confirmation, rejection,
      panel handoff, and two-session idempotence contracts; keep console commands
      as debug fallbacks and defer autosave, deletion, profiles, and migrations;
-  4. retain the accepted keeper/quartermaster/armsmaster/service/dummy scale,
+  4. retain the accepted keeper/quartermaster/rigged-armsmaster/service/dummy scale,
      marker clearance, training-yard composition, panel layout, and route;
   5. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete issue;
@@ -247,9 +256,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-09
-  Fenwatch trainer module and accepted armsmaster/offering/Chronicle/item/
-  quest/stock packages. Current code passes all 48 tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-08-11
+  rigged Fenwatch armsmaster module and accepted skeletal-mesh/Skeleton/Idle/
+  offering/Chronicle/item/quest/stock packages. Current code passes all 49
+  tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -287,11 +297,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - press `F` in range and run the vendor acceptance sequence from Start Here,
     including both successful buys, sold-out/insufficient-funds states, chat,
     item inventory changes, fixed panel copy, and close/input restoration.
-  - inspect the Fenwatch armsmaster for grounded feet, readable shield/staff
-    silhouette, no collision, clear route separation, and its nearby service
-    marker; press `F` and run the trainer acceptance sequence from Start Here,
-    including `40 -> 30` copper, `0 -> 25` XP, insufficient-funds rejection,
-    fixed panel bounds, chat, and Inventory/Chronicle/close handoffs.
+  - inspect the rigged Fenwatch armsmaster for grounded feet, planted staff,
+    restrained looping Idle, readable shield/staff silhouette, no collision,
+    clear route separation, and its nearby service marker; press `F` and run
+    the trainer acceptance sequence from Start Here, including `40 -> 30`
+    copper, `0 -> 25` XP, insufficient-funds rejection, fixed panel bounds,
+    chat, and Inventory/Chronicle/close handoffs.
   - inspect the Fenwatch practice dummy at `(-1120, -1120, 0)`, yaw `45`, for
     grounded contact, a target face aimed toward the armsmaster, five shared
     materials, a solid base and torso/core, clear outstretched arms, open route
@@ -325,6 +336,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.NPC.PresentationContract`
   - `Embermere.NPC.SkeletalIdlePresentation`
   - `Embermere.NPC.FenwatchArmsmasterPresentation`
+  - `Embermere.NPC.FenwatchArmsmasterIdlePresentation`
   - `Embermere.Persistence.RoundTrip`
   - `Embermere.Persistence.SlotInspection`
   - `Embermere.Persistence.ValidationRollback`
@@ -478,8 +490,9 @@ Embermere has a working first-pass starter slice:
   art-free interactable service actor, data-driven stock/prices, player copper,
   atomic buy/rollback rules, finite/unlimited stock, native fixed vendor UI,
   inventory/chat feedback, and saved-package validation;
-- a separated Fenwatch trainer vertical slice with an art-only original
-  armsmaster, art-free interactable service actor, data-driven offerings,
+- a separated Fenwatch trainer vertical slice with an art-only original rigged
+  and Idle-animated armsmaster plus reversible static fallback, an art-free
+  interactable service actor, data-driven offerings,
   level/currency/XP eligibility checks, rollback-safe progression, a fixed
   native training panel, chat feedback, saved-package validation, and an
   accepted two-world Chronicle proof for trainer-produced `30` copper/`25` XP;
@@ -549,8 +562,8 @@ Embermere has a working first-pass starter slice:
   economy values, service ownership, saved stock, native vendor-panel behavior,
   persistence round-trip/rollback rules, and construction-safe plus live NPC
   Idle presentation, plus trainer transactions, service ownership, offering
-  data, armsmaster presentation, and native trainer-panel behavior, for 48
-  authoritative tests.
+  data, static and rigged armsmaster presentation, and native trainer-panel
+  behavior, for 49 authoritative tests.
 
 ## How Far We Have To Go
 
@@ -594,17 +607,16 @@ idempotent load without adding trainer-specific schema.
 
 ## Next Work
 
-- Recheck the accepted Fenwatch practice dummy in clean-restart PIE:
-  - inspect its grounded target-facing composition from the armsmaster and
-    PlayerStart approaches;
-  - prove the authored base/core collision and clear visual-only arms while
-    preserving the open training-yard and village routes;
-  - retain the exact `(-1120, -1120, 0)`, yaw `45`, two-collider, five-material
-    contract and keep the replaced generic crate absent.
-- Begin a dedicated rigged Idle armsmaster presentation through the accepted
-  NPC wrapper lane. Keep all progression, offering, marker, and interaction
-  authority on the separate trainer service, and require runtime animation-
-  clock advancement before accepting the saved skeletal lane.
+- Retain the accepted rigged Fenwatch armsmaster in clean-restart PIE:
+  - inspect grounded feet, planted staff, shield silhouette, restrained Idle,
+    clear service marker, and open training-yard/village routes;
+  - prove the exact 3.2-second Idle remains playing and advances while the
+    wrapper remains `NoCollision` and the static fallback remains available;
+  - run the normal trainer and Chronicle flows to prove the art upgrade cannot
+    mutate progression, interaction, or persistence authority.
+- Keep the accepted practice-dummy contract at `(-1120, -1120, 0)`, yaw `45`,
+  with its two colliders, five materials, target-facing composition, clear
+  arms, and absent generic crate.
 - Retain the accepted trainer Chronicle proof without expanding save version 1:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
@@ -1324,6 +1336,20 @@ idempotent load without adding trainer-specific schema.
   `19` original), trainer, vendor-economy, and UI-art validators emitted their
   success markers with no `LogPython: Error`; initialized-world native traces
   proved the dummy base/core solid and both arms clear.
+- 2026-08-11: upgraded the accepted armsmaster wrapper to its own deterministic
+  skeletal lane while preserving the original static mesh as a reversible
+  fallback. The source retains 2,824 triangles, six materials, grounded bounds,
+  and adds nine authored bones with complete rigid weights plus a 3.2-second
+  Idle.
+- Classic FBX adds one imported Armature root, so Unreal's accepted reference
+  skeleton has ten bones while retaining all nine authored names. The importer
+  now replaces packages in place, reuses the valid Skeleton, assigns material
+  structs through Unreal Python's supported API, and saves every generated
+  package explicitly.
+- The no-hot-reload build and all 49 tests passed. Fresh rig, trainer, zone,
+  practice-dummy, UI-art, and initialized-world route validators passed; clean
+  PIE kept the Idle `playing=true` while its clock advanced from `0.193888` to
+  `1.670905` seconds with the service boundary and route intact.
 
 ## Asset Hunt
 

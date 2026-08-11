@@ -107,11 +107,12 @@ The repo currently contains the C++ gameplay scaffold for:
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved
   instances, and asset-agnostic runtime presentation
-- a corrected 57-actor local Fab/Epic art pass plus 18 placements from
+- a corrected 56-actor local Fab/Epic art pass plus 19 placements from
   Embermere's original Blender-built waystone, ember-lamp, road-signpost,
   road-gate, boundary-fence, rune-topped boundary-stone, supply-chest, and
   Fenwatch shelter, Mara's Fenwatch keeper, the Fenwatch quartermaster and
-  armsmaster, plus four visual-only marsh-reed clusters over the starter village, road,
+  rigged armsmaster, practice dummy, plus four visual-only marsh-reed clusters
+  over the starter village, road,
   wilderness pocket, and ruin
   landmark, with grounded rotations,
   deliberate collision, a navigable PlayerStart/Mara route, a readable gate
@@ -154,7 +155,8 @@ family now includes a project-owned stylized waystone shrine, matching ember
 lamps, a timber road signpost, a traversable road gate, low boundary fences,
 rune-topped end stones, a route-facing village supply chest, an open-sided
 Fenwatch shelter, Mara's grounded Stylized Classic Fenwatch keeper,
-the Fenwatch quartermaster and armsmaster, visual-only marsh reeds, and the fully rigged Marsh
+the Fenwatch quartermaster, rigged armsmaster, practice dummy, visual-only
+marsh reeds, and the fully rigged Marsh
 Prowler, each built from reviewed scripts,
 validated in Blender, imported through an explicit Unreal contract, and placed
 as a swappable project-owned layer over the local Fab environment.
@@ -247,10 +249,13 @@ debug fallbacks. Version 1 persists copper, XP, exact item/equipment identity,
 completed quest, and finite merchant stock across fresh PIE worlds; repeated
 loads do not duplicate rewards or bonuses.
 
-The NPC wrapper's skeletal/Idle lane is now proven with the real Marsh Prowler
-rig, exact animation data, and measured live PIE playback. The matching
-Fenwatch armsmaster now pairs an art-only `2,800`-triangle Unreal presentation
-with a separate trainer service. Its first data-driven Combat Drills action
+The NPC wrapper's skeletal/Idle lane is now in production on the matching
+Fenwatch armsmaster. Its deterministic source has `2,824` triangles, nine
+authored bones, six materials, and a 3.2-second Idle; classic FBX adds one
+reviewed Armature root in Unreal, and live PIE proved the saved animation clock
+advancing. The original static mesh remains a reversible fallback, while the
+separate trainer service retains all progression and interaction authority.
+Its first data-driven Combat Drills action
 atomically converts `10` copper into `25` XP through a fixed native panel,
 without moving progression or interaction authority into the model.
 Autosave, deletion, multiple profiles, migrations, and position persistence

@@ -62,7 +62,10 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     feet must contact terrain; it must remain `NoCollision`, carry no
     interaction or progression component, and preserve the chest, Mara, and
     PlayerStart sightlines. The saved presentation and separate service use
-    `(-1320, -920, 0)`, yaw `100`, and unit scale.
+    `(-1320, -920, 0)`, yaw `100`, and unit scale. The preferred visual lane
+    uses `SK_EmbermereFenwatchArmsmaster_01` with the exact 3.2-second
+    `A_EmbermereFenwatchArmsmaster_Idle`; the reviewed static mesh remains its
+    fallback.
 14. Inspect `Embermere_FenwatchPracticeDummy_TrainingYard_01` at
     `(-1120, -1120, 0)`, yaw `45`. Its timber target face should point toward
     the armsmaster, its stone/moss footing should contact terrain, and its iron
@@ -89,29 +92,31 @@ interaction, dialogue, and quest state.
 
 ## NPC Skeletal Idle Acceptance
 
-Use this focused lane when upgrading wrapper-based NPC art. It is an engineering
-acceptance check, not a saved quartermaster art change.
+Use this focused lane when accepting wrapper-based NPC art. The quartermaster
+remains the static control; the Fenwatch armsmaster is the first saved
+production fixture.
 
 1. Start clean PIE on the current no-hot-reload module.
-2. On the PIE-only copy of a presentation wrapper, assign a real skeletal mesh,
-   a skeleton-compatible Idle animation, looping intent, and a deliberate play
-   rate, then call `RefreshPresentation()`.
-3. Confirm the skeletal lane is visible, the static lane is hidden, the exact
-   mesh and Idle asset resolve, mode is `AnimationSingleNode`, and collision
-   remains `NoCollision`.
-4. Confirm runtime playback reports `playing=true` and the authored play rate.
-   Sample animation position twice far enough apart to prove it advances.
-   Saved `AnimationData` by itself is not playback proof.
-5. Confirm the wrapper still has no quest, dialogue, vendor, trainer, or
-   interaction authority.
-6. Stop PIE and rerun the fresh Fenwatch validator. The accepted saved
-   quartermaster must still use its static lane with no Idle or Anim Blueprint
-   reference.
+2. Confirm the armsmaster's skeletal lane is visible, its static component is
+   inactive, the exact mesh and Idle resolve, mode is `AnimationSingleNode`,
+   and collision remains `NoCollision`.
+3. Confirm runtime playback reports `playing=true` at the authored rate. Sample
+   animation position twice far enough apart to prove it advances. Saved
+   `AnimationData` by itself is not playback proof.
+4. Inspect grounded feet, planted staff, restrained torso/head/shield-hand
+   motion, material readability, service-marker clearance, and route spacing
+   from the normal PlayerStart and training-yard cameras.
+5. Press `F` and complete the trainer flow. The separate service must still own
+   the marker, offering, wallet/XP mutation, UI, and Chronicle handoff; the
+   wrapper must still own none of them.
+6. Rerun the fresh rig and trainer validators. The wrapper must retain the
+   exact rig/Idle plus its static soft-reference fallback, while the saved
+   quartermaster remains static.
 
-The 2026-08-08 acceptance used the project-owned Marsh Prowler rig and Idle
-sequence as a temporary fixture. Playback advanced from `0.0` to `1.4153`
-seconds at `0.75x`, remained visible and non-colliding, and the diagnostic world
-was discarded on PIE stop.
+The 2026-08-11 acceptance measured the production armsmaster advancing from
+`0.193888` to `1.670905` seconds while remaining `playing=true` and
+`NoCollision`. All 49 tests, fresh package validators, and initialized-world
+route traces passed.
 
 ## Current Play Loop
 

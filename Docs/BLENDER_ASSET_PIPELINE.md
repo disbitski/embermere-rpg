@@ -756,6 +756,50 @@ source triangle count and Unreal's post-import triangle count describe
 different eligible artifacts. Recording and testing both avoids either tool
 silently becoming the only truth.
 
+### Rigged Idle Upgrade
+
+The accepted static armsmaster later became the first persisted production NPC
+on `AEmbermereNpcPresentationActor`'s skeletal lane. The rigged build reuses the
+reviewed source geometry through
+`Scripts/blender/build_embermere_fenwatch_armsmaster_rigged.py` and stores its
+editable source, FBXs, preview, and metrics under
+`ArtSource/Blender/Characters/NPCs/FenwatchArmsmaster/Rigged`.
+
+Verified rig contract:
+
+- the same `154.5 x 87.0 x 228.0` cm grounded bounds and 2,824 source
+  triangles;
+- six existing project-owned materials and one UV channel;
+- nine authored bones: `root`, `pelvis`, `spine`, `neck`, `head`, both upper
+  arms, and both forearms;
+- rigid one-bone weights for every vertex, with no unweighted or multiply
+  weighted vertices;
+- a restrained 97-frame Idle at 30 fps, producing an exact 3.2-second clip;
+- classic FBX's additional Armature root in Unreal, giving the accepted
+  reference skeleton ten bones while preserving all nine authored names.
+
+`Scripts/import_embermere_fenwatch_armsmaster_rigged_unreal.py` imports through
+the classic skeletal `FbxFactory`, explicitly assigns the six material structs,
+saves the SkeletalMesh, Skeleton, and Idle packages, and moves the existing
+wrapper to the skeletal-preferred lane without changing its transform or the
+co-located service. The wrapper retains
+`SM_EmbermereFenwatchArmsmaster_01` as its reversible static fallback.
+
+Two import details became durable rules. `USkeletalMesh.set_material()` is not
+available to Unreal Python, so material interfaces must be assigned through the
+skeletal-material struct array and written back. Also, deleting a SkeletalMesh
+and Skeleton before reimporting them in the same commandlet can leave stale
+UObject references and produce a mesh with no valid Skeleton. Reimport now
+replaces packages in place, reuses the valid saved Skeleton, and rejects an
+existing skeletal mesh whose Skeleton is missing.
+
+Fresh-process validation locks asset paths, bounds, material order, Skeleton,
+Idle duration, wrapper lane, static fallback, collision, transform, and trainer
+ownership. Native automation locks the imported-root hierarchy as well as the
+nine authored bone names. Finally, clean PIE proved the active animation clock
+advancing from `0.193888` to `1.670905` seconds while remaining `playing=true`
+and `NoCollision`. Package eligibility and live motion are separate gates.
+
 The full art/service/progression boundary is documented in
 `Docs/TRAINER_SERVICE_CONTRACT.md`.
 
