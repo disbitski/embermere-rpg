@@ -716,6 +716,45 @@ transactions as a separate art-free gameplay lane documented in
 `Docs/VENDOR_SERVICE_CONTRACT.md`; none of those responsibilities became
 properties of this Blender asset or its presentation actor.
 
+### Rigged Idle Upgrade
+
+The quartermaster later became Embermere's second persisted production NPC on
+the shared skeletal lane. The reviewed rigged builder is
+`Scripts/blender/build_embermere_fenwatch_quartermaster_rigged.py`; editable
+source, mesh/animation FBXs, preview, and metrics live under
+`ArtSource/Blender/Characters/NPCs/FenwatchQuartermaster/Rigged`.
+
+The rig retains the exact static source's grounded
+`120.842 x 93.0 x 217.0` cm bounds, 3,632 triangles, six materials, clean UVs,
+and manifold topology. It adds nine authored semantic bones, complete rigid
+one-bone weights, and a restrained 121-frame Idle at 30 fps for an exact
+4.0-second clip. The merchant's feet stay planted while the spine, head,
+ledger hand, and free hand move subtly. Classic FBX adds one imported Armature
+root in Unreal, so the accepted reference skeleton has ten bones while
+retaining all nine authored names.
+
+`Scripts/import_embermere_fenwatch_quartermaster_rigged_unreal.py` uses classic
+`FbxFactory`, assigns exact skeletal-material structs, saves the SkeletalMesh,
+Skeleton, and Idle, and switches only the art wrapper to skeletal-preferred
+mode. The original `SM_EmbermereFenwatchQuartermaster_01` remains the exact
+static fallback, and the separate vendor service is not modified.
+
+This pass tightened the skeletal import lifecycle. UE 5.8 can route replacement
+of an existing skeletal package through Interchange even when the requested
+factory is classic FBX. Routine reruns therefore load and validate eligible
+classic packages without importing. An intentional source rebuild uses
+`Scripts/cleanup_embermere_fenwatch_quartermaster_rig_unreal.py` in one clean
+Unreal process, creates the packages with classic FBX in a second, then runs
+`Scripts/validate_fenwatch_quartermaster_rig_unreal.py` in a third. Cleanup,
+creation, and authoritative validation are deliberately separate lifecycles.
+
+Fresh-process validation and native automation lock provenance, bounds,
+materials, bone hierarchy, Skeleton compatibility, 4.0-second duration,
+wrapper lane, static fallback, collision, transform, and service separation.
+Clean PIE then proved `playing=true` while the clock advanced from `0.853735`
+to `2.195707` seconds. Package eligibility and live motion remain independent
+acceptance gates.
+
 ## Thirteenth Asset: Fenwatch Armsmaster
 
 `SM_EmbermereFenwatchArmsmaster_01` gives the first trainer service a distinct
@@ -789,9 +828,13 @@ Two import details became durable rules. `USkeletalMesh.set_material()` is not
 available to Unreal Python, so material interfaces must be assigned through the
 skeletal-material struct array and written back. Also, deleting a SkeletalMesh
 and Skeleton before reimporting them in the same commandlet can leave stale
-UObject references and produce a mesh with no valid Skeleton. Reimport now
-replaces packages in place, reuses the valid saved Skeleton, and rejects an
-existing skeletal mesh whose Skeleton is missing.
+UObject references and produce a mesh with no valid Skeleton. The first repair
+replaced packages in place, reused the valid saved Skeleton, and rejected an
+existing skeletal mesh whose Skeleton was missing. The later quartermaster
+pass refined this further: normal reruns validate and preserve eligible classic
+packages, while intentional rebuilds use separate cleanup, fresh creation, and
+fresh validation processes. Replacing an existing package is not a reliable
+way to force classic-FBX provenance in UE 5.8.
 
 Fresh-process validation locks asset paths, bounds, material order, Skeleton,
 Idle duration, wrapper lane, static fallback, collision, transform, and trainer

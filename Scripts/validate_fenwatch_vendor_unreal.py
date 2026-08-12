@@ -12,6 +12,10 @@ SERVICE_LABEL = "Embermere_FenwatchQuartermaster_Service_01"
 PRESENTATION_LABEL = "Embermere_FenwatchQuartermaster_Vendor_01"
 EXPECTED_LOCATION = unreal.Vector(-1530.0, -1190.0, 0.0)
 EXPECTED_YAW = 100.0
+ART_ROOT = "/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster"
+STATIC_PATH = ART_ROOT + "/SM_EmbermereFenwatchQuartermaster_01"
+SKELETAL_PATH = ART_ROOT + "/SK_EmbermereFenwatchQuartermaster_01"
+IDLE_PATH = ART_ROOT + "/Animations/A_EmbermereFenwatchQuartermaster_Idle"
 
 
 def fail(message):
@@ -27,6 +31,18 @@ def actor_label(actor):
 
 
 def main():
+    static_mesh = unreal.EditorAssetLibrary.load_asset(STATIC_PATH)
+    skeletal_mesh = unreal.EditorAssetLibrary.load_asset(SKELETAL_PATH)
+    idle = unreal.EditorAssetLibrary.load_asset(IDLE_PATH)
+    if not static_mesh or not isinstance(static_mesh, unreal.StaticMesh):
+        fail("accepted quartermaster static fallback is missing")
+    if not skeletal_mesh or not isinstance(skeletal_mesh, unreal.SkeletalMesh):
+        fail("rigged quartermaster mesh is missing")
+    if not idle or not isinstance(idle, unreal.AnimSequence):
+        fail("quartermaster Idle is missing")
+    if idle.get_editor_property("skeleton") != skeletal_mesh.get_editor_property("skeleton"):
+        fail("quartermaster mesh and Idle do not share one Skeleton")
+
     stock = unreal.EditorAssetLibrary.load_asset(STOCK_PATH)
     if not stock or not isinstance(stock, unreal.EmbermereVendorStockData):
         fail("stock asset is missing or has the wrong class")
@@ -109,19 +125,35 @@ def main():
         fail("presentation unexpectedly owns interaction")
     if presentation.get_component_by_class(unreal.EmbermereVendorComponent):
         fail("presentation unexpectedly owns vendor behavior")
-    if presentation.get_editor_property("skeletal_visual_mesh"):
-        fail("accepted quartermaster unexpectedly switched to skeletal art")
+    if presentation.get_editor_property("static_visual_mesh") != static_mesh:
+        fail("accepted quartermaster static fallback reference drifted")
+    if presentation.get_editor_property("skeletal_visual_mesh") != skeletal_mesh:
+        fail("quartermaster does not reference the reviewed rigged mesh")
     if presentation.get_editor_property("animation_class"):
-        fail("accepted static quartermaster unexpectedly owns an animation class")
-    if presentation.get_editor_property("idle_animation"):
-        fail("accepted static quartermaster unexpectedly owns an Idle animation")
-    if presentation.get_editor_property("prefer_skeletal_visual"):
-        fail("accepted quartermaster no longer prefers its reviewed static lane")
+        fail("quartermaster unexpectedly owns an animation class")
+    if presentation.get_editor_property("idle_animation") != idle:
+        fail("quartermaster does not reference the reviewed Idle")
+    if not presentation.get_editor_property("prefer_skeletal_visual"):
+        fail("quartermaster no longer prefers its reviewed skeletal lane")
+    if not presentation.get_editor_property("loop_idle_animation"):
+        fail("quartermaster Idle no longer loops")
     if abs(float(presentation.get_editor_property("idle_animation_play_rate")) - 1.0) > 0.001:
-        fail("quartermaster default Idle play rate drifted")
+        fail("quartermaster Idle play rate drifted")
+    if (
+        presentation.get_resolved_visual_mode()
+        != unreal.EmbermereNpcVisualMode.SKELETAL_MESH
+    ):
+        fail("quartermaster does not resolve through the skeletal lane")
+    if (
+        presentation.get_resolved_animation_mode()
+        != unreal.EmbermereNpcAnimationMode.SINGLE_NODE_IDLE
+    ):
+        fail("quartermaster does not resolve single-node Idle")
+    if not presentation.is_presentation_collision_disabled():
+        fail("quartermaster rigged presentation collision is enabled")
 
     unreal.log(
-        "Embermere Fenwatch economy validation passed: stable vendor ID, two data-driven wares and sell values, twenty-copper quest reward, atomic buy/sell/buyback service, one saved art-free service actor, accepted static quartermaster fallback, and presentation/service ownership separation intact"
+        "Embermere Fenwatch economy validation passed: stable vendor ID, two data-driven wares and sell values, twenty-copper quest reward, atomic buy/sell/buyback service, one saved art-free service actor, rigged quartermaster with exact static fallback and looping Idle, and presentation/service ownership separation intact"
     )
 
 

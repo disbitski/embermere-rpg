@@ -1039,7 +1039,7 @@ This preserves the localhost MCP and native Slate boundary, avoids OS-level UI
 injection, and works for initialized-world validators that cannot be accepted
 from a null-render commandlet alone.
 
-## Replace Skeletal Packages In Place During One Import Process
+## Separate Skeletal Cleanup, Creation, And Validation Lifecycles
 
 Deleting a SkeletalMesh and its Skeleton immediately before rebuilding both in
 one Unreal commandlet looks deterministic, but the editor process can still
@@ -1047,7 +1047,7 @@ hold UObject references to the deleted packages. Embermere's first rigged
 armsmaster import reached a half-valid state: the files had been recreated, yet
 the imported mesh no longer exposed a valid Skeleton to the next operation.
 
-The durable importer now treats a valid saved Skeleton as shared state:
+The first durable importer treated a valid saved Skeleton as shared state:
 
 1. List existing generated assets and load the expected Skeleton first.
 2. Reject an existing SkeletalMesh whose Skeleton is unexpectedly missing.
@@ -1055,9 +1055,30 @@ The durable importer now treats a valid saved Skeleton as shared state:
 4. Save the SkeletalMesh, Skeleton, and AnimationSequence packages.
 5. Validate all three from a fresh commandlet before opening PIE.
 
-Use deletion only as a separate cleanup lifecycle, not as the first half of an
-in-process reimport. This also makes reruns idempotent and keeps animation
-packages bound to a stable Skeleton.
+The quartermaster pass exposed another UE 5.8 edge: replacing an existing
+skeletal package could silently attach `InterchangeAssetImportData` even when
+the script supplied a classic `FbxFactory`. An importer cannot prove classic
+provenance merely because it requested that factory.
+
+The stronger lifecycle is now:
+
+1. A routine rerun loads existing assets, rejects bad provenance or missing
+   dependencies, and returns without importing when the complete classic-FBX
+   contract is already eligible.
+2. An intentional source rebuild runs a narrowly scoped cleanup-only script in
+   its own Unreal process.
+3. A second fresh process creates the SkeletalMesh, Skeleton, and animation
+   through classic `FbxFactory`; replacement is disabled because no generated
+   package should exist.
+4. A third fresh commandlet validates package class, classic import data,
+   Skeleton, bone hierarchy, materials, bounds, animation duration, and saved
+   wrapper state.
+5. Live PIE independently proves that the animation clock advances.
+
+Do not combine deletion and creation in one process, and do not use replacement
+as a provenance mechanism. Normal reruns are idempotent because they validate
+eligible assets; rebuilds are deterministic because cleanup, creation, and
+acceptance do not share stale UObject state.
 
 Unreal Python exposed a related API boundary during the same pass:
 `USkeletalMesh.set_material()` is not available. Update each

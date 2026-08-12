@@ -2082,6 +2082,45 @@ Lesson: a reusable architecture becomes real when the second implementation
 uses it without special treatment. Art changed lanes; trainer authority did
 not move.
 
+## 2026-08-12 - The Quartermaster Proved The Rig Pipeline Could Repeat
+
+The armsmaster established Embermere's first production skeletal NPC. Today's
+question was whether the same contract could animate a second service character
+without accidentally moving merchant behavior into its model.
+
+The deterministic Blender build reused the accepted quartermaster parts and
+produced the same grounded `120.842 x 93.0 x 217.0` cm silhouette, 3,632
+triangles, six materials, and clean topology. It added nine authored bones,
+complete rigid one-bone weights, and a restrained 121-frame Idle at 30 fps. The
+exact 4.0-second clip plants the feet while giving the spine, head, ledger hand,
+and free hand enough motion to feel alive. Blender Safe Mode remained intact;
+the reviewed reset ran in a factory-clean process.
+
+The importer revealed a useful UE 5.8 trap. Replacing an existing skeletal
+package could silently attach Interchange import data even when the script
+explicitly supplied `FbxFactory`. The accepted lifecycle is stricter now:
+routine reruns validate and preserve already eligible classic-FBX packages;
+intentional rebuilds run narrow cleanup, fresh classic-FBX creation, and fresh
+validation in three separate Unreal processes. This avoids both stale UObject
+references and importer-provenance drift.
+
+The saved `Embermere_FenwatchQuartermaster_Vendor_01` now prefers the exact
+skeletal mesh and Idle while retaining its original static mesh as a reversible
+fallback. It remains `NoCollision` and owns no interaction, stock, pricing,
+transactions, UI, or persistence. The separate vendor service did not change.
+
+The no-hot-reload build passed and the suite finished 50/50. Fresh
+quartermaster-rig, armsmaster-rig, vendor, trainer, zone, practice-dummy, and
+UI-art validators passed. Initialized-world traces retained the spawn corridor,
+shelter, three gate lanes, solid supply chest and dummy core, and clear dummy
+arms. Clean PIE supplied the final proof: the quartermaster remained
+`playing=true` while its animation position advanced from `0.853735` to
+`2.195707` seconds, grounded beside the chest with the route open.
+
+Lesson: idempotence is not repeatedly asking an importer to do work. It is
+knowing when to validate, when to rebuild, and keeping those lifecycles far
+enough apart that one cannot silently contaminate the next.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

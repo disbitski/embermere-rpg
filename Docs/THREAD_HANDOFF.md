@@ -67,8 +67,8 @@ The project currently includes:
 - a reusable art-only NPC wrapper with static and skeletal lanes, shared
   transforms, soft references, Anim Blueprint precedence, a
   skeleton-compatible single-node Idle lane, and no interaction or service
-  ownership, now used by the saved production rigged Fenwatch armsmaster with
-  a reversible static fallback;
+  ownership, now used by the saved production rigged Fenwatch armsmaster and
+  quartermaster with reversible static fallbacks;
 - a separate Fenwatch vendor vertical slice with an art-free interactable
   service actor, data-driven stock/prices/sell values, earned player copper,
   atomic buy/sell/buyback rollback, fixed native stock UI, and saved ownership
@@ -83,11 +83,12 @@ The project currently includes:
   temporary effects, and position remain intentionally session-only;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
-- 49 passing Unreal automation tests plus fresh-process armsmaster-rig,
-  practice-dummy, trainer, vendor, UI-art/package, and saved-map validators,
-  initialized-live-world route/collision traces, measured live armsmaster Idle
-  advancement, and accepted two-session Chronicle proofs for both the full
-  commerce/quest fixture and trainer-produced progression.
+- 50 passing Unreal automation tests plus fresh-process armsmaster-rig,
+  quartermaster-rig, practice-dummy, trainer, vendor, UI-art/package, and
+  saved-map validators, initialized-live-world route/collision traces,
+  measured live NPC Idle advancement, and accepted two-session Chronicle
+  proofs for both the full commerce/quest fixture and trainer-produced
+  progression.
 
 This is still prototype art. The first black-sky problem is corrected, but the
 scene remains mixed in style and is missing a cohesive fantasy village kit,
@@ -647,8 +648,15 @@ Current automation tests:
 41. `Embermere.Persistence.SlotInspection`
 42. `Embermere.UI.SaveLoadPanel`
 43. `Embermere.NPC.SkeletalIdlePresentation`
+44. `Embermere.NPC.FenwatchArmsmasterPresentation`
+45. `Embermere.NPC.FenwatchArmsmasterIdlePresentation`
+46. `Embermere.Trainer.TransactionRules`
+47. `Embermere.Trainer.ServiceContract`
+48. `Embermere.Trainer.FenwatchOfferingsData`
+49. `Embermere.UI.TrainerPanel`
+50. `Embermere.NPC.FenwatchQuartermasterIdlePresentation`
 
-Latest verified baseline (2026-08-08):
+Historical verified baseline (2026-08-08):
 
 - editor build succeeded with `-NoHotReloadFromIDE`;
 - headless automation discovered and passed 43/43 with zero test failures,
@@ -1013,11 +1021,38 @@ lane while preserving the original static mesh as a reversible fallback.
   `0.193888` to `1.670905` seconds while the grounded training-yard composition
   stayed readable.
 
+## 2026-08-12 Rigged Quartermaster Idle Update
+
+The quartermaster is now the second production NPC to adopt the wrapper's
+skeletal lane without moving vendor behavior into art.
+
+- The deterministic rig retains the reviewed `120.842 x 93.0 x 217.0` cm
+  grounded bounds, 3,632 triangles, and six materials. It adds nine authored
+  bones, complete rigid weights, and a 121-frame, 30-fps, exact 4.0-second
+  merchant Idle.
+- Classic FBX adds one imported Armature root, so Unreal validates ten
+  reference bones while retaining all nine authored names and hierarchy.
+- `Embermere_FenwatchQuartermaster_Vendor_01` prefers the exact rig and Idle,
+  remains `NoCollision`, keeps its static soft fallback, and owns no marker,
+  stock, transaction, UI, or persistence authority. The co-located art-free
+  vendor service remains unchanged.
+- UE 5.8 can silently switch replacement of an existing skeletal package to
+  Interchange. Routine reruns now validate eligible classic-FBX packages
+  without importing; intentional rebuilds use separate cleanup-only, fresh
+  creation, and fresh validation Unreal processes.
+- The no-hot-reload build, all 50 tests, fresh quartermaster/armsmaster rig,
+  vendor/trainer/zone/dummy/UI validators, and initialized-world route traces
+  passed.
+- Clean PIE kept the quartermaster `playing=true` and advanced its Idle from
+  `0.853735` to `2.195707` seconds. Normal-camera review retained grounded
+  chest-side composition and an open village-service route.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-11 no-hot-reload rigged Fenwatch armsmaster module plus the accepted
-skeletal-mesh/Skeleton/Idle, practice-dummy/map, offering, Chronicle, Fenwatch
+2026-08-12 no-hot-reload rigged Fenwatch armsmaster and quartermaster module
+plus both accepted skeletal-mesh/Skeleton/Idle sets, practice-dummy/map,
+offering, Chronicle, Fenwatch
 stock/service, item, quest, keeper, quartermaster, NPC wrapper, and Blueprint
 packages, then confirm MCP/test discovery; restart only if the editor or test
 registry proves stale.
@@ -1028,12 +1063,13 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 49 tests, including the six economy/vendor tests,
+3. Run/discover all 50 tests, including the six economy/vendor tests,
    `Embermere.Trainer.TransactionRules`,
    `Embermere.Trainer.ServiceContract`,
    `Embermere.Trainer.FenwatchOfferingsData`,
    `Embermere.NPC.FenwatchArmsmasterPresentation`,
    `Embermere.NPC.FenwatchArmsmasterIdlePresentation`,
+   `Embermere.NPC.FenwatchQuartermasterIdlePresentation`,
    `Embermere.UI.TrainerPanel`,
    `Embermere.Persistence.RoundTrip`,
    `Embermere.Persistence.ValidationRollback`,
@@ -1252,17 +1288,18 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-11 rigged Fenwatch
-armsmaster module and accepted skeletal-mesh/Skeleton/Idle, practice-dummy/map,
+Follow TODO.md's Start Here section. Confirm the 2026-08-12 rigged Fenwatch
+armsmaster and quartermaster module and both accepted skeletal-mesh/Skeleton/
+Idle sets, practice-dummy/map,
 offering/Chronicle,
 bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 49 tests, including the persistence round-trip,
+route-repair map, then run all 50 tests, including the persistence round-trip,
 validation/rollback, slot-inspection, native Chronicle panel, trainer
 transaction/service/offering, static armsmaster presentation, production
-armsmaster Idle presentation, and trainer-panel contracts.
+armsmaster and quartermaster Idle presentations, and trainer-panel contracts.
 Retain the
 original rigged Prowler across all three instances and verify Idle, Walk, Run,
 Attack, Hit, Death, terrain contact, target presentation, combat, tonic loot,
@@ -1303,9 +1340,11 @@ original-art placements including four `NoCollision` reed clusters, the
 open-sided Fenwatch shelter at `(-1740, -700, 0)`, yaw `-64`, and the
 grounded front-facing non-colliding Mara keeper with its marker/name clear, the
 non-colliding Fenwatch quartermaster at `(-1530, -1190, 0)`, yaw `100`, using
-the static lane of the reusable NPC presentation wrapper with no service or
-interaction authority, plus its co-located art-free vendor service and saved
-stock asset. Exercise the normal `F` vendor loop: 40 starting copper, tonic at
+the production skeletal lane of the reusable NPC presentation wrapper with an
+exact 4.0-second Idle, measured live playback, reviewed static fallback, and no
+service or interaction authority, plus its co-located art-free vendor service
+and saved stock asset. Exercise the normal `F` vendor loop: 40 starting copper,
+tonic at
 8/sell 3, one Recruit Pack at 30/sell 12, tonic purchase/sale/buyback at
 `40 -> 32 -> 35 -> 32`, pack purchase at `32 -> 2`, exact wallet/inventory/
 stock/buyback mutation, sold-out and insufficient-funds states, fixed result/
@@ -1340,14 +1379,16 @@ prove Mara's name/quest marker, keeper, open center, four supports, and straight
 autorun route remain readable. Retain the accepted player-facing Chronicle:
 plain `M`, exact slot summary, overwrite/load confirmations and cancel paths,
 empty/rejected feedback, mutually exclusive panel handoff, and console-command
-fallbacks over the same atomic contract. Retain the wrapper's production
-skeletal/Idle lane and the accepted trainer ownership contract. First prove
+fallbacks over the same atomic contract. Retain both wrapper production
+skeletal/Idle lanes and the accepted vendor and trainer ownership contracts.
+First prove
 the accepted trainer-produced 30-copper/25-XP Chronicle state remains exact in
 a fresh PIE world and a second idempotent load without changing save version 1.
-Then retain grounded normal-camera armsmaster motion, clear marker/route,
-playing animation-clock movement, and the static fallback; tune only concrete
-Prowler or aura issues, extend another NPC rig only through the same acceptance
-gates, or take the highest-value next milestone when the path is clear.
+Then retain grounded normal-camera armsmaster and quartermaster motion, clear
+markers/routes, advancing animation clocks, and both static fallbacks. Define a
+reversible static-to-skeletal boundary for Blueprint-backed Mara before changing
+her keeper art; tune only concrete Prowler or aura issues, or take the
+highest-value next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

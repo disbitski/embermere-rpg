@@ -36,6 +36,14 @@ FENWATCH_QUARTERMASTER_PATH = (
     "/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster/"
     "SM_EmbermereFenwatchQuartermaster_01.SM_EmbermereFenwatchQuartermaster_01"
 )
+FENWATCH_QUARTERMASTER_SKELETAL_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster/"
+    "SK_EmbermereFenwatchQuartermaster_01.SK_EmbermereFenwatchQuartermaster_01"
+)
+FENWATCH_QUARTERMASTER_IDLE_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster/Animations/"
+    "A_EmbermereFenwatchQuartermaster_Idle.A_EmbermereFenwatchQuartermaster_Idle"
+)
 FENWATCH_QUARTERMASTER_SKIN_PATH = (
     "/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster/"
     "M_FenwatchQuartermasterSkin.M_FenwatchQuartermasterSkin"
@@ -633,13 +641,41 @@ def main():
             sorted(quartermaster_material_paths),
         ))
 
+    quartermaster_skeletal_mesh = unreal.EditorAssetLibrary.load_asset(
+        FENWATCH_QUARTERMASTER_SKELETAL_PATH
+    )
+    quartermaster_idle = unreal.EditorAssetLibrary.load_asset(
+        FENWATCH_QUARTERMASTER_IDLE_PATH
+    )
+    if not quartermaster_skeletal_mesh or not isinstance(
+        quartermaster_skeletal_mesh,
+        unreal.SkeletalMesh,
+    ):
+        fail("missing rigged Fenwatch quartermaster mesh {}".format(
+            FENWATCH_QUARTERMASTER_SKELETAL_PATH,
+        ))
+    if not quartermaster_idle or not isinstance(
+        quartermaster_idle,
+        unreal.AnimSequence,
+    ):
+        fail("missing Fenwatch quartermaster Idle {}".format(
+            FENWATCH_QUARTERMASTER_IDLE_PATH,
+        ))
+    if (
+        quartermaster_idle.get_editor_property("skeleton")
+        != quartermaster_skeletal_mesh.get_editor_property("skeleton")
+    ):
+        fail("Fenwatch quartermaster mesh and Idle must share one Skeleton")
+
     quartermaster = actors_by_label[FENWATCH_QUARTERMASTER_LABEL]
     if quartermaster.get_class().get_name() != "EmbermereNpcPresentationActor":
         fail("{} must use the reusable NPC presentation wrapper, found {}".format(
             FENWATCH_QUARTERMASTER_LABEL,
             quartermaster.get_class().get_name(),
         ))
-    quartermaster_component = quartermaster.get_component_by_class(unreal.StaticMeshComponent)
+    quartermaster_component = quartermaster.get_component_by_class(
+        unreal.StaticMeshComponent
+    )
     quartermaster_actor_mesh = (
         quartermaster_component.get_editor_property("static_mesh")
         if quartermaster_component
@@ -650,11 +686,36 @@ def main():
         if quartermaster_actor_mesh
         else "None"
     )
-    if quartermaster_actor_mesh_path != FENWATCH_QUARTERMASTER_PATH:
-        fail("{} must use {}, found {}".format(
+    if not quartermaster_component:
+        fail("{} is missing its reusable static fallback component".format(
             FENWATCH_QUARTERMASTER_LABEL,
-            FENWATCH_QUARTERMASTER_PATH,
+        ))
+    if quartermaster_actor_mesh:
+        fail("{} inactive static component must be cleared while rigged art is active, found {}".format(
+            FENWATCH_QUARTERMASTER_LABEL,
             quartermaster_actor_mesh_path,
+        ))
+    quartermaster_skeletal_component = quartermaster.get_component_by_class(
+        unreal.SkeletalMeshComponent
+    )
+    quartermaster_actor_skeletal_mesh = (
+        quartermaster_skeletal_component.get_editor_property("skeletal_mesh_asset")
+        if quartermaster_skeletal_component
+        else None
+    )
+    quartermaster_actor_skeletal_path = (
+        quartermaster_actor_skeletal_mesh.get_path_name()
+        if quartermaster_actor_skeletal_mesh
+        else "None"
+    )
+    if (
+        quartermaster_actor_skeletal_path
+        != FENWATCH_QUARTERMASTER_SKELETAL_PATH
+    ):
+        fail("{} must use rigged mesh {}, found {}".format(
+            FENWATCH_QUARTERMASTER_LABEL,
+            FENWATCH_QUARTERMASTER_SKELETAL_PATH,
+            quartermaster_actor_skeletal_path,
         ))
     quartermaster_location = quartermaster.get_actor_location()
     quartermaster_rotation = quartermaster.get_actor_rotation()
@@ -676,8 +737,35 @@ def main():
             quartermaster_rotation,
             quartermaster_scale,
         ))
-    if quartermaster.get_resolved_visual_mode() != unreal.EmbermereNpcVisualMode.STATIC_MESH:
-        fail("Fenwatch quartermaster must currently resolve through the static visual lane")
+    if quartermaster.get_editor_property("static_visual_mesh") != quartermaster_mesh:
+        fail("Fenwatch quartermaster saved static fallback reference drifted")
+    if (
+        quartermaster.get_editor_property("skeletal_visual_mesh")
+        != quartermaster_skeletal_mesh
+    ):
+        fail("Fenwatch quartermaster saved rigged mesh reference drifted")
+    if quartermaster.get_editor_property("idle_animation") != quartermaster_idle:
+        fail("Fenwatch quartermaster saved Idle reference drifted")
+    if not bool(quartermaster.get_editor_property("prefer_skeletal_visual")):
+        fail("Fenwatch quartermaster must prefer the rigged visual lane")
+    if not bool(quartermaster.get_editor_property("loop_idle_animation")):
+        fail("Fenwatch quartermaster Idle must remain looping")
+    if not nearly_equal(
+        float(quartermaster.get_editor_property("idle_animation_play_rate")),
+        1.0,
+        0.001,
+    ):
+        fail("Fenwatch quartermaster Idle play rate drifted")
+    if (
+        quartermaster.get_resolved_visual_mode()
+        != unreal.EmbermereNpcVisualMode.SKELETAL_MESH
+    ):
+        fail("Fenwatch quartermaster must resolve through the rigged visual lane")
+    if (
+        quartermaster.get_resolved_animation_mode()
+        != unreal.EmbermereNpcAnimationMode.SINGLE_NODE_IDLE
+    ):
+        fail("Fenwatch quartermaster must resolve the single-node Idle lane")
     if not quartermaster.is_presentation_collision_disabled():
         fail("Fenwatch quartermaster visual lanes must remain non-colliding")
     if quartermaster.get_component_by_class(unreal.EmbermereInteractableComponent):

@@ -92,31 +92,31 @@ interaction, dialogue, and quest state.
 
 ## NPC Skeletal Idle Acceptance
 
-Use this focused lane when accepting wrapper-based NPC art. The quartermaster
-remains the static control; the Fenwatch armsmaster is the first saved
-production fixture.
+Use this focused lane when accepting wrapper-based NPC art. The Fenwatch
+armsmaster and quartermaster are both saved production fixtures with distinct
+rigs, Idles, and reversible static fallbacks.
 
 1. Start clean PIE on the current no-hot-reload module.
-2. Confirm the armsmaster's skeletal lane is visible, its static component is
-   inactive, the exact mesh and Idle resolve, mode is `AnimationSingleNode`,
+2. Confirm both skeletal lanes are visible, their static components are
+   inactive, each exact mesh and Idle resolves, mode is `AnimationSingleNode`,
    and collision remains `NoCollision`.
 3. Confirm runtime playback reports `playing=true` at the authored rate. Sample
    animation position twice far enough apart to prove it advances. Saved
    `AnimationData` by itself is not playback proof.
-4. Inspect grounded feet, planted staff, restrained torso/head/shield-hand
-   motion, material readability, service-marker clearance, and route spacing
-   from the normal PlayerStart and training-yard cameras.
-5. Press `F` and complete the trainer flow. The separate service must still own
-   the marker, offering, wallet/XP mutation, UI, and Chronicle handoff; the
-   wrapper must still own none of them.
-6. Rerun the fresh rig and trainer validators. The wrapper must retain the
-   exact rig/Idle plus its static soft-reference fallback, while the saved
-   quartermaster remains static.
+4. Inspect grounded feet, planted staff, ledger/merchant gestures, restrained
+   torso/head/hand motion, material readability, service-marker clearance, and
+   route spacing from the normal PlayerStart, vendor, and training-yard
+   cameras.
+5. Press `F` and complete both vendor and trainer flows. The separate services
+   must still own their markers, data, transactions, UI, and persistence
+   handoffs; the wrappers must still own none of them.
+6. Rerun both fresh rig validators plus vendor/trainer validators. Each wrapper
+   must retain its exact rig/Idle and static soft-reference fallback.
 
-The 2026-08-11 acceptance measured the production armsmaster advancing from
-`0.193888` to `1.670905` seconds while remaining `playing=true` and
-`NoCollision`. All 49 tests, fresh package validators, and initialized-world
-route traces passed.
+The armsmaster acceptance measured `0.193888 -> 1.670905` seconds. The
+2026-08-12 quartermaster acceptance measured `0.853735 -> 2.195707` seconds.
+Both remained `playing=true` and `NoCollision`. All 50 tests, fresh package
+validators, and initialized-world route traces passed.
 
 ## Current Play Loop
 

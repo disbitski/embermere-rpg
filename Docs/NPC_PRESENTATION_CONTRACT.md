@@ -51,11 +51,16 @@ never the service authority.
 ## First Uses
 
 `Embermere_FenwatchQuartermaster_Vendor_01` is the first saved wrapper
-instance. It uses the static lane and
-`SM_EmbermereFenwatchQuartermaster_01` at `(-1530, -1190, 0)`, yaw `100`, unit
-scale. The 3,632-triangle mesh measures `120.842 x 93.0 x 217.0` cm, uses six
-project-owned materials, has no collision, and reads as a quartermaster beside
-the existing supply chest.
+instance. Its preferred lane now uses
+`SK_EmbermereFenwatchQuartermaster_01` and
+`A_EmbermereFenwatchQuartermaster_Idle` at `(-1530, -1190, 0)`, yaw `100`, unit
+scale. Blender retains the reviewed 3,632-triangle merchant silhouette,
+`120.842 x 93.0 x 217.0` cm grounded bounds, and six project-owned materials,
+then adds nine named bones with complete rigid one-bone weights and an exact
+4.0-second Idle. Classic FBX adds one imported Armature root, giving Unreal an
+accepted ten-bone reference skeleton. The wrapper remains `NoCollision` and
+retains `SM_EmbermereFenwatchQuartermaster_01` as its reversible static
+fallback.
 
 The co-located `Embermere_FenwatchQuartermaster_Service_01` now owns the
 interaction marker and vendor component. It has no art or collision and reads
@@ -114,6 +119,7 @@ The current focused tests are:
 - `Embermere.NPC.PresentationContract`
 - `Embermere.NPC.SkeletalIdlePresentation`
 - `Embermere.NPC.FenwatchQuartermasterPresentation`
+- `Embermere.NPC.FenwatchQuartermasterIdlePresentation`
 - `Embermere.NPC.FenwatchArmsmasterPresentation`
 - `Embermere.NPC.FenwatchArmsmasterIdlePresentation`
 - `Embermere.NPC.FenwatchKeeperPresentation`
@@ -124,17 +130,19 @@ The current focused tests are:
 
 ## Production Skeletal Lane
 
-The 2026-08-11 armsmaster pass is the first persisted production NPC on the
-skeletal lane. Fresh-process validation locks the exact skeletal mesh,
-Skeleton, 3.2-second Idle, material order, bounds, wrapper transform, loop/rate,
-static fallback, and separate trainer service. Native automation also rejects
-collision or gameplay authority on the presentation actor.
+The 2026-08-11 armsmaster pass established the first persisted production NPC
+on the skeletal lane; the 2026-08-12 quartermaster pass proved that the same
+contract scales to a second service character. Fresh-process validation locks
+each exact skeletal mesh, Skeleton, Idle, material order, bounds, wrapper
+transform, loop/rate, static fallback, and separate service actor. Native
+automation also rejects collision or gameplay authority on either
+presentation actor.
 
-Clean PIE then supplied the runtime gate that package inspection cannot: the
-single-node player remained `playing=true` while position advanced from
-`0.193888` to `1.670905` seconds. The visual remained grounded and readable
-beside the practice dummy, and initialized-world traces kept the training-yard
-route clear. The quartermaster remains static.
+Clean PIE supplied the runtime gate that package inspection cannot. The
+armsmaster advanced from `0.193888` to `1.670905` seconds; the quartermaster
+advanced from `0.853735` to `2.195707` seconds. Both remained `playing=true`,
+grounded, readable, and `NoCollision`, while initialized-world traces retained
+the training-yard and village-service routes.
 
 Future Mara, vendor, trainer, or ambient-rig upgrades should reuse this exact
 contract. Any class restriction, skill unlock, finite lesson, stock rule, quest

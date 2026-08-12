@@ -3015,6 +3015,115 @@ bool FEmbermereFenwatchQuartermasterPresentationTest::RunTest(const FString& Par
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereFenwatchQuartermasterIdlePresentationTest,
+	"Embermere.NPC.FenwatchQuartermasterIdlePresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereFenwatchQuartermasterIdlePresentationTest::RunTest(const FString& Parameters)
+{
+	const FString ArtRoot = TEXT("/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster");
+	UStaticMesh* StaticFallback = LoadObject<UStaticMesh>(
+		nullptr,
+		*(ArtRoot + TEXT("/SM_EmbermereFenwatchQuartermaster_01.SM_EmbermereFenwatchQuartermaster_01")));
+	USkeletalMesh* SkeletalMesh = LoadObject<USkeletalMesh>(
+		nullptr,
+		*(ArtRoot + TEXT("/SK_EmbermereFenwatchQuartermaster_01.SK_EmbermereFenwatchQuartermaster_01")));
+	UAnimSequence* IdleAnimation = LoadObject<UAnimSequence>(
+		nullptr,
+		*(ArtRoot + TEXT("/Animations/A_EmbermereFenwatchQuartermaster_Idle.A_EmbermereFenwatchQuartermaster_Idle")));
+	AEmbermereNpcPresentationActor* Presentation = NewObject<AEmbermereNpcPresentationActor>();
+	TestNotNull(TEXT("Accepted quartermaster static fallback loads"), StaticFallback);
+	TestNotNull(TEXT("Rigged quartermaster skeletal mesh loads"), SkeletalMesh);
+	TestNotNull(TEXT("Rigged quartermaster Idle loads"), IdleAnimation);
+	TestNotNull(TEXT("Rigged quartermaster presentation can be created"), Presentation);
+	if (!StaticFallback || !SkeletalMesh || !IdleAnimation || !Presentation)
+	{
+		return false;
+	}
+
+	const FVector Size = SkeletalMesh->GetBounds().BoxExtent * 2.0f;
+	TestTrue(TEXT("Rigged quartermaster width retains the accepted silhouette"), FMath::IsNearlyEqual(Size.X, 120.842f, 1.0f));
+	TestTrue(TEXT("Rigged quartermaster depth retains the accepted silhouette"), FMath::IsNearlyEqual(Size.Y, 93.0f, 1.0f));
+	TestTrue(TEXT("Rigged quartermaster height retains the accepted silhouette"), FMath::IsNearlyEqual(Size.Z, 217.0f, 1.0f));
+	TestEqual(TEXT("Rigged quartermaster keeps six project materials"), SkeletalMesh->GetMaterials().Num(), 6);
+	const FReferenceSkeleton& ReferenceSkeleton = SkeletalMesh->GetRefSkeleton();
+	TestEqual(
+		TEXT("Classic FBX keeps one Armature root plus the nine reviewed quartermaster bones"),
+		ReferenceSkeleton.GetRawBoneNum(),
+		10);
+	const TArray<FName> AuthoredBoneNames = {
+		TEXT("root"),
+		TEXT("pelvis"),
+		TEXT("spine"),
+		TEXT("neck"),
+		TEXT("head"),
+		TEXT("upper_arm_l"),
+		TEXT("forearm_l"),
+		TEXT("upper_arm_r"),
+		TEXT("forearm_r"),
+	};
+	for (const FName BoneName : AuthoredBoneNames)
+	{
+		TestTrue(
+			*FString::Printf(TEXT("Rigged quartermaster retains authored bone %s"), *BoneName.ToString()),
+			ReferenceSkeleton.FindBoneIndex(BoneName) != INDEX_NONE);
+	}
+	const int32 AuthoredRootIndex = ReferenceSkeleton.FindBoneIndex(TEXT("root"));
+	TestTrue(
+		TEXT("Quartermaster authored root remains beneath the classic FBX Armature root"),
+		AuthoredRootIndex > 0 && ReferenceSkeleton.GetParentIndex(AuthoredRootIndex) == 0);
+	TestTrue(
+		TEXT("Idle animation uses the rigged quartermaster Skeleton"),
+		IdleAnimation->GetSkeleton() == SkeletalMesh->GetSkeleton());
+	TestTrue(
+		TEXT("Idle animation keeps its reviewed four-second cycle"),
+		FMath::IsNearlyEqual(IdleAnimation->GetPlayLength(), 4.0f, 0.12f));
+
+	Presentation->StaticVisualMesh = StaticFallback;
+	Presentation->SkeletalVisualMesh = SkeletalMesh;
+	Presentation->IdleAnimation = IdleAnimation;
+	Presentation->bLoopIdleAnimation = true;
+	Presentation->IdleAnimationPlayRate = 1.0f;
+	Presentation->bPreferSkeletalVisual = true;
+	Presentation->RefreshPresentation();
+
+	TestEqual(
+		TEXT("Saved-style quartermaster configuration resolves the skeletal lane"),
+		Presentation->GetResolvedVisualMode(),
+		EEmbermereNpcVisualMode::SkeletalMesh);
+	TestEqual(
+		TEXT("Saved-style quartermaster configuration resolves looping single-node Idle"),
+		Presentation->GetResolvedAnimationMode(),
+		EEmbermereNpcAnimationMode::SingleNodeIdle);
+	TestTrue(
+		TEXT("Quartermaster Idle is the exact serialized animation"),
+		Presentation->SkeletalVisual->AnimationData.AnimToPlay == IdleAnimation);
+	TestTrue(
+		TEXT("Quartermaster Idle remains marked playing and looping"),
+		Presentation->SkeletalVisual->AnimationData.bSavedPlaying &&
+			Presentation->SkeletalVisual->AnimationData.bSavedLooping);
+	TestTrue(TEXT("Rigged quartermaster remains non-colliding"), Presentation->IsPresentationCollisionDisabled());
+	TestNull(
+		TEXT("Rigged quartermaster presentation owns no interaction authority"),
+		Presentation->FindComponentByClass<UEmbermereInteractableComponent>());
+	TestNull(
+		TEXT("Rigged quartermaster presentation owns no vendor authority"),
+		Presentation->FindComponentByClass<UEmbermereVendorComponent>());
+
+	Presentation->bPreferSkeletalVisual = false;
+	Presentation->RefreshPresentation();
+	TestEqual(
+		TEXT("Disabling skeletal preference restores the accepted quartermaster fallback"),
+		Presentation->GetResolvedVisualMode(),
+		EEmbermereNpcVisualMode::StaticMesh);
+	TestTrue(
+		TEXT("Quartermaster static fallback remains the exact accepted mesh"),
+		Presentation->StaticVisual->GetStaticMesh() == StaticFallback);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereFenwatchArmsmasterPresentationTest,
 	"Embermere.NPC.FenwatchArmsmasterPresentation",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

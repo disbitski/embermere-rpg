@@ -249,12 +249,15 @@ debug fallbacks. Version 1 persists copper, XP, exact item/equipment identity,
 completed quest, and finite merchant stock across fresh PIE worlds; repeated
 loads do not duplicate rewards or bonuses.
 
-The NPC wrapper's skeletal/Idle lane is now in production on the matching
-Fenwatch armsmaster. Its deterministic source has `2,824` triangles, nine
-authored bones, six materials, and a 3.2-second Idle; classic FBX adds one
-reviewed Armature root in Unreal, and live PIE proved the saved animation clock
-advancing. The original static mesh remains a reversible fallback, while the
-separate trainer service retains all progression and interaction authority.
+The NPC wrapper's skeletal/Idle lane is now in production on both matching
+Fenwatch service characters. The armsmaster has `2,824` source triangles and a
+3.2-second Idle; the quartermaster retains its reviewed 3,632-triangle merchant
+silhouette and adds a 4.0-second Idle. Each deterministic rig has nine authored
+bones, complete rigid weights, six materials, and one reviewed Armature root
+added by classic FBX in Unreal. Live PIE proved both saved animation clocks
+advancing. Their original static meshes remain reversible fallbacks, while the
+separate trainer and vendor services retain all interaction, transaction, and
+progression authority.
 Its first data-driven Combat Drills action
 atomically converts `10` copper into `25` XP through a fixed native panel,
 without moving progression or interaction authority into the model.

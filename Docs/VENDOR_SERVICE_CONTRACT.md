@@ -33,6 +33,13 @@ The saved map contains two co-located but independent actors at
 - `Embermere_FenwatchQuartermaster_Service_01`: invisible gameplay service,
   tagged `EmbermereGameplayService` and `EmbermereVendor`.
 
+The presentation now prefers the project-owned
+`SK_EmbermereFenwatchQuartermaster_01` and exact 4.0-second Idle while retaining
+the reviewed static quartermaster as a reversible fallback. It remains
+`NoCollision` and has no vendor or interaction component. This art upgrade did
+not change the service transform, stock asset, prices, transactions, UI, or
+persistence identity.
+
 `/Game/Data/Vendors/DA_FenwatchQuartermasterStock` currently defines:
 
 - Marsh Tonic: `8` copper, unlimited prototype stock;
@@ -124,6 +131,7 @@ Focused automation:
 - `Embermere.Vendor.ServiceContract`
 - `Embermere.Vendor.FenwatchStockData`
 - `Embermere.UI.VendorPanel`
+- `Embermere.NPC.FenwatchQuartermasterIdlePresentation`
 
 Clean PIE acceptance on 2026-08-05 proved the complete runtime sequence:
 
@@ -150,5 +158,6 @@ to `40/40` automation tests.
 - The service uses the existing generic interactable marker; final merchant
   prompt and audio presentation remain future work.
 
-The next useful economy slice is deliberate save-slot/menu presentation or a
-second merchant/service that proves stable vendor IDs scale beyond one actor.
+The next useful economy slice is quantity-aware commerce or a second
+merchant/service that proves stable vendor IDs scale beyond one actor. Neither
+requires changing the quartermaster presentation.

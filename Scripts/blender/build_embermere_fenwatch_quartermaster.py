@@ -322,7 +322,7 @@ def join_render_mesh(parts: list[bpy.types.Object]) -> bpy.types.Object:
     return result
 
 
-def build_quartermaster() -> bpy.types.Object:
+def build_quartermaster_parts() -> list[bpy.types.Object]:
     skin = make_material(
         "M_FenwatchQuartermasterSkin", (0.58, 0.30, 0.16, 1.0), 0.84
     )
@@ -396,7 +396,11 @@ def build_quartermaster() -> bpy.types.Object:
         ]
     )
 
-    return join_render_mesh(parts)
+    return parts
+
+
+def build_quartermaster() -> bpy.types.Object:
+    return join_render_mesh(build_quartermaster_parts())
 
 
 def mesh_metrics(obj: bpy.types.Object) -> dict:
@@ -551,4 +555,5 @@ def main() -> dict:
     }
 
 
-__result__ = main()
+if not globals().get("EMBERMERE_IMPORT_ONLY", False):
+    __result__ = main()
