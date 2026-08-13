@@ -91,10 +91,24 @@ marker and trainer component. It reads `DA_FenwatchArmsmasterOfferings` and
 contains no art or collision. The full progression boundary is documented in
 [TRAINER_SERVICE_CONTRACT.md](TRAINER_SERVICE_CONTRACT.md).
 
-Mara remains a Blueprint-backed quest actor because her existing component owns
-real gameplay. Her Fenwatch keeper visual follows the same ownership rule even
-though it is reconciled directly into `BP_QuestGiver` rather than placed in the
-standalone wrapper.
+Mara is the third production wrapper use, but her migration has a different
+ownership shape. The original `BP_QuestGiver` remains at
+`(-2050, -850, 140)`, yaw `35`, because its interactable component owns her
+display name, dialogue, quest data, marker, and reward flow. Its old SCS static
+component is retained as a dormant reversible template with the accepted local
+`(0, 0, -140)` offset, yaw `100`, unit scale, and `NoCollision`, but its render
+mesh is deliberately cleared.
+
+The colocated `Embermere_FenwatchKeeper_Mara_Presentation_01` wrapper uses
+`SK_EmbermereFenwatchKeeper_Mara_01` and
+`A_EmbermereFenwatchKeeper_Mara_Idle` at `(-2050, -850, 0)`, yaw `135`. The
+deterministic source retains the reviewed 3,280-triangle,
+`107.45 x 71.0 x 207.5` cm, six-material keeper silhouette, adds nine authored
+bones with complete rigid one-bone weights, and supplies an exact 3.6-second
+Idle. Classic FBX adds one imported Armature root, giving Unreal ten reference
+bones. The wrapper remains `NoCollision`, owns no interactable or quest
+component, and retains `SM_EmbermereFenwatchKeeper_Mara_01` as its reversible
+static fallback.
 
 ## Acceptance Gates
 
@@ -123,6 +137,7 @@ The current focused tests are:
 - `Embermere.NPC.FenwatchArmsmasterPresentation`
 - `Embermere.NPC.FenwatchArmsmasterIdlePresentation`
 - `Embermere.NPC.FenwatchKeeperPresentation`
+- `Embermere.NPC.FenwatchKeeperIdlePresentation`
 - `Embermere.Vendor.ServiceContract`
 - `Embermere.Vendor.FenwatchStockData`
 - `Embermere.Trainer.ServiceContract`
@@ -132,19 +147,24 @@ The current focused tests are:
 
 The 2026-08-11 armsmaster pass established the first persisted production NPC
 on the skeletal lane; the 2026-08-12 quartermaster pass proved that the same
-contract scales to a second service character. Fresh-process validation locks
+contract scales to a second service character. The 2026-08-13 keeper pass then
+proved that a Blueprint-backed quest NPC can adopt the wrapper without moving
+or duplicating her existing gameplay authority. Fresh-process validation locks
 each exact skeletal mesh, Skeleton, Idle, material order, bounds, wrapper
-transform, loop/rate, static fallback, and separate service actor. Native
-automation also rejects collision or gameplay authority on either
-presentation actor.
+transform, loop/rate, static fallback, and separate gameplay owner. Native
+automation also rejects collision or gameplay authority on every presentation
+actor.
 
 Clean PIE supplied the runtime gate that package inspection cannot. The
 armsmaster advanced from `0.193888` to `1.670905` seconds; the quartermaster
-advanced from `0.853735` to `2.195707` seconds. Both remained `playing=true`,
+advanced from `0.853735` to `2.195707` seconds; and the fresh-module keeper
+advanced from `0.333814` to `1.525603` seconds. All remained `playing=true`,
 grounded, readable, and `NoCollision`, while initialized-world traces retained
-the training-yard and village-service routes.
+the training-yard and village-service routes. The keeper additionally retained
+Mara's unobstructed marker and name; her normal-range `F` dialogue and quest
+loop remains the next physical playtest gate.
 
-Future Mara, vendor, trainer, or ambient-rig upgrades should reuse this exact
+Future vendor, trainer, quest, or ambient-rig upgrades should reuse this exact
 contract. Any class restriction, skill unlock, finite lesson, stock rule, quest
 state, or persistence field still belongs in its data/service owner, never in
 the wrapper.

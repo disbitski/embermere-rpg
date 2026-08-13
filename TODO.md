@@ -6,16 +6,16 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-12 no-hot-reload rigged Fenwatch
-  armsmaster and quartermaster module plus both accepted skeletal meshes,
-  Skeletons, Idles, practice-
-  dummy/map, offering, Chronicle, vendor, item, and quest packages. Restart if
-  the editor predates that work or test discovery exposes fewer than 50
+- Confirm Unreal is running the 2026-08-13 no-hot-reload rigged Fenwatch
+  keeper, armsmaster, and quartermaster module plus all three accepted skeletal
+  meshes, Skeletons, Idles, practice-dummy/map, offering, Chronicle, vendor,
+  item, and quest packages. Restart if the editor predates that work or test
+  discovery exposes fewer than 51
   Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 50 tests, especially
+- Discover and run all 51 tests, especially
   `Embermere.Persistence.RoundTrip`,
   `Embermere.Persistence.ValidationRollback`,
   `Embermere.Persistence.SlotInspection`,
@@ -32,13 +32,16 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.NPC.FenwatchArmsmasterPresentation`,
   `Embermere.NPC.FenwatchArmsmasterIdlePresentation`,
   `Embermere.NPC.FenwatchQuartermasterIdlePresentation`,
+  `Embermere.NPC.FenwatchKeeperPresentation`,
+  `Embermere.NPC.FenwatchKeeperIdlePresentation`,
   `Embermere.UI.TrainerPanel`,
   `Embermere.NPC.SkeletalIdlePresentation`, the three established NPC
   presentation tests, Prowler/world presentation, player recovery, and
-  inventory transaction suites. The authoritative 2026-08-12 run passed
-  50/50; the no-hot-reload Mac build and fresh-process armsmaster-rig,
-  quartermaster-rig, practice-dummy, saved-map, UI-art, Fenwatch-trainer,
-  vendor-economy, and initialized-world route validators also passed.
+  inventory transaction suites. The authoritative 2026-08-13 headless and
+  fresh-editor MCP runs each passed 51/51; the no-hot-reload Mac build and
+  fresh-process keeper-rig, saved-map, UI-art, armsmaster-rig,
+  quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
+  initialized-world route validators also passed.
 - Recheck the accepted Fenwatch vendor loop through normal `F` interaction:
   - presentation actor `Embermere_FenwatchQuartermaster_Vendor_01` remains
     art-only at `(-1530, -1190, 0)`, yaw `100`, unit scale and `NoCollision`;
@@ -173,14 +176,21 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor cube, and trainer cube must remain absent. A clean PIE route already
   moved from `(-2400, -1200, 90.15)` to `(-1793.188, -831.382, 90.15)` under
   `Q`, then froze at that exact transform after `W` cancellation.
-- Inspect Mara's project-owned `SM_EmbermereFenwatchKeeper_Mara_01`
-  presentation. The static 3,280-triangle keeper is `107.45 x 71.0 x 207.5`
-  cm, faces PlayerStart, plants its feet at ground level, and keeps the gold
-  quest marker and name readable under the shelter. Its visual component is
-  `NoCollision`; the existing quest actor and interactable component remain
-  gameplay authorities. The saved Blueprint SCS template and placed map actor
-  must both retain the mesh, local `(0, 0, -140)` offset, yaw `100`, unit scale,
-  and no-collision state.
+- Inspect Mara's rigged project-owned keeper presentation. The deterministic
+  source retains the accepted 3,280-triangle, `107.45 x 71.0 x 207.5` cm,
+  six-material silhouette, adds nine authored bones with complete rigid
+  weights, and supplies a 109-frame, 30-fps, exact 3.6-second Idle. Classic FBX
+  adds one imported Armature root, so Unreal validates ten reference bones.
+  The art-only `Embermere_FenwatchKeeper_Mara_Presentation_01` wrapper sits at
+  `(-2050, -850, 0)`, yaw `135`, prefers the exact skeletal mesh and Idle,
+  remains `NoCollision`, and retains `SM_EmbermereFenwatchKeeper_Mara_01` as its
+  reversible fallback. The original `BP_QuestGiver` stays at
+  `(-2050, -850, 140)`, yaw `35`, and remains the only owner of Mara's gold
+  marker, display name, interaction, dialogue, quest, and rewards. Its dormant
+  SCS visual keeps local `(0, 0, -140)`, yaw `100`, unit scale, and
+  `NoCollision`, but deliberately has no render mesh. Fresh PIE kept the marker
+  and silhouette readable while the Idle advanced from `0.333814` to
+  `1.525603` seconds.
 - Inspect `Embermere_FenwatchQuartermaster_Vendor_01` beside the accepted
   supply chest. Its 3,632-triangle, `120.842 x 93.0 x 217.0` cm static mesh
   uses six project-owned materials and should read as a stocky moss-capped
@@ -227,8 +237,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   mesh, Skeleton, 3.2-second Idle, loop/rate, transform, static fallback, and
   absence of collision or service authority. Clean PIE kept `playing=true`
   while the animation position advanced from `0.193888` to `1.670905` seconds.
-  The quartermaster now uses the same accepted production lane with its own
-  4.0-second Idle and exact static fallback. Do not accept future NPC
+  The quartermaster and Blueprint-backed Mara presentation now use the same
+  accepted production lane with their own 4.0- and 3.6-second Idles and exact
+  static fallbacks. Do not accept future NPC
   animation from serialized `AnimationData` alone: prove the live position
   advances.
 - Retain the accepted HUD, effects, inventory, and equipment baseline:
@@ -251,25 +262,24 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. in clean-restart PIE, retain both accepted production Idles from the
-     normal village route: grounded feet, restrained motion, readable service
-     silhouettes, advancing clocks, clear markers/path, and unchanged vendor
-     and trainer interactions;
-  2. rerun the exact vendor and trainer transaction chains plus the
+  1. walk into Mara's normal interaction radius in clean PIE and press `F`;
+     accept and complete the existing quest while proving her rigged Idle,
+     marker, name, dialogue, quest state, rewards, and route remain intact;
+  2. retain all three accepted production Idles from the normal village route:
+     grounded feet, restrained motion, readable silhouettes, advancing clocks,
+     clear markers/path, and unchanged quest, vendor, and trainer interactions;
+  3. rerun the exact vendor and trainer transaction chains plus the
      trainer-to-Chronicle `40/0 -> 30/25` save, fresh-world load, and second
      idempotent load with both rigged presentations active, proving art cannot
      alter service or persistence state;
-  3. retain both accepted Chronicle proofs, including trainer-produced
+  4. retain both accepted Chronicle proofs, including trainer-produced
      `30`-copper/`25`-XP state, slot inspection, confirmation, rejection,
      panel handoff, and two-session idempotence contracts; keep console commands
      as debug fallbacks and defer autosave, deletion, profiles, and migrations;
-  4. define and test a reversible static-to-skeletal presentation boundary for
-     Blueprint-backed Mara before changing her keeper art; her quest actor and
-     interactable component must remain the only quest/dialogue authorities;
-  5. if that boundary is proven, build a restrained project-owned Mara Idle
-     through the reviewed Blender/classic-FBX lifecycle; otherwise add one
-     compact village prop that improves the service cluster without blocking
-     its route;
+  5. after Mara's real interaction loop is accepted, take one bounded next
+     step: a contextual greeting/talk presentation that still subscribes to
+     quest authority, or one cohesive Fenwatch village module that improves the
+     service cluster without blocking its route;
   6. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete issue;
   7. consider authored Niagara, class-specific VFX, or audio only after the
@@ -277,11 +287,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-12
-  rigged Fenwatch armsmaster and quartermaster module and accepted skeletal-
-  mesh/Skeleton/Idle/
-  offering/Chronicle/item/quest/stock packages. Current code passes all 50
-  tests.
+- Restart Unreal before manual PIE when the editor predates the 2026-08-13
+  rigged Fenwatch keeper, armsmaster, and quartermaster module and accepted
+  skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
+  Current code passes all 51 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -1392,6 +1401,23 @@ idempotent load without adding trainer-specific schema.
   Clean PIE kept the quartermaster `playing=true` while its Idle advanced from
   `0.853735` to `2.195707` seconds; normal-camera review retained grounded
   chest-side composition and a clear service-cluster route.
+- 2026-08-13: moved only Mara's keeper art onto the reusable skeletal wrapper
+  while leaving the original `BP_QuestGiver`, interactable, dialogue, quest,
+  marker, and reward authority intact. The deterministic keeper rig retains the
+  accepted 3,280 triangles, six materials, and grounded
+  `107.45 x 71.0 x 207.5` cm silhouette, then adds nine authored bones,
+  complete rigid weights, and a 109-frame, 30-fps, exact 3.6-second Idle.
+- The dormant Blueprint SCS static component keeps its authored transform and
+  `NoCollision` state but no longer renders. The colocated art-only wrapper
+  prefers the rig and Idle, retains the exact static fallback, and carries the
+  project-owned art tag without gaining any quest or interaction component.
+- The no-hot-reload build passed. Headless and freshly restarted editor MCP
+  suites each passed all 51 tests; fresh keeper-rig and full-zone validators
+  passed; initialized-editor validators retained the complete service, UI, and
+  route baseline. Clean PIE kept Mara grounded beneath the shelter with her
+  marker/name unobstructed, and two clock probes advanced the Idle, including
+  `0.333814 -> 1.525603` seconds on the fresh module. The remaining manual gate
+  is to walk into her real `F` radius and complete the dialogue/quest loop.
 
 ## Asset Hunt
 

@@ -1103,3 +1103,37 @@ The accepted contract records both artifacts:
 Raw bone count alone is not a portable truth. Validate the authored semantic
 hierarchy and document any importer-owned node so a future exporter or engine
 upgrade produces a reviewable contract change instead of a mysterious failure.
+
+## Migrate Blueprint-Backed NPC Art Without Replacing Gameplay Ownership
+
+The armsmaster and quartermaster already had separate art and service actors,
+so their static-to-skeletal upgrades changed only wrapper references. Mara was
+different: her saved `BP_QuestGiver` already owned the interactable component,
+display name, dialogue, quest data, marker, and reward flow. Replacing that
+actor with a presentation wrapper would have moved authority or forced a second
+copy of gameplay state.
+
+The accepted migration starts by fingerprinting the live Blueprint CDO, SCS
+template, and saved map instance. Keep the gameplay actor and every authoritative
+component. Clear only the old render mesh, preserve its local transform and
+`NoCollision` state as a dormant fallback template, then compose the actor and
+visual transforms into a colocated art-only wrapper. Move the project-art tag
+to the actor that actually renders the art so saved-map counts remain honest.
+
+Validate both halves independently:
+
+1. The Blueprint keeps its exact class, transform, interactable, name, dialogue,
+   quest reference, marker settings, and reward ownership.
+2. The wrapper keeps the exact SkeletalMesh, Skeleton, Idle, static fallback,
+   world transform, `NoCollision`, and absence of quest or interaction
+   components.
+3. Fresh package and map validators prove the serialized contract.
+4. Native tests construct the real generated class rather than only a native
+   approximation.
+5. PIE proves visual composition and animation-clock advancement; a player
+   still walks into the real interaction radius for final dialogue/quest
+   acceptance.
+
+This keeps presentation asset-agnostic without pretending every NPC began with
+the same architecture. A migration is successful when art changes owners and
+gameplay authority does not.

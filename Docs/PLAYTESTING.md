@@ -43,12 +43,14 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     roof should remain traversable. Mara's name and quest marker must read in
     front of it from PlayerStart, with the removed stone backdrop, market cover,
     and vendor/trainer cubes still absent.
-11. Inspect Mara's `SM_EmbermereFenwatchKeeper_Mara_01` presentation from
+11. Inspect Mara's rigged `Embermere_FenwatchKeeper_Mara_Presentation_01` from
     PlayerStart and at interaction distance. Her feet should contact the
     terrain; the moss cowl, timber-brown clothing, pale skirt, ember crest,
-    staff, and satchel should form a readable Stylized Classic silhouette. She
-    should face the approach, own no collision, and leave the existing gold
-    quest marker, name, `F` interaction, dialogue, and quest flow unobstructed.
+    staff, and satchel should form a readable Stylized Classic silhouette. The
+    exact 3.6-second Idle should remain restrained with planted feet and staff.
+    The wrapper should face the approach, own no collision or gameplay
+    component, and leave the existing gold quest marker, name, `F` interaction,
+    dialogue, and quest flow unobstructed on `Quest_Giver_Mara_Fenwatch`.
 12. Inspect `Embermere_FenwatchQuartermaster_Vendor_01` beside the supply
     chest. The moss cap/wrap, beard, apron, ledger, pouches, keys, and ember
     accents should read as a stocky merchant silhouette distinct from Mara. Its
@@ -86,15 +88,15 @@ Mara is the quest giver actor named `Quest_Giver_Mara_Fenwatch`.
 
 From the village spawn, move mostly straight ahead and slightly right toward the center of the starter village. In world coordinates, the player starts around `(-2400, -1200)` and Mara is nearby at `(-2050, -850)`, in front of the open-sided Fenwatch shelter.
 
-In Play In Editor, Mara uses the project-owned static Fenwatch keeper visual,
-while the existing quest actor still owns the temporary gold `!`, name marker,
-interaction, dialogue, and quest state.
+In Play In Editor, Mara's project-owned rigged keeper is a colocated art-only
+wrapper. The existing quest actor still owns the temporary gold `!`, name
+marker, interaction, dialogue, quest state, and rewards.
 
 ## NPC Skeletal Idle Acceptance
 
 Use this focused lane when accepting wrapper-based NPC art. The Fenwatch
-armsmaster and quartermaster are both saved production fixtures with distinct
-rigs, Idles, and reversible static fallbacks.
+armsmaster, quartermaster, and keeper are saved production fixtures with
+distinct rigs, Idles, and reversible static fallbacks.
 
 1. Start clean PIE on the current no-hot-reload module.
 2. Confirm both skeletal lanes are visible, their static components are
@@ -107,16 +109,20 @@ rigs, Idles, and reversible static fallbacks.
    torso/head/hand motion, material readability, service-marker clearance, and
    route spacing from the normal PlayerStart, vendor, and training-yard
    cameras.
-5. Press `F` and complete both vendor and trainer flows. The separate services
-   must still own their markers, data, transactions, UI, and persistence
-   handoffs; the wrappers must still own none of them.
-6. Rerun both fresh rig validators plus vendor/trainer validators. Each wrapper
-   must retain its exact rig/Idle and static soft-reference fallback.
+5. Press `F` and complete vendor, trainer, and Mara dialogue/quest flows. The
+   service and quest actors must still own their markers, data, transactions,
+   dialogue, rewards, UI, and persistence handoffs; the wrappers must still own
+   none of them.
+6. Rerun all three fresh rig validators plus vendor/trainer and saved-map
+   validators. Each wrapper must retain its exact rig/Idle and static soft-
+   reference fallback.
 
 The armsmaster acceptance measured `0.193888 -> 1.670905` seconds. The
-2026-08-12 quartermaster acceptance measured `0.853735 -> 2.195707` seconds.
-Both remained `playing=true` and `NoCollision`. All 50 tests, fresh package
-validators, and initialized-world route traces passed.
+quartermaster acceptance measured `0.853735 -> 2.195707` seconds. The fresh-
+module keeper acceptance measured `0.333814 -> 1.525603` seconds. All remained
+`playing=true` and `NoCollision`. All 51 tests, fresh package validators, and
+initialized-world route traces passed. Mara's normal-range `F` dialogue/quest
+loop remains the next physical acceptance check.
 
 ## Current Play Loop
 

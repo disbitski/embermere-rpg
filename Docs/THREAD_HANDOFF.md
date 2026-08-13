@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-08
+Last updated: 2026-08-13
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -37,7 +37,7 @@ this snapshot. A new task should read files in this order:
 
 Embermere is a single-player Unreal Engine 5.8 prototype with the feel of an
 early-2000s tab-target MMORPG. It has a playable starter loop in
-`L_Embermere_Prototype`: spawn near a village edge, find Mara Ashwick, accept a
+`L_Embermere_Prototype`: spawn near a village edge, find Mara Fenwatch, accept a
 quest, travel toward a wilderness/ruin pocket, tab-target Marsh Prowlers, use
 hotbar abilities, survive aggro and melee attacks, defeat enemies, return to
 Mara, receive XP and an inventory reward, and inspect that reward.
@@ -67,8 +67,9 @@ The project currently includes:
 - a reusable art-only NPC wrapper with static and skeletal lanes, shared
   transforms, soft references, Anim Blueprint precedence, a
   skeleton-compatible single-node Idle lane, and no interaction or service
-  ownership, now used by the saved production rigged Fenwatch armsmaster and
-  quartermaster with reversible static fallbacks;
+  ownership, now used by the saved production rigged Fenwatch keeper,
+  armsmaster, and quartermaster with reversible static fallbacks. Mara's
+  original Blueprint quest actor remains her sole gameplay authority;
 - a separate Fenwatch vendor vertical slice with an art-free interactable
   service actor, data-driven stock/prices/sell values, earned player copper,
   atomic buy/sell/buyback rollback, fixed native stock UI, and saved ownership
@@ -83,8 +84,9 @@ The project currently includes:
   temporary effects, and position remain intentionally session-only;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
-- 50 passing Unreal automation tests plus fresh-process armsmaster-rig,
-  quartermaster-rig, practice-dummy, trainer, vendor, UI-art/package, and
+- 51 passing Unreal automation tests plus fresh-process keeper-rig,
+  armsmaster-rig, quartermaster-rig, practice-dummy, trainer, vendor,
+  UI-art/package, and
   saved-map validators, initialized-live-world route/collision traces,
   measured live NPC Idle advancement, and accepted two-session Chronicle
   proofs for both the full commerce/quest fixture and trainer-produced
@@ -182,7 +184,7 @@ Map: `/Game/Maps/L_Embermere_Prototype`
 Important gameplay actors/assets:
 
 - PlayerStart near the village edge.
-- Mara Ashwick, the first quest giver, with a temporary gold quest marker.
+- Mara Fenwatch, the first quest giver, with a temporary gold quest marker.
 - Three starter Marsh Prowlers in a collision-cleared solo-pull triangle in
   the wilderness pocket, using a `525` cm aggro radius.
 - A village-to-road-to-wilderness route and an upgraded ruin landmark.
@@ -457,17 +459,20 @@ replaces the old Mara stone backdrop, mismatched market cover, and vendor/
 trainer cubes. Its center and roof span remain clear, bringing the map to 15
 original-art placements.
 
-The eleventh original model type is
-`SM_EmbermereFenwatchKeeper_Mara_01`, built by
-`Scripts/blender/build_embermere_fenwatch_keeper.py` and imported through
-`Scripts/import_embermere_fenwatch_keeper_unreal.py`. It is a static
-3,280-triangle, `107.45 x 71.0 x 207.5` cm Stylized Classic quest-giver visual
-with one UV channel, six project-owned materials, and no collision. Mara's
-actor remains at `(-2050, -850, 140)`, yaw `35`; only its visual component uses
-local `(0, 0, -140)`, yaw `100`, and unit scale. The importer and validator
-reconcile both the saved `BP_QuestGiver` SCS template and the serialized map
-instance, bringing the map to 16 original-art placements while leaving quest,
-dialogue, marker, interaction, and reward ownership unchanged.
+The eleventh original model type is the Fenwatch keeper, initially built as
+`SM_EmbermereFenwatchKeeper_Mara_01` by
+`Scripts/blender/build_embermere_fenwatch_keeper.py`. Its production skeletal
+lane reuses the exact 3,280-triangle, `107.45 x 71.0 x 207.5` cm Stylized
+Classic silhouette, one UV channel, and six project-owned materials, then adds
+nine authored bones, complete rigid weights, and a 109-frame, 30-fps, exact
+3.6-second Idle. Classic FBX adds one imported Armature root. Mara's original
+`BP_QuestGiver` remains at `(-2050, -850, 140)`, yaw `35`, with the exact
+interactable, name, dialogue, quest, marker, and rewards. Its dormant SCS visual
+retains local `(0, 0, -140)`, yaw `100`, unit scale, and `NoCollision` but no
+render mesh. The colocated art-only wrapper sits at `(-2050, -850, 0)`, yaw
+`135`, prefers the rig and Idle, and keeps the static mesh as a fallback. The
+project-owned level count remains 16 for this model because its art tag follows
+the rendering wrapper rather than being duplicated on gameplay.
 
 The twelfth original model type is
 `SM_EmbermereFenwatchQuartermaster_01`, built by
@@ -1040,18 +1045,43 @@ skeletal lane without moving vendor behavior into art.
   Interchange. Routine reruns now validate eligible classic-FBX packages
   without importing; intentional rebuilds use separate cleanup-only, fresh
   creation, and fresh validation Unreal processes.
-- The no-hot-reload build, all 50 tests, fresh quartermaster/armsmaster rig,
-  vendor/trainer/zone/dummy/UI validators, and initialized-world route traces
-  passed.
+- The no-hot-reload build and all 50 tests passed. Fresh quartermaster,
+  armsmaster, vendor, trainer, zone, dummy, and UI validators plus initialized-
+  world route traces passed.
 - Clean PIE kept the quartermaster `playing=true` and advanced its Idle from
   `0.853735` to `2.195707` seconds. Normal-camera review retained grounded
   chest-side composition and an open village-service route.
 
+## 2026-08-13 Rigged Fenwatch Keeper Update
+
+Mara now uses the same production skeletal lane without replacing the
+Blueprint actor that owns her quest gameplay.
+
+- The rig retains the reviewed `107.45 x 71.0 x 207.5` cm grounded bounds,
+  3,280 triangles, and six materials. It adds nine authored bones, complete
+  rigid weights, and a 109-frame, 30-fps, exact 3.6-second Idle.
+- Classic FBX adds one imported Armature root, so Unreal validates ten
+  reference bones while retaining all nine authored names and hierarchy.
+- `Quest_Giver_Mara_Fenwatch` remains the exact `BP_QuestGiver` gameplay actor
+  with its interactable, name, dialogue, quest, marker, and rewards. Its old
+  SCS static component keeps the accepted local transform and `NoCollision`
+  state as a dormant template but renders no mesh.
+- `Embermere_FenwatchKeeper_Mara_Presentation_01` is colocated at ground level,
+  prefers the exact rig and Idle, remains `NoCollision`, retains the static
+  fallback, and owns no interaction or quest component.
+- The no-hot-reload build passed. Headless and fresh-editor MCP suites each
+  passed 51/51, and fresh keeper plus full-zone validators retained the complete
+  ownership, map, UI, service, and route baseline.
+- Clean PIE kept Mara grounded beneath the shelter with her marker and name
+  readable. The fresh-module animation clock advanced from `0.333814` to
+  `1.525603` seconds. Her normal-range `F` dialogue and quest loop remains the
+  next physical acceptance gate.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-12 no-hot-reload rigged Fenwatch armsmaster and quartermaster module
-plus both accepted skeletal-mesh/Skeleton/Idle sets, practice-dummy/map,
+2026-08-13 no-hot-reload rigged Fenwatch keeper, armsmaster, and quartermaster
+module plus all three accepted skeletal-mesh/Skeleton/Idle sets, practice-dummy/map,
 offering, Chronicle, Fenwatch
 stock/service, item, quest, keeper, quartermaster, NPC wrapper, and Blueprint
 packages, then confirm MCP/test discovery; restart only if the editor or test
@@ -1063,13 +1093,14 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 50 tests, including the six economy/vendor tests,
+3. Run/discover all 51 tests, including the six economy/vendor tests,
    `Embermere.Trainer.TransactionRules`,
    `Embermere.Trainer.ServiceContract`,
    `Embermere.Trainer.FenwatchOfferingsData`,
    `Embermere.NPC.FenwatchArmsmasterPresentation`,
    `Embermere.NPC.FenwatchArmsmasterIdlePresentation`,
    `Embermere.NPC.FenwatchQuartermasterIdlePresentation`,
+   `Embermere.NPC.FenwatchKeeperIdlePresentation`,
    `Embermere.UI.TrainerPanel`,
    `Embermere.Persistence.RoundTrip`,
    `Embermere.Persistence.ValidationRollback`,
@@ -1201,8 +1232,9 @@ High-value milestones after that:
   sightlines remain clear;
 - retain the accepted beneficial and harmful world-aura palettes, grounding,
   and target-circle separation; polish only concrete readability issues;
-- retain Mara's accepted static Fenwatch keeper and verify it from the normal
-  PlayerStart route before any rigged-humanoid work;
+- retain Mara's accepted rigged Fenwatch keeper and verify its grounded Idle,
+  marker/name clearance, normal-range `F` dialogue, and full quest flow from
+  the PlayerStart route;
 - retain the accepted Chronicle one-slot lifecycle, readable empty/malformed/
   rejected-version feedback, overwrite/load confirmations, panel handoff, and
   two-session idempotence; retain console commands as debug fallbacks and keep
@@ -1210,8 +1242,8 @@ High-value milestones after that:
 - retain the proven Blender waystone/lamp/signpost/gate/fence/end-stone/chest/
   shelter/keeper/quartermaster/armsmaster/practice-dummy lane and its
   deterministic scripts, FBX checks, original-art tags, and route composition;
-- retain the accepted rigged-armsmaster/trainer ownership and transaction
-  contracts;
+- retain the accepted rigged keeper/quest, armsmaster/trainer, and
+  quartermaster/vendor ownership boundaries and transaction contracts;
   retain the accepted trainer-produced 30-copper/25-XP Chronicle restore across
   a fresh world and second idempotent load without changing save version 1;
 - retain the accepted production armsmaster skeletal lane: exact mesh,
@@ -1288,15 +1320,15 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-12 rigged Fenwatch
-armsmaster and quartermaster module and both accepted skeletal-mesh/Skeleton/
-Idle sets, practice-dummy/map,
+Follow TODO.md's Start Here section. Confirm the 2026-08-13 rigged Fenwatch
+keeper, armsmaster, and quartermaster module and all three accepted
+skeletal-mesh/Skeleton/Idle sets, practice-dummy/map,
 offering/Chronicle,
 bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 50 tests, including the persistence round-trip,
+route-repair map, then run all 51 tests, including the persistence round-trip,
 validation/rollback, slot-inspection, native Chronicle panel, trainer
 transaction/service/offering, static armsmaster presentation, production
 armsmaster and quartermaster Idle presentations, and trainer-panel contracts.
@@ -1338,7 +1370,9 @@ leash, respawn protection, chat clipping, atmospheric daylight and the
 38-expression moss/earth road, 56 grounded upright Fab actors, and all 19
 original-art placements including four `NoCollision` reed clusters, the
 open-sided Fenwatch shelter at `(-1740, -700, 0)`, yaw `-64`, and the
-grounded front-facing non-colliding Mara keeper with its marker/name clear, the
+  grounded front-facing non-colliding rigged Mara keeper wrapper with its
+  3.6-second Idle, marker/name clear, and original Blueprint quest authority,
+  the
 non-colliding Fenwatch quartermaster at `(-1530, -1190, 0)`, yaw `100`, using
 the production skeletal lane of the reusable NPC presentation wrapper with an
 exact 4.0-second Idle, measured live playback, reviewed static fallback, and no
@@ -1384,11 +1418,12 @@ skeletal/Idle lanes and the accepted vendor and trainer ownership contracts.
 First prove
 the accepted trainer-produced 30-copper/25-XP Chronicle state remains exact in
 a fresh PIE world and a second idempotent load without changing save version 1.
-Then retain grounded normal-camera armsmaster and quartermaster motion, clear
-markers/routes, advancing animation clocks, and both static fallbacks. Define a
-reversible static-to-skeletal boundary for Blueprint-backed Mara before changing
-her keeper art; tune only concrete Prowler or aura issues, or take the
-highest-value next milestone when the path is clear.
+Then retain grounded normal-camera keeper, armsmaster, and quartermaster
+motion, clear markers/routes, advancing animation clocks, and all three static
+fallbacks. Walk into Mara's normal `F` radius and complete her dialogue and
+quest loop to physically prove the extracted art did not alter Blueprint-owned
+gameplay. Tune only concrete Prowler or aura issues, or take the highest-value
+next milestone when the path is clear.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

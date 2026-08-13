@@ -19,9 +19,18 @@ ORIGINAL_FENWATCH_SHELTER_PATH = "/Game/Art/Embermere/Environment/PrototypeVilla
 ORIGINAL_FENWATCH_SHELTER_LOCATION = (-1740.0, -700.0, 0.0)
 ORIGINAL_FENWATCH_SHELTER_YAW = -64.0
 FENWATCH_KEEPER_LABEL = "Quest_Giver_Mara_Fenwatch"
+FENWATCH_KEEPER_PRESENTATION_LABEL = "Embermere_FenwatchKeeper_Mara_Presentation_01"
 FENWATCH_KEEPER_PATH = (
     "/Game/Art/Embermere/Characters/NPCs/FenwatchKeeper/"
     "SM_EmbermereFenwatchKeeper_Mara_01.SM_EmbermereFenwatchKeeper_Mara_01"
+)
+FENWATCH_KEEPER_SKELETAL_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchKeeper/"
+    "SK_EmbermereFenwatchKeeper_Mara_01.SK_EmbermereFenwatchKeeper_Mara_01"
+)
+FENWATCH_KEEPER_IDLE_PATH = (
+    "/Game/Art/Embermere/Characters/NPCs/FenwatchKeeper/Animations/"
+    "A_EmbermereFenwatchKeeper_Mara_Idle.A_EmbermereFenwatchKeeper_Mara_Idle"
 )
 FENWATCH_KEEPER_SKIN_PATH = (
     "/Game/Art/Embermere/Characters/NPCs/FenwatchKeeper/"
@@ -31,6 +40,15 @@ FENWATCH_KEEPER_LOCATION = (-2050.0, -850.0, 140.0)
 FENWATCH_KEEPER_YAW = 35.0
 FENWATCH_KEEPER_VISUAL_LOCATION = (0.0, 0.0, -140.0)
 FENWATCH_KEEPER_VISUAL_YAW = 100.0
+FENWATCH_KEEPER_PRESENTATION_LOCATION = (-2050.0, -850.0, 0.0)
+FENWATCH_KEEPER_PRESENTATION_YAW = 135.0
+FENWATCH_KEEPER_DIALOGUE = (
+    "You picked a lively day to arrive. Something is stirring near the old "
+    "stones east of town. Cull a few of those things and come back whole."
+)
+FENWATCH_KEEPER_QUEST_PATH = (
+    "/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"
+)
 FENWATCH_QUARTERMASTER_LABEL = "Embermere_FenwatchQuartermaster_Vendor_01"
 FENWATCH_QUARTERMASTER_PATH = (
     "/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster/"
@@ -218,6 +236,7 @@ REQUIRED_LABELS = {
     ORIGINAL_SUPPLY_CHEST_LABEL,
     ORIGINAL_PRACTICE_DUMMY_LABEL,
     ORIGINAL_FENWATCH_SHELTER_LABEL,
+    FENWATCH_KEEPER_PRESENTATION_LABEL,
     FENWATCH_QUARTERMASTER_LABEL,
     FENWATCH_ARMSMASTER_LABEL,
     FENWATCH_ARMSMASTER_SERVICE_LABEL,
@@ -521,14 +540,11 @@ def main():
 
     keeper = actors_by_label[FENWATCH_KEEPER_LABEL]
     keeper_component = keeper.get_component_by_class(unreal.StaticMeshComponent)
-    keeper_actor_mesh = keeper_component.get_editor_property("static_mesh") if keeper_component else None
-    keeper_actor_mesh_path = keeper_actor_mesh.get_path_name() if keeper_actor_mesh else "None"
-    if keeper_actor_mesh_path != FENWATCH_KEEPER_PATH:
-        fail("{} must use {}, found {}".format(
-            FENWATCH_KEEPER_LABEL,
-            FENWATCH_KEEPER_PATH,
-            keeper_actor_mesh_path,
-        ))
+    keeper_interactable = keeper.get_component_by_class(unreal.EmbermereInteractableComponent)
+    if not keeper_component or not keeper_interactable:
+        fail("saved Mara must retain dormant static and interactable templates")
+    if keeper_component.get_editor_property("static_mesh"):
+        fail("saved Mara gameplay actor must not embed render art")
     keeper_location = keeper.get_actor_location()
     keeper_rotation = keeper.get_actor_rotation()
     if not all((
@@ -564,25 +580,92 @@ def main():
             keeper_relative_scale,
         ))
     if keeper_component.get_collision_enabled() != unreal.CollisionEnabled.NO_COLLISION:
-        fail("Fenwatch keeper visual must remain non-colliding")
-    if unreal.Name("EmbermereOriginalArt") not in list(keeper.tags):
-        fail("{} must retain the EmbermereOriginalArt tag".format(FENWATCH_KEEPER_LABEL))
+        fail("Mara's dormant Blueprint visual template must remain non-colliding")
+    if str(keeper_interactable.get_editor_property("display_name")) != "Mara Fenwatch":
+        fail("saved Mara display name drifted")
+    if str(keeper_interactable.get_editor_property("dialogue_text")) != FENWATCH_KEEPER_DIALOGUE:
+        fail("saved Mara dialogue drifted")
+    keeper_quest = keeper_interactable.get_editor_property("quest_to_offer")
+    if not keeper_quest or keeper_quest.get_path_name() != FENWATCH_KEEPER_QUEST_PATH:
+        fail("saved Mara quest authority drifted")
+    if not bool(keeper_interactable.get_editor_property("show_world_marker")):
+        fail("saved Mara world marker is disabled")
+    if not nearly_equal(keeper_interactable.get_editor_property("marker_height"), 185.0, 0.1):
+        fail("saved Mara marker height drifted")
+    if unreal.Name("EmbermereOriginalArt") in list(keeper.tags):
+        fail("Mara gameplay actor must not be counted as original art")
 
     keeper_blueprint = unreal.EditorAssetLibrary.load_asset("/Game/Blueprints/BP_QuestGiver")
     subobject_subsystem = unreal.get_engine_subsystem(unreal.SubobjectDataSubsystem)
     keeper_template = None
+    keeper_interactable_template = None
     for handle in subobject_subsystem.k2_gather_subobject_data_for_blueprint(keeper_blueprint):
         data = subobject_subsystem.k2_find_subobject_data_from_handle(handle)
         candidate = unreal.SubobjectDataBlueprintFunctionLibrary.get_object(data)
         if isinstance(candidate, unreal.StaticMeshComponent):
             keeper_template = candidate
-            break
-    if not keeper_template:
-        fail("BP_QuestGiver is missing its Fenwatch keeper visual template")
-    if keeper_template.get_editor_property("static_mesh") != keeper_mesh:
-        fail("BP_QuestGiver template does not use the Fenwatch keeper mesh")
+        elif isinstance(candidate, unreal.EmbermereInteractableComponent):
+            keeper_interactable_template = candidate
+    if not keeper_template or not keeper_interactable_template:
+        fail("BP_QuestGiver is missing its dormant visual or interactable template")
+    if keeper_template.get_editor_property("static_mesh"):
+        fail("BP_QuestGiver template must release render art to the wrapper")
     if keeper_template.get_collision_enabled() != unreal.CollisionEnabled.NO_COLLISION:
-        fail("BP_QuestGiver keeper template must remain non-colliding")
+        fail("BP_QuestGiver dormant visual template must remain non-colliding")
+    if str(keeper_interactable_template.get_editor_property("display_name")) != "Mara Fenwatch":
+        fail("BP_QuestGiver template display name drifted")
+    if str(keeper_interactable_template.get_editor_property("dialogue_text")) != FENWATCH_KEEPER_DIALOGUE:
+        fail("BP_QuestGiver template dialogue drifted")
+    template_quest = keeper_interactable_template.get_editor_property("quest_to_offer")
+    if not template_quest or template_quest.get_path_name() != FENWATCH_KEEPER_QUEST_PATH:
+        fail("BP_QuestGiver template quest authority drifted")
+    if not bool(keeper_interactable_template.get_editor_property("show_world_marker")):
+        fail("BP_QuestGiver template marker is disabled")
+    if not nearly_equal(keeper_interactable_template.get_editor_property("marker_height"), 185.0, 0.1):
+        fail("BP_QuestGiver template marker height drifted")
+
+    keeper_skeletal_mesh = unreal.EditorAssetLibrary.load_asset(FENWATCH_KEEPER_SKELETAL_PATH)
+    keeper_idle = unreal.EditorAssetLibrary.load_asset(FENWATCH_KEEPER_IDLE_PATH)
+    if not keeper_skeletal_mesh or not isinstance(keeper_skeletal_mesh, unreal.SkeletalMesh):
+        fail("missing rigged Fenwatch keeper mesh {}".format(FENWATCH_KEEPER_SKELETAL_PATH))
+    if not keeper_idle or not isinstance(keeper_idle, unreal.AnimSequence):
+        fail("missing Fenwatch keeper Idle {}".format(FENWATCH_KEEPER_IDLE_PATH))
+    if keeper_idle.get_editor_property("skeleton") != keeper_skeletal_mesh.get_editor_property("skeleton"):
+        fail("Fenwatch keeper mesh and Idle do not share one Skeleton")
+    if not nearly_equal(keeper_idle.get_play_length(), 3.6, 0.12):
+        fail("Fenwatch keeper Idle duration drifted")
+    keeper_presentation = actors_by_label[FENWATCH_KEEPER_PRESENTATION_LABEL]
+    if not isinstance(keeper_presentation, unreal.EmbermereNpcPresentationActor):
+        fail("Fenwatch keeper presentation uses the wrong native class")
+    keeper_presentation_location = keeper_presentation.get_actor_location()
+    keeper_presentation_rotation = keeper_presentation.get_actor_rotation()
+    if not all((
+        nearly_equal(keeper_presentation_location.x, FENWATCH_KEEPER_PRESENTATION_LOCATION[0], 0.1),
+        nearly_equal(keeper_presentation_location.y, FENWATCH_KEEPER_PRESENTATION_LOCATION[1], 0.1),
+        nearly_equal(keeper_presentation_location.z, FENWATCH_KEEPER_PRESENTATION_LOCATION[2], 0.1),
+        nearly_equal(keeper_presentation_rotation.pitch, 0.0, 0.1),
+        nearly_equal(keeper_presentation_rotation.yaw, FENWATCH_KEEPER_PRESENTATION_YAW, 0.1),
+        nearly_equal(keeper_presentation_rotation.roll, 0.0, 0.1),
+    )):
+        fail("Fenwatch keeper presentation transform drifted")
+    if keeper_presentation.get_editor_property("static_visual_mesh") != keeper_mesh:
+        fail("Fenwatch keeper presentation lost its static fallback")
+    if keeper_presentation.get_editor_property("skeletal_visual_mesh") != keeper_skeletal_mesh:
+        fail("Fenwatch keeper presentation lost its rigged mesh")
+    if keeper_presentation.get_editor_property("idle_animation") != keeper_idle:
+        fail("Fenwatch keeper presentation lost its Idle")
+    if not bool(keeper_presentation.get_editor_property("prefer_skeletal_visual")):
+        fail("Fenwatch keeper presentation no longer prefers the skeletal lane")
+    if keeper_presentation.get_resolved_visual_mode() != unreal.EmbermereNpcVisualMode.SKELETAL_MESH:
+        fail("Fenwatch keeper presentation does not resolve through the skeletal lane")
+    if keeper_presentation.get_resolved_animation_mode() != unreal.EmbermereNpcAnimationMode.SINGLE_NODE_IDLE:
+        fail("Fenwatch keeper presentation does not resolve single-node Idle")
+    if not keeper_presentation.is_presentation_collision_disabled():
+        fail("Fenwatch keeper presentation collision is enabled")
+    if keeper_presentation.get_component_by_class(unreal.EmbermereInteractableComponent):
+        fail("Fenwatch keeper presentation unexpectedly owns interaction authority")
+    if unreal.Name("EmbermereOriginalArt") not in list(keeper_presentation.tags):
+        fail("Fenwatch keeper presentation lost the EmbermereOriginalArt tag")
 
     quartermaster_mesh = unreal.EditorAssetLibrary.load_asset(FENWATCH_QUARTERMASTER_PATH)
     if not quartermaster_mesh or not isinstance(quartermaster_mesh, unreal.StaticMesh):
@@ -1820,7 +1903,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

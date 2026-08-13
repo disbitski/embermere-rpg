@@ -110,8 +110,8 @@ The repo currently contains the C++ gameplay scaffold for:
 - a corrected 56-actor local Fab/Epic art pass plus 19 placements from
   Embermere's original Blender-built waystone, ember-lamp, road-signpost,
   road-gate, boundary-fence, rune-topped boundary-stone, supply-chest, and
-  Fenwatch shelter, Mara's Fenwatch keeper, the Fenwatch quartermaster and
-  rigged armsmaster, practice dummy, plus four visual-only marsh-reed clusters
+  Fenwatch shelter, Mara's rigged Fenwatch keeper, the rigged Fenwatch
+  quartermaster and armsmaster, practice dummy, plus four visual-only marsh-reed clusters
   over the starter village, road,
   wilderness pocket, and ruin
   landmark, with grounded rotations,
@@ -154,8 +154,8 @@ The original Blender and Blender MCP workflow lives in
 family now includes a project-owned stylized waystone shrine, matching ember
 lamps, a timber road signpost, a traversable road gate, low boundary fences,
 rune-topped end stones, a route-facing village supply chest, an open-sided
-Fenwatch shelter, Mara's grounded Stylized Classic Fenwatch keeper,
-the Fenwatch quartermaster, rigged armsmaster, practice dummy, visual-only
+Fenwatch shelter, Mara's grounded rigged Stylized Classic Fenwatch keeper,
+the rigged Fenwatch quartermaster and armsmaster, practice dummy, visual-only
 marsh reeds, and the fully rigged Marsh
 Prowler, each built from reviewed scripts,
 validated in Blender, imported through an explicit Unreal contract, and placed
@@ -235,8 +235,8 @@ window with atomic transactions, project-owned data-driven art reused across
 rows, slots, details, drag feedback, rewards, and the equipment backdrop, safe
 consumable actions, native selected-target nameplate/emissive-ring feedback,
 and a reusable static-to-skeletal NPC presentation contract demonstrated by
-the grounded Fenwatch quartermaster and armsmaster beside the village supply
-chest. A
+the grounded Fenwatch keeper, quartermaster, and armsmaster around the village
+service cluster. A
 co-located art-free service now turns that quartermaster into Embermere's first
 working merchant without coupling stock, prices, currency, transactions, or
 interaction to the model. The playable loop now earns `20` copper from Mara's
@@ -249,15 +249,17 @@ debug fallbacks. Version 1 persists copper, XP, exact item/equipment identity,
 completed quest, and finite merchant stock across fresh PIE worlds; repeated
 loads do not duplicate rewards or bonuses.
 
-The NPC wrapper's skeletal/Idle lane is now in production on both matching
-Fenwatch service characters. The armsmaster has `2,824` source triangles and a
+The NPC wrapper's skeletal/Idle lane is now in production on three matching
+Fenwatch characters. The armsmaster has `2,824` source triangles and a
 3.2-second Idle; the quartermaster retains its reviewed 3,632-triangle merchant
-silhouette and adds a 4.0-second Idle. Each deterministic rig has nine authored
-bones, complete rigid weights, six materials, and one reviewed Armature root
-added by classic FBX in Unreal. Live PIE proved both saved animation clocks
-advancing. Their original static meshes remain reversible fallbacks, while the
-separate trainer and vendor services retain all interaction, transaction, and
-progression authority.
+silhouette and adds a 4.0-second Idle; Mara's 3,280-triangle keeper adds a
+3.6-second Idle. Each deterministic rig has nine authored bones, complete rigid
+weights, six materials, and one reviewed Armature root added by classic FBX in
+Unreal. Live PIE proved all three saved animation clocks advancing. Their
+original static meshes remain reversible fallbacks. The separate trainer and
+vendor services retain their authority, while Mara's original Blueprint quest
+actor remains the sole owner of her interaction, dialogue, quest, marker, and
+rewards.
 Its first data-driven Combat Drills action
 atomically converts `10` copper into `25` XP through a fixed native panel,
 without moving progression or interaction authority into the model.

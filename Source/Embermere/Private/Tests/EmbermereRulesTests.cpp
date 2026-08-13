@@ -2744,12 +2744,16 @@ bool FEmbermereFenwatchKeeperPresentationTest::RunTest(const FString& Parameters
 	UStaticMesh* KeeperMesh = LoadObject<UStaticMesh>(
 		nullptr,
 		TEXT("/Game/Art/Embermere/Characters/NPCs/FenwatchKeeper/SM_EmbermereFenwatchKeeper_Mara_01.SM_EmbermereFenwatchKeeper_Mara_01"));
+	UEmbermereQuestData* StarterQuest = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
 	UBlueprint* QuestGiverBlueprint = LoadObject<UBlueprint>(
 		nullptr,
 		TEXT("/Game/Blueprints/BP_QuestGiver.BP_QuestGiver"));
-	TestNotNull(TEXT("Fenwatch keeper mesh loads"), KeeperMesh);
+	TestNotNull(TEXT("Accepted Fenwatch keeper static fallback loads"), KeeperMesh);
+	TestNotNull(TEXT("Mara's starter quest data loads"), StarterQuest);
 	TestNotNull(TEXT("Quest-giver Blueprint loads"), QuestGiverBlueprint);
-	if (!KeeperMesh || !QuestGiverBlueprint || !QuestGiverBlueprint->GeneratedClass)
+	if (!KeeperMesh || !StarterQuest || !QuestGiverBlueprint || !QuestGiverBlueprint->GeneratedClass)
 	{
 		return false;
 	}
@@ -2763,38 +2767,170 @@ bool FEmbermereFenwatchKeeperPresentationTest::RunTest(const FString& Parameters
 	}
 
 	UStaticMeshComponent* KeeperVisual = nullptr;
+	UEmbermereInteractableComponent* MaraInteraction = nullptr;
 	for (USCS_Node* Node : QuestGiverBlueprint->SimpleConstructionScript->GetAllNodes())
 	{
 		if (Node)
 		{
-			KeeperVisual = Cast<UStaticMeshComponent>(Node->ComponentTemplate);
-			if (KeeperVisual)
+			if (!KeeperVisual)
 			{
-				break;
+				KeeperVisual = Cast<UStaticMeshComponent>(Node->ComponentTemplate);
+			}
+			if (!MaraInteraction)
+			{
+				MaraInteraction = Cast<UEmbermereInteractableComponent>(Node->ComponentTemplate);
 			}
 		}
 	}
-	TestNotNull(TEXT("Quest giver retains its static presentation component"), KeeperVisual);
-	if (!KeeperVisual)
+	TestNotNull(TEXT("Quest giver retains its reversible static component template"), KeeperVisual);
+	TestNotNull(TEXT("Quest giver retains its interaction authority"), MaraInteraction);
+	if (!KeeperVisual || !MaraInteraction)
 	{
 		return false;
 	}
 
-	TestTrue(TEXT("Quest giver uses the project-owned Fenwatch keeper mesh"), KeeperVisual->GetStaticMesh() == KeeperMesh);
+	TestNull(
+		TEXT("Quest Blueprint releases render art to the separate presentation wrapper"),
+		KeeperVisual->GetStaticMesh());
 	TestTrue(
-		TEXT("Keeper feet offset preserves the legacy quest actor origin"),
+		TEXT("Reversible static template preserves the accepted ground offset"),
 		KeeperVisual->GetRelativeLocation().Equals(FVector(0.0f, 0.0f, -140.0f), KINDA_SMALL_NUMBER));
 	TestTrue(
-		TEXT("Keeper faces the village approach"),
+		TEXT("Reversible static template preserves the accepted visual yaw"),
 		FMath::IsNearlyEqual(KeeperVisual->GetRelativeRotation().Yaw, 100.0f, KINDA_SMALL_NUMBER));
 	TestTrue(
-		TEXT("Keeper visual uses authored scale without legacy cube stretching"),
+		TEXT("Reversible static template keeps unit authored scale"),
 		KeeperVisual->GetRelativeScale3D().Equals(FVector::OneVector, KINDA_SMALL_NUMBER));
 	TestEqual(
-		TEXT("Keeper presentation remains non-colliding"),
+		TEXT("Quest Blueprint's dormant art template remains non-colliding"),
 		KeeperVisual->GetCollisionEnabled(),
 		ECollisionEnabled::NoCollision);
-	TestEqual(TEXT("Keeper mesh keeps its reviewed triangle count"), KeeperMesh->GetNumTriangles(0), 3280);
+	TestEqual(TEXT("Static fallback keeps its reviewed triangle count"), KeeperMesh->GetNumTriangles(0), 3280);
+	TestEqual(
+		TEXT("Mara retains her exact interaction name"),
+		MaraInteraction->DisplayName.ToString(),
+		FString(TEXT("Mara Fenwatch")));
+	TestEqual(
+		TEXT("Mara retains her exact dialogue"),
+		MaraInteraction->DialogueText.ToString(),
+		FString(TEXT("You picked a lively day to arrive. Something is stirring near the old stones east of town. Cull a few of those things and come back whole.")));
+	TestTrue(TEXT("Mara retains the exact starter quest"), MaraInteraction->QuestToOffer == StarterQuest);
+	TestTrue(TEXT("Mara retains her gold world marker"), MaraInteraction->bShowWorldMarker);
+	TestTrue(
+		TEXT("Mara retains the accepted marker height"),
+		FMath::IsNearlyEqual(MaraInteraction->MarkerHeight, 185.0f, 0.1f));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereFenwatchKeeperIdlePresentationTest,
+	"Embermere.NPC.FenwatchKeeperIdlePresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereFenwatchKeeperIdlePresentationTest::RunTest(const FString& Parameters)
+{
+	const FString ArtRoot = TEXT("/Game/Art/Embermere/Characters/NPCs/FenwatchKeeper");
+	UStaticMesh* StaticFallback = LoadObject<UStaticMesh>(
+		nullptr,
+		*(ArtRoot + TEXT("/SM_EmbermereFenwatchKeeper_Mara_01.SM_EmbermereFenwatchKeeper_Mara_01")));
+	USkeletalMesh* SkeletalMesh = LoadObject<USkeletalMesh>(
+		nullptr,
+		*(ArtRoot + TEXT("/SK_EmbermereFenwatchKeeper_Mara_01.SK_EmbermereFenwatchKeeper_Mara_01")));
+	UAnimSequence* IdleAnimation = LoadObject<UAnimSequence>(
+		nullptr,
+		*(ArtRoot + TEXT("/Animations/A_EmbermereFenwatchKeeper_Mara_Idle.A_EmbermereFenwatchKeeper_Mara_Idle")));
+	AEmbermereNpcPresentationActor* Presentation = NewObject<AEmbermereNpcPresentationActor>();
+	TestNotNull(TEXT("Accepted keeper static fallback loads"), StaticFallback);
+	TestNotNull(TEXT("Rigged keeper skeletal mesh loads"), SkeletalMesh);
+	TestNotNull(TEXT("Rigged keeper Idle loads"), IdleAnimation);
+	TestNotNull(TEXT("Rigged keeper presentation can be created"), Presentation);
+	if (!StaticFallback || !SkeletalMesh || !IdleAnimation || !Presentation)
+	{
+		return false;
+	}
+
+	const FVector Size = SkeletalMesh->GetBounds().BoxExtent * 2.0f;
+	TestTrue(TEXT("Rigged keeper width retains the accepted silhouette"), FMath::IsNearlyEqual(Size.X, 107.45f, 1.0f));
+	TestTrue(TEXT("Rigged keeper depth retains the accepted silhouette"), FMath::IsNearlyEqual(Size.Y, 71.0f, 1.0f));
+	TestTrue(TEXT("Rigged keeper height retains the accepted silhouette"), FMath::IsNearlyEqual(Size.Z, 207.5f, 1.0f));
+	TestEqual(TEXT("Rigged keeper keeps six project materials"), SkeletalMesh->GetMaterials().Num(), 6);
+	const FReferenceSkeleton& ReferenceSkeleton = SkeletalMesh->GetRefSkeleton();
+	TestEqual(
+		TEXT("Classic FBX keeps one Armature root plus the nine reviewed keeper bones"),
+		ReferenceSkeleton.GetRawBoneNum(),
+		10);
+	const TArray<FName> AuthoredBoneNames = {
+		TEXT("root"),
+		TEXT("pelvis"),
+		TEXT("spine"),
+		TEXT("neck"),
+		TEXT("head"),
+		TEXT("upper_arm_l"),
+		TEXT("forearm_l"),
+		TEXT("upper_arm_r"),
+		TEXT("forearm_r"),
+	};
+	for (const FName BoneName : AuthoredBoneNames)
+	{
+		TestTrue(
+			*FString::Printf(TEXT("Rigged keeper retains authored bone %s"), *BoneName.ToString()),
+			ReferenceSkeleton.FindBoneIndex(BoneName) != INDEX_NONE);
+	}
+	const int32 AuthoredRootIndex = ReferenceSkeleton.FindBoneIndex(TEXT("root"));
+	TestTrue(
+		TEXT("Keeper authored root remains beneath the classic FBX Armature root"),
+		AuthoredRootIndex > 0 && ReferenceSkeleton.GetParentIndex(AuthoredRootIndex) == 0);
+	TestTrue(
+		TEXT("Idle animation uses the rigged keeper Skeleton"),
+		IdleAnimation->GetSkeleton() == SkeletalMesh->GetSkeleton());
+	TestTrue(
+		TEXT("Idle animation keeps its reviewed 3.6-second cycle"),
+		FMath::IsNearlyEqual(IdleAnimation->GetPlayLength(), 3.6f, 0.12f));
+
+	Presentation->StaticVisualMesh = StaticFallback;
+	Presentation->SkeletalVisualMesh = SkeletalMesh;
+	Presentation->IdleAnimation = IdleAnimation;
+	Presentation->bLoopIdleAnimation = true;
+	Presentation->IdleAnimationPlayRate = 1.0f;
+	Presentation->bPreferSkeletalVisual = true;
+	Presentation->RefreshPresentation();
+
+	TestEqual(
+		TEXT("Saved-style keeper configuration resolves the skeletal lane"),
+		Presentation->GetResolvedVisualMode(),
+		EEmbermereNpcVisualMode::SkeletalMesh);
+	TestEqual(
+		TEXT("Saved-style keeper configuration resolves looping single-node Idle"),
+		Presentation->GetResolvedAnimationMode(),
+		EEmbermereNpcAnimationMode::SingleNodeIdle);
+	TestTrue(
+		TEXT("Keeper Idle is the exact serialized animation"),
+		Presentation->SkeletalVisual->AnimationData.AnimToPlay == IdleAnimation);
+	TestTrue(
+		TEXT("Keeper Idle remains marked playing and looping"),
+		Presentation->SkeletalVisual->AnimationData.bSavedPlaying &&
+			Presentation->SkeletalVisual->AnimationData.bSavedLooping);
+	TestTrue(TEXT("Rigged keeper remains non-colliding"), Presentation->IsPresentationCollisionDisabled());
+	TestNull(
+		TEXT("Rigged keeper presentation owns no interaction or quest authority"),
+		Presentation->FindComponentByClass<UEmbermereInteractableComponent>());
+	TestNull(
+		TEXT("Rigged keeper presentation owns no vendor authority"),
+		Presentation->FindComponentByClass<UEmbermereVendorComponent>());
+	TestNull(
+		TEXT("Rigged keeper presentation owns no trainer authority"),
+		Presentation->FindComponentByClass<UEmbermereTrainerComponent>());
+
+	Presentation->bPreferSkeletalVisual = false;
+	Presentation->RefreshPresentation();
+	TestEqual(
+		TEXT("Disabling skeletal preference restores the accepted keeper fallback"),
+		Presentation->GetResolvedVisualMode(),
+		EEmbermereNpcVisualMode::StaticMesh);
+	TestTrue(
+		TEXT("Keeper static fallback remains the exact accepted mesh"),
+		Presentation->StaticVisual->GetStaticMesh() == StaticFallback);
 
 	return true;
 }

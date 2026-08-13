@@ -894,6 +894,44 @@ Lesson: a safe tool refusal, deterministic technical eligibility, and human
 composition acceptance are complementary gates. Passing one does not waive the
 others.
 
+## Fifteenth Asset: Rigged Fenwatch Keeper
+
+The 2026-08-13 pass upgraded Mara's accepted keeper silhouette without moving
+her quest behavior into art. `build_embermere_fenwatch_keeper.py` now exposes
+the exact reviewed parts behind an import-only guard, and
+`build_embermere_fenwatch_keeper_rigged.py` reuses them in a deterministic
+skeletal build.
+
+The accepted Blender contract is:
+
+- `107.45 x 71.0 x 207.5` cm grounded dimensions;
+- 3,280 triangles, six existing project-owned materials, one UV channel, and
+  no non-manifold edges;
+- nine authored bones with applied armature scale, complete rigid one-bone
+  weights, and no unweighted or multiply weighted vertices;
+- one 109-frame action at 30 fps, producing an exact 3.6-second restrained Idle
+  with planted feet and staff.
+
+The classic-FBX lane explicitly saves the SkeletalMesh, imported Skeleton, and
+AnimationSequence. Unreal retains one importer-owned Armature root in addition
+to the nine authored bones. The saved
+`Embermere_FenwatchKeeper_Mara_Presentation_01` wrapper prefers those assets,
+remains `NoCollision`, and keeps the static keeper as a reversible fallback.
+
+Mara exposed an ownership case the service NPCs did not. The existing
+`BP_QuestGiver` could not simply be replaced because its interactable component
+already owns the marker, display name, dialogue, quest, and reward flow. The
+accepted map therefore keeps that gameplay actor unchanged, clears only its
+dormant SCS render mesh, and composes the former local art transform into a
+colocated wrapper. Fresh validation locks both actors and rejects quest or
+interaction authority on the wrapper.
+
+The no-hot-reload build and both headless and fresh-editor MCP suites passed all
+51 tests. A clean PIE review kept Mara grounded beneath the shelter with her
+marker and name clear, while a fresh-module two-sample probe advanced the Idle
+from `0.333814` to `1.525603` seconds. Her normal-range `F` dialogue/quest loop
+remains a deliberate physical acceptance check rather than an inferred claim.
+
 ## Sources
 
 - Article/post: https://x.com/explosss1ve/status/2075654835597164769

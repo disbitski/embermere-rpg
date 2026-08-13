@@ -2121,6 +2121,39 @@ Lesson: idempotence is not repeatedly asking an importer to do work. It is
 knowing when to validate, when to rebuild, and keeping those lifecycles far
 enough apart that one cannot silently contaminate the next.
 
+## 2026-08-13 - Mara Moved, Her Quest Did Not
+
+The two service NPCs had already proven Embermere's production skeletal lane,
+but Mara carried a harder architectural constraint. Her art still lived inside
+`BP_QuestGiver`, alongside the interactable that owns her name, dialogue, quest,
+marker, and rewards. Upgrading the keeper could not mean replacing that actor
+or quietly giving a visual wrapper duplicate gameplay authority.
+
+The deterministic Blender build reused the exact accepted keeper parts. The
+rigged source retains 3,280 triangles, six materials, grounded
+`107.45 x 71.0 x 207.5` cm bounds, and clean topology. It adds nine authored
+bones, complete rigid weights, and a restrained 109-frame Idle at 30 fps. The
+3.6-second loop moves the torso, head, and arms while keeping Mara's feet and
+staff planted. Classic FBX adds the now-documented importer-owned Armature root,
+so Unreal validates ten reference bones while retaining all authored names.
+
+The saved migration kept `Quest_Giver_Mara_Fenwatch` and its interactable
+unchanged. Its old SCS static component remains as a dormant transform template
+with no render mesh. A colocated `AEmbermereNpcPresentationActor` now owns only
+the rig, Idle, static fallback, shared visual transform, and project-art tag.
+It remains non-colliding and has no quest or interaction component.
+
+The no-hot-reload build passed, followed by 51/51 headless tests and 51/51 in a
+freshly restarted editor through MCP. Fresh keeper and full-zone validators
+passed. Clean PIE kept the silhouette grounded beneath the shelter and the gold
+marker/name unobstructed; a fresh-module probe advanced the Idle from
+`0.333814` to `1.525603` seconds. The remaining honest playtest is to walk into
+Mara's real `F` radius and complete her dialogue and quest loop.
+
+Lesson: asset-agnostic presentation is not permission to erase existing
+ownership. Fingerprint the gameplay actor, extract only its art, and prove both
+halves after the migration.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
