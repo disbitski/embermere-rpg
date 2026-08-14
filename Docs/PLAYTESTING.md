@@ -7,10 +7,10 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 1. Open `/Game/Maps/L_Embermere_Prototype`.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
 3. Confirm the map shows a blue atmospheric sky, readable ambient light, the
-   varied moss/earth road surface, 56 grounded upright `FabPass_` actors plus
-   19 original-art placements from the waystone, ember-lamp, road-signpost,
+   varied moss/earth road surface, 55 grounded upright `FabPass_` actors plus
+   20 original-art placements from the waystone, ember-lamp, road-signpost,
    road-gate, boundary-fence, boundary-stone, supply-chest, Fenwatch shelter,
-   Mara's keeper, the Fenwatch quartermaster and armsmaster, the practice
+   Mara's keeper, the Fenwatch quartermaster and armsmaster, the vendor stall, the practice
    dummy, and four marsh-reed clusters, a
    navigable PlayerStart/Mara
    route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three original
@@ -57,8 +57,17 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     feet must contact terrain; it must remain `NoCollision`, non-interactable,
     and clear of the spawn route, chest silhouette, Mara, and her marker/name.
     The saved actor uses `(-1530, -1190, 0)`, yaw `100`, unit scale, and the
-    static lane of `AEmbermereNpcPresentationActor`.
-13. Inspect `Embermere_FenwatchArmsmaster_Trainer_01` near the quartermaster.
+    skeletal Idle lane of `AEmbermereNpcPresentationActor`; the reviewed
+    static mesh remains its fallback.
+13. Inspect `Embermere_FenwatchVendorStall_Quartermaster_01` behind the
+    quartermaster at `(-1530, -1430, 0)`, yaw `180`. Its pale moss roof,
+    timber frame, iron counter, stone feet, and ember crest should read as the
+    same Fenwatch family. Confirm all four supports and the counter are solid,
+    the customer-side service approach and east bypass remain clear, and the
+    supply chest stays accessible. Press `F` at the unchanged quartermaster
+    service and confirm Fenwatch Supplies opens. The replaced
+    `FabPass_Village_Fence_01` must remain absent.
+14. Inspect `Embermere_FenwatchArmsmaster_Trainer_01` near the quartermaster.
     The moss hood, timber tunic, pale guard tabard, ember crest, shield, and
     ember-tipped staff should form a distinct guard-trainer silhouette. Its
     feet must contact terrain; it must remain `NoCollision`, carry no
@@ -68,17 +77,17 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     uses `SK_EmbermereFenwatchArmsmaster_01` with the exact 3.2-second
     `A_EmbermereFenwatchArmsmaster_Idle`; the reviewed static mesh remains its
     fallback.
-14. Inspect `Embermere_FenwatchPracticeDummy_TrainingYard_01` at
+15. Inspect `Embermere_FenwatchPracticeDummy_TrainingYard_01` at
     `(-1120, -1120, 0)`, yaw `45`. Its timber target face should point toward
     the armsmaster, its stone/moss footing should contact terrain, and its iron
     bands plus ember bullseye should read from the training-yard approach. The
     authored base and torso/core must be solid, both outstretched arms must be
     clear, and the open village route must remain traversable. Confirm the
     generic `FabPass_Village_Crate_C` it replaced is absent.
-15. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
+16. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
     should blend into the ground, reeds should add scale without hiding the
     route, and the whole cluster must remain `NoCollision`.
-16. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
+17. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
     marker meshes have not returned. Foliage should use readable
     project-owned overrides rather than white/default rendering.
 
@@ -121,8 +130,11 @@ The armsmaster acceptance measured `0.193888 -> 1.670905` seconds. The
 quartermaster acceptance measured `0.853735 -> 2.195707` seconds. The fresh-
 module keeper acceptance measured `0.333814 -> 1.525603` seconds. All remained
 `playing=true` and `NoCollision`. All 51 tests, fresh package validators, and
-initialized-world route traces passed. Mara's normal-range `F` dialogue/quest
-loop remains the next physical acceptance check.
+initialized-world route traces passed. On 2026-08-14 a real `F` press opened
+Mara's Blueprint-owned dialogue and accepted the quest, real Prowler combat
+advanced it to `3/3`, and the same original interactable completed the return
+for `125` XP, `20` copper, and one Recruit Pack while the rigged wrapper stayed
+presentation-only.
 
 ## Current Play Loop
 

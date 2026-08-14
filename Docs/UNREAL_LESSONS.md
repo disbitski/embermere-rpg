@@ -595,6 +595,15 @@ technical eligibility covers mesh, materials, collision, persistence, and exact
 transform; world acceptance covers front-facing readability, terrain contact,
 route clearance, scale, and visual belonging.
 
+The Fenwatch vendor stall added a less obvious variant: classic FBX mirrored
+Blender local Y. Its first Unreal placement passed dimensions, materials,
+transform, package, and collider-count checks, and even looked plausible in the
+viewport. A native trace through the authored counter proved it faced away from
+the quartermaster. Lock directional collision probes to meaningful local
+features, not only actor yaw. The accepted map rotates the stall to yaw `180`
+so the counter faces the customer approach, while separate traces keep the
+approach and bypass clear.
+
 ## Blueprint Defaults Do Not Rewrite Saved Placed Instances
 
 Changing a component or soft asset reference on a Blueprint class default

@@ -341,13 +341,13 @@ Games Launcher. Saved map references may be missing until those packs exist.
 Environment scripts:
 
 - `Scripts/place_fab_zone_pass.py`: idempotent base placement recipe; the saved
-  map retains 56 Fab actors after project-owned replacements and removal of
+  map retains 55 Fab actors after project-owned replacements and removal of
   unsupported accents and enemy markers.
 - `Scripts/place_fab_zone_pass_unreal.py`: executes placement through Unreal
   Python and saves the map.
 - `Scripts/validate_fab_zone_pass_unreal.py`: reloads and validates the saved
   map, actor count, upright rotations, gameplay anchors, collision-cleared
-  encounter layout, 19 original-art placements, moss/earth terrain, and exact
+  encounter layout, 20 original-art placements, moss/earth terrain, and exact
   Mac-friendly daylight values.
 - `Scripts/configure_starter_items.py`: idempotently migrates tracked starter
   item assets, currently the level-1 Back-slot Recruit Pack reward.
@@ -486,6 +486,18 @@ static-preferred mode, and the `EmbermereOriginalArt` tag. The wrapper owns
 soft static/skeletal references and one shared visual transform but no
 interaction, vendor, trainer, dialogue, or quest state. This brings the map to
 17 original-art placements.
+
+Later production additions are the rigged Fenwatch armsmaster, the solid-core
+Fenwatch practice dummy, and the project-owned Fenwatch vendor stall. The stall
+is a `394 x 242 x 306` cm, 5,476-triangle stone/moss/timber/iron/ember module
+with four solid support boxes and one solid counter. It replaces
+`FabPass_Village_Fence_01` at `(-1530, -1430, 0)`, yaw `180`, behind the
+quartermaster. The 180-degree yaw intentionally compensates for classic FBX's
+local-Y mirror so the counter faces the customer approach. Fresh package
+validation and initialized-world traces lock the four supports, counter,
+service approach, and east bypass. The map now contains 55 Fab actors and 20
+original-art placements: 13 solid world props/modules, three non-colliding NPC
+presentations, and four non-colliding reed clusters.
 
 The chosen community bridge is `djeada/blender-mcp-server`, pinned during
 installation to commit `7eed33edf4aca2ab0ca84a6da27321f89f68b504`.
@@ -1074,15 +1086,16 @@ Blueprint actor that owns her quest gameplay.
   ownership, map, UI, service, and route baseline.
 - Clean PIE kept Mara grounded beneath the shelter with her marker and name
   readable. The fresh-module animation clock advanced from `0.333814` to
-  `1.525603` seconds. Her normal-range `F` dialogue and quest loop remains the
-  next physical acceptance gate.
+  `1.525603` seconds. On 2026-08-14 a physical `F` press accepted the original
+  Blueprint-owned quest, real Prowler combat advanced it to `3/3`, and the same
+  original interactable completed the return. The wrapper remained art-only.
 
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-13 no-hot-reload rigged Fenwatch keeper, armsmaster, and quartermaster
-module plus all three accepted skeletal-mesh/Skeleton/Idle sets, practice-dummy/map,
-offering, Chronicle, Fenwatch
+2026-08-14 no-hot-reload rigged Fenwatch keeper, armsmaster, and quartermaster
+module plus all three accepted skeletal-mesh/Skeleton/Idle sets, the Fenwatch
+vendor-stall/map package, practice dummy, offering, Chronicle, Fenwatch
 stock/service, item, quest, keeper, quartermaster, NPC wrapper, and Blueprint
 packages, then confirm MCP/test discovery; restart only if the editor or test
 registry proves stale.
@@ -1167,9 +1180,15 @@ First fresh-session checks:
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
-   - 56 grounded upright Fab actors plus 19 original placements from the
+   - Mara's accepted ownership proof: physical `F` quest acceptance, real
+     Prowler objective progress, original-interactable completion, and no quest
+     or interaction authority on the rigged wrapper;
+   - the vendor stall at `(-1530, -1430, 0)`, yaw `180`, with a customer-facing
+     counter, four solid supports, clear service approach and east bypass, and
+     unchanged normal-`F` Fenwatch Supplies ownership on the art-free service;
+   - 55 grounded upright Fab actors plus 20 original placements from the
      waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
-     quartermaster/armsmaster/practice-dummy/reed family;
+     quartermaster/armsmaster/vendor-stall/practice-dummy/reed family;
      inspect the route-facing chest at `(-1740, -1180, 0)`, its solid lid, the
      Fenwatch shelter behind Mara at `(-1740, -700, 0)`, its four solid supports
      and clear center, Mara's grounded front-facing non-colliding Fenwatch
@@ -1320,8 +1339,9 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-13 rigged Fenwatch
-keeper, armsmaster, and quartermaster module and all three accepted
+Follow TODO.md's Start Here section. Confirm the 2026-08-14 rigged Fenwatch
+keeper, armsmaster, and quartermaster module, the accepted vendor-stall/map
+package, and all three accepted
 skeletal-mesh/Skeleton/Idle sets, practice-dummy/map,
 offering/Chronicle,
 bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
@@ -1367,8 +1387,8 @@ feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy
 nameplate, bounds-aware surface-traced cyan-blue target circle, quest/reward
 loop, enemy
 leash, respawn protection, chat clipping, atmospheric daylight and the
-38-expression moss/earth road, 56 grounded upright Fab actors, and all 19
-original-art placements including four `NoCollision` reed clusters, the
+38-expression moss/earth road, 55 grounded upright Fab actors, and all 20
+original-art placements including the vendor stall, four `NoCollision` reed clusters, the
 open-sided Fenwatch shelter at `(-1740, -700, 0)`, yaw `-64`, and the
   grounded front-facing non-colliding rigged Mara keeper wrapper with its
   3.6-second Idle, marker/name clear, and original Blueprint quest authority,
@@ -1420,10 +1440,15 @@ the accepted trainer-produced 30-copper/25-XP Chronicle state remains exact in
 a fresh PIE world and a second idempotent load without changing save version 1.
 Then retain grounded normal-camera keeper, armsmaster, and quartermaster
 motion, clear markers/routes, advancing animation clocks, and all three static
-fallbacks. Walk into Mara's normal `F` radius and complete her dialogue and
-quest loop to physically prove the extracted art did not alter Blueprint-owned
-gameplay. Tune only concrete Prowler or aura issues, or take the highest-value
-next milestone when the path is clear.
+fallbacks. Retain the accepted Mara proof: physical `F` opened and accepted the
+Blueprint-owned quest, real Prowler combat advanced it to `3/3`, and the same
+original interactable completed the return while the rigged wrapper remained
+art-only. Recheck the vendor stall's customer-facing counter, solid supports,
+clear service approach and east bypass, and normal `F` vendor opening. Then
+take the highest-value bounded milestone: a contextual greeting/talk
+presentation that subscribes to existing quest/interactable state without
+owning dialogue, progression, rewards, or interaction authority. Tune only
+concrete Prowler or aura issues when normal play exposes them.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

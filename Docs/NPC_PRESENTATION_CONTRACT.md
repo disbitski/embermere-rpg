@@ -161,8 +161,10 @@ advanced from `0.853735` to `2.195707` seconds; and the fresh-module keeper
 advanced from `0.333814` to `1.525603` seconds. All remained `playing=true`,
 grounded, readable, and `NoCollision`, while initialized-world traces retained
 the training-yard and village-service routes. The keeper additionally retained
-Mara's unobstructed marker and name; her normal-range `F` dialogue and quest
-loop remains the next physical playtest gate.
+Mara's unobstructed marker and name. On 2026-08-14 a physical `F` press accepted
+the original Blueprint-owned quest, real Prowler combat advanced it to `3/3`,
+and the same original interactable completed the return while the rigged
+wrapper remained presentation-only.
 
 Future vendor, trainer, quest, or ambient-rig upgrades should reuse this exact
 contract. Any class restriction, skill unlock, finite lesson, stock rule, quest

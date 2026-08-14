@@ -2154,6 +2154,36 @@ Lesson: asset-agnostic presentation is not permission to erase existing
 ownership. Fingerprint the gameplay actor, extract only its art, and prove both
 halves after the migration.
 
+## 2026-08-14 - Mara Worked, Then Fenwatch Gained A Shop
+
+Mara's rig migration had passed every structural gate, but today closed the
+honest gameplay gate. A real `F` press opened the original Blueprint-owned
+dialogue and accepted her quest. Real combat against the three saved Marsh
+Prowlers advanced it to `3/3`, and the same original interactable completed the
+return for 125 XP, 20 copper, and one Recruit Pack. Her separate rigged wrapper
+stayed grounded, animated, non-colliding, and free of quest authority.
+
+With that ownership proof complete, the quartermaster's generic fence became
+the next obvious visual weak point. The new Fenwatch vendor stall came through
+the deterministic Blender and classic-FBX pipeline at `394 x 242 x 306` cm,
+5,476 triangles, five shared materials, and five authored collision boxes.
+Its pale moss roof, timber frame, stone feet, iron counter, and ember crest now
+give Fenwatch Supplies a place in the world without changing the vendor service.
+
+The first technically valid placement was backwards. Classic FBX mirrored
+Blender local Y, and a native collision trace found the counter on the wrong
+side even though the viewport composition looked plausible. Rotating the saved
+actor to yaw 180, rerunning exact package validation, and proving four supports,
+the counter, customer approach, and east bypass turned that failure into a
+durable placement contract. Focused PIE then opened the existing vendor panel
+through normal `F` interaction.
+
+The map now contains 55 grounded Fab actors and 20 original-art placements.
+The no-hot-reload build, all 51 tests, fresh package validators, and live route
+traces passed. The lesson is simple: an asset's authored front is gameplay
+information, and collision can reveal directional mistakes that a screenshot
+misses.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

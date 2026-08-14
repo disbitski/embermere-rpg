@@ -929,8 +929,47 @@ interaction authority on the wrapper.
 The no-hot-reload build and both headless and fresh-editor MCP suites passed all
 51 tests. A clean PIE review kept Mara grounded beneath the shelter with her
 marker and name clear, while a fresh-module two-sample probe advanced the Idle
-from `0.333814` to `1.525603` seconds. Her normal-range `F` dialogue/quest loop
-remains a deliberate physical acceptance check rather than an inferred claim.
+from `0.333814` to `1.525603` seconds. On 2026-08-14, a real `F` press accepted
+the Blueprint-owned quest, real Prowler combat advanced it to `3/3`, and the
+same original interactable completed the return for XP, copper, and the Recruit
+Pack. The rigged wrapper remained presentation-only throughout.
+
+## Sixteenth Asset: Fenwatch Vendor Stall
+
+The quartermaster had production character art and a real vendor service, but
+the remaining generic fence behind him still read as borrowed scenery. The
+2026-08-14 pass replaced it with a deterministic project-owned stall that uses
+the same stone, moss, timber, iron, and ember language as the rest of Fenwatch.
+
+The accepted Blender contract is:
+
+- `394 x 242 x 306` cm grounded dimensions;
+- 5,476 triangles, five existing project-owned materials, one UV channel, no
+  non-manifold edges, and applied unit scale;
+- four authored support collision boxes plus one counter collision box;
+- an open service approach and side bypass rather than a closed building shell.
+
+The reviewed script ran in a factory-clean Blender process with Safe Mode left
+enabled. Classic `FbxFactory` import, explicit package saving, exact shared-
+material reassignment, and fresh-package validation made the asset technically
+eligible before it entered the map.
+
+World validation caught the detail the isolated preview could not: classic FBX
+mirrored Blender local Y, leaving a numerically valid first placement with its
+counter facing away from the quartermaster. Native collision traces exposed
+the backwards counter. The deterministic placement was corrected to yaw `180`,
+saved, and revalidated. Four supports and the counter now block; the customer
+approach and east bypass remain clear.
+
+The stall replaces `FabPass_Village_Fence_01` at
+`(-1530, -1430, 0)`. Focused PIE opened Fenwatch Supplies through normal `F`
+interaction at the unchanged art-free vendor service, proving the architecture
+did not acquire commerce authority. The accepted map now contains 55 Fab
+actors and 20 original-art placements.
+
+Lesson: topology and transform validation can prove that a model exists where
+the recipe says it should. Directional collision and normal-route play prove
+that its authored front actually belongs there.
 
 ## Sources
 

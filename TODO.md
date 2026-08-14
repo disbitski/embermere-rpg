@@ -6,11 +6,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-13 no-hot-reload rigged Fenwatch
-  keeper, armsmaster, and quartermaster module plus all three accepted skeletal
-  meshes, Skeletons, Idles, practice-dummy/map, offering, Chronicle, vendor,
-  item, and quest packages. Restart if the editor predates that work or test
-  discovery exposes fewer than 51
+- Confirm Unreal is running the 2026-08-14 no-hot-reload module plus the
+  accepted rigged Fenwatch keeper, armsmaster, and quartermaster packages and
+  the new Fenwatch vendor-stall/map package. Restart if the editor predates
+  that work or test discovery exposes fewer than 51
   Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
@@ -37,9 +36,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.UI.TrainerPanel`,
   `Embermere.NPC.SkeletalIdlePresentation`, the three established NPC
   presentation tests, Prowler/world presentation, player recovery, and
-  inventory transaction suites. The authoritative 2026-08-13 headless and
-  fresh-editor MCP runs each passed 51/51; the no-hot-reload Mac build and
-  fresh-process keeper-rig, saved-map, UI-art, armsmaster-rig,
+  inventory transaction suites. The authoritative 2026-08-14 headless run
+  passed 51/51; the no-hot-reload Mac build and fresh-process vendor-stall,
+  keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed.
 - Recheck the accepted Fenwatch vendor loop through normal `F` interaction:
@@ -151,7 +150,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - all three saved map instances retain the skeletal mesh and animation set,
     not only the Blueprint CDO.
 - Recheck the completed grounding pass:
-  - 56 grounded upright `FabPass_` actors and 19 original-art placements;
+  - 55 grounded upright `FabPass_` actors and 20 original-art placements;
   - all ordinary art that previously sat at `Z=20` now rests at `Z=0`;
   - the unsupported SoulCave arch/pillar accents and three enemy marker meshes
     remain removed;
@@ -211,6 +210,16 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   Clean PIE kept `playing=true` while the animation position advanced from
   `0.853735` to `2.195707` seconds. The co-located vendor service still owns
   all interaction, stock, transaction, UI, and persistence authority.
+- Inspect `Embermere_FenwatchVendorStall_Quartermaster_01` behind the
+  quartermaster at `(-1530, -1430, 0)`, yaw `180`. The project-owned
+  `394 x 242 x 306` cm module has 5,476 triangles, five shared Fenwatch
+  materials, four solid support boxes, and one solid counter box. Its customer
+  approach and east bypass must remain clear, the supply chest must stay
+  accessible, and the co-located art-free service must still open Fenwatch
+  Supplies through normal `F`. The 180-degree placement yaw is intentional:
+  classic FBX mirrors Blender local Y, and the accepted rotation keeps the
+  authored counter facing the quartermaster. `FabPass_Village_Fence_01` must
+  remain absent.
 - Inspect `Embermere_FenwatchArmsmaster_Trainer_01` beside the Fenwatch service
   cluster. Its deterministic rigged Blender source is a grounded
   `154.5 x 87.0 x 228.0` cm, 2,824-triangle model with six project-owned
@@ -262,27 +271,31 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. walk into Mara's normal interaction radius in clean PIE and press `F`;
-     accept and complete the existing quest while proving her rigged Idle,
-     marker, name, dialogue, quest state, rewards, and route remain intact;
-  2. retain all three accepted production Idles from the normal village route:
+  1. retain Mara's accepted real interaction loop: physical `F` opened the
+     original Blueprint-owned dialogue and accepted the quest, real Prowler
+     combat advanced it to `3/3`, and invoking that same original interactable
+     for the return granted exactly `125` XP, `20` copper, and one Recruit Pack
+     without moving any authority into the rigged wrapper;
+  2. retain the accepted vendor-stall composition and native traces, then
+     implement one bounded contextual greeting/talk presentation that
+     subscribes to existing quest/interactable state without owning dialogue,
+     quest progression, rewards, or interaction authority;
+  3. retain all three accepted production Idles from the normal village route:
      grounded feet, restrained motion, readable silhouettes, advancing clocks,
      clear markers/path, and unchanged quest, vendor, and trainer interactions;
-  3. rerun the exact vendor and trainer transaction chains plus the
+  4. rerun the exact vendor and trainer transaction chains plus the
      trainer-to-Chronicle `40/0 -> 30/25` save, fresh-world load, and second
      idempotent load with both rigged presentations active, proving art cannot
      alter service or persistence state;
-  4. retain both accepted Chronicle proofs, including trainer-produced
+  5. retain both accepted Chronicle proofs, including trainer-produced
      `30`-copper/`25`-XP state, slot inspection, confirmation, rejection,
      panel handoff, and two-session idempotence contracts; keep console commands
      as debug fallbacks and defer autosave, deletion, profiles, and migrations;
-  5. after Mara's real interaction loop is accepted, take one bounded next
-     step: a contextual greeting/talk presentation that still subscribes to
-     quest authority, or one cohesive Fenwatch village module that improves the
-     service cluster without blocking its route;
-  6. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
+  6. extend Fenwatch with another cohesive module only after the greeting lane
+     is proven and the vendor stall remains useful from the normal route;
+  7. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete issue;
-  7. consider authored Niagara, class-specific VFX, or audio only after the
+  8. consider authored Niagara, class-specific VFX, or audio only after the
      current asset-agnostic presentation has carried the playable slice farther.
 
 ## Full Manual Regression Checklist
@@ -482,8 +495,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - the map has a blue atmospheric sky, readable ambient fill, and the
     38-expression moss/earth road material instead of the previous black
     sky/white or flat-green ground presentation;
-  - all 56 remaining Fab art-pass actors are grounded and upright; all 19
-    original placements remain present, including the practice dummy and four
+  - all 55 remaining Fab art-pass actors are grounded and upright; all 20
+    original placements remain present, including the vendor stall, practice dummy, and four
     terrain-blended `NoCollision` marsh-reed clusters;
   - the three oversized sci-fi building shells, old Mara backdrop/market cover,
     and vendor/trainer cubes are gone; PlayerStart has an unobstructed view
@@ -1417,7 +1430,26 @@ idempotent load without adding trainer-specific schema.
   route baseline. Clean PIE kept Mara grounded beneath the shelter with her
   marker/name unobstructed, and two clock probes advanced the Idle, including
   `0.333814 -> 1.525603` seconds on the fresh module. The remaining manual gate
-  is to walk into her real `F` radius and complete the dialogue/quest loop.
+  was to walk into her real `F` radius and complete the dialogue/quest loop.
+- 2026-08-14: physically accepted Mara's original gameplay ownership after the
+  art extraction. A real `F` press opened the Blueprint-owned dialogue and
+  accepted the quest, live combat against all three saved Prowlers advanced it
+  to `3/3`, and the original interactable completed the return for exactly
+  `125` XP, `20` copper, and one Recruit Pack. The rigged wrapper remained
+  grounded, looping, non-colliding, and free of quest/interaction authority.
+- Built and placed `SM_EmbermereFenwatchVendorStall_01` through the reviewed
+  deterministic Blender/classic-FBX lane. The accepted asset is
+  `394 x 242 x 306` cm, 5,476 triangles, five shared materials, four authored
+  support colliders, and one counter collider. A live trace exposed classic
+  FBX's local-Y mirror; rotating the saved placement to yaw `180` put the
+  counter on the customer side instead of accepting a plausible backward
+  composition. The stall replaced `FabPass_Village_Fence_01`, producing the
+  current 55 Fab/20 original-art baseline.
+- Focused PIE opened Fenwatch Supplies through normal `F` at the unchanged
+  art-free service. Native traces passed four supports, the counter, service
+  approach, and east bypass. The no-hot-reload build, all 51 tests, and fresh
+  vendor-stall, saved-zone, UI-art, three NPC-rig, practice-dummy, vendor, and
+  trainer validators passed with explicit success markers.
 
 ## Asset Hunt
 

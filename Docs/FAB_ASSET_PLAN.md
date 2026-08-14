@@ -14,8 +14,9 @@ Embermere does not have final high-fantasy art assets installed yet. The current
   The quartermaster now has a separate project-owned vendor service and stock
   data asset; the armsmaster has a separate trainer service and offerings data
   asset. A project-owned practice dummy now gives that service cluster a
-  readable training-yard focal point. Service actors do not change the
-  19-piece art baseline.
+  readable training-yard focal point, and the project-owned Fenwatch vendor
+  stall gives the quartermaster a cohesive service-space silhouette. Service
+  actors do not change the 20-piece art baseline.
   We still do
   not have a cohesive production-ready fantasy building kit, player/race art,
   weapons, audio, or final UI skinning.
@@ -45,17 +46,18 @@ First local placement pass:
 - The pass removes the old visual-only village blockout buildings, road
   markers, ruin blockout pieces, unsupported SoulCave accents, three enemy
   marker meshes, the Mara stone backdrop, the mismatched market cover, and the
-  vendor/trainer cubes. The practice-dummy pass also replaces the remaining
-  generic `FabPass_Village_Crate_C`, leaving 56 tagged `EmbermereFabPass` actors in
+  vendor/trainer cubes. The practice-dummy pass replaces
+  `FabPass_Village_Crate_C`, and the vendor-stall pass replaces
+  `FabPass_Village_Fence_01`, leaving 55 tagged `EmbermereFabPass` actors in
   `04_Fab_Zone_Pass` outliner folders. A separate project-owned layer contains
-  eleven solid waystone/lamp/signpost/gate/fence/boundary-stone/supply-chest/
-  shelter placements, the solid-core practice dummy, Mara's non-colliding
+  thirteen solid waystone/lamp/signpost/gate/fence/boundary-stone/supply-chest/
+  shelter/vendor-stall/practice-dummy placements, Mara's non-colliding
   Fenwatch keeper, the non-colliding Fenwatch quartermaster and armsmaster,
-  plus four visual-only marsh-reed clusters, for 19 original-art placements.
+  plus four visual-only marsh-reed clusters, for 20 original-art placements.
 - The script keeps Mara, PlayerStart, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring intact. Starter-enemy home points are deliberately authored in the setup script so collision-safe encounter tuning is reproducible.
 - The Unreal Python helper assigns rotation fields by name. Do not use positional `unreal.Rotator(...)` arguments here; the first pass mapped intended yaw into pitch and tilted the environment.
 - Validation rejects any `FabPass_` actor with meaningful pitch or roll and
-  requires all 19 original placements, their exact meshes/tags/transforms, the
+  requires all 20 original placements, their exact meshes/tags/transforms, the
   expected solid-prop colliders, and explicit `NoCollision` on the four reeds.
   It also verifies the keeper's exact static mesh, local offset/facing, unit
   scale, and `NoCollision` state on both the saved Blueprint SCS template and
@@ -74,6 +76,12 @@ First local placement pass:
   target's dimensions, topology, five shared materials, two authored support/
   core collision boxes, exact target-facing transform, and replacement of the
   generic crate.
+  `Scripts/validate_fenwatch_vendor_stall_unreal.py` locks the project-owned
+  stall's dimensions, topology, five shared materials, five authored support/
+  counter collision boxes, exact transform and tag, and replacement of the
+  generic fence. Its separate initialized-world trace validator proves all
+  four supports and the customer-facing counter solid while keeping the
+  service approach and east bypass clear.
   It also locks the two foliage transforms that reveal the accepted south-fence
   silhouette and rejects restoration of the replaced crate and unsupported
   accents. `Scripts/validate_road_boundary_traces_unreal.py` separately proves

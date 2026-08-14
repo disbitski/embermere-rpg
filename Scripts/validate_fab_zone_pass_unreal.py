@@ -5,8 +5,8 @@ import unreal
 
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
-EXPECTED_FABPASS_COUNT = 56
-EXPECTED_ORIGINAL_ART_COUNT = 19
+EXPECTED_FABPASS_COUNT = 55
+EXPECTED_ORIGINAL_ART_COUNT = 20
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -119,6 +119,10 @@ ORIGINAL_PRACTICE_DUMMY_LABEL = "Embermere_FenwatchPracticeDummy_TrainingYard_01
 ORIGINAL_PRACTICE_DUMMY_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereFenwatchPracticeDummy_01.SM_EmbermereFenwatchPracticeDummy_01"
 ORIGINAL_PRACTICE_DUMMY_LOCATION = (-1120.0, -1120.0, 0.0)
 ORIGINAL_PRACTICE_DUMMY_YAW = 45.0
+ORIGINAL_VENDOR_STALL_LABEL = "Embermere_FenwatchVendorStall_Quartermaster_01"
+ORIGINAL_VENDOR_STALL_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereFenwatchVendorStall_01.SM_EmbermereFenwatchVendorStall_01"
+ORIGINAL_VENDOR_STALL_LOCATION = (-1530.0, -1430.0, 0.0)
+ORIGINAL_VENDOR_STALL_YAW = 180.0
 SPAWN_AUTORUN_ROUTE_START = (-2400.0, -1200.0)
 SPAWN_AUTORUN_ROUTE_END = (-1350.0, -750.0)
 SUPPLY_CHEST_ROUTE_CLEARANCE = 225.0
@@ -235,6 +239,7 @@ REQUIRED_LABELS = {
     ORIGINAL_GATE_LABEL,
     ORIGINAL_SUPPLY_CHEST_LABEL,
     ORIGINAL_PRACTICE_DUMMY_LABEL,
+    ORIGINAL_VENDOR_STALL_LABEL,
     ORIGINAL_FENWATCH_SHELTER_LABEL,
     FENWATCH_KEEPER_PRESENTATION_LABEL,
     FENWATCH_QUARTERMASTER_LABEL,
@@ -268,6 +273,7 @@ REMOVED_GREYBOX_LABELS = {
     "FabPass_Ruin_Soul_Arch_Accent",
     "FabPass_Ruin_Soul_Pillar",
     "FabPass_Village_Crate_C",
+    "FabPass_Village_Fence_01",
 }
 
 
@@ -285,6 +291,11 @@ def fail(message):
 
 def nearly_equal(actual, expected, tolerance=0.0001):
     return abs(float(actual) - float(expected)) <= tolerance
+
+
+def angle_nearly_equal(actual, expected, tolerance=0.0001):
+    delta = (float(actual) - float(expected) + 180.0) % 360.0 - 180.0
+    return abs(delta) <= tolerance
 
 
 def distance_to_segment_2d(point, start, end):
@@ -1549,6 +1560,116 @@ def main():
             armsmaster_distance,
         ))
 
+    vendor_stall_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_VENDOR_STALL_PATH)
+    if not vendor_stall_mesh or not isinstance(vendor_stall_mesh, unreal.StaticMesh):
+        fail("missing original Fenwatch vendor stall {}".format(
+            ORIGINAL_VENDOR_STALL_PATH,
+        ))
+    vendor_stall_import_data = vendor_stall_mesh.get_editor_property("asset_import_data")
+    vendor_stall_import_class = (
+        vendor_stall_import_data.get_class().get_name()
+        if vendor_stall_import_data
+        else "None"
+    )
+    if vendor_stall_import_class != "FbxStaticMeshImportData":
+        fail("Fenwatch vendor stall must retain classic FBX import data, found {}".format(
+            vendor_stall_import_class,
+        ))
+    vendor_stall_body_setup = vendor_stall_mesh.get_editor_property("body_setup")
+    vendor_stall_aggregate = (
+        vendor_stall_body_setup.get_editor_property("agg_geom")
+        if vendor_stall_body_setup
+        else None
+    )
+    vendor_stall_box_count = (
+        len(vendor_stall_aggregate.get_editor_property("box_elems"))
+        if vendor_stall_aggregate
+        else 0
+    )
+    if vendor_stall_box_count != 5:
+        fail("Fenwatch vendor stall must retain 5 authored support/counter box colliders, found {}".format(
+            vendor_stall_box_count,
+        ))
+    vendor_stall_bounds = vendor_stall_mesh.get_bounds()
+    if not all((
+        nearly_equal(vendor_stall_bounds.box_extent.x, 197.0, 1.0),
+        nearly_equal(vendor_stall_bounds.box_extent.y, 121.0, 1.0),
+        nearly_equal(vendor_stall_bounds.origin.z, 153.0, 1.0),
+        nearly_equal(vendor_stall_bounds.box_extent.z, 153.0, 1.0),
+    )):
+        fail("Fenwatch vendor stall bounds drifted: origin={}, extent={}".format(
+            vendor_stall_bounds.origin,
+            vendor_stall_bounds.box_extent,
+        ))
+    if vendor_stall_mesh.get_num_triangles(0) != 5476:
+        fail("Fenwatch vendor stall triangle count drifted: {}".format(
+            vendor_stall_mesh.get_num_triangles(0),
+        ))
+    vendor_stall_material_paths = set()
+    for static_material in list(vendor_stall_mesh.get_editor_property("static_materials")):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            vendor_stall_material_paths.add(material.get_path_name())
+    if vendor_stall_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("Fenwatch vendor stall material set drifted: {}".format(
+            sorted(vendor_stall_material_paths),
+        ))
+
+    vendor_stall = actors_by_label[ORIGINAL_VENDOR_STALL_LABEL]
+    vendor_stall_component = vendor_stall.get_component_by_class(unreal.StaticMeshComponent)
+    actor_vendor_stall_mesh = (
+        vendor_stall_component.get_editor_property("static_mesh")
+        if vendor_stall_component
+        else None
+    )
+    actor_vendor_stall_path = (
+        actor_vendor_stall_mesh.get_path_name()
+        if actor_vendor_stall_mesh
+        else "None"
+    )
+    if actor_vendor_stall_path != ORIGINAL_VENDOR_STALL_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_VENDOR_STALL_LABEL,
+            ORIGINAL_VENDOR_STALL_PATH,
+            actor_vendor_stall_path,
+        ))
+    vendor_stall_location = vendor_stall.get_actor_location()
+    vendor_stall_rotation = vendor_stall.get_actor_rotation()
+    if not all((
+        nearly_equal(vendor_stall_location.x, ORIGINAL_VENDOR_STALL_LOCATION[0], 1.0),
+        nearly_equal(vendor_stall_location.y, ORIGINAL_VENDOR_STALL_LOCATION[1], 1.0),
+        nearly_equal(vendor_stall_location.z, ORIGINAL_VENDOR_STALL_LOCATION[2], 1.0),
+        nearly_equal(vendor_stall_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(vendor_stall_rotation.yaw, ORIGINAL_VENDOR_STALL_YAW, 0.1),
+        nearly_equal(vendor_stall_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            ORIGINAL_VENDOR_STALL_LABEL,
+            vendor_stall_location,
+            vendor_stall_rotation,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(vendor_stall.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_VENDOR_STALL_LABEL,
+        ))
+    if str(vendor_stall_component.get_collision_profile_name()) != "BlockAll":
+        fail("{} collision profile drifted: {}".format(
+            ORIGINAL_VENDOR_STALL_LABEL,
+            vendor_stall_component.get_collision_profile_name(),
+        ))
+    quartermaster = actors_by_label[FENWATCH_QUARTERMASTER_LABEL]
+    stall_quartermaster_offset = (
+        quartermaster.get_actor_location() - vendor_stall_location
+    )
+    if not all((
+        nearly_equal(stall_quartermaster_offset.x, 0.0, 1.0),
+        nearly_equal(stall_quartermaster_offset.y, 240.0, 1.0),
+    )):
+        fail("{} spacing from the art-only quartermaster drifted: {}".format(
+            ORIGINAL_VENDOR_STALL_LABEL,
+            stall_quartermaster_offset,
+        ))
+
     marsh_reed_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_MARSH_REED_PATH)
     if not marsh_reed_mesh or not isinstance(marsh_reed_mesh, unreal.StaticMesh):
         fail("missing original marsh reed mesh {}".format(ORIGINAL_MARSH_REED_PATH))
@@ -1903,7 +2024,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))
