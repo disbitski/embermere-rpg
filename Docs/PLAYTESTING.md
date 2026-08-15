@@ -101,6 +101,15 @@ In Play In Editor, Mara's project-owned rigged keeper is a colocated art-only
 wrapper. The existing quest actor still owns the temporary gold `!`, name
 marker, interaction, dialogue, quest state, and rewards.
 
+The wrapper may also show a compact contextual greeting beneath that marker.
+Verify it is hidden outside `420` cm, then shows the quest-owned gold `!`
+available line, cyan `...` active line, green `?` ready line, and muted green
+`+` completed line as the original quest changes state. The fixed `320x56`
+panel must fit without hiding Mara's marker/name, shifting the HUD, or receiving
+mouse input. Physical `F` must still open and mutate only the original
+Blueprint-owned quest flow, and a second completed interaction must not replay
+XP, copper, or the Recruit Pack.
+
 ## NPC Skeletal Idle Acceptance
 
 Use this focused lane when accepting wrapper-based NPC art. The Fenwatch
@@ -129,12 +138,17 @@ distinct rigs, Idles, and reversible static fallbacks.
 The armsmaster acceptance measured `0.193888 -> 1.670905` seconds. The
 quartermaster acceptance measured `0.853735 -> 2.195707` seconds. The fresh-
 module keeper acceptance measured `0.333814 -> 1.525603` seconds. All remained
-`playing=true` and `NoCollision`. All 51 tests, fresh package validators, and
+`playing=true` and `NoCollision`. All 52 tests, fresh package validators, and
 initialized-world route traces passed. On 2026-08-14 a real `F` press opened
 Mara's Blueprint-owned dialogue and accepted the quest, real Prowler combat
 advanced it to `3/3`, and the same original interactable completed the return
 for `125` XP, `20` copper, and one Recruit Pack while the rigged wrapper stayed
 presentation-only.
+
+On 2026-08-15 the contextual observer passed all four live states. The ready
+and completed states were driven through the authoritative quest component,
+physical `F` still completed the original interaction for the exact reward,
+and a repeat `F` preserved `125` XP without reward replay.
 
 ## Current Play Loop
 

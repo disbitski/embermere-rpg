@@ -48,6 +48,20 @@ Those responsibilities belong to separate gameplay actors or components. A
 service actor may reference or accompany a presentation actor, but the art is
 never the service authority.
 
+## Optional Context Observer
+
+The wrapper may opt into a read-only contextual greeting when a nearby NPC
+benefits from a little more world presence. This observer requires an explicit
+authority actor reference, resolves state from that actor's existing data and
+the player's authoritative quest log, and subscribes only to quest-state
+changes. It does not infer ownership from proximity or duplicate quest rules.
+
+The fixed, hit-test-invisible greeting widget is presentation-only,
+`NoCollision`, hidden outside its configured radius, and removable without
+changing interaction results. The observer never invokes interaction, accepts
+or completes a quest, advances an objective, grants rewards, or owns marker,
+dialogue, or input behavior.
+
 ## First Uses
 
 `Embermere_FenwatchQuartermaster_Vendor_01` is the first saved wrapper
@@ -108,7 +122,10 @@ bones with complete rigid one-bone weights, and supplies an exact 3.6-second
 Idle. Classic FBX adds one imported Armature root, giving Unreal ten reference
 bones. The wrapper remains `NoCollision`, owns no interactable or quest
 component, and retains `SM_EmbermereFenwatchKeeper_Mara_01` as its reversible
-static fallback.
+static fallback. Its optional contextual greeting observes the original
+`BP_QuestGiver` and the player's quest log within 420 cm. The greeting reacts
+to available, active, ready-to-turn-in, and completed states without taking
+over Mara's original `F` interaction or any quest authority.
 
 ## Acceptance Gates
 
@@ -138,6 +155,7 @@ The current focused tests are:
 - `Embermere.NPC.FenwatchArmsmasterIdlePresentation`
 - `Embermere.NPC.FenwatchKeeperPresentation`
 - `Embermere.NPC.FenwatchKeeperIdlePresentation`
+- `Embermere.NPC.ContextGreetingPresentation`
 - `Embermere.Vendor.ServiceContract`
 - `Embermere.Vendor.FenwatchStockData`
 - `Embermere.Trainer.ServiceContract`
@@ -165,6 +183,14 @@ Mara's unobstructed marker and name. On 2026-08-14 a physical `F` press accepted
 the original Blueprint-owned quest, real Prowler combat advanced it to `3/3`,
 and the same original interactable completed the return while the rigged
 wrapper remained presentation-only.
+
+On 2026-08-15, clean normal-route PIE accepted Mara's optional contextual
+greeting in all four quest states. It stayed hidden outside 420 cm, showed the
+authored available copy before interaction, changed to active and ready copy
+as the authoritative quest log changed, and settled on completed copy after
+the original physical `F` interaction granted exactly 125 XP, 20 copper, and
+one Recruit Pack. A second `F` press granted nothing, proving the observer did
+not replay rewards or create a parallel dialogue path.
 
 Future vendor, trainer, quest, or ambient-rig upgrades should reuse this exact
 contract. Any class restriction, skill unlock, finite lesson, stock rule, quest

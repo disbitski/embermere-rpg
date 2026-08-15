@@ -17,6 +17,7 @@
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/EmbermereWalletComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
 #include "Data/EmbermereRulesData.h"
@@ -40,6 +41,7 @@
 #include "Save/EmbermereSaveGame.h"
 #include "UI/EmbermereEnemyNameplateWidget.h"
 #include "UI/EmbermereItemDragDropOperation.h"
+#include "UI/EmbermereNpcGreetingWidget.h"
 #include "UI/EmbermerePlayerHudWidget.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -2931,6 +2933,150 @@ bool FEmbermereFenwatchKeeperIdlePresentationTest::RunTest(const FString& Parame
 	TestTrue(
 		TEXT("Keeper static fallback remains the exact accepted mesh"),
 		Presentation->StaticVisual->GetStaticMesh() == StaticFallback);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereNpcContextGreetingPresentationTest,
+	"Embermere.NPC.ContextGreetingPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereNpcContextGreetingPresentationTest::RunTest(const FString& Parameters)
+{
+	const FString AvailableCopy = TEXT("The eastern stones are restless.");
+	const FString ActiveCopy = TEXT("Keep to the road, then watch the reeds.");
+	const FString ReadyCopy = TEXT("You have done enough. Come speak with me.");
+	const FString CompletedCopy = TEXT("Fenwatch remembers a steady hand.");
+
+	UEmbermereQuestData* Quest = NewObject<UEmbermereQuestData>();
+	UEmbermereQuestData* OtherQuest = NewObject<UEmbermereQuestData>();
+	UEmbermereNpcGreetingWidget* GreetingWidget = NewObject<UEmbermereNpcGreetingWidget>();
+	AEmbermereNpcPresentationActor* Presentation = NewObject<AEmbermereNpcPresentationActor>();
+	if (!Quest || !OtherQuest || !GreetingWidget || !Presentation)
+	{
+		AddError(TEXT("Could not create contextual greeting fixtures"));
+		return false;
+	}
+
+	Quest->RequiredObjectiveCount = 3;
+	Quest->AvailableGreeting = FText::FromString(AvailableCopy);
+	Quest->ActiveGreeting = FText::FromString(ActiveCopy);
+	Quest->ReadyGreeting = FText::FromString(ReadyCopy);
+	Quest->CompletedGreeting = FText::FromString(CompletedCopy);
+
+	FEmbermereQuestState QuestState;
+	TestEqual(
+		TEXT("No active quest resolves the available greeting"),
+		AEmbermereNpcPresentationActor::ResolveContextGreetingState(Quest, QuestState),
+		EEmbermereNpcGreetingState::Available);
+	TestEqual(
+		TEXT("Available state resolves quest-owned copy"),
+		AEmbermereNpcPresentationActor::ResolveContextGreetingText(
+			Quest,
+			EEmbermereNpcGreetingState::Available).ToString(),
+		AvailableCopy);
+
+	QuestState.Quest = Quest;
+	QuestState.CurrentObjectiveCount = 1;
+	TestEqual(
+		TEXT("Incomplete matching quest resolves active"),
+		AEmbermereNpcPresentationActor::ResolveContextGreetingState(Quest, QuestState),
+		EEmbermereNpcGreetingState::Active);
+	TestEqual(
+		TEXT("Active state resolves quest-owned copy"),
+		AEmbermereNpcPresentationActor::ResolveContextGreetingText(
+			Quest,
+			EEmbermereNpcGreetingState::Active).ToString(),
+		ActiveCopy);
+
+	QuestState.CurrentObjectiveCount = Quest->RequiredObjectiveCount;
+	TestEqual(
+		TEXT("Satisfied objective resolves ready-to-turn-in"),
+		AEmbermereNpcPresentationActor::ResolveContextGreetingState(Quest, QuestState),
+		EEmbermereNpcGreetingState::ReadyToTurnIn);
+	TestEqual(
+		TEXT("Ready state resolves quest-owned copy"),
+		AEmbermereNpcPresentationActor::ResolveContextGreetingText(
+			Quest,
+			EEmbermereNpcGreetingState::ReadyToTurnIn).ToString(),
+		ReadyCopy);
+
+	QuestState.bCompleted = true;
+	TestEqual(
+		TEXT("Completed matching quest resolves completed"),
+		AEmbermereNpcPresentationActor::ResolveContextGreetingState(Quest, QuestState),
+		EEmbermereNpcGreetingState::Completed);
+	TestEqual(
+		TEXT("Completed state resolves quest-owned copy"),
+		AEmbermereNpcPresentationActor::ResolveContextGreetingText(
+			Quest,
+			EEmbermereNpcGreetingState::Completed).ToString(),
+		CompletedCopy);
+
+	QuestState.Quest = OtherQuest;
+	QuestState.bCompleted = false;
+	TestEqual(
+		TEXT("An unrelated active quest hides this greeting"),
+		AEmbermereNpcPresentationActor::ResolveContextGreetingState(Quest, QuestState),
+		EEmbermereNpcGreetingState::Hidden);
+	TestEqual(
+		TEXT("Missing quest authority hides contextual presentation"),
+		AEmbermereNpcPresentationActor::ResolveContextGreetingState(nullptr, QuestState),
+		EEmbermereNpcGreetingState::Hidden);
+
+	GreetingWidget->SetGreetingState(EEmbermereNpcGreetingState::ReadyToTurnIn, FText::FromString(ReadyCopy));
+	TestEqual(
+		TEXT("Native greeting widget retains resolved state"),
+		GreetingWidget->GetGreetingState(),
+		EEmbermereNpcGreetingState::ReadyToTurnIn);
+	TestEqual(TEXT("Native greeting widget retains copy"), GreetingWidget->GetGreetingText().ToString(), ReadyCopy);
+	TestTrue(
+		TEXT("Greeting panel uses fixed 320 by 56 bounds"),
+		GreetingWidget->GetPanelDimensions().Equals(FVector2D(320.0f, 56.0f), KINDA_SMALL_NUMBER));
+	TestEqual(
+		TEXT("Visible greeting is hit-test-invisible"),
+		GreetingWidget->GetVisibility(),
+		ESlateVisibility::HitTestInvisible);
+	GreetingWidget->SetGreetingState(EEmbermereNpcGreetingState::Hidden, FText::GetEmpty());
+	TestEqual(
+		TEXT("Hidden greeting collapses without layout participation"),
+		GreetingWidget->GetVisibility(),
+		ESlateVisibility::Collapsed);
+
+	TestNotNull(TEXT("NPC wrapper owns a dedicated greeting widget component"), Presentation->ContextGreetingWidget.Get());
+	TestTrue(TEXT("Greeting widget remains presentation-only"), Presentation->IsContextGreetingPresentationOnly());
+	TestTrue(
+		TEXT("Greeting widget uses fixed draw dimensions"),
+		Presentation->ContextGreetingWidget->GetDrawSize().Equals(
+			FVector2D(320.0f, 56.0f),
+			KINDA_SMALL_NUMBER));
+	TestTrue(
+		TEXT("Greeting widget resolves the project-owned native class"),
+		Presentation->ContextGreetingWidget->GetWidgetClass() == UEmbermereNpcGreetingWidget::StaticClass());
+	TestFalse(TEXT("Context greeting remains opt-in"), Presentation->bEnableContextGreeting);
+	TestNull(TEXT("Context greeting defaults to no authority actor"), Presentation->ContextAuthorityActor.Get());
+	TestNull(
+		TEXT("Greeting presentation owns no interaction or quest authority"),
+		Presentation->FindComponentByClass<UEmbermereInteractableComponent>());
+	TestNull(
+		TEXT("Greeting presentation owns no vendor authority"),
+		Presentation->FindComponentByClass<UEmbermereVendorComponent>());
+	TestNull(
+		TEXT("Greeting presentation owns no trainer authority"),
+		Presentation->FindComponentByClass<UEmbermereTrainerComponent>());
+
+	UEmbermereQuestData* StarterQuest = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	TestNotNull(TEXT("Saved starter quest data loads for greeting copy"), StarterQuest);
+	if (StarterQuest)
+	{
+		TestEqual(TEXT("Starter quest retains available copy"), StarterQuest->AvailableGreeting.ToString(), AvailableCopy);
+		TestEqual(TEXT("Starter quest retains active copy"), StarterQuest->ActiveGreeting.ToString(), ActiveCopy);
+		TestEqual(TEXT("Starter quest retains ready copy"), StarterQuest->ReadyGreeting.ToString(), ReadyCopy);
+		TestEqual(TEXT("Starter quest retains completed copy"), StarterQuest->CompletedGreeting.ToString(), CompletedCopy);
+	}
 
 	return true;
 }

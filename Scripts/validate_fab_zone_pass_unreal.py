@@ -49,6 +49,14 @@ FENWATCH_KEEPER_DIALOGUE = (
 FENWATCH_KEEPER_QUEST_PATH = (
     "/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"
 )
+FENWATCH_KEEPER_GREETING_RADIUS = 420.0
+FENWATCH_KEEPER_GREETING_LOCATION = (0.0, 0.0, 235.0)
+FENWATCH_KEEPER_GREETING_COPY = {
+    "available_greeting": "The eastern stones are restless.",
+    "active_greeting": "Keep to the road, then watch the reeds.",
+    "ready_greeting": "You have done enough. Come speak with me.",
+    "completed_greeting": "Fenwatch remembers a steady hand.",
+}
 FENWATCH_QUARTERMASTER_LABEL = "Embermere_FenwatchQuartermaster_Vendor_01"
 FENWATCH_QUARTERMASTER_PATH = (
     "/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster/"
@@ -675,6 +683,30 @@ def main():
         fail("Fenwatch keeper presentation collision is enabled")
     if keeper_presentation.get_component_by_class(unreal.EmbermereInteractableComponent):
         fail("Fenwatch keeper presentation unexpectedly owns interaction authority")
+    if not bool(keeper_presentation.get_editor_property("enable_context_greeting")):
+        fail("Fenwatch keeper context greeting is disabled")
+    if keeper_presentation.get_editor_property("context_authority_actor") != keeper:
+        fail("Fenwatch keeper context greeting lost its exact authority reference")
+    if not nearly_equal(
+        keeper_presentation.get_editor_property("context_greeting_radius"),
+        FENWATCH_KEEPER_GREETING_RADIUS,
+        0.01,
+    ):
+        fail("Fenwatch keeper context greeting radius drifted")
+    greeting_location = keeper_presentation.get_editor_property(
+        "context_greeting_relative_location"
+    )
+    if not all((
+        nearly_equal(greeting_location.x, FENWATCH_KEEPER_GREETING_LOCATION[0], 0.01),
+        nearly_equal(greeting_location.y, FENWATCH_KEEPER_GREETING_LOCATION[1], 0.01),
+        nearly_equal(greeting_location.z, FENWATCH_KEEPER_GREETING_LOCATION[2], 0.01),
+    )):
+        fail("Fenwatch keeper context greeting location drifted")
+    if not keeper_presentation.is_context_greeting_presentation_only():
+        fail("Fenwatch keeper greeting contributes collision, overlap, or navigation")
+    for property_name, expected in FENWATCH_KEEPER_GREETING_COPY.items():
+        if str(keeper_quest.get_editor_property(property_name)) != expected:
+            fail("Fenwatch keeper quest {} drifted".format(property_name))
     if unreal.Name("EmbermereOriginalArt") not in list(keeper_presentation.tags):
         fail("Fenwatch keeper presentation lost the EmbermereOriginalArt tag")
 

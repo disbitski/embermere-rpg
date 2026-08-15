@@ -1146,3 +1146,29 @@ Validate both halves independently:
 This keeps presentation asset-agnostic without pretending every NPC began with
 the same architecture. A migration is successful when art changes owners and
 gameplay authority does not.
+
+## Let Context Presentation Observe Authority Instead Of Recreating It
+
+A contextual NPC greeting can look like a tiny UI feature while quietly
+becoming a second quest system. If presentation derives its own progress,
+handles input, or grants outcomes, the world can disagree with the actual
+quest log and replay rewards.
+
+Embermere's Mara greeting keeps the dependency one-way:
+
+1. The quest data asset owns the short available, active, ready, and completed
+   copy alongside the authoritative quest definition.
+2. The presentation wrapper holds an explicit reference to the existing
+   `BP_QuestGiver` instead of guessing authority from proximity or tags.
+3. It subscribes only to the player's authoritative quest-state signal and
+   resolves a read-only visual state.
+4. A fixed, hit-test-invisible, `NoCollision` widget handles range visibility
+   and presentation without input, dialogue, marker, progression, or reward
+   behavior.
+5. Native automation proves every state and the absence of gameplay authority;
+   clean PIE still uses physical `F` against the original interactable and
+   verifies exact rewards plus no replay on a second interaction.
+
+This pattern scales beyond quests. A service NPC can react to stock, training,
+faction, or world state without becoming its owner. Treat the authoritative
+system as a publisher and presentation as a disposable subscriber.

@@ -51,7 +51,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - an asset-agnostic NPC presentation wrapper with interchangeable static and
   skeletal visual lanes, shared authored transforms, soft art references,
   Anim Blueprint precedence, a skeleton-validated single-node Idle lane, and
-  no quest/service/interaction ownership
+  no quest/service/interaction ownership; an optional read-only contextual
+  greeting observes quest state while keeping all mutation on the existing
+  authority actor
 - a separate data-driven Fenwatch vendor service with player copper,
   finite/unlimited stock, complete buy/sell/buyback preflight, rollback-safe
   transactions, native fixed stock UI, inventory/chat feedback, and no art
@@ -68,6 +70,8 @@ The repo currently contains the C++ gameplay scaffold for:
   malformed records without partial state, and keep buyback session-only
 - UMG base classes for character creation and HUD widgets
 - native first-pass HUD panels for status, target, range state, quest tracking, dialogue, loot, and hotbar labels
+- a fixed quest-owned four-state Mara greeting below her world marker that is
+  range-gated, hit-test-invisible, non-colliding, and presentation-only
 - bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback
 - first hotbar cooldown enforcement and ready-time feedback
 - starter enemy aggro, leash, return-home, attack, death, and respawn behavior
@@ -260,7 +264,9 @@ Unreal. Live PIE proved all three saved animation clocks advancing. Their
 original static meshes remain reversible fallbacks. The separate trainer and
 vendor services retain their authority, while Mara's original Blueprint quest
 actor remains the sole owner of her interaction, dialogue, quest, marker, and
-rewards.
+rewards. Mara's rigged wrapper can now observe that authority and render
+available, active, ready, and completed context copy without owning or replaying
+any quest behavior.
 Its first data-driven Combat Drills action
 atomically converts `10` copper into `25` XP through a fixed native panel,
 without moving progression or interaction authority into the model.

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/EmbermereQuestLogComponent.h"
 #include "GameFramework/Actor.h"
+#include "UI/EmbermereNpcGreetingWidget.h"
 #include "EmbermereNpcPresentationActor.generated.h"
 
 class UAnimInstance;
@@ -11,6 +13,10 @@ class USkeletalMesh;
 class USkeletalMeshComponent;
 class UStaticMesh;
 class UStaticMeshComponent;
+class UEmbermereInteractableComponent;
+class UEmbermereQuestData;
+class UEmbermereQuestLogComponent;
+class UWidgetComponent;
 
 UENUM(BlueprintType)
 enum class EEmbermereNpcVisualMode : uint8
@@ -41,6 +47,14 @@ public:
 	AEmbermereNpcPresentationActor();
 
 	virtual void OnConstruction(const FTransform& Transform) override;
+	virtual void Tick(float DeltaSeconds) override;
+
+	static EEmbermereNpcGreetingState ResolveContextGreetingState(
+		const UEmbermereQuestData* OfferedQuest,
+		const FEmbermereQuestState& QuestState);
+	static FText ResolveContextGreetingText(
+		const UEmbermereQuestData* OfferedQuest,
+		EEmbermereNpcGreetingState State);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Presentation")
 	TObjectPtr<USceneComponent> SceneRoot;
@@ -50,6 +64,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Presentation")
 	TObjectPtr<USkeletalMeshComponent> SkeletalVisual;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Presentation|Context")
+	TObjectPtr<UWidgetComponent> ContextGreetingWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation")
 	TSoftObjectPtr<UStaticMesh> StaticVisualMesh;
@@ -75,6 +92,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation")
 	FTransform VisualRelativeTransform = FTransform::Identity;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation|Context")
+	bool bEnableContextGreeting = false;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Presentation|Context")
+	TObjectPtr<AActor> ContextAuthorityActor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation|Context", meta = (ClampMin = "0.0"))
+	float ContextGreetingRadius = 420.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Presentation|Context")
+	FVector ContextGreetingRelativeLocation = FVector(0.0f, 0.0f, 235.0f);
+
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Embermere|NPC|Presentation")
 	void RefreshPresentation();
 
@@ -86,4 +115,28 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|NPC|Presentation")
 	bool IsPresentationCollisionDisabled() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|NPC|Presentation")
+	EEmbermereNpcGreetingState GetResolvedContextGreetingState() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|NPC|Presentation")
+	FText GetResolvedContextGreetingText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|NPC|Presentation")
+	bool IsContextGreetingPresentationOnly() const;
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+private:
+	UPROPERTY(Transient)
+	TObjectPtr<UEmbermereQuestLogComponent> BoundQuestLog;
+
+	UFUNCTION()
+	void HandleQuestStateChanged(const FEmbermereQuestState& QuestState);
+
+	void EnsureQuestLogBinding();
+	void RefreshContextGreetingPresentation();
+	bool IsLocalPlayerInGreetingRange() const;
 };

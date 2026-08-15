@@ -6,15 +6,16 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-14 no-hot-reload module plus the
+- Confirm Unreal is running the 2026-08-15 no-hot-reload module plus the
   accepted rigged Fenwatch keeper, armsmaster, and quartermaster packages and
-  the new Fenwatch vendor-stall/map package. Restart if the editor predates
-  that work or test discovery exposes fewer than 51
+  the Fenwatch vendor-stall/map package, quest-owned Mara greeting copy, and
+  saved read-only greeting observer. Restart if the editor predates that work
+  or test discovery exposes fewer than 52
   Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 51 tests, especially
+- Discover and run all 52 tests, especially
   `Embermere.Persistence.RoundTrip`,
   `Embermere.Persistence.ValidationRollback`,
   `Embermere.Persistence.SlotInspection`,
@@ -33,11 +34,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.NPC.FenwatchQuartermasterIdlePresentation`,
   `Embermere.NPC.FenwatchKeeperPresentation`,
   `Embermere.NPC.FenwatchKeeperIdlePresentation`,
+  `Embermere.NPC.ContextGreetingPresentation`,
   `Embermere.UI.TrainerPanel`,
   `Embermere.NPC.SkeletalIdlePresentation`, the three established NPC
   presentation tests, Prowler/world presentation, player recovery, and
-  inventory transaction suites. The authoritative 2026-08-14 headless run
-  passed 51/51; the no-hot-reload Mac build and fresh-process vendor-stall,
+  inventory transaction suites. The authoritative 2026-08-15 headless run
+  passed 52/52; the no-hot-reload Mac build and fresh-process greeting,
+  vendor-stall,
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed.
@@ -190,6 +193,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `NoCollision`, but deliberately has no render mesh. Fresh PIE kept the marker
   and silhouette readable while the Idle advanced from `0.333814` to
   `1.525603` seconds.
+- Retain Mara's accepted contextual greeting observer. The quest data owns four
+  short lines and the art-only wrapper only resolves/presents them while the
+  player is within `420` cm: gold `!` available, cyan `...` active, green `?`
+  ready to turn in, and muted green `+` completed. The fixed `320x56`
+  screen-space panel sits at local `(0, 0, 235)`, remains hit-test-invisible,
+  `NoCollision`, and contributes no navigation. Clean PIE proved the greeting
+  hidden outside range, then exercised all four states. Physical `F` still
+  accepted and completed the original Blueprint-owned quest for exactly
+  `125` XP, `20` copper, and one Recruit Pack; a second `F` replayed no reward.
 - Inspect `Embermere_FenwatchQuartermaster_Vendor_01` beside the accepted
   supply chest. Its 3,632-triangle, `120.842 x 93.0 x 217.0` cm static mesh
   uses six project-owned materials and should read as a stocky moss-capped
@@ -271,15 +283,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. retain Mara's accepted real interaction loop: physical `F` opened the
-     original Blueprint-owned dialogue and accepted the quest, real Prowler
-     combat advanced it to `3/3`, and invoking that same original interactable
-     for the return granted exactly `125` XP, `20` copper, and one Recruit Pack
-     without moving any authority into the rigged wrapper;
-  2. retain the accepted vendor-stall composition and native traces, then
-     implement one bounded contextual greeting/talk presentation that
-     subscribes to existing quest/interactable state without owning dialogue,
-     quest progression, rewards, or interaction authority;
+  1. retain Mara's accepted four-state contextual greeting and original real
+     interaction loop. The wrapper may observe the exact authority actor and
+     player quest-log delegate, but it must never own `F`, dialogue, marker,
+     quest mutation, rewards, vendor, or trainer behavior;
+  2. retain the accepted vendor-stall composition and native traces, then build
+     one bounded cohesive Fenwatch village module through the reviewed
+     deterministic Blender/classic-FBX/import/package/validation lane. Prefer a
+     module that strengthens the normal route without obscuring Mara's new
+     greeting, the quartermaster approach, or the armsmaster training yard;
   3. retain all three accepted production Idles from the normal village route:
      grounded feet, restrained motion, readable silhouettes, advancing clocks,
      clear markers/path, and unchanged quest, vendor, and trainer interactions;
@@ -300,10 +312,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-13
+- Restart Unreal before manual PIE when the editor predates the 2026-08-15
   rigged Fenwatch keeper, armsmaster, and quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 51 tests.
+  Current code passes all 52 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -650,6 +662,16 @@ accident. Trainer-produced progression has now passed the same lifecycle:
 idempotent load without adding trainer-specific schema.
 
 ## Next Work
+
+- Retain Mara's accepted contextual greeting contract in clean PIE:
+  - outside `420` cm the observer must be hidden; inside range it must show the
+    quest-owned available, active, ready, or completed copy;
+  - the fixed `320x56` panel must fit beneath Mara's gold marker/name without
+    shifting the HUD or intercepting mouse input;
+  - physical `F` must remain owned by `Quest_Giver_Mara_Fenwatch`, with exact
+    acceptance, `3/3`, completion, reward, and no-replay behavior;
+  - removing or disabling the wrapper presentation must not change quest
+    results.
 
 - Retain the accepted rigged Fenwatch armsmaster in clean-restart PIE:
   - inspect grounded feet, planted staff, shield silhouette, restrained Idle,
@@ -1450,6 +1472,17 @@ idempotent load without adding trainer-specific schema.
   approach, and east bypass. The no-hot-reload build, all 51 tests, and fresh
   vendor-stall, saved-zone, UI-art, three NPC-rig, practice-dummy, vendor, and
   trainer validators passed with explicit success markers.
+- 2026-08-15: added a fixed read-only contextual greeting to Mara's rigged
+  presentation wrapper. The quest data asset owns four short lines; the wrapper
+  explicitly observes the original `BP_QuestGiver` and authoritative player
+  quest log, remains `NoCollision` and hit-test-invisible, and owns no marker,
+  dialogue, interaction, progression, or reward behavior.
+- Clean PIE accepted hidden-out-of-range plus available, active, ready, and
+  completed states. Physical `F` preserved the original dialogue and exact
+  `125` XP, `20` copper, and one-Recruit-Pack completion; a second `F` replayed
+  nothing. The no-hot-reload build, all 52 tests, dedicated greeting/keeper/
+  full-zone validators, existing package validators, and initialized-world
+  vendor-stall and road traces passed.
 
 ## Asset Hunt
 

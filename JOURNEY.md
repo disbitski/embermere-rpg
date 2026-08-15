@@ -2184,6 +2184,35 @@ traces passed. The lesson is simple: an asset's authored front is gameplay
 information, and collision can reveal directional mistakes that a screenshot
 misses.
 
+## 2026-08-15 - Mara Learned To Greet Without Taking Over
+
+Fenwatch already had a working quest giver and a separate rigged keeper, but a
+useful world NPC needs to communicate before and between full dialogue panels.
+The risky shortcut would have been to put another quest state machine on the
+art wrapper. Instead, Mara's existing quest data now owns four short pieces of
+context copy, and the wrapper only observes the authoritative player quest-log
+delegate and the exact `BP_QuestGiver` actor.
+
+The native `320x56` screen-space greeting is opt-in, range-gated to `420` cm,
+hit-test-invisible, `NoCollision`, and navigation-free. It presents a gold `!`
+when the quest is available, cyan `...` while active, green `?` when ready to
+turn in, and muted green `+` after completion. The panel stays beneath Mara's
+existing marker and name and disappears outside range without moving the HUD.
+
+Clean PIE supplied the ownership proof. Physical `F` still opened the original
+Blueprint dialogue and accepted the quest. The authoritative quest component
+advanced to `3/3`, the same interactable completed the return for exactly 125
+XP, 20 copper, and one Recruit Pack, and a second `F` did not replay rewards.
+The observer changed visual state after each authoritative transition but never
+called a quest mutation itself.
+
+The no-hot-reload build passed, all 52 tests passed, fresh greeting, keeper,
+zone, vendor, trainer, UI, and NPC-rig validators passed, and initialized-world
+traces retained the vendor approach, spawn corridor, shelter, gate, boundary,
+chest, and practice-dummy collision contracts. The lesson is that reactive
+presentation can make a world feel more alive without becoming a second owner
+of gameplay truth.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -25,6 +25,14 @@ MARA_DIALOGUE = (
     "stones east of town. Cull a few of those things and come back whole."
 )
 MARA_MARKER_HEIGHT = 185.0
+GREETING_RADIUS = 420.0
+GREETING_LOCATION = unreal.Vector(0.0, 0.0, 235.0)
+GREETING_COPY = {
+    "available_greeting": "The eastern stones are restless.",
+    "active_greeting": "Keep to the road, then watch the reeds.",
+    "ready_greeting": "You have done enough. Come speak with me.",
+    "completed_greeting": "Fenwatch remembers a steady hand.",
+}
 ORIGINAL_TAG = unreal.Name("EmbermereOriginalArt")
 
 EXPECTED_MATERIALS = {
@@ -111,6 +119,9 @@ def main():
         fail("rigged Idle animation is missing")
     if not quest or not isinstance(quest, unreal.EmbermereQuestData):
         fail("starter quest data is missing")
+    for property_name, expected in GREETING_COPY.items():
+        if str(quest.get_editor_property(property_name)) != expected:
+            fail("starter quest {} drifted".format(property_name))
 
     import_data = skeletal_mesh.get_editor_property("asset_import_data")
     import_class = import_data.get_class().get_name() if import_data else "None"
@@ -209,6 +220,17 @@ def main():
         fail("saved presentation collision is enabled")
     if presentation.get_component_by_class(unreal.EmbermereInteractableComponent):
         fail("Mara art presentation unexpectedly owns interaction or quest authority")
+    if not bool(presentation.get_editor_property("enable_context_greeting")):
+        fail("Mara context greeting is disabled")
+    if presentation.get_editor_property("context_authority_actor") != quest_actor:
+        fail("Mara context greeting lost its exact authority reference")
+    if abs(float(presentation.get_editor_property("context_greeting_radius")) - GREETING_RADIUS) > 0.01:
+        fail("Mara context greeting radius drifted")
+    greeting_location = presentation.get_editor_property("context_greeting_relative_location")
+    if (greeting_location - GREETING_LOCATION).length() > 0.01:
+        fail("Mara context greeting location drifted: {}".format(greeting_location))
+    if not presentation.is_context_greeting_presentation_only():
+        fail("Mara context greeting contributes collision, overlap, or navigation")
     if ORIGINAL_TAG not in list(presentation.get_editor_property("tags")):
         fail("Mara art presentation lost the original-art tag")
 
@@ -216,7 +238,8 @@ def main():
         "Embermere Fenwatch keeper rig validation passed: exact Blueprint and "
         "saved-actor quest authority, classic skeletal FBX packages, shared "
         "Skeleton and 3.6-second Idle, one art-only skeletal presentation, "
-        "NoCollision, and exact reversible static fallback"
+        "NoCollision, exact reversible static fallback, and a read-only "
+        "four-state contextual greeting"
     )
 
 

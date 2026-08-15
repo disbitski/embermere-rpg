@@ -20,6 +20,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quest", meta = (MultiLine = true))
 	FText Description;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quest|Context", meta = (MultiLine = true))
+	FText AvailableGreeting;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quest|Context", meta = (MultiLine = true))
+	FText ActiveGreeting;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quest|Context", meta = (MultiLine = true))
+	FText ReadyGreeting;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quest|Context", meta = (MultiLine = true))
+	FText CompletedGreeting;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quest")
 	FName ObjectiveId = NAME_None;
 

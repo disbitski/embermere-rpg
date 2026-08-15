@@ -59,7 +59,7 @@ The project currently includes:
   sixteen data-driven starter-ability icons with tooltips, an illustrated
   paper-doll equipment backdrop, data-driven timed buff/control rows with live
   countdowns, and chat log;
-- a grounded local Fab/Epic art pass with 56 upright environment actors and 19
+- a grounded local Fab/Epic art pass with 55 upright environment actors and 20
   project-owned placements from an original Blender-built Embermere
   waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
   quartermaster/armsmaster/practice-dummy/reed family, a 38-expression moss/
@@ -69,7 +69,9 @@ The project currently includes:
   skeleton-compatible single-node Idle lane, and no interaction or service
   ownership, now used by the saved production rigged Fenwatch keeper,
   armsmaster, and quartermaster with reversible static fallbacks. Mara's
-  original Blueprint quest actor remains her sole gameplay authority;
+  original Blueprint quest actor remains her sole gameplay authority while
+  the keeper wrapper optionally observes that state for a fixed contextual
+  greeting;
 - a separate Fenwatch vendor vertical slice with an art-free interactable
   service actor, data-driven stock/prices/sell values, earned player copper,
   atomic buy/sell/buyback rollback, fixed native stock UI, and saved ownership
@@ -84,7 +86,8 @@ The project currently includes:
   temporary effects, and position remain intentionally session-only;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
-- 51 passing Unreal automation tests plus fresh-process keeper-rig,
+- 52 passing Unreal automation tests plus fresh-process keeper-greeting,
+  keeper-rig,
   armsmaster-rig, quartermaster-rig, practice-dummy, trainer, vendor,
   UI-art/package, and
   saved-map validators, initialized-live-world route/collision traces,
@@ -672,6 +675,8 @@ Current automation tests:
 48. `Embermere.Trainer.FenwatchOfferingsData`
 49. `Embermere.UI.TrainerPanel`
 50. `Embermere.NPC.FenwatchQuartermasterIdlePresentation`
+51. `Embermere.NPC.FenwatchKeeperIdlePresentation`
+52. `Embermere.NPC.ContextGreetingPresentation`
 
 Historical verified baseline (2026-08-08):
 
@@ -1090,15 +1095,36 @@ Blueprint actor that owns her quest gameplay.
   Blueprint-owned quest, real Prowler combat advanced it to `3/3`, and the same
   original interactable completed the return. The wrapper remained art-only.
 
+## 2026-08-15 Contextual Mara Greeting Update
+
+Mara's rigged presentation wrapper now has an optional read-only greeting that
+subscribes to the original quest authority without creating a second dialogue
+or interaction path.
+
+- `DQ_FirstSignsAtTheRuin` owns short available, active, ready, and completed
+  greeting copy alongside its existing authoritative quest data.
+- `Embermere_FenwatchKeeper_Mara_Presentation_01` holds an explicit reference
+  to `Quest_Giver_Mara_Fenwatch`, observes the player's quest log, and shows a
+  fixed `320x56` hit-test-invisible panel only within 420 cm.
+- The wrapper still owns no interactable, quest component, marker, dialogue,
+  progression, or reward behavior. Removing the greeting changes no quest
+  result.
+- The no-hot-reload build, all 52 tests, the dedicated greeting/keeper/full-zone
+  validators, and the existing UI, NPC, vendor, trainer, practice-dummy, map,
+  and initialized-world route validators passed.
+- Clean PIE accepted hidden-out-of-range plus available, active, ready, and
+  completed presentation. Physical `F` preserved the original dialogue and
+  granted exactly 125 XP, 20 copper, and one Recruit Pack; a second `F` granted
+  nothing.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-14 no-hot-reload rigged Fenwatch keeper, armsmaster, and quartermaster
-module plus all three accepted skeletal-mesh/Skeleton/Idle sets, the Fenwatch
-vendor-stall/map package, practice dummy, offering, Chronicle, Fenwatch
-stock/service, item, quest, keeper, quartermaster, NPC wrapper, and Blueprint
-packages, then confirm MCP/test discovery; restart only if the editor or test
-registry proves stale.
+2026-08-15 no-hot-reload contextual-greeting module, quest/map packages, all
+three accepted skeletal-mesh/Skeleton/Idle sets, the Fenwatch vendor stall,
+practice dummy, offering, Chronicle, Fenwatch stock/service, item, keeper,
+quartermaster, NPC wrapper, and Blueprint packages, then confirm MCP/test
+discovery; restart only if the editor or test registry proves stale.
 
 First fresh-session checks:
 
@@ -1106,7 +1132,7 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 51 tests, including the six economy/vendor tests,
+3. Run/discover all 52 tests, including the six economy/vendor tests,
    `Embermere.Trainer.TransactionRules`,
    `Embermere.Trainer.ServiceContract`,
    `Embermere.Trainer.FenwatchOfferingsData`,
@@ -1114,6 +1140,7 @@ First fresh-session checks:
    `Embermere.NPC.FenwatchArmsmasterIdlePresentation`,
    `Embermere.NPC.FenwatchQuartermasterIdlePresentation`,
    `Embermere.NPC.FenwatchKeeperIdlePresentation`,
+   `Embermere.NPC.ContextGreetingPresentation`,
    `Embermere.UI.TrainerPanel`,
    `Embermere.Persistence.RoundTrip`,
    `Embermere.Persistence.ValidationRollback`,
@@ -1177,6 +1204,9 @@ First fresh-session checks:
    - native nameplate and health-aware color;
    - complete stationary cyan-blue 48-segment emissive target circle sized to
      the Prowler footprint, clearing its paws and supporting surface;
+   - Mara's greeting remains hidden beyond 420 cm and uses the accepted
+     available, active, ready, and completed copy and marker colors within
+     range, without moving HUD or world-marker layout;
    - Mara marker/dialogue, quest, combat, reward, and inventory update;
    - enemy leash/return and player death/respawn protection;
    - bottom-left clipped chat log;
@@ -1253,7 +1283,8 @@ High-value milestones after that:
   and target-circle separation; polish only concrete readability issues;
 - retain Mara's accepted rigged Fenwatch keeper and verify its grounded Idle,
   marker/name clearance, normal-range `F` dialogue, and full quest flow from
-  the PlayerStart route;
+  the PlayerStart route; retain the contextual greeting as a removable
+  read-only observer across all four quest states with no reward replay;
 - retain the accepted Chronicle one-slot lifecycle, readable empty/malformed/
   rejected-version feedback, overwrite/load confirmations, panel handoff, and
   two-session idempotence; retain console commands as debug fallbacks and keep
@@ -1275,6 +1306,9 @@ High-value milestones after that:
 - optional restrained rune/soft-edge texture treatment for the dedicated
   target-circle material after all three normal-route Prowlers pass the
   physical-eye sweep;
+- build the next cohesive Fenwatch village module through the deterministic
+  Blender/classic-FBX/package/validation lane without obscuring Mara's
+  greeting, vendor service, trainer yard, or normal routes;
 - proper Stylized Classic fantasy village buildings from a suitable signed-in
   UE-compatible pack;
 - preserve the collision-cleared `525` cm solo-pull baseline while tuning
@@ -1339,8 +1373,8 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-14 rigged Fenwatch
-keeper, armsmaster, and quartermaster module, the accepted vendor-stall/map
+Follow TODO.md's Start Here section. Confirm the 2026-08-15 contextual Mara
+greeting module and quest/map packages, the accepted vendor-stall/map
 package, and all three accepted
 skeletal-mesh/Skeleton/Idle sets, practice-dummy/map,
 offering/Chronicle,
@@ -1348,7 +1382,8 @@ bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 51 tests, including the persistence round-trip,
+route-repair map, then run all 52 tests, including the contextual-greeting,
+persistence round-trip,
 validation/rollback, slot-inspection, native Chronicle panel, trainer
 transaction/service/offering, static armsmaster presentation, production
 armsmaster and quartermaster Idle presentations, and trainer-panel contracts.
@@ -1443,11 +1478,14 @@ motion, clear markers/routes, advancing animation clocks, and all three static
 fallbacks. Retain the accepted Mara proof: physical `F` opened and accepted the
 Blueprint-owned quest, real Prowler combat advanced it to `3/3`, and the same
 original interactable completed the return while the rigged wrapper remained
-art-only. Recheck the vendor stall's customer-facing counter, solid supports,
+art-only. Retain the fixed contextual greeting hidden outside 420 cm and its
+available, active, ready, and completed states inside range; it must remain a
+read-only observer with no interaction, dialogue, quest, marker, or reward
+authority. Recheck the vendor stall's customer-facing counter, solid supports,
 clear service approach and east bypass, and normal `F` vendor opening. Then
-take the highest-value bounded milestone: a contextual greeting/talk
-presentation that subscribes to existing quest/interactable state without
-owning dialogue, progression, rewards, or interaction authority. Tune only
+take the highest-value bounded milestone: build one cohesive Fenwatch village
+module through the reviewed deterministic Blender/classic-FBX/import/package/
+validation lane while preserving every service sightline and route. Tune only
 concrete Prowler or aura issues when normal play exposes them.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
