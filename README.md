@@ -224,6 +224,33 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
   progression schema, validation/rollback rules, session-only state, and live
   PIE verification lane.
 
+## Field Notes And Podcast
+
+The code, assets, and build journal show what Embermere is becoming. These
+Real World AI Lab field notes tell the story behind that work: how Codex,
+Blender MCP, Unreal MCP, deterministic validation, and human judgment became a
+repeatable game-development workflow.
+
+- [From My Amiga 500 To Blender MCP: Building Embermere's First Original Asset](https://github.com/disbitski/real-world-ai-lab/blob/main/field-notes/2026-07-14-amiga-blender-mcp-embermere.md)
+  follows the project from an Amiga-rooted creative journey to Embermere's
+  first original waystone and a guarded, inspectable Blender-to-Unreal asset
+  pipeline.
+- [From One Waystone to a World: The Acceptance Loop Behind Embermere](https://github.com/disbitski/real-world-ai-lab/blob/main/field-notes/2026-07-22-embermere-asset-acceptance-loop.md)
+  shows how one successful experiment became a related family of world assets,
+  and why technical validation still needs playtesting, taste, and final human
+  acceptance.
+- [From Props to Predators: Building Embermere's First Animated Creature](https://github.com/disbitski/real-world-ai-lab/blob/main/field-notes/2026-07-28-embermere-first-animated-creature.md)
+  expands the workflow into rigging, six animation states, Unreal runtime
+  integration, and the first original Marsh Prowler without surrendering
+  gameplay authority to presentation.
+
+Prefer to listen? [The Age We Build, Season 1, Episode 6: From My Amiga 500 To
+Blender MCP: Building Embermere's First Original
+Asset](https://podcast.thedavedev.com/episodes/amiga-blender-mcp-embermere)
+turns the first field note into a wider conversation about AI-assisted game
+development, MCP guardrails, provenance, validation, creative identity, and
+why human taste becomes more important as building gets easier.
+
 ## Status
 
 Early playable Unreal prototype scaffold with Unreal and Blender MCP connected,
