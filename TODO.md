@@ -6,10 +6,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-15 no-hot-reload module plus the
+- Confirm Unreal is running the 2026-08-16 no-hot-reload module plus the
   accepted rigged Fenwatch keeper, armsmaster, and quartermaster packages and
-  the Fenwatch vendor-stall/map package, quest-owned Mara greeting copy, and
-  saved read-only greeting observer. Restart if the editor predates that work
+  the Fenwatch vendor-stall and first closed cottage/map packages, quest-owned
+  Mara greeting copy, and saved read-only greeting observer. Restart if the
+  editor predates that work
   or test discovery exposes fewer than 52
   Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
@@ -38,7 +39,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.UI.TrainerPanel`,
   `Embermere.NPC.SkeletalIdlePresentation`, the three established NPC
   presentation tests, Prowler/world presentation, player recovery, and
-  inventory transaction suites. The authoritative 2026-08-15 headless run
+  inventory transaction suites. The authoritative 2026-08-16 headless run
   passed 52/52; the no-hot-reload Mac build and fresh-process greeting,
   vendor-stall,
   keeper-rig, saved-map, UI-art, armsmaster-rig,
@@ -153,7 +154,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - all three saved map instances retain the skeletal mesh and animation set,
     not only the Blueprint CDO.
 - Recheck the completed grounding pass:
-  - 55 grounded upright `FabPass_` actors and 20 original-art placements;
+  - 54 grounded upright `FabPass_` actors and 21 original-art placements;
   - all ordinary art that previously sat at `Z=20` now rests at `Z=0`;
   - the unsupported SoulCave arch/pillar accents and three enemy marker meshes
     remain removed;
@@ -232,6 +233,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   classic FBX mirrors Blender local Y, and the accepted rotation keeps the
   authored counter facing the quartermaster. `FabPass_Village_Fence_01` must
   remain absent.
+- Inspect `Embermere_FenwatchCottage_West_01` at `(-2480, -260, 0)`, yaw
+  `38`. Retain the grounded `580 x 422 x 503` cm, 6,616-triangle closed
+  stone/timber/moss dwelling, five shared materials, exact two authored body/
+  doorstep boxes, and project-owned tag. The body and step must block while
+  roof, chimney, trim, windows, and crest remain visual-only. Preserve at least
+  `650` cm PlayerStart-to-Mara route clearance, the west bypass, Mara's marker
+  and contextual greeting, and the absent `FabPass_Village_Fence_02`.
 - Inspect `Embermere_FenwatchArmsmaster_Trainer_01` beside the Fenwatch service
   cluster. Its deterministic rigged Blender source is a grounded
   `154.5 x 87.0 x 228.0` cm, 2,824-triangle model with six project-owned
@@ -283,15 +291,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. retain Mara's accepted four-state contextual greeting and original real
-     interaction loop. The wrapper may observe the exact authority actor and
-     player quest-log delegate, but it must never own `F`, dialogue, marker,
-     quest mutation, rewards, vendor, or trainer behavior;
-  2. retain the accepted vendor-stall composition and native traces, then build
-     one bounded cohesive Fenwatch village module through the reviewed
-     deterministic Blender/classic-FBX/import/package/validation lane. Prefer a
-     module that strengthens the normal route without obscuring Mara's new
-     greeting, the quartermaster approach, or the armsmaster training yard;
+  1. retain the accepted west cottage in clean PIE: complete roof/body read,
+     grounded foundation, solid body and doorstep, visual-only roof/chimney,
+     direct Mara route, west bypass, and unchanged contextual greeting and
+     physical `F` quest ownership;
+  2. extend Fenwatch with one complementary workshop or training-yard shelter
+     through the reviewed deterministic Blender/classic-FBX/import/package/
+     validation lane. Prefer a compact module behind the armsmaster that gives
+     the practice dummy an architectural home without blocking its clear arms,
+     trainer marker, service radius, east bypass, or PlayerStart route;
   3. retain all three accepted production Idles from the normal village route:
      grounded feet, restrained motion, readable silhouettes, advancing clocks,
      clear markers/path, and unchanged quest, vendor, and trainer interactions;
@@ -303,8 +311,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
      `30`-copper/`25`-XP state, slot inspection, confirmation, rejection,
      panel handoff, and two-session idempotence contracts; keep console commands
      as debug fallbacks and defer autosave, deletion, profiles, and migrations;
-  6. extend Fenwatch with another cohesive module only after the greeting lane
-     is proven and the vendor stall remains useful from the normal route;
+  6. retain Mara's accepted four-state contextual greeting and original real
+     interaction loop; the wrapper may observe authority but must never own
+     `F`, dialogue, marker, quest mutation, rewards, vendor, or trainer logic;
   7. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete issue;
   8. consider authored Niagara, class-specific VFX, or audio only after the
@@ -312,7 +321,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-15
+- Restart Unreal before manual PIE when the editor predates the 2026-08-16
   rigged Fenwatch keeper, armsmaster, and quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
   Current code passes all 52 tests.
@@ -507,8 +516,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - the map has a blue atmospheric sky, readable ambient fill, and the
     38-expression moss/earth road material instead of the previous black
     sky/white or flat-green ground presentation;
-  - all 55 remaining Fab art-pass actors are grounded and upright; all 20
-    original placements remain present, including the vendor stall, practice dummy, and four
+  - all 54 remaining Fab art-pass actors are grounded and upright; all 21
+    original placements remain present, including the vendor stall, practice
+    dummy, closed cottage, and four
     terrain-blended `NoCollision` marsh-reed clusters;
   - the three oversized sci-fi building shells, old Mara backdrop/market cover,
     and vendor/trainer cubes are gone; PlayerStart has an unobstructed view
@@ -643,13 +653,15 @@ PIE accepted the restrained orange-gold beneficial presentation plus grounded
 marsh-green Snare and ice-white cyan Frost Root segments around the Prowler.
 Selected targets now use a surface-traced cyan-blue circle sized from their
 visual footprint instead of a fixed rotating gold marker; clean PIE accepted the
-Prowler read under daylight.
-The reproduced Mara-route contact is also resolved by moving the supply chest away from the straight
+Prowler read under daylight. The first closed Fenwatch cottage now gives the
+service cluster a real dwelling silhouette while preserving Mara's greeting
+and every accepted route. The reproduced Mara-route contact is also resolved
+by moving the supply chest away from the straight
 PlayerStart corridor and proving both geometric clearance and a live native
 trace. The populated drag token in motion and physical `Ctrl+M` feedback remain
-honest physical-eye checks. The world remains stylistically mixed without real
-fantasy village buildings, player/race art, authored Niagara/class-specific
-effects, or audio.
+honest physical-eye checks. The world remains stylistically mixed and still
+needs a complete village-building family, player/race art, authored Niagara/
+class-specific effects, and audio.
 
 The first durable-state lane is now complete as a bounded prototype contract:
 wallet, XP, inventory/equipment identity, quest state, and finite vendor stock
@@ -738,7 +750,8 @@ idempotent load without adding trainer-specific schema.
   - confirm the wilderness foliage/rocks do not hide starter enemies or target nameplates;
   - confirm the upgraded ruin reads better than the old greybox and does not trap the player;
   - identify any sci-fi props that look too off-theme for the starter village.
-- Add proper stylized fantasy village buildings now that the oversized sci-fi shells have been removed.
+- Continue the proper Stylized Classic village-building family from the
+  accepted closed cottage now that the oversized sci-fi shells are gone.
 - Expand the proven original Blender-to-Unreal lane from the waystone, ember
   lamps, road signpost, road gate, boundary fences, end stones, and supply chest
   into compact village pieces while the accepted creature lane remains
@@ -1483,6 +1496,25 @@ idempotent load without adding trainer-specific schema.
   nothing. The no-hot-reload build, all 52 tests, dedicated greeting/keeper/
   full-zone validators, existing package validators, and initialized-world
   vendor-stall and road traces passed.
+- 2026-08-16: built Fenwatch's first closed project-owned cottage through the
+  reviewed deterministic Blender/classic-FBX lane. The accepted asset is
+  `580 x 422 x 503` cm, 6,616 triangles, one UV channel, five shared materials,
+  clean topology, and two authored body/doorstep collision boxes. The roof,
+  chimney, trim, windows, and ember crest remain visual-only.
+- The deterministic preview initially clipped the upper roof; the tracked
+  camera now uses a `5000` far clip. Original-resolution review then caught and
+  repaired visible door-jamb gaps before Unreal import.
+- Placed `Embermere_FenwatchCottage_West_01` at `(-2480, -260, 0)`, yaw `38`,
+  replacing only `FabPass_Village_Fence_02`. Fresh validation proved exact
+  provenance, metrics, materials, transform, tag, two colliders, `730.1` cm
+  route clearance, and `730.1` cm Mara separation. Live traces proved the body
+  and step solid, roof/chimney decoration clear, and both the direct Mara lane
+  and west bypass open.
+- Clean PIE preserved Mara, her greeting, and the service-cluster composition;
+  physical `F` still opened the original dialogue and accepted the quest. The
+  no-hot-reload Mac build succeeded, the live MCP and fresh-process suites both
+  passed 52/52, all focused/saved-package validators passed, and the map now
+  contains 54 grounded Fab actors plus 21 original-art placements.
 
 ## Asset Hunt
 

@@ -5,8 +5,8 @@ import unreal
 
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
-EXPECTED_FABPASS_COUNT = 55
-EXPECTED_ORIGINAL_ART_COUNT = 20
+EXPECTED_FABPASS_COUNT = 54
+EXPECTED_ORIGINAL_ART_COUNT = 21
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -131,6 +131,10 @@ ORIGINAL_VENDOR_STALL_LABEL = "Embermere_FenwatchVendorStall_Quartermaster_01"
 ORIGINAL_VENDOR_STALL_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereFenwatchVendorStall_01.SM_EmbermereFenwatchVendorStall_01"
 ORIGINAL_VENDOR_STALL_LOCATION = (-1530.0, -1430.0, 0.0)
 ORIGINAL_VENDOR_STALL_YAW = 180.0
+ORIGINAL_FENWATCH_COTTAGE_LABEL = "Embermere_FenwatchCottage_West_01"
+ORIGINAL_FENWATCH_COTTAGE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereFenwatchCottage_01.SM_EmbermereFenwatchCottage_01"
+ORIGINAL_FENWATCH_COTTAGE_LOCATION = (-2480.0, -260.0, 0.0)
+ORIGINAL_FENWATCH_COTTAGE_YAW = 38.0
 SPAWN_AUTORUN_ROUTE_START = (-2400.0, -1200.0)
 SPAWN_AUTORUN_ROUTE_END = (-1350.0, -750.0)
 SUPPLY_CHEST_ROUTE_CLEARANCE = 225.0
@@ -248,6 +252,7 @@ REQUIRED_LABELS = {
     ORIGINAL_SUPPLY_CHEST_LABEL,
     ORIGINAL_PRACTICE_DUMMY_LABEL,
     ORIGINAL_VENDOR_STALL_LABEL,
+    ORIGINAL_FENWATCH_COTTAGE_LABEL,
     ORIGINAL_FENWATCH_SHELTER_LABEL,
     FENWATCH_KEEPER_PRESENTATION_LABEL,
     FENWATCH_QUARTERMASTER_LABEL,
@@ -282,6 +287,7 @@ REMOVED_GREYBOX_LABELS = {
     "FabPass_Ruin_Soul_Pillar",
     "FabPass_Village_Crate_C",
     "FabPass_Village_Fence_01",
+    "FabPass_Village_Fence_02",
 }
 
 
@@ -1702,6 +1708,136 @@ def main():
             stall_quartermaster_offset,
         ))
 
+    fenwatch_cottage_mesh = unreal.EditorAssetLibrary.load_asset(
+        ORIGINAL_FENWATCH_COTTAGE_PATH
+    )
+    if not fenwatch_cottage_mesh or not isinstance(
+        fenwatch_cottage_mesh,
+        unreal.StaticMesh,
+    ):
+        fail("missing original Fenwatch cottage {}".format(
+            ORIGINAL_FENWATCH_COTTAGE_PATH,
+        ))
+    cottage_import_data = fenwatch_cottage_mesh.get_editor_property(
+        "asset_import_data"
+    )
+    cottage_import_class = (
+        cottage_import_data.get_class().get_name()
+        if cottage_import_data
+        else "None"
+    )
+    if cottage_import_class != "FbxStaticMeshImportData":
+        fail("Fenwatch cottage must retain classic FBX import data, found {}".format(
+            cottage_import_class,
+        ))
+    cottage_body_setup = fenwatch_cottage_mesh.get_editor_property("body_setup")
+    cottage_aggregate = (
+        cottage_body_setup.get_editor_property("agg_geom")
+        if cottage_body_setup
+        else None
+    )
+    cottage_box_count = (
+        len(cottage_aggregate.get_editor_property("box_elems"))
+        if cottage_aggregate
+        else 0
+    )
+    if cottage_box_count != 2:
+        fail("Fenwatch cottage must retain 2 authored body/step box colliders, found {}".format(
+            cottage_box_count,
+        ))
+    cottage_bounds = fenwatch_cottage_mesh.get_bounds()
+    if not all((
+        nearly_equal(cottage_bounds.box_extent.x, 290.0, 1.0),
+        nearly_equal(cottage_bounds.box_extent.y, 211.0, 1.0),
+        nearly_equal(cottage_bounds.origin.z, 251.5, 1.0),
+        nearly_equal(cottage_bounds.box_extent.z, 251.5, 1.0),
+    )):
+        fail("Fenwatch cottage bounds drifted: origin={}, extent={}".format(
+            cottage_bounds.origin,
+            cottage_bounds.box_extent,
+        ))
+    if fenwatch_cottage_mesh.get_num_triangles(0) != 6616:
+        fail("Fenwatch cottage triangle count drifted: {}".format(
+            fenwatch_cottage_mesh.get_num_triangles(0),
+        ))
+    cottage_material_paths = set()
+    for static_material in list(
+        fenwatch_cottage_mesh.get_editor_property("static_materials")
+    ):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            cottage_material_paths.add(material.get_path_name())
+    if cottage_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("Fenwatch cottage material set drifted: {}".format(
+            sorted(cottage_material_paths),
+        ))
+
+    fenwatch_cottage = actors_by_label[ORIGINAL_FENWATCH_COTTAGE_LABEL]
+    cottage_component = fenwatch_cottage.get_component_by_class(
+        unreal.StaticMeshComponent
+    )
+    placed_cottage_mesh = (
+        cottage_component.get_editor_property("static_mesh")
+        if cottage_component
+        else None
+    )
+    placed_cottage_path = (
+        placed_cottage_mesh.get_path_name()
+        if placed_cottage_mesh
+        else "None"
+    )
+    if placed_cottage_path != ORIGINAL_FENWATCH_COTTAGE_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_FENWATCH_COTTAGE_LABEL,
+            ORIGINAL_FENWATCH_COTTAGE_PATH,
+            placed_cottage_path,
+        ))
+    cottage_location = fenwatch_cottage.get_actor_location()
+    cottage_rotation = fenwatch_cottage.get_actor_rotation()
+    if not all((
+        nearly_equal(cottage_location.x, ORIGINAL_FENWATCH_COTTAGE_LOCATION[0], 1.0),
+        nearly_equal(cottage_location.y, ORIGINAL_FENWATCH_COTTAGE_LOCATION[1], 1.0),
+        nearly_equal(cottage_location.z, ORIGINAL_FENWATCH_COTTAGE_LOCATION[2], 1.0),
+        nearly_equal(cottage_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(cottage_rotation.yaw, ORIGINAL_FENWATCH_COTTAGE_YAW, 0.1),
+        nearly_equal(cottage_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            ORIGINAL_FENWATCH_COTTAGE_LABEL,
+            cottage_location,
+            cottage_rotation,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(fenwatch_cottage.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_FENWATCH_COTTAGE_LABEL,
+        ))
+    if str(cottage_component.get_collision_profile_name()) != "BlockAll":
+        fail("{} collision profile drifted: {}".format(
+            ORIGINAL_FENWATCH_COTTAGE_LABEL,
+            cottage_component.get_collision_profile_name(),
+        ))
+    player_start_location = actors_by_label[
+        "PlayerStart_Embermere_Village"
+    ].get_actor_location()
+    mara_location = actors_by_label[FENWATCH_KEEPER_LABEL].get_actor_location()
+    cottage_route_clearance = distance_to_segment_2d(
+        (cottage_location.x, cottage_location.y),
+        (player_start_location.x, player_start_location.y),
+        (mara_location.x, mara_location.y),
+    )
+    if cottage_route_clearance < 650.0:
+        fail("Fenwatch cottage encroaches on the PlayerStart-to-Mara route: {:.1f} cm".format(
+            cottage_route_clearance,
+        ))
+    cottage_mara_distance = math.hypot(
+        cottage_location.x - mara_location.x,
+        cottage_location.y - mara_location.y,
+    )
+    if cottage_mara_distance < 700.0:
+        fail("Fenwatch cottage moved too close to Mara's marker/greeting lane: {:.1f} cm".format(
+            cottage_mara_distance,
+        ))
+
     marsh_reed_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_MARSH_REED_PATH)
     if not marsh_reed_mesh or not isinstance(marsh_reed_mesh, unreal.StaticMesh):
         fail("missing original marsh reed mesh {}".format(ORIGINAL_MARSH_REED_PATH))
@@ -2056,7 +2192,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision Fenwatch cottage, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

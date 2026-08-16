@@ -111,10 +111,11 @@ The repo currently contains the C++ gameplay scaffold for:
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved
   instances, and asset-agnostic runtime presentation
-- a corrected 55-actor local Fab/Epic art pass plus 20 placements from
+- a corrected 54-actor local Fab/Epic art pass plus 21 placements from
   Embermere's original Blender-built waystone, ember-lamp, road-signpost,
   road-gate, boundary-fence, rune-topped boundary-stone, supply-chest, and
-  Fenwatch shelter and vendor stall, Mara's rigged Fenwatch keeper, the rigged
+  Fenwatch shelter, vendor stall, and first closed cottage, Mara's rigged
+  Fenwatch keeper, the rigged
   Fenwatch quartermaster and armsmaster, practice dummy, plus four visual-only marsh-reed clusters
   over the starter village, road,
   wilderness pocket, and ruin
@@ -159,8 +160,8 @@ family now includes a project-owned stylized waystone shrine, matching ember
 lamps, a timber road signpost, a traversable road gate, low boundary fences,
 rune-topped end stones, a route-facing village supply chest, an open-sided
 Fenwatch shelter, Mara's grounded rigged Stylized Classic Fenwatch keeper,
-the rigged Fenwatch quartermaster and armsmaster, a matching vendor stall and
-practice dummy, visual-only
+the rigged Fenwatch quartermaster and armsmaster, a matching vendor stall,
+practice dummy, and closed Fenwatch cottage, visual-only
 marsh reeds, and the fully rigged Marsh
 Prowler, each built from reviewed scripts,
 validated in Blender, imported through an explicit Unreal contract, and placed

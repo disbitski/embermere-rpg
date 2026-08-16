@@ -15,8 +15,10 @@ Embermere does not have final high-fantasy art assets installed yet. The current
   data asset; the armsmaster has a separate trainer service and offerings data
   asset. A project-owned practice dummy now gives that service cluster a
   readable training-yard focal point, and the project-owned Fenwatch vendor
-  stall gives the quartermaster a cohesive service-space silhouette. Service
-  actors do not change the 20-piece art baseline.
+  stall gives the quartermaster a cohesive service-space silhouette. The first
+  closed project-owned Fenwatch cottage now gives the village a real dwelling
+  silhouette while keeping every service route clear. Service actors do not
+  change the 21-piece art baseline.
   We still do
   not have a cohesive production-ready fantasy building kit, player/race art,
   weapons, audio, or final UI skinning.
@@ -47,17 +49,18 @@ First local placement pass:
   markers, ruin blockout pieces, unsupported SoulCave accents, three enemy
   marker meshes, the Mara stone backdrop, the mismatched market cover, and the
   vendor/trainer cubes. The practice-dummy pass replaces
-  `FabPass_Village_Crate_C`, and the vendor-stall pass replaces
-  `FabPass_Village_Fence_01`, leaving 55 tagged `EmbermereFabPass` actors in
+  `FabPass_Village_Crate_C`, the vendor-stall pass replaces
+  `FabPass_Village_Fence_01`, and the cottage pass replaces
+  `FabPass_Village_Fence_02`, leaving 54 tagged `EmbermereFabPass` actors in
   `04_Fab_Zone_Pass` outliner folders. A separate project-owned layer contains
-  thirteen solid waystone/lamp/signpost/gate/fence/boundary-stone/supply-chest/
-  shelter/vendor-stall/practice-dummy placements, Mara's non-colliding
+  fourteen solid waystone/lamp/signpost/gate/fence/boundary-stone/supply-chest/
+  shelter/vendor-stall/practice-dummy/cottage placements, Mara's non-colliding
   Fenwatch keeper, the non-colliding Fenwatch quartermaster and armsmaster,
-  plus four visual-only marsh-reed clusters, for 20 original-art placements.
+  plus four visual-only marsh-reed clusters, for 21 original-art placements.
 - The script keeps Mara, PlayerStart, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring intact. Starter-enemy home points are deliberately authored in the setup script so collision-safe encounter tuning is reproducible.
 - The Unreal Python helper assigns rotation fields by name. Do not use positional `unreal.Rotator(...)` arguments here; the first pass mapped intended yaw into pitch and tilted the environment.
 - Validation rejects any `FabPass_` actor with meaningful pitch or roll and
-  requires all 20 original placements, their exact meshes/tags/transforms, the
+  requires all 21 original placements, their exact meshes/tags/transforms, the
   expected solid-prop colliders, and explicit `NoCollision` on the four reeds.
   It also verifies the keeper's exact static mesh, local offset/facing, unit
   scale, and `NoCollision` state on both the saved Blueprint SCS template and
@@ -82,7 +85,14 @@ First local placement pass:
   generic fence. Its separate initialized-world trace validator proves all
   four supports and the customer-facing counter solid while keeping the
   service approach and east bypass clear.
-  It also locks the two foliage transforms that reveal the accepted south-fence
+  `Scripts/validate_fenwatch_cottage_unreal.py` locks the first closed
+  dwelling's `580 x 422 x 503` cm bounds, 6,616 triangles, five shared
+  materials, two authored body/step colliders, exact west-village transform,
+  project-owned tag, and replacement of `FabPass_Village_Fence_02`. Its live
+  trace validator proves the closed body and doorstep solid, excludes the roof
+  and chimney from collision, and preserves the PlayerStart-to-Mara route plus
+  a west-side bypass.
+  The full-zone validator also locks the two foliage transforms that reveal the accepted south-fence
   silhouette and rejects restoration of the replaced crate and unsupported
   accents. `Scripts/validate_road_boundary_traces_unreal.py` separately proves
   three road-gate lanes clear, one gate support solid, both boundary-fence

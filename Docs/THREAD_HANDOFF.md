@@ -491,7 +491,8 @@ interaction, vendor, trainer, dialogue, or quest state. This brings the map to
 17 original-art placements.
 
 Later production additions are the rigged Fenwatch armsmaster, the solid-core
-Fenwatch practice dummy, and the project-owned Fenwatch vendor stall. The stall
+Fenwatch practice dummy, the project-owned Fenwatch vendor stall, and the
+first closed Fenwatch cottage. The stall
 is a `394 x 242 x 306` cm, 5,476-triangle stone/moss/timber/iron/ember module
 with four solid support boxes and one solid counter. It replaces
 `FabPass_Village_Fence_01` at `(-1530, -1430, 0)`, yaw `180`, behind the
@@ -499,7 +500,16 @@ quartermaster. The 180-degree yaw intentionally compensates for classic FBX's
 local-Y mirror so the counter faces the customer approach. Fresh package
 validation and initialized-world traces lock the four supports, counter,
 service approach, and east bypass. The map now contains 55 Fab actors and 20
-original-art placements: 13 solid world props/modules, three non-colliding NPC
+original-art placements before the cottage pass.
+
+`SM_EmbermereFenwatchCottage_01` is a `580 x 422 x 503` cm,
+6,616-triangle closed stone/moss/timber/iron/ember dwelling with two authored
+body/doorstep collision boxes. It replaces `FabPass_Village_Fence_02` at
+`(-2480, -260, 0)`, yaw `38`. Fresh validation locks classic-FBX provenance,
+materials, bounds, collision, tag, and transform; initialized-world traces
+prove the body/step solid, roof/chimney decoration clear, and both the direct
+Mara route and west bypass open. The current map contains 54 Fab actors and 21
+original-art placements: 14 solid world props/modules, three non-colliding NPC
 presentations, and four non-colliding reed clusters.
 
 The chosen community bridge is `djeada/blender-mcp-server`, pinned during
@@ -1117,11 +1127,39 @@ or interaction path.
   granted exactly 125 XP, 20 copper, and one Recruit Pack; a second `F` granted
   nothing.
 
+## 2026-08-16 Fenwatch Cottage Update
+
+Fenwatch now has its first closed project-owned dwelling rather than only
+service shelters and boundary props.
+
+- `Scripts/blender/build_embermere_fenwatch_cottage.py` deterministically
+  creates `SM_EmbermereFenwatchCottage_01`: grounded `580 x 422 x 503` cm
+  bounds, 6,616 triangles, one UV channel, zero non-manifold edges, five shared
+  materials, and two UBX boxes for the closed body and doorstep.
+- The tracked preview camera now uses `clip_end=5000`; the first shorter range
+  clipped the roof. Full-resolution review also caught and fixed door-jamb gaps
+  before import.
+- Classic `FbxFactory` import explicitly saves the package and places
+  `Embermere_FenwatchCottage_West_01` at `(-2480, -260, 0)`, yaw `38`, after
+  removing only `FabPass_Village_Fence_02`.
+- Fresh cottage and full-zone validators lock exact provenance, metrics,
+  materials, two colliders, transform, tag, `730.1` cm route clearance, and
+  `730.1` cm Mara separation. Live traces prove body/step blocking, decorative
+  roof/chimney clearance, the direct PlayerStart-to-Mara lane, and west bypass.
+- Clean PIE kept Mara, her contextual greeting, and all service silhouettes
+  readable; physical `F` still opened the original Blueprint dialogue and
+  accepted the quest.
+- The no-hot-reload Mac build succeeded. Live MCP and fresh-process automation
+  each passed 52/52, and all focused UI, rig, greeting, vendor, trainer,
+  practice-dummy, stall, cottage, saved-map, and initialized-world validators
+  passed. The map baseline is now 54 Fab actors plus 21 original placements.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-15 no-hot-reload contextual-greeting module, quest/map packages, all
-three accepted skeletal-mesh/Skeleton/Idle sets, the Fenwatch vendor stall,
+2026-08-16 no-hot-reload contextual-greeting module, quest/map packages, all
+three accepted skeletal-mesh/Skeleton/Idle sets, the Fenwatch vendor stall and
+closed cottage,
 practice dummy, offering, Chronicle, Fenwatch stock/service, item, keeper,
 quartermaster, NPC wrapper, and Blueprint packages, then confirm MCP/test
 discovery; restart only if the editor or test registry proves stale.
@@ -1216,9 +1254,9 @@ First fresh-session checks:
    - the vendor stall at `(-1530, -1430, 0)`, yaw `180`, with a customer-facing
      counter, four solid supports, clear service approach and east bypass, and
      unchanged normal-`F` Fenwatch Supplies ownership on the art-free service;
-   - 55 grounded upright Fab actors plus 20 original placements from the
+   - 54 grounded upright Fab actors plus 21 original placements from the
      waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
-     quartermaster/armsmaster/vendor-stall/practice-dummy/reed family;
+     quartermaster/armsmaster/vendor-stall/practice-dummy/cottage/reed family;
      inspect the route-facing chest at `(-1740, -1180, 0)`, its solid lid, the
      Fenwatch shelter behind Mara at `(-1740, -700, 0)`, its four solid supports
      and clear center, Mara's grounded front-facing non-colliding Fenwatch
@@ -1422,8 +1460,9 @@ feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy
 nameplate, bounds-aware surface-traced cyan-blue target circle, quest/reward
 loop, enemy
 leash, respawn protection, chat clipping, atmospheric daylight and the
-38-expression moss/earth road, 55 grounded upright Fab actors, and all 20
-original-art placements including the vendor stall, four `NoCollision` reed clusters, the
+38-expression moss/earth road, 54 grounded upright Fab actors, and all 21
+original-art placements including the vendor stall, closed west cottage, four
+`NoCollision` reed clusters, the
 open-sided Fenwatch shelter at `(-1740, -700, 0)`, yaw `-64`, and the
   grounded front-facing non-colliding rigged Mara keeper wrapper with its
   3.6-second Idle, marker/name clear, and original Blueprint quest authority,

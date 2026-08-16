@@ -971,6 +971,53 @@ Lesson: topology and transform validation can prove that a model exists where
 the recipe says it should. Directional collision and normal-route play prove
 that its authored front actually belongs there.
 
+## Seventeenth Asset: Fenwatch Cottage
+
+The service cluster had readable shelters and stalls, but Fenwatch still did
+not look inhabited. `SM_EmbermereFenwatchCottage_01` is the first closed
+project-owned dwelling: a compact stone-and-timber home with a moss roof,
+chimney, closed door, glowing windows, and ember crest. It reuses the exact
+road-family material set so the new silhouette extends the village language
+instead of starting a second one.
+
+The reviewed source is
+`Scripts/blender/build_embermere_fenwatch_cottage.py`; editable source, FBX,
+preview, and deterministic metrics live under
+`ArtSource/Blender/Environment/FenwatchCottage`. The accepted Blender contract
+is:
+
+- grounded `580 x 422 x 503` cm bounds and applied unit scale;
+- 6,616 triangles, one UV channel, and zero non-manifold edges;
+- the existing stone, moss, timber, iron, and ember material family;
+- two authored UBX boxes for the closed body and doorstep;
+- visual-only roof, chimney, trim, windows, and crest geometry.
+
+The first preview clipped the upper roof even though the model metrics were
+valid. Raising the deterministic camera's `clip_end` to `5000` made preview
+framing part of the repeatable build rather than a one-off Blender tweak.
+Original-resolution inspection then caught and fixed visible door-jamb gaps
+before Unreal import.
+
+`Scripts/import_embermere_fenwatch_cottage_unreal.py` uses classic
+`FbxFactory`, explicitly saves the package, replaces only
+`FabPass_Village_Fence_02`, and places
+`Embermere_FenwatchCottage_West_01` at `(-2480, -260, 0)`, yaw `38`.
+Fresh-package validation locks provenance, bounds, topology, materials,
+collision count, tag, transform, `730.1` cm route clearance, and `730.1` cm
+separation from Mara. Initialized-world traces independently prove the house
+body and step solid, decorative roof/chimney clear, the direct
+PlayerStart-to-Mara lane open, and a west-side bypass available.
+
+Normal-route PIE kept Mara's shelter, marker, service cluster, and contextual
+quest presentation readable. Physical `F` still reached the original
+Blueprint-owned dialogue and accepted the quest. The saved map now contains
+54 Fab actors and 21 original-art placements.
+
+Lesson: a building is accepted at three scales. Its isolated preview must show
+the whole authored object, its collision must match how the player uses it,
+and its world placement must improve settlement composition without consuming
+the routes or authority around it.
+
 ## Sources
 
 - Article/post: https://x.com/explosss1ve/status/2075654835597164769

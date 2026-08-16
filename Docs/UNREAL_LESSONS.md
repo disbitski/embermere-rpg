@@ -1172,3 +1172,31 @@ Embermere's Mara greeting keeps the dependency one-way:
 This pattern scales beyond quests. A service NPC can react to stock, training,
 faction, or world state without becoming its owner. Treat the authoritative
 system as a publisher and presentation as a disposable subscriber.
+
+## Treat Preview Framing As Part Of The Asset Contract
+
+A deterministic Blender build can pass topology, bounds, UV, scale, and
+collision checks while its evidence render is still misleading. The first
+Fenwatch cottage preview clipped the roof because the camera's far plane was
+too short for the new architectural depth. Nothing was wrong with the mesh,
+but the image could not prove that.
+
+Keep preview camera location, lens, target, and clipping ranges in the tracked
+build script. Render at the accepted resolution and inspect the original file,
+not only a thumbnail. Once the cottage fit in frame, that full-size review
+caught small door-jamb gaps that numeric checks could not see.
+
+Closed architecture also needs paired collision evidence:
+
+1. exact saved-package checks prove the intended body and doorstep colliders
+   exist;
+2. initialized-world traces prove those surfaces actually block;
+3. negative traces prove roof, chimney, trim, and other visual details do not
+   create invisible walls;
+4. route traces prove the solid building did not consume neighboring travel
+   lanes;
+5. normal PIE proves the new silhouette improves composition without hiding
+   markers, services, or contextual presentation.
+
+A preview is not decoration for the pipeline. It is one of the acceptance
+artifacts, and its own correctness should be reproducible.

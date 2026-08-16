@@ -2213,6 +2213,41 @@ chest, and practice-dummy collision contracts. The lesson is that reactive
 presentation can make a world feel more alive without becoming a second owner
 of gameplay truth.
 
+## 2026-08-16 - Fenwatch Gained Its First Home
+
+The service cluster finally behaved like a village, but it still lacked the
+most basic settlement signal: a place where somebody could live. The new
+Fenwatch cottage turns the far side of Mara's road into an inhabited edge while
+leaving the keeper, vendor, trainer, and normal route readable.
+
+The deterministic Blender build produced a grounded `580 x 422 x 503` cm
+closed dwelling at 6,616 triangles with one UV channel, clean topology, the
+existing five-material Fenwatch family, and two authored collision boxes for
+the house body and doorstep. The moss roof, chimney, windows, trim, and ember
+crest remain visual-only. The first preview exposed a new acceptance failure:
+the camera's far clip hid the upper roof even though the geometry contract
+passed. The tracked script now sets a `5000` clip range, and the next full-size
+review caught and repaired visible door-jamb gaps before import.
+
+Classic `FbxFactory` import explicitly saved the static-mesh package and placed
+`Embermere_FenwatchCottage_West_01` at `(-2480, -260, 0)`, yaw `38`, replacing
+only `FabPass_Village_Fence_02`. Exact package validation locked bounds,
+topology, materials, two colliders, tag, and transform. Native initialized-
+world traces proved the body and step solid, roof and chimney decoration clear,
+the PlayerStart-to-Mara lane open, and a west-side bypass available.
+
+Clean PIE showed the cottage reading beside, rather than over, Mara's service
+cluster. A real `F` press still reached the original Blueprint-owned dialogue
+and accepted `First Signs at the Ruin`. The no-hot-reload build succeeded; both
+the live MCP suite and authoritative fresh-process suite passed 52/52; all
+saved UI, NPC rig, greeting, vendor, trainer, practice-dummy, stall, cottage,
+and full-zone validators passed. The map now contains 54 grounded Fab actors
+and 21 original-art placements.
+
+Lesson: a technically valid house is not a village module until its preview,
+collision, composition, traversal, and neighboring gameplay ownership all pass
+together.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
