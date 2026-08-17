@@ -1018,6 +1018,48 @@ the whole authored object, its collision must match how the player uses it,
 and its world placement must improve settlement composition without consuming
 the routes or authority around it.
 
+## Fenwatch Training Workshop
+
+The cottage proved Embermere could author a closed dwelling. The next bounded
+architecture pass tested the opposite spatial contract: an open-front module
+that should frame gameplay without enclosing it. The reviewed source is
+`Scripts/blender/build_embermere_fenwatch_training_workshop.py`; editable
+source, FBX, preview, and metrics live under
+`ArtSource/Blender/Environment/FenwatchTrainingWorkshop`.
+
+The accepted Blender contract is:
+
+- grounded `460 x 270.403 x 369` cm bounds and applied unit scale;
+- 5,624 triangles, one UV channel, and zero non-manifold edges;
+- the shared stone, moss, timber, iron, and ember material family;
+- four UBX boxes for the two front posts, rear wall, and workbench;
+- visual-only roof, trim, ember crest, weapon silhouettes, and small tools.
+
+`Scripts/import_embermere_fenwatch_training_workshop_unreal.py` uses classic
+`FbxFactory`, saves the mesh and level explicitly, replaces only
+`FabPass_Village_Fence_03`, and places
+`Embermere_FenwatchTrainingWorkshop_Armsmaster_01` at
+`(-690, -1030, 0)`, yaw `-100`. Fresh validation locks exact classic-FBX
+provenance, materials, bounds, triangles, four colliders, project-owned tag,
+transform, 439.3 cm dummy spacing, 639.5 cm armsmaster spacing, and 401.6 cm
+road-pine spacing.
+
+Initialized-world traces prove both posts, the rear wall, and the workbench
+solid while leaving the open-front center, player-height bay,
+armsmaster-to-dummy approach, roof/tools, and road-side east bypass clear. The
+first bypass assertion began exactly inside the existing road lamp and failed.
+The world placement was valid; the test endpoint was not. Moving the trace
+start into the actual bypass converted the intent into a trustworthy contract
+without moving accepted art to satisfy a false negative.
+
+Clean PIE accepted the workshop and practice dummy as one readable training
+yard. The map now contains 53 Fab actors and 22 original-art placements.
+
+Lesson: open architecture needs positive and negative collision evidence. It
+must prove the surfaces the player expects are solid, the space the player
+expects to use is clear, and every route assertion starts outside unrelated
+collision.
+
 ## Sources
 
 - Article/post: https://x.com/explosss1ve/status/2075654835597164769

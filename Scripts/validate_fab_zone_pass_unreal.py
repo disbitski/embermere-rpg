@@ -5,8 +5,8 @@ import unreal
 
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
-EXPECTED_FABPASS_COUNT = 54
-EXPECTED_ORIGINAL_ART_COUNT = 21
+EXPECTED_FABPASS_COUNT = 53
+EXPECTED_ORIGINAL_ART_COUNT = 22
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -135,6 +135,16 @@ ORIGINAL_FENWATCH_COTTAGE_LABEL = "Embermere_FenwatchCottage_West_01"
 ORIGINAL_FENWATCH_COTTAGE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereFenwatchCottage_01.SM_EmbermereFenwatchCottage_01"
 ORIGINAL_FENWATCH_COTTAGE_LOCATION = (-2480.0, -260.0, 0.0)
 ORIGINAL_FENWATCH_COTTAGE_YAW = 38.0
+ORIGINAL_TRAINING_WORKSHOP_LABEL = (
+    "Embermere_FenwatchTrainingWorkshop_Armsmaster_01"
+)
+ORIGINAL_TRAINING_WORKSHOP_PATH = (
+    "/Game/Art/Embermere/Environment/PrototypeVillage/"
+    "SM_EmbermereFenwatchTrainingWorkshop_01."
+    "SM_EmbermereFenwatchTrainingWorkshop_01"
+)
+ORIGINAL_TRAINING_WORKSHOP_LOCATION = (-690.0, -1030.0, 0.0)
+ORIGINAL_TRAINING_WORKSHOP_YAW = -100.0
 SPAWN_AUTORUN_ROUTE_START = (-2400.0, -1200.0)
 SPAWN_AUTORUN_ROUTE_END = (-1350.0, -750.0)
 SUPPLY_CHEST_ROUTE_CLEARANCE = 225.0
@@ -253,6 +263,7 @@ REQUIRED_LABELS = {
     ORIGINAL_PRACTICE_DUMMY_LABEL,
     ORIGINAL_VENDOR_STALL_LABEL,
     ORIGINAL_FENWATCH_COTTAGE_LABEL,
+    ORIGINAL_TRAINING_WORKSHOP_LABEL,
     ORIGINAL_FENWATCH_SHELTER_LABEL,
     FENWATCH_KEEPER_PRESENTATION_LABEL,
     FENWATCH_QUARTERMASTER_LABEL,
@@ -1838,6 +1849,133 @@ def main():
             cottage_mara_distance,
         ))
 
+    training_workshop_mesh = unreal.EditorAssetLibrary.load_asset(
+        ORIGINAL_TRAINING_WORKSHOP_PATH
+    )
+    if not training_workshop_mesh or not isinstance(
+        training_workshop_mesh,
+        unreal.StaticMesh,
+    ):
+        fail("missing original Fenwatch training workshop {}".format(
+            ORIGINAL_TRAINING_WORKSHOP_PATH,
+        ))
+    workshop_import_data = training_workshop_mesh.get_editor_property(
+        "asset_import_data"
+    )
+    workshop_import_class = (
+        workshop_import_data.get_class().get_name()
+        if workshop_import_data
+        else "None"
+    )
+    if workshop_import_class != "FbxStaticMeshImportData":
+        fail("Fenwatch training workshop must retain classic FBX import data, found {}".format(
+            workshop_import_class,
+        ))
+    workshop_body_setup = training_workshop_mesh.get_editor_property("body_setup")
+    workshop_aggregate = (
+        workshop_body_setup.get_editor_property("agg_geom")
+        if workshop_body_setup
+        else None
+    )
+    workshop_box_count = (
+        len(workshop_aggregate.get_editor_property("box_elems"))
+        if workshop_aggregate
+        else 0
+    )
+    if workshop_box_count != 4:
+        fail("Fenwatch training workshop must retain 4 authored front-post/rear-wall/bench box colliders, found {}".format(
+            workshop_box_count,
+        ))
+    workshop_bounds = training_workshop_mesh.get_bounds()
+    if not all((
+        nearly_equal(workshop_bounds.box_extent.x, 230.0, 1.0),
+        nearly_equal(workshop_bounds.box_extent.y, 135.2015, 1.0),
+        nearly_equal(workshop_bounds.origin.z, 184.5, 1.0),
+        nearly_equal(workshop_bounds.box_extent.z, 184.5, 1.0),
+    )):
+        fail("Fenwatch training workshop bounds drifted: origin={}, extent={}".format(
+            workshop_bounds.origin,
+            workshop_bounds.box_extent,
+        ))
+    if training_workshop_mesh.get_num_triangles(0) != 5624:
+        fail("Fenwatch training workshop triangle count drifted: {}".format(
+            training_workshop_mesh.get_num_triangles(0),
+        ))
+    workshop_material_paths = set()
+    for static_material in list(
+        training_workshop_mesh.get_editor_property("static_materials")
+    ):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            workshop_material_paths.add(material.get_path_name())
+    if workshop_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("Fenwatch training workshop material set drifted: {}".format(
+            sorted(workshop_material_paths),
+        ))
+
+    training_workshop = actors_by_label[ORIGINAL_TRAINING_WORKSHOP_LABEL]
+    workshop_component = training_workshop.get_component_by_class(
+        unreal.StaticMeshComponent
+    )
+    placed_workshop_mesh = (
+        workshop_component.get_editor_property("static_mesh")
+        if workshop_component
+        else None
+    )
+    placed_workshop_path = (
+        placed_workshop_mesh.get_path_name()
+        if placed_workshop_mesh
+        else "None"
+    )
+    if placed_workshop_path != ORIGINAL_TRAINING_WORKSHOP_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_TRAINING_WORKSHOP_LABEL,
+            ORIGINAL_TRAINING_WORKSHOP_PATH,
+            placed_workshop_path,
+        ))
+    workshop_location = training_workshop.get_actor_location()
+    workshop_rotation = training_workshop.get_actor_rotation()
+    if not all((
+        nearly_equal(workshop_location.x, ORIGINAL_TRAINING_WORKSHOP_LOCATION[0], 1.0),
+        nearly_equal(workshop_location.y, ORIGINAL_TRAINING_WORKSHOP_LOCATION[1], 1.0),
+        nearly_equal(workshop_location.z, ORIGINAL_TRAINING_WORKSHOP_LOCATION[2], 1.0),
+        nearly_equal(workshop_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(workshop_rotation.yaw, ORIGINAL_TRAINING_WORKSHOP_YAW, 0.1),
+        nearly_equal(workshop_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            ORIGINAL_TRAINING_WORKSHOP_LABEL,
+            workshop_location,
+            workshop_rotation,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(training_workshop.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_TRAINING_WORKSHOP_LABEL,
+        ))
+    if str(workshop_component.get_collision_profile_name()) != "BlockAll":
+        fail("{} collision profile drifted: {}".format(
+            ORIGINAL_TRAINING_WORKSHOP_LABEL,
+            workshop_component.get_collision_profile_name(),
+        ))
+    if "FabPass_Village_Fence_03" in labels:
+        fail("replaced FabPass_Village_Fence_03 remains in the saved map")
+    workshop_dummy_distance = math.hypot(
+        workshop_location.x - ORIGINAL_PRACTICE_DUMMY_LOCATION[0],
+        workshop_location.y - ORIGINAL_PRACTICE_DUMMY_LOCATION[1],
+    )
+    if not nearly_equal(workshop_dummy_distance, 439.318, 1.0):
+        fail("Fenwatch training workshop spacing from the practice dummy drifted: {:.1f} cm".format(
+            workshop_dummy_distance,
+        ))
+    workshop_armsmaster_distance = math.hypot(
+        workshop_location.x - FENWATCH_ARMSMASTER_LOCATION[0],
+        workshop_location.y - FENWATCH_ARMSMASTER_LOCATION[1],
+    )
+    if not nearly_equal(workshop_armsmaster_distance, 639.531, 1.0):
+        fail("Fenwatch training workshop spacing from the armsmaster drifted: {:.1f} cm".format(
+            workshop_armsmaster_distance,
+        ))
+
     marsh_reed_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_MARSH_REED_PATH)
     if not marsh_reed_mesh or not isinstance(marsh_reed_mesh, unreal.StaticMesh):
         fail("missing original marsh reed mesh {}".format(ORIGINAL_MARSH_REED_PATH))
@@ -2192,7 +2330,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision Fenwatch cottage, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision Fenwatch cottage, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

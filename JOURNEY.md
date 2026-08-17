@@ -2248,6 +2248,44 @@ Lesson: a technically valid house is not a village module until its preview,
 collision, composition, traversal, and neighboring gameplay ownership all pass
 together.
 
+## 2026-08-17 - The Training Yard Gained An Architectural Home
+
+The practice dummy and armsmaster already made Fenwatch's training loop
+legible, but they still stood beside a generic fence. Today's module had a
+different job from the closed cottage: frame an activity, expose its tools,
+and keep the playable space open.
+
+The deterministic Blender build produced an open-front
+`460 x 270.403 x 369` cm workshop at 5,624 triangles with one UV channel,
+clean topology, five shared Fenwatch materials, and four authored collision
+boxes. Only the two front supports, rear wall, and workbench are solid. The
+roof, trim, ember crest, sword, spear, and small tools remain visual-only so a
+decorative silhouette cannot become an invisible cage.
+
+Classic `FbxFactory` import explicitly saved the static mesh and level, then
+replaced only `FabPass_Village_Fence_03` with
+`Embermere_FenwatchTrainingWorkshop_Armsmaster_01` at
+`(-690, -1030, 0)`, yaw `-100`. Exact validation locked 5,624 triangles, four
+colliders, five materials, unit scale, project ownership, and deliberate
+spacing from the practice dummy, armsmaster, and nearby road pine.
+
+The live route pass exposed a test bug worth keeping. The first east-bypass
+trace started inside the existing road lamp, so it reported a collision before
+it could ask anything useful about the workshop. Correcting the trace origin,
+instead of moving accepted world art, produced the real proof: solid posts,
+rear wall, and bench; clear open bay, armsmaster-to-dummy approach, decorative
+roof/tools, and road-side bypass.
+
+Clean PIE preserved the real Mara `F` quest handoff and transform-proved both
+`W` and `S` autorun cancellation. The no-hot-reload build passed, the fresh
+automation report finished 52/52 with zero warnings, every focused and
+full-zone package validator passed, and all initialized-world route suites
+passed. Fenwatch now contains 53 grounded Fab actors and 22 original-art
+placements.
+
+Lesson: open architecture is successful when it makes an activity feel like a
+place while leaving gameplay more legible, not more constrained.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

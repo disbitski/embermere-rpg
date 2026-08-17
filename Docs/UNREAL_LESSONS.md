@@ -1200,3 +1200,23 @@ Closed architecture also needs paired collision evidence:
 
 A preview is not decoration for the pipeline. It is one of the acceptance
 artifacts, and its own correctness should be reproducible.
+
+## Validate Trace Endpoints Before Blaming World Collision
+
+The Fenwatch workshop passed its asset, placement, and focused collision
+contracts, but the first road-side bypass trace still reported a block. The
+trace began at the exact location of an existing ember lamp, so it was already
+inside unrelated collision before it tested the new workshop route.
+
+For initialized-world route assertions:
+
+1. validate both endpoints against known saved actors and collision bounds;
+2. start outside every accepted solid prop, not merely outside the asset under
+   test;
+3. separate positive surface probes from negative route probes;
+4. include the blocking actor and hit location in failures;
+5. correct a bad assertion before moving valid world art.
+
+A native trace is only as trustworthy as its geometry and its question. A
+false negative should improve the test contract, not pressure the level into
+working around an invalid probe.

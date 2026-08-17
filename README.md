@@ -161,7 +161,8 @@ lamps, a timber road signpost, a traversable road gate, low boundary fences,
 rune-topped end stones, a route-facing village supply chest, an open-sided
 Fenwatch shelter, Mara's grounded rigged Stylized Classic Fenwatch keeper,
 the rigged Fenwatch quartermaster and armsmaster, a matching vendor stall,
-practice dummy, and closed Fenwatch cottage, visual-only
+practice dummy, closed Fenwatch cottage, and open-front training workshop,
+visual-only
 marsh reeds, and the fully rigged Marsh
 Prowler, each built from reviewed scripts,
 validated in Blender, imported through an explicit Unreal contract, and placed

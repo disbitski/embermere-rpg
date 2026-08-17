@@ -512,6 +512,18 @@ Mara route and west bypass open. The current map contains 54 Fab actors and 21
 original-art placements: 14 solid world props/modules, three non-colliding NPC
 presentations, and four non-colliding reed clusters.
 
+`SM_EmbermereFenwatchTrainingWorkshop_01` extends that architecture with a
+grounded open-front `460 x 270.403 x 369` cm, 5,624-triangle training shed. It
+uses the same five materials and exactly four authored boxes for two front
+posts, the rear wall, and the workbench; roof, trim, crest, weapons, and tools
+remain visual-only. It replaces only `FabPass_Village_Fence_03` at
+`(-690, -1030, 0)`, yaw `-100`. Fresh package/full-zone validation and live
+native traces lock its provenance, placement, purposeful solids, clear center,
+clear player-height bay, open armsmaster-to-dummy approach, and road-side east
+bypass. The current map contains 53 Fab actors and 22 original-art placements:
+15 solid world props/modules, three non-colliding NPC presentations, and four
+non-colliding reed clusters.
+
 The chosen community bridge is `djeada/blender-mcp-server`, pinned during
 installation to commit `7eed33edf4aca2ab0ca84a6da27321f89f68b504`.
 Configure its add-on with Safe Mode enabled, inline code disabled, localhost
@@ -1154,12 +1166,40 @@ service shelters and boundary props.
   practice-dummy, stall, cottage, saved-map, and initialized-world validators
   passed. The map baseline is now 54 Fab actors plus 21 original placements.
 
+## 2026-08-17 Fenwatch Training Workshop Update
+
+Fenwatch's practice dummy now sits within a project-owned open-front training
+workshop rather than beside a generic fence.
+
+- `Scripts/blender/build_embermere_fenwatch_training_workshop.py` creates a
+  grounded `460 x 270.403 x 369` cm, 5,624-triangle module with one UV channel,
+  zero non-manifold edges, five shared materials, and four UBX boxes for the
+  two front posts, rear wall, and workbench.
+- Classic `FbxFactory` import explicitly saves the package and places
+  `Embermere_FenwatchTrainingWorkshop_Armsmaster_01` at
+  `(-690, -1030, 0)`, yaw `-100`, after removing only
+  `FabPass_Village_Fence_03`.
+- Fresh package/full-zone validators lock exact provenance, metrics,
+  materials, transform, tag, four colliders, and spacing from the practice
+  dummy, armsmaster, and road pine.
+- Initialized-world traces prove the purposeful surfaces solid while keeping
+  the open center, player-height bay, armsmaster-to-dummy approach,
+  decorative roof/tools, and road-side east bypass clear. The first bypass
+  trace began inside an existing road lamp; its endpoint was corrected before
+  acceptance rather than moving valid art around a bad assertion.
+- The no-hot-reload build and authoritative 52/52 suite passed with zero
+  warnings. All focused package, full-zone, UI, NPC-rig, vendor, trainer,
+  cottage, stall, workshop, and native route validators passed. Clean PIE
+  preserved Mara's physical `F` quest acceptance and transform-proved both
+  `W` and `S` autorun cancellation. The map baseline is now 53 Fab actors plus
+  22 original placements.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-16 no-hot-reload contextual-greeting module, quest/map packages, all
+2026-08-17 no-hot-reload module, quest/map packages, all
 three accepted skeletal-mesh/Skeleton/Idle sets, the Fenwatch vendor stall and
-closed cottage,
+closed cottage plus training workshop,
 practice dummy, offering, Chronicle, Fenwatch stock/service, item, keeper,
 quartermaster, NPC wrapper, and Blueprint packages, then confirm MCP/test
 discovery; restart only if the editor or test registry proves stale.
@@ -1254,9 +1294,10 @@ First fresh-session checks:
    - the vendor stall at `(-1530, -1430, 0)`, yaw `180`, with a customer-facing
      counter, four solid supports, clear service approach and east bypass, and
      unchanged normal-`F` Fenwatch Supplies ownership on the art-free service;
-   - 54 grounded upright Fab actors plus 21 original placements from the
+   - 53 grounded upright Fab actors plus 22 original placements from the
      waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
-     quartermaster/armsmaster/vendor-stall/practice-dummy/cottage/reed family;
+     quartermaster/armsmaster/vendor-stall/practice-dummy/cottage/workshop/reed
+     family;
      inspect the route-facing chest at `(-1740, -1180, 0)`, its solid lid, the
      Fenwatch shelter behind Mara at `(-1740, -700, 0)`, its four solid supports
      and clear center, Mara's grounded front-facing non-colliding Fenwatch
@@ -1288,6 +1329,11 @@ First fresh-session checks:
      `(-1120, -1120, 0)`, yaw `45`; retain its grounded target-facing
      composition, five shared materials, solid base/core, clear arms, open
      route spacing, and absence of the replaced generic crate.
+   - inspect `Embermere_FenwatchTrainingWorkshop_Armsmaster_01` at
+     `(-690, -1030, 0)`, yaw `-100`; retain its five-material open-front read,
+     solid front posts/rear wall/workbench, clear player-height bay,
+     visual-only roof/tools, open dummy approach and road-side bypass, and
+     absence of `FabPass_Village_Fence_03`.
    - run the documented two-session persistence flow: save the accepted
      `22`-copper/`125`-XP/equipped-pack state, start fresh PIE, load it, and
      prove exact item identity, quest, finite stock, stats, and idempotent
@@ -1308,6 +1354,9 @@ First fresh-session checks:
 
 High-value milestones after that:
 
+- define and implement a separate art-free practice-target contract around the
+  accepted dummy: tab-targetable and damageable, safe reset, no aggro, loot,
+  XP, or quest credit, and no combat authority on either workshop or dummy art;
 - retain the accepted 48-segment cyan target circle and the `Z=-1000`
   finite-world recovery contract; fresh PIE has accepted target switching,
   autorun cancellation, exact village respawn, full health, walking, zero
@@ -1460,8 +1509,9 @@ feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy
 nameplate, bounds-aware surface-traced cyan-blue target circle, quest/reward
 loop, enemy
 leash, respawn protection, chat clipping, atmospheric daylight and the
-38-expression moss/earth road, 54 grounded upright Fab actors, and all 21
-original-art placements including the vendor stall, closed west cottage, four
+38-expression moss/earth road, 53 grounded upright Fab actors, and all 22
+original-art placements including the vendor stall, closed west cottage,
+open-front training workshop, four
 `NoCollision` reed clusters, the
 open-sided Fenwatch shelter at `(-1740, -700, 0)`, yaw `-64`, and the
   grounded front-facing non-colliding rigged Mara keeper wrapper with its
@@ -1521,11 +1571,15 @@ art-only. Retain the fixed contextual greeting hidden outside 420 cm and its
 available, active, ready, and completed states inside range; it must remain a
 read-only observer with no interaction, dialogue, quest, marker, or reward
 authority. Recheck the vendor stall's customer-facing counter, solid supports,
-clear service approach and east bypass, and normal `F` vendor opening. Then
-take the highest-value bounded milestone: build one cohesive Fenwatch village
-module through the reviewed deterministic Blender/classic-FBX/import/package/
-validation lane while preserving every service sightline and route. Tune only
-concrete Prowler or aura issues when normal play exposes them.
+clear service approach and east bypass, and normal `F` vendor opening. Retain
+the accepted workshop at `(-690, -1030, 0)`, yaw `-100`, with its four solid
+purposeful surfaces, clear open bay, dummy approach, decorative clearance, and
+east bypass. Then take the highest-value bounded milestone: define and
+implement a separate art-free practice-target contract that can be tabbed and
+damaged, resets safely, and grants no aggro, loot, XP, or quest credit. Keep
+the practice dummy and workshop presentation-only, and preserve every service
+sightline and route. Tune only concrete Prowler or aura issues when normal play
+exposes them.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

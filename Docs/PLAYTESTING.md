@@ -7,11 +7,12 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 1. Open `/Game/Maps/L_Embermere_Prototype`.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
 3. Confirm the map shows a blue atmospheric sky, readable ambient light, the
-   varied moss/earth road surface, 54 grounded upright `FabPass_` actors plus
-   21 original-art placements from the waystone, ember-lamp, road-signpost,
+   varied moss/earth road surface, 53 grounded upright `FabPass_` actors plus
+   22 original-art placements from the waystone, ember-lamp, road-signpost,
    road-gate, boundary-fence, boundary-stone, supply-chest, Fenwatch shelter,
    Mara's keeper, the Fenwatch quartermaster and armsmaster, the vendor stall,
-   practice dummy, first closed cottage, and four marsh-reed clusters, a
+   practice dummy, first closed cottage, open-front training workshop, and four
+   marsh-reed clusters, a
    navigable PlayerStart/Mara
    route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three original
    Marsh Prowlers.
@@ -84,7 +85,16 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     authored base and torso/core must be solid, both outstretched arms must be
     clear, and the open village route must remain traversable. Confirm the
     generic `FabPass_Village_Crate_C` it replaced is absent.
-16. Inspect `Embermere_FenwatchCottage_West_01` at `(-2480, -260, 0)`, yaw
+16. Inspect `Embermere_FenwatchTrainingWorkshop_Armsmaster_01` at
+    `(-690, -1030, 0)`, yaw `-100`. Its moss roof, stone-footed timber frame,
+    iron braces, ember crest, rear tool wall, and workbench should read as a
+    compact open-front training shed facing the practice dummy. Confirm both
+    front supports, rear wall, and workbench are solid; the center and
+    player-height bay remain clear; the roof, trim, crest, sword, spear, and
+    tools add no collision; and both the armsmaster-to-dummy approach and
+    road-side east bypass remain open. `FabPass_Village_Fence_03` must remain
+    absent.
+17. Inspect `Embermere_FenwatchCottage_West_01` at `(-2480, -260, 0)`, yaw
     `38`. The stone base, timber frame, moss roof, chimney, glowing windows,
     closed door, and ember crest should read as Fenwatch's first real dwelling
     without hiding Mara, her contextual greeting, the vendor approach, or the
@@ -92,10 +102,10 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     chimney details do not create invisible collision, the foundation is
     grounded, and both the direct PlayerStart-to-Mara route and west bypass
     remain clear. `FabPass_Village_Fence_02` must remain absent.
-17. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
+18. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
     should blend into the ground, reeds should add scale without hiding the
     route, and the whole cluster must remain `NoCollision`.
-18. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
+19. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
     marker meshes have not returned. Foliage should use readable
     project-owned overrides rather than white/default rendering.
 

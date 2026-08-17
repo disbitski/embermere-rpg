@@ -6,10 +6,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-16 no-hot-reload module plus the
+- Confirm Unreal is running the 2026-08-17 no-hot-reload module plus the
   accepted rigged Fenwatch keeper, armsmaster, and quartermaster packages and
-  the Fenwatch vendor-stall and first closed cottage/map packages, quest-owned
-  Mara greeting copy, and saved read-only greeting observer. Restart if the
+  the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
+  packages, quest-owned Mara greeting copy, and saved read-only greeting
+  observer. Restart if the
   editor predates that work
   or test discovery exposes fewer than 52
   Embermere tests.
@@ -39,9 +40,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.UI.TrainerPanel`,
   `Embermere.NPC.SkeletalIdlePresentation`, the three established NPC
   presentation tests, Prowler/world presentation, player recovery, and
-  inventory transaction suites. The authoritative 2026-08-16 headless run
+  inventory transaction suites. The authoritative 2026-08-17 headless run
   passed 52/52; the no-hot-reload Mac build and fresh-process greeting,
-  vendor-stall,
+  vendor-stall, cottage, training-workshop,
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed.
@@ -154,7 +155,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - all three saved map instances retain the skeletal mesh and animation set,
     not only the Blueprint CDO.
 - Recheck the completed grounding pass:
-  - 54 grounded upright `FabPass_` actors and 21 original-art placements;
+  - 53 grounded upright `FabPass_` actors and 22 original-art placements;
   - all ordinary art that previously sat at `Z=20` now rests at `Z=0`;
   - the unsupported SoulCave arch/pillar accents and three enemy marker meshes
     remain removed;
@@ -259,6 +260,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   and torso/core solid through exactly two authored boxes, both outstretched
   arms clear, terrain contact grounded, and the replaced
   `FabPass_Village_Crate_C` absent. It is world art, not trainer authority.
+- Inspect `Embermere_FenwatchTrainingWorkshop_Armsmaster_01` at
+  `(-690, -1030, 0)`, yaw `-100`. Retain its grounded
+  `460 x 270.403 x 369` cm open-front silhouette, 5,624 triangles, five shared
+  Fenwatch materials, and exact four authored collision boxes on the two front
+  supports, rear wall, and workbench. Keep the center and player-height bay
+  clear, the roof/trim/crest/tools visual-only, the armsmaster-to-dummy approach
+  and road-side east bypass open, and `FabPass_Village_Fence_03` absent. The
+  workshop is world art and owns no trainer, combat, or interaction authority.
 - Retain the accepted wrapper Idle lane. Anim Blueprint art takes precedence;
   otherwise a skeleton-compatible soft Idle asset uses `AnimationSingleNode`
   with data-driven loop and play rate. The production armsmaster is the first
@@ -291,15 +300,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. retain the accepted west cottage in clean PIE: complete roof/body read,
-     grounded foundation, solid body and doorstep, visual-only roof/chimney,
-     direct Mara route, west bypass, and unchanged contextual greeting and
-     physical `F` quest ownership;
-  2. extend Fenwatch with one complementary workshop or training-yard shelter
-     through the reviewed deterministic Blender/classic-FBX/import/package/
-     validation lane. Prefer a compact module behind the armsmaster that gives
-     the practice dummy an architectural home without blocking its clear arms,
-     trainer marker, service radius, east bypass, or PlayerStart route;
+  1. retain the accepted training workshop in clean PIE: complete open-front
+     read, grounded supports, solid rear wall and bench, visual-only roof/tools,
+     visible practice dummy, clear armsmaster approach, and road-side bypass;
+  2. make the training yard useful without coupling gameplay to art. Define a
+     small separate practice-target contract that can be tab-targeted and take
+     damage, resets safely, grants no loot/quest credit/XP, never aggroes, and
+     leaves the workshop and dummy as replaceable presentation. Add focused
+     automation before adding any UI flourish;
   3. retain all three accepted production Idles from the normal village route:
      grounded feet, restrained motion, readable silhouettes, advancing clocks,
      clear markers/path, and unchanged quest, vendor, and trainer interactions;
@@ -321,7 +329,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-16
+- Restart Unreal before manual PIE when the editor predates the 2026-08-17
   rigged Fenwatch keeper, armsmaster, and quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
   Current code passes all 52 tests.
@@ -372,6 +380,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     grounded contact, a target face aimed toward the armsmaster, five shared
     materials, a solid base and torso/core, clear outstretched arms, open route
     spacing, and the absence of the generic crate it replaced.
+  - inspect the Fenwatch training workshop at `(-690, -1030, 0)`, yaw `-100`,
+    for grounded stone-footed supports, an open front facing the training yard,
+    readable bench/tool silhouettes, solid front posts/rear wall/workbench,
+    clear roof/trim/tools, an open player-height bay, and unobstructed
+    armsmaster-to-dummy and road-side bypass routes. Confirm
+    `FabPass_Village_Fence_03` remains absent.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -604,8 +618,9 @@ Embermere has a working first-pass starter slice:
 - a project-owned Blender waystone, ember-lamp, road-signpost, road-gate,
   boundary-fence, boundary-stone, and supply-chest family with reviewed scripts,
   editable source, FBX, previews, authored collision, and ten validated saved
-  placements, plus a solid-core, clear-arm Fenwatch practice dummy and four
-  visual-only marsh-reed placements;
+  placements, plus a solid-core, clear-arm Fenwatch practice dummy, an
+  open-front Fenwatch training workshop, and four visual-only marsh-reed
+  placements;
 - the first project-owned rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   materials, six imported animations, asset-agnostic runtime routing, three
@@ -629,7 +644,7 @@ Embermere has a working first-pass starter slice:
   persistence round-trip/rollback rules, and construction-safe plus live NPC
   Idle presentation, plus trainer transactions, service ownership, offering
   data, static and rigged armsmaster presentation, and native trainer-panel
-  behavior, for 49 authoritative tests.
+  behavior, for 52 authoritative tests.
 
 ## How Far We Have To Go
 
@@ -655,7 +670,10 @@ Selected targets now use a surface-traced cyan-blue circle sized from their
 visual footprint instead of a fixed rotating gold marker; clean PIE accepted the
 Prowler read under daylight. The first closed Fenwatch cottage now gives the
 service cluster a real dwelling silhouette while preserving Mara's greeting
-and every accepted route. The reproduced Mara-route contact is also resolved
+and every accepted route. The open-front Fenwatch training workshop now frames
+the armsmaster and practice dummy with a grounded architectural home while its
+purposeful support/wall/bench collision leaves the training bay and road-side
+bypass open. The reproduced Mara-route contact is also resolved
 by moving the supply chest away from the straight
 PlayerStart corridor and proving both geometric clearance and a live native
 trace. The populated drag token in motion and physical `Ctrl+M` feedback remain
@@ -695,6 +713,12 @@ idempotent load without adding trainer-specific schema.
 - Keep the accepted practice-dummy contract at `(-1120, -1120, 0)`, yaw `45`,
   with its two colliders, five materials, target-facing composition, clear
   arms, and absent generic crate.
+- Retain the accepted training-workshop contract at `(-690, -1030, 0)`, yaw
+  `-100`, with five shared materials, four purposeful colliders, a clear
+  open-front bay, visible dummy, open armsmaster approach and east bypass, and
+  absent generic fence. Then implement a separate art-free practice-target
+  gameplay contract so combat behavior remains removable from both the dummy
+  and workshop meshes.
 - Retain the accepted trainer Chronicle proof without expanding save version 1:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
@@ -1515,6 +1539,29 @@ idempotent load without adding trainer-specific schema.
   no-hot-reload Mac build succeeded, the live MCP and fresh-process suites both
   passed 52/52, all focused/saved-package validators passed, and the map now
   contains 54 grounded Fab actors plus 21 original-art placements.
+- 2026-08-17: built `SM_EmbermereFenwatchTrainingWorkshop_01` through a
+  factory-clean deterministic Blender pass. The accepted open-front module is
+  `460 x 270.403 x 369` cm, 5,624 triangles, one UV channel, clean topology,
+  five shared Fenwatch materials, and four UBX boxes for the two front posts,
+  rear wall, and workbench. Roof, trim, ember crest, and tools remain
+  decorative and non-colliding.
+- Imported through classic `FbxFactory`, explicitly saved the package, and
+  placed `Embermere_FenwatchTrainingWorkshop_Armsmaster_01` at
+  `(-690, -1030, 0)`, yaw `-100`, replacing only
+  `FabPass_Village_Fence_03`. Exact validation locks 439.3 cm dummy spacing,
+  639.5 cm armsmaster spacing, and 401.6 cm road-pine spacing.
+- Initialized-world traces proved both posts, rear wall, and workbench solid;
+  the open-front center, player-height bay, armsmaster-to-dummy approach, and
+  road-side east bypass clear; and roof/trim/crest/tools excluded from authored
+  collision. The first east-bypass assertion began inside an existing road
+  lamp, so the trace start was corrected before acceptance rather than moving
+  valid world art to satisfy a bad test.
+- Clean PIE preserved the real Mara `F` quest handoff and independently proved
+  `Q` movement plus both `W` and `S` cancellation. The no-hot-reload build and
+  authoritative 52/52 suite passed with zero warnings; all focused package,
+  full-zone, UI, NPC-rig, vendor, trainer, cottage, stall, workshop, and native
+  route validators passed. The map now contains 53 grounded Fab actors plus 22
+  original-art placements.
 
 ## Asset Hunt
 
