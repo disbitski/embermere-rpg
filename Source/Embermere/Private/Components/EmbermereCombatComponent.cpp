@@ -2,64 +2,32 @@
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Engine/Engine.h"
-#include "Interfaces/EmbermereTargetable.h"
+#include "Interfaces/EmbermereTargetableDispatch.h"
 #include "UI/EmbermereGameplayMessageLibrary.h"
 
 namespace
 {
 void SetTargetedByPlayer(AActor* Target, bool bIsTargeted)
 {
-	if (!Target)
-	{
-		return;
-	}
-
-	if (IEmbermereTargetable* NativeTargetable = Cast<IEmbermereTargetable>(Target))
-	{
-		NativeTargetable->SetTargetedByPlayer_Implementation(bIsTargeted);
-		return;
-	}
-
-	if (Target->GetClass()->ImplementsInterface(UEmbermereTargetable::StaticClass()))
-	{
-		IEmbermereTargetable::Execute_SetTargetedByPlayer(Target, bIsTargeted);
-	}
+	EmbermereTargetableDispatch::SetTargetedByPlayer(Target, bIsTargeted);
 }
 
 FText GetCombatantName(AActor* Actor)
 {
-	if (!Actor)
-	{
-		return FText::GetEmpty();
-	}
-
-	if (IEmbermereTargetable* NativeTargetable = Cast<IEmbermereTargetable>(Actor))
-	{
-		return NativeTargetable->GetTargetDisplayName_Implementation();
-	}
-
-	if (Actor->GetClass()->ImplementsInterface(UEmbermereTargetable::StaticClass()))
-	{
-		return IEmbermereTargetable::Execute_GetTargetDisplayName(Actor);
-	}
-
-	return FText::FromString(Actor->GetActorLabel());
+	const FText TargetableName = EmbermereTargetableDispatch::GetDisplayName(Actor);
+	return TargetableName.IsEmpty() && Actor
+		? FText::FromString(Actor->GetActorLabel())
+		: TargetableName;
 }
 
 bool IsTargetAlive(AActor* Actor)
 {
-	if (!Actor)
-	{
-		return false;
-	}
+	return EmbermereTargetableDispatch::IsAlive(Actor);
+}
 
-	if (IEmbermereTargetable* NativeTargetable = Cast<IEmbermereTargetable>(Actor))
-	{
-		return NativeTargetable->IsAlive_Implementation();
-	}
-
-	return Actor->GetClass()->ImplementsInterface(UEmbermereTargetable::StaticClass()) &&
-		IEmbermereTargetable::Execute_IsAlive(Actor);
+bool ShouldGrantDefeatCredit(AActor* Actor)
+{
+	return EmbermereTargetableDispatch::ShouldGrantDefeatCredit(Actor);
 }
 }
 
@@ -141,9 +109,12 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 			if (TargetStats->IsDead())
 			{
 				bTargetDiedAfterEffect = true;
-				if (UEmbermereQuestLogComponent* QuestLog = Owner->FindComponentByClass<UEmbermereQuestLogComponent>())
+				if (ShouldGrantDefeatCredit(TargetActor))
 				{
-					QuestLog->AddObjectiveProgress("StarterEnemyDefeated", 1);
+					if (UEmbermereQuestLogComponent* QuestLog = Owner->FindComponentByClass<UEmbermereQuestLogComponent>())
+					{
+						QuestLog->AddObjectiveProgress("StarterEnemyDefeated", 1);
+					}
 				}
 			}
 			break;

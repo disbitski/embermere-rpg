@@ -138,9 +138,29 @@ dummy has no trainer component, offering data, interaction marker, wallet/XP
 access, panel ownership, or persistence state; removing it cannot change the
 trainer loop.
 
+## Practice-Target Gameplay
+
+`Embermere_FenwatchPracticeTarget_Gameplay_01` is a separate native gameplay
+actor colocated with the visible dummy. It supplies the `Fenwatch Practice
+Target` health pool, normal `Tab` eligibility, ability damage, native
+nameplate, and 48-segment cyan target circle without supplying a mesh or
+owning either of the dummy's colliders.
+
+The target is frozen at the authored transform with zero gravity, zero
+velocity, and `MOVE_None`. It has no navigation, AI, aggro, retaliation,
+leash, loot, XP, quest credit, trainer offering, interaction, wallet, or save
+authority. Lethal damage clears selection, then a three-second reset restores
+`150/150` for another round. Removing this actor leaves the training-yard art
+and Combat Drills service unchanged; replacing the dummy mesh leaves combat
+rules unchanged.
+
+The complete ownership, reset, validation, and defeat-credit rules live in
+[PRACTICE_TARGET_CONTRACT.md](PRACTICE_TARGET_CONTRACT.md).
+
 ## Working Rule
 
-Trainer art may change, animate, or disappear without changing progression.
+Trainer and training-yard art may change, animate, or disappear without
+changing progression or practice-target rules.
 Offerings may change without rebuilding the NPC. Any future skill unlock,
 class requirement, finite lesson, or respec feature must extend the service
 and data contract first, then earn its own persistence and rollback rules.

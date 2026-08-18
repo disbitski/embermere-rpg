@@ -2,7 +2,7 @@
 #include "Components/EmbermereCombatComponent.h"
 #include "EngineUtils.h"
 #include "GameFramework/Pawn.h"
-#include "Interfaces/EmbermereTargetable.h"
+#include "Interfaces/EmbermereTargetableDispatch.h"
 
 UEmbermereTargetingComponent::UEmbermereTargetingComponent()
 {
@@ -30,7 +30,8 @@ AActor* UEmbermereTargetingComponent::CycleTarget()
 			continue;
 		}
 
-		if (!IEmbermereTargetable::Execute_IsAlive(Candidate) || !IEmbermereTargetable::Execute_IsHostileTo(Candidate, Owner))
+		if (!EmbermereTargetableDispatch::IsAlive(Candidate) ||
+			!EmbermereTargetableDispatch::IsHostileTo(Candidate, Owner))
 		{
 			continue;
 		}

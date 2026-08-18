@@ -174,6 +174,12 @@ void AEmbermereEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	SpawnTransform = GetActorTransform();
+	if (!bGameplayCollisionEnabled)
+	{
+		SetActorEnableCollision(false);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetCapsuleComponent()->SetCanEverAffectNavigation(false);
+	}
 	ApplyConfiguredVisualPresentation();
 
 	if (Stats)
@@ -231,6 +237,11 @@ bool AEmbermereEnemyCharacter::IsHostileTo_Implementation(const AActor* Viewer) 
 FText AEmbermereEnemyCharacter::GetTargetDisplayName_Implementation() const
 {
 	return EnemyName;
+}
+
+bool AEmbermereEnemyCharacter::ShouldGrantDefeatCredit_Implementation() const
+{
+	return bGrantsDefeatCredit;
 }
 
 void AEmbermereEnemyCharacter::HandleTargetedByPlayer(bool bIsTargeted)
@@ -414,13 +425,13 @@ void AEmbermereEnemyCharacter::HandleDeath()
 bool AEmbermereEnemyCharacter::ShouldDropLoot(float RandomRoll) const
 {
 	const float ClampedChance = FMath::Clamp(LootDropChance, 0.0f, 1.0f);
-	return !LootItem.IsNull() && LootQuantity > 0 && ClampedChance > 0.0f &&
+	return bLootEnabled && !LootItem.IsNull() && LootQuantity > 0 && ClampedChance > 0.0f &&
 		FMath::Clamp(RandomRoll, 0.0f, 1.0f) < ClampedChance;
 }
 
 bool AEmbermereEnemyCharacter::GrantLootTo(AActor* Recipient)
 {
-	if (!Recipient || LootQuantity <= 0)
+	if (!bLootEnabled || !Recipient || LootQuantity <= 0)
 	{
 		return false;
 	}
@@ -460,8 +471,11 @@ void AEmbermereEnemyCharacter::Respawn()
 
 	SetActorTransform(SpawnTransform);
 	SetActorHiddenInGame(false);
-	SetActorEnableCollision(true);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	SetActorEnableCollision(bGameplayCollisionEnabled);
+	GetCapsuleComponent()->SetCollisionEnabled(
+		bGameplayCollisionEnabled
+			? ECollisionEnabled::QueryAndPhysics
+			: ECollisionEnabled::NoCollision);
 	AggroTarget.Reset();
 	bReturningHome = false;
 	LastAttackTimeSeconds = -1000.0;
@@ -485,7 +499,7 @@ void AEmbermereEnemyCharacter::Respawn()
 
 void AEmbermereEnemyCharacter::UpdatePrototypeAi(float DeltaSeconds)
 {
-	if (!Stats || Stats->IsDead() || IsHidden())
+	if (!bPrototypeAiEnabled || !Stats || Stats->IsDead() || IsHidden())
 	{
 		return;
 	}
@@ -681,7 +695,7 @@ void AEmbermereEnemyCharacter::UpdatePrototypeTargetRing(bool bIsVisible)
 float AEmbermereEnemyCharacter::ResolveTargetRingHeightOffset() const
 {
 	const UWorld* World = GetWorld();
-	if (!World)
+	if (!bTraceTargetRingSurface || !World)
 	{
 		return TargetRingHeightOffset;
 	}

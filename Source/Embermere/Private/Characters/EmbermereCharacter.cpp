@@ -397,6 +397,11 @@ FText AEmbermereCharacter::GetTargetDisplayName_Implementation() const
 	return CharacterName;
 }
 
+bool AEmbermereCharacter::ShouldGrantDefeatCredit_Implementation() const
+{
+	return false;
+}
+
 void AEmbermereCharacter::SetTargetedByPlayer_Implementation(bool bIsTargeted)
 {
 	HandleTargetedByPlayer(bIsTargeted);

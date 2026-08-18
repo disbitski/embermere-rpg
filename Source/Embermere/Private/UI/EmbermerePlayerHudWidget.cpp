@@ -36,7 +36,7 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
-#include "Interfaces/EmbermereTargetable.h"
+#include "Interfaces/EmbermereTargetableDispatch.h"
 #include "InputCoreTypes.h"
 
 namespace
@@ -2958,7 +2958,7 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 			{
 				TargetPanel->SetVisibility(ESlateVisibility::Visible);
 			}
-			const FText TargetName = IEmbermereTargetable::Execute_GetTargetDisplayName(TargetActor);
+			const FText TargetName = EmbermereTargetableDispatch::GetDisplayName(TargetActor);
 			if (TargetRangeText)
 			{
 				FString RangeLine = TEXT("No hostile ability ready");

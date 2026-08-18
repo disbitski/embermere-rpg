@@ -127,6 +127,9 @@ ORIGINAL_PRACTICE_DUMMY_LABEL = "Embermere_FenwatchPracticeDummy_TrainingYard_01
 ORIGINAL_PRACTICE_DUMMY_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereFenwatchPracticeDummy_01.SM_EmbermereFenwatchPracticeDummy_01"
 ORIGINAL_PRACTICE_DUMMY_LOCATION = (-1120.0, -1120.0, 0.0)
 ORIGINAL_PRACTICE_DUMMY_YAW = 45.0
+PRACTICE_TARGET_GAMEPLAY_LABEL = "Embermere_FenwatchPracticeTarget_Gameplay_01"
+PRACTICE_TARGET_GAMEPLAY_LOCATION = (-1120.0, -1120.0, 0.0)
+PRACTICE_TARGET_GAMEPLAY_YAW = 45.0
 ORIGINAL_VENDOR_STALL_LABEL = "Embermere_FenwatchVendorStall_Quartermaster_01"
 ORIGINAL_VENDOR_STALL_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereFenwatchVendorStall_01.SM_EmbermereFenwatchVendorStall_01"
 ORIGINAL_VENDOR_STALL_LOCATION = (-1530.0, -1430.0, 0.0)
@@ -261,6 +264,7 @@ REQUIRED_LABELS = {
     ORIGINAL_GATE_LABEL,
     ORIGINAL_SUPPLY_CHEST_LABEL,
     ORIGINAL_PRACTICE_DUMMY_LABEL,
+    PRACTICE_TARGET_GAMEPLAY_LABEL,
     ORIGINAL_VENDOR_STALL_LABEL,
     ORIGINAL_FENWATCH_COTTAGE_LABEL,
     ORIGINAL_TRAINING_WORKSHOP_LABEL,
@@ -1607,6 +1611,86 @@ def main():
         fail("{} training-yard spacing from the armsmaster drifted: {:.1f} cm".format(
             ORIGINAL_PRACTICE_DUMMY_LABEL,
             armsmaster_distance,
+        ))
+
+    practice_target = actors_by_label[PRACTICE_TARGET_GAMEPLAY_LABEL]
+    if not isinstance(practice_target, unreal.EmbermerePracticeTargetActor):
+        fail("{} must remain the native art-free practice-target actor".format(
+            PRACTICE_TARGET_GAMEPLAY_LABEL,
+        ))
+    practice_target_location = practice_target.get_actor_location()
+    practice_target_rotation = practice_target.get_actor_rotation()
+    practice_target_scale = practice_target.get_actor_scale3d()
+    if not all((
+        nearly_equal(practice_target_location.x, PRACTICE_TARGET_GAMEPLAY_LOCATION[0], 1.0),
+        nearly_equal(practice_target_location.y, PRACTICE_TARGET_GAMEPLAY_LOCATION[1], 1.0),
+        nearly_equal(practice_target_location.z, PRACTICE_TARGET_GAMEPLAY_LOCATION[2], 1.0),
+        nearly_equal(practice_target_rotation.pitch, 0.0, 0.1),
+        nearly_equal(practice_target_rotation.yaw, PRACTICE_TARGET_GAMEPLAY_YAW, 0.1),
+        nearly_equal(practice_target_rotation.roll, 0.0, 0.1),
+        nearly_equal(practice_target_scale.x, 1.0, 0.01),
+        nearly_equal(practice_target_scale.y, 1.0, 0.01),
+        nearly_equal(practice_target_scale.z, 1.0, 0.01),
+    )):
+        fail("{} transform drifted: location={}, rotation={}, scale={}".format(
+            PRACTICE_TARGET_GAMEPLAY_LABEL,
+            practice_target_location,
+            practice_target_rotation,
+            practice_target_scale,
+        ))
+    practice_target_tags = set(practice_target.tags)
+    if unreal.Name("PracticeTarget") not in practice_target_tags:
+        fail("{} must retain the PracticeTarget tag".format(
+            PRACTICE_TARGET_GAMEPLAY_LABEL,
+        ))
+    if unreal.Name("EmbermereGameplay") not in practice_target_tags:
+        fail("{} must retain the EmbermereGameplay tag".format(
+            PRACTICE_TARGET_GAMEPLAY_LABEL,
+        ))
+    if unreal.Name("EmbermereOriginalArt") in practice_target_tags:
+        fail("{} must remain outside the original-art placement count".format(
+            PRACTICE_TARGET_GAMEPLAY_LABEL,
+        ))
+    for property_name in (
+        "loot_enabled",
+        "grants_defeat_credit",
+        "prototype_ai_enabled",
+        "gameplay_collision_enabled",
+        "trace_target_ring_surface",
+    ):
+        if bool(practice_target.get_editor_property(property_name)):
+            fail("{} must keep {} disabled".format(
+                PRACTICE_TARGET_GAMEPLAY_LABEL,
+                property_name,
+            ))
+    if not all((
+        nearly_equal(practice_target.get_editor_property("respawn_delay_seconds"), 3.0, 0.01),
+        nearly_equal(practice_target.get_editor_property("target_ring_radius"), 150.0, 0.01),
+        nearly_equal(practice_target.get_editor_property("target_ring_height_offset"), 16.0, 0.01),
+        practice_target.get_target_ring_segment_count() == 48,
+        practice_target.are_target_ring_segments_non_colliding(),
+    )):
+        fail("{} reset or target-ring contract drifted".format(
+            PRACTICE_TARGET_GAMEPLAY_LABEL,
+        ))
+    practice_target_stats = practice_target.get_component_by_class(
+        unreal.EmbermereStatsComponent
+    )
+    if not practice_target_stats or not nearly_equal(
+        practice_target_stats.get_editor_property("max_health"),
+        150.0,
+        0.01,
+    ):
+        fail("{} must retain 150 maximum health".format(
+            PRACTICE_TARGET_GAMEPLAY_LABEL,
+        ))
+    if practice_target.get_component_by_class(unreal.EmbermereInteractableComponent):
+        fail("{} must not own interaction authority".format(
+            PRACTICE_TARGET_GAMEPLAY_LABEL,
+        ))
+    if practice_target.get_component_by_class(unreal.EmbermereTrainerComponent):
+        fail("{} must not own trainer authority".format(
+            PRACTICE_TARGET_GAMEPLAY_LABEL,
         ))
 
     vendor_stall_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_VENDOR_STALL_PATH)

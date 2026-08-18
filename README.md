@@ -61,6 +61,10 @@ The repo currently contains the C++ gameplay scaffold for:
 - a separate data-driven Fenwatch trainer service with level/currency/XP
   preflight, rollback-safe progression, a fixed native training panel,
   inventory/Chronicle handoff, and no art ownership
+- a separate art-free Fenwatch practice target that shares normal tab-target,
+  hotbar, nameplate, and cyan-circle systems while remaining stationary,
+  non-colliding, non-retaliating, reward-free, quest-credit-free, and safely
+  resettable independently of the visible dummy and training workshop
 - data-driven item sell values plus an earned-currency loop: Mara's first quest
   grants copper exactly once, selected bag items can be sold by identity, and
   the latest sale can be bought back at its recorded price
@@ -111,7 +115,7 @@ The repo currently contains the C++ gameplay scaffold for:
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved
   instances, and asset-agnostic runtime presentation
-- a corrected 54-actor local Fab/Epic art pass plus 21 placements from
+- a corrected 53-actor local Fab/Epic art pass plus 22 placements from
   Embermere's original Blender-built waystone, ember-lamp, road-signpost,
   road-gate, boundary-fence, rune-topped boundary-stone, supply-chest, and
   Fenwatch shelter, vendor stall, and first closed cottage, Mara's rigged
@@ -170,6 +174,9 @@ as a swappable project-owned layer over the local Fab environment.
 
 The reusable art-only static/skeletal NPC boundary lives in
 [Docs/NPC_PRESENTATION_CONTRACT.md](Docs/NPC_PRESENTATION_CONTRACT.md).
+
+The visible-dummy versus art-free combat authority boundary lives in
+[Docs/PRACTICE_TARGET_CONTRACT.md](Docs/PRACTICE_TARGET_CONTRACT.md).
 
 ## Unreal And MCP Setup
 
@@ -270,8 +277,12 @@ rows, slots, details, drag feedback, rewards, and the equipment backdrop, safe
 consumable actions, native selected-target nameplate/emissive-ring feedback,
 and a reusable static-to-skeletal NPC presentation contract demonstrated by
 the grounded Fenwatch keeper, quartermaster, and armsmaster around the village
-service cluster. A
-co-located art-free service now turns that quartermaster into Embermere's first
+service cluster. The training yard applies the same ownership discipline to
+combat: the project-owned dummy and workshop remain replaceable art while a
+colocated native practice target accepts real class abilities, clears on
+defeat, resets after three seconds, and grants no retaliation, loot, XP, quest
+progress, or service authority. A colocated art-free service turns the
+quartermaster into Embermere's first
 working merchant without coupling stock, prices, currency, transactions, or
 interaction to the model. The playable loop now earns `20` copper from Mara's
 first quest and supports rollback-safe selling and latest-item buyback through

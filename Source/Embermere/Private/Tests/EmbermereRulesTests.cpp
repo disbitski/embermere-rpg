@@ -4,6 +4,7 @@
 #include "Characters/EmbermereCharacter.h"
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Characters/EmbermereNpcPresentationActor.h"
+#include "Characters/EmbermerePracticeTargetActor.h"
 #include "Characters/EmbermereTrainerServiceActor.h"
 #include "Characters/EmbermereVendorServiceActor.h"
 #include "Components/EmbermereCombatComponent.h"
@@ -16,6 +17,7 @@
 #include "Components/EmbermereTrainerComponent.h"
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/EmbermereWalletComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Data/EmbermereItemData.h"
@@ -33,6 +35,8 @@
 #include "Game/EmbermerePlayerController.h"
 #include "GameFramework/SaveGame.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Interfaces/EmbermereTargetableDispatch.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInterface.h"
 #include "Misc/AutomationTest.h"
@@ -1148,6 +1152,154 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 	TestNull(TEXT("Current target clears when target is cleared"), Character->Combat->CurrentTarget.Get());
 	TestFalse(TEXT("Second enemy presentation clears when target clears"), SecondEnemy->IsSelectedByPlayer());
 	TestFalse(TEXT("Second enemy target circle clears with the target"), SecondEnemy->IsTargetRingVisible());
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermerePracticeTargetPolicyTest,
+	"Embermere.Combat.PracticeTargetPolicy",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermerePracticeTargetPolicyTest::RunTest(const FString& Parameters)
+{
+	AEmbermerePracticeTargetActor* PracticeTarget = NewObject<AEmbermerePracticeTargetActor>();
+	AEmbermereEnemyCharacter* OrdinaryEnemy = NewObject<AEmbermereEnemyCharacter>();
+	AEmbermereCharacter* Viewer = NewObject<AEmbermereCharacter>();
+	TestNotNull(TEXT("Practice target can be created"), PracticeTarget);
+	TestNotNull(TEXT("Ordinary enemy can be created"), OrdinaryEnemy);
+	TestNotNull(TEXT("Practice-target viewer can be created"), Viewer);
+	if (!PracticeTarget || !OrdinaryEnemy || !Viewer || !PracticeTarget->Stats)
+	{
+		return false;
+	}
+
+	TestTrue(
+		TEXT("Practice target remains eligible for tab targeting"),
+		PracticeTarget->GetClass()->ImplementsInterface(UEmbermereTargetable::StaticClass()));
+	TestTrue(
+		TEXT("Practice target is selectable through the hostile target lane"),
+		EmbermereTargetableDispatch::IsHostileTo(PracticeTarget, Viewer));
+	TestFalse(
+		TEXT("Practice target never grants defeat credit"),
+		EmbermereTargetableDispatch::ShouldGrantDefeatCredit(PracticeTarget));
+	TestTrue(
+		TEXT("Ordinary enemies retain defeat credit"),
+		EmbermereTargetableDispatch::ShouldGrantDefeatCredit(OrdinaryEnemy));
+	TestEqual(
+		TEXT("Practice target exposes its readable name"),
+		EmbermereTargetableDispatch::GetDisplayName(PracticeTarget).ToString(),
+		FString(TEXT("Fenwatch Practice Target")));
+
+	TestFalse(TEXT("Practice target owns no prototype AI"), PracticeTarget->bPrototypeAiEnabled);
+	TestFalse(TEXT("Practice target owns no loot policy"), PracticeTarget->bLootEnabled);
+	TestFalse(TEXT("Practice target owns no gameplay collision"), PracticeTarget->bGameplayCollisionEnabled);
+	TestFalse(TEXT("Practice target does not trace against its separate art"), PracticeTarget->bTraceTargetRingSurface);
+	TestEqual(TEXT("Practice target cannot retaliate"), PracticeTarget->AttackDamage, 0.0f);
+	TestEqual(TEXT("Practice target cannot chase"), PracticeTarget->GetEffectiveMoveSpeedCmPerSecond(), 0.0f);
+	TestEqual(TEXT("Practice target resets quickly"), PracticeTarget->RespawnDelaySeconds, 3.0f);
+	TestFalse(TEXT("Practice target cannot roll loot"), PracticeTarget->ShouldDropLoot(0.0f));
+	TestFalse(TEXT("Practice target cannot grant loot"), PracticeTarget->GrantLootTo(Viewer));
+
+	TestNotNull(TEXT("Practice target retains health authority"), PracticeTarget->Stats.Get());
+	TestEqual(TEXT("Practice target has a durable training health pool"), PracticeTarget->Stats->MaxHealth, 150.0f);
+	TestTrue(TEXT("Practice target has no configured skeletal art"), PracticeTarget->VisualSkeletalMesh.IsNull());
+	TestNull(TEXT("Practice target renders no inherited skeletal mesh"), PracticeTarget->GetMesh()->GetSkeletalMeshAsset());
+	TestNull(TEXT("Practice target creates no interactable authority"), PracticeTarget->FindComponentByClass<UEmbermereInteractableComponent>());
+	TestNull(TEXT("Practice target creates no trainer authority"), PracticeTarget->FindComponentByClass<UEmbermereTrainerComponent>());
+	TestNull(TEXT("Practice target creates no vendor authority"), PracticeTarget->FindComponentByClass<UEmbermereVendorComponent>());
+	TestEqual(
+		TEXT("Practice target capsule stays non-colliding"),
+		PracticeTarget->GetCapsuleComponent()->GetCollisionEnabled(),
+		ECollisionEnabled::NoCollision);
+	TestNotNull(TEXT("Practice target retains a movement component"), PracticeTarget->GetCharacterMovement());
+	TestEqual(TEXT("Practice target gravity is disabled"), PracticeTarget->GetCharacterMovement()->GravityScale, 0.0f);
+	TestEqual(
+		TEXT("Practice target stays fixed at its authored transform"),
+		PracticeTarget->GetCharacterMovement()->MovementMode,
+		MOVE_None);
+	TestTrue(TEXT("Practice target reuses the accepted nameplate"), PracticeTarget->HasNameplateWidget());
+	TestEqual(TEXT("Practice target reuses the complete cyan target circle"), PracticeTarget->GetTargetRingSegmentCount(), 48);
+	TestTrue(TEXT("Practice target circle clears the dummy footprint"), PracticeTarget->TargetRingRadius >= 150.0f);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermerePracticeTargetCombatResetTest,
+	"Embermere.Combat.PracticeTargetCombatReset",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermerePracticeTargetCombatResetTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	AEmbermerePracticeTargetActor* PracticeTarget = NewObject<AEmbermerePracticeTargetActor>();
+	UEmbermereQuestData* Quest = NewObject<UEmbermereQuestData>();
+	if (!Character || !PracticeTarget || !Quest || !Character->Combat ||
+		!Character->Stats || !Character->QuestLog || !Character->Inventory ||
+		!PracticeTarget->Stats)
+	{
+		AddError(TEXT("Could not create practice-target combat fixtures"));
+		return false;
+	}
+
+	Quest->QuestId = TEXT("PracticeTargetCreditExclusion");
+	Quest->Title = FText::FromString(TEXT("Do Not Count the Dummy"));
+	Quest->ObjectiveId = TEXT("StarterEnemyDefeated");
+	Quest->RequiredObjectiveCount = 1;
+	Character->Stats->InitializeVitals();
+	PracticeTarget->Stats->InitializeVitals();
+	TestTrue(TEXT("Credit-exclusion quest can be accepted"), Character->QuestLog->AcceptQuest(Quest));
+
+	FEmbermereAbilityDefinition TrainingSnare;
+	TrainingSnare.AbilityId = TEXT("TrainingSnare");
+	TrainingSnare.DisplayName = FText::FromString(TEXT("Training Snare"));
+	TrainingSnare.TargetKind = EEmbermereAbilityTargetKind::Enemy;
+	TrainingSnare.EffectType = EEmbermereAbilityEffectType::Damage;
+	TrainingSnare.Power = 1.0f;
+	TrainingSnare.Range = 225.0f;
+	TrainingSnare.Duration = 6.0f;
+	TrainingSnare.MovementSpeedMultiplier = 0.5f;
+
+	Character->Combat->SetTarget(PracticeTarget);
+	TestTrue(TEXT("Practice target can be selected for combat"), Character->Combat->CurrentTarget == PracticeTarget);
+	TestTrue(TEXT("Practice target shows its cyan circle while selected"), PracticeTarget->IsTargetRingVisible());
+	TestTrue(TEXT("Control abilities can affect the practice target"), Character->Combat->ExecuteAbility(TrainingSnare));
+	TestEqual(TEXT("Practice target accepts damage"), PracticeTarget->Stats->CurrentHealth, 139.0f);
+	TestEqual(TEXT("Practice target accepts control-effect state"), PracticeTarget->Stats->GetMovementSpeedMultiplier(), 0.5f);
+
+	PracticeTarget->ResetPracticeTarget();
+	TestEqual(TEXT("Manual training reset restores full health"), PracticeTarget->Stats->CurrentHealth, 150.0f);
+	TestEqual(TEXT("Manual training reset clears control effects"), PracticeTarget->Stats->GetMovementSpeedMultiplier(), 1.0f);
+	TestTrue(TEXT("Manual training reset preserves an active selection"), PracticeTarget->IsTargetRingVisible());
+	TestEqual(
+		TEXT("Manual training reset preserves no collision"),
+		PracticeTarget->GetCapsuleComponent()->GetCollisionEnabled(),
+		ECollisionEnabled::NoCollision);
+	TestEqual(
+		TEXT("Manual training reset preserves the stationary movement mode"),
+		PracticeTarget->GetCharacterMovement()->MovementMode,
+		MOVE_None);
+
+	FEmbermereAbilityDefinition FinishingStrike;
+	FinishingStrike.AbilityId = TEXT("PracticeFinisher");
+	FinishingStrike.DisplayName = FText::FromString(TEXT("Practice Finisher"));
+	FinishingStrike.TargetKind = EEmbermereAbilityTargetKind::Enemy;
+	FinishingStrike.EffectType = EEmbermereAbilityEffectType::Damage;
+	FinishingStrike.Power = 200.0f;
+	FinishingStrike.Range = 225.0f;
+	Character->Combat->SetTarget(PracticeTarget);
+	TestTrue(TEXT("Practice target can be defeated"), Character->Combat->ExecuteAbility(FinishingStrike));
+	TestTrue(TEXT("Practice target reaches its defeated state"), PracticeTarget->Stats->IsDead());
+	TestNull(TEXT("Defeating the practice target clears combat target"), Character->Combat->CurrentTarget.Get());
+	TestEqual(TEXT("Practice defeat grants no quest progress"), Character->QuestLog->ActiveQuest.CurrentObjectiveCount, 0);
+	TestEqual(TEXT("Practice defeat grants no XP"), Character->Stats->CurrentExperience, 0);
+	TestEqual(TEXT("Practice defeat grants no inventory loot"), Character->Inventory->Stacks.Num(), 0);
+
+	PracticeTarget->ResetPracticeTarget();
+	TestTrue(TEXT("Practice target is alive for another training cycle"), PracticeTarget->IsAlive_Implementation());
+	TestEqual(TEXT("Post-defeat reset restores exact health"), PracticeTarget->Stats->CurrentHealth, 150.0f);
+	TestEqual(TEXT("Repeated reset still grants no quest progress"), Character->QuestLog->ActiveQuest.CurrentObjectiveCount, 0);
 
 	return true;
 }

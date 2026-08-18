@@ -1220,3 +1220,72 @@ For initialized-world route assertions:
 A native trace is only as trustworthy as its geometry and its question. A
 false negative should improve the test contract, not pressure the level into
 working around an invalid probe.
+
+## Separate Target Eligibility From Defeat Credit
+
+A practice dummy needs to participate in targeting and damage without becoming
+a farmable hostile. Tags alone are too indirect for that boundary: the combat
+system needs an explicit answer when a target dies.
+
+Embermere now asks `IEmbermereTargetable::ShouldGrantDefeatCredit` before
+advancing `StarterEnemyDefeated`. General characters default to false,
+ordinary enemies opt in, and the Fenwatch practice target opts out alongside
+its independent no-loot policy. Focused tests lock XP, inventory, and quest
+state as well as damage/reset behavior.
+
+Treat targetability, hostility, defeat credit, loot, and AI as separate
+capabilities. A world object can support the combat UI and ability pipeline
+without implicitly inheriting every enemy outcome.
+
+## Dispatch Native And Blueprint Interfaces Deliberately
+
+The targetable interface originally relied on reflected `Execute_*` calls.
+That path worked for Blueprint-generated actors but returned default results
+for transient native test actors, making tests disagree with the real C++
+implementation.
+
+The accepted dispatch helper distinguishes the two lanes:
+
+1. Blueprint-generated implementations use reflected `Execute_*` dispatch.
+2. Native C++ implementations call their `_Implementation` method directly.
+3. Combat, targeting, controller feedback, and HUD presentation all use the
+   same helper rather than inventing local interface rules.
+4. Tests include both a native actor and the actual Blueprint generated class.
+
+An Unreal interface is one contract with two runtime dispatch mechanisms.
+Exercise both before trusting an abstraction that crosses native and Blueprint
+ownership.
+
+## Collision-Free Characters Still Need A Movement Contract
+
+The first saved practice target was correctly non-colliding, had no AI, and
+passed its package validator, yet clean PIE could not find it. The actor had
+fallen more than 500,000 cm below the dummy because it still inherited an
+active `UCharacterMovementComponent` and gravity from `ACharacter`.
+
+For a stationary art-free character wrapper:
+
+1. set gravity scale to zero;
+2. stop movement and clear velocity;
+3. disable movement with `MOVE_None`;
+4. apply the freeze in construction defaults, BeginPlay, and reset paths;
+5. assert exact transform, movement mode, and gravity in saved and live tests.
+
+Disabling collision is not the same as disabling simulation. When reusing a
+high-level engine actor for only part of its behavior, explicitly turn off the
+subsystems that still own time-based state.
+
+## Prove The Editor Is Gone Before Calling A Commandlet Isolated
+
+An in-game `Cmd+Q` probe did not close the Unreal editor; the captured viewport
+consumed the input. A commandlet launched afterward reused the GUI process as
+an automation worker, so its green result was not a fresh-module proof.
+
+Close the actual Slate editor window, then verify the MCP listener is down
+before launching an authoritative `UnrealEditor-Cmd` run. Give each run its own
+`-Abslog` path and require the expected success marker with no
+`LogPython: Error`. Also remember that UnrealBuildTool rotates trace files
+under `~/Library/Application Support/Epic/UnrealBuildTool`; a restricted
+sandbox that cannot update those files can fail before compilation begins.
+Run the build with normal host permissions instead of diagnosing trace-file
+access as a C++ error.

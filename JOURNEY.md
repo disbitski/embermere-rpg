@@ -2286,6 +2286,49 @@ placements.
 Lesson: open architecture is successful when it makes an activity feel like a
 place while leaving gameplay more legible, not more constrained.
 
+## 2026-08-18 - The Dummy Became A Target Without Becoming An Enemy
+
+The Fenwatch practice dummy already looked like part of the training yard, but
+giving that mesh combat authority would have fused art, collision, trainer
+services, quest progress, and rewards into one hard-to-replace object. We kept
+the Blender dummy and workshop exactly where they were and placed a separate
+native, art-free gameplay actor at the dummy's transform.
+
+`AEmbermerePracticeTargetActor` now reuses Embermere's actual tab-target,
+hotbar, stats, native nameplate, and 48-segment cyan-circle path. It has 150
+health and resets after three seconds, but it owns no mesh, collision,
+navigation, AI, aggro, retaliation, leash, loot, XP, quest credit, trainer
+interaction, or save state. A new `ShouldGrantDefeatCredit` target policy keeps
+target eligibility separate from reward eligibility, while a centralized
+dispatch helper deliberately handles both native C++ targetables and
+Blueprint-generated targetables.
+
+Fresh PIE found the kind of failure that construction tests rarely reveal: an
+`ACharacter` with collision disabled still has CharacterMovement gravity. The
+invisible target fell hundreds of thousands of centimeters below its visible
+dummy while every serialized policy looked correct. The accepted actor now
+freezes gravity, velocity, and movement in construction, BeginPlay, and reset,
+and its validator locks `MOVE_None` at the exact authored transform.
+
+The real gameplay proof used six hotbar Strikes. Damage landed as
+`28, 28, 28, 28, 28, 10`; the target cleared on defeat, the visible dummy stayed
+in place, and the actor returned at `150/150` after three seconds. Player health
+remained `100`, XP remained `0`, inventory remained empty, and Mara objective
+progress remained `0`. `Tab` immediately reacquired the reset target with its
+nameplate and cyan circle.
+
+The no-hot-reload Mac build passed, and a truly isolated commandlet run passed
+all 54 tests. Focused, aggregate saved-package, full-zone, and initialized-world
+trace validators passed as well. Two more operational lessons came with that
+proof: close the real editor window and confirm MCP is down before calling a
+commandlet authoritative, and give UnrealBuildTool host access to its trace
+directory instead of mistaking sandboxed trace-rotation failure for a compile
+error.
+
+The useful rule is broader than a training dummy: an actor may be targetable
+without being a hostile reward source, and world art may visualize combat
+without owning it.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

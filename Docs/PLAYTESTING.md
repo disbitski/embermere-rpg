@@ -84,7 +84,10 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     bands plus ember bullseye should read from the training-yard approach. The
     authored base and torso/core must be solid, both outstretched arms must be
     clear, and the open village route must remain traversable. Confirm the
-    generic `FabPass_Village_Crate_C` it replaced is absent.
+    generic `FabPass_Village_Crate_C` it replaced is absent. Confirm the
+    colocated `Embermere_FenwatchPracticeTarget_Gameplay_01` is a separate
+    native actor with no render mesh, collision, navigation, or trainer
+    authority and remains fixed at the same transform.
 16. Inspect `Embermere_FenwatchTrainingWorkshop_Armsmaster_01` at
     `(-690, -1030, 0)`, yaw `-100`. Its moss roof, stone-footed timber frame,
     iron braces, ember crest, rear tool wall, and workbench should read as a
@@ -281,6 +284,33 @@ and a repeat `F` preserved `125` XP without reward replay.
     and the player returns to the village after five seconds at full health
     with walking restored, zero residual velocity, and three seconds of damage
     protection.
+
+## Fenwatch Practice Target Loop
+
+1. Start clean PIE, hide Inventory with `I`, and approach the visible practice
+   dummy from the armsmaster side.
+2. Press `Tab`. Confirm `Fenwatch Practice Target` appears in the HUD and
+   native world nameplate with `150/150`, while the complete cyan target circle
+   wraps the dummy without touching its supports or replacing its art.
+3. Confirm the gameplay target remains at `(-1120, -1120, 0)` with zero
+   gravity and `MOVE_None`. It must not move, aggro, retaliate, leash, block the
+   player, or add navigation collision.
+4. Use real hotbar abilities. Strike should update both health presentations
+   and chat while retaining the ordinary cooldown contract. Root, Snare, and
+   other class effects may be accepted for normal combat consistency, but they
+   must not give the target AI or locomotion.
+5. Defeat it. Confirm selection, nameplate, and cyan circle clear immediately;
+   the separate visible dummy remains in place; and no loot, XP, copper,
+   inventory stack, Mara objective progress, or trainer/service state changes.
+6. Wait three seconds. Confirm the native target returns at `150/150` at the
+   exact authored transform, then press `Tab` and reacquire it for another
+   round.
+7. Retain the accepted baseline proof: six Strikes dealt
+   `28, 28, 28, 28, 28, 10`; player health stayed `100`, XP stayed `0`, bag
+   stacks stayed `0`, and quest progress stayed `0` before and after reset.
+
+The authority and reset contract is in
+[PRACTICE_TARGET_CONTRACT.md](PRACTICE_TARGET_CONTRACT.md).
 
 ## Fenwatch Vendor Loop
 

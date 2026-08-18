@@ -6,18 +6,21 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-17 no-hot-reload module plus the
+- Confirm Unreal is running the 2026-08-18 no-hot-reload module plus the
   accepted rigged Fenwatch keeper, armsmaster, and quartermaster packages and
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
-  packages, quest-owned Mara greeting copy, and saved read-only greeting
+  packages, the saved native Fenwatch practice target, quest-owned Mara
+  greeting copy, and saved read-only greeting
   observer. Restart if the
   editor predates that work
-  or test discovery exposes fewer than 52
+  or test discovery exposes fewer than 54
   Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 52 tests, especially
+- Discover and run all 54 tests, especially
+  `Embermere.Combat.PracticeTargetPolicy`,
+  `Embermere.Combat.PracticeTargetCombatReset`,
   `Embermere.Persistence.RoundTrip`,
   `Embermere.Persistence.ValidationRollback`,
   `Embermere.Persistence.SlotInspection`,
@@ -40,12 +43,31 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.UI.TrainerPanel`,
   `Embermere.NPC.SkeletalIdlePresentation`, the three established NPC
   presentation tests, Prowler/world presentation, player recovery, and
-  inventory transaction suites. The authoritative 2026-08-17 headless run
-  passed 52/52; the no-hot-reload Mac build and fresh-process greeting,
+  inventory transaction suites. The authoritative 2026-08-18 isolated
+  headless run passed 54/54; the no-hot-reload Mac build and fresh-process
+  practice-target, greeting,
   vendor-stall, cottage, training-workshop,
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed.
+- Retain the accepted Fenwatch practice-target split:
+  - `Embermere_FenwatchPracticeDummy_TrainingYard_01` remains the visible
+    project-owned art and the sole owner of its two purposeful solid boxes;
+  - `Embermere_FenwatchPracticeTarget_Gameplay_01` remains a separate native,
+    art-free actor at the same `(-1120, -1120, 0)`, yaw `45` transform;
+  - `Tab` selects `Fenwatch Practice Target`, its native nameplate and complete
+    48-segment cyan circle read around the dummy, and normal class abilities
+    damage its 150-health pool;
+  - it remains stationary at the exact authored transform with zero gravity,
+    `MOVE_None`, no collision/navigation, AI, aggro, retaliation, leash, loot,
+    XP, quest credit, trainer interaction, or persistence authority;
+  - lethal damage clears selection, the visible dummy remains, and the native
+    target resets to full health after three seconds for another round;
+  - the accepted six-Strike PIE proof left player health at `100`, XP at `0`,
+    inventory stacks at `0`, and Mara objective progress at `0`, then `Tab`
+    reacquired the reset target immediately.
+  Treat [Docs/PRACTICE_TARGET_CONTRACT.md](Docs/PRACTICE_TARGET_CONTRACT.md) as
+  the authority boundary.
 - Recheck the accepted Fenwatch vendor loop through normal `F` interaction:
   - presentation actor `Embermere_FenwatchQuartermaster_Vendor_01` remains
     art-only at `(-1530, -1190, 0)`, yaw `100`, unit scale and `NoCollision`;
@@ -300,39 +322,42 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. retain the accepted training workshop in clean PIE: complete open-front
+  1. retain the accepted practice-target loop in clean PIE: art/gameplay split,
+     stationary transform, real hotbar damage, immediate target clear, exact
+     three-second reset, and zero retaliation/reward/quest mutation;
+  2. add one bounded asset-agnostic combat-feedback presentation shared by the
+     practice target and Prowlers, preferably fixed-bounds floating damage/miss
+     text or a restrained hit flash that subscribes to combat results without
+     owning health, rewards, targeting, or enemy AI. Preserve chat and
+     nameplate fallbacks and add focused automation before visual polish;
+  3. retain the accepted training workshop in clean PIE: complete open-front
      read, grounded supports, solid rear wall and bench, visual-only roof/tools,
      visible practice dummy, clear armsmaster approach, and road-side bypass;
-  2. make the training yard useful without coupling gameplay to art. Define a
-     small separate practice-target contract that can be tab-targeted and take
-     damage, resets safely, grants no loot/quest credit/XP, never aggroes, and
-     leaves the workshop and dummy as replaceable presentation. Add focused
-     automation before adding any UI flourish;
-  3. retain all three accepted production Idles from the normal village route:
+  4. retain all three accepted production Idles from the normal village route:
      grounded feet, restrained motion, readable silhouettes, advancing clocks,
      clear markers/path, and unchanged quest, vendor, and trainer interactions;
-  4. rerun the exact vendor and trainer transaction chains plus the
+  5. rerun the exact vendor and trainer transaction chains plus the
      trainer-to-Chronicle `40/0 -> 30/25` save, fresh-world load, and second
      idempotent load with both rigged presentations active, proving art cannot
      alter service or persistence state;
-  5. retain both accepted Chronicle proofs, including trainer-produced
+  6. retain both accepted Chronicle proofs, including trainer-produced
      `30`-copper/`25`-XP state, slot inspection, confirmation, rejection,
      panel handoff, and two-session idempotence contracts; keep console commands
      as debug fallbacks and defer autosave, deletion, profiles, and migrations;
-  6. retain Mara's accepted four-state contextual greeting and original real
+  7. retain Mara's accepted four-state contextual greeting and original real
      interaction loop; the wrapper may observe authority but must never own
      `F`, dialogue, marker, quest mutation, rewards, vendor, or trainer logic;
-  7. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
+  8. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete issue;
-  8. consider authored Niagara, class-specific VFX, or audio only after the
+  9. consider authored Niagara, class-specific VFX, or audio only after the
      current asset-agnostic presentation has carried the playable slice farther.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-17
+- Restart Unreal before manual PIE when the editor predates the 2026-08-18
   rigged Fenwatch keeper, armsmaster, and quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 52 tests.
+  Current code passes all 54 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -380,6 +405,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     grounded contact, a target face aimed toward the armsmaster, five shared
     materials, a solid base and torso/core, clear outstretched arms, open route
     spacing, and the absence of the generic crate it replaced.
+  - `Tab` the colocated native practice target and confirm the dummy gains a
+    readable `Fenwatch Practice Target` nameplate plus cyan ring without the
+    gameplay actor supplying art or collision. Strike it through defeat;
+    confirm no retaliation, loot, XP, inventory, quest, trainer, or service
+    mutation; selection clears; and full health returns after three seconds.
   - inspect the Fenwatch training workshop at `(-690, -1030, 0)`, yaw `-100`,
     for grounded stone-footed supports, an open front facing the training yard,
     readable bench/tool silhouettes, solid front posts/rear wall/workbench,
@@ -530,7 +560,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - the map has a blue atmospheric sky, readable ambient fill, and the
     38-expression moss/earth road material instead of the previous black
     sky/white or flat-green ground presentation;
-  - all 54 remaining Fab art-pass actors are grounded and upright; all 21
+  - all 53 remaining Fab art-pass actors are grounded and upright; all 22
     original placements remain present, including the vendor stall, practice
     dummy, closed cottage, and four
     terrain-blended `NoCollision` marsh-reed clusters;
@@ -582,6 +612,11 @@ Embermere has a working first-pass starter slice:
   explicit `EmbermereSave`/`EmbermereLoad` commands, and fresh-session PIE
   round-trip proof;
 - hostile starter enemies that aggro, chase, attack, die, and respawn;
+- a separate art-free Fenwatch practice target colocated with the visible
+  project-owned dummy: normal `Tab`/hotbar/nameplate/cyan-circle behavior,
+  150 health, immediate target clear, three-second repeatable reset, and
+  explicit exclusion from AI, collision, retaliation, loot, XP, quest credit,
+  trainer authority, and save version 1;
 - starter enemy leash and return-home behavior for safer village/wilderness boundaries;
 - player respawn protection for safer recovery during prototype combat;
 - bottom-left chat/combat log feedback for targeting, combat, death, respawn, quest progress, XP, inventory, and rewards;
@@ -644,7 +679,8 @@ Embermere has a working first-pass starter slice:
   persistence round-trip/rollback rules, and construction-safe plus live NPC
   Idle presentation, plus trainer transactions, service ownership, offering
   data, static and rigged armsmaster presentation, and native trainer-panel
-  behavior, for 52 authoritative tests.
+  behavior, plus focused practice-target policy and combat/reset coverage, for
+  54 authoritative tests.
 
 ## How Far We Have To Go
 
@@ -710,15 +746,23 @@ idempotent load without adding trainer-specific schema.
     wrapper remains `NoCollision` and the static fallback remains available;
   - run the normal trainer and Chronicle flows to prove the art upgrade cannot
     mutate progression, interaction, or persistence authority.
-- Keep the accepted practice-dummy contract at `(-1120, -1120, 0)`, yaw `45`,
-  with its two colliders, five materials, target-facing composition, clear
-  arms, and absent generic crate.
+- Keep the accepted practice-dummy and practice-target split at
+  `(-1120, -1120, 0)`, yaw `45`: visible art retains its two colliders, five
+  materials, target-facing composition, clear arms, and absent generic crate;
+  the colocated native gameplay actor remains art-free, stationary,
+  non-colliding, resettable, and reward-free while reusing normal combat
+  presentation.
 - Retain the accepted training-workshop contract at `(-690, -1030, 0)`, yaw
   `-100`, with five shared materials, four purposeful colliders, a clear
   open-front bay, visible dummy, open armsmaster approach and east bypass, and
-  absent generic fence. Then implement a separate art-free practice-target
-  gameplay contract so combat behavior remains removable from both the dummy
-  and workshop meshes.
+  absent generic fence. Combat behavior must remain removable from both the
+  dummy and workshop meshes.
+- Build the next bounded combat-readability slice over the accepted target
+  contract: data-driven floating damage/miss feedback or a restrained hit
+  pulse, fixed in size and lifetime, shared by Prowlers and the practice
+  target, and strictly presentation-only. Keep the bottom-left chat and target
+  HP as fallbacks and add automation for stacking, expiry, target death, and
+  no gameplay-authority regression.
 - Retain the accepted trainer Chronicle proof without expanding save version 1:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
@@ -1562,6 +1606,32 @@ idempotent load without adding trainer-specific schema.
   full-zone, UI, NPC-rig, vendor, trainer, cottage, stall, workshop, and native
   route validators passed. The map now contains 53 grounded Fab actors plus 22
   original-art placements.
+- 2026-08-18: separated the accepted Fenwatch practice-dummy art from a new
+  native `AEmbermerePracticeTargetActor` gameplay authority at the same saved
+  transform. The actor supplies no mesh or collision, but reuses normal `Tab`,
+  ability damage, nameplate, and 48-segment cyan-circle presentation around a
+  150-health, three-second-reset training target.
+- Added `ShouldGrantDefeatCredit` to the targetable contract and centralized
+  native-versus-Blueprint interface dispatch. Ordinary enemies still grant
+  Mara objective progress; the practice target explicitly grants no quest
+  credit, loot, XP, inventory mutation, AI, aggro, retaliation, leash, trainer
+  behavior, or persistence state.
+- Fresh PIE exposed that a collision-free `ACharacter` still falls under
+  CharacterMovement gravity. The target now freezes at its authored transform
+  with gravity `0`, zero velocity, and `MOVE_None` in construction, BeginPlay,
+  and reset paths. Its fixed ring-grounding policy also avoids tracing the
+  separate dummy's own solid core as if it were terrain.
+- Six real hotbar Strikes dealt `28, 28, 28, 28, 28, 10`, cleared selection on
+  defeat, kept player health `100`, XP `0`, inventory stacks `0`, and quest
+  progress `0`, then restored `150/150` at the exact transform after three
+  seconds. `Tab` immediately reacquired the reset target and restored the
+  native nameplate and cyan circle.
+- The no-hot-reload Mac build passed and an actually isolated commandlet suite
+  passed 54/54. The aggregate 13-package validator, full-zone validator,
+  focused saved practice-target validator, initialized-world workshop/cottage/
+  stall/road traces, and clean PIE all passed. The map remains at 53 grounded
+  Fab actors and 22 original-art placements because the new actor is gameplay,
+  not art.
 
 ## Asset Hunt
 

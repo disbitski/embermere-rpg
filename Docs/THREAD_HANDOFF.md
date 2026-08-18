@@ -1194,13 +1194,52 @@ workshop rather than beside a generic fence.
   `W` and `S` autorun cancellation. The map baseline is now 53 Fab actors plus
   22 original placements.
 
+## 2026-08-18 Fenwatch Practice-Target Update
+
+The visible training-yard dummy and workshop remain project-owned world art.
+A new native `AEmbermerePracticeTargetActor` is saved separately at the exact
+dummy transform as removable gameplay authority.
+
+- It exposes `Fenwatch Practice Target`, 150 health, normal ability damage,
+  the native enemy nameplate, and the complete 48-segment cyan target circle.
+- It owns no mesh, collision, navigation, AI, aggro, retaliation, leash, loot,
+  XP, quest credit, trainer/service behavior, or save-version-1 state.
+- `IEmbermereTargetable::ShouldGrantDefeatCredit` now separates targetability
+  from objective reward eligibility. Ordinary enemies opt in; the practice
+  target opts out.
+- `EmbermereTargetableDispatch` deliberately routes Blueprint-generated
+  targetables through `Execute_*` and native C++ targetables through their
+  `_Implementation` path. Combat, targeting, player feedback, and HUD use the
+  same rule.
+- Clean PIE found and fixed an inherited-engine failure: collision-free
+  `ACharacter` actors still fall under CharacterMovement gravity. The target
+  now remains at `(-1120, -1120, 0)` with gravity zero, zero velocity, and
+  `MOVE_None` through BeginPlay and reset.
+- Six real hotbar Strikes dealt `28, 28, 28, 28, 28, 10`. Defeat cleared the
+  current target and ring, left the separate visible dummy in place, and reset
+  to `150/150` after three seconds. Player health stayed `100`, XP `0`, bag
+  stacks `0`, and Mara objective progress `0`; `Tab` immediately reacquired
+  the reset target.
+- The no-hot-reload build, all 54 tests, aggregate 13-package validation,
+  focused practice-target/full-zone validation, initialized-world workshop,
+  cottage, stall, and road traces, and clean PIE passed. The art baseline
+  remains 53 Fab actors plus 22 original-art placements because the native
+  target is gameplay rather than art.
+
+The durable boundary is documented in `Docs/PRACTICE_TARGET_CONTRACT.md`.
+Placement and validation live in
+`Scripts/place_fenwatch_practice_target_unreal.py`,
+`Scripts/validate_fenwatch_practice_target_gameplay_unreal.py`, and the
+sequential `Scripts/validate_saved_prototype_packages_unreal.py` aggregate.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-17 no-hot-reload module, quest/map packages, all
+2026-08-18 no-hot-reload module, quest/map packages, all
 three accepted skeletal-mesh/Skeleton/Idle sets, the Fenwatch vendor stall and
 closed cottage plus training workshop,
-practice dummy, offering, Chronicle, Fenwatch stock/service, item, keeper,
+practice dummy plus native practice target, offering, Chronicle, Fenwatch
+stock/service, item, keeper,
 quartermaster, NPC wrapper, and Blueprint packages, then confirm MCP/test
 discovery; restart only if the editor or test registry proves stale.
 
@@ -1210,7 +1249,9 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 52 tests, including the six economy/vendor tests,
+3. Run/discover all 54 tests, including
+   `Embermere.Combat.PracticeTargetPolicy`,
+   `Embermere.Combat.PracticeTargetCombatReset`, the six economy/vendor tests,
    `Embermere.Trainer.TransactionRules`,
    `Embermere.Trainer.ServiceContract`,
    `Embermere.Trainer.FenwatchOfferingsData`,
@@ -1354,9 +1395,14 @@ First fresh-session checks:
 
 High-value milestones after that:
 
-- define and implement a separate art-free practice-target contract around the
-  accepted dummy: tab-targetable and damageable, safe reset, no aggro, loot,
-  XP, or quest credit, and no combat authority on either workshop or dummy art;
+- retain the accepted art-free practice-target contract around the visible
+  dummy, including exact stationary transform, normal hotbar damage,
+  three-second reset, target clear/reacquisition, and zero retaliation, loot,
+  XP, inventory, quest, trainer, or persistence mutation;
+- add a bounded asset-agnostic floating damage/miss or restrained hit-feedback
+  presentation shared by Prowlers and the practice target. It should subscribe
+  to authoritative combat outcomes, preserve chat/nameplate fallbacks, keep
+  fixed screen/world bounds, and own no health, targeting, AI, or rewards;
 - retain the accepted 48-segment cyan target circle and the `Z=-1000`
   finite-world recovery contract; fresh PIE has accepted target switching,
   autorun cancellation, exact village respawn, full health, walking, zero
@@ -1450,6 +1496,7 @@ Start by reading, in order:
 8. Docs/VENDOR_SERVICE_CONTRACT.md
 9. Docs/TRAINER_SERVICE_CONTRACT.md
 10. Docs/SAVE_GAME_CONTRACT.md
+11. Docs/PRACTICE_TARGET_CONTRACT.md
 
 Then inspect git status and recent commits. Preserve the existing unstaged Config/DefaultEngine.ini and Config/DefaultInput.ini changes; do not stage, revert, or overwrite them unless we intentionally decide they are required.
 
@@ -1460,16 +1507,17 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-15 contextual Mara
-greeting module and quest/map packages, the accepted vendor-stall/map
-package, and all three accepted
-skeletal-mesh/Skeleton/Idle sets, practice-dummy/map,
+Follow TODO.md's Start Here section. Confirm the 2026-08-18 no-hot-reload
+module and quest/map packages, the accepted vendor-stall, cottage,
+training-workshop, practice-dummy, and native practice-target map packages,
+and all three accepted skeletal-mesh/Skeleton/Idle sets,
 offering/Chronicle,
 bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 52 tests, including the contextual-greeting,
+route-repair map, then run all 54 tests, including the two practice-target
+policy/combat-reset tests, contextual-greeting,
 persistence round-trip,
 validation/rollback, slot-inspection, native Chronicle panel, trainer
 transaction/service/offering, static armsmaster presentation, production
@@ -1574,12 +1622,15 @@ authority. Recheck the vendor stall's customer-facing counter, solid supports,
 clear service approach and east bypass, and normal `F` vendor opening. Retain
 the accepted workshop at `(-690, -1030, 0)`, yaw `-100`, with its four solid
 purposeful surfaces, clear open bay, dummy approach, decorative clearance, and
-east bypass. Then take the highest-value bounded milestone: define and
-implement a separate art-free practice-target contract that can be tabbed and
-damaged, resets safely, and grants no aggro, loot, XP, or quest credit. Keep
-the practice dummy and workshop presentation-only, and preserve every service
-sightline and route. Tune only concrete Prowler or aura issues when normal play
-exposes them.
+east bypass. Retain the accepted art-free practice target at the dummy's exact
+transform: stationary, non-colliding, normally targetable and damageable,
+three-second reset, and no AI, retaliation, loot, XP, quest credit, service, or
+persistence authority. Then take the highest-value bounded milestone: add an
+asset-agnostic floating damage/miss or restrained hit-feedback presentation
+shared by Prowlers and the practice target. It must subscribe to authoritative
+combat outcomes, preserve chat/nameplate fallbacks, and own no health,
+targeting, AI, or rewards. Tune only concrete Prowler or aura issues when
+normal play exposes them.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

@@ -12,7 +12,7 @@
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "InputCoreTypes.h"
-#include "Interfaces/EmbermereTargetable.h"
+#include "Interfaces/EmbermereTargetableDispatch.h"
 #include "Kismet/GameplayStatics.h"
 #include "Save/EmbermerePersistenceLibrary.h"
 #include "TimerManager.h"
@@ -548,9 +548,10 @@ void AEmbermerePlayerController::ShowTargetFeedback(AActor* TargetActor) const
 	}
 
 	const AEmbermereCharacter* Character = GetEmbermereCharacter();
-	const FText TargetName = TargetActor->GetClass()->ImplementsInterface(UEmbermereTargetable::StaticClass())
-		? IEmbermereTargetable::Execute_GetTargetDisplayName(TargetActor)
-		: FText::FromString(TargetActor->GetActorLabel());
+	const FText TargetableName = EmbermereTargetableDispatch::GetDisplayName(TargetActor);
+	const FText TargetName = TargetableName.IsEmpty()
+		? FText::FromString(TargetActor->GetActorLabel())
+		: TargetableName;
 
 	FString HealthText = TEXT("");
 	if (const UEmbermereStatsComponent* TargetStats = TargetActor->FindComponentByClass<UEmbermereStatsComponent>())

@@ -19,8 +19,10 @@ Embermere does not have final high-fantasy art assets installed yet. The current
   closed project-owned Fenwatch cottage now gives the village a real dwelling
   silhouette while keeping every service route clear. A project-owned
   open-front training workshop now gives the armsmaster and practice dummy an
-  architectural home without moving trainer authority into art. Service actors
-  do not change the 22-piece art baseline.
+  architectural home without moving trainer authority into art. A colocated
+  native practice-target actor now supplies repeatable combat without moving
+  targeting, damage, reset, or reward policy into the dummy mesh. Service and
+  gameplay actors do not change the 22-piece art baseline.
   We still do
   not have a cohesive production-ready fantasy building kit, player/race art,
   weapons, audio, or final UI skinning.
@@ -82,6 +84,12 @@ First local placement pass:
   target's dimensions, topology, five shared materials, two authored support/
   core collision boxes, exact target-facing transform, and replacement of the
   generic crate.
+  `Scripts/validate_fenwatch_practice_target_gameplay_unreal.py` independently
+  locks the colocated native gameplay actor, `150` health, three-second reset,
+  zero gravity, `MOVE_None`, no art/collision/AI/loot/defeat credit, 48 target-
+  ring segments, and separation from both the visible dummy and trainer
+  service. Because that actor is gameplay rather than art, the accepted map
+  remains at 53 Fab actors plus 22 original-art placements.
   `Scripts/validate_fenwatch_vendor_stall_unreal.py` locks the project-owned
   stall's dimensions, topology, five shared materials, five authored support/
   counter collision boxes, exact transform and tag, and replacement of the

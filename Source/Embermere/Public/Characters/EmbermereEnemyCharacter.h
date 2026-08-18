@@ -35,6 +35,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Loot", meta = (ClampMin = "0.0", ClampMax = "1.0"))
 	float LootDropChance = 1.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Policy")
+	bool bLootEnabled = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Policy")
+	bool bGrantsDefeatCredit = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Policy")
+	bool bPrototypeAiEnabled = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Policy")
+	bool bGameplayCollisionEnabled = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Prototype AI")
 	float AggroRadius = 525.0f;
 
@@ -104,6 +116,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting")
 	float TargetRingHeightOffset = -79.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Targeting")
+	bool bTraceTargetRingSurface = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Targeting", meta = (ClampMin = "16.0"))
 	float TargetRingSurfaceClearance = 16.0f;
 
@@ -127,6 +142,7 @@ public:
 
 	virtual bool IsHostileTo_Implementation(const AActor* Viewer) const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
+	virtual bool ShouldGrantDefeatCredit_Implementation() const override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")
 	bool IsSelectedByPlayer() const;
