@@ -25,6 +25,9 @@ public:
 	FText GetTargetDisplayName() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Embermere|Targeting")
+	FVector GetCombatFeedbackAnchorLocation() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Embermere|Targeting")
 	bool ShouldGrantDefeatCredit() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Embermere|Targeting")

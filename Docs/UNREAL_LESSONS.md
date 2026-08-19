@@ -1289,3 +1289,59 @@ under `~/Library/Application Support/Epic/UnrealBuildTool`; a restricted
 sandbox that cannot update those files can fail before compilation begins.
 Run the build with normal host permissions instead of diagnosing trace-file
 access as a C++ error.
+
+## Publish Committed Combat Outcomes, Not Ability Intent
+
+An ability-used notification is useful for cooldowns, but it is too early and
+too lossy for floating combat feedback. Requested power may be reduced by
+armor, healing may clamp at maximum health, a target may die, and a future hit
+resolver may produce a miss. A presentation that reconstructs those outcomes
+from cooldown intent will eventually disagree with gameplay.
+
+Publish one immutable result only after the authoritative mutation commits.
+Include source, target, stable ability ID, result kind, exact applied amount,
+and lethal state. Keep the existing ability-used event for cooldown consumers,
+and keep the result event incapable of applying health, choosing targets,
+granting rewards, or mutating persistence. Presentation can then be disposable
+without making the combat contract ambiguous.
+
+## Do Not Derive Character Anchors From Every Attached Component
+
+`GetActorBounds` looked like a convenient way to place damage text above any
+target. On the practice target it included the screen-space nameplate component
+and produced an anchor more than ten meters above the visible dummy. The world
+widget was correct; the input geometry was not.
+
+Give targetable actors an explicit presentation-anchor contract. Native
+characters derive it from their visible skeletal mesh and use capsule or actor
+height only as a bounded fallback. Screen-space widgets, target rings, status
+auras, and other presentation components must not inflate the anchor. Validate
+that every returned point is finite, above the actor origin, and spatially near
+the actor before projecting it.
+
+## Validate New BlueprintNativeEvent Results Against Native Fallbacks
+
+Adding a `BlueprintNativeEvent` to an interface does not rewrite every saved
+Blueprint that already implements that interface. Embermere's saved
+`BP_StarterEnemy` generated class exposed the new reflected thunk, but the old
+serialized Blueprint had no override graph for it and returned `(0,0,0)`
+instead of inherited native placement.
+
+At a native/Blueprint dispatch boundary, validate reflected presentation data
+before trusting it. If a point is non-finite, below the actor, or implausibly
+far away, call the native `_Implementation` and retain a final bounded actor
+fallback. Test both a transient native implementation and the actual saved
+Blueprint generated class. This preserves compatibility without resaving an
+otherwise unrelated Blueprint package merely to refresh generated glue.
+
+## Schedule Short-Lived PIE Evidence Across Real Ticks
+
+Pausing PIE in the same game-thread tool batch that creates a floating widget
+freezes it before the first layout tick, often at `(0,0)`. Sleeping inside the
+tool call is worse because it blocks the game thread that needs to advance the
+widget.
+
+For short-lived presentation evidence, trigger the authoritative action, let a
+small number of real Slate/world ticks run, and only then pause or capture.
+Refresh the viewport snapshot before input and prove the result with geometry,
+health, chat, and clear behavior rather than trusting a synthetic key report.

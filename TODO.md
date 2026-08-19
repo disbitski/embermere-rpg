@@ -6,19 +6,21 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-18 no-hot-reload module plus the
+- Confirm Unreal is running the 2026-08-19 no-hot-reload combat-feedback module plus the
   accepted rigged Fenwatch keeper, armsmaster, and quartermaster packages and
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting
   observer. Restart if the
   editor predates that work
-  or test discovery exposes fewer than 54
+  or test discovery exposes fewer than 56
   Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 54 tests, especially
+- Discover and run all 56 tests, especially
+  `Embermere.Combat.ResultContract`,
+  `Embermere.UI.CombatFeedbackPresentation`,
   `Embermere.Combat.PracticeTargetPolicy`,
   `Embermere.Combat.PracticeTargetCombatReset`,
   `Embermere.Persistence.RoundTrip`,
@@ -44,8 +46,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.NPC.SkeletalIdlePresentation`, the three established NPC
   presentation tests, Prowler/world presentation, player recovery, and
   inventory transaction suites. The authoritative 2026-08-18 isolated
-  headless run passed 54/54; the no-hot-reload Mac build and fresh-process
-  practice-target, greeting,
+  headless run passed 56/56; the no-hot-reload Mac build and fresh-process
+  combat-feedback, practice-target, greeting,
   vendor-stall, cottage, training-workshop,
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
@@ -68,6 +70,22 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     reacquired the reset target immediately.
   Treat [Docs/PRACTICE_TARGET_CONTRACT.md](Docs/PRACTICE_TARGET_CONTRACT.md) as
   the authority boundary.
+- Retain the accepted floating combat-feedback contract:
+  - combat publishes one immutable result only after an outcome is committed,
+    with exact post-mitigation amount, source, target, ability, and lethal state;
+  - the standalone hit-test-invisible observer shows only damage and future
+    miss results in at most three fixed `112x32` slots for `1.25` seconds;
+  - the newest result appears first, a fourth evicts the oldest, and target
+    switch, deselection, defeat, practice-target reset, invalidation, expiry,
+    or world teardown clears stale presentation;
+  - the targetable presentation anchor excludes screen-space nameplate bounds
+    and validates older Blueprint event results before using the native fallback;
+  - normal-camera PIE accepted exact `28` damage beside both the practice
+    target and a saved Marsh Prowler with fixed `104x30` rendered geometry,
+    readable nameplate/cyan-circle coexistence, immediate clear, and unchanged
+    target HP plus bottom-left chat fallbacks.
+  Treat [Docs/COMBAT_FEEDBACK_CONTRACT.md](Docs/COMBAT_FEEDBACK_CONTRACT.md) as
+  the outcome/presentation authority boundary.
 - Recheck the accepted Fenwatch vendor loop through normal `F` interaction:
   - presentation actor `Embermere_FenwatchQuartermaster_Vendor_01` remains
     art-only at `(-1530, -1190, 0)`, yaw `100`, unit scale and `NoCollision`;
@@ -325,11 +343,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   1. retain the accepted practice-target loop in clean PIE: art/gameplay split,
      stationary transform, real hotbar damage, immediate target clear, exact
      three-second reset, and zero retaliation/reward/quest mutation;
-  2. add one bounded asset-agnostic combat-feedback presentation shared by the
-     practice target and Prowlers, preferably fixed-bounds floating damage/miss
-     text or a restrained hit flash that subscribes to combat results without
-     owning health, rewards, targeting, or enemy AI. Preserve chat and
-     nameplate fallbacks and add focused automation before visual polish;
+  2. retain the accepted immutable combat-result and fixed floating-feedback
+     presentation on both the practice target and saved Prowlers: exact applied
+     amounts, three-entry cap, 1.25-second expiry, nameplate clearance, target
+     switch/death/reset clearing, and unchanged chat/target-HP fallbacks;
   3. retain the accepted training workshop in clean PIE: complete open-front
      read, grounded supports, solid rear wall and bench, visual-only roof/tools,
      visible practice dummy, clear armsmaster approach, and road-side bypass;
@@ -354,10 +371,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-18
+- Restart Unreal before manual PIE when the editor predates the 2026-08-19
   rigged Fenwatch keeper, armsmaster, and quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 54 tests.
+  Current code passes all 56 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -679,8 +696,9 @@ Embermere has a working first-pass starter slice:
   persistence round-trip/rollback rules, and construction-safe plus live NPC
   Idle presentation, plus trainer transactions, service ownership, offering
   data, static and rigged armsmaster presentation, and native trainer-panel
-  behavior, plus focused practice-target policy and combat/reset coverage, for
-  54 authoritative tests.
+  behavior, plus focused practice-target policy and combat/reset coverage and
+  immutable combat-result/fixed floating-feedback presentation, for 56
+  authoritative tests.
 
 ## How Far We Have To Go
 
@@ -727,6 +745,15 @@ accident. Trainer-produced progression has now passed the same lifecycle:
 `30` copper and `25` XP restored exactly across a fresh world and a second
 idempotent load without adding trainer-specific schema.
 
+Combat readability now has the same ownership discipline. Abilities publish
+one immutable result only after committing their outcome, and a standalone
+native observer briefly renders exact applied damage beside the target's world
+nameplate. Clean PIE accepted the same fixed-size `28` result on the art-free
+practice target and a saved Marsh Prowler, with rapid-entry bounds, expiry,
+deselect and lethal clearing, cyan-circle coexistence, and unchanged chat plus
+target-frame fallbacks. The presentation does not own health, hit resolution,
+targeting, rewards, AI, quests, or persistence.
+
 ## Next Work
 
 - Retain Mara's accepted contextual greeting contract in clean PIE:
@@ -757,12 +784,18 @@ idempotent load without adding trainer-specific schema.
   open-front bay, visible dummy, open armsmaster approach and east bypass, and
   absent generic fence. Combat behavior must remain removable from both the
   dummy and workshop meshes.
-- Build the next bounded combat-readability slice over the accepted target
-  contract: data-driven floating damage/miss feedback or a restrained hit
-  pulse, fixed in size and lifetime, shared by Prowlers and the practice
-  target, and strictly presentation-only. Keep the bottom-left chat and target
-  HP as fallbacks and add automation for stacking, expiry, target death, and
-  no gameplay-authority regression.
+- Retain the accepted combat-feedback slice over the target contract: exact
+  post-mitigation floating damage, fixed size and lifetime, three-entry rapid
+  cap, shared Prowler/practice-target behavior, and strict presentation-only
+  ownership. Keep bottom-left chat and target HP as durable fallbacks; do not
+  publish `MISS` until an authoritative hit-resolution rule actually produces
+  that outcome.
+- After the combat-feedback acceptance sweep, take one bounded high-value
+  slice: either build a compact project-owned Fenwatch notice board through the
+  reviewed Blender/classic-FBX/package/validation lane while keeping it free of
+  quest authority, or document and implement the next combat-feel improvement
+  only when normal-route PIE exposes a concrete need. Preserve all service and
+  traversal sightlines.
 - Retain the accepted trainer Chronicle proof without expanding save version 1:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
@@ -1632,6 +1665,25 @@ idempotent load without adding trainer-specific schema.
   stall/road traces, and clean PIE all passed. The map remains at 53 grounded
   Fab actors and 22 original-art placements because the new actor is gameplay,
   not art.
+- 2026-08-19: added an immutable post-commit combat-result contract carrying
+  source, target, stable ability ID, exact applied amount, result kind, and
+  lethal state without changing the established cooldown event or giving
+  presentation any gameplay authority.
+- Added a standalone hit-test-invisible native floating-feedback observer with
+  three fixed `112x32` slots, newest-first rapid stacking, 1.25-second rise/
+  fade lifetime, exact damage copy, future `MISS` support, and deterministic
+  expiry, target-switch, defeat, reset, invalidation, and teardown clearing.
+- Replaced generic actor-bounds placement with an explicit targetable combat-
+  feedback anchor. Screen-space nameplates no longer inflate placement, and
+  reflected anchors from older saved Blueprint classes are validated before a
+  native fallback handles zeroed stale-event results.
+- Clean normal-camera PIE accepted fixed `104x30` floating `28` results beside
+  both the Fenwatch Practice Target and a saved Marsh Prowler, including a
+  16-pixel nameplate gap, intact cyan circle, exact HP/chat updates, immediate
+  deselect/lethal clearing, and no stale result after practice-target reset.
+- The authoritative no-hot-reload build passed, all 56 tests passed, and the
+  sequential 13-package aggregate validator retained the exact 53 grounded Fab
+  plus 22 original-art baseline with no intentional map or vendor resave.
 
 ## Asset Hunt
 

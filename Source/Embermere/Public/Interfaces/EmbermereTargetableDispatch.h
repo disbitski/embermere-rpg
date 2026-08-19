@@ -65,6 +65,44 @@ inline FText GetDisplayName(AActor* Actor)
 		: FText::GetEmpty();
 }
 
+inline FVector GetCombatFeedbackAnchorLocation(AActor* Actor)
+{
+	if (!Actor)
+	{
+		return FVector::ZeroVector;
+	}
+	if (UsesBlueprintDispatch(Actor))
+	{
+		const FVector BlueprintAnchor =
+			IEmbermereTargetable::Execute_GetCombatFeedbackAnchorLocation(Actor);
+		const FVector ActorLocation = Actor->GetActorLocation();
+		const bool bUsableBlueprintAnchor =
+			!BlueprintAnchor.ContainsNaN() &&
+			FVector::DistSquared2D(BlueprintAnchor, ActorLocation) <= FMath::Square(5000.0f) &&
+			BlueprintAnchor.Z >= ActorLocation.Z + 10.0f &&
+			BlueprintAnchor.Z <= ActorLocation.Z + 2000.0f;
+		if (bUsableBlueprintAnchor)
+		{
+			return BlueprintAnchor;
+		}
+
+		// Saved Blueprint classes can predate a newly added native interface event and
+		// temporarily return the generated zero-value thunk until they are resaved.
+		if (IEmbermereTargetable* NativeTargetable = Cast<IEmbermereTargetable>(Actor))
+		{
+			return NativeTargetable->GetCombatFeedbackAnchorLocation_Implementation();
+		}
+		return ActorLocation + FVector(0.0f, 0.0f, 100.0f);
+	}
+	if (IEmbermereTargetable* NativeTargetable = Cast<IEmbermereTargetable>(Actor))
+	{
+		return NativeTargetable->GetCombatFeedbackAnchorLocation_Implementation();
+	}
+	return Actor->GetClass()->ImplementsInterface(UEmbermereTargetable::StaticClass())
+		? IEmbermereTargetable::Execute_GetCombatFeedbackAnchorLocation(Actor)
+		: Actor->GetActorLocation() + FVector(0.0f, 0.0f, 100.0f);
+}
+
 inline bool ShouldGrantDefeatCredit(AActor* Actor)
 {
 	if (!Actor)

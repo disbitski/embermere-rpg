@@ -109,6 +109,7 @@ public:
 	virtual bool IsAlive_Implementation() const override;
 	virtual bool IsHostileTo_Implementation(const AActor* Viewer) const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
+	virtual FVector GetCombatFeedbackAnchorLocation_Implementation() const override;
 	virtual bool ShouldGrantDefeatCredit_Implementation() const override;
 	virtual void SetTargetedByPlayer_Implementation(bool bIsTargeted) override;
 

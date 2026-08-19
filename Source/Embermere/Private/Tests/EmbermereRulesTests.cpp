@@ -43,6 +43,7 @@
 #include "PhysicsEngine/BodySetup.h"
 #include "Save/EmbermerePersistenceLibrary.h"
 #include "Save/EmbermereSaveGame.h"
+#include "UI/EmbermereCombatFeedbackWidget.h"
 #include "UI/EmbermereEnemyNameplateWidget.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermereNpcGreetingWidget.h"
@@ -1157,6 +1158,127 @@ bool FEmbermereCombatTargetSelectionPresentationTest::RunTest(const FString& Par
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereCombatResultContractTest,
+	"Embermere.Combat.ResultContract",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereCombatResultContractTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	AEmbermereEnemyCharacter* Enemy = NewObject<AEmbermereEnemyCharacter>();
+	if (!Character || !Enemy || !Character->Combat || !Character->Stats || !Enemy->Stats)
+	{
+		AddError(TEXT("Could not create combat-result fixtures"));
+		return false;
+	}
+
+	Character->Stats->InitializeVitals();
+	Enemy->Stats->InitializeVitals();
+	Enemy->Stats->Armor = 100.0f;
+	TArray<FEmbermereCombatResult> Results;
+	const FDelegateHandle ResultHandle = Character->Combat->OnCombatResult.AddLambda(
+		[&Results](const FEmbermereCombatResult& Result)
+		{
+			Results.Add(Result);
+		});
+
+	FEmbermereAbilityDefinition Strike;
+	Strike.AbilityId = TEXT("ResultContractStrike");
+	Strike.DisplayName = FText::FromString(TEXT("Contract Strike"));
+	Strike.TargetKind = EEmbermereAbilityTargetKind::Enemy;
+	Strike.EffectType = EEmbermereAbilityEffectType::Damage;
+	Strike.Power = 18.0f;
+	Strike.Range = 0.0f;
+	Character->Combat->SetTarget(Enemy);
+
+	TestTrue(TEXT("Committed damage executes"), Character->Combat->ExecuteAbility(Strike));
+	TestEqual(TEXT("One committed outcome publishes one result"), Results.Num(), 1);
+	if (Results.IsValidIndex(0))
+	{
+		TestEqual(TEXT("Result preserves ability identity"), Results[0].AbilityId, Strike.AbilityId);
+		TestTrue(TEXT("Result preserves source identity"), Results[0].Source == Character);
+		TestTrue(TEXT("Result preserves target identity"), Results[0].Target == Enemy);
+		TestEqual(TEXT("Result classifies authoritative damage"), Results[0].Kind, EEmbermereCombatResultKind::Damage);
+		TestEqual(TEXT("Result reports post-armor applied damage"), Results[0].AppliedAmount, 14.0f);
+		TestFalse(TEXT("First result is not lethal"), Results[0].bTargetDefeated);
+	}
+
+	Enemy->Stats->CurrentHealth = 10.0f;
+	TestTrue(TEXT("Lethal committed damage executes"), Character->Combat->ExecuteAbility(Strike));
+	TestEqual(TEXT("Second committed outcome publishes once"), Results.Num(), 2);
+	if (Results.IsValidIndex(1))
+	{
+		TestEqual(TEXT("Lethal result reports clamped applied damage"), Results[1].AppliedAmount, 10.0f);
+		TestTrue(TEXT("Lethal result carries defeated state"), Results[1].bTargetDefeated);
+	}
+	TestNull(TEXT("Existing lethal targeting behavior remains authoritative"), Character->Combat->CurrentTarget.Get());
+	TestFalse(TEXT("Rejected ability does not publish a result"), Character->Combat->ExecuteAbility(Strike));
+	TestEqual(TEXT("Rejected ability leaves result count unchanged"), Results.Num(), 2);
+
+	Character->Combat->OnCombatResult.Remove(ResultHandle);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereCombatFeedbackPresentationTest,
+	"Embermere.UI.CombatFeedbackPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereCombatFeedbackPresentationTest::RunTest(const FString& Parameters)
+{
+	UEmbermereCombatFeedbackWidget* Feedback = NewObject<UEmbermereCombatFeedbackWidget>();
+	AActor* Target = NewObject<AActor>();
+	if (!Feedback || !Target)
+	{
+		AddError(TEXT("Could not create combat-feedback fixtures"));
+		return false;
+	}
+
+	Feedback->TakeWidget();
+	TestEqual(TEXT("Feedback uses exactly three bounded entries"), Feedback->GetMaximumFeedbackEntries(), 3);
+	TestEqual(TEXT("Feedback slots have stable dimensions"), Feedback->GetFeedbackSlotDimensions(), FVector2D(112.0f, 32.0f));
+	TestEqual(TEXT("Feedback uses a short deterministic lifetime"), Feedback->GetFeedbackLifetimeSeconds(), 1.25f);
+
+	FEmbermereCombatResult Result;
+	Result.Target = Target;
+	Result.Kind = EEmbermereCombatResultKind::Damage;
+	Result.AppliedAmount = 12.0f;
+	Feedback->PresentCombatResult(Result);
+	TestEqual(TEXT("Damage adds one feedback entry"), Feedback->GetActiveFeedbackCount(), 1);
+	TestEqual(TEXT("Damage shows the exact rounded amount"), Feedback->GetFeedbackDisplayText(0).ToString(), FString(TEXT("12")));
+
+	Result.Kind = EEmbermereCombatResultKind::Miss;
+	Result.AppliedAmount = 0.0f;
+	Feedback->PresentCombatResult(Result);
+	TestEqual(TEXT("Future authoritative misses use the same observer"), Feedback->GetFeedbackDisplayText(0).ToString(), FString(TEXT("MISS")));
+
+	Result.Kind = EEmbermereCombatResultKind::Damage;
+	Result.AppliedAmount = 34.0f;
+	Feedback->PresentCombatResult(Result);
+	Result.AppliedAmount = 56.0f;
+	Feedback->PresentCombatResult(Result);
+	TestEqual(TEXT("Rapid outcomes never grow beyond fixed slots"), Feedback->GetActiveFeedbackCount(), 3);
+	TestEqual(TEXT("Newest rapid outcome appears first"), Feedback->GetFeedbackDisplayText(0).ToString(), FString(TEXT("56")));
+	TestEqual(TEXT("Second rapid outcome remains ordered"), Feedback->GetFeedbackDisplayText(1).ToString(), FString(TEXT("34")));
+	TestEqual(TEXT("Oldest overflow outcome is evicted"), Feedback->GetFeedbackDisplayText(2).ToString(), FString(TEXT("MISS")));
+
+	FEmbermereCombatResult HealingResult;
+	HealingResult.Target = Target;
+	HealingResult.Kind = EEmbermereCombatResultKind::Healing;
+	HealingResult.AppliedAmount = 20.0f;
+	Feedback->PresentCombatResult(HealingResult);
+	TestEqual(TEXT("Resource and status results do not duplicate existing HUD rows"), Feedback->GetActiveFeedbackCount(), 3);
+
+	Feedback->ClearForTarget(Target);
+	TestEqual(TEXT("Target clearing removes every related entry"), Feedback->GetActiveFeedbackCount(), 0);
+	Result.AppliedAmount = 28.0f;
+	Feedback->PresentCombatResult(Result);
+	Feedback->AdvancePresentation(Feedback->GetFeedbackLifetimeSeconds());
+	TestEqual(TEXT("Lifetime expiry clears feedback deterministically"), Feedback->GetActiveFeedbackCount(), 0);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermerePracticeTargetPolicyTest,
 	"Embermere.Combat.PracticeTargetPolicy",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -1177,6 +1299,11 @@ bool FEmbermerePracticeTargetPolicyTest::RunTest(const FString& Parameters)
 	TestTrue(
 		TEXT("Practice target remains eligible for tab targeting"),
 		PracticeTarget->GetClass()->ImplementsInterface(UEmbermereTargetable::StaticClass()));
+	const FVector FeedbackAnchor =
+		EmbermereTargetableDispatch::GetCombatFeedbackAnchorLocation(PracticeTarget);
+	TestTrue(TEXT("Practice target feedback anchor remains finite"), !FeedbackAnchor.ContainsNaN());
+	TestTrue(TEXT("Practice target feedback anchor clears the dummy body"), FeedbackAnchor.Z >= 200.0f);
+	TestTrue(TEXT("Practice target feedback anchor ignores screen-space nameplate bounds"), FeedbackAnchor.Z < 500.0f);
 	TestTrue(
 		TEXT("Practice target is selectable through the hostile target lane"),
 		EmbermereTargetableDispatch::IsHostileTo(PracticeTarget, Viewer));
@@ -3794,6 +3921,8 @@ bool FEmbermereMarshProwlerPresentationTest::RunTest(const FString& Parameters)
 	if (RuntimeBlueprintEnemy)
 	{
 		RuntimeBlueprintEnemy->EnsureTargetRingPresentationComponents();
+		const FVector CombatFeedbackAnchor =
+			EmbermereTargetableDispatch::GetCombatFeedbackAnchorLocation(RuntimeBlueprintEnemy);
 		TestEqual(
 			TEXT("Runtime starter enemy reconciles stale Blueprint templates to 48 target-ring segments"),
 			RuntimeBlueprintEnemy->GetTargetRingSegmentCount(),
@@ -3801,6 +3930,16 @@ bool FEmbermereMarshProwlerPresentationTest::RunTest(const FString& Parameters)
 		TestTrue(
 			TEXT("Reconciled runtime target ring remains presentation-only collision"),
 			RuntimeBlueprintEnemy->AreTargetRingSegmentsNonColliding());
+		TestFalse(
+			TEXT("Runtime starter enemy resolves a finite combat-feedback anchor"),
+			CombatFeedbackAnchor.ContainsNaN());
+		TestTrue(
+			TEXT("Runtime starter enemy combat-feedback anchor stays above the actor origin"),
+			CombatFeedbackAnchor.Z >= RuntimeBlueprintEnemy->GetActorLocation().Z + 10.0f);
+		TestTrue(
+			TEXT("Runtime starter enemy combat-feedback anchor remains spatially bounded"),
+			FVector::DistSquared2D(CombatFeedbackAnchor, RuntimeBlueprintEnemy->GetActorLocation()) <=
+				FMath::Square(5000.0f));
 	}
 	TestTrue(
 		TEXT("Marsh Prowler feet align with the gameplay capsule"),

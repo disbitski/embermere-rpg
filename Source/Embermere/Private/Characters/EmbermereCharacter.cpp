@@ -397,6 +397,21 @@ FText AEmbermereCharacter::GetTargetDisplayName_Implementation() const
 	return CharacterName;
 }
 
+FVector AEmbermereCharacter::GetCombatFeedbackAnchorLocation_Implementation() const
+{
+	if (const USkeletalMeshComponent* CharacterMesh = GetMesh())
+	{
+		if (CharacterMesh->GetSkeletalMeshAsset() && CharacterMesh->IsVisible() && !CharacterMesh->bHiddenInGame)
+		{
+			return CharacterMesh->Bounds.Origin + FVector(0.0f, 0.0f, CharacterMesh->Bounds.BoxExtent.Z + 30.0f);
+		}
+	}
+
+	const UCapsuleComponent* Capsule = GetCapsuleComponent();
+	const float CapsuleHalfHeight = Capsule ? Capsule->GetScaledCapsuleHalfHeight() : 70.0f;
+	return GetActorLocation() + FVector(0.0f, 0.0f, CapsuleHalfHeight + 30.0f);
+}
+
 bool AEmbermereCharacter::ShouldGrantDefeatCredit_Implementation() const
 {
 	return false;

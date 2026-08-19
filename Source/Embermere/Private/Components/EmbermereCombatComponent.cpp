@@ -99,11 +99,13 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 	bool bAppliedPrimaryEffect = false;
 	bool bAppliedMovementEffect = false;
 	bool bTargetDiedAfterEffect = false;
+	EEmbermereCombatResultKind PrimaryResultKind = EEmbermereCombatResultKind::Damage;
 	if (TargetStats)
 	{
 		switch (Ability.EffectType)
 		{
 		case EEmbermereAbilityEffectType::Damage:
+			PrimaryResultKind = EEmbermereCombatResultKind::Damage;
 			EffectAmount = TargetStats->ApplyDamage(Ability.Power + OwnerStats->GetEffectiveAttackPower());
 			bAppliedPrimaryEffect = EffectAmount > 0.0f;
 			if (TargetStats->IsDead())
@@ -119,18 +121,22 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 			}
 			break;
 		case EEmbermereAbilityEffectType::Heal:
+			PrimaryResultKind = EEmbermereCombatResultKind::Healing;
 			EffectAmount = TargetStats->Heal(Ability.Power);
 			bAppliedPrimaryEffect = EffectAmount > 0.0f;
 			break;
 		case EEmbermereAbilityEffectType::RestoreMana:
+			PrimaryResultKind = EEmbermereCombatResultKind::ManaRestored;
 			EffectAmount = TargetStats->RestoreMana(Ability.Power);
 			bAppliedPrimaryEffect = EffectAmount > 0.0f;
 			break;
 		case EEmbermereAbilityEffectType::AttackPowerBuff:
+			PrimaryResultKind = EEmbermereCombatResultKind::BuffApplied;
 			bAppliedPrimaryEffect = TargetStats->GrantTemporaryAttackPower(Ability.Power, Ability.Duration);
 			EffectAmount = bAppliedPrimaryEffect ? Ability.Power : 0.0f;
 			break;
 		case EEmbermereAbilityEffectType::ArmorBuff:
+			PrimaryResultKind = EEmbermereCombatResultKind::BuffApplied;
 			bAppliedPrimaryEffect = TargetStats->GrantTemporaryArmor(Ability.Power, Ability.Duration);
 			EffectAmount = bAppliedPrimaryEffect ? Ability.Power : 0.0f;
 			break;
@@ -155,6 +161,20 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 		{
 			TargetStats->RegisterTimedStatusEffect(Ability, false);
 		}
+	}
+
+	if (bAppliedPrimaryEffect || bAppliedMovementEffect)
+	{
+		FEmbermereCombatResult Result;
+		Result.AbilityId = Ability.AbilityId;
+		Result.Source = Owner;
+		Result.Target = TargetActor;
+		Result.Kind = bAppliedPrimaryEffect
+			? PrimaryResultKind
+			: EEmbermereCombatResultKind::ControlApplied;
+		Result.AppliedAmount = bAppliedPrimaryEffect ? EffectAmount : 0.0f;
+		Result.bTargetDefeated = bTargetDiedAfterEffect;
+		OnCombatResult.Broadcast(Result);
 	}
 
 	OnAbilityUsed.Broadcast(Ability.AbilityId, TargetActor, EffectAmount);

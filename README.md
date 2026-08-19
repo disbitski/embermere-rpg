@@ -65,6 +65,10 @@ The repo currently contains the C++ gameplay scaffold for:
   hotbar, nameplate, and cyan-circle systems while remaining stationary,
   non-colliding, non-retaliating, reward-free, quest-credit-free, and safely
   resettable independently of the visible dummy and training workshop
+- an immutable post-commit combat-result event plus a fixed three-entry native
+  floating-feedback observer shared by Prowlers and the practice target; exact
+  damage briefly rises beside the world nameplate while chat and target HP stay
+  authoritative fallbacks, and presentation owns no hit resolution or rewards
 - data-driven item sell values plus an earned-currency loop: Mara's first quest
   grants copper exactly once, selected bag items can be sold by identity, and
   the latest sale can be bought back at its recorded price
@@ -178,6 +182,9 @@ The reusable art-only static/skeletal NPC boundary lives in
 The visible-dummy versus art-free combat authority boundary lives in
 [Docs/PRACTICE_TARGET_CONTRACT.md](Docs/PRACTICE_TARGET_CONTRACT.md).
 
+The post-commit combat-result and floating-presentation boundary lives in
+[Docs/COMBAT_FEEDBACK_CONTRACT.md](Docs/COMBAT_FEEDBACK_CONTRACT.md).
+
 ## Unreal And MCP Setup
 
 The project targets Unreal Engine 5.8 and includes plugin configuration for:
@@ -228,6 +235,8 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
   the merchant art/service/economy boundary and transaction guarantees.
 - [Docs/TRAINER_SERVICE_CONTRACT.md](Docs/TRAINER_SERVICE_CONTRACT.md) records
   the armsmaster art/service/progression boundary and transaction guarantees.
+- [Docs/COMBAT_FEEDBACK_CONTRACT.md](Docs/COMBAT_FEEDBACK_CONTRACT.md) records
+  the immutable combat-outcome and short-lived world-presentation boundary.
 - [Docs/SAVE_GAME_CONTRACT.md](Docs/SAVE_GAME_CONTRACT.md) records the versioned
   progression schema, validation/rollback rules, session-only state, and live
   PIE verification lane.
@@ -281,7 +290,11 @@ service cluster. The training yard applies the same ownership discipline to
 combat: the project-owned dummy and workshop remain replaceable art while a
 colocated native practice target accepts real class abilities, clears on
 defeat, resets after three seconds, and grants no retaliation, loot, XP, quest
-progress, or service authority. A colocated art-free service turns the
+progress, or service authority. Both it and the real Prowlers now consume the
+same immutable post-commit combat result for fixed-size floating damage text;
+rapid results stay capped, and deselection, defeat, reset, expiry, and teardown
+clear presentation without changing the durable chat or target-frame facts. A
+colocated art-free service turns the
 quartermaster into Embermere's first
 working merchant without coupling stock, prices, currency, transactions, or
 interaction to the model. The playable loop now earns `20` copper from Mara's

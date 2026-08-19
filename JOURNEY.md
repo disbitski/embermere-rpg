@@ -2329,6 +2329,41 @@ The useful rule is broader than a training dummy: an actor may be targetable
 without being a hostile reward source, and world art may visualize combat
 without owning it.
 
+## 2026-08-19 - Combat Published A Fact, Then The UI Let It Go
+
+The practice target could already take real damage, but its only immediate
+feedback lived in the target frame and bottom-left log. Rather than letting a
+widget infer hits from cooldowns or changing health, combat now publishes one
+immutable `FEmbermereCombatResult` after each outcome is committed. The event
+contains the source, target, ability, result kind, exact post-mitigation amount,
+and lethal state. It applies nothing and owns no targeting, AI, loot, quest,
+reward, or persistence behavior.
+
+A standalone native UMG observer consumes only damage and future miss results.
+It keeps three fixed slots, places newest first, evicts the oldest on a fourth
+rapid result, rises and fades over 1.25 seconds, and clears on expiry, target
+switch, defeat, practice-target reset, invalidation, or teardown. Target HP and
+the clipped chat remain the durable facts.
+
+PIE exposed two useful Unreal traps. First, generic actor bounds included the
+screen-space nameplate and pushed the practice-target anchor more than ten
+meters upward. The targetable contract now owns a deliberate presentation
+anchor derived from visible character geometry. Second, the saved
+`BP_StarterEnemy` predates that new BlueprintNativeEvent, so its generated
+thunk returned a zero vector until resave. Dispatch now validates reflected
+anchors and falls back to the inherited native implementation instead of
+forcing an unrelated Blueprint package rewrite.
+
+Normal-camera PIE accepted the same fixed `104x30` floating `28` beside the
+practice target and a saved Marsh Prowler, with a 16-pixel nameplate gap,
+readable cyan target circle, updated target HP, and intact chat. Deselect and
+lethal reset removed it immediately. The no-hot-reload build passed, all 56
+tests passed, and the sequential 13-package aggregate validator retained the
+53 grounded Fab plus 22 original-art baseline.
+
+Lesson: combat should decide what happened once. Short-lived presentation may
+show that fact, but it should never reconstruct or own it.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

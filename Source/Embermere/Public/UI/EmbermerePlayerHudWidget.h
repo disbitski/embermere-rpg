@@ -11,6 +11,7 @@
 class AActor;
 class AEmbermereCharacter;
 class UEmbermereCombatComponent;
+class UEmbermereCombatFeedbackWidget;
 class UEmbermereEquipmentComponent;
 class UEmbermereEquipmentSlotButton;
 class UEmbermereHotbarComponent;
@@ -32,6 +33,7 @@ class UProgressBar;
 class UTextBlock;
 class UTexture2D;
 class UVerticalBox;
+struct FEmbermereCombatResult;
 
 UCLASS(Blueprintable)
 class EMBERMERE_API UEmbermerePlayerHudWidget : public UUserWidget
@@ -279,6 +281,7 @@ protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	virtual void NativeDestruct() override;
 	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragDetected(
@@ -326,6 +329,9 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UProgressBar> TargetHealthBar;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UEmbermereCombatFeedbackWidget> CombatFeedbackOverlay;
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UBorder>> TargetStatusEffectPanels;
@@ -619,6 +625,7 @@ private:
 		const TArray<TObjectPtr<UImage>>& Icons,
 		const TArray<TObjectPtr<UTextBlock>>& Texts);
 	void BindComponentEvents();
+	void UnbindComponentEvents();
 	void UpdateInventoryPanelVisibility();
 	void RefreshInventoryWindow();
 	void UpdateVendorPanelVisibility();
@@ -643,6 +650,11 @@ private:
 
 	UFUNCTION()
 	void HandleItemAdded(UEmbermereItemData* Item, int32 Quantity);
+
+	void HandleCombatResult(const FEmbermereCombatResult& Result);
+
+	UFUNCTION()
+	void HandleCombatTargetChanged(AActor* NewTarget, AActor* OldTarget);
 
 	UFUNCTION()
 	void HandleInventoryRowClicked(int32 VisibleRowIndex);

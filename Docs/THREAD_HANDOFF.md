@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-13
+Last updated: 2026-08-19
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -29,9 +29,11 @@ this snapshot. A new task should read files in this order:
 9. `Docs/NPC_PRESENTATION_CONTRACT.md` when NPC/service work is active
 10. `Docs/VENDOR_SERVICE_CONTRACT.md` when economy work is active
 11. `Docs/SAVE_GAME_CONTRACT.md` when persistence/lifecycle work is active
-12. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
-13. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
-14. `JOURNEY.md` when historical detail is useful
+12. `Docs/PRACTICE_TARGET_CONTRACT.md` when training-target work is active
+13. `Docs/COMBAT_FEEDBACK_CONTRACT.md` when combat-result presentation is active
+14. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
+15. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
+16. `JOURNEY.md` when historical detail is useful
 
 ## One-Page State
 
@@ -58,8 +60,9 @@ The project currently includes:
   project-owned fantasy drag tokens, data-driven item/slot icons,
   sixteen data-driven starter-ability icons with tooltips, an illustrated
   paper-doll equipment backdrop, data-driven timed buff/control rows with live
-  countdowns, and chat log;
-- a grounded local Fab/Epic art pass with 55 upright environment actors and 20
+  countdowns, chat log, and a fixed three-entry floating-damage observer fed by
+  immutable post-commit combat results;
+- a grounded local Fab/Epic art pass with 53 upright environment actors and 22
   project-owned placements from an original Blender-built Embermere
   waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
   quartermaster/armsmaster/practice-dummy/reed family, a 38-expression moss/
@@ -86,7 +89,8 @@ The project currently includes:
   temporary effects, and position remain intentionally session-only;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
-- 52 passing Unreal automation tests plus fresh-process keeper-greeting,
+- 56 passing Unreal automation tests plus fresh-process combat-feedback,
+  practice-target, keeper-greeting,
   keeper-rig,
   armsmaster-rig, quartermaster-rig, practice-dummy, trainer, vendor,
   UI-art/package, and
@@ -217,6 +221,8 @@ Implemented presentation includes:
 
 - top-left player level, XP, HP, mana, and bars;
 - target panel with target HP and ability range state;
+- fixed `112x32` floating damage cells beside the world nameplate, capped at
+  three rapid outcomes and cleared on expiry, switch, defeat, reset, or teardown;
 - bottom-center 10-slot hotbar with stable key labels;
 - cooldown enforcement, live countdown text, and dimmed cooling slots;
 - bottom-left clipped six-line chat/combat log;
@@ -267,7 +273,8 @@ Core gameplay:
 
 Components:
 
-- `EmbermereCombatComponent`: ability execution and combat rules.
+- `EmbermereCombatComponent`: ability execution and combat rules plus immutable
+  post-commit result publication; presentation observes but cannot mutate it.
 - `EmbermereHotbarComponent`: slot definitions, cooldowns, activation.
 - `EmbermereTargetingComponent`: tab-target selection/cycling.
 - `EmbermereStatsComponent`: HP/mana/XP, damage, death, immunity.
@@ -1232,10 +1239,38 @@ Placement and validation live in
 `Scripts/validate_fenwatch_practice_target_gameplay_unreal.py`, and the
 sequential `Scripts/validate_saved_prototype_packages_unreal.py` aggregate.
 
+## 2026-08-19 Floating Combat Feedback Update
+
+Combat now publishes one immutable `FEmbermereCombatResult` only after a
+primary outcome commits. It carries source, target, stable ability ID, result
+kind, exact post-mitigation amount, and lethal state without replacing the
+existing ability-used cooldown event or acquiring gameplay authority.
+
+- `UEmbermereCombatFeedbackWidget` is a standalone hit-test-invisible native
+  observer with three fixed `112x32` slots, newest-first ordering, fourth-entry
+  eviction, and a deterministic 1.25-second rise/fade lifetime.
+- Damage uses the exact applied amount. `MISS` is a supported presentation kind
+  but is not published until a real hit-resolution rule produces it.
+- Target switch, deselection, death, practice-target reset, invalid actor,
+  expiry, and teardown clear stale entries. Target HP and clipped chat remain
+  durable fallbacks.
+- `IEmbermereTargetable::GetCombatFeedbackAnchorLocation` excludes screen-space
+  nameplate bounds. Dispatch validates reflected Blueprint anchors and falls
+  back to native placement when an older saved Blueprint returns a zeroed new
+  interface value.
+- Normal-camera PIE accepted the same fixed `104x30` `28` result beside the
+  practice target and a saved Prowler, with a 16-pixel nameplate gap, readable
+  cyan circle, exact HP/chat changes, and immediate clear behavior.
+- The no-hot-reload build, all 56 tests, and the sequential 13-package
+  aggregate validator passed. The map remains 53 grounded Fab actors plus 22
+  original-art placements.
+
+The durable boundary is documented in `Docs/COMBAT_FEEDBACK_CONTRACT.md`.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-18 no-hot-reload module, quest/map packages, all
+2026-08-19 no-hot-reload combat-feedback module, quest/map packages, all
 three accepted skeletal-mesh/Skeleton/Idle sets, the Fenwatch vendor stall and
 closed cottage plus training workshop,
 practice dummy plus native practice target, offering, Chronicle, Fenwatch
@@ -1249,7 +1284,9 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 54 tests, including
+3. Run/discover all 56 tests, including
+   `Embermere.Combat.ResultContract`,
+   `Embermere.UI.CombatFeedbackPresentation`,
    `Embermere.Combat.PracticeTargetPolicy`,
    `Embermere.Combat.PracticeTargetCombatReset`, the six economy/vendor tests,
    `Embermere.Trainer.TransactionRules`,
@@ -1399,10 +1436,13 @@ High-value milestones after that:
   dummy, including exact stationary transform, normal hotbar damage,
   three-second reset, target clear/reacquisition, and zero retaliation, loot,
   XP, inventory, quest, trainer, or persistence mutation;
-- add a bounded asset-agnostic floating damage/miss or restrained hit-feedback
-  presentation shared by Prowlers and the practice target. It should subscribe
-  to authoritative combat outcomes, preserve chat/nameplate fallbacks, keep
-  fixed screen/world bounds, and own no health, targeting, AI, or rewards;
+- retain the accepted immutable combat-result and fixed floating-feedback
+  presentation on Prowlers and the practice target, including exact amounts,
+  rapid-result cap, expiry, target/death/reset clearing, and chat/nameplate
+  fallbacks; do not emit `MISS` until authoritative resolution produces it;
+- after that acceptance sweep, prefer one compact project-owned Fenwatch notice
+  board through the deterministic Blender/classic-FBX/package/validation lane,
+  keeping all quest and interaction authority outside the art;
 - retain the accepted 48-segment cyan target circle and the `Z=-1000`
   finite-world recovery contract; fresh PIE has accepted target switching,
   autorun cancellation, exact village respawn, full health, walking, zero
@@ -1452,16 +1492,10 @@ High-value milestones after that:
 
 ## Daily Build Automation
 
-The existing automation is named `daily-embermere-rpg-build` and runs at
-8:00 AM America/New_York. It is a heartbeat attached to the original long task.
-
-Before archiving the original task:
-
-1. Create the new Embermere task from the prompt below.
-2. Ask Codex in the new task to update/migrate `daily-embermere-rpg-build` so it
-   targets the new task with the same 8:00 AM schedule.
-3. Verify the automation card points to the new task.
-4. Archive the original task only after the migration succeeds.
+The automation is named `daily-embermere-rpg-build` and runs at 8:00 AM
+America/New_York. Its prompt should be refreshed after each accepted build so
+the next run names the current module, test count, verification baseline, and
+best bounded milestone rather than replaying stale work.
 
 Daily working agreement:
 
@@ -1497,6 +1531,7 @@ Start by reading, in order:
 9. Docs/TRAINER_SERVICE_CONTRACT.md
 10. Docs/SAVE_GAME_CONTRACT.md
 11. Docs/PRACTICE_TARGET_CONTRACT.md
+12. Docs/COMBAT_FEEDBACK_CONTRACT.md
 
 Then inspect git status and recent commits. Preserve the existing unstaged Config/DefaultEngine.ini and Config/DefaultInput.ini changes; do not stage, revert, or overwrite them unless we intentionally decide they are required.
 
@@ -1507,7 +1542,7 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-18 no-hot-reload
+Follow TODO.md's Start Here section. Confirm the 2026-08-19 no-hot-reload
 module and quest/map packages, the accepted vendor-stall, cottage,
 training-workshop, practice-dummy, and native practice-target map packages,
 and all three accepted skeletal-mesh/Skeleton/Idle sets,
@@ -1516,8 +1551,9 @@ bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 54 tests, including the two practice-target
-policy/combat-reset tests, contextual-greeting,
+route-repair map, then run all 56 tests, including combat-result and floating-
+feedback presentation, the two practice-target policy/combat-reset tests,
+contextual-greeting,
 persistence round-trip,
 validation/rollback, slot-inspection, native Chronicle panel, trainer
 transaction/service/offering, static armsmaster presentation, production
@@ -1625,16 +1661,19 @@ purposeful surfaces, clear open bay, dummy approach, decorative clearance, and
 east bypass. Retain the accepted art-free practice target at the dummy's exact
 transform: stationary, non-colliding, normally targetable and damageable,
 three-second reset, and no AI, retaliation, loot, XP, quest credit, service, or
-persistence authority. Then take the highest-value bounded milestone: add an
-asset-agnostic floating damage/miss or restrained hit-feedback presentation
-shared by Prowlers and the practice target. It must subscribe to authoritative
-combat outcomes, preserve chat/nameplate fallbacks, and own no health,
-targeting, AI, or rewards. Tune only concrete Prowler or aura issues when
-normal play exposes them.
+persistence authority. Retain the accepted asset-agnostic floating combat-
+feedback presentation shared by Prowlers and the practice target: immutable committed
+results, exact applied amounts, fixed three-entry bounds, 1.25-second expiry,
+target/death/reset clearing, and durable chat/nameplate fallbacks. Next prefer
+one compact project-owned Fenwatch notice board through the reviewed Blender/
+classic-FBX/package/validation lane while keeping quest authority outside art,
+or tune only a concrete combat issue exposed by normal play.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
-Also migrate the existing daily-embermere-rpg-build 8:00 AM heartbeat from the old task to this new task before the old one is archived.
+Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
+current commit, 56-test baseline, accepted combat feedback, and next bounded
+milestone before ending the run.
 ```
 
 ## Handoff Principle

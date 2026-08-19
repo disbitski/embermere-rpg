@@ -239,6 +239,12 @@ FText AEmbermereEnemyCharacter::GetTargetDisplayName_Implementation() const
 	return EnemyName;
 }
 
+FVector AEmbermereEnemyCharacter::GetCombatFeedbackAnchorLocation_Implementation() const
+{
+	const float FeedbackHeight = FMath::Max(60.0f, NameplateHeight - 48.0f);
+	return GetActorLocation() + FVector(0.0f, 0.0f, FeedbackHeight);
+}
+
 bool AEmbermereEnemyCharacter::ShouldGrantDefeatCredit_Implementation() const
 {
 	return bGrantsDefeatCredit;

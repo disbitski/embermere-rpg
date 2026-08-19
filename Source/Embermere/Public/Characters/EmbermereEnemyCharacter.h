@@ -142,6 +142,7 @@ public:
 
 	virtual bool IsHostileTo_Implementation(const AActor* Viewer) const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
+	virtual FVector GetCombatFeedbackAnchorLocation_Implementation() const override;
 	virtual bool ShouldGrantDefeatCredit_Implementation() const override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Targeting")

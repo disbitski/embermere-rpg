@@ -13,6 +13,7 @@
 #include "Data/EmbermereVendorStockData.h"
 #include "Data/EmbermereUiIconSet.h"
 #include "Game/EmbermerePlayerController.h"
+#include "UI/EmbermereCombatFeedbackWidget.h"
 #include "UI/EmbermereEquipmentSlotButton.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermereInventoryRowButton.h"
@@ -312,6 +313,7 @@ FText UEmbermerePlayerHudWidget::BuildStatusEffectDisplayText(
 
 void UEmbermerePlayerHudWidget::BindToCharacter(AEmbermereCharacter* Character)
 {
+	UnbindComponentEvents();
 	OwningEmbermereCharacter = Character;
 	Stats = Character ? Character->Stats : nullptr;
 	Combat = Character ? Character->Combat : nullptr;
@@ -334,6 +336,18 @@ void UEmbermerePlayerHudWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	BuildDefaultLayout();
+	if (!CombatFeedbackOverlay && GetOwningPlayer())
+	{
+		CombatFeedbackOverlay = CreateWidget<UEmbermereCombatFeedbackWidget>(
+			GetOwningPlayer(),
+			UEmbermereCombatFeedbackWidget::StaticClass());
+		if (CombatFeedbackOverlay)
+		{
+			CombatFeedbackOverlay->AddToPlayerScreen(20);
+			CombatFeedbackOverlay->SynchronizeViewportBounds();
+		}
+	}
+	BindComponentEvents();
 	RefreshHudText();
 }
 
@@ -354,6 +368,18 @@ void UEmbermerePlayerHudWidget::NativeTick(const FGeometry& MyGeometry, float In
 		LootPanel->SetVisibility(ESlateVisibility::Collapsed);
 		LootHideTimeSeconds = 0.0f;
 	}
+}
+
+void UEmbermerePlayerHudWidget::NativeDestruct()
+{
+	UnbindComponentEvents();
+	if (CombatFeedbackOverlay)
+	{
+		CombatFeedbackOverlay->ClearAllFeedback();
+		CombatFeedbackOverlay->RemoveFromParent();
+		CombatFeedbackOverlay = nullptr;
+	}
+	Super::NativeDestruct();
 }
 
 FReply UEmbermerePlayerHudWidget::NativeOnPreviewMouseButtonDown(
@@ -4045,6 +4071,41 @@ void UEmbermerePlayerHudWidget::BindComponentEvents()
 	if (Inventory)
 	{
 		Inventory->OnItemAdded.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleItemAdded);
+	}
+	if (Combat)
+	{
+		Combat->OnCombatResult.RemoveAll(this);
+		Combat->OnCombatResult.AddUObject(this, &UEmbermerePlayerHudWidget::HandleCombatResult);
+		Combat->OnTargetChanged.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleCombatTargetChanged);
+	}
+}
+
+void UEmbermerePlayerHudWidget::UnbindComponentEvents()
+{
+	if (Inventory)
+	{
+		Inventory->OnItemAdded.RemoveDynamic(this, &UEmbermerePlayerHudWidget::HandleItemAdded);
+	}
+	if (Combat)
+	{
+		Combat->OnCombatResult.RemoveAll(this);
+		Combat->OnTargetChanged.RemoveDynamic(this, &UEmbermerePlayerHudWidget::HandleCombatTargetChanged);
+	}
+}
+
+void UEmbermerePlayerHudWidget::HandleCombatResult(const FEmbermereCombatResult& Result)
+{
+	if (CombatFeedbackOverlay)
+	{
+		CombatFeedbackOverlay->PresentCombatResult(Result);
+	}
+}
+
+void UEmbermerePlayerHudWidget::HandleCombatTargetChanged(AActor* NewTarget, AActor* OldTarget)
+{
+	if (CombatFeedbackOverlay)
+	{
+		CombatFeedbackOverlay->ClearAllFeedback();
 	}
 }
 

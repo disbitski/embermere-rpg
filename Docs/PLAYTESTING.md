@@ -312,6 +312,28 @@ and a repeat `F` preserved `125` XP without reward replay.
 The authority and reset contract is in
 [PRACTICE_TARGET_CONTRACT.md](PRACTICE_TARGET_CONTRACT.md).
 
+## Floating Combat Feedback Loop
+
+1. In clean PIE, target the Fenwatch Practice Target and strike it from the
+   normal training-yard camera. Confirm the exact applied damage appears in a
+   fixed `112x32` cell beside, rather than over, the native nameplate.
+2. Strike rapidly and confirm newest results remain readable without growing
+   the layout beyond three cells; a fourth result evicts the oldest.
+3. Confirm each result rises slightly, fades, and expires after `1.25` seconds
+   while target HP and the bottom-left chat retain the durable combat facts.
+4. Defeat the target. Confirm the number, nameplate, and cyan circle clear
+   immediately, the visible dummy remains, and no stale number returns during
+   the three-second reset or after reacquisition.
+5. Repeat on a real Marsh Prowler from normal camera distance. Confirm the
+   number coexists with the Prowler nameplate, cyan target circle, and status
+   aura, then switch or clear targets and confirm immediate removal.
+6. Retain the accepted reference geometry: the practice-target proof showed a
+   `104x30` floating result with a `16` pixel nameplate gap; the Prowler proof
+   showed the same fixed geometry while HP changed and chat remained intact.
+
+The outcome/presentation authority boundary is in
+[COMBAT_FEEDBACK_CONTRACT.md](COMBAT_FEEDBACK_CONTRACT.md).
+
 ## Fenwatch Vendor Loop
 
 1. Start a fresh PIE session, hide Inventory with `I`, approach the
@@ -436,6 +458,10 @@ The full ownership and rollback contract is in
   and a restrained cyan-blue emissive ground circle around the target's
   footprint.
 - Ability use posts a bottom-left hit message clipped inside the shaded chat panel.
+- Successful damage also publishes one immutable post-commit result to a
+  hit-test-invisible, fixed three-entry floating observer. Exact damage appears
+  briefly beside the selected target nameplate, never replaces chat or target
+  HP, and clears on expiry, target switch, defeat, reset, or teardown.
 - Reusing an ability before its cooldown finishes posts a bottom-left ready-time message; the hotbar slot itself dims and counts down while cooling.
 - Battle Shout and Nature's Focus post timed Attack Power feedback; Ward posts
   timed Armor feedback; Snare and Frost Root post movement-control feedback;
