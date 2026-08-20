@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 53
-EXPECTED_ORIGINAL_ART_COUNT = 22
+EXPECTED_ORIGINAL_ART_COUNT = 23
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -148,6 +148,14 @@ ORIGINAL_TRAINING_WORKSHOP_PATH = (
 )
 ORIGINAL_TRAINING_WORKSHOP_LOCATION = (-690.0, -1030.0, 0.0)
 ORIGINAL_TRAINING_WORKSHOP_YAW = -100.0
+ORIGINAL_NOTICE_BOARD_LABEL = "Embermere_FenwatchNoticeBoard_Road_01"
+ORIGINAL_NOTICE_BOARD_PATH = (
+    "/Game/Art/Embermere/Environment/PrototypeVillage/"
+    "SM_EmbermereFenwatchNoticeBoard_01."
+    "SM_EmbermereFenwatchNoticeBoard_01"
+)
+ORIGINAL_NOTICE_BOARD_LOCATION = (-1560.0, -260.0, 0.0)
+ORIGINAL_NOTICE_BOARD_YAW = -35.0
 SPAWN_AUTORUN_ROUTE_START = (-2400.0, -1200.0)
 SPAWN_AUTORUN_ROUTE_END = (-1350.0, -750.0)
 SUPPLY_CHEST_ROUTE_CLEARANCE = 225.0
@@ -268,6 +276,7 @@ REQUIRED_LABELS = {
     ORIGINAL_VENDOR_STALL_LABEL,
     ORIGINAL_FENWATCH_COTTAGE_LABEL,
     ORIGINAL_TRAINING_WORKSHOP_LABEL,
+    ORIGINAL_NOTICE_BOARD_LABEL,
     ORIGINAL_FENWATCH_SHELTER_LABEL,
     FENWATCH_KEEPER_PRESENTATION_LABEL,
     FENWATCH_QUARTERMASTER_LABEL,
@@ -2060,6 +2069,136 @@ def main():
             workshop_armsmaster_distance,
         ))
 
+    notice_board_mesh = unreal.EditorAssetLibrary.load_asset(
+        ORIGINAL_NOTICE_BOARD_PATH
+    )
+    if not notice_board_mesh or not isinstance(notice_board_mesh, unreal.StaticMesh):
+        fail("missing original Fenwatch notice board {}".format(
+            ORIGINAL_NOTICE_BOARD_PATH,
+        ))
+    notice_board_import_data = notice_board_mesh.get_editor_property(
+        "asset_import_data"
+    )
+    notice_board_import_class = (
+        notice_board_import_data.get_class().get_name()
+        if notice_board_import_data
+        else "None"
+    )
+    if notice_board_import_class != "FbxStaticMeshImportData":
+        fail("Fenwatch notice board must retain classic FBX import data, found {}".format(
+            notice_board_import_class,
+        ))
+    notice_board_body_setup = notice_board_mesh.get_editor_property("body_setup")
+    notice_board_aggregate = (
+        notice_board_body_setup.get_editor_property("agg_geom")
+        if notice_board_body_setup
+        else None
+    )
+    notice_board_box_count = (
+        len(notice_board_aggregate.get_editor_property("box_elems"))
+        if notice_board_aggregate
+        else 0
+    )
+    if notice_board_box_count != 3:
+        fail("Fenwatch notice board must retain 3 authored support/panel box colliders, found {}".format(
+            notice_board_box_count,
+        ))
+    notice_board_bounds = notice_board_mesh.get_bounds()
+    if not all((
+        nearly_equal(notice_board_bounds.box_extent.x, 143.0, 1.0),
+        nearly_equal(notice_board_bounds.box_extent.y, 46.9635, 1.0),
+        nearly_equal(notice_board_bounds.origin.z, 138.5, 1.0),
+        nearly_equal(notice_board_bounds.box_extent.z, 138.5, 1.0),
+    )):
+        fail("Fenwatch notice board bounds drifted: origin={}, extent={}".format(
+            notice_board_bounds.origin,
+            notice_board_bounds.box_extent,
+        ))
+    if notice_board_mesh.get_num_triangles(0) != 3684:
+        fail("Fenwatch notice board triangle count drifted: {}".format(
+            notice_board_mesh.get_num_triangles(0),
+        ))
+    notice_board_material_paths = set()
+    for static_material in list(
+        notice_board_mesh.get_editor_property("static_materials")
+    ):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            notice_board_material_paths.add(material.get_path_name())
+    if notice_board_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("Fenwatch notice board material set drifted: {}".format(
+            sorted(notice_board_material_paths),
+        ))
+
+    notice_board = actors_by_label[ORIGINAL_NOTICE_BOARD_LABEL]
+    notice_board_component = notice_board.get_component_by_class(
+        unreal.StaticMeshComponent
+    )
+    placed_notice_board_mesh = (
+        notice_board_component.get_editor_property("static_mesh")
+        if notice_board_component
+        else None
+    )
+    placed_notice_board_path = (
+        placed_notice_board_mesh.get_path_name()
+        if placed_notice_board_mesh
+        else "None"
+    )
+    if placed_notice_board_path != ORIGINAL_NOTICE_BOARD_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_NOTICE_BOARD_LABEL,
+            ORIGINAL_NOTICE_BOARD_PATH,
+            placed_notice_board_path,
+        ))
+    notice_board_location = notice_board.get_actor_location()
+    notice_board_rotation = notice_board.get_actor_rotation()
+    if not all((
+        nearly_equal(notice_board_location.x, ORIGINAL_NOTICE_BOARD_LOCATION[0], 1.0),
+        nearly_equal(notice_board_location.y, ORIGINAL_NOTICE_BOARD_LOCATION[1], 1.0),
+        nearly_equal(notice_board_location.z, ORIGINAL_NOTICE_BOARD_LOCATION[2], 1.0),
+        nearly_equal(notice_board_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(notice_board_rotation.yaw, ORIGINAL_NOTICE_BOARD_YAW, 0.1),
+        nearly_equal(notice_board_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            ORIGINAL_NOTICE_BOARD_LABEL,
+            notice_board_location,
+            notice_board_rotation,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(notice_board.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_NOTICE_BOARD_LABEL,
+        ))
+    if str(notice_board_component.get_collision_profile_name()) != "BlockAll":
+        fail("{} collision profile drifted: {}".format(
+            ORIGINAL_NOTICE_BOARD_LABEL,
+            notice_board_component.get_collision_profile_name(),
+        ))
+    notice_board_mara_distance = math.hypot(
+        notice_board_location.x - FENWATCH_KEEPER_LOCATION[0],
+        notice_board_location.y - FENWATCH_KEEPER_LOCATION[1],
+    )
+    if notice_board_mara_distance < 750.0:
+        fail("Fenwatch notice board moved too close to Mara's sightline: {:.1f} cm".format(
+            notice_board_mara_distance,
+        ))
+    notice_board_quartermaster_distance = math.hypot(
+        notice_board_location.x - FENWATCH_QUARTERMASTER_LOCATION[0],
+        notice_board_location.y - FENWATCH_QUARTERMASTER_LOCATION[1],
+    )
+    if notice_board_quartermaster_distance < 900.0:
+        fail("Fenwatch notice board moved too close to the quartermaster service: {:.1f} cm".format(
+            notice_board_quartermaster_distance,
+        ))
+    notice_board_armsmaster_distance = math.hypot(
+        notice_board_location.x - FENWATCH_ARMSMASTER_LOCATION[0],
+        notice_board_location.y - FENWATCH_ARMSMASTER_LOCATION[1],
+    )
+    if notice_board_armsmaster_distance < 680.0:
+        fail("Fenwatch notice board moved too close to the armsmaster service: {:.1f} cm".format(
+            notice_board_armsmaster_distance,
+        ))
+
     marsh_reed_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_MARSH_REED_PATH)
     if not marsh_reed_mesh or not isinstance(marsh_reed_mesh, unreal.StaticMesh):
         fail("missing original marsh reed mesh {}".format(ORIGINAL_MARSH_REED_PATH))
@@ -2414,7 +2553,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision Fenwatch cottage, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision Fenwatch cottage, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

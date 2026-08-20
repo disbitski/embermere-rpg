@@ -119,15 +119,14 @@ The repo currently contains the C++ gameplay scaffold for:
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved
   instances, and asset-agnostic runtime presentation
-- a corrected 53-actor local Fab/Epic art pass plus 22 placements from
+- a corrected 53-actor local Fab/Epic art pass plus 23 placements from
   Embermere's original Blender-built waystone, ember-lamp, road-signpost,
   road-gate, boundary-fence, rune-topped boundary-stone, supply-chest, and
-  Fenwatch shelter, vendor stall, and first closed cottage, Mara's rigged
-  Fenwatch keeper, the rigged
-  Fenwatch quartermaster and armsmaster, practice dummy, plus four visual-only marsh-reed clusters
-  over the starter village, road,
-  wilderness pocket, and ruin
-  landmark, with grounded rotations,
+  Fenwatch shelter, vendor stall, first closed cottage, open-front training
+  workshop, and roadside notice board; Mara's rigged Fenwatch keeper; the
+  rigged Fenwatch quartermaster and armsmaster; a practice dummy; and four
+  visual-only marsh-reed clusters over the starter village, road, wilderness
+  pocket, and ruin landmark, with grounded rotations,
   deliberate collision, a navigable PlayerStart/Mara route, a readable gate
   silhouette, a project-owned moss/earth/path material, collision-cleared solo
   enemy pulls, and a validated Mac-friendly daylight/atmosphere baseline
@@ -169,9 +168,8 @@ lamps, a timber road signpost, a traversable road gate, low boundary fences,
 rune-topped end stones, a route-facing village supply chest, an open-sided
 Fenwatch shelter, Mara's grounded rigged Stylized Classic Fenwatch keeper,
 the rigged Fenwatch quartermaster and armsmaster, a matching vendor stall,
-practice dummy, closed Fenwatch cottage, and open-front training workshop,
-visual-only
-marsh reeds, and the fully rigged Marsh
+practice dummy, closed Fenwatch cottage, open-front training workshop,
+roadside notice board, visual-only marsh reeds, and the fully rigged Marsh
 Prowler, each built from reviewed scripts,
 validated in Blender, imported through an explicit Unreal contract, and placed
 as a swappable project-owned layer over the local Fab environment.
@@ -273,7 +271,8 @@ why human taste becomes more important as building gets easier.
 Early playable Unreal prototype scaffold with Unreal and Blender MCP connected,
 a daylight starter-zone loop mixing a local Fab pass with an original Embermere
 waystone/lamp/signpost/gate/fence/end-stone/chest/shelter/keeper/
-quartermaster/armsmaster/vendor-stall/reed family, the first original rigged and animated Marsh
+quartermaster/armsmaster/vendor-stall/cottage/workshop/notice-board/reed family,
+the first original rigged and animated Marsh
 Prowler, grounded moss/earth road presentation,
 collision-cleared solo-pull tab-target combat, a fully illustrated data-driven
 starter hotbar with cooldown feedback, tooltips, timed buffs, root, snare, mana

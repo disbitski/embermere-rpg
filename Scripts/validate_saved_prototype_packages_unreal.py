@@ -14,6 +14,7 @@ VALIDATOR_MODULES = (
     "validate_fenwatch_cottage_unreal",
     "validate_fenwatch_keeper_greeting_unreal",
     "validate_fenwatch_keeper_rig_unreal",
+    "validate_fenwatch_notice_board_unreal",
     "validate_fenwatch_practice_dummy_unreal",
     "validate_fenwatch_practice_target_gameplay_unreal",
     "validate_fenwatch_quartermaster_rig_unreal",

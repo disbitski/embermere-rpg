@@ -6,15 +6,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-19 no-hot-reload combat-feedback module plus the
-  accepted rigged Fenwatch keeper, armsmaster, and quartermaster packages and
+- Confirm Unreal is running the 2026-08-20 no-hot-reload module plus the
+  accepted Fenwatch notice-board asset/map package and combat-feedback module,
+  along with the accepted rigged Fenwatch keeper, armsmaster, and quartermaster
+  packages and
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
-  greeting copy, and saved read-only greeting
-  observer. Restart if the
-  editor predates that work
-  or test discovery exposes fewer than 56
-  Embermere tests.
+  greeting copy, and saved read-only greeting observer. Restart if the editor
+  predates that work or test discovery exposes fewer than 56 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
@@ -195,7 +194,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - all three saved map instances retain the skeletal mesh and animation set,
     not only the Blueprint CDO.
 - Recheck the completed grounding pass:
-  - 53 grounded upright `FabPass_` actors and 22 original-art placements;
+  - 53 grounded upright `FabPass_` actors and 23 original-art placements;
   - all ordinary art that previously sat at `Z=20` now rests at `Z=0`;
   - the unsupported SoulCave arch/pillar accents and three enemy marker meshes
     remain removed;
@@ -308,6 +307,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   clear, the roof/trim/crest/tools visual-only, the armsmaster-to-dummy approach
   and road-side east bypass open, and `FabPass_Village_Fence_03` absent. The
   workshop is world art and owns no trainer, combat, or interaction authority.
+- Inspect `Embermere_FenwatchNoticeBoard_Road_01` at
+  `(-1560, -260, 0)`, yaw `-35`. Retain its grounded
+  `286 x 93.927 x 277` cm silhouette, 3,684 triangles, five shared Fenwatch
+  materials, and exact three authored collision boxes on the two supports and
+  central panel. Keep the roof, notice cards, pins, trim, and ember crest
+  visual-only. The board must remain presentation-only and free of quest,
+  marker, dialogue, interaction, reward, vendor, trainer, and persistence
+  authority while preserving the PlayerStart-to-Mara, village-to-road,
+  quartermaster, and armsmaster routes.
 - Retain the accepted wrapper Idle lane. Anim Blueprint art takes precedence;
   otherwise a skeleton-compatible soft Idle asset uses `AnimationSingleNode`
   with data-driven loop and play rate. The production armsmaster is the first
@@ -577,9 +585,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - the map has a blue atmospheric sky, readable ambient fill, and the
     38-expression moss/earth road material instead of the previous black
     sky/white or flat-green ground presentation;
-  - all 53 remaining Fab art-pass actors are grounded and upright; all 22
+  - all 53 remaining Fab art-pass actors are grounded and upright; all 23
     original placements remain present, including the vendor stall, practice
-    dummy, closed cottage, and four
+    dummy, closed cottage, training workshop, notice board, and four
     terrain-blended `NoCollision` marsh-reed clusters;
   - the three oversized sci-fi building shells, old Mara backdrop/market cover,
     and vendor/trainer cubes are gone; PlayerStart has an unobstructed view
@@ -668,8 +676,8 @@ Embermere has a working first-pass starter slice:
   fallback;
 - first local Fab/Epic environment pass over the village, road, wilderness pocket, and ruin landmark;
 - a project-owned Blender waystone, ember-lamp, road-signpost, road-gate,
-  boundary-fence, boundary-stone, and supply-chest family with reviewed scripts,
-  editable source, FBX, previews, authored collision, and ten validated saved
+  boundary-fence, boundary-stone, supply-chest, and notice-board family with reviewed scripts,
+  editable source, FBX, previews, authored collision, and eleven validated saved
   placements, plus a solid-core, clear-arm Fenwatch practice dummy, an
   open-front Fenwatch training workshop, and four visual-only marsh-reed
   placements;
@@ -790,12 +798,17 @@ targeting, rewards, AI, quests, or persistence.
   ownership. Keep bottom-left chat and target HP as durable fallbacks; do not
   publish `MISS` until an authoritative hit-resolution rule actually produces
   that outcome.
-- After the combat-feedback acceptance sweep, take one bounded high-value
-  slice: either build a compact project-owned Fenwatch notice board through the
-  reviewed Blender/classic-FBX/package/validation lane while keeping it free of
-  quest authority, or document and implement the next combat-feel improvement
-  only when normal-route PIE exposes a concrete need. Preserve all service and
-  traversal sightlines.
+- Retain the accepted Fenwatch notice board as world art: exact metrics,
+  materials, three purposeful colliders, decorative clearance, grounded road
+  composition, and four protected routes. Do not make the mesh itself a quest,
+  interaction, vendor, trainer, reward, or persistence authority.
+- Begin the next original-plan gap as a bounded character-creation milestone:
+  turn the existing UMG scaffold and data-driven race/class matrix into a real
+  pre-play picker with readable disabled combinations, explicit confirmation,
+  and focused automation. Preserve the current Warrior default as a reversible
+  fallback, prove Dwarf Ranger and Bullywug Wizard are disabled, and define the
+  new-game/session boundary before changing save version 1 or adding any
+  migration.
 - Retain the accepted trainer Chronicle proof without expanding save version 1:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
@@ -1684,6 +1697,25 @@ targeting, rewards, AI, quests, or persistence.
 - The authoritative no-hot-reload build passed, all 56 tests passed, and the
   sequential 13-package aggregate validator retained the exact 53 grounded Fab
   plus 22 original-art baseline with no intentional map or vendor resave.
+- 2026-08-20: built `SM_EmbermereFenwatchNoticeBoard_01` through a
+  factory-clean deterministic Blender pass. The accepted roadside module is
+  `286 x 93.927 x 277` cm, 3,684 triangles, one UV channel, clean topology,
+  five shared Fenwatch materials, and three UBX boxes for the two supports and
+  central panel. Roof, notices, pins, trim, and ember crest remain decorative.
+- Imported through classic `FbxFactory`, explicitly saved the mesh and map,
+  and placed `Embermere_FenwatchNoticeBoard_Road_01` at
+  `(-1560, -260, 0)`, yaw `-35`. The board is presentation-only and owns no
+  quest, marker, dialogue, interaction, reward, vendor, trainer, or persistence
+  behavior.
+- Fresh package validation locks provenance, metrics, materials, collision,
+  tag, and transform. Post-restart initialized-world traces proved both
+  supports and the panel solid, decorative geometry clear, and the
+  PlayerStart-to-Mara, village-to-road, quartermaster, and armsmaster routes
+  open. Normal-camera PIE accepted its grounded road-side read.
+- The no-hot-reload Mac build succeeded, all 56 tests passed in an isolated
+  commandlet, and the sequential aggregate expanded to 14 package validators
+  with explicit success markers and no `LogPython: Error`. The map now retains
+  53 grounded Fab actors plus 23 original-art placements.
 
 ## Asset Hunt
 

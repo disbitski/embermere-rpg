@@ -1345,3 +1345,18 @@ For short-lived presentation evidence, trigger the authoritative action, let a
 small number of real Slate/world ticks run, and only then pause or capture.
 Refresh the viewport snapshot before input and prove the result with geometry,
 health, chat, and clear behavior rather than trusting a synthetic key report.
+
+## Lock Saved Actor Labels Before Encoding Spatial Contracts
+
+The first Fenwatch notice-board validator used plausible labels for PlayerStart
+and nearby road flowers. The map's real saved labels were
+`PlayerStart_Embermere_Village` and `FabPass_Road_Flowers_01`, so the focused
+validator rejected an otherwise correct placement before it entered the
+aggregate package chain.
+
+Treat actor labels as saved data, not prose you can reconstruct from memory.
+Query the loaded map, copy the exact labels into focused validation, and let
+that asset-specific validator become one module in the sequential aggregate.
+This keeps spatial contracts readable while ensuring a renamed or missing
+neighbor fails at the narrowest useful boundary instead of surfacing later as
+an ambiguous full-zone error.

@@ -8,11 +8,11 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
 3. Confirm the map shows a blue atmospheric sky, readable ambient light, the
    varied moss/earth road surface, 53 grounded upright `FabPass_` actors plus
-   22 original-art placements from the waystone, ember-lamp, road-signpost,
+   23 original-art placements from the waystone, ember-lamp, road-signpost,
    road-gate, boundary-fence, boundary-stone, supply-chest, Fenwatch shelter,
    Mara's keeper, the Fenwatch quartermaster and armsmaster, the vendor stall,
-   practice dummy, first closed cottage, open-front training workshop, and four
-   marsh-reed clusters, a
+   practice dummy, first closed cottage, open-front training workshop,
+   roadside notice board, and four marsh-reed clusters, a
    navigable PlayerStart/Mara
    route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three original
    Marsh Prowlers.
@@ -105,10 +105,18 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     chimney details do not create invisible collision, the foundation is
     grounded, and both the direct PlayerStart-to-Mara route and west bypass
     remain clear. `FabPass_Village_Fence_02` must remain absent.
-18. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
+18. Inspect `Embermere_FenwatchNoticeBoard_Road_01` at
+    `(-1560, -260, 0)`, yaw `-35`. Its grounded stone-footed timber frame,
+    moss roof, iron trim, pinned notices, and ember crest should read from the
+    normal village-road approach. Confirm both supports and the central panel
+    are solid; roof, notices, pins, trim, and crest are clear; and the direct
+    PlayerStart-to-Mara, village-to-road, quartermaster, and armsmaster routes
+    remain open. The board must stay presentation-only with no quest marker,
+    dialogue, interaction, reward, vendor, trainer, or persistence authority.
+19. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
     should blend into the ground, reeds should add scale without hiding the
     route, and the whole cluster must remain `NoCollision`.
-19. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
+20. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
     marker meshes have not returned. Foliage should use readable
     project-owned overrides rather than white/default rendering.
 

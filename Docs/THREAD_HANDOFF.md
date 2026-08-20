@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-19
+Last updated: 2026-08-20
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -1267,10 +1267,42 @@ existing ability-used cooldown event or acquiring gameplay authority.
 
 The durable boundary is documented in `Docs/COMBAT_FEEDBACK_CONTRACT.md`.
 
+## 2026-08-20 Fenwatch Notice-Board Update
+
+Fenwatch now has a compact project-owned civic roadside prop without adding a
+new gameplay authority.
+
+- `Scripts/blender/build_embermere_fenwatch_notice_board.py` produces
+  `SM_EmbermereFenwatchNoticeBoard_01` at
+  `286 x 93.927 x 277` cm, 3,684 triangles, one UV channel, clean topology,
+  five shared Fenwatch materials, and three UBX boxes for the two supports and
+  central panel.
+- The roof, layered notices, pins, trim, and ember crest remain visual-only.
+  The asset and placement own no quest marker, dialogue, interaction, reward,
+  vendor, trainer, or persistence behavior.
+- Classic `FbxFactory` import explicitly saved the mesh and map, placing
+  `Embermere_FenwatchNoticeBoard_Road_01` at `(-1560, -260, 0)`, yaw `-35`.
+- Focused validation locks source/provenance, metrics, materials, collision,
+  project-owned tag, transform, and exact saved neighbor labels. Post-restart
+  initialized-world traces prove both supports and the panel solid,
+  decorative geometry clear, and the PlayerStart-to-Mara, village-to-road,
+  quartermaster, and armsmaster routes open.
+- Normal-route PIE accepted the grounded roadside composition. The
+  no-hot-reload Mac build, all 56 tests, and a 14-validator sequential saved-
+  package aggregate passed with explicit success markers and no
+  `LogPython: Error`.
+
+The current map baseline is 53 grounded Fab actors plus 23 original-art
+placements. The next high-value original-plan gap is a real player-facing
+character-creation/race-class selection flow over the existing data-driven
+matrix, with the current Warrior start retained as a reversible fallback and
+no save-version change until a deliberate migration contract exists.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-19 no-hot-reload combat-feedback module, quest/map packages, all
+2026-08-20 no-hot-reload module, accepted notice-board asset/map package,
+combat-feedback module, quest/map packages, all
 three accepted skeletal-mesh/Skeleton/Idle sets, the Fenwatch vendor stall and
 closed cottage plus training workshop,
 practice dummy plus native practice target, offering, Chronicle, Fenwatch
@@ -1372,10 +1404,10 @@ First fresh-session checks:
    - the vendor stall at `(-1530, -1430, 0)`, yaw `180`, with a customer-facing
      counter, four solid supports, clear service approach and east bypass, and
      unchanged normal-`F` Fenwatch Supplies ownership on the art-free service;
-   - 53 grounded upright Fab actors plus 22 original placements from the
+   - 53 grounded upright Fab actors plus 23 original placements from the
      waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
-     quartermaster/armsmaster/vendor-stall/practice-dummy/cottage/workshop/reed
-     family;
+     quartermaster/armsmaster/vendor-stall/practice-dummy/cottage/workshop/
+     notice-board/reed family;
      inspect the route-facing chest at `(-1740, -1180, 0)`, its solid lid, the
      Fenwatch shelter behind Mara at `(-1740, -700, 0)`, its four solid supports
      and clear center, Mara's grounded front-facing non-colliding Fenwatch
@@ -1542,9 +1574,9 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-19 no-hot-reload
-module and quest/map packages, the accepted vendor-stall, cottage,
-training-workshop, practice-dummy, and native practice-target map packages,
+Follow TODO.md's Start Here section. Confirm the 2026-08-20 no-hot-reload
+module and quest/map packages, the accepted notice-board, vendor-stall,
+cottage, training-workshop, practice-dummy, and native practice-target map packages,
 and all three accepted skeletal-mesh/Skeleton/Idle sets,
 offering/Chronicle,
 bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
@@ -1593,9 +1625,9 @@ feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy
 nameplate, bounds-aware surface-traced cyan-blue target circle, quest/reward
 loop, enemy
 leash, respawn protection, chat clipping, atmospheric daylight and the
-38-expression moss/earth road, 53 grounded upright Fab actors, and all 22
+38-expression moss/earth road, 53 grounded upright Fab actors, and all 23
 original-art placements including the vendor stall, closed west cottage,
-open-front training workshop, four
+open-front training workshop, roadside notice board, four
 `NoCollision` reed clusters, the
 open-sided Fenwatch shelter at `(-1740, -700, 0)`, yaw `-64`, and the
   grounded front-facing non-colliding rigged Mara keeper wrapper with its
@@ -1664,10 +1696,13 @@ three-second reset, and no AI, retaliation, loot, XP, quest credit, service, or
 persistence authority. Retain the accepted asset-agnostic floating combat-
 feedback presentation shared by Prowlers and the practice target: immutable committed
 results, exact applied amounts, fixed three-entry bounds, 1.25-second expiry,
-target/death/reset clearing, and durable chat/nameplate fallbacks. Next prefer
-one compact project-owned Fenwatch notice board through the reviewed Blender/
-classic-FBX/package/validation lane while keeping quest authority outside art,
-or tune only a concrete combat issue exposed by normal play.
+target/death/reset clearing, and durable chat/nameplate fallbacks. Retain the
+accepted presentation-only notice board, its three purposeful colliders, clear
+decorative geometry, and four protected routes. Next prefer a bounded real
+character-creation picker over the existing data-driven race/class matrix,
+with explicit disabled combinations and confirmation, while retaining the
+current Warrior fallback and leaving save version 1 unchanged until a
+deliberate migration contract exists.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 

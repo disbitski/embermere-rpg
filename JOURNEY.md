@@ -2364,6 +2364,43 @@ tests passed, and the sequential 13-package aggregate validator retained the
 Lesson: combat should decide what happened once. Short-lived presentation may
 show that fact, but it should never reconstruct or own it.
 
+## 2026-08-20 - Fenwatch Put Its Story Beside The Road
+
+The combat-feedback slice was already accepted, so today's bounded art pass
+returned to the village itself. Fenwatch had homes, services, a training yard,
+and a road threshold, but no small civic object suggesting that people share
+news, warnings, and work beyond the one quest currently implemented.
+
+The deterministic Blender build produced
+`SM_EmbermereFenwatchNoticeBoard_01`: a grounded
+`286 x 93.927 x 277` cm roadside module at 3,684 triangles, with one UV
+channel, clean topology, five existing Fenwatch materials, and three authored
+collision boxes. Only the two supports and central panel are solid. The moss
+roof, layered notice cards, pins, iron trim, and ember crest remain decorative.
+
+Classic `FbxFactory` import explicitly saved the mesh and level, then placed
+`Embermere_FenwatchNoticeBoard_Road_01` at `(-1560, -260, 0)`, yaw `-35`.
+The board is deliberately presentation-only: it owns no quest marker,
+dialogue, interaction, reward, vendor, trainer, or persistence behavior.
+
+Focused validation caught two guessed neighbor labels before the aggregate
+run. Reading the saved map established the real labels,
+`PlayerStart_Embermere_Village` and `FabPass_Road_Flowers_01`, and converted
+the spatial checks from assumptions into durable contracts. Post-restart
+native traces then proved both supports and the panel solid, decorative layers
+clear, and the PlayerStart-to-Mara, village-to-road, quartermaster, and
+armsmaster routes open.
+
+Normal-route PIE accepted the board's grounded road-side composition. The
+no-hot-reload Mac build succeeded, the isolated commandlet passed all 56 tests,
+and the aggregate now runs 14 focused package validators with explicit success
+markers and no Python errors. The map contains 53 grounded Fab actors and 23
+original-art placements.
+
+Lesson: world art can imply stories without owning them. A convincing notice
+board makes Fenwatch feel inhabited; a separate future service can decide
+whether the player may ever read it.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

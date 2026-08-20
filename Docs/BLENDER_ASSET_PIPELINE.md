@@ -1060,6 +1060,43 @@ must prove the surfaces the player expects are solid, the space the player
 expects to use is clear, and every route assertion starts outside unrelated
 collision.
 
+## Fenwatch Notice Board
+
+`SM_EmbermereFenwatchNoticeBoard_01` adds a compact civic roadside silhouette
+without turning architecture into quest logic. The stone-footed timber frame,
+moss roof, iron trim, layered notice cards, pins, and ember crest reuse the
+existing Fenwatch language while remaining readable as ordinary world art.
+
+The reviewed source is
+`Scripts/blender/build_embermere_fenwatch_notice_board.py`; editable source,
+FBX, preview, and metrics live under
+`ArtSource/Blender/Environment/FenwatchNoticeBoard`. The accepted Blender
+contract is:
+
+- grounded `286 x 93.927 x 277` cm bounds with applied unit scale;
+- 3,684 triangles, one UV channel, and zero non-manifold edges;
+- five existing project-owned stone, moss, timber, iron, and ember materials;
+- three UBX boxes for the two supports and central panel;
+- visual-only roof, notices, pins, trim, and crest geometry.
+
+`Scripts/import_embermere_fenwatch_notice_board_unreal.py` uses classic
+`FbxFactory`, reassigns the exact shared materials, explicitly saves the static
+mesh and level, and places `Embermere_FenwatchNoticeBoard_Road_01` at
+`(-1560, -260, 0)`, yaw `-35`. The placement is tagged as project-owned art and
+has no quest, marker, dialogue, interaction, reward, vendor, trainer, or
+persistence authority.
+
+Fresh package validation locks provenance, dimensions, topology, materials,
+three colliders, tag, and transform. Initialized-world traces prove both
+supports and the panel solid, every decorative layer clear, and the
+PlayerStart-to-Mara, village-to-road, quartermaster, and armsmaster routes
+open. Normal-route PIE accepted the grounded road-side composition. The map
+now contains 53 Fab actors and 23 original-art placements.
+
+Lesson: a civic prop can imply a larger settlement without acquiring the
+systems its silhouette suggests. Let art say "notice board" while a future
+service, if one is ever needed, owns interaction and content separately.
+
 ## Sources
 
 - Article/post: https://x.com/explosss1ve/status/2075654835597164769
