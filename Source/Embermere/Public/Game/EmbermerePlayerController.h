@@ -3,9 +3,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Save/EmbermerePersistenceLibrary.h"
+#include "Types/EmbermereTypes.h"
 #include "EmbermerePlayerController.generated.h"
 
 class AEmbermereCharacter;
+class UEmbermereCharacterCreationWidget;
 class UEmbermerePlayerHudWidget;
 
 UCLASS()
@@ -40,6 +42,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UEmbermerePlayerHudWidget> PlayerHudWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|Character Creation")
+	TSubclassOf<UEmbermereCharacterCreationWidget> CharacterCreationWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|Character Creation")
+	bool bShowCharacterCreationOnFirstPlay = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Persistence")
 	FString PrototypeSaveSlotName = TEXT("EmbermerePrototype");
 
@@ -68,6 +76,12 @@ public:
 	void AddHudMessage(const FText& Message, FLinearColor MessageColor) const;
 	bool TriggerOutOfBoundsRecoveryIfNeeded(AEmbermereCharacter* Character);
 	void RefreshInteractiveInputMode();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Character Creation")
+	bool ShouldPresentCharacterCreation(const AEmbermereCharacter* InCharacter) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Character Creation")
+	bool IsCharacterCreationPanelVisible() const;
 
 	virtual void PlayerTick(float DeltaTime) override;
 
@@ -113,11 +127,16 @@ private:
 	FTransform ControlledSpawnTransform;
 	FTimerHandle PlayerRespawnTimerHandle;
 	TObjectPtr<UEmbermerePlayerHudWidget> PlayerHudWidget;
+	TObjectPtr<UEmbermereCharacterCreationWidget> CharacterCreationWidget;
 
 	AEmbermereCharacter* GetEmbermereCharacter() const;
 	bool InteractWithNearestActor();
 	void EnsurePlayerHud();
+	void ShowCharacterCreationIfNeeded();
 	void ShowTargetFeedback(AActor* TargetActor) const;
 	void UpdateClassicMouseCameraMode();
 	void UpdateInventoryInputMode(bool bInventoryVisible);
+
+	UFUNCTION()
+	void HandleCharacterChoiceConfirmed(EEmbermereRace ConfirmedRace, EEmbermereClass ConfirmedClass);
 };

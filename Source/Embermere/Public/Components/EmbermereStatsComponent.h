@@ -57,6 +57,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
 	float AttackPower = 10.0f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats|Attributes")
+	float Strength = 10.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats|Attributes")
+	float Spirit = 10.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats|Attributes")
+	float Agility = 10.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats|Attributes")
+	float Intellect = 10.0f;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
 	float Armor = 0.0f;
 
@@ -86,6 +98,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
 	void InitializeVitals();
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
+	void ApplyStartingAttributes(const FEmbermereAttributeBlock& StartingAttributes);
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
 	float ApplyDamage(float DamageAmount);

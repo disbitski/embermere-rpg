@@ -179,6 +179,30 @@ and completed states were driven through the authoritative quest component,
 physical `F` still completed the original interaction for the exact reward,
 and a repeat `F` preserved `125` XP without reward replay.
 
+## Character Creation Pre-Play Gate
+
+1. Start clean PIE and confirm the normal HUD is hidden behind a centered
+   `940x560` creation panel.
+2. Confirm all eight races and all four starting classes remain visible.
+3. Select Ranger, then Dwarf. Ranger must remain selected but visibly disabled;
+   the exact invalid-combination message must appear and Confirm must stay
+   disabled. Pressing Enter must not begin play.
+4. Select Wizard, then Bullywug and repeat the same rejection proof. The UI
+   must not silently replace Wizard with a legal class.
+5. Select Elf Wizard and confirm with Enter. The modal must disappear, the HUD
+   must return, and chat must report `Journey begun: Elf Wizard`.
+6. Verify the accepted Elf Wizard starts at `80/80` health and `110/110` mana
+   with Spark Bolt, Frost Root, Arcane Burst, and Meditate in the first four
+   hotbar slots.
+7. Confirm gameplay input and classic mouse capture return after acceptance.
+   A second confirmation request must not reapply stats or reset the hotbar.
+8. Repeat with at least one other legal pair when changing rules data. The
+   picker must consume the rules asset rather than maintain a second allow-list.
+
+Save version 1 intentionally does not persist race/class choice. Each fresh
+prototype world presents the picker before restoring any existing version 1
+progression through Chronicle.
+
 ## Current Play Loop
 
 1. Press Play.

@@ -67,6 +67,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Identity")
 	FText CharacterName;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Identity")
+	bool bHasDeliberateCharacterChoice = false;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Rules")
 	TObjectPtr<UEmbermereRulesData> RulesData;
 
@@ -75,6 +78,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Identity")
 	void ApplyRaceAndClass(EEmbermereRace NewRace, EEmbermereClass NewClass);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Identity")
+	bool TryApplyRaceAndClass(EEmbermereRace NewRace, EEmbermereClass NewClass);
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Movement")
 	void MoveForward(float Value);

@@ -89,7 +89,12 @@ The project currently includes:
   temporary effects, and position remain intentionally session-only;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
-- 56 passing Unreal automation tests plus fresh-process combat-feedback,
+- a fixed native pre-play character picker that presents all eight races and
+  four classes, exposes disabled combinations, atomically applies data-driven
+  starter stats/abilities once, and restores the normal controller/HUD path
+  without changing save version 1;
+- 60 passing Unreal automation tests plus fresh-process character-creation,
+  combat-feedback,
   practice-target, keeper-greeting,
   keeper-rig,
   armsmaster-rig, quartermaster-rig, practice-dummy, trainer, vendor,
@@ -706,6 +711,28 @@ Current automation tests:
 50. `Embermere.NPC.FenwatchQuartermasterIdlePresentation`
 51. `Embermere.NPC.FenwatchKeeperIdlePresentation`
 52. `Embermere.NPC.ContextGreetingPresentation`
+53. `Embermere.Combat.PracticeTargetPolicy`
+54. `Embermere.Combat.PracticeTargetCombatReset`
+55. `Embermere.Combat.ResultContract`
+56. `Embermere.UI.CombatFeedbackPresentation`
+57. `Embermere.UI.CharacterCreationInitialState`
+58. `Embermere.UI.CharacterCreationRestrictions`
+59. `Embermere.CharacterCreation.ConfirmationLoadout`
+60. `Embermere.CharacterCreation.ControllerLifecycle`
+
+Current verified baseline (2026-08-21):
+
+- the no-hot-reload Mac editor build succeeded;
+- an isolated commandlet discovered and passed all 60 tests with no failed or
+  skipped Embermere tests;
+- the fresh 14-package aggregate emitted all 15 expected success markers,
+  retained the exact 53 grounded Fab plus 23 original-art baseline, and logged
+  no Python error;
+- clean PIE rejected Dwarf Ranger and Bullywug Wizard without silent
+  correction, then accepted Elf Wizard at exact `80/80` health, `110/110` mana,
+  and Spark Bolt/Frost Root/Arcane Burst/Meditate hotbar state;
+- the live notice-board trace validator retained its three purposeful solid
+  boxes, decorative clearance, and all four protected routes.
 
 Historical verified baseline (2026-08-08):
 
@@ -1293,15 +1320,40 @@ new gameplay authority.
   `LogPython: Error`.
 
 The current map baseline is 53 grounded Fab actors plus 23 original-art
-placements. The next high-value original-plan gap is a real player-facing
-character-creation/race-class selection flow over the existing data-driven
-matrix, with the current Warrior start retained as a reversible fallback and
-no save-version change until a deliberate migration contract exists.
+placements.
+
+## 2026-08-21 Character-Creation Update
+
+The existing data-driven race/class scaffold is now a real pre-play gate.
+
+- `UEmbermereCharacterCreationWidget` presents all eight races and four
+  classes in a fixed native `940x560` modal while the ordinary HUD is hidden.
+- Invalid options remain visible and disabled. Selecting Ranger before Dwarf,
+  or Wizard before Bullywug, leaves the invalid pending class visible and
+  explicitly explained rather than silently correcting it.
+- `UEmbermereRulesData` remains the only owner of legality, class starting
+  attributes, and four starter ability IDs. The widget owns pending choice;
+  the character revalidates and atomically applies the accepted state once;
+  the controller owns modal/input/HUD lifecycle.
+- Clean PIE rejected Dwarf Ranger and Bullywug Wizard, then accepted Elf Wizard
+  at exact `80/80` health, `110/110` mana, and Spark Bolt, Frost Root, Arcane
+  Burst, and Meditate. The modal cleared and chat reported
+  `Journey begun: Elf Wizard`.
+- Human Warrior remains the reversible construction fallback. Save version 1
+  intentionally does not persist identity or creation completion.
+- The no-hot-reload build, all 60 tests, the fresh 14-package aggregate, and
+  initialized-world notice-board route traces passed.
+
+The durable boundary is documented in `Docs/CHARACTER_CREATION_CONTRACT.md`.
+The next bounded milestone is an explicit save version 2 identity contract,
+including stable race/class IDs, validated atomic restore, idempotence, and a
+documented version 1 Human Warrior fallback before any schema changes land.
 
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-20 no-hot-reload module, accepted notice-board asset/map package,
+2026-08-21 no-hot-reload character-creation module, accepted notice-board
+asset/map package,
 combat-feedback module, quest/map packages, all
 three accepted skeletal-mesh/Skeleton/Idle sets, the Fenwatch vendor stall and
 closed cottage plus training workshop,
@@ -1316,7 +1368,11 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 56 tests, including
+3. Run/discover all 60 tests, including
+   `Embermere.UI.CharacterCreationInitialState`,
+   `Embermere.UI.CharacterCreationRestrictions`,
+   `Embermere.CharacterCreation.ConfirmationLoadout`,
+   `Embermere.CharacterCreation.ControllerLifecycle`,
    `Embermere.Combat.ResultContract`,
    `Embermere.UI.CombatFeedbackPresentation`,
    `Embermere.Combat.PracticeTargetPolicy`,
@@ -1339,6 +1395,11 @@ First fresh-session checks:
    `Embermere.NPC.SkeletalIdlePresentation`, and
    `Embermere.NPC.FenwatchQuartermasterPresentation`.
 4. Start PIE and verify:
+   - the fixed creation modal precedes play, all eight races and four classes
+     remain visible, Dwarf Ranger and Bullywug Wizard stay disabled without
+     silent correction, and valid confirmation restores the HUD/input path;
+     recheck Elf Wizard at `80/80` health, `110/110` mana, and the exact four
+     Wizard starter abilities;
    - all three Marsh Prowlers retain the project-owned skeletal mesh and route
      Idle, Walk, Run, Attack, Hit, and Death from generic enemy state; verify
      paws/terrain contact, swamp palette, target-ring/nameplate clearance,
@@ -1564,6 +1625,7 @@ Start by reading, in order:
 10. Docs/SAVE_GAME_CONTRACT.md
 11. Docs/PRACTICE_TARGET_CONTRACT.md
 12. Docs/COMBAT_FEEDBACK_CONTRACT.md
+13. Docs/CHARACTER_CREATION_CONTRACT.md
 
 Then inspect git status and recent commits. Preserve the existing unstaged Config/DefaultEngine.ini and Config/DefaultInput.ini changes; do not stage, revert, or overwrite them unless we intentionally decide they are required.
 
@@ -1574,8 +1636,9 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-20 no-hot-reload
-module and quest/map packages, the accepted notice-board, vendor-stall,
+Follow TODO.md's Start Here section. Confirm the 2026-08-21 no-hot-reload
+character-creation module and quest/map packages, the accepted notice-board,
+vendor-stall,
 cottage, training-workshop, practice-dummy, and native practice-target map packages,
 and all three accepted skeletal-mesh/Skeleton/Idle sets,
 offering/Chronicle,
@@ -1583,8 +1646,9 @@ bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 56 tests, including combat-result and floating-
-feedback presentation, the two practice-target policy/combat-reset tests,
+route-repair map, then run all 60 tests, including the four character-creation
+lifecycle/restriction/loadout tests, combat-result and floating-feedback
+presentation, the two practice-target policy/combat-reset tests,
 contextual-greeting,
 persistence round-trip,
 validation/rollback, slot-inspection, native Chronicle panel, trainer
@@ -1698,16 +1762,20 @@ feedback presentation shared by Prowlers and the practice target: immutable comm
 results, exact applied amounts, fixed three-entry bounds, 1.25-second expiry,
 target/death/reset clearing, and durable chat/nameplate fallbacks. Retain the
 accepted presentation-only notice board, its three purposeful colliders, clear
-decorative geometry, and four protected routes. Next prefer a bounded real
-character-creation picker over the existing data-driven race/class matrix,
-with explicit disabled combinations and confirmation, while retaining the
-current Warrior fallback and leaving save version 1 unchanged until a
-deliberate migration contract exists.
+decorative geometry, and four protected routes. Retain the accepted fixed
+character-creation picker, all eight races/four classes, explicit disabled
+Dwarf Ranger and Bullywug Wizard paths, exact data-driven starter stats and
+hotbars, one-shot confirmation, and controller input/HUD handoff. Next design
+a bounded save version 2 identity contract with stable race/class IDs, atomic
+validation/restore, duplicate-application safety, Chronicle read-only
+identity, and an explicit version 1 Human Warrior fallback before changing the
+schema. Do not add naming, appearance, autosave, profiles, deletion, or
+implicit migration in that slice.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
 Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
-current commit, 56-test baseline, accepted combat feedback, and next bounded
+current commit, 60-test baseline, accepted character creation, and next bounded
 milestone before ending the run.
 ```
 

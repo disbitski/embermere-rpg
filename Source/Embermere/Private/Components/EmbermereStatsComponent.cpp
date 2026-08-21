@@ -23,6 +23,26 @@ void UEmbermereStatsComponent::InitializeVitals()
 	OnManaChanged.Broadcast(CurrentMana, MaxMana);
 }
 
+void UEmbermereStatsComponent::ApplyStartingAttributes(const FEmbermereAttributeBlock& StartingAttributes)
+{
+	ClearDamageImmunity();
+	ClearTemporaryEffects();
+
+	Strength = FMath::Max(0.0f, StartingAttributes.Strength);
+	Spirit = FMath::Max(0.0f, StartingAttributes.Spirit);
+	Agility = FMath::Max(0.0f, StartingAttributes.Agility);
+	Intellect = FMath::Max(0.0f, StartingAttributes.Intellect);
+	MaxHealth = FMath::Max(1.0f, StartingAttributes.MaxHealth + EquipmentBonuses.MaxHealth);
+	MaxMana = FMath::Max(0.0f, StartingAttributes.MaxMana + EquipmentBonuses.MaxMana);
+	AttackPower = FMath::Max(0.0f, Strength + EquipmentBonuses.Power);
+	Armor = FMath::Max(0.0f, EquipmentBonuses.Armor);
+	CurrentHealth = MaxHealth;
+	CurrentMana = MaxMana;
+
+	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+	OnManaChanged.Broadcast(CurrentMana, MaxMana);
+}
+
 float UEmbermereStatsComponent::ApplyDamage(float DamageAmount)
 {
 	if (DamageAmount <= 0.0f || IsDead() || IsDamageImmune())

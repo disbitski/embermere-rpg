@@ -130,15 +130,43 @@ void AEmbermereCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 void AEmbermereCharacter::ApplyRaceAndClass(EEmbermereRace NewRace, EEmbermereClass NewClass)
 {
+	TryApplyRaceAndClass(NewRace, NewClass);
+}
+
+bool AEmbermereCharacter::TryApplyRaceAndClass(EEmbermereRace NewRace, EEmbermereClass NewClass)
+{
+	if (bHasDeliberateCharacterChoice)
+	{
+		return false;
+	}
+
 	UEmbermereRulesData* EffectiveRules = RulesData.Get() ? RulesData.Get() : NewObject<UEmbermereRulesData>(this);
 	if (!EffectiveRules || !EffectiveRules->IsClassAllowed(NewRace, NewClass))
 	{
-		return;
+		return false;
+	}
+
+	FEmbermereClassDefinition ClassDefinition;
+	if (!EffectiveRules->GetClassDefinition(NewClass, ClassDefinition) ||
+		ClassDefinition.StarterAbilityIds.Num() < 4 || !Stats || !Hotbar)
+	{
+		return false;
+	}
+	for (int32 Index = 0; Index < 4; ++Index)
+	{
+		FEmbermereAbilityDefinition AbilityDefinition;
+		if (!EffectiveRules->GetAbilityDefinition(ClassDefinition.StarterAbilityIds[Index], AbilityDefinition))
+		{
+			return false;
+		}
 	}
 
 	Race = NewRace;
 	Class = NewClass;
+	Stats->ApplyStartingAttributes(ClassDefinition.StartingAttributes);
 	PrimeStarterHotbar();
+	bHasDeliberateCharacterChoice = true;
+	return true;
 }
 
 void AEmbermereCharacter::MoveForward(float Value)
@@ -456,6 +484,11 @@ void AEmbermereCharacter::PrimeStarterHotbar()
 	if (!EffectiveRules->GetClassDefinition(Class, ClassDefinition))
 	{
 		return;
+	}
+
+	for (int32 Index = 0; Index < Hotbar->Slots.Num(); ++Index)
+	{
+		Hotbar->SetAbilityInSlot(Index, FEmbermereAbilityDefinition());
 	}
 
 	for (int32 Index = 0; Index < ClassDefinition.StarterAbilityIds.Num() && Index < 4; ++Index)

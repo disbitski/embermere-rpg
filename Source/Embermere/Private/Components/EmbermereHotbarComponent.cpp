@@ -16,6 +16,11 @@ void UEmbermereHotbarComponent::SetAbilityInSlot(int32 SlotIndex, const FEmberme
 	}
 
 	Slots[SlotIndex] = Ability;
+	if (!SlotReadyTimeSeconds.IsValidIndex(SlotIndex))
+	{
+		SlotReadyTimeSeconds.SetNum(Slots.Num());
+	}
+	SlotReadyTimeSeconds[SlotIndex] = 0.0;
 	OnHotbarChanged.Broadcast(SlotIndex, Ability);
 }
 

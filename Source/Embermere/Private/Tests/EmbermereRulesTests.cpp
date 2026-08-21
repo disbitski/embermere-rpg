@@ -44,6 +44,7 @@
 #include "Save/EmbermerePersistenceLibrary.h"
 #include "Save/EmbermereSaveGame.h"
 #include "UI/EmbermereCombatFeedbackWidget.h"
+#include "UI/EmbermereCharacterCreationWidget.h"
 #include "UI/EmbermereEnemyNameplateWidget.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermereNpcGreetingWidget.h"
@@ -1079,6 +1080,148 @@ bool FEmbermereRaceClassRulesTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Strike ability definition exists"), Rules->GetAbilityDefinition("Strike", StrikeDefinition));
 	TestEqual(TEXT("Strike belongs to Warrior"), StrikeDefinition.OwningClass, EEmbermereClass::Warrior);
 	TestEqual(TEXT("Strike targets enemies"), StrikeDefinition.TargetKind, EEmbermereAbilityTargetKind::Enemy);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereCharacterCreationInitialStateTest,
+	"Embermere.UI.CharacterCreationInitialState",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereCharacterCreationInitialStateTest::RunTest(const FString& Parameters)
+{
+	UEmbermereCharacterCreationWidget* Widget = NewObject<UEmbermereCharacterCreationWidget>();
+	TestNotNull(TEXT("Native character creation widget can be created"), Widget);
+	if (!Widget)
+	{
+		return false;
+	}
+
+	TestEqual(TEXT("Picker exposes all eight races"), Widget->GetRaceOptionCount(), 8);
+	TestEqual(TEXT("Picker exposes all four starting classes"), Widget->GetClassOptionCount(), 4);
+	TestEqual(TEXT("Picker keeps fixed reviewed dimensions"), Widget->GetPanelDimensions(), FVector2D(940.0f, 560.0f));
+	TestEqual(TEXT("Picker starts on the reversible Human fallback"), Widget->SelectedRace, EEmbermereRace::Human);
+	TestEqual(TEXT("Picker starts on the reversible Warrior fallback"), Widget->SelectedClass, EEmbermereClass::Warrior);
+	TestTrue(TEXT("Initial Human Warrior choice is valid"), Widget->IsCurrentChoiceValid());
+	TestFalse(TEXT("Initial choice has not been committed"), Widget->IsConfirmationComplete());
+	const FString Summary = Widget->GetSelectionSummary().ToString();
+	TestTrue(TEXT("Summary identifies the current race and class"), Summary.Contains(TEXT("Human Warrior")));
+	TestTrue(TEXT("Summary exposes starter health and mana"), Summary.Contains(TEXT("Health 100")) && Summary.Contains(TEXT("Mana 50")));
+	TestTrue(TEXT("Summary exposes data-driven starter abilities"), Summary.Contains(TEXT("Strike")) && Summary.Contains(TEXT("Battle Shout")));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereCharacterCreationRestrictionsTest,
+	"Embermere.UI.CharacterCreationRestrictions",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereCharacterCreationRestrictionsTest::RunTest(const FString& Parameters)
+{
+	UEmbermereCharacterCreationWidget* Widget = NewObject<UEmbermereCharacterCreationWidget>();
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	if (!Widget || !Character)
+	{
+		AddError(TEXT("Could not create character creation restriction fixtures"));
+		return false;
+	}
+
+	TestTrue(TEXT("Human may stage Ranger before changing race"), Widget->SetPendingClass(EEmbermereClass::Ranger));
+	TestTrue(TEXT("Race selection can change to Dwarf"), Widget->SetPendingRace(EEmbermereRace::Dwarf));
+	TestEqual(TEXT("Race change never silently corrects the pending class"), Widget->SelectedClass, EEmbermereClass::Ranger);
+	TestFalse(TEXT("Dwarf Ranger remains visibly invalid"), Widget->IsCurrentChoiceValid());
+	TestFalse(TEXT("Dwarf Ranger cannot be confirmed"), Widget->TryConfirmChoice(Character));
+	TestFalse(TEXT("Rejected Dwarf Ranger leaves the character unconfirmed"), Character->bHasDeliberateCharacterChoice);
+	TestEqual(TEXT("Rejected choice preserves fallback race"), Character->Race, EEmbermereRace::Human);
+	TestEqual(TEXT("Rejected choice preserves fallback class"), Character->Class, EEmbermereClass::Warrior);
+
+	TestTrue(TEXT("Human can stage Wizard"), Widget->SetPendingRace(EEmbermereRace::Human));
+	TestTrue(TEXT("Wizard is available to Human"), Widget->SetPendingClass(EEmbermereClass::Wizard));
+	TestTrue(TEXT("Race selection can change to Bullywug"), Widget->SetPendingRace(EEmbermereRace::Bullywug));
+	TestFalse(TEXT("Bullywug Wizard remains disabled"), Widget->IsClassAvailable(EEmbermereClass::Wizard));
+	TestFalse(TEXT("Bullywug Wizard cannot be confirmed"), Widget->TryConfirmChoice(Character));
+	TestFalse(TEXT("Atomic pair setter also rejects Dwarf Ranger"), Widget->SetRaceAndClass(EEmbermereRace::Dwarf, EEmbermereClass::Ranger));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereCharacterCreationConfirmationLoadoutTest,
+	"Embermere.CharacterCreation.ConfirmationLoadout",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereCharacterCreationConfirmationLoadoutTest::RunTest(const FString& Parameters)
+{
+	UEmbermereCharacterCreationWidget* Widget = NewObject<UEmbermereCharacterCreationWidget>();
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	if (!Widget || !Character || !Character->Stats || !Character->Hotbar)
+	{
+		AddError(TEXT("Could not create character creation confirmation fixtures"));
+		return false;
+	}
+
+	Widget->BindToCharacter(Character);
+	TestTrue(TEXT("Elf Wizard is a legal data-driven pair"), Widget->SetRaceAndClass(EEmbermereRace::Elf, EEmbermereClass::Wizard));
+	TestTrue(TEXT("Valid choice confirms once"), Widget->TryConfirmChoice());
+	TestTrue(TEXT("Character records a deliberate choice"), Character->bHasDeliberateCharacterChoice);
+	TestEqual(TEXT("Confirmed race reaches character authority"), Character->Race, EEmbermereRace::Elf);
+	TestEqual(TEXT("Confirmed class reaches character authority"), Character->Class, EEmbermereClass::Wizard);
+	TestEqual(TEXT("Wizard starts with class health"), Character->Stats->MaxHealth, 80.0f);
+	TestEqual(TEXT("Wizard starts with class mana"), Character->Stats->MaxMana, 110.0f);
+	TestEqual(TEXT("Wizard Strength becomes base Attack Power"), Character->Stats->AttackPower, 6.0f);
+	TestEqual(TEXT("Wizard Spirit is retained"), Character->Stats->Spirit, 12.0f);
+	TestEqual(TEXT("Wizard Agility is retained"), Character->Stats->Agility, 8.0f);
+	TestEqual(TEXT("Wizard Intellect is retained"), Character->Stats->Intellect, 16.0f);
+	TestEqual(TEXT("Confirmation fills health"), Character->Stats->CurrentHealth, 80.0f);
+	TestEqual(TEXT("Confirmation fills mana"), Character->Stats->CurrentMana, 110.0f);
+	const TArray<FName> ExpectedAbilities = {TEXT("SparkBolt"), TEXT("FrostRoot"), TEXT("ArcaneBurst"), TEXT("Meditate")};
+	for (int32 Index = 0; Index < ExpectedAbilities.Num(); ++Index)
+	{
+		TestEqual(
+			*FString::Printf(TEXT("Wizard hotbar slot %d uses class data"), Index + 1),
+			Character->Hotbar->Slots[Index].AbilityId,
+			ExpectedAbilities[Index]);
+	}
+
+	const float AcceptedHealth = Character->Stats->MaxHealth;
+	const FName AcceptedFirstAbility = Character->Hotbar->Slots[0].AbilityId;
+	TestFalse(TEXT("Widget rejects duplicate confirmation"), Widget->TryConfirmChoice());
+	TestFalse(TEXT("Character authority rejects a second identity application"), Character->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	TestEqual(TEXT("Duplicate rejection preserves accepted health"), Character->Stats->MaxHealth, AcceptedHealth);
+	TestEqual(TEXT("Duplicate rejection preserves accepted hotbar"), Character->Hotbar->Slots[0].AbilityId, AcceptedFirstAbility);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereCharacterCreationControllerLifecycleTest,
+	"Embermere.CharacterCreation.ControllerLifecycle",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereCharacterCreationControllerLifecycleTest::RunTest(const FString& Parameters)
+{
+	AEmbermerePlayerController* Controller = NewObject<AEmbermerePlayerController>();
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	if (!Controller || !Character)
+	{
+		AddError(TEXT("Could not create character creation lifecycle fixtures"));
+		return false;
+	}
+
+	TestTrue(TEXT("Fresh unconfirmed character requests pre-play selection"), Controller->ShouldPresentCharacterCreation(Character));
+	TestFalse(TEXT("Detached controller reports no visible modal"), Controller->IsCharacterCreationPanelVisible());
+	Controller->bShowCharacterCreationOnFirstPlay = false;
+	TestFalse(TEXT("Disabling the surface preserves the fallback start"), Controller->ShouldPresentCharacterCreation(Character));
+	TestEqual(TEXT("Fallback remains Human"), Character->Race, EEmbermereRace::Human);
+	TestEqual(TEXT("Fallback remains Warrior"), Character->Class, EEmbermereClass::Warrior);
+	TestEqual(TEXT("Fallback health remains established baseline"), Character->Stats->MaxHealth, 100.0f);
+	TestEqual(TEXT("Fallback mana remains established baseline"), Character->Stats->MaxMana, 50.0f);
+
+	Controller->bShowCharacterCreationOnFirstPlay = true;
+	TestTrue(TEXT("Valid deliberate fallback choice can still be confirmed"), Character->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	TestFalse(TEXT("Confirmed character never reopens first-play creation"), Controller->ShouldPresentCharacterCreation(Character));
 
 	return true;
 }

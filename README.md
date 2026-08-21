@@ -76,7 +76,11 @@ The repo currently contains the C++ gameplay scaffold for:
   quest progress/completion, and finite vendor stock; loads resolve and
   validate the complete candidate before mutation, restore atomically, reject
   malformed records without partial state, and keep buyback session-only
-- UMG base classes for character creation and HUD widgets
+- a real native pre-play character picker over the data-driven rules matrix:
+  all eight races and four classes remain visible, invalid combinations stay
+  visibly disabled, confirmation atomically applies starting stats and the
+  four starter abilities, and controller-owned modal input returns cleanly to
+  the normal HUD/game path; Human Warrior remains the reversible fallback
 - native first-pass HUD panels for status, target, range state, quest tracking, dialogue, loot, and hotbar labels
 - a fixed quest-owned four-state Mara greeting below her world marker that is
   range-gated, hit-test-invisible, non-colliding, and presentation-only
@@ -269,6 +273,8 @@ why human taste becomes more important as building gets easier.
 ## Status
 
 Early playable Unreal prototype scaffold with Unreal and Blender MCP connected,
+a fixed player-facing race/class picker that initializes data-driven starter
+stats and hotbars before play without expanding save version 1,
 a daylight starter-zone loop mixing a local Fab pass with an original Embermere
 waystone/lamp/signpost/gate/fence/end-stone/chest/shelter/keeper/
 quartermaster/armsmaster/vendor-stall/cottage/workshop/notice-board/reed family,

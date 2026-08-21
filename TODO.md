@@ -6,18 +6,23 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-20 no-hot-reload module plus the
-  accepted Fenwatch notice-board asset/map package and combat-feedback module,
+- Confirm Unreal is running the 2026-08-21 no-hot-reload character-creation
+  module plus the accepted Fenwatch notice-board asset/map package and
+  combat-feedback module,
   along with the accepted rigged Fenwatch keeper, armsmaster, and quartermaster
   packages and
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 56 Embermere tests.
+  predates that work or test discovery exposes fewer than 60 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 56 tests, especially
+- Discover and run all 60 tests, especially
+  `Embermere.UI.CharacterCreationInitialState`,
+  `Embermere.UI.CharacterCreationRestrictions`,
+  `Embermere.CharacterCreation.ConfirmationLoadout`,
+  `Embermere.CharacterCreation.ControllerLifecycle`,
   `Embermere.Combat.ResultContract`,
   `Embermere.UI.CombatFeedbackPresentation`,
   `Embermere.Combat.PracticeTargetPolicy`,
@@ -50,7 +55,27 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor-stall, cottage, training-workshop,
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
-  initialized-world route validators also passed.
+  initialized-world route validators also passed. The authoritative
+  2026-08-21 no-hot-reload build, isolated commandlet, and fresh aggregate
+  passed 60/60 while retaining 53 grounded Fab plus 23 original-art actors.
+- Retain the accepted character-creation authority and lifecycle contract:
+  - the centered fixed `940x560` modal shows all eight races and four classes
+    before gameplay while the normal HUD remains hidden;
+  - invalid classes stay visible and disabled, changing race never silently
+    replaces the pending class, and both Dwarf Ranger and Bullywug Wizard
+    remain impossible to confirm;
+  - `UEmbermereRulesData` exclusively owns legality, class starting
+    attributes, and starter ability IDs; the widget owns only pending choice;
+  - one successful character-side confirmation atomically applies identity,
+    full starting vitals, attributes, and four hotbar abilities, then the
+    controller restores the normal HUD and game-only input path;
+  - clean PIE accepted Elf Wizard at exact `80/80` health, `110/110` mana, and
+    Spark Bolt, Frost Root, Arcane Burst, and Meditate, with
+    `Journey begun: Elf Wizard` in chat;
+  - Human Warrior remains the reversible fallback and save version 1 remains
+    unchanged. Treat
+    [Docs/CHARACTER_CREATION_CONTRACT.md](Docs/CHARACTER_CREATION_CONTRACT.md)
+    as the authority and first-slice boundary.
 - Retain the accepted Fenwatch practice-target split:
   - `Embermere_FenwatchPracticeDummy_TrainingYard_01` remains the visible
     project-owned art and the sole owner of its two purposeful solid boxes;
@@ -379,10 +404,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-19
-  rigged Fenwatch keeper, armsmaster, and quartermaster module and accepted
+- Restart Unreal before manual PIE when the editor predates the 2026-08-21
+  character-creation module, rigged Fenwatch keeper, armsmaster, and
+  quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 56 tests.
+  Current code passes all 60 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -802,13 +828,13 @@ targeting, rewards, AI, quests, or persistence.
   materials, three purposeful colliders, decorative clearance, grounded road
   composition, and four protected routes. Do not make the mesh itself a quest,
   interaction, vendor, trainer, reward, or persistence authority.
-- Begin the next original-plan gap as a bounded character-creation milestone:
-  turn the existing UMG scaffold and data-driven race/class matrix into a real
-  pre-play picker with readable disabled combinations, explicit confirmation,
-  and focused automation. Preserve the current Warrior default as a reversible
-  fallback, prove Dwarf Ranger and Bullywug Wizard are disabled, and define the
-  new-game/session boundary before changing save version 1 or adding any
-  migration.
+- Retain the accepted character-creation picker and begin its next bounded
+  durable-state milestone only through an explicit versioned contract. Design
+  save version 2 for stable race/class identity with validated IDs, atomic
+  restoration, duplicate-application protection, and a documented version 1
+  Human Warrior fallback before changing any schema. Add Chronicle identity
+  presentation only as a read-only consumer. Do not add appearance, naming,
+  autosave, multiple profiles, deletion, or implicit migration in this slice.
 - Retain the accepted trainer Chronicle proof without expanding save version 1:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
@@ -885,6 +911,20 @@ targeting, rewards, AI, quests, or persistence.
   scale, color, or motion only from normal-camera feedback.
 
 ## Last Completed
+
+- 2026-08-21: promoted the existing race/class scaffold into a fixed native
+  pre-play picker with all eight races, all four classes, visible disabled
+  combinations, mouse/keyboard navigation, explicit confirmation, and clean
+  controller-owned HUD/input handoff.
+- Kept legality and starter loadouts on `UEmbermereRulesData`; added
+  data-driven class starting attributes and one-shot character-side atomic
+  application of identity, vitals, attributes, and the first four hotbar slots.
+- Added four focused tests for initial UI state, Dwarf Ranger/Bullywug Wizard
+  restrictions, exact confirmed loadout, duplicate-confirmation safety, and
+  controller lifecycle. The isolated commandlet passed all 60 tests.
+- Clean PIE accepted the invalid paths and an Elf Wizard at `80/80` health,
+  `110/110` mana, and the exact Wizard hotbar; the fresh 14-package aggregate
+  and live notice-board route validator also passed.
 
 - 2026-07-02: built successfully after target/inventory polish.
 - Replaced the loud overhead `TARGET` text with a smaller selected marker and routed target nameplate text/color through reusable C++ helpers.

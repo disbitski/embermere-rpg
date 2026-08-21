@@ -2401,6 +2401,39 @@ Lesson: world art can imply stories without owning them. A convincing notice
 board makes Fenwatch feel inhabited; a separate future service can decide
 whether the player may ever read it.
 
+## 2026-08-21 - Character Creation Became A Real Gate, Not A Second Rules Engine
+
+The project already had eight race records, four class records, starter
+abilities, and the Dwarf/Bullywug restriction matrix. What it did not have was
+a player-facing lifecycle that could present those facts before play without
+quietly inventing different rules in UI code.
+
+The new native `940x560` pre-play picker keeps every race and class visible.
+Changing race does not silently repair an invalid pending class. Dwarf Ranger
+and Bullywug Wizard therefore remain selected, visibly disabled, explicitly
+explained, and impossible to confirm. The widget owns only pending choice;
+`UEmbermereRulesData` still owns legality, attributes, and abilities, while the
+character revalidates and atomically applies the accepted identity exactly once.
+
+Class starting attributes are now data-driven alongside starter abilities.
+`AEmbermerePlayerController` owns the modal lifecycle: it hides the ordinary
+HUD, blocks play, then restores game-only input and the normal HUD only after
+the character accepts a legal pair. Human Warrior remains the reversible
+construction fallback, and save version 1 deliberately remains unchanged.
+
+Clean PIE proved both forbidden combinations and accepted Elf Wizard. The
+modal cleared, the HUD returned, chat reported `Journey begun: Elf Wizard`,
+health and mana became exactly `80/80` and `110/110`, and the hotbar resolved
+Spark Bolt, Frost Root, Arcane Burst, and Meditate from existing rules data.
+The no-hot-reload Mac build succeeded, all 60 automation tests passed in an
+isolated commandlet, the fresh 14-package aggregate retained 53 grounded Fab
+actors plus 23 original-art placements, and the initialized-world notice-board
+trace suite kept all four protected routes clear.
+
+Lesson: creation UI should make invalid state legible, then ask authoritative
+gameplay to accept one choice. It should never become a friendlier-looking
+duplicate of the rules engine.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

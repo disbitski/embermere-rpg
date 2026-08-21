@@ -1360,3 +1360,31 @@ that asset-specific validator become one module in the sequential aggregate.
 This keeps spatial contracts readable while ensuring a renamed or missing
 neighbor fails at the narrowest useful boundary instead of surfacing later as
 an ambiguous full-zone error.
+
+## Keep Character Creation Pending Until Gameplay Accepts It
+
+A creation widget is a dangerous place to grow a second race/class rules
+engine. Embermere already had authoritative definitions and restrictions, so
+the native picker stores only pending race and class. It asks rules data which
+classes are legal, leaves an invalid pending pair visible, and delegates final
+validation plus atomic stat/hotbar initialization to the character.
+
+Do not silently repair Dwarf Ranger into Dwarf Warrior or Bullywug Wizard into
+another class. Disabled but visible options teach the player the matrix and
+make stale or malformed requests testable. The controller owns only the
+pre-play modal and input handoff; the widget owns no durable identity, stats,
+abilities, save data, or gameplay authority.
+
+## Let Host AppKit Launches Escape The Commandlet Sandbox
+
+After the macOS update, `UnrealEditor-Cmd` launched inside the restricted
+workspace stalled while creating `NSApplication` and reported invalid
+LaunchServices state before project validation began. The same exact
+commandlet completed normally with host permissions.
+
+When a macOS Unreal commandlet stalls before loading the project, distinguish
+an AppKit/LaunchServices sandbox failure from a game or package failure. Keep
+the command identical, rerun it with normal host access, and still require the
+explicit validator success marker plus no `LogPython: Error`. Do not weaken
+validation or rewrite project code to accommodate an environment that never
+reached the project.

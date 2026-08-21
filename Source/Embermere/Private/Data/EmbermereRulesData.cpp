@@ -2,6 +2,24 @@
 
 namespace EmbermereRules
 {
+	FEmbermereAttributeBlock MakeAttributes(
+		float MaxHealth,
+		float MaxMana,
+		float Strength,
+		float Spirit,
+		float Agility,
+		float Intellect)
+	{
+		FEmbermereAttributeBlock Attributes;
+		Attributes.MaxHealth = MaxHealth;
+		Attributes.MaxMana = MaxMana;
+		Attributes.Strength = Strength;
+		Attributes.Spirit = Spirit;
+		Attributes.Agility = Agility;
+		Attributes.Intellect = Intellect;
+		return Attributes;
+	}
+
 	FEmbermereRaceDefinition MakeRace(EEmbermereRace Race, const TCHAR* Name, const TCHAR* Description, TArray<EEmbermereClass> AllowedClasses)
 	{
 		FEmbermereRaceDefinition Definition;
@@ -12,13 +30,19 @@ namespace EmbermereRules
 		return Definition;
 	}
 
-	FEmbermereClassDefinition MakeClass(EEmbermereClass Class, const TCHAR* Name, const TCHAR* Description, TArray<FName> StarterAbilityIds)
+	FEmbermereClassDefinition MakeClass(
+		EEmbermereClass Class,
+		const TCHAR* Name,
+		const TCHAR* Description,
+		TArray<FName> StarterAbilityIds,
+		const FEmbermereAttributeBlock& StartingAttributes)
 	{
 		FEmbermereClassDefinition Definition;
 		Definition.Class = Class;
 		Definition.DisplayName = FText::FromString(Name);
 		Definition.Description = FText::FromString(Description);
 		Definition.StarterAbilityIds = MoveTemp(StarterAbilityIds);
+		Definition.StartingAttributes = StartingAttributes;
 		return Definition;
 	}
 
@@ -74,10 +98,10 @@ UEmbermereRulesData::UEmbermereRulesData()
 	};
 
 	Classes = {
-		MakeClass(EEmbermereClass::Warrior, TEXT("Warrior"), TEXT("A durable front-line fighter built around threat and weapon pressure."), { "Strike", "Taunt", "ShieldSlam", "BattleShout" }),
-		MakeClass(EEmbermereClass::Cleric, TEXT("Cleric"), TEXT("A holy caster who heals allies and punishes the restless dead."), { "Smite", "LesserHeal", "Ward", "Judgment" }),
-		MakeClass(EEmbermereClass::Ranger, TEXT("Ranger"), TEXT("A wilderness fighter with bow pressure, snares, and steady melee backup."), { "QuickShot", "Snare", "TwinCut", "NaturesFocus" }),
-		MakeClass(EEmbermereClass::Wizard, TEXT("Wizard"), TEXT("A fragile spellcaster built around roots, mana, and burst damage."), { "SparkBolt", "FrostRoot", "ArcaneBurst", "Meditate" })
+		MakeClass(EEmbermereClass::Warrior, TEXT("Warrior"), TEXT("A durable front-line fighter built around threat and weapon pressure."), { "Strike", "Taunt", "ShieldSlam", "BattleShout" }, MakeAttributes(100.0f, 50.0f, 10.0f, 8.0f, 10.0f, 7.0f)),
+		MakeClass(EEmbermereClass::Cleric, TEXT("Cleric"), TEXT("A holy caster who heals allies and punishes the restless dead."), { "Smite", "LesserHeal", "Ward", "Judgment" }, MakeAttributes(95.0f, 80.0f, 8.0f, 14.0f, 8.0f, 12.0f)),
+		MakeClass(EEmbermereClass::Ranger, TEXT("Ranger"), TEXT("A wilderness fighter with bow pressure, snares, and steady melee backup."), { "QuickShot", "Snare", "TwinCut", "NaturesFocus" }, MakeAttributes(100.0f, 60.0f, 10.0f, 9.0f, 14.0f, 9.0f)),
+		MakeClass(EEmbermereClass::Wizard, TEXT("Wizard"), TEXT("A fragile spellcaster built around roots, mana, and burst damage."), { "SparkBolt", "FrostRoot", "ArcaneBurst", "Meditate" }, MakeAttributes(80.0f, 110.0f, 6.0f, 12.0f, 8.0f, 16.0f))
 	};
 
 	Abilities = {

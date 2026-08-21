@@ -8,6 +8,7 @@
 #include "Components/EmbermereTrainerComponent.h"
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/InputComponent.h"
+#include "Data/EmbermereRulesData.h"
 #include "Engine/Engine.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -16,6 +17,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Save/EmbermerePersistenceLibrary.h"
 #include "TimerManager.h"
+#include "UI/EmbermereCharacterCreationWidget.h"
 #include "UI/EmbermerePlayerHudWidget.h"
 
 AEmbermerePlayerController::AEmbermerePlayerController()
@@ -29,6 +31,7 @@ void AEmbermerePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	EnsurePlayerHud();
+	ShowCharacterCreationIfNeeded();
 }
 
 void AEmbermerePlayerController::SetupInputComponent()
@@ -74,12 +77,18 @@ void AEmbermerePlayerController::OnPossess(APawn* InPawn)
 		{
 			PlayerHudWidget->BindToCharacter(Character);
 		}
+		ShowCharacterCreationIfNeeded();
 	}
 }
 
 void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
+	if (IsCharacterCreationPanelVisible())
+	{
+		bAutorunEnabled = false;
+		return;
+	}
 
 	const bool bControlDown = IsInputKeyDown(EKeys::LeftControl) || IsInputKeyDown(EKeys::RightControl);
 	if (bControlDown && WasInputKeyJustPressed(EKeys::M))
@@ -516,8 +525,115 @@ void AEmbermerePlayerController::EnsurePlayerHud()
 	RefreshInteractiveInputMode();
 }
 
+bool AEmbermerePlayerController::ShouldPresentCharacterCreation(
+	const AEmbermereCharacter* InCharacter) const
+{
+	return bShowCharacterCreationOnFirstPlay && InCharacter &&
+		!InCharacter->bHasDeliberateCharacterChoice;
+}
+
+bool AEmbermerePlayerController::IsCharacterCreationPanelVisible() const
+{
+	return CharacterCreationWidget && CharacterCreationWidget->IsInViewport() &&
+		!CharacterCreationWidget->IsConfirmationComplete();
+}
+
+void AEmbermerePlayerController::ShowCharacterCreationIfNeeded()
+{
+	AEmbermereCharacter* Character = GetEmbermereCharacter();
+	if (!ShouldPresentCharacterCreation(Character))
+	{
+		return;
+	}
+
+	if (!CharacterCreationWidget)
+	{
+		TSubclassOf<UEmbermereCharacterCreationWidget> EffectiveClass = CharacterCreationWidgetClass;
+		if (!EffectiveClass)
+		{
+			EffectiveClass = UEmbermereCharacterCreationWidget::StaticClass();
+		}
+		CharacterCreationWidget = CreateWidget<UEmbermereCharacterCreationWidget>(this, EffectiveClass);
+	}
+	if (!CharacterCreationWidget)
+	{
+		return;
+	}
+
+	CharacterCreationWidget->BindToCharacter(Character);
+	CharacterCreationWidget->OnCharacterChoiceConfirmed.AddUniqueDynamic(
+		this,
+		&AEmbermerePlayerController::HandleCharacterChoiceConfirmed);
+	if (!CharacterCreationWidget->IsInViewport())
+	{
+		CharacterCreationWidget->AddToViewport(100);
+	}
+	if (PlayerHudWidget)
+	{
+		PlayerHudWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	bAutorunEnabled = false;
+	SetIgnoreMoveInput(true);
+	SetIgnoreLookInput(true);
+	bShowMouseCursor = true;
+	bEnableClickEvents = true;
+	bEnableMouseOverEvents = true;
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(CharacterCreationWidget->TakeWidget());
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	SetInputMode(InputMode);
+	CharacterCreationWidget->SetKeyboardFocus();
+}
+
+void AEmbermerePlayerController::HandleCharacterChoiceConfirmed(
+	EEmbermereRace ConfirmedRace,
+	EEmbermereClass ConfirmedClass)
+{
+	AEmbermereCharacter* Character = GetEmbermereCharacter();
+	if (!Character || !Character->bHasDeliberateCharacterChoice ||
+		Character->Race != ConfirmedRace || Character->Class != ConfirmedClass)
+	{
+		return;
+	}
+
+	if (CharacterCreationWidget)
+	{
+		CharacterCreationWidget->RemoveFromParent();
+		CharacterCreationWidget = nullptr;
+	}
+	SetIgnoreMoveInput(false);
+	SetIgnoreLookInput(false);
+	if (PlayerHudWidget)
+	{
+		PlayerHudWidget->SetVisibility(ESlateVisibility::Visible);
+		PlayerHudWidget->BindToCharacter(Character);
+	}
+	RefreshInteractiveInputMode();
+
+	UEmbermereRulesData* EffectiveRules = Character->RulesData.Get()
+		? Character->RulesData.Get()
+		: NewObject<UEmbermereRulesData>(this);
+	FEmbermereRaceDefinition RaceDefinition;
+	FEmbermereClassDefinition ClassDefinition;
+	const FString RaceName = EffectiveRules && EffectiveRules->GetRaceDefinition(ConfirmedRace, RaceDefinition)
+		? RaceDefinition.DisplayName.ToString()
+		: TEXT("Adventurer");
+	const FString ClassName = EffectiveRules && EffectiveRules->GetClassDefinition(ConfirmedClass, ClassDefinition)
+		? ClassDefinition.DisplayName.ToString()
+		: TEXT("Adventurer");
+	AddHudMessage(
+		FText::FromString(FString::Printf(TEXT("Journey begun: %s %s"), *RaceName, *ClassName)),
+		FLinearColor(1.0f, 0.78f, 0.28f, 1.0f));
+}
+
 void AEmbermerePlayerController::RefreshInteractiveInputMode()
 {
+	if (IsCharacterCreationPanelVisible())
+	{
+		ShowCharacterCreationIfNeeded();
+		return;
+	}
 	const bool bInteractiveUiVisible = PlayerHudWidget &&
 		(PlayerHudWidget->IsInventoryPanelVisible() || PlayerHudWidget->IsVendorPanelVisible() ||
 			PlayerHudWidget->IsTrainerPanelVisible() || PlayerHudWidget->IsSaveLoadPanelVisible());
