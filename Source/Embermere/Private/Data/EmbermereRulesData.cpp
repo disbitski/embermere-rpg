@@ -171,3 +171,95 @@ bool UEmbermereRulesData::GetAbilityDefinition(FName AbilityId, FEmbermereAbilit
 	}
 	return false;
 }
+
+bool UEmbermereRulesData::IsCharacterIdentityValid(
+	EEmbermereRace Race,
+	EEmbermereClass Class) const
+{
+	if (!IsClassAllowed(Race, Class))
+	{
+		return false;
+	}
+
+	FEmbermereClassDefinition ClassDefinition;
+	if (!GetClassDefinition(Class, ClassDefinition) || ClassDefinition.StarterAbilityIds.Num() < 4)
+	{
+		return false;
+	}
+	for (int32 Index = 0; Index < 4; ++Index)
+	{
+		FEmbermereAbilityDefinition AbilityDefinition;
+		if (!GetAbilityDefinition(ClassDefinition.StarterAbilityIds[Index], AbilityDefinition) ||
+			AbilityDefinition.OwningClass != Class)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+FName UEmbermereRulesData::GetStableRaceId(EEmbermereRace Race)
+{
+	switch (Race)
+	{
+	case EEmbermereRace::Human: return TEXT("Human");
+	case EEmbermereRace::Elf: return TEXT("Elf");
+	case EEmbermereRace::Dwarf: return TEXT("Dwarf");
+	case EEmbermereRace::Gnome: return TEXT("Gnome");
+	case EEmbermereRace::DarkElf: return TEXT("DarkElf");
+	case EEmbermereRace::Lizardman: return TEXT("Lizardman");
+	case EEmbermereRace::Ogre: return TEXT("Ogre");
+	case EEmbermereRace::Bullywug: return TEXT("Bullywug");
+	default: return NAME_None;
+	}
+}
+
+FName UEmbermereRulesData::GetStableClassId(EEmbermereClass Class)
+{
+	switch (Class)
+	{
+	case EEmbermereClass::Warrior: return TEXT("Warrior");
+	case EEmbermereClass::Cleric: return TEXT("Cleric");
+	case EEmbermereClass::Ranger: return TEXT("Ranger");
+	case EEmbermereClass::Wizard: return TEXT("Wizard");
+	default: return NAME_None;
+	}
+}
+
+bool UEmbermereRulesData::TryResolveStableRaceId(FName RaceId, EEmbermereRace& OutRace)
+{
+	for (const EEmbermereRace Race : {
+		EEmbermereRace::Human,
+		EEmbermereRace::Elf,
+		EEmbermereRace::Dwarf,
+		EEmbermereRace::Gnome,
+		EEmbermereRace::DarkElf,
+		EEmbermereRace::Lizardman,
+		EEmbermereRace::Ogre,
+		EEmbermereRace::Bullywug})
+	{
+		if (GetStableRaceId(Race) == RaceId)
+		{
+			OutRace = Race;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UEmbermereRulesData::TryResolveStableClassId(FName ClassId, EEmbermereClass& OutClass)
+{
+	for (const EEmbermereClass Class : {
+		EEmbermereClass::Warrior,
+		EEmbermereClass::Cleric,
+		EEmbermereClass::Ranger,
+		EEmbermereClass::Wizard})
+	{
+		if (GetStableClassId(Class) == ClassId)
+		{
+			OutClass = Class;
+			return true;
+		}
+	}
+	return false;
+}

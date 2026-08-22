@@ -199,9 +199,12 @@ and a repeat `F` preserved `125` XP without reward replay.
 8. Repeat with at least one other legal pair when changing rules data. The
    picker must consume the rules asset rather than maintain a second allow-list.
 
-Save version 1 intentionally does not persist race/class choice. Each fresh
-prototype world presents the picker before restoring any existing version 1
-progression through Chronicle.
+Save version `2` persists only a deliberately confirmed race/class pair through
+stable IDs. Each fresh prototype world still presents the picker first; a
+confirmed Chronicle load may then atomically replace that temporary choice with
+the saved identity, class stats, starter hotbar, equipment, and progression.
+Version `1` slots remain loadable through the documented current-rules Human
+Warrior fallback without rewriting the old file.
 
 ## Current Play Loop
 
@@ -433,25 +436,29 @@ The full ownership and rollback contract is in
 2. Equip one Recruit Pack in Back, leaving the quest reward pack and Marsh
    Tonic in the bag.
 3. Press `M` or click `Chronicle`. Confirm the centered fixed panel opens with
-   cursor input and shows `22 copper | 125 XP`, `2 bag stacks | 1 equipped`,
-   and `Quest complete` without covering the hotbar or chat.
+   cursor input and shows the confirmed race/class, `22 copper | 125 XP`,
+   `2 bag stacks | 1 equipped`, and `Quest complete` without covering the
+   hotbar or chat.
 4. Choose Save Journey. Because the acceptance slot already exists, confirm
    that `Confirm Overwrite` and Cancel appear; cancel once and verify no state
    changes, then confirm the save and its success feedback.
 5. Close Chronicle with `M` or `X`. Confirm game-only input returns. Opening
    Inventory or Vendor must hide Chronicle, and opening Chronicle must hide
    either of those panels.
-6. Stop PIE and start a second fresh PIE session. Confirm its live objects begin
-   at the normal 40-copper, empty-bag, stock-one baseline before loading.
+6. Stop PIE and start a second fresh PIE session. Confirm a different legal
+   race/class and verify its class stats and hotbar, then confirm live objects
+   begin at the normal 40-copper, empty-bag, stock-one baseline before loading.
 7. Open Chronicle, choose Load Journey, and verify `Confirm Load` appears before
    any mutation. Confirm it and verify exact restoration: `22` copper, `125` XP,
-   one tonic, one bagged Recruit Pack, one Recruit Pack equipped in Back,
-   `105/105` HP, `1` Armor, completed quest progress, and Recruit Pack vendor
-   stock at zero.
+   the saved race/class, its class base stats and starter hotbar, one tonic, one
+   bagged Recruit Pack, one Recruit Pack equipped in Back, correctly derived
+   equipped HP/Armor, completed quest progress, and Recruit Pack vendor stock
+   at zero.
 8. Confirm buyback history is empty after load and the completed quest cannot
    award XP, copper, or another item again.
-9. Load through Chronicle a second time. Confirm quantities, XP, copper, and
-   equipment bonuses remain unchanged rather than doubling.
+9. Load through Chronicle a second time. Confirm identity, class stats, hotbar,
+   quantities, XP, copper, and equipment bonuses remain unchanged rather than
+   drifting or doubling.
 10. Confirm an empty or rejected slot disables Load and displays readable
     missing, malformed, missing-asset, or unsupported-version feedback without
     partially changing the current session.
@@ -479,8 +486,9 @@ The full ownership and rollback contract is in
   with purse, data-driven offerings, requirements, costs, XP rewards, Train,
   rejection state, and clean peer-panel handoff.
 - Pressing `M` or the top-center Chronicle command opens the fixed one-slot
-  Save/Load panel with slot summary, deliberate confirmations, cancel/close
-  controls, readable rejection feedback, and clean cursor/input handoff.
+  Save/Load panel with read-only race/class and progression summary, deliberate
+  confirmations, cancel/close controls, readable rejection feedback, and clean
+  cursor/input handoff.
 - Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
 - `Ctrl+M` toggles mouse Y inversion and posts a bottom-left chat/combat log message.
@@ -562,9 +570,10 @@ The full ownership and rollback contract is in
 - The first vendor supports exact one-at-a-time buying, finite/unlimited stock,
   data-driven one-at-a-time selling, bounded latest-item buyback, full-bag/
   affordability/wallet rollback, and native feedback. Mara's first quest now
-  awards copper. Versioned prototype persistence now keeps copper, XP, exact
-  bag/equipment identity, quest progression, and finite stock across sessions;
-  buyback remains session-only by policy. Chronicle now supplies the deliberate
+  awards copper. Versioned prototype persistence now keeps confirmed race/class,
+  copper, XP, exact bag/equipment identity, quest progression, and finite stock
+  across sessions; version `1` remains loadable as Human Warrior and buyback
+  remains session-only by policy. Chronicle now supplies the deliberate
   one-slot lifecycle and confirmations; quantity entry, reputation pricing,
   autosave, deletion, profiles, and migrations remain open. See
   `Docs/VENDOR_SERVICE_CONTRACT.md` and `Docs/SAVE_GAME_CONTRACT.md`.

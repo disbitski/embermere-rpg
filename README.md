@@ -72,10 +72,12 @@ The repo currently contains the C++ gameplay scaffold for:
 - data-driven item sell values plus an earned-currency loop: Mara's first quest
   grants copper exactly once, selected bag items can be sold by identity, and
   the latest sale can be bought back at its recorded price
-- a versioned save-game contract for copper, XP, inventory/equipment identity,
-  quest progress/completion, and finite vendor stock; loads resolve and
-  validate the complete candidate before mutation, restore atomically, reject
-  malformed records without partial state, and keep buyback session-only
+- a versioned save-game contract for confirmed race/class identity, copper,
+  XP, inventory/equipment identity, quest progress/completion, and finite
+  vendor stock; version 2 resolves stable race/class IDs through current rules,
+  restores class stats and starter hotbars atomically, keeps version 1 loadable
+  through an explicit Human Warrior fallback, rejects malformed records without
+  partial state, and keeps buyback session-only
 - a real native pre-play character picker over the data-driven rules matrix:
   all eight races and four classes remain visible, invalid combinations stay
   visibly disabled, confirmation atomically applies starting stats and the
@@ -274,7 +276,8 @@ why human taste becomes more important as building gets easier.
 
 Early playable Unreal prototype scaffold with Unreal and Blender MCP connected,
 a fixed player-facing race/class picker that initializes data-driven starter
-stats and hotbars before play without expanding save version 1,
+stats and hotbars before play, plus save version 2 persistence for that
+confirmed identity with a backward-compatible version 1 Human Warrior fallback,
 a daylight starter-zone loop mixing a local Fab pass with an original Embermere
 waystone/lamp/signpost/gate/fence/end-stone/chest/shelter/keeper/
 quartermaster/armsmaster/vendor-stall/cottage/workshop/notice-board/reed family,
@@ -308,9 +311,12 @@ the same fixed vendor panel. The native `Embermere Chronicle` now gives players
 a deliberate one-slot Save/Load surface with non-mutating slot inspection,
 overwrite/load confirmation, exact progression summaries, and readable
 rejection feedback. Explicit `EmbermereSave` and `EmbermereLoad` commands remain
-debug fallbacks. Version 1 persists copper, XP, exact item/equipment identity,
-completed quest, and finite merchant stock across fresh PIE worlds; repeated
-loads do not duplicate rewards or bonuses.
+debug fallbacks. Version 2 persists confirmed race/class, copper, XP, exact
+item/equipment identity, completed quest, and finite merchant stock across
+fresh PIE worlds. Chronicle presents identity read-only; repeated loads do not
+duplicate class stats, starter abilities, rewards, or equipment bonuses.
+Version 1 slots remain loadable as Human Warrior without being silently
+rewritten.
 
 The NPC wrapper's skeletal/Idle lane is now in production on three matching
 Fenwatch characters. The armsmaster has `2,824` source triangles and a

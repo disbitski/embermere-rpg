@@ -139,26 +139,50 @@ bool AEmbermereCharacter::TryApplyRaceAndClass(EEmbermereRace NewRace, EEmbermer
 	{
 		return false;
 	}
+	return ApplyValidatedRaceAndClass(NewRace, NewClass);
+}
 
-	UEmbermereRulesData* EffectiveRules = RulesData.Get() ? RulesData.Get() : NewObject<UEmbermereRulesData>(this);
-	if (!EffectiveRules || !EffectiveRules->IsClassAllowed(NewRace, NewClass))
+bool AEmbermereCharacter::CanRestoreRaceAndClassForSaveGame(
+	EEmbermereRace NewRace,
+	EEmbermereClass NewClass) const
+{
+	return ValidateRaceAndClassLoadout(NewRace, NewClass);
+}
+
+bool AEmbermereCharacter::TryRestoreRaceAndClassForSaveGame(
+	EEmbermereRace NewRace,
+	EEmbermereClass NewClass)
+{
+	return ApplyValidatedRaceAndClass(NewRace, NewClass);
+}
+
+bool AEmbermereCharacter::ValidateRaceAndClassLoadout(
+	EEmbermereRace NewRace,
+	EEmbermereClass NewClass) const
+{
+	const UEmbermereRulesData* EffectiveRules = RulesData.Get()
+		? RulesData.Get()
+		: GetDefault<UEmbermereRulesData>();
+	return EffectiveRules && Stats && Hotbar &&
+		EffectiveRules->IsCharacterIdentityValid(NewRace, NewClass);
+}
+
+bool AEmbermereCharacter::ApplyValidatedRaceAndClass(
+	EEmbermereRace NewRace,
+	EEmbermereClass NewClass)
+{
+	if (!ValidateRaceAndClassLoadout(NewRace, NewClass))
 	{
 		return false;
 	}
 
+	const UEmbermereRulesData* EffectiveRules = RulesData.Get()
+		? RulesData.Get()
+		: GetDefault<UEmbermereRulesData>();
 	FEmbermereClassDefinition ClassDefinition;
-	if (!EffectiveRules->GetClassDefinition(NewClass, ClassDefinition) ||
-		ClassDefinition.StarterAbilityIds.Num() < 4 || !Stats || !Hotbar)
+	if (!EffectiveRules || !EffectiveRules->GetClassDefinition(NewClass, ClassDefinition))
 	{
 		return false;
-	}
-	for (int32 Index = 0; Index < 4; ++Index)
-	{
-		FEmbermereAbilityDefinition AbilityDefinition;
-		if (!EffectiveRules->GetAbilityDefinition(ClassDefinition.StarterAbilityIds[Index], AbilityDefinition))
-		{
-			return false;
-		}
 	}
 
 	Race = NewRace;

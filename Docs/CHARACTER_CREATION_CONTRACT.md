@@ -76,15 +76,19 @@ than double-applying it.
 
 ## Persistence Boundary
 
-Save version 1 does not store race, class, creation completion, appearance, or
-name. This milestone must not change the schema, migrate old saves, or infer a
-saved choice from hotbar contents. A deliberate versioned persistence design
-is required before creation state becomes durable.
+Save version `2` stores only the deliberately confirmed race and starting
+class as explicit stable IDs. Persistence revalidates those IDs through current
+rules data and atomically rebuilds identity, starting attributes, full vitals,
+and the four starter hotbar abilities before restoring equipment and durable
+progression. It never infers identity from enum ordinals, display text, stats,
+or hotbar contents.
 
-For the prototype, each fresh play world asks for a deliberate choice before
-gameplay. Loading version 1 progression then restores only the existing copper,
-XP, inventory, equipment, quest, and finite vendor-stock owners onto the
-currently selected character.
+Version `1` saves remain readable through an explicit current-rules Human
+Warrior fallback. Loading that fallback may replace the current session's
+identity, but it does not rewrite or silently migrate the old slot. Appearance,
+name, pending UI selection, autosave, profiles, and deletion remain outside the
+version `2` contract. See `Docs/SAVE_GAME_CONTRACT.md` for validation, rollback,
+and idempotence requirements.
 
 ## Acceptance
 
@@ -100,5 +104,20 @@ currently selected character.
   mode after confirmation.
 - The Human Warrior fallback remains valid when no deliberate selection is
   made.
-- Save version 1 and every existing service/transaction authority remain
-  unchanged.
+- Save version `2` round-trips confirmed identity while version `1` remains
+  loadable through the documented Human Warrior fallback.
+- Every existing service and transaction authority remains unchanged.
+
+## Accepted Proof
+
+On 2026-08-22 clean PIE first retained the visible Dwarf restrictions, then
+confirmed Elf Wizard at exact `80/80` health, `110/110` mana, and Spark Bolt,
+Frost Root, Arcane Burst, and Meditate. Chronicle safely rejected an older
+malformed version-2 slot before mutation, then deliberately overwrote it with
+that Elf Wizard identity.
+
+A fresh world confirmed Lizardman Ranger at `100/100` health, `60/60` mana,
+and the Ranger starter hotbar before loading. Chronicle replaced that genuinely
+different live state with the exact saved Elf Wizard. A second confirmed load
+left identity, vitals, and hotbar unchanged. The no-hot-reload build, all 63
+automation tests, and the fresh 14-validator aggregate passed.

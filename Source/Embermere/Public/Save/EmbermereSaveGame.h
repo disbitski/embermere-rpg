@@ -7,7 +7,14 @@
 
 namespace EmbermereSaveGameVersion
 {
-	inline constexpr int32 Current = 1;
+	inline constexpr int32 ProgressionOnly = 1;
+	inline constexpr int32 CharacterIdentity = 2;
+	inline constexpr int32 Current = CharacterIdentity;
+
+	inline bool IsSupported(int32 Version)
+	{
+		return Version == ProgressionOnly || Version == CharacterIdentity;
+	}
 }
 
 USTRUCT(BlueprintType)
@@ -90,6 +97,12 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
 	int32 CurrentExperience = 0;
+
+	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
+	FName RaceId = NAME_None;
+
+	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
+	FName ClassId = NAME_None;
 
 	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
 	TArray<FEmbermereSavedInventoryStack> InventoryStacks;

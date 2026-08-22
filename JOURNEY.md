@@ -2434,6 +2434,42 @@ Lesson: creation UI should make invalid state legible, then ask authoritative
 gameplay to accept one choice. It should never become a friendlier-looking
 duplicate of the rules engine.
 
+## 2026-08-22 - Character Identity Crossed The Save Boundary
+
+The creation gate proved that a race/class choice could initialize gameplay
+correctly, but it was still temporary. Save version `2` now records the
+deliberately confirmed race and class as stable semantic IDs rather than enum
+ordinals, display names, inferred stats, or hotbar contents.
+
+Load resolves those IDs through current rules, validates the pair, class
+definition, starting attributes, and every starter ability before touching the
+live world. Only then does one atomic commit rebuild identity, class base stats,
+full vitals, and the starter hotbar before restoring equipment and durable
+progression. Repeated load therefore replaces the same owners instead of
+stacking class stats, abilities, equipment bonuses, or quest rewards.
+
+Backward compatibility is an explicit interpretation rather than an implicit
+migration. A version `1` save remains readable as current-rules Human Warrior,
+and loading it does not rewrite the old file. Chronicle consumes the result
+read-only: version `2` slots show race/class, while version `1` slots clearly
+label the legacy fallback.
+
+The tests cover version-2 round-trip and repeated-load idempotence, unknown and
+illegal IDs, malformed records, complete rollback, and the version-1 fallback.
+The no-hot-reload build passed, all 63 automation tests passed, and the fresh
+14-validator package aggregate completed without Python errors.
+
+PIE supplied the harder proof. A malformed preexisting version-2 slot was
+safely rejected with Load disabled. Elf Wizard was then confirmed and saved at
+exactly `80/80` health, `110/110` mana, and the Wizard starter hotbar. In a
+fresh world, Lizardman Ranger first established a genuinely different live
+identity. Loading replaced it with the exact Elf Wizard state, and a second
+load remained unchanged.
+
+Lesson: compatibility is a named policy, not a side effect. Validate the whole
+semantic identity before mutation, then prove restoration by loading over a
+meaningfully different live state.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

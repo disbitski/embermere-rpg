@@ -33,4 +33,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Rules")
 	bool GetAbilityDefinition(FName AbilityId, FEmbermereAbilityDefinition& OutDefinition) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Rules")
+	bool IsCharacterIdentityValid(EEmbermereRace Race, EEmbermereClass Class) const;
+
+	static FName GetStableRaceId(EEmbermereRace Race);
+	static FName GetStableClassId(EEmbermereClass Class);
+	static bool TryResolveStableRaceId(FName RaceId, EEmbermereRace& OutRace);
+	static bool TryResolveStableClassId(FName ClassId, EEmbermereClass& OutClass);
 };

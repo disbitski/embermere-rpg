@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-20
+Last updated: 2026-08-22
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -29,11 +29,12 @@ this snapshot. A new task should read files in this order:
 9. `Docs/NPC_PRESENTATION_CONTRACT.md` when NPC/service work is active
 10. `Docs/VENDOR_SERVICE_CONTRACT.md` when economy work is active
 11. `Docs/SAVE_GAME_CONTRACT.md` when persistence/lifecycle work is active
-12. `Docs/PRACTICE_TARGET_CONTRACT.md` when training-target work is active
-13. `Docs/COMBAT_FEEDBACK_CONTRACT.md` when combat-result presentation is active
-14. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
-15. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
-16. `JOURNEY.md` when historical detail is useful
+12. `Docs/CHARACTER_CREATION_CONTRACT.md` when identity/lifecycle work is active
+13. `Docs/PRACTICE_TARGET_CONTRACT.md` when training-target work is active
+14. `Docs/COMBAT_FEEDBACK_CONTRACT.md` when combat-result presentation is active
+15. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
+16. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
+17. `JOURNEY.md` when historical detail is useful
 
 ## One-Page State
 
@@ -62,7 +63,7 @@ The project currently includes:
   paper-doll equipment backdrop, data-driven timed buff/control rows with live
   countdowns, chat log, and a fixed three-entry floating-damage observer fed by
   immutable post-commit combat results;
-- a grounded local Fab/Epic art pass with 53 upright environment actors and 22
+- a grounded local Fab/Epic art pass with 53 upright environment actors and 23
   project-owned placements from an original Blender-built Embermere
   waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
   quartermaster/armsmaster/practice-dummy/reed family, a 38-expression moss/
@@ -83,17 +84,20 @@ The project currently includes:
   Idle-animated armsmaster, art-free interactable service, data-driven Combat
   Drills, atomic copper-to-XP progression, fixed native training UI, and a
   matching solid-core practice dummy that owns no service authority;
-- a versioned save-game contract that atomically captures and restores copper,
-  XP, inventory/equipment identity, quest state, and finite vendor stock using
-  stable identifiers plus validated soft paths. Buyback, combat, cooldowns,
-  temporary effects, and position remain intentionally session-only;
+- a versioned save-game contract that atomically captures and restores confirmed
+  race/class identity, copper, XP, inventory/equipment identity, quest state,
+  and finite vendor stock. Version 2 uses stable semantic race/class IDs and
+  current-rules validation; version 1 remains loadable through an explicit Human
+  Warrior compatibility fallback. Buyback, combat, cooldowns, temporary
+  effects, and position remain intentionally session-only;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
 - a fixed native pre-play character picker that presents all eight races and
   four classes, exposes disabled combinations, atomically applies data-driven
-  starter stats/abilities once, and restores the normal controller/HUD path
-  without changing save version 1;
-- 60 passing Unreal automation tests plus fresh-process character-creation,
+  starter stats/abilities once, restores the normal controller/HUD path, and
+  feeds the confirmed identity into the version-2 persistence contract;
+- 63 passing Unreal automation tests plus fresh-process character-creation and
+  character-identity persistence,
   combat-feedback,
   practice-target, keeper-greeting,
   keeper-rig,
@@ -321,12 +325,13 @@ Vendor service:
 
 Persistence:
 
-- `Save/EmbermereSaveGame.h`: versioned durable records for wallet, XP,
-  inventory/equipment identity, quest state, and finite vendor stock.
+- `Save/EmbermereSaveGame.h`: versioned durable records for confirmed
+  race/class identity, wallet, XP, inventory/equipment identity, quest state,
+  and finite vendor stock.
 - `Save/EmbermerePersistenceLibrary.*`: stable-ID capture, whole-snapshot
   preflight, atomic restore, slot save/load, and session-only-state reset.
-- `Docs/SAVE_GAME_CONTRACT.md`: version 1 ownership, validation, lifecycle, and
-  explicit non-goals.
+- `Docs/SAVE_GAME_CONTRACT.md`: version 2 ownership, validation, version 1
+  compatibility interpretation, lifecycle, and explicit non-goals.
 - `Scripts/validate_persistence_live_unreal.py`: two-phase live PIE proof that
   saves the real economy/quest/equipment state and restores it in a fresh PIE
   session without duplication.
@@ -719,18 +724,24 @@ Current automation tests:
 58. `Embermere.UI.CharacterCreationRestrictions`
 59. `Embermere.CharacterCreation.ConfirmationLoadout`
 60. `Embermere.CharacterCreation.ControllerLifecycle`
+61. `Embermere.Persistence.CharacterIdentityRoundTrip`
+62. `Embermere.Persistence.CharacterIdentityRollback`
+63. `Embermere.Persistence.LegacyV1CharacterFallback`
 
-Current verified baseline (2026-08-21):
+Current verified baseline (2026-08-22):
 
 - the no-hot-reload Mac editor build succeeded;
-- an isolated commandlet discovered and passed all 60 tests with no failed or
+- an isolated commandlet discovered and passed all 63 tests with no failed or
   skipped Embermere tests;
 - the fresh 14-package aggregate emitted all 15 expected success markers,
   retained the exact 53 grounded Fab plus 23 original-art baseline, and logged
   no Python error;
-- clean PIE rejected Dwarf Ranger and Bullywug Wizard without silent
-  correction, then accepted Elf Wizard at exact `80/80` health, `110/110` mana,
-  and Spark Bolt/Frost Root/Arcane Burst/Meditate hotbar state;
+- clean PIE rejected Dwarf Ranger without silent correction, then accepted and
+  saved Elf Wizard at exact `80/80` health, `110/110` mana, and Spark
+  Bolt/Frost Root/Arcane Burst/Meditate hotbar state;
+- Chronicle rejected a malformed version-2 slot without mutation. A fresh PIE
+  Lizardman Ranger at `100/100` health and `60/60` mana then loaded the exact
+  saved Elf Wizard identity twice without stat, hotbar, item, or reward drift;
 - the live notice-board trace validator retained its three purposeful solid
   boxes, decorative clearance, and all four protected routes.
 
@@ -1349,10 +1360,39 @@ The next bounded milestone is an explicit save version 2 identity contract,
 including stable race/class IDs, validated atomic restore, idempotence, and a
 documented version 1 Human Warrior fallback before any schema changes land.
 
+## 2026-08-22 Character-Identity Persistence Update
+
+Save version `2` now makes a deliberately confirmed race/class pair durable.
+
+- Race and class serialize as stable semantic IDs, not enum ordinals, display
+  text, inferred stats, or hotbar contents.
+- Load resolves IDs through current `UEmbermereRulesData`, validates legality,
+  class attributes, and all starter abilities before any live mutation.
+- One atomic commit replaces identity, class base stats, full vitals, and the
+  first four hotbar abilities before equipment and durable progression restore.
+- Version `1` remains loadable through an explicit current-rules Human Warrior
+  compatibility interpretation. The old slot is not rewritten or implicitly
+  migrated.
+- Chronicle shows race/class read-only and labels the version-1 legacy fallback.
+- Three focused tests cover v2 round-trip/idempotence, malformed/unknown/illegal
+  rollback, and the version-1 fallback. All 63 tests and the fresh 14-validator
+  aggregate passed.
+- Clean PIE saved Elf Wizard, established a genuinely different Lizardman
+  Ranger in a fresh world, then restored Elf Wizard twice at exact `80/80`
+  health, `110/110` mana, and the Wizard starter hotbar without drift. A
+  preexisting malformed v2 slot was rejected safely with Load disabled.
+
+The next bounded milestone is data-driven level progression derived from the
+existing durable XP. Prefer threshold-derived level, atomic race/class base
+growth plus idempotent equipment application, read-only HUD/Chronicle level,
+and tests for thresholds, cap, multi-level grants, malformed rules, restore,
+and repeated-load behavior. Do not serialize duplicate level state in this
+slice.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-21 no-hot-reload character-creation module, accepted notice-board
+2026-08-22 no-hot-reload character-identity persistence module, accepted notice-board
 asset/map package,
 combat-feedback module, quest/map packages, all
 three accepted skeletal-mesh/Skeleton/Idle sets, the Fenwatch vendor stall and
@@ -1368,11 +1408,14 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 60 tests, including
+3. Run/discover all 63 tests, including
    `Embermere.UI.CharacterCreationInitialState`,
    `Embermere.UI.CharacterCreationRestrictions`,
    `Embermere.CharacterCreation.ConfirmationLoadout`,
    `Embermere.CharacterCreation.ControllerLifecycle`,
+   `Embermere.Persistence.CharacterIdentityRoundTrip`,
+   `Embermere.Persistence.CharacterIdentityRollback`,
+   `Embermere.Persistence.LegacyV1CharacterFallback`,
    `Embermere.Combat.ResultContract`,
    `Embermere.UI.CombatFeedbackPresentation`,
    `Embermere.Combat.PracticeTargetPolicy`,
@@ -1400,6 +1443,10 @@ First fresh-session checks:
      silent correction, and valid confirmation restores the HUD/input path;
      recheck Elf Wizard at `80/80` health, `110/110` mana, and the exact four
      Wizard starter abilities;
+   - Chronicle shows confirmed race/class read-only. Save a non-default legal
+     identity, begin a fresh world with a different legal pair, load twice, and
+     prove exact identity, base stats, starter hotbar, progression, and
+     repeated-load idempotence; malformed identity keeps Load disabled;
    - all three Marsh Prowlers retain the project-owned skeletal mesh and route
      Idle, Walk, Run, Attack, Hit, and Death from generic enemy state; verify
      paws/terrain contact, swamp palette, target-ring/nameplate clearance,
@@ -1561,7 +1608,8 @@ High-value milestones after that:
 - retain the accepted rigged keeper/quest, armsmaster/trainer, and
   quartermaster/vendor ownership boundaries and transaction contracts;
   retain the accepted trainer-produced 30-copper/25-XP Chronicle restore across
-  a fresh world and second idempotent load without changing save version 1;
+  a fresh world and second idempotent load without adding trainer-specific
+  serialized state;
 - retain the accepted production armsmaster skeletal lane: exact mesh,
   ten-bone imported hierarchy containing all nine authored bones, 3.2-second
   Idle, live advancing clock, static fallback, and no collision or service
@@ -1636,8 +1684,8 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-21 no-hot-reload
-character-creation module and quest/map packages, the accepted notice-board,
+Follow TODO.md's Start Here section. Confirm the 2026-08-22 no-hot-reload
+character-identity persistence module and quest/map packages, the accepted notice-board,
 vendor-stall,
 cottage, training-workshop, practice-dummy, and native practice-target map packages,
 and all three accepted skeletal-mesh/Skeleton/Idle sets,
@@ -1646,8 +1694,9 @@ bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 60 tests, including the four character-creation
-lifecycle/restriction/loadout tests, combat-result and floating-feedback
+route-repair map, then run all 63 tests, including the four character-creation
+lifecycle/restriction/loadout tests, the three character-identity persistence
+tests, combat-result and floating-feedback
 presentation, the two practice-target policy/combat-reset tests,
 contextual-greeting,
 persistence round-trip,
@@ -1721,12 +1770,13 @@ fixed-panel bounds, chat, and Inventory/Chronicle/close handoff. Preserve the
 Retain the accepted practice dummy at `(-1120, -1120, 0)`, yaw `45`: grounded
 target face toward the armsmaster, five shared materials, 2,572 triangles,
 solid base/core, clear arms, and no generic crate.
-Retain the accepted version 1 persistence contract and live two-session proof:
-`EmbermereSave` captured 22 copper, 125 XP, exact inventory/equipment identity,
-completed Mara state, and exhausted finite Recruit Pack stock; a fresh PIE
-session restored it through `EmbermereLoad`, and a second load produced no
-duplication, repeated reward, or stat inflation. Buyback, combat, cooldowns,
-temporary effects, and position remain intentionally session-only.
+Retain the accepted version 2 persistence contract and live two-session proof:
+Chronicle captured stable Elf Wizard identity alongside durable progression; a
+fresh Lizardman Ranger session restored the exact saved Elf Wizard class stats,
+hotbar, and progression twice without duplication, repeated reward, or stat
+inflation. Version 1 remains loadable as current-rules Human Warrior without
+rewriting the old slot. Buyback, combat, cooldowns, temporary effects, and
+position remain intentionally session-only.
 Also retain
 the route-facing supply chest at `(-1740, -1180, 0)` with solid authored lid
 collision, at least 225 cm of saved spawn-corridor clearance, and a clear live
@@ -1741,7 +1791,8 @@ fallbacks over the same atomic contract. Retain both wrapper production
 skeletal/Idle lanes and the accepted vendor and trainer ownership contracts.
 First prove
 the accepted trainer-produced 30-copper/25-XP Chronicle state remains exact in
-a fresh PIE world and a second idempotent load without changing save version 1.
+a fresh PIE world and a second idempotent load without adding trainer-specific
+serialized state.
 Then retain grounded normal-camera keeper, armsmaster, and quartermaster
 motion, clear markers/routes, advancing animation clocks, and all three static
 fallbacks. Retain the accepted Mara proof: physical `F` opened and accepted the
@@ -1766,17 +1817,18 @@ decorative geometry, and four protected routes. Retain the accepted fixed
 character-creation picker, all eight races/four classes, explicit disabled
 Dwarf Ranger and Bullywug Wizard paths, exact data-driven starter stats and
 hotbars, one-shot confirmation, and controller input/HUD handoff. Next design
-a bounded save version 2 identity contract with stable race/class IDs, atomic
-validation/restore, duplicate-application safety, Chronicle read-only
-identity, and an explicit version 1 Human Warrior fallback before changing the
-schema. Do not add naming, appearance, autosave, profiles, deletion, or
-implicit migration in that slice.
+the bounded data-driven level progression contract from existing durable XP:
+derive level from tested thresholds, atomically recompute identity-owned base
+growth before idempotent equipment bonuses, expose level read-only in HUD and
+Chronicle, and prove threshold, cap, malformed-rule, save-restore, and repeated-
+load behavior. Do not serialize duplicate level state or add naming,
+appearance, autosave, profiles, deletion, or implicit migration in that slice.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
 Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
-current commit, 60-test baseline, accepted character creation, and next bounded
-milestone before ending the run.
+current commit, 63-test baseline, accepted character creation plus v2 identity
+persistence, and next bounded milestone before ending the run.
 ```
 
 ## Handoff Principle

@@ -6,19 +6,19 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-21 no-hot-reload character-creation
-  module plus the accepted Fenwatch notice-board asset/map package and
+- Confirm Unreal is running the 2026-08-22 no-hot-reload character-identity
+  persistence module plus the accepted Fenwatch notice-board asset/map package and
   combat-feedback module,
   along with the accepted rigged Fenwatch keeper, armsmaster, and quartermaster
   packages and
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 60 Embermere tests.
+  predates that work or test discovery exposes fewer than 63 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 60 tests, especially
+- Discover and run all 63 tests, especially
   `Embermere.UI.CharacterCreationInitialState`,
   `Embermere.UI.CharacterCreationRestrictions`,
   `Embermere.CharacterCreation.ConfirmationLoadout`,
@@ -28,6 +28,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.Combat.PracticeTargetPolicy`,
   `Embermere.Combat.PracticeTargetCombatReset`,
   `Embermere.Persistence.RoundTrip`,
+  `Embermere.Persistence.CharacterIdentityRoundTrip`,
+  `Embermere.Persistence.CharacterIdentityRollback`,
+  `Embermere.Persistence.LegacyV1CharacterFallback`,
   `Embermere.Persistence.ValidationRollback`,
   `Embermere.Persistence.SlotInspection`,
   `Embermere.UI.SaveLoadPanel`,
@@ -56,8 +59,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative
-  2026-08-21 no-hot-reload build, isolated commandlet, and fresh aggregate
-  passed 60/60 while retaining 53 grounded Fab plus 23 original-art actors.
+  2026-08-22 no-hot-reload build, isolated commandlet, and fresh aggregate
+  passed 63/63 while retaining 53 grounded Fab plus 23 original-art actors.
 - Retain the accepted character-creation authority and lifecycle contract:
   - the centered fixed `940x560` modal shows all eight races and four classes
     before gameplay while the normal HUD remains hidden;
@@ -72,8 +75,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - clean PIE accepted Elf Wizard at exact `80/80` health, `110/110` mana, and
     Spark Bolt, Frost Root, Arcane Burst, and Meditate, with
     `Journey begun: Elf Wizard` in chat;
-  - Human Warrior remains the reversible fallback and save version 1 remains
-    unchanged. Treat
+  - Human Warrior remains the reversible construction fallback. Save version
+    `2` now persists a deliberately confirmed race/class pair through stable
+    IDs, while version `1` remains loadable through an explicit current-rules
+    Human Warrior compatibility fallback without rewriting the old slot. Treat
     [Docs/CHARACTER_CREATION_CONTRACT.md](Docs/CHARACTER_CREATION_CONTRACT.md)
     as the authority and first-slice boundary.
 - Retain the accepted Fenwatch practice-target split:
@@ -159,13 +164,16 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   interaction and offerings; wallet/stats own player state; the HUD only
   presents and requests a transaction.
 - Treat [Docs/SAVE_GAME_CONTRACT.md](Docs/SAVE_GAME_CONTRACT.md) as the durable
-  state boundary. Version 1 stores copper, XP, inventory stack identity and
+  state boundary. Version `2` stores confirmed race/class identity, copper, XP,
+  inventory stack identity and
   quantity, equipped-item identity and slot, quest state/progress, and finite
   vendor stock through stable IDs plus validated soft paths. Capture and load
   are preflighted before mutation; unknown assets, bad versions, invalid
   quantities, capacity conflicts, mismatched IDs/slots, and malformed vendor
-  records reject the entire restore. Equipment stats are rebuilt once instead
-  of double-applying bonuses, and quest rewards are not replayed.
+  records reject the entire restore. Identity, class base stats, starter
+  hotbar, equipment, and progression restore atomically; equipment bonuses are
+  rebuilt once and quest rewards are not replayed. Version `1` remains readable
+  as Human Warrior through current rules without implicit migration.
 - Retain the accepted live persistence proof. In one normal PIE session the
   vendor and quest loop saved exactly `22` copper, `125` XP, one Marsh Tonic,
   one bagged Recruit Pack, one equipped Back-slot Recruit Pack, completed Mara
@@ -184,8 +192,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   remain transient, and save version 1 gained no trainer-specific field.
 - Retain the accepted player-facing Chronicle. `M` opens a centered `460x260`
   one-slot panel while `Ctrl+M` still toggles mouse inversion. The panel
-  inspects `EmbermerePrototype` without mutating it and displays the accepted
-  `22 copper | 125 XP`, `2 bag stacks | 1 equipped | Quest complete` summary.
+  inspects `EmbermerePrototype` without mutating it and displays race/class as
+  a read-only first line above the accepted `22 copper | 125 XP`,
+  `2 bag stacks | 1 equipped | Quest complete` summary. Version `1` slots label
+  their explicit Human Warrior legacy fallback.
   Save requires explicit overwrite confirmation when the slot exists; Load
   always confirms replacement of the current session. Empty, unreadable,
   unsupported-version, missing-asset, and other rejected states surface the
@@ -404,11 +414,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-21
-  character-creation module, rigged Fenwatch keeper, armsmaster, and
+- Restart Unreal before manual PIE when the editor predates the 2026-08-22
+  character-identity persistence module, rigged Fenwatch keeper, armsmaster, and
   quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 60 tests.
+  Current code passes all 63 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -498,6 +508,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.NPC.FenwatchArmsmasterPresentation`
   - `Embermere.NPC.FenwatchArmsmasterIdlePresentation`
   - `Embermere.Persistence.RoundTrip`
+  - `Embermere.Persistence.CharacterIdentityRoundTrip`
+  - `Embermere.Persistence.CharacterIdentityRollback`
+  - `Embermere.Persistence.LegacyV1CharacterFallback`
   - `Embermere.Persistence.SlotInspection`
   - `Embermere.Persistence.ValidationRollback`
   - `Embermere.Player.OutOfBoundsRecovery`
@@ -546,19 +559,20 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - quest completion/reward shows the loot popup and the inventory panel lists the reward item;
   - combat, target, quest, XP, inventory, mouse, cooldown, and death/recovery messages appear clipped as single-line rows inside the bottom-left chat/combat log instead of overlapping the top-left player status panel or spilling beyond the chat panel border.
 - Manually verify prototype persistence in two clean PIE sessions:
-  - complete the exact vendor and Mara sequence from Start Here, equip one
+  - confirm a legal non-default race/class, complete the exact vendor and Mara
+    sequence from Start Here, equip one
     Recruit Pack in Back, open Chronicle with `M`, inspect the exact slot
     summary, cancel one overwrite request, then confirm Save Journey;
-  - stop PIE, start a fresh PIE session, open Chronicle, confirm Load Journey,
-    and confirm `22`
-    copper, `125` XP, the exact bag/equipment identities and quantities,
-    completed quest state, zero finite Recruit Pack stock, and correct
-    equipment-derived stats;
-  - load again and confirm no duplicate items, repeated quest
-    payment, or doubled equipment bonuses;
+  - stop PIE, start a fresh PIE session, deliberately confirm a different legal
+    race/class, open Chronicle, confirm Load Journey, and confirm the saved
+    identity, class base stats, starter hotbar, `22` copper, `125` XP, exact
+    bag/equipment identities and quantities, completed quest state, zero finite
+    Recruit Pack stock, and correct equipment-derived stats;
+  - load again and confirm no identity/stat drift, duplicate items, repeated
+    quest payment, or doubled equipment bonuses;
   - confirm Chronicle, Inventory, and Vendor hand off visibility and cursor
     mode cleanly, and that `M`/`X` closes Chronicle back to game-only input;
-  - confirm vendor buyback history is empty after load because version 1 keeps
+  - confirm vendor buyback history is empty after load because version `2` keeps
     it session-only. Retain `EmbermereSave` and `EmbermereLoad` as debug
     fallbacks.
 - Manually verify selected-target world readability in PIE:
@@ -731,7 +745,8 @@ Embermere has a working first-pass starter slice:
   Idle presentation, plus trainer transactions, service ownership, offering
   data, static and rigged armsmaster presentation, and native trainer-panel
   behavior, plus focused practice-target policy and combat/reset coverage and
-  immutable combat-result/fixed floating-feedback presentation, for 56
+  immutable combat-result/fixed floating-feedback presentation, pre-play
+  character creation, and versioned character-identity persistence, for 63
   authoritative tests.
 
 ## How Far We Have To Go
@@ -770,12 +785,16 @@ needs a complete village-building family, player/race art, authored Niagara/
 class-specific effects, and audio.
 
 The first durable-state lane is now complete as a bounded prototype contract:
-wallet, XP, inventory/equipment identity, quest state, and finite vendor stock
-survive a fresh PIE session through validated atomic restore. Buyback and
-combat-temporary state remain deliberately transient. Chronicle now provides
-the deliberate player-facing lifecycle and corruption/version feedback. Keep
-the bounded one-slot contract stable instead of adding serialized fields by
-accident. Trainer-produced progression has now passed the same lifecycle:
+confirmed race/class identity, wallet, XP, inventory/equipment identity, quest
+state, and finite vendor stock survive a fresh PIE session through validated
+atomic restore. Version `2` uses stable semantic race/class IDs and rebuilds
+base stats plus the starter hotbar before equipment and progression, while
+version `1` remains loadable through an explicit Human Warrior compatibility
+interpretation. Buyback and combat-temporary state remain deliberately
+transient. Chronicle now provides the deliberate player-facing lifecycle,
+read-only identity summary, and corruption/version feedback. Keep the bounded
+one-slot contract stable instead of adding serialized fields by accident.
+Trainer-produced progression has now passed the same lifecycle:
 `30` copper and `25` XP restored exactly across a fresh world and a second
 idempotent load without adding trainer-specific schema.
 
@@ -828,14 +847,22 @@ targeting, rewards, AI, quests, or persistence.
   materials, three purposeful colliders, decorative clearance, grounded road
   composition, and four protected routes. Do not make the mesh itself a quest,
   interaction, vendor, trainer, reward, or persistence authority.
-- Retain the accepted character-creation picker and begin its next bounded
-  durable-state milestone only through an explicit versioned contract. Design
-  save version 2 for stable race/class identity with validated IDs, atomic
-  restoration, duplicate-application protection, and a documented version 1
-  Human Warrior fallback before changing any schema. Add Chronicle identity
-  presentation only as a read-only consumer. Do not add appearance, naming,
-  autosave, multiple profiles, deletion, or implicit migration in this slice.
-- Retain the accepted trainer Chronicle proof without expanding save version 1:
+- Retain the accepted save version `2` character-identity contract: stable
+  race/class IDs, current-rules legality validation, atomic class-stat and
+  starter-hotbar restoration, repeated-load idempotence, read-only Chronicle
+  identity, malformed-record rollback, and the explicit version `1` Human
+  Warrior fallback. Do not add appearance, naming, autosave, multiple profiles,
+  deletion, or implicit migration without another deliberate versioned contract.
+- Build the next bounded progression milestone from the existing durable XP:
+  - define data-driven XP thresholds and a small first level cap without
+    serializing a duplicate level value;
+  - recompute race/class base growth atomically from identity plus XP, then
+    reapply equipment additively and idempotently;
+  - add exact level-up feedback plus read-only HUD/Chronicle level display;
+  - prove threshold edges, multi-level grants, cap behavior, malformed rules,
+    equipment interaction, save restore, and repeated-load idempotence without
+    replaying level-up effects.
+- Retain the accepted trainer Chronicle proof under save version `2`:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
   - prove exact restoration, idempotence, and no item, equipment, quest,
@@ -911,6 +938,24 @@ targeting, rewards, AI, quests, or persistence.
   scale, color, or motion only from normal-camera feedback.
 
 ## Last Completed
+
+- 2026-08-22: promoted the bounded persistence contract to save version `2`
+  with stable race/class IDs, current-rules legality/loadout validation, atomic
+  identity/base-stat/hotbar restore, and an explicit non-rewriting version `1`
+  Human Warrior compatibility path.
+- Chronicle now shows race/class as read-only slot metadata. Capture rejects an
+  unconfirmed identity, malformed/unknown/illegal IDs fail before mutation,
+  and repeated load cannot stack class stats, hotbar state, equipment bonuses,
+  quest rewards, or progression.
+- Added `Embermere.Persistence.CharacterIdentityRoundTrip`,
+  `Embermere.Persistence.CharacterIdentityRollback`, and
+  `Embermere.Persistence.LegacyV1CharacterFallback`. The no-hot-reload build,
+  focused six-test persistence run, all 63 automation tests, and fresh
+  14-validator package aggregate passed with no Embermere or Python failures.
+- Clean PIE rejected Dwarf Ranger, accepted and saved Elf Wizard at exact
+  `80/80` health and `110/110` mana, safely rejected a preexisting malformed
+  v2 slot, then loaded that Elf Wizard over a fresh Lizardman Ranger twice with
+  the exact Wizard hotbar and no drift.
 
 - 2026-08-21: promoted the existing race/class scaffold into a fixed native
   pre-play picker with all eight races, all four classes, visible disabled

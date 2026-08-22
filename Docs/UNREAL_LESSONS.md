@@ -1388,3 +1388,23 @@ the command identical, rerun it with normal host access, and still require the
 explicit validator success marker plus no `LogPython: Error`. Do not weaken
 validation or rewrite project code to accommodate an environment that never
 reached the project.
+
+## Persist Semantic Identity, Not Its Current Consequences
+
+Race/class enum ordinals, display text, starting stats, and hotbar contents can
+all change or collide over time. A save should carry stable semantic IDs, then
+resolve and validate those IDs through the same current rules that own character
+creation. Validate legality, class data, starting attributes, and every starter
+ability before mutating any live owner.
+
+Backward compatibility should also be explicit. Embermere interprets version
+`1` as current-rules Human Warrior but does not rewrite or silently migrate the
+old slot. Version `2` restores identity, base stats, vitals, and hotbar in one
+commit before equipment and progression, so repeated load replaces state rather
+than stacking it.
+
+For live acceptance, do not load a save over an identical default character.
+Confirm a meaningfully different race/class first, then prove the load replaces
+identity, class stats, and starter hotbar exactly and remains unchanged on a
+second load. Also inspect one malformed slot through the real player UI: Load
+must stay disabled and the current character must remain untouched.

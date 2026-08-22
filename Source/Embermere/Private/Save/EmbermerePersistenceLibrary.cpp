@@ -10,6 +10,7 @@
 #include "Components/EmbermereWalletComponent.h"
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
+#include "Data/EmbermereRulesData.h"
 #include "Data/EmbermereVendorStockData.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -28,6 +29,8 @@ namespace
 
 	struct FResolvedPersistenceState
 	{
+		EEmbermereRace Race = EEmbermereRace::Human;
+		EEmbermereClass Class = EEmbermereClass::Warrior;
 		TArray<FEmbermereInventoryStack> InventoryStacks;
 		TArray<FEmbermereEquippedItem> EquippedItems;
 		FEmbermereQuestState QuestState;
@@ -64,6 +67,47 @@ namespace
 	FSoftObjectPath GetPersistentAssetPath(const UObject* Asset)
 	{
 		return Asset && Asset->IsAsset() ? FSoftObjectPath(Asset) : FSoftObjectPath();
+	}
+
+	bool ResolveSavedCharacterIdentity(
+		const UEmbermereSaveGame* SaveGame,
+		EEmbermereRace& OutRace,
+		EEmbermereClass& OutClass,
+		FString& OutError)
+	{
+		OutRace = EEmbermereRace::Human;
+		OutClass = EEmbermereClass::Warrior;
+		OutError.Reset();
+		if (!SaveGame)
+		{
+			OutError = TEXT("The save record is unavailable.");
+			return false;
+		}
+		if (SaveGame->FormatVersion == EmbermereSaveGameVersion::ProgressionOnly)
+		{
+			return true;
+		}
+		if (SaveGame->FormatVersion != EmbermereSaveGameVersion::CharacterIdentity ||
+			SaveGame->RaceId.IsNone() || SaveGame->ClassId.IsNone())
+		{
+			OutError = TEXT("The version-2 save is missing its stable character identity.");
+			return false;
+		}
+		if (!UEmbermereRulesData::TryResolveStableRaceId(SaveGame->RaceId, OutRace))
+		{
+			OutError = FString::Printf(
+				TEXT("Saved race ID '%s' is unknown."),
+				*SaveGame->RaceId.ToString());
+			return false;
+		}
+		if (!UEmbermereRulesData::TryResolveStableClassId(SaveGame->ClassId, OutClass))
+		{
+			OutError = FString::Printf(
+				TEXT("Saved class ID '%s' is unknown."),
+				*SaveGame->ClassId.ToString());
+			return false;
+		}
+		return true;
 	}
 
 	EEmbermerePersistenceResult BuildVendorMap(
@@ -111,15 +155,31 @@ namespace
 				OutMessage,
 				TEXT("The player persistence owners are unavailable."));
 		}
-		if (SaveGame->FormatVersion != EmbermereSaveGameVersion::Current)
+		if (!EmbermereSaveGameVersion::IsSupported(SaveGame->FormatVersion))
 		{
 			return Fail(
 				EEmbermerePersistenceResult::UnsupportedVersion,
 				OutMessage,
 				FString::Printf(
-					TEXT("Save version %d is unsupported; expected version %d."),
+					TEXT("Save version %d is unsupported; this build supports versions %d through %d."),
 					SaveGame->FormatVersion,
+					EmbermereSaveGameVersion::ProgressionOnly,
 					EmbermereSaveGameVersion::Current));
+		}
+		FString IdentityError;
+		if (!ResolveSavedCharacterIdentity(
+			SaveGame,
+			OutState.Race,
+			OutState.Class,
+			IdentityError) ||
+			!Character->CanRestoreRaceAndClassForSaveGame(OutState.Race, OutState.Class))
+		{
+			return Fail(
+				EEmbermerePersistenceResult::InvalidData,
+				OutMessage,
+				IdentityError.IsEmpty()
+					? TEXT("The saved character identity is illegal under current rules.")
+					: IdentityError);
 		}
 		if (SaveGame->Copper < 0 || SaveGame->CurrentExperience < 0)
 		{
@@ -355,6 +415,14 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::CaptureGameState(
 			OutMessage,
 			TEXT("The player persistence owners are unavailable."));
 	}
+	if (!Character->bHasDeliberateCharacterChoice ||
+		!Character->CanRestoreRaceAndClassForSaveGame(Character->Race, Character->Class))
+	{
+		return Fail(
+			EEmbermerePersistenceResult::InvalidData,
+			OutMessage,
+			TEXT("Confirm a valid character identity before saving the journey."));
+	}
 
 	UEmbermereSaveGame* Candidate = Cast<UEmbermereSaveGame>(
 		UGameplayStatics::CreateSaveGameObject(UEmbermereSaveGame::StaticClass()));
@@ -367,6 +435,15 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::CaptureGameState(
 	}
 
 	Candidate->FormatVersion = EmbermereSaveGameVersion::Current;
+	Candidate->RaceId = UEmbermereRulesData::GetStableRaceId(Character->Race);
+	Candidate->ClassId = UEmbermereRulesData::GetStableClassId(Character->Class);
+	if (Candidate->RaceId.IsNone() || Candidate->ClassId.IsNone())
+	{
+		return Fail(
+			EEmbermerePersistenceResult::InvalidData,
+			OutMessage,
+			TEXT("The confirmed character identity has no stable save ID."));
+	}
 	Candidate->Copper = Character->Wallet->Copper;
 	Candidate->CurrentExperience = Character->Stats->CurrentExperience;
 	for (const FEmbermereInventoryStack& Stack : Character->Inventory->Stacks)
@@ -486,6 +563,13 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::ApplyGameState(
 
 	// Every record is resolved and preflighted above; the commit phase has no
 	// fallible asset lookup or capacity mutation.
+	if (!Character->TryRestoreRaceAndClassForSaveGame(ResolvedState.Race, ResolvedState.Class))
+	{
+		return Fail(
+			EEmbermerePersistenceResult::InvalidData,
+			OutMessage,
+			TEXT("The validated character identity could not be restored."));
+	}
 	Character->Inventory->RestoreStacksForSaveGame(ResolvedState.InventoryStacks);
 	Character->Equipment->RestoreEquippedItemsForSaveGame(ResolvedState.EquippedItems);
 	Character->Stats->ApplyEquipmentBonuses(Character->Equipment->GetTotalStatBonuses());
@@ -503,7 +587,7 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::ApplyGameState(
 		Character->Combat->SetTarget(nullptr);
 	}
 	OutMessage = FText::FromString(
-		TEXT("Embermere progress loaded. Combat state and buyback history were reset."));
+		TEXT("Embermere identity and progress loaded. Combat state and buyback history were reset."));
 	return EEmbermerePersistenceResult::Success;
 }
 
@@ -611,15 +695,43 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::InspectSaveSlot(
 			OutSummary,
 			TEXT("The local save cannot be read as an Embermere journey."));
 	}
-	if (SaveGame->FormatVersion != EmbermereSaveGameVersion::Current)
+	if (!EmbermereSaveGameVersion::IsSupported(SaveGame->FormatVersion))
 	{
 		return Fail(
 			EEmbermerePersistenceResult::UnsupportedVersion,
 			OutSummary,
 			FString::Printf(
-				TEXT("Save version %d is unsupported; this build expects version %d."),
+				TEXT("Save version %d is unsupported; this build supports versions %d through %d."),
 				SaveGame->FormatVersion,
+				EmbermereSaveGameVersion::ProgressionOnly,
 				EmbermereSaveGameVersion::Current));
+	}
+
+	EEmbermereRace SavedRace = EEmbermereRace::Human;
+	EEmbermereClass SavedClass = EEmbermereClass::Warrior;
+	FString IdentityError;
+	const UEmbermereRulesData* Rules = GetDefault<UEmbermereRulesData>();
+	if (!ResolveSavedCharacterIdentity(SaveGame, SavedRace, SavedClass, IdentityError) ||
+		!Rules || !Rules->IsCharacterIdentityValid(SavedRace, SavedClass))
+	{
+		return Fail(
+			EEmbermerePersistenceResult::InvalidData,
+			OutSummary,
+			IdentityError.IsEmpty()
+				? TEXT("The saved character identity is illegal under current rules.")
+				: IdentityError);
+	}
+	FEmbermereRaceDefinition RaceDefinition;
+	FEmbermereClassDefinition ClassDefinition;
+	Rules->GetRaceDefinition(SavedRace, RaceDefinition);
+	Rules->GetClassDefinition(SavedClass, ClassDefinition);
+	FString IdentitySummary = FString::Printf(
+		TEXT("%s %s"),
+		*RaceDefinition.DisplayName.ToString(),
+		*ClassDefinition.DisplayName.ToString());
+	if (SaveGame->FormatVersion == EmbermereSaveGameVersion::ProgressionOnly)
+	{
+		IdentitySummary += TEXT("  |  legacy v1 fallback");
 	}
 
 	FString QuestSummary = TEXT("No active quest");
@@ -630,7 +742,8 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::InspectSaveSlot(
 			: FString::Printf(TEXT("Quest progress %d"), SaveGame->QuestState.CurrentObjectiveCount);
 	}
 	OutSummary = FText::FromString(FString::Printf(
-		TEXT("%d copper  |  %d XP\n%d bag stacks  |  %d equipped  |  %s"),
+		TEXT("%s\n%d copper  |  %d XP\n%d bag stacks  |  %d equipped  |  %s"),
+		*IdentitySummary,
 		SaveGame->Copper,
 		SaveGame->CurrentExperience,
 		SaveGame->InventoryStacks.Num(),

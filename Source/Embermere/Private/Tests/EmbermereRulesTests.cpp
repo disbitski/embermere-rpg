@@ -648,6 +648,9 @@ bool FEmbermerePersistenceRoundTripTest::RunTest(const FString& Parameters)
 	SourceVendor->SetStockData(Stock);
 	TargetVendor->SetStockData(Stock);
 	SourceVendor->RestoreStockForSaveGame({-1, 0});
+	TestTrue(
+		TEXT("Source confirms its Human Warrior identity before capture"),
+		Source->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
 	Source->Wallet->SetCopperForPrototype(22);
 	Source->Stats->RestoreExperienceForSaveGame(125);
 	TestTrue(TEXT("Source receives two tonic items"), Source->Inventory->AddItem(Tonic, 2));
@@ -682,6 +685,8 @@ bool FEmbermerePersistenceRoundTripTest::RunTest(const FString& Parameters)
 		return false;
 	}
 	TestEqual(TEXT("Save uses the current format version"), CapturedSave->FormatVersion, EmbermereSaveGameVersion::Current);
+	TestEqual(TEXT("Save captures stable Human race ID"), CapturedSave->RaceId, FName(TEXT("Human")));
+	TestEqual(TEXT("Save captures stable Warrior class ID"), CapturedSave->ClassId, FName(TEXT("Warrior")));
 	TestEqual(TEXT("Save captures wallet copper"), CapturedSave->Copper, 22);
 	TestEqual(TEXT("Save captures XP"), CapturedSave->CurrentExperience, 125);
 	TestEqual(TEXT("Equipped item is absent from bag records"), CapturedSave->InventoryStacks.Num(), 1);
@@ -714,6 +719,9 @@ bool FEmbermerePersistenceRoundTripTest::RunTest(const FString& Parameters)
 			PersistenceMessage),
 		EEmbermerePersistenceResult::Success);
 	TestEqual(TEXT("Load restores wallet copper"), Target->Wallet->Copper, 22);
+	TestEqual(TEXT("Load restores Human identity"), Target->Race, EEmbermereRace::Human);
+	TestEqual(TEXT("Load restores Warrior identity"), Target->Class, EEmbermereClass::Warrior);
+	TestTrue(TEXT("Loaded identity is deliberate"), Target->bHasDeliberateCharacterChoice);
 	TestEqual(TEXT("Load restores XP"), Target->Stats->CurrentExperience, 125);
 	TestEqual(TEXT("Load restores exact tonic quantity"), Target->Inventory->GetItemQuantity(Tonic), 2);
 	TestTrue(
@@ -746,7 +754,245 @@ bool FEmbermerePersistenceRoundTripTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Repeat load does not double equipment armor"), Target->Stats->Armor, 1.0f);
 	TestEqual(TEXT("Repeat load does not duplicate XP"), Target->Stats->CurrentExperience, 125);
 	TestEqual(TEXT("Repeat load does not duplicate copper"), Target->Wallet->Copper, 22);
+	TestEqual(TEXT("Repeat load preserves exact race"), Target->Race, EEmbermereRace::Human);
+	TestEqual(TEXT("Repeat load preserves exact class"), Target->Class, EEmbermereClass::Warrior);
 
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermerePersistenceCharacterIdentityRoundTripTest,
+	"Embermere.Persistence.CharacterIdentityRoundTrip",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermerePersistenceCharacterIdentityRoundTripTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Unconfirmed = NewObject<AEmbermereCharacter>();
+	AEmbermereCharacter* Source = NewObject<AEmbermereCharacter>();
+	AEmbermereCharacter* Target = NewObject<AEmbermereCharacter>();
+	if (!Unconfirmed || !Source || !Target || !Source->Stats || !Source->Hotbar ||
+		!Target->Stats || !Target->Hotbar)
+	{
+		AddError(TEXT("Could not create character identity persistence fixtures"));
+		return false;
+	}
+
+	UEmbermereSaveGame* RejectedSave = nullptr;
+	FText PersistenceMessage;
+	TestEqual(
+		TEXT("Unconfirmed fallback identity cannot be captured as a deliberate v2 identity"),
+		UEmbermerePersistenceLibrary::CaptureGameState(
+			Unconfirmed, {}, RejectedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	TestNull(TEXT("Rejected capture produces no save object"), RejectedSave);
+
+	TestTrue(
+		TEXT("Source confirms Elf Wizard through character authority"),
+		Source->TryApplyRaceAndClass(EEmbermereRace::Elf, EEmbermereClass::Wizard));
+	Source->Wallet->SetCopperForPrototype(31);
+	Source->Stats->RestoreExperienceForSaveGame(44);
+
+	UEmbermereSaveGame* CapturedSave = nullptr;
+	TestEqual(
+		TEXT("Confirmed Elf Wizard captures successfully"),
+		UEmbermerePersistenceLibrary::CaptureGameState(
+			Source, {}, CapturedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestNotNull(TEXT("Identity capture creates a save"), CapturedSave);
+	if (!CapturedSave)
+	{
+		return false;
+	}
+	TestEqual(TEXT("Identity save uses v2"), CapturedSave->FormatVersion, EmbermereSaveGameVersion::CharacterIdentity);
+	TestEqual(TEXT("Elf uses explicit stable ID"), CapturedSave->RaceId, FName(TEXT("Elf")));
+	TestEqual(TEXT("Wizard uses explicit stable ID"), CapturedSave->ClassId, FName(TEXT("Wizard")));
+
+	TArray<uint8> SerializedBytes;
+	TestTrue(TEXT("Identity save serializes through SaveGame archive"),
+		UGameplayStatics::SaveGameToMemory(CapturedSave, SerializedBytes));
+	UEmbermereSaveGame* LoadedSave = Cast<UEmbermereSaveGame>(
+		UGameplayStatics::LoadGameFromMemory(SerializedBytes));
+	TestNotNull(TEXT("Serialized identity save reloads"), LoadedSave);
+	if (!LoadedSave)
+	{
+		return false;
+	}
+
+	TestTrue(
+		TEXT("Target begins as a different legal identity"),
+		Target->TryApplyRaceAndClass(EEmbermereRace::Ogre, EEmbermereClass::Warrior));
+	TestEqual(
+		TEXT("V2 identity applies atomically"),
+		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, LoadedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Race restores exactly"), Target->Race, EEmbermereRace::Elf);
+	TestEqual(TEXT("Class restores exactly"), Target->Class, EEmbermereClass::Wizard);
+	TestTrue(TEXT("Restored identity remains deliberate"), Target->bHasDeliberateCharacterChoice);
+	TestEqual(TEXT("Wizard base health restores exactly"), Target->Stats->MaxHealth, 80.0f);
+	TestEqual(TEXT("Wizard base mana restores exactly"), Target->Stats->MaxMana, 110.0f);
+	TestEqual(TEXT("Wizard attack power restores exactly"), Target->Stats->AttackPower, 6.0f);
+	TestEqual(TEXT("Copper restores with identity"), Target->Wallet->Copper, 31);
+	TestEqual(TEXT("XP restores with identity"), Target->Stats->CurrentExperience, 44);
+	const TArray<FName> ExpectedAbilities = {
+		TEXT("SparkBolt"), TEXT("FrostRoot"), TEXT("ArcaneBurst"), TEXT("Meditate")};
+	for (int32 Index = 0; Index < ExpectedAbilities.Num(); ++Index)
+	{
+		TestEqual(
+			*FString::Printf(TEXT("Restored Wizard slot %d matches rules"), Index + 1),
+			Target->Hotbar->Slots[Index].AbilityId,
+			ExpectedAbilities[Index]);
+	}
+
+	TestEqual(
+		TEXT("Repeated v2 identity load remains valid"),
+		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, LoadedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Repeated load does not stack health"), Target->Stats->MaxHealth, 80.0f);
+	TestEqual(TEXT("Repeated load does not stack mana"), Target->Stats->MaxMana, 110.0f);
+	TestEqual(TEXT("Repeated load keeps exact first ability"), Target->Hotbar->Slots[0].AbilityId, FName(TEXT("SparkBolt")));
+	TestEqual(TEXT("Repeated load does not duplicate XP"), Target->Stats->CurrentExperience, 44);
+	TestEqual(TEXT("Repeated load does not drift copper"), Target->Wallet->Copper, 31);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermerePersistenceCharacterIdentityRollbackTest,
+	"Embermere.Persistence.CharacterIdentityRollback",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermerePersistenceCharacterIdentityRollbackTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Source = NewObject<AEmbermereCharacter>();
+	AEmbermereCharacter* Target = NewObject<AEmbermereCharacter>();
+	if (!Source || !Target || !Source->Stats || !Target->Stats || !Target->Hotbar)
+	{
+		AddError(TEXT("Could not create identity rollback fixtures"));
+		return false;
+	}
+
+	TestTrue(TEXT("Rollback source confirms Elf Wizard"),
+		Source->TryApplyRaceAndClass(EEmbermereRace::Elf, EEmbermereClass::Wizard));
+	Source->Wallet->SetCopperForPrototype(31);
+	Source->Stats->RestoreExperienceForSaveGame(44);
+	UEmbermereSaveGame* GoodSave = nullptr;
+	FText PersistenceMessage;
+	TestEqual(
+		TEXT("Rollback source captures a valid v2 record"),
+		UEmbermerePersistenceLibrary::CaptureGameState(
+			Source, {}, GoodSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	if (!GoodSave)
+	{
+		AddError(TEXT("Identity rollback baseline save is unavailable"));
+		return false;
+	}
+
+	TestTrue(TEXT("Rollback target confirms Lizardman Ranger"),
+		Target->TryApplyRaceAndClass(EEmbermereRace::Lizardman, EEmbermereClass::Ranger));
+	Target->Wallet->SetCopperForPrototype(17);
+	Target->Stats->RestoreExperienceForSaveGame(9);
+	const FName BaselineFirstAbility = Target->Hotbar->Slots[0].AbilityId;
+	auto AssertIdentityStateUnchanged = [this, Target, BaselineFirstAbility]()
+	{
+		TestEqual(TEXT("Rejected identity preserves race"), Target->Race, EEmbermereRace::Lizardman);
+		TestEqual(TEXT("Rejected identity preserves class"), Target->Class, EEmbermereClass::Ranger);
+		TestEqual(TEXT("Rejected identity preserves max health"), Target->Stats->MaxHealth, 100.0f);
+		TestEqual(TEXT("Rejected identity preserves max mana"), Target->Stats->MaxMana, 60.0f);
+		TestEqual(TEXT("Rejected identity preserves first ability"), Target->Hotbar->Slots[0].AbilityId, BaselineFirstAbility);
+		TestEqual(TEXT("Rejected identity preserves copper"), Target->Wallet->Copper, 17);
+		TestEqual(TEXT("Rejected identity preserves XP"), Target->Stats->CurrentExperience, 9);
+	};
+
+	UEmbermereSaveGame* UnknownRace = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	UnknownRace->RaceId = TEXT("Moonkin");
+	TestEqual(TEXT("Unknown stable race ID rejects before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, UnknownRace, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertIdentityStateUnchanged();
+
+	UEmbermereSaveGame* UnknownClass = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	UnknownClass->ClassId = TEXT("Bard");
+	TestEqual(TEXT("Unknown stable class ID rejects before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, UnknownClass, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertIdentityStateUnchanged();
+
+	UEmbermereSaveGame* IllegalPair = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	IllegalPair->RaceId = TEXT("Dwarf");
+	IllegalPair->ClassId = TEXT("Ranger");
+	TestEqual(TEXT("Known but illegal Dwarf Ranger rejects before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, IllegalPair, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertIdentityStateUnchanged();
+
+	UEmbermereSaveGame* MissingIdentity = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	MissingIdentity->RaceId = NAME_None;
+	TestEqual(TEXT("Malformed v2 identity rejects before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, MissingIdentity, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertIdentityStateUnchanged();
+
+	TestEqual(TEXT("Valid identity still applies after rejected candidates"),
+		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, GoodSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Valid identity replaces race"), Target->Race, EEmbermereRace::Elf);
+	TestEqual(TEXT("Valid identity replaces class"), Target->Class, EEmbermereClass::Wizard);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermerePersistenceLegacyIdentityFallbackTest,
+	"Embermere.Persistence.LegacyV1CharacterFallback",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermerePersistenceLegacyIdentityFallbackTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Source = NewObject<AEmbermereCharacter>();
+	AEmbermereCharacter* Target = NewObject<AEmbermereCharacter>();
+	if (!Source || !Target || !Target->Stats || !Target->Hotbar)
+	{
+		AddError(TEXT("Could not create legacy identity fixtures"));
+		return false;
+	}
+
+	TestTrue(TEXT("Legacy source begins from a confirmed identity"),
+		Source->TryApplyRaceAndClass(EEmbermereRace::Elf, EEmbermereClass::Wizard));
+	Source->Wallet->SetCopperForPrototype(23);
+	Source->Stats->RestoreExperienceForSaveGame(12);
+	UEmbermereSaveGame* LegacySave = nullptr;
+	FText PersistenceMessage;
+	TestEqual(TEXT("Legacy fixture first captures valid current progression"),
+		UEmbermerePersistenceLibrary::CaptureGameState(
+			Source, {}, LegacySave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	if (!LegacySave)
+	{
+		return false;
+	}
+	LegacySave->FormatVersion = EmbermereSaveGameVersion::ProgressionOnly;
+	LegacySave->RaceId = NAME_None;
+	LegacySave->ClassId = NAME_None;
+
+	TestTrue(TEXT("Target starts as a different Lizardman Ranger"),
+		Target->TryApplyRaceAndClass(EEmbermereRace::Lizardman, EEmbermereClass::Ranger));
+	TestEqual(TEXT("Version 1 progression remains loadable"),
+		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, LegacySave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("V1 uses explicit Human fallback"), Target->Race, EEmbermereRace::Human);
+	TestEqual(TEXT("V1 uses explicit Warrior fallback"), Target->Class, EEmbermereClass::Warrior);
+	TestTrue(TEXT("V1 fallback becomes deliberate runtime identity"), Target->bHasDeliberateCharacterChoice);
+	TestEqual(TEXT("V1 fallback rebuilds Warrior health"), Target->Stats->MaxHealth, 100.0f);
+	TestEqual(TEXT("V1 fallback rebuilds Warrior mana"), Target->Stats->MaxMana, 50.0f);
+	TestEqual(TEXT("V1 fallback rebuilds Warrior first ability"), Target->Hotbar->Slots[0].AbilityId, FName(TEXT("Strike")));
+	TestEqual(TEXT("V1 keeps legacy copper"), Target->Wallet->Copper, 23);
+	TestEqual(TEXT("V1 keeps legacy XP"), Target->Stats->CurrentExperience, 12);
+
+	TestEqual(TEXT("Repeated v1 fallback remains idempotent"),
+		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, LegacySave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Repeated v1 does not stack health"), Target->Stats->MaxHealth, 100.0f);
+	TestEqual(TEXT("Repeated v1 does not duplicate XP"), Target->Stats->CurrentExperience, 12);
+	TestEqual(TEXT("Compatibility load never rewrites source format"), LegacySave->FormatVersion, EmbermereSaveGameVersion::ProgressionOnly);
 	return true;
 }
 
@@ -776,6 +1022,9 @@ bool FEmbermerePersistenceValidationRollbackTest::RunTest(const FString& Paramet
 
 	Vendor->PersistenceId = TEXT("FenwatchQuartermaster");
 	Vendor->SetStockData(Stock);
+	TestTrue(
+		TEXT("Rollback fixture confirms Human Warrior before capture"),
+		Character->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
 	Character->Wallet->SetCopperForPrototype(17);
 	TestTrue(TEXT("Rollback fixture receives one tonic"), Character->Inventory->AddItem(Tonic, 1));
 	FEmbermereVendorBuybackEntry ExistingBuyback;
@@ -924,6 +1173,8 @@ bool FEmbermerePersistenceSlotInspectionTest::RunTest(const FString& Parameters)
 	}
 	SaveGame->Copper = 22;
 	SaveGame->CurrentExperience = 125;
+	SaveGame->RaceId = TEXT("Elf");
+	SaveGame->ClassId = TEXT("Wizard");
 	FEmbermereSavedInventoryStack InventoryStack;
 	InventoryStack.ItemId = TEXT("MarshTonic");
 	InventoryStack.ItemAsset = FSoftObjectPath(TEXT("/Game/Data/Items/DI_MarshTonic.DI_MarshTonic"));
@@ -947,11 +1198,26 @@ bool FEmbermerePersistenceSlotInspectionTest::RunTest(const FString& Parameters)
 		UEmbermerePersistenceLibrary::InspectSaveSlot(SlotName, UserIndex, Summary),
 		EEmbermerePersistenceResult::Success);
 	const FString ValidSummary = Summary.ToString();
+	TestTrue(TEXT("Slot summary reports read-only identity"), ValidSummary.Contains(TEXT("Elf Wizard")));
 	TestTrue(TEXT("Slot summary reports exact copper"), ValidSummary.Contains(TEXT("22 copper")));
 	TestTrue(TEXT("Slot summary reports exact XP"), ValidSummary.Contains(TEXT("125 XP")));
 	TestTrue(TEXT("Slot summary reports bag stack count"), ValidSummary.Contains(TEXT("1 bag stacks")));
 	TestTrue(TEXT("Slot summary reports equipment count"), ValidSummary.Contains(TEXT("1 equipped")));
 	TestTrue(TEXT("Slot summary reports completed quest state"), ValidSummary.Contains(TEXT("Quest complete")));
+
+	SaveGame->FormatVersion = EmbermereSaveGameVersion::ProgressionOnly;
+	SaveGame->RaceId = NAME_None;
+	SaveGame->ClassId = NAME_None;
+	TestTrue(
+		TEXT("Legacy version fixture overwrites the test slot"),
+		UGameplayStatics::SaveGameToSlot(SaveGame, SlotName, UserIndex));
+	TestEqual(
+		TEXT("Version 1 local slot remains inspectable"),
+		UEmbermerePersistenceLibrary::InspectSaveSlot(SlotName, UserIndex, Summary),
+		EEmbermerePersistenceResult::Success);
+	TestTrue(
+		TEXT("Chronicle labels the version 1 identity fallback"),
+		Summary.ToString().Contains(TEXT("Human Warrior  |  legacy v1 fallback")));
 
 	SaveGame->FormatVersion = EmbermereSaveGameVersion::Current + 1;
 	TestTrue(
