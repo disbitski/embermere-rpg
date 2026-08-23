@@ -139,21 +139,61 @@ bool AEmbermereCharacter::TryApplyRaceAndClass(EEmbermereRace NewRace, EEmbermer
 	{
 		return false;
 	}
-	return ApplyValidatedRaceAndClass(NewRace, NewClass);
+	return Stats && ApplyValidatedRaceAndClass(
+		NewRace,
+		NewClass,
+		Stats->CurrentExperience);
 }
 
 bool AEmbermereCharacter::CanRestoreRaceAndClassForSaveGame(
 	EEmbermereRace NewRace,
 	EEmbermereClass NewClass) const
 {
-	return ValidateRaceAndClassLoadout(NewRace, NewClass);
+	int32 ResolvedLevel = 1;
+	return Stats && CanRestoreCharacterProgressionForSaveGame(
+		NewRace,
+		NewClass,
+		Stats->CurrentExperience,
+		ResolvedLevel);
 }
 
 bool AEmbermereCharacter::TryRestoreRaceAndClassForSaveGame(
 	EEmbermereRace NewRace,
 	EEmbermereClass NewClass)
 {
-	return ApplyValidatedRaceAndClass(NewRace, NewClass);
+	return Stats && TryRestoreCharacterProgressionForSaveGame(
+		NewRace,
+		NewClass,
+		Stats->CurrentExperience);
+}
+
+bool AEmbermereCharacter::CanRestoreCharacterProgressionForSaveGame(
+	EEmbermereRace NewRace,
+	EEmbermereClass NewClass,
+	int32 Experience,
+	int32& OutLevel) const
+{
+	OutLevel = 1;
+	if (!ValidateRaceAndClassLoadout(NewRace, NewClass))
+	{
+		return false;
+	}
+
+	const UEmbermereRulesData* EffectiveRules = RulesData.Get()
+		? RulesData.Get()
+		: GetDefault<UEmbermereRulesData>();
+	FEmbermereProgressionProfile Profile;
+	return EffectiveRules && Stats &&
+		EffectiveRules->GetProgressionProfile(NewRace, NewClass, Profile) &&
+		Stats->CanConfigureProgression(Profile, Experience, &OutLevel);
+}
+
+bool AEmbermereCharacter::TryRestoreCharacterProgressionForSaveGame(
+	EEmbermereRace NewRace,
+	EEmbermereClass NewClass,
+	int32 Experience)
+{
+	return ApplyValidatedRaceAndClass(NewRace, NewClass, Experience);
 }
 
 bool AEmbermereCharacter::ValidateRaceAndClassLoadout(
@@ -163,13 +203,16 @@ bool AEmbermereCharacter::ValidateRaceAndClassLoadout(
 	const UEmbermereRulesData* EffectiveRules = RulesData.Get()
 		? RulesData.Get()
 		: GetDefault<UEmbermereRulesData>();
+	FEmbermereProgressionProfile Profile;
 	return EffectiveRules && Stats && Hotbar &&
-		EffectiveRules->IsCharacterIdentityValid(NewRace, NewClass);
+		EffectiveRules->IsCharacterIdentityValid(NewRace, NewClass) &&
+		EffectiveRules->GetProgressionProfile(NewRace, NewClass, Profile);
 }
 
 bool AEmbermereCharacter::ApplyValidatedRaceAndClass(
 	EEmbermereRace NewRace,
-	EEmbermereClass NewClass)
+	EEmbermereClass NewClass,
+	int32 Experience)
 {
 	if (!ValidateRaceAndClassLoadout(NewRace, NewClass))
 	{
@@ -179,15 +222,20 @@ bool AEmbermereCharacter::ApplyValidatedRaceAndClass(
 	const UEmbermereRulesData* EffectiveRules = RulesData.Get()
 		? RulesData.Get()
 		: GetDefault<UEmbermereRulesData>();
-	FEmbermereClassDefinition ClassDefinition;
-	if (!EffectiveRules || !EffectiveRules->GetClassDefinition(NewClass, ClassDefinition))
+	FEmbermereProgressionProfile Profile;
+	if (!EffectiveRules ||
+		!EffectiveRules->GetProgressionProfile(NewRace, NewClass, Profile) ||
+		!Stats->CanConfigureProgression(Profile, Experience))
 	{
 		return false;
 	}
 
+	if (!Stats->ConfigureProgression(Profile, Experience, true))
+	{
+		return false;
+	}
 	Race = NewRace;
 	Class = NewClass;
-	Stats->ApplyStartingAttributes(ClassDefinition.StartingAttributes);
 	PrimeStarterHotbar();
 	bHasDeliberateCharacterChoice = true;
 	return true;

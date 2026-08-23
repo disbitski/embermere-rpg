@@ -2,6 +2,45 @@
 
 namespace EmbermereRules
 {
+	bool IsFiniteNonNegative(float Value)
+	{
+		return FMath::IsFinite(Value) && Value >= 0.0f;
+	}
+
+	bool IsStartingAttributesValid(const FEmbermereAttributeBlock& Attributes)
+	{
+		return FMath::IsFinite(Attributes.MaxHealth) && Attributes.MaxHealth >= 1.0f &&
+			IsFiniteNonNegative(Attributes.MaxMana) &&
+			IsFiniteNonNegative(Attributes.Strength) &&
+			IsFiniteNonNegative(Attributes.Spirit) &&
+			IsFiniteNonNegative(Attributes.Agility) &&
+			IsFiniteNonNegative(Attributes.Intellect);
+	}
+
+	bool IsGrowthValid(const FEmbermereAttributeGrowth& Growth)
+	{
+		return IsFiniteNonNegative(Growth.MaxHealth) &&
+			IsFiniteNonNegative(Growth.MaxMana) &&
+			IsFiniteNonNegative(Growth.Strength) &&
+			IsFiniteNonNegative(Growth.Spirit) &&
+			IsFiniteNonNegative(Growth.Agility) &&
+			IsFiniteNonNegative(Growth.Intellect);
+	}
+
+	FEmbermereAttributeGrowth AddGrowth(
+		const FEmbermereAttributeGrowth& Left,
+		const FEmbermereAttributeGrowth& Right)
+	{
+		FEmbermereAttributeGrowth Result;
+		Result.MaxHealth = Left.MaxHealth + Right.MaxHealth;
+		Result.MaxMana = Left.MaxMana + Right.MaxMana;
+		Result.Strength = Left.Strength + Right.Strength;
+		Result.Spirit = Left.Spirit + Right.Spirit;
+		Result.Agility = Left.Agility + Right.Agility;
+		Result.Intellect = Left.Intellect + Right.Intellect;
+		return Result;
+	}
+
 	FEmbermereAttributeBlock MakeAttributes(
 		float MaxHealth,
 		float MaxMana,
@@ -20,13 +59,37 @@ namespace EmbermereRules
 		return Attributes;
 	}
 
-	FEmbermereRaceDefinition MakeRace(EEmbermereRace Race, const TCHAR* Name, const TCHAR* Description, TArray<EEmbermereClass> AllowedClasses)
+	FEmbermereAttributeGrowth MakeGrowth(
+		float MaxHealth,
+		float MaxMana,
+		float Strength,
+		float Spirit,
+		float Agility,
+		float Intellect)
+	{
+		FEmbermereAttributeGrowth Growth;
+		Growth.MaxHealth = MaxHealth;
+		Growth.MaxMana = MaxMana;
+		Growth.Strength = Strength;
+		Growth.Spirit = Spirit;
+		Growth.Agility = Agility;
+		Growth.Intellect = Intellect;
+		return Growth;
+	}
+
+	FEmbermereRaceDefinition MakeRace(
+		EEmbermereRace Race,
+		const TCHAR* Name,
+		const TCHAR* Description,
+		TArray<EEmbermereClass> AllowedClasses,
+		const FEmbermereAttributeGrowth& LevelGrowth)
 	{
 		FEmbermereRaceDefinition Definition;
 		Definition.Race = Race;
 		Definition.DisplayName = FText::FromString(Name);
 		Definition.Description = FText::FromString(Description);
 		Definition.AllowedClasses = MoveTemp(AllowedClasses);
+		Definition.LevelGrowth = LevelGrowth;
 		return Definition;
 	}
 
@@ -35,7 +98,8 @@ namespace EmbermereRules
 		const TCHAR* Name,
 		const TCHAR* Description,
 		TArray<FName> StarterAbilityIds,
-		const FEmbermereAttributeBlock& StartingAttributes)
+		const FEmbermereAttributeBlock& StartingAttributes,
+		const FEmbermereAttributeGrowth& LevelGrowth)
 	{
 		FEmbermereClassDefinition Definition;
 		Definition.Class = Class;
@@ -43,6 +107,7 @@ namespace EmbermereRules
 		Definition.Description = FText::FromString(Description);
 		Definition.StarterAbilityIds = MoveTemp(StarterAbilityIds);
 		Definition.StartingAttributes = StartingAttributes;
+		Definition.LevelGrowth = LevelGrowth;
 		return Definition;
 	}
 
@@ -85,23 +150,24 @@ namespace EmbermereRules
 UEmbermereRulesData::UEmbermereRulesData()
 {
 	using namespace EmbermereRules;
+	ExperienceThresholds = {0, 100, 250, 450, 700};
 
 	Races = {
-		MakeRace(EEmbermereRace::Human, TEXT("Human"), TEXT("Adaptable folk from the roads and farms around Embermere."), { EEmbermereClass::Warrior, EEmbermereClass::Cleric, EEmbermereClass::Ranger, EEmbermereClass::Wizard }),
-		MakeRace(EEmbermereRace::Elf, TEXT("Elf"), TEXT("Graceful forest kin with old songs and sharp eyes."), { EEmbermereClass::Warrior, EEmbermereClass::Cleric, EEmbermereClass::Ranger, EEmbermereClass::Wizard }),
-		MakeRace(EEmbermereRace::Dwarf, TEXT("Dwarf"), TEXT("Stone-blooded defenders and temple keepers."), { EEmbermereClass::Warrior, EEmbermereClass::Cleric }),
-		MakeRace(EEmbermereRace::Gnome, TEXT("Gnome"), TEXT("Small, brilliant, and difficult to surprise."), { EEmbermereClass::Cleric, EEmbermereClass::Wizard }),
-		MakeRace(EEmbermereRace::DarkElf, TEXT("Dark Elf"), TEXT("Moonless exiles with blade craft and forbidden lore."), { EEmbermereClass::Warrior, EEmbermereClass::Ranger, EEmbermereClass::Wizard }),
-		MakeRace(EEmbermereRace::Lizardman, TEXT("Lizardman"), TEXT("Scale-clad hunters from the warm marsh edge."), { EEmbermereClass::Warrior, EEmbermereClass::Ranger }),
-		MakeRace(EEmbermereRace::Ogre, TEXT("Ogre"), TEXT("Massive warriors whose shamans remember ancient oaths."), { EEmbermereClass::Warrior, EEmbermereClass::Cleric }),
-		MakeRace(EEmbermereRace::Bullywug, TEXT("Bullywug"), TEXT("Amphibian wanderers with swamp songs and stubborn courage."), { EEmbermereClass::Warrior, EEmbermereClass::Cleric, EEmbermereClass::Ranger })
+		MakeRace(EEmbermereRace::Human, TEXT("Human"), TEXT("Adaptable folk from the roads and farms around Embermere."), { EEmbermereClass::Warrior, EEmbermereClass::Cleric, EEmbermereClass::Ranger, EEmbermereClass::Wizard }, MakeGrowth(2.0f, 2.0f, 0.5f, 0.5f, 0.5f, 0.5f)),
+		MakeRace(EEmbermereRace::Elf, TEXT("Elf"), TEXT("Graceful forest kin with old songs and sharp eyes."), { EEmbermereClass::Warrior, EEmbermereClass::Cleric, EEmbermereClass::Ranger, EEmbermereClass::Wizard }, MakeGrowth(1.0f, 4.0f, 0.25f, 0.5f, 0.75f, 1.0f)),
+		MakeRace(EEmbermereRace::Dwarf, TEXT("Dwarf"), TEXT("Stone-blooded defenders and temple keepers."), { EEmbermereClass::Warrior, EEmbermereClass::Cleric }, MakeGrowth(5.0f, 1.0f, 1.0f, 0.5f, 0.25f, 0.25f)),
+		MakeRace(EEmbermereRace::Gnome, TEXT("Gnome"), TEXT("Small, brilliant, and difficult to surprise."), { EEmbermereClass::Cleric, EEmbermereClass::Wizard }, MakeGrowth(1.0f, 5.0f, 0.25f, 0.75f, 0.5f, 1.0f)),
+		MakeRace(EEmbermereRace::DarkElf, TEXT("Dark Elf"), TEXT("Moonless exiles with blade craft and forbidden lore."), { EEmbermereClass::Warrior, EEmbermereClass::Ranger, EEmbermereClass::Wizard }, MakeGrowth(2.0f, 4.0f, 0.5f, 0.5f, 0.75f, 0.75f)),
+		MakeRace(EEmbermereRace::Lizardman, TEXT("Lizardman"), TEXT("Scale-clad hunters from the warm marsh edge."), { EEmbermereClass::Warrior, EEmbermereClass::Ranger }, MakeGrowth(4.0f, 1.0f, 0.75f, 0.25f, 0.75f, 0.25f)),
+		MakeRace(EEmbermereRace::Ogre, TEXT("Ogre"), TEXT("Massive warriors whose shamans remember ancient oaths."), { EEmbermereClass::Warrior, EEmbermereClass::Cleric }, MakeGrowth(6.0f, 0.0f, 1.25f, 0.25f, 0.25f, 0.0f)),
+		MakeRace(EEmbermereRace::Bullywug, TEXT("Bullywug"), TEXT("Amphibian wanderers with swamp songs and stubborn courage."), { EEmbermereClass::Warrior, EEmbermereClass::Cleric, EEmbermereClass::Ranger }, MakeGrowth(3.0f, 2.0f, 0.5f, 0.75f, 0.5f, 0.25f))
 	};
 
 	Classes = {
-		MakeClass(EEmbermereClass::Warrior, TEXT("Warrior"), TEXT("A durable front-line fighter built around threat and weapon pressure."), { "Strike", "Taunt", "ShieldSlam", "BattleShout" }, MakeAttributes(100.0f, 50.0f, 10.0f, 8.0f, 10.0f, 7.0f)),
-		MakeClass(EEmbermereClass::Cleric, TEXT("Cleric"), TEXT("A holy caster who heals allies and punishes the restless dead."), { "Smite", "LesserHeal", "Ward", "Judgment" }, MakeAttributes(95.0f, 80.0f, 8.0f, 14.0f, 8.0f, 12.0f)),
-		MakeClass(EEmbermereClass::Ranger, TEXT("Ranger"), TEXT("A wilderness fighter with bow pressure, snares, and steady melee backup."), { "QuickShot", "Snare", "TwinCut", "NaturesFocus" }, MakeAttributes(100.0f, 60.0f, 10.0f, 9.0f, 14.0f, 9.0f)),
-		MakeClass(EEmbermereClass::Wizard, TEXT("Wizard"), TEXT("A fragile spellcaster built around roots, mana, and burst damage."), { "SparkBolt", "FrostRoot", "ArcaneBurst", "Meditate" }, MakeAttributes(80.0f, 110.0f, 6.0f, 12.0f, 8.0f, 16.0f))
+		MakeClass(EEmbermereClass::Warrior, TEXT("Warrior"), TEXT("A durable front-line fighter built around threat and weapon pressure."), { "Strike", "Taunt", "ShieldSlam", "BattleShout" }, MakeAttributes(100.0f, 50.0f, 10.0f, 8.0f, 10.0f, 7.0f), MakeGrowth(8.0f, 1.0f, 1.5f, 0.5f, 0.75f, 0.25f)),
+		MakeClass(EEmbermereClass::Cleric, TEXT("Cleric"), TEXT("A holy caster who heals allies and punishes the restless dead."), { "Smite", "LesserHeal", "Ward", "Judgment" }, MakeAttributes(95.0f, 80.0f, 8.0f, 14.0f, 8.0f, 12.0f), MakeGrowth(5.0f, 6.0f, 0.5f, 1.5f, 0.5f, 1.0f)),
+		MakeClass(EEmbermereClass::Ranger, TEXT("Ranger"), TEXT("A wilderness fighter with bow pressure, snares, and steady melee backup."), { "QuickShot", "Snare", "TwinCut", "NaturesFocus" }, MakeAttributes(100.0f, 60.0f, 10.0f, 9.0f, 14.0f, 9.0f), MakeGrowth(6.0f, 3.0f, 1.0f, 0.5f, 1.5f, 0.5f)),
+		MakeClass(EEmbermereClass::Wizard, TEXT("Wizard"), TEXT("A fragile spellcaster built around roots, mana, and burst damage."), { "SparkBolt", "FrostRoot", "ArcaneBurst", "Meditate" }, MakeAttributes(80.0f, 110.0f, 6.0f, 12.0f, 8.0f, 16.0f), MakeGrowth(3.0f, 8.0f, 0.25f, 1.0f, 0.5f, 1.75f))
 	};
 
 	Abilities = {
@@ -196,6 +262,134 @@ bool UEmbermereRulesData::IsCharacterIdentityValid(
 		}
 	}
 	return true;
+}
+
+bool UEmbermereRulesData::IsProgressionDefinitionValid() const
+{
+	if (ExperienceThresholds.Num() < 2 || ExperienceThresholds[0] != 0)
+	{
+		return false;
+	}
+	for (int32 Index = 1; Index < ExperienceThresholds.Num(); ++Index)
+	{
+		if (ExperienceThresholds[Index] <= ExperienceThresholds[Index - 1])
+		{
+			return false;
+		}
+	}
+	for (const FEmbermereRaceDefinition& RaceDefinition : Races)
+	{
+		if (!EmbermereRules::IsGrowthValid(RaceDefinition.LevelGrowth))
+		{
+			return false;
+		}
+	}
+	for (const FEmbermereClassDefinition& ClassDefinition : Classes)
+	{
+		if (!EmbermereRules::IsStartingAttributesValid(ClassDefinition.StartingAttributes) ||
+			!EmbermereRules::IsGrowthValid(ClassDefinition.LevelGrowth))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool UEmbermereRulesData::GetProgressionProfile(
+	EEmbermereRace Race,
+	EEmbermereClass Class,
+	FEmbermereProgressionProfile& OutProfile) const
+{
+	OutProfile = FEmbermereProgressionProfile();
+	if (!IsCharacterIdentityValid(Race, Class) || !IsProgressionDefinitionValid())
+	{
+		return false;
+	}
+
+	FEmbermereRaceDefinition RaceDefinition;
+	FEmbermereClassDefinition ClassDefinition;
+	if (!GetRaceDefinition(Race, RaceDefinition) ||
+		!GetClassDefinition(Class, ClassDefinition))
+	{
+		return false;
+	}
+
+	OutProfile.StartingAttributes = ClassDefinition.StartingAttributes;
+	OutProfile.LevelGrowth = EmbermereRules::AddGrowth(
+		RaceDefinition.LevelGrowth,
+		ClassDefinition.LevelGrowth);
+	OutProfile.ExperienceThresholds = ExperienceThresholds;
+	return IsProgressionProfileValid(OutProfile);
+}
+
+bool UEmbermereRulesData::ResolveProgressionAttributes(
+	EEmbermereRace Race,
+	EEmbermereClass Class,
+	int32 Experience,
+	FEmbermereAttributeBlock& OutAttributes,
+	int32& OutLevel) const
+{
+	FEmbermereProgressionProfile Profile;
+	return GetProgressionProfile(Race, Class, Profile) &&
+		ResolveProgression(Profile, Experience, OutAttributes, OutLevel);
+}
+
+bool UEmbermereRulesData::IsProgressionProfileValid(
+	const FEmbermereProgressionProfile& Profile)
+{
+	if (!EmbermereRules::IsStartingAttributesValid(Profile.StartingAttributes) ||
+		!EmbermereRules::IsGrowthValid(Profile.LevelGrowth) ||
+		Profile.ExperienceThresholds.Num() < 2 ||
+		Profile.ExperienceThresholds[0] != 0)
+	{
+		return false;
+	}
+	for (int32 Index = 1; Index < Profile.ExperienceThresholds.Num(); ++Index)
+	{
+		if (Profile.ExperienceThresholds[Index] <= Profile.ExperienceThresholds[Index - 1])
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool UEmbermereRulesData::ResolveProgression(
+	const FEmbermereProgressionProfile& Profile,
+	int32 Experience,
+	FEmbermereAttributeBlock& OutAttributes,
+	int32& OutLevel)
+{
+	OutAttributes = FEmbermereAttributeBlock();
+	OutLevel = 1;
+	if (Experience < 0 || !IsProgressionProfileValid(Profile))
+	{
+		return false;
+	}
+
+	for (int32 Index = 1; Index < Profile.ExperienceThresholds.Num(); ++Index)
+	{
+		if (Experience < Profile.ExperienceThresholds[Index])
+		{
+			break;
+		}
+		OutLevel = Index + 1;
+	}
+
+	const float GrowthSteps = static_cast<float>(OutLevel - 1);
+	OutAttributes.MaxHealth = Profile.StartingAttributes.MaxHealth +
+		Profile.LevelGrowth.MaxHealth * GrowthSteps;
+	OutAttributes.MaxMana = Profile.StartingAttributes.MaxMana +
+		Profile.LevelGrowth.MaxMana * GrowthSteps;
+	OutAttributes.Strength = Profile.StartingAttributes.Strength +
+		Profile.LevelGrowth.Strength * GrowthSteps;
+	OutAttributes.Spirit = Profile.StartingAttributes.Spirit +
+		Profile.LevelGrowth.Spirit * GrowthSteps;
+	OutAttributes.Agility = Profile.StartingAttributes.Agility +
+		Profile.LevelGrowth.Agility * GrowthSteps;
+	OutAttributes.Intellect = Profile.StartingAttributes.Intellect +
+		Profile.LevelGrowth.Intellect * GrowthSteps;
+	return EmbermereRules::IsStartingAttributesValid(OutAttributes);
 }
 
 FName UEmbermereRulesData::GetStableRaceId(EEmbermereRace Race)

@@ -78,6 +78,11 @@ The repo currently contains the C++ gameplay scaffold for:
   restores class stats and starter hotbars atomically, keeps version 1 loadable
   through an explicit Human Warrior fallback, rejects malformed records without
   partial state, and keeps buyback session-only
+- data-driven level progression derived only from durable XP, with validated
+  cumulative thresholds for levels 1 through 5, distinct race/class growth,
+  atomic identity-base recomputation, one additive equipment layer, exact live
+  level-up feedback, silent idempotent load, and read-only HUD/Chronicle level
+  presentation without serializing duplicate level state
 - a real native pre-play character picker over the data-driven rules matrix:
   all eight races and four classes remain visible, invalid combinations stay
   visibly disabled, confirmation atomically applies starting stats and the
@@ -278,6 +283,9 @@ Early playable Unreal prototype scaffold with Unreal and Blender MCP connected,
 a fixed player-facing race/class picker that initializes data-driven starter
 stats and hotbars before play, plus save version 2 persistence for that
 confirmed identity with a backward-compatible version 1 Human Warrior fallback,
+a rules-owned `0/100/250/450/700` XP curve that derives levels 1 through 5,
+combines race/class stat growth, restores silently and idempotently, and exposes
+the result read-only through status and Chronicle,
 a daylight starter-zone loop mixing a local Fab pass with an original Embermere
 waystone/lamp/signpost/gate/fence/end-stone/chest/shelter/keeper/
 quartermaster/armsmaster/vendor-stall/cottage/workshop/notice-board/reed family,
@@ -316,7 +324,12 @@ item/equipment identity, completed quest, and finite merchant stock across
 fresh PIE worlds. Chronicle presents identity read-only; repeated loads do not
 duplicate class stats, starter abilities, rewards, or equipment bonuses.
 Version 1 slots remain loadable as Human Warrior without being silently
-rewritten.
+rewritten. Level remains derived from XP rather than serialized: the first
+rules-owned curve reaches level 2 at `100` XP and caps at level 5 at `700`,
+then combines race/class growth before applying equipment once. Trainer and
+Mara still own only their XP grants; HUD and Chronicle consume the resulting
+level read-only. See
+[Docs/LEVEL_PROGRESSION_CONTRACT.md](Docs/LEVEL_PROGRESSION_CONTRACT.md).
 
 The NPC wrapper's skeletal/Idle lane is now in production on three matching
 Fenwatch characters. The armsmaster has `2,824` source triangles and a

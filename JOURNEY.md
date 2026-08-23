@@ -2470,6 +2470,44 @@ Lesson: compatibility is a named policy, not a side effect. Validate the whole
 semantic identity before mutation, then prove restoration by loading over a
 meaningfully different live state.
 
+## 2026-08-23 - Level Became A Derived Fact
+
+Save version 2 made race and class durable, but XP was still only a number. The
+next question was whether level should become another saved field. It should
+not. Embermere now derives level from the durable XP it already owns, using a
+validated cumulative curve of `0`, `100`, `250`, `450`, and `700` XP for the
+first five levels.
+
+Rules data owns that curve and distinct per-level race/class growth. Stats owns
+live XP and the resulting level. A legal identity now resolves its base values
+as class starting attributes plus combined race/class growth for every gained
+level; equipment remains a separate additive layer applied exactly once. Live
+gains preserve absolute missing health and mana, report exact XP, and emit one
+multi-level-aware level-up message. Load performs the same resolution silently,
+so it cannot replay celebration, rewards, or stat growth.
+
+The persistence preflight exposed the sharpest lesson. An equipped item cannot
+be validated against the character's current pre-load level, because the save
+may imply a different level. The loader now derives the candidate level from
+saved identity and XP first, validates equipment against that candidate state,
+then commits identity, XP, base stats, hotbar, and one equipment layer
+atomically. Repeated load replaces the same facts instead of stacking them.
+
+Clean PIE used the real Trainer transaction for `25` XP, then Mara's original
+physical-F quest flow for another `125`. Human Warrior reached level `2` at
+`150` XP with exact `110/110` health, `53/53` mana, `12` Attack Power, `12`
+Strength, `9` Spirit, `11.25` Agility, and `7.75` Intellect while retaining the
+Warrior hotbar. Chronicle independently read `Human Warrior | Level 2`, `50`
+copper, `150 XP`, one bag stack, no equipment, and the completed quest.
+
+The no-hot-reload build passed, all 67 automation tests passed, and the fresh
+15-package validator chain retained the 53 grounded Fab plus 23 original-art
+world baseline.
+
+Lesson: do not persist a consequence when its durable inputs and authoritative
+rules can reproduce it. Derive once, validate the candidate world, then commit
+every dependent owner together.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

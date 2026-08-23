@@ -35,6 +35,10 @@ ordinals, display labels, localized text, or inferred hotbar contents. Current
 starting attributes, and resolve all four starter abilities before any live
 owner may change.
 
+Level is intentionally absent from this list. Current XP plus validated rules
+derive it deterministically; serializing both values would create two competing
+progression truths.
+
 ## Version 2 Character Identity
 
 Version `2` makes a deliberately confirmed race/class pair durable while
@@ -44,8 +48,9 @@ leaving the rest of character creation out of scope.
 - Preflight resolves stable IDs to current native identity types, then asks the
   same rules data used by character creation to validate legality, starting
   attributes, and starter abilities.
-- Commit atomically replaces race, class, base attributes, full vitals, and the
-  first four hotbar slots before restoring saved equipment and progression.
+- Commit atomically replaces race, class, saved XP, derived level, identity
+  base attributes, full vitals, and the first four hotbar slots before restoring
+  saved equipment.
 - Equipment remains additive: base class attributes are rebuilt once, then the
   saved equipment set replaces the live set and its total bonus is applied
   idempotently.
@@ -65,6 +70,25 @@ migration.
 
 Appearance, character name, creation-panel selection, confirmation UI state,
 and per-character slot/profile ownership are not serialized in version `2`.
+
+## Derived Level And Growth
+
+Save versions `1` and `2` use the same current-rules progression resolver. The
+first bounded cumulative curve is `0`, `100`, `250`, `450`, and `700` XP for
+levels `1` through `5`. Thresholds must begin at zero and rise strictly;
+race/class growth must remain finite and nonnegative.
+
+For derived level `L`, identity-owned base attributes are class starting
+attributes plus `(L - 1)` times the combined race and class growth. Equipment
+is not part of this formula. Load resolves identity and candidate saved XP
+before mutation, derives the candidate level/base result, validates each saved
+item's level requirement against that candidate level, then applies the saved
+equipment set exactly once.
+
+Load does not publish XP or level-up feedback. Version `1` uses the same
+derived-level path after selecting its explicit current-rules Human Warrior
+fallback, and the old slot is not rewritten. The complete authority and growth
+rules live in [LEVEL_PROGRESSION_CONTRACT.md](LEVEL_PROGRESSION_CONTRACT.md).
 
 ## Session-Only State
 
@@ -86,9 +110,11 @@ loaded equipment bonuses. Position remains at the current session's safe spawn.
 
 Load is a two-phase operation.
 
-1. Resolve every referenced asset and persistent vendor.
-2. Validate the complete candidate against current item, equipment, quest,
-   bag-capacity, stock, version, and ownership contracts.
+1. Resolve every referenced asset, identity/progression rule, and persistent
+   vendor.
+2. Derive the candidate level from saved XP, then validate the complete
+   candidate against current item, equipment, quest, bag-capacity, stock,
+   version, and ownership contracts.
 3. Reject the candidate without mutating live state if any record fails.
 4. Commit all already-resolved records, reapply equipment bonuses
    idempotently, reset transient combat state, and broadcast owner changes.
@@ -98,6 +124,7 @@ bag, equipment, quest, stock, and buyback state. Current focused coverage
 rejects:
 
 - unsupported format versions;
+- negative XP or malformed/non-monotonic progression rules;
 - missing, unknown, or illegal version-2 race/class IDs;
 - missing assets and mismatched stable IDs;
 - invalid or over-stack quantities;
@@ -130,9 +157,9 @@ Chronicle button. It is a fixed one-slot surface over `EmbermerePrototype`, user
 index `0`; it does not own serialization or mutate state while inspecting the
 slot.
 
-- A valid slot shows the read-only race/class identity, copper, XP, bag-stack
-  count, equipped-item count, and quest state before the player chooses an
-  action. Version `1` slots identify their explicit Human Warrior legacy
+- A valid slot shows the read-only race/class identity and derived level,
+  copper, XP, bag-stack count, equipped-item count, and quest state before the
+  player chooses an action. Version `1` slots identify their explicit Human Warrior legacy
   fallback.
 - Saving to an occupied slot requires an explicit overwrite confirmation.
 - Loading always requires confirmation because it replaces the current
@@ -173,9 +200,9 @@ The accepted 2026-08-07 run created the real commerce and quest state, wrote
 `Saved/SaveGames/EmbermerePrototype.sav`, rebuilt a fresh world, restored exact
 identity and progression, and loaded the file a second time without
 duplication. The same state was inspected and loaded through Chronicle: the
-visible summary showed `22` copper, `125` XP, two bag stacks, one equipped item,
-and a completed quest; overwrite and load confirmations both preserved their
-cancel paths.
+visible summary showed Human Warrior at derived level `2`, `22` copper,
+`125` XP, two bag stacks, one equipped item, and a completed quest; overwrite
+and load confirmations both preserved their cancel paths.
 
 The accepted 2026-08-10 trainer lane uses the same validator and Chronicle
 surface without replacing the established commerce fixture:
@@ -203,6 +230,16 @@ saved Elf Wizard at exact `80/80` health, `110/110` mana, Spark Bolt, Frost
 Root, Arcane Burst, and Meditate. A second confirmed load produced the same
 identity, vitals, and hotbar with no drift or duplication.
 
+The accepted 2026-08-23 progression lane serialized no new save field. Clean
+PIE used the real Trainer owner for `25` XP and Mara's original quest owner for
+another `125`, producing Human Warrior level `2` at `150` XP with exact
+`110/110` health, `53/53` mana, `12` Attack Power, and unchanged Warrior
+hotbar. Chronicle read the same derived level. Focused persistence coverage
+also proved that equipment eligibility uses the candidate level implied by the
+save, repeated load applies growth/equipment once, version `1` derives level
+through its fallback identity, and malformed progression rejects before any
+live mutation.
+
 ## Verification
 
 - `Embermere.Persistence.RoundTrip` serializes through Unreal's SaveGame
@@ -212,6 +249,16 @@ identity, vitals, and hotbar with no drift or duplication.
   round-trip, exact class stats and hotbar restoration, repeated-load
   idempotence, unknown and illegal ID rollback, malformed record rollback, and
   the version-1 Human Warrior fallback.
+- `Embermere.Progression.LevelRules` covers exact thresholds, multi-level
+  resolution, the first cap, distinct growth, and malformed-rule rejection.
+- `Embermere.Progression.LiveExperienceAndEquipment` proves live base growth,
+  missing-resource preservation, exact feedback, and one additive equipment
+  layer.
+- `Embermere.Progression.RewardOwners` proves Trainer and Mara grant XP without
+  calculating level or duplicating progression authority.
+- `Embermere.Progression.ValidationRollback` proves candidate-level equipment
+  preflight, silent restore, version-1 fallback, repeated-load idempotence, and
+  complete rollback.
 - `Embermere.Persistence.ValidationRollback` proves malformed candidates do
   not partially mutate live state.
 - `Embermere.Persistence.SlotInspection` proves empty, valid, and unsupported
@@ -221,7 +268,8 @@ identity, vitals, and hotbar with no drift or duplication.
 - `Embermere.Vendor.ServiceContract` and the Fenwatch package validator lock
   the stable vendor ID to the art-free service boundary.
 - Full automation, saved-package validators, initialized-world route traces,
-  and the two-session PIE validator remain separate acceptance layers.
+  and the two-session PIE validator remain separate acceptance layers. The
+  2026-08-23 baseline is 67/67 tests plus all 15 package validators.
 
 Future format changes must increment `EmbermereSaveGameVersion::Current` and
 either provide an explicit compatibility interpretation or reject the older

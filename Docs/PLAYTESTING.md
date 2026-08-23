@@ -206,6 +206,32 @@ the saved identity, class stats, starter hotbar, equipment, and progression.
 Version `1` slots remain loadable through the documented current-rules Human
 Warrior fallback without rewriting the old file.
 
+## Derived Level Progression
+
+1. Confirm Human Warrior and verify the authoritative status begins at level
+   `1`, `0` XP, `100/100` health, `50/50` mana, `10` Attack Power, `10`
+   Strength, `8` Spirit, `10` Agility, and `7` Intellect.
+2. Complete one real Fenwatch Combat Drills transaction. Verify copper changes
+   `40 -> 30`, XP changes `0 -> 25`, level remains `1`, and the Trainer does
+   not calculate or own the level result.
+3. Accept Mara's original quest through physical `F`, complete the three saved
+   Prowler objective, and return through physical `F`. With the Trainer reward,
+   total XP must become `150` and level must become `2` exactly once.
+4. Verify level-2 Human Warrior resolves to `110/110` health, `53/53` mana,
+   `12` Attack Power, `12` Strength, `9` Spirit, `11.25` Agility, and `7.75`
+   Intellect while Strike, Taunt, Shield Slam, and Battle Shout remain intact.
+5. Confirm chat retains exact XP and level-up feedback. A load must restore the
+   same result silently without replaying either message or any quest reward.
+6. Open Chronicle and confirm its read-only summary reports
+   `Human Warrior | Level 2`, `50 copper`, `150 XP`, one bag stack, no equipped
+   items, and the completed quest for this acceptance sequence.
+7. Save, start a genuinely different legal identity, load twice, and verify
+   race/class growth, derived level, base stats, hotbar, and equipment bonuses
+   remain exact and do not drift.
+8. Keep exact-threshold edges, multi-level grants, the level-5 cap, malformed
+   rules, version-1 fallback, and candidate-level item requirements covered by
+   automation rather than manufacturing those states in the main world.
+
 ## Current Play Loop
 
 1. Press Play.
@@ -436,7 +462,8 @@ The full ownership and rollback contract is in
 2. Equip one Recruit Pack in Back, leaving the quest reward pack and Marsh
    Tonic in the bag.
 3. Press `M` or click `Chronicle`. Confirm the centered fixed panel opens with
-   cursor input and shows the confirmed race/class, `22 copper | 125 XP`,
+   cursor input and shows the confirmed race/class plus derived `Level 2`,
+   `22 copper | 125 XP`,
    `2 bag stacks | 1 equipped`, and `Quest complete` without covering the
    hotbar or chat.
 4. Choose Save Journey. Because the acceptance slot already exists, confirm
@@ -450,6 +477,7 @@ The full ownership and rollback contract is in
    begin at the normal 40-copper, empty-bag, stock-one baseline before loading.
 7. Open Chronicle, choose Load Journey, and verify `Confirm Load` appears before
    any mutation. Confirm it and verify exact restoration: `22` copper, `125` XP,
+   derived level `2`,
    the saved race/class, its class base stats and starter hotbar, one tonic, one
    bagged Recruit Pack, one Recruit Pack equipped in Back, correctly derived
    equipped HP/Armor, completed quest progress, and Recruit Pack vendor stock

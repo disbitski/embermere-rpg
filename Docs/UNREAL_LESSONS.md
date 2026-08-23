@@ -1408,3 +1408,32 @@ Confirm a meaningfully different race/class first, then prove the load replaces
 identity, class stats, and starter hotbar exactly and remains unchanged on a
 second load. Also inspect one malformed slot through the real player UI: Load
 must stay disabled and the current character must remain untouched.
+
+## Derive Level From Durable XP Instead Of Saving It Twice
+
+Once Embermere persisted XP and race/class identity, adding a serialized Level
+would have created two durable facts that could disagree. Rules now own a
+validated ordered threshold curve; Stats derives level from XP and resolves
+identity-owned growth from the confirmed race/class. HUD, Trainer, Chronicle,
+and save/load consume that result instead of carrying local level math.
+
+The same resolver must serve both live grants and load, but presentation must
+not. Live XP can report exact gains and one multi-level-aware level-up event.
+Load applies the resolved state silently so it cannot replay celebration,
+rewards, or growth. Test exact thresholds, multi-level grants, the bounded cap,
+malformed curves, and version compatibility independently of UI.
+
+## Validate Saved Dependents Against Candidate State
+
+Atomic load preflight cannot ask every rule about the current live character.
+An item in the save may require level 2 while the temporary pre-load character
+is level 1; validating against live state would reject a perfectly coherent
+save. The opposite mismatch could accept an item the restored character cannot
+use.
+
+Resolve stable identity and saved XP first, derive the candidate level and base
+attributes without mutation, and validate equipment requirements against that
+candidate. Only after the entire candidate passes should load commit identity,
+XP, derived stats, hotbar, and one additive equipment layer. This pattern
+generalizes to any saved dependent whose validity is determined by another
+saved owner.

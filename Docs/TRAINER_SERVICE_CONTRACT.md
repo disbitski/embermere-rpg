@@ -157,6 +157,20 @@ rules unchanged.
 The complete ownership, reset, validation, and defeat-credit rules live in
 [PRACTICE_TARGET_CONTRACT.md](PRACTICE_TARGET_CONTRACT.md).
 
+## Derived-Level Integration
+
+The Trainer remains an XP transaction owner, not a level calculator. On
+2026-08-23 clean PIE, one real Combat Drills transaction changed `40` copper /
+`0` XP to `30` / `25` while level correctly remained `1`. Mara's separate
+quest authority then granted `125` more XP; Stats and rules derived Human
+Warrior level `2` at `150` total XP with the exact growth profile.
+
+The service still checks only its authored offering requirements and delegates
+the XP mutation to Stats. Thresholds, race/class growth, equipment
+reapplication, Chronicle level display, save restore, and level-up feedback
+remain outside Trainer authority. The progression boundary is documented in
+[LEVEL_PROGRESSION_CONTRACT.md](LEVEL_PROGRESSION_CONTRACT.md).
+
 ## Working Rule
 
 Trainer and training-yard art may change, animate, or disappear without

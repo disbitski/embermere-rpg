@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-22
+Last updated: 2026-08-23
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -30,11 +30,12 @@ this snapshot. A new task should read files in this order:
 10. `Docs/VENDOR_SERVICE_CONTRACT.md` when economy work is active
 11. `Docs/SAVE_GAME_CONTRACT.md` when persistence/lifecycle work is active
 12. `Docs/CHARACTER_CREATION_CONTRACT.md` when identity/lifecycle work is active
-13. `Docs/PRACTICE_TARGET_CONTRACT.md` when training-target work is active
-14. `Docs/COMBAT_FEEDBACK_CONTRACT.md` when combat-result presentation is active
-15. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
-16. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
-17. `JOURNEY.md` when historical detail is useful
+13. `Docs/LEVEL_PROGRESSION_CONTRACT.md` when XP/level/growth work is active
+14. `Docs/PRACTICE_TARGET_CONTRACT.md` when training-target work is active
+15. `Docs/COMBAT_FEEDBACK_CONTRACT.md` when combat-result presentation is active
+16. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
+17. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
+18. `JOURNEY.md` when historical detail is useful
 
 ## One-Page State
 
@@ -90,13 +91,18 @@ The project currently includes:
   current-rules validation; version 1 remains loadable through an explicit Human
   Warrior compatibility fallback. Buyback, combat, cooldowns, temporary
   effects, and position remain intentionally session-only;
+- data-driven level progression that derives levels 1 through 5 from durable
+  XP thresholds, combines validated race/class growth, rebuilds identity base
+  stats atomically, applies equipment once, restores silently, and exposes
+  level read-only to HUD, Trainer, and Chronicle without saving it twice;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
 - a fixed native pre-play character picker that presents all eight races and
   four classes, exposes disabled combinations, atomically applies data-driven
   starter stats/abilities once, restores the normal controller/HUD path, and
   feeds the confirmed identity into the version-2 persistence contract;
-- 63 passing Unreal automation tests plus fresh-process character-creation and
+- 67 passing Unreal automation tests plus fresh-process character-creation,
+  derived-level progression, and
   character-identity persistence,
   combat-feedback,
   practice-target, keeper-greeting,
@@ -727,15 +733,23 @@ Current automation tests:
 61. `Embermere.Persistence.CharacterIdentityRoundTrip`
 62. `Embermere.Persistence.CharacterIdentityRollback`
 63. `Embermere.Persistence.LegacyV1CharacterFallback`
+64. `Embermere.Progression.LevelRules`
+65. `Embermere.Progression.LiveExperienceAndEquipment`
+66. `Embermere.Progression.RewardOwners`
+67. `Embermere.Progression.ValidationRollback`
 
-Current verified baseline (2026-08-22):
+Current verified baseline (2026-08-23):
 
 - the no-hot-reload Mac editor build succeeded;
-- an isolated commandlet discovered and passed all 63 tests with no failed or
+- an isolated commandlet discovered and passed all 67 tests with no failed or
   skipped Embermere tests;
-- the fresh 14-package aggregate emitted all 15 expected success markers,
+- the fresh 15-package aggregate emitted every expected success marker,
   retained the exact 53 grounded Fab plus 23 original-art baseline, and logged
   no Python error;
+- clean PIE used the real Combat Drills transaction for `25` XP and Mara's
+  original physical-F quest completion for another `125`, producing Human
+  Warrior level `2` at `150` XP with exact `110/110` health, `53/53` mana,
+  `12` Attack Power, unchanged hotbar, and matching Chronicle identity/level;
 - clean PIE rejected Dwarf Ranger without silent correction, then accepted and
   saved Elf Wizard at exact `80/80` health, `110/110` mana, and Spark
   Bolt/Frost Root/Arcane Burst/Meditate hotbar state;
@@ -1382,17 +1396,42 @@ Save version `2` now makes a deliberately confirmed race/class pair durable.
   health, `110/110` mana, and the Wizard starter hotbar without drift. A
   preexisting malformed v2 slot was rejected safely with Load disabled.
 
-The next bounded milestone is data-driven level progression derived from the
-existing durable XP. Prefer threshold-derived level, atomic race/class base
-growth plus idempotent equipment application, read-only HUD/Chronicle level,
-and tests for thresholds, cap, multi-level grants, malformed rules, restore,
-and repeated-load behavior. Do not serialize duplicate level state in this
-slice.
+## 2026-08-23 Derived-Level Progression Update
+
+Level is now a deterministic runtime result of durable XP, not another saved
+field.
+
+- `DA_EmbermereRules` owns cumulative thresholds `0`, `100`, `250`, `450`,
+  and `700` for the first level-5 cap plus distinct finite, nonnegative
+  race/class growth profiles.
+- Stats owns XP and derived level. Live grants atomically resolve identity base
+  growth, preserve absolute missing health/mana, and emit exact XP plus one
+  multi-level-aware level-up message.
+- Save/load resolves stable identity and candidate XP before mutation,
+  validates equipment against the candidate saved level, rebuilds base stats,
+  then applies equipment once. Load is silent and idempotent; version `1`
+  still derives level through its explicit current-rules Human Warrior fallback.
+- HUD, Trainer requirements, and Chronicle consume the authoritative Stats
+  result. None owns threshold math or serializes level.
+- Four focused progression tests brought the suite to 67. The no-hot-reload
+  build, progression and persistence groups, full 67-test suite, standalone
+  progression package validator, and 15-package aggregate all passed.
+- Clean PIE retained Human Warrior's exact level-1 baseline, used real Combat
+  Drills for `25` XP, completed Mara's original quest for another `125`, and
+  reached level `2` at `150` XP with exact `110/110` health, `53/53` mana,
+  `12` Attack Power, `12` Strength, `9` Spirit, `11.25` Agility, and `7.75`
+  Intellect. Chronicle read the same identity/level and durable owner state.
+
+The next bounded milestone is presentation-only XP-to-next-threshold and
+level-up feedback over this accepted contract. It must consume Stats/rules,
+retain exact chat, handle multi-level and cap states in fixed bounds, remain
+silent on load, and own no XP, level, growth, rewards, or persistence.
 
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-22 no-hot-reload character-identity persistence module, accepted notice-board
+2026-08-23 no-hot-reload derived-level progression module, serialized rules
+asset, accepted notice-board
 asset/map package,
 combat-feedback module, quest/map packages, all
 three accepted skeletal-mesh/Skeleton/Idle sets, the Fenwatch vendor stall and
@@ -1408,7 +1447,11 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 63 tests, including
+3. Run/discover all 67 tests, including
+   `Embermere.Progression.LevelRules`,
+   `Embermere.Progression.LiveExperienceAndEquipment`,
+   `Embermere.Progression.RewardOwners`,
+   `Embermere.Progression.ValidationRollback`,
    `Embermere.UI.CharacterCreationInitialState`,
    `Embermere.UI.CharacterCreationRestrictions`,
    `Embermere.CharacterCreation.ConfirmationLoadout`,
@@ -1447,6 +1490,10 @@ First fresh-session checks:
      identity, begin a fresh world with a different legal pair, load twice, and
      prove exact identity, base stats, starter hotbar, progression, and
      repeated-load idempotence; malformed identity keeps Load disabled;
+   - retain Human Warrior's exact level-1 baseline, train once to `25` XP, then
+     complete Mara's real quest to reach level `2` at `150` XP. Recheck exact
+     `110/110` health, `53/53` mana, `12` Attack Power, unchanged Warrior
+     hotbar, read-only Chronicle level, and silent repeated load;
    - all three Marsh Prowlers retain the project-owned skeletal mesh and route
      Idle, Walk, Run, Attack, Hit, and Death from generic enemy state; verify
      paws/terrain contact, swamp palette, target-ring/nameplate clearance,
@@ -1684,8 +1731,9 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-22 no-hot-reload
-character-identity persistence module and quest/map packages, the accepted notice-board,
+Follow TODO.md's Start Here section. Confirm the 2026-08-23 no-hot-reload
+derived-level progression module, serialized rules asset, character-identity
+persistence and quest/map packages, the accepted notice-board,
 vendor-stall,
 cottage, training-workshop, practice-dummy, and native practice-target map packages,
 and all three accepted skeletal-mesh/Skeleton/Idle sets,
@@ -1694,9 +1742,9 @@ bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 63 tests, including the four character-creation
-lifecycle/restriction/loadout tests, the three character-identity persistence
-tests, combat-result and floating-feedback
+route-repair map, then run all 67 tests, including the four progression tests,
+the four character-creation lifecycle/restriction/loadout tests, the three
+character-identity persistence tests, combat-result and floating-feedback
 presentation, the two practice-target policy/combat-reset tests,
 contextual-greeting,
 persistence round-trip,
@@ -1816,19 +1864,21 @@ accepted presentation-only notice board, its three purposeful colliders, clear
 decorative geometry, and four protected routes. Retain the accepted fixed
 character-creation picker, all eight races/four classes, explicit disabled
 Dwarf Ranger and Bullywug Wizard paths, exact data-driven starter stats and
-hotbars, one-shot confirmation, and controller input/HUD handoff. Next design
-the bounded data-driven level progression contract from existing durable XP:
-derive level from tested thresholds, atomically recompute identity-owned base
-growth before idempotent equipment bonuses, expose level read-only in HUD and
-Chronicle, and prove threshold, cap, malformed-rule, save-restore, and repeated-
-load behavior. Do not serialize duplicate level state or add naming,
-appearance, autosave, profiles, deletion, or implicit migration in that slice.
+hotbars, one-shot confirmation, and controller input/HUD handoff. Retain the
+accepted derived-level contract: thresholds `0/100/250/450/700`, level-5 cap,
+rules-owned race/class growth, candidate-level equipment validation, silent
+idempotent restore, and no serialized level. Next build a bounded
+presentation-only XP-to-next-threshold and transient level-up surface that
+consumes Stats/rules, handles multi-level and cap states, preserves exact chat,
+and never replays on load or owns progression. Do not add naming, appearance,
+autosave, profiles, deletion, or implicit migration in that slice.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
 Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
-current commit, 63-test baseline, accepted character creation plus v2 identity
-persistence, and next bounded milestone before ending the run.
+current commit, 67-test and 15-validator baseline, accepted character creation,
+v2 identity persistence, derived-level progression, and next bounded milestone
+before ending the run.
 ```
 
 ## Handoff Principle

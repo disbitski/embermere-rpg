@@ -70,6 +70,12 @@ field already present on class data. Runtime stats consume Max Health, Max
 Mana, and Strength as base Attack Power while retaining Spirit, Agility, and
 Intellect for later systems.
 
+Those profiles are the level-1 seed, not permanent full-character snapshots.
+`UEmbermereRulesData` also owns race/class per-level growth; durable XP derives
+level and progression rebuilds the same identity-owned base layer before
+equipment. The picker neither calculates growth nor owns XP. See
+[LEVEL_PROGRESSION_CONTRACT.md](LEVEL_PROGRESSION_CONTRACT.md).
+
 Equipment bonuses remain additive and idempotent. Character creation rebuilds
 base values once and includes any already-authoritative equipment bonus rather
 than double-applying it.
@@ -79,9 +85,9 @@ than double-applying it.
 Save version `2` stores only the deliberately confirmed race and starting
 class as explicit stable IDs. Persistence revalidates those IDs through current
 rules data and atomically rebuilds identity, starting attributes, full vitals,
-and the four starter hotbar abilities before restoring equipment and durable
-progression. It never infers identity from enum ordinals, display text, stats,
-or hotbar contents.
+saved-XP-derived level/base growth, and the four starter hotbar abilities before
+restoring equipment. It never infers identity from enum ordinals, display text,
+stats, or hotbar contents, and it never serializes a duplicate level value.
 
 Version `1` saves remain readable through an explicit current-rules Human
 Warrior fallback. Loading that fallback may replace the current session's
@@ -121,3 +127,8 @@ and the Ranger starter hotbar before loading. Chronicle replaced that genuinely
 different live state with the exact saved Elf Wizard. A second confirmed load
 left identity, vitals, and hotbar unchanged. The no-hot-reload build, all 63
 automation tests, and the fresh 14-validator aggregate passed.
+
+On 2026-08-23 the same accepted identity became the input to derived-level
+progression. All 67 tests and 15 package validators proved that creation owns
+only the level-1 choice while rules/Stats derive later growth from XP and load
+rebuilds equipment once without returning authority to the picker.

@@ -1,4 +1,5 @@
 #include "Components/EmbermereStatsComponent.h"
+#include "Data/EmbermereRulesData.h"
 #include "Engine/Engine.h"
 #include "UI/EmbermereGameplayMessageLibrary.h"
 
@@ -25,22 +26,58 @@ void UEmbermereStatsComponent::InitializeVitals()
 
 void UEmbermereStatsComponent::ApplyStartingAttributes(const FEmbermereAttributeBlock& StartingAttributes)
 {
-	ClearDamageImmunity();
-	ClearTemporaryEffects();
+	ApplyProgressionAttributes(StartingAttributes, Level, true, true);
+}
 
-	Strength = FMath::Max(0.0f, StartingAttributes.Strength);
-	Spirit = FMath::Max(0.0f, StartingAttributes.Spirit);
-	Agility = FMath::Max(0.0f, StartingAttributes.Agility);
-	Intellect = FMath::Max(0.0f, StartingAttributes.Intellect);
-	MaxHealth = FMath::Max(1.0f, StartingAttributes.MaxHealth + EquipmentBonuses.MaxHealth);
-	MaxMana = FMath::Max(0.0f, StartingAttributes.MaxMana + EquipmentBonuses.MaxMana);
-	AttackPower = FMath::Max(0.0f, Strength + EquipmentBonuses.Power);
-	Armor = FMath::Max(0.0f, EquipmentBonuses.Armor);
-	CurrentHealth = MaxHealth;
-	CurrentMana = MaxMana;
+bool UEmbermereStatsComponent::CanConfigureProgression(
+	const FEmbermereProgressionProfile& Profile,
+	int32 Experience,
+	int32* OutLevel) const
+{
+	FEmbermereAttributeBlock ResolvedAttributes;
+	int32 ResolvedLevel = 1;
+	const bool bValid = UEmbermereRulesData::ResolveProgression(
+		Profile,
+		Experience,
+		ResolvedAttributes,
+		ResolvedLevel);
+	if (OutLevel)
+	{
+		*OutLevel = bValid ? ResolvedLevel : 1;
+	}
+	return bValid;
+}
 
-	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
-	OnManaChanged.Broadcast(CurrentMana, MaxMana);
+bool UEmbermereStatsComponent::ConfigureProgression(
+	const FEmbermereProgressionProfile& Profile,
+	int32 Experience,
+	bool bRestoreFullVitals)
+{
+	FEmbermereAttributeBlock ResolvedAttributes;
+	int32 ResolvedLevel = 1;
+	if (!UEmbermereRulesData::ResolveProgression(
+		Profile,
+		Experience,
+		ResolvedAttributes,
+		ResolvedLevel))
+	{
+		return false;
+	}
+
+	ProgressionProfile = Profile;
+	bProgressionConfigured = true;
+	CurrentExperience = Experience;
+	ApplyProgressionAttributes(
+		ResolvedAttributes,
+		ResolvedLevel,
+		bRestoreFullVitals,
+		true);
+	return true;
+}
+
+bool UEmbermereStatsComponent::IsProgressionConfigured() const
+{
+	return bProgressionConfigured;
 }
 
 float UEmbermereStatsComponent::ApplyDamage(float DamageAmount)
@@ -315,12 +352,47 @@ bool UEmbermereStatsComponent::TryAddExperience(int32 ExperienceAmount)
 		return false;
 	}
 
-	CurrentExperience += ExperienceAmount;
+	const int32 PreviousLevel = Level;
+	const int32 NewExperience = CurrentExperience + ExperienceAmount;
+	FEmbermereAttributeBlock ResolvedAttributes;
+	int32 ResolvedLevel = Level;
+	if (bProgressionConfigured &&
+		!UEmbermereRulesData::ResolveProgression(
+			ProgressionProfile,
+			NewExperience,
+			ResolvedAttributes,
+			ResolvedLevel))
+	{
+		return false;
+	}
+
+	CurrentExperience = NewExperience;
+	if (bProgressionConfigured && ResolvedLevel != PreviousLevel)
+	{
+		ApplyProgressionAttributes(
+			ResolvedAttributes,
+			ResolvedLevel,
+			false,
+			false);
+	}
 	OnExperienceChanged.Broadcast(CurrentExperience);
 	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
 		this,
 		FText::FromString(FString::Printf(TEXT("Gained %d XP (Total: %d)"), ExperienceAmount, CurrentExperience)),
 		FLinearColor(1.0f, 0.86f, 0.22f, 1.0f));
+	if (ResolvedLevel > PreviousLevel)
+	{
+		const FString LevelMessage = ResolvedLevel == PreviousLevel + 1
+			? FString::Printf(TEXT("Level up! Reached Level %d."), ResolvedLevel)
+			: FString::Printf(
+				TEXT("Level up! Advanced from Level %d to Level %d."),
+				PreviousLevel,
+				ResolvedLevel);
+		UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+			this,
+			FText::FromString(LevelMessage),
+			FLinearColor(0.35f, 0.9f, 1.0f, 1.0f));
+	}
 	return true;
 }
 
@@ -350,7 +422,62 @@ void UEmbermereStatsComponent::ApplyEquipmentBonuses(const FEmbermereItemStatBon
 void UEmbermereStatsComponent::RestoreExperienceForSaveGame(int32 NewExperience)
 {
 	CurrentExperience = FMath::Max(0, NewExperience);
-	OnExperienceChanged.Broadcast(CurrentExperience);
+	if (bProgressionConfigured)
+	{
+		FEmbermereAttributeBlock ResolvedAttributes;
+		int32 ResolvedLevel = Level;
+		if (UEmbermereRulesData::ResolveProgression(
+			ProgressionProfile,
+			CurrentExperience,
+			ResolvedAttributes,
+			ResolvedLevel))
+		{
+			ApplyProgressionAttributes(
+				ResolvedAttributes,
+				ResolvedLevel,
+				false,
+				false);
+		}
+	}
+}
+
+void UEmbermereStatsComponent::ApplyProgressionAttributes(
+	const FEmbermereAttributeBlock& Attributes,
+	int32 NewLevel,
+	bool bRestoreFullVitals,
+	bool bClearTransientEffects)
+{
+	const bool bWasDead = IsDead();
+	const float MissingHealth = FMath::Max(0.0f, MaxHealth - CurrentHealth);
+	const float MissingMana = FMath::Max(0.0f, MaxMana - CurrentMana);
+	if (bClearTransientEffects)
+	{
+		ClearDamageImmunity();
+		ClearTemporaryEffects();
+	}
+
+	Level = FMath::Max(1, NewLevel);
+	Strength = FMath::Max(0.0f, Attributes.Strength);
+	Spirit = FMath::Max(0.0f, Attributes.Spirit);
+	Agility = FMath::Max(0.0f, Attributes.Agility);
+	Intellect = FMath::Max(0.0f, Attributes.Intellect);
+	MaxHealth = FMath::Max(1.0f, Attributes.MaxHealth + EquipmentBonuses.MaxHealth);
+	MaxMana = FMath::Max(0.0f, Attributes.MaxMana + EquipmentBonuses.MaxMana);
+	AttackPower = FMath::Max(0.0f, Strength + EquipmentBonuses.Power);
+	Armor = FMath::Max(0.0f, EquipmentBonuses.Armor);
+	if (bRestoreFullVitals)
+	{
+		CurrentHealth = MaxHealth;
+		CurrentMana = MaxMana;
+	}
+	else
+	{
+		CurrentHealth = bWasDead ? 0.0f : FMath::Clamp(MaxHealth - MissingHealth, 0.0f, MaxHealth);
+		CurrentMana = FMath::Clamp(MaxMana - MissingMana, 0.0f, MaxMana);
+	}
+
+	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+	OnManaChanged.Broadcast(CurrentMana, MaxMana);
 }
 
 bool UEmbermereStatsComponent::IsTimedEffectActive(float EndTimeSeconds) const

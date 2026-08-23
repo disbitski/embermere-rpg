@@ -84,6 +84,15 @@ public:
 
 	bool CanRestoreRaceAndClassForSaveGame(EEmbermereRace NewRace, EEmbermereClass NewClass) const;
 	bool TryRestoreRaceAndClassForSaveGame(EEmbermereRace NewRace, EEmbermereClass NewClass);
+	bool CanRestoreCharacterProgressionForSaveGame(
+		EEmbermereRace NewRace,
+		EEmbermereClass NewClass,
+		int32 Experience,
+		int32& OutLevel) const;
+	bool TryRestoreCharacterProgressionForSaveGame(
+		EEmbermereRace NewRace,
+		EEmbermereClass NewClass,
+		int32 Experience);
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Movement")
 	void MoveForward(float Value);
@@ -130,7 +139,10 @@ protected:
 	virtual void HandleTargetedByPlayer(bool bIsTargeted);
 	void PrimeStarterHotbar();
 	bool ValidateRaceAndClassLoadout(EEmbermereRace NewRace, EEmbermereClass NewClass) const;
-	bool ApplyValidatedRaceAndClass(EEmbermereRace NewRace, EEmbermereClass NewClass);
+	bool ApplyValidatedRaceAndClass(
+		EEmbermereRace NewRace,
+		EEmbermereClass NewClass,
+		int32 Experience);
 	void RefreshEquipmentStats();
 	void UpdateStatusEffectVfx(float DeltaSeconds);
 	float ResolveStatusEffectVfxRadius(bool bBeneficial) const;

@@ -48,7 +48,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
 	float CurrentMana = 50.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
 	int32 Level = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
@@ -101,6 +101,18 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
 	void ApplyStartingAttributes(const FEmbermereAttributeBlock& StartingAttributes);
+
+	bool CanConfigureProgression(
+		const FEmbermereProgressionProfile& Profile,
+		int32 Experience,
+		int32* OutLevel = nullptr) const;
+
+	bool ConfigureProgression(
+		const FEmbermereProgressionProfile& Profile,
+		int32 Experience,
+		bool bRestoreFullVitals);
+
+	bool IsProgressionConfigured() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
 	float ApplyDamage(float DamageAmount);
@@ -186,8 +198,15 @@ private:
 	float ArmorBuffEndTimeSeconds = -1.0f;
 	float MovementSpeedEffectEndTimeSeconds = -1.0f;
 	TArray<FTimedStatusEffectRecord> ActiveStatusEffects;
+	FEmbermereProgressionProfile ProgressionProfile;
+	bool bProgressionConfigured = false;
 
 	bool IsTimedEffectActive(float EndTimeSeconds) const;
 	float GetEffectRemainingSeconds(float EndTimeSeconds) const;
 	float GetEffectEndTime(float DurationSeconds) const;
+	void ApplyProgressionAttributes(
+		const FEmbermereAttributeBlock& Attributes,
+		int32 NewLevel,
+		bool bRestoreFullVitals,
+		bool bClearTransientEffects);
 };

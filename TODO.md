@@ -6,19 +6,24 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-22 no-hot-reload character-identity
-  persistence module plus the accepted Fenwatch notice-board asset/map package and
+- Confirm Unreal is running the 2026-08-23 no-hot-reload derived-level
+  progression module plus the serialized `DA_EmbermereRules` thresholds/growth,
+  save-version-2 character identity, the accepted Fenwatch notice-board asset/map package and
   combat-feedback module,
   along with the accepted rigged Fenwatch keeper, armsmaster, and quartermaster
   packages and
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 63 Embermere tests.
+  predates that work or test discovery exposes fewer than 67 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 63 tests, especially
+- Discover and run all 67 tests, especially
+  `Embermere.Progression.LevelRules`,
+  `Embermere.Progression.LiveExperienceAndEquipment`,
+  `Embermere.Progression.RewardOwners`,
+  `Embermere.Progression.ValidationRollback`,
   `Embermere.UI.CharacterCreationInitialState`,
   `Embermere.UI.CharacterCreationRestrictions`,
   `Embermere.CharacterCreation.ConfirmationLoadout`,
@@ -59,8 +64,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative
-  2026-08-22 no-hot-reload build, isolated commandlet, and fresh aggregate
-  passed 63/63 while retaining 53 grounded Fab plus 23 original-art actors.
+  2026-08-23 no-hot-reload build, isolated commandlet, and fresh aggregate
+  passed 67/67 plus all 15 package validators while retaining 53 grounded Fab
+  plus 23 original-art actors.
 - Retain the accepted character-creation authority and lifecycle contract:
   - the centered fixed `940x560` modal shows all eight races and four classes
     before gameplay while the normal HUD remains hidden;
@@ -81,6 +87,28 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     Human Warrior compatibility fallback without rewriting the old slot. Treat
     [Docs/CHARACTER_CREATION_CONTRACT.md](Docs/CHARACTER_CREATION_CONTRACT.md)
     as the authority and first-slice boundary.
+- Retain the accepted derived-level progression contract:
+  - durable XP remains the only serialized progression quantity; level is
+    derived from cumulative thresholds `0`, `100`, `250`, `450`, and `700`
+    for the bounded level `1` through `5` curve;
+  - `UEmbermereRulesData` owns strictly increasing thresholds plus nonnegative
+    race/class growth, while Stats owns live XP and the resulting level;
+  - identity base stats resolve as class starting attributes plus combined
+    race/class growth for each gained level, then equipment remains one
+    separate additive layer;
+  - live XP grants preserve absolute missing health/mana and publish exact XP
+    plus one multi-level-aware level-up message; load resolves silently without
+    replaying feedback, rewards, or growth;
+  - persistence preflights item level requirements against the candidate level
+    implied by saved XP, never the unrelated pre-load live level;
+  - accepted Human Warrior PIE progressed from Trainer-owned `25` XP to
+    Mara-owned `150` total XP and level `2`, with exact `110/110` health,
+    `53/53` mana, `12` Attack Power, `12` Strength, `9` Spirit, `11.25`
+    Agility, `7.75` Intellect, and the unchanged Warrior hotbar;
+  - Chronicle read the same state as `Human Warrior | Level 2`, `50 copper`,
+    `150 XP`, one bag stack, no equipment, and the completed Mara quest.
+  Treat [Docs/LEVEL_PROGRESSION_CONTRACT.md](Docs/LEVEL_PROGRESSION_CONTRACT.md)
+  as the XP, level, growth, load, and presentation authority boundary.
 - Retain the accepted Fenwatch practice-target split:
   - `Embermere_FenwatchPracticeDummy_TrainingYard_01` remains the visible
     project-owned art and the sole owner of its two purposeful solid boxes;
@@ -170,14 +198,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor stock through stable IDs plus validated soft paths. Capture and load
   are preflighted before mutation; unknown assets, bad versions, invalid
   quantities, capacity conflicts, mismatched IDs/slots, and malformed vendor
-  records reject the entire restore. Identity, class base stats, starter
-  hotbar, equipment, and progression restore atomically; equipment bonuses are
-  rebuilt once and quest rewards are not replayed. Version `1` remains readable
-  as Human Warrior through current rules without implicit migration.
+  records reject the entire restore. Identity and saved XP derive level and
+  identity-owned base stats atomically before the starter hotbar and equipment
+  restore; equipment bonuses are rebuilt once and quest rewards are not
+  replayed. No duplicate level is serialized. Version `1` remains readable as
+  Human Warrior through current rules without implicit migration.
 - Retain the accepted live persistence proof. In one normal PIE session the
   vendor and quest loop saved exactly `22` copper, `125` XP, one Marsh Tonic,
-  one bagged Recruit Pack, one equipped Back-slot Recruit Pack, completed Mara
-  state, and exhausted finite Recruit Pack stock. A fresh PIE session restored
+  one bagged Recruit Pack, one equipped Back-slot Recruit Pack, derived level
+  `2`, completed Mara state, and exhausted finite Recruit Pack stock. A fresh PIE session restored
   that exact state through `EmbermereLoad`, and a second load remained
   idempotent with no duplication or stat inflation. `EmbermereSave` and
   `EmbermereLoad` use prototype slot `EmbermerePrototype`; buyback history,
@@ -193,7 +222,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 - Retain the accepted player-facing Chronicle. `M` opens a centered `460x260`
   one-slot panel while `Ctrl+M` still toggles mouse inversion. The panel
   inspects `EmbermerePrototype` without mutating it and displays race/class as
-  a read-only first line above the accepted `22 copper | 125 XP`,
+  a read-only first line above the accepted `Level 2`, `22 copper | 125 XP`,
   `2 bag stacks | 1 equipped | Quest complete` summary. Version `1` slots label
   their explicit Human Warrior legacy fallback.
   Save requires explicit overwrite confirmation when the slot exists; Load
@@ -853,15 +882,22 @@ targeting, rewards, AI, quests, or persistence.
   identity, malformed-record rollback, and the explicit version `1` Human
   Warrior fallback. Do not add appearance, naming, autosave, multiple profiles,
   deletion, or implicit migration without another deliberate versioned contract.
-- Build the next bounded progression milestone from the existing durable XP:
-  - define data-driven XP thresholds and a small first level cap without
-    serializing a duplicate level value;
-  - recompute race/class base growth atomically from identity plus XP, then
-    reapply equipment additively and idempotently;
-  - add exact level-up feedback plus read-only HUD/Chronicle level display;
-  - prove threshold edges, multi-level grants, cap behavior, malformed rules,
-    equipment interaction, save restore, and repeated-load idempotence without
-    replaying level-up effects.
+- Retain the accepted data-driven level progression contract: level derives
+  only from durable XP, the first cap remains level `5`, race/class growth is
+  rules-owned, equipment remains additive once, and save/load remains silent,
+  atomic, idempotent, and compatible with version `1` and `2` slots.
+- Build the next bounded progression-presentation milestone:
+  - define a presentation-only level-up/XP-progress contract over the existing
+    authoritative Stats and rules results;
+  - show current XP, the next threshold, and cap state in fixed readable bounds
+    without copying thresholds or calculating level inside UMG;
+  - retain exact chat as a durable fallback while adding restrained transient
+    level-up feedback that handles multi-level gains and never replays on load;
+  - keep Trainer, Mara, save data, stats, abilities, rewards, and equipment
+    ownership unchanged;
+  - add focused automation for level `1`, threshold approach, exact threshold,
+    multi-level feedback, level `5` cap copy, expiry/teardown, and silent load,
+    then accept both Trainer and Mara flows at normal camera distance in PIE.
 - Retain the accepted trainer Chronicle proof under save version `2`:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
@@ -938,6 +974,22 @@ targeting, rewards, AI, quests, or persistence.
   scale, color, or motion only from normal-camera feedback.
 
 ## Last Completed
+
+- 2026-08-23: made level a deterministic result of durable XP rather than a
+  second saved field. Serialized the first `0/100/250/450/700` level curve and
+  distinct race/class growth profiles in `DA_EmbermereRules` for a bounded
+  level-5 cap.
+- Stats now commits XP, derived level, and identity base growth together,
+  preserves absolute missing health/mana, emits exact multi-level-aware live
+  feedback, and restores silently. Equipment remains one additive layer.
+- Persistence now preflights saved equipment against the candidate saved level
+  and restores identity, XP, derived base stats, hotbar, and equipment without
+  drift. Added four progression tests; the no-hot-reload build, 67/67 tests,
+  focused persistence suite, and all 15 package validators passed.
+- Clean PIE used the real Trainer transaction then Mara's original physical-F
+  quest completion to reach Human Warrior level `2` at `150` XP with exact
+  `110/110` health, `53/53` mana, `12` Attack Power, unchanged hotbar, and a
+  matching read-only Chronicle summary.
 
 - 2026-08-22: promoted the bounded persistence contract to save version `2`
   with stable race/class IDs, current-rules legality/loadout validation, atomic

@@ -72,6 +72,45 @@ struct FEmbermereAttributeBlock
 };
 
 USTRUCT(BlueprintType)
+struct FEmbermereAttributeGrowth
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression")
+	float MaxHealth = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression")
+	float MaxMana = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression")
+	float Strength = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression")
+	float Spirit = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression")
+	float Agility = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression")
+	float Intellect = 0.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FEmbermereProgressionProfile
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression")
+	FEmbermereAttributeBlock StartingAttributes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression")
+	FEmbermereAttributeGrowth LevelGrowth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression")
+	TArray<int32> ExperienceThresholds;
+};
+
+USTRUCT(BlueprintType)
 struct FEmbermereRaceDefinition
 {
 	GENERATED_BODY()
@@ -87,6 +126,9 @@ struct FEmbermereRaceDefinition
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Race")
 	FEmbermereAttributeBlock AttributeModifiers;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression")
+	FEmbermereAttributeGrowth LevelGrowth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Race")
 	TArray<EEmbermereClass> AllowedClasses;
@@ -114,6 +156,9 @@ struct FEmbermereClassDefinition
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Class")
 	FEmbermereAttributeBlock StartingAttributes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression")
+	FEmbermereAttributeGrowth LevelGrowth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Class")
 	TArray<FName> StarterAbilityIds;

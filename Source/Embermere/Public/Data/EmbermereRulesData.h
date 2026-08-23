@@ -22,6 +22,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TArray<FEmbermereAbilityDefinition> Abilities;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Progression")
+	TArray<int32> ExperienceThresholds;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Rules")
 	bool IsClassAllowed(EEmbermereRace Race, EEmbermereClass Class) const;
 
@@ -36,6 +39,28 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Rules")
 	bool IsCharacterIdentityValid(EEmbermereRace Race, EEmbermereClass Class) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Rules|Progression")
+	bool IsProgressionDefinitionValid() const;
+
+	bool GetProgressionProfile(
+		EEmbermereRace Race,
+		EEmbermereClass Class,
+		FEmbermereProgressionProfile& OutProfile) const;
+
+	bool ResolveProgressionAttributes(
+		EEmbermereRace Race,
+		EEmbermereClass Class,
+		int32 Experience,
+		FEmbermereAttributeBlock& OutAttributes,
+		int32& OutLevel) const;
+
+	static bool IsProgressionProfileValid(const FEmbermereProgressionProfile& Profile);
+	static bool ResolveProgression(
+		const FEmbermereProgressionProfile& Profile,
+		int32 Experience,
+		FEmbermereAttributeBlock& OutAttributes,
+		int32& OutLevel);
 
 	static FName GetStableRaceId(EEmbermereRace Race);
 	static FName GetStableClassId(EEmbermereClass Class);

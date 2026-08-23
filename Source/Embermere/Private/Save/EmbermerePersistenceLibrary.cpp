@@ -31,6 +31,7 @@ namespace
 	{
 		EEmbermereRace Race = EEmbermereRace::Human;
 		EEmbermereClass Class = EEmbermereClass::Warrior;
+		int32 Level = 1;
 		TArray<FEmbermereInventoryStack> InventoryStacks;
 		TArray<FEmbermereEquippedItem> EquippedItems;
 		FEmbermereQuestState QuestState;
@@ -166,27 +167,38 @@ namespace
 					EmbermereSaveGameVersion::ProgressionOnly,
 					EmbermereSaveGameVersion::Current));
 		}
-		FString IdentityError;
-		if (!ResolveSavedCharacterIdentity(
-			SaveGame,
-			OutState.Race,
-			OutState.Class,
-			IdentityError) ||
-			!Character->CanRestoreRaceAndClassForSaveGame(OutState.Race, OutState.Class))
-		{
-			return Fail(
-				EEmbermerePersistenceResult::InvalidData,
-				OutMessage,
-				IdentityError.IsEmpty()
-					? TEXT("The saved character identity is illegal under current rules.")
-					: IdentityError);
-		}
 		if (SaveGame->Copper < 0 || SaveGame->CurrentExperience < 0)
 		{
 			return Fail(
 				EEmbermerePersistenceResult::InvalidData,
 				OutMessage,
 				TEXT("The save contains a negative wallet or experience value."));
+		}
+
+		FString IdentityError;
+		if (!ResolveSavedCharacterIdentity(
+			SaveGame,
+			OutState.Race,
+			OutState.Class,
+			IdentityError))
+		{
+			return Fail(
+				EEmbermerePersistenceResult::InvalidData,
+				OutMessage,
+				IdentityError.IsEmpty()
+					? TEXT("The saved character identity is malformed.")
+					: IdentityError);
+		}
+		if (!Character->CanRestoreCharacterProgressionForSaveGame(
+			OutState.Race,
+			OutState.Class,
+			SaveGame->CurrentExperience,
+			OutState.Level))
+		{
+			return Fail(
+				EEmbermerePersistenceResult::InvalidData,
+				OutMessage,
+				TEXT("The saved identity and experience cannot resolve under current progression rules."));
 		}
 
 		for (const FEmbermereSavedInventoryStack& SavedStack : SaveGame->InventoryStacks)
@@ -267,7 +279,7 @@ namespace
 		}
 		if (!Character->Equipment->CanRestoreEquippedItemsForSaveGame(
 			OutState.EquippedItems,
-			Character->Stats->Level))
+			OutState.Level))
 		{
 			return Fail(
 				EEmbermerePersistenceResult::InvalidData,
@@ -563,7 +575,10 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::ApplyGameState(
 
 	// Every record is resolved and preflighted above; the commit phase has no
 	// fallible asset lookup or capacity mutation.
-	if (!Character->TryRestoreRaceAndClassForSaveGame(ResolvedState.Race, ResolvedState.Class))
+	if (!Character->TryRestoreCharacterProgressionForSaveGame(
+		ResolvedState.Race,
+		ResolvedState.Class,
+		SaveGame->CurrentExperience))
 	{
 		return Fail(
 			EEmbermerePersistenceResult::InvalidData,
@@ -574,7 +589,6 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::ApplyGameState(
 	Character->Equipment->RestoreEquippedItemsForSaveGame(ResolvedState.EquippedItems);
 	Character->Stats->ApplyEquipmentBonuses(Character->Equipment->GetTotalStatBonuses());
 	Character->Wallet->SetCopperForPrototype(SaveGame->Copper);
-	Character->Stats->RestoreExperienceForSaveGame(SaveGame->CurrentExperience);
 	Character->QuestLog->RestoreQuestStateForSaveGame(ResolvedState.QuestState);
 	for (const FResolvedVendorStock& VendorState : ResolvedState.VendorStocks)
 	{
@@ -712,7 +726,7 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::InspectSaveSlot(
 	FString IdentityError;
 	const UEmbermereRulesData* Rules = GetDefault<UEmbermereRulesData>();
 	if (!ResolveSavedCharacterIdentity(SaveGame, SavedRace, SavedClass, IdentityError) ||
-		!Rules || !Rules->IsCharacterIdentityValid(SavedRace, SavedClass))
+		!Rules || SaveGame->CurrentExperience < 0)
 	{
 		return Fail(
 			EEmbermerePersistenceResult::InvalidData,
@@ -720,6 +734,20 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::InspectSaveSlot(
 			IdentityError.IsEmpty()
 				? TEXT("The saved character identity is illegal under current rules.")
 				: IdentityError);
+	}
+	FEmbermereAttributeBlock SavedAttributes;
+	int32 SavedLevel = 1;
+	if (!Rules->ResolveProgressionAttributes(
+		SavedRace,
+		SavedClass,
+		SaveGame->CurrentExperience,
+		SavedAttributes,
+		SavedLevel))
+	{
+		return Fail(
+			EEmbermerePersistenceResult::InvalidData,
+			OutSummary,
+			TEXT("The saved identity and experience cannot resolve under current progression rules."));
 	}
 	FEmbermereRaceDefinition RaceDefinition;
 	FEmbermereClassDefinition ClassDefinition;
@@ -733,6 +761,7 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::InspectSaveSlot(
 	{
 		IdentitySummary += TEXT("  |  legacy v1 fallback");
 	}
+	IdentitySummary += FString::Printf(TEXT("  |  Level %d"), SavedLevel);
 
 	FString QuestSummary = TEXT("No active quest");
 	if (SaveGame->QuestState.bHasActiveQuest)

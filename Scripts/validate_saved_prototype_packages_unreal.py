@@ -22,6 +22,7 @@ VALIDATOR_MODULES = (
     "validate_fenwatch_training_workshop_unreal",
     "validate_fenwatch_vendor_stall_unreal",
     "validate_fenwatch_vendor_unreal",
+    "validate_level_progression_unreal",
     "validate_fab_zone_pass_unreal",
 )
 

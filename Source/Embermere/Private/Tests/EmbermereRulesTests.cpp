@@ -1,5 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
+#include <limits>
+
 #include "Animation/AnimSequence.h"
 #include "Characters/EmbermereCharacter.h"
 #include "Characters/EmbermereEnemyCharacter.h"
@@ -723,13 +725,14 @@ bool FEmbermerePersistenceRoundTripTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Load restores Warrior identity"), Target->Class, EEmbermereClass::Warrior);
 	TestTrue(TEXT("Loaded identity is deliberate"), Target->bHasDeliberateCharacterChoice);
 	TestEqual(TEXT("Load restores XP"), Target->Stats->CurrentExperience, 125);
+	TestEqual(TEXT("Load derives level two from saved XP"), Target->Stats->Level, 2);
 	TestEqual(TEXT("Load restores exact tonic quantity"), Target->Inventory->GetItemQuantity(Tonic), 2);
 	TestTrue(
 		TEXT("Load restores Recruit Pack to Back slot"),
 		Target->Equipment->GetEquippedItem(EEmbermereEquipmentSlot::Back) == RecruitPack);
-	TestEqual(TEXT("Equipment bonuses apply once to maximum health"), Target->Stats->MaxHealth, 105.0f);
+	TestEqual(TEXT("Progression and equipment apply once to maximum health"), Target->Stats->MaxHealth, 115.0f);
 	TestEqual(TEXT("Equipment bonuses apply once to armor"), Target->Stats->Armor, 1.0f);
-	TestEqual(TEXT("Load resets health to the equipped maximum"), Target->Stats->CurrentHealth, 105.0f);
+	TestEqual(TEXT("Load resets health to the equipped maximum"), Target->Stats->CurrentHealth, 115.0f);
 	TestTrue(TEXT("Load restores completed quest identity"), Target->QuestLog->ActiveQuest.Quest == Quest);
 	TestTrue(TEXT("Load restores completed quest state"), Target->QuestLog->ActiveQuest.bCompleted);
 	TestEqual(
@@ -750,7 +753,7 @@ bool FEmbermerePersistenceRoundTripTest::RunTest(const FString& Parameters)
 			PersistenceMessage),
 		EEmbermerePersistenceResult::Success);
 	TestEqual(TEXT("Repeat load does not duplicate bag items"), Target->Inventory->GetItemQuantity(Tonic), 2);
-	TestEqual(TEXT("Repeat load does not double equipment health"), Target->Stats->MaxHealth, 105.0f);
+	TestEqual(TEXT("Repeat load does not double progression or equipment health"), Target->Stats->MaxHealth, 115.0f);
 	TestEqual(TEXT("Repeat load does not double equipment armor"), Target->Stats->Armor, 1.0f);
 	TestEqual(TEXT("Repeat load does not duplicate XP"), Target->Stats->CurrentExperience, 125);
 	TestEqual(TEXT("Repeat load does not duplicate copper"), Target->Wallet->Copper, 22);
@@ -932,6 +935,13 @@ bool FEmbermerePersistenceCharacterIdentityRollbackTest::RunTest(const FString& 
 		EEmbermerePersistenceResult::InvalidData);
 	AssertIdentityStateUnchanged();
 
+	UEmbermereSaveGame* NegativeExperience = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	NegativeExperience->CurrentExperience = -1;
+	TestEqual(TEXT("Negative saved XP rejects before progression mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, NegativeExperience, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertIdentityStateUnchanged();
+
 	TestEqual(TEXT("Valid identity still applies after rejected candidates"),
 		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, GoodSave, PersistenceMessage),
 		EEmbermerePersistenceResult::Success);
@@ -958,7 +968,7 @@ bool FEmbermerePersistenceLegacyIdentityFallbackTest::RunTest(const FString& Par
 	TestTrue(TEXT("Legacy source begins from a confirmed identity"),
 		Source->TryApplyRaceAndClass(EEmbermereRace::Elf, EEmbermereClass::Wizard));
 	Source->Wallet->SetCopperForPrototype(23);
-	Source->Stats->RestoreExperienceForSaveGame(12);
+	Source->Stats->RestoreExperienceForSaveGame(125);
 	UEmbermereSaveGame* LegacySave = nullptr;
 	FText PersistenceMessage;
 	TestEqual(TEXT("Legacy fixture first captures valid current progression"),
@@ -981,17 +991,18 @@ bool FEmbermerePersistenceLegacyIdentityFallbackTest::RunTest(const FString& Par
 	TestEqual(TEXT("V1 uses explicit Human fallback"), Target->Race, EEmbermereRace::Human);
 	TestEqual(TEXT("V1 uses explicit Warrior fallback"), Target->Class, EEmbermereClass::Warrior);
 	TestTrue(TEXT("V1 fallback becomes deliberate runtime identity"), Target->bHasDeliberateCharacterChoice);
-	TestEqual(TEXT("V1 fallback rebuilds Warrior health"), Target->Stats->MaxHealth, 100.0f);
-	TestEqual(TEXT("V1 fallback rebuilds Warrior mana"), Target->Stats->MaxMana, 50.0f);
+	TestEqual(TEXT("V1 fallback derives Warrior level from legacy XP"), Target->Stats->Level, 2);
+	TestEqual(TEXT("V1 fallback rebuilds level-two Warrior health"), Target->Stats->MaxHealth, 110.0f);
+	TestEqual(TEXT("V1 fallback rebuilds level-two Warrior mana"), Target->Stats->MaxMana, 53.0f);
 	TestEqual(TEXT("V1 fallback rebuilds Warrior first ability"), Target->Hotbar->Slots[0].AbilityId, FName(TEXT("Strike")));
 	TestEqual(TEXT("V1 keeps legacy copper"), Target->Wallet->Copper, 23);
-	TestEqual(TEXT("V1 keeps legacy XP"), Target->Stats->CurrentExperience, 12);
+	TestEqual(TEXT("V1 keeps legacy XP"), Target->Stats->CurrentExperience, 125);
 
 	TestEqual(TEXT("Repeated v1 fallback remains idempotent"),
 		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, LegacySave, PersistenceMessage),
 		EEmbermerePersistenceResult::Success);
-	TestEqual(TEXT("Repeated v1 does not stack health"), Target->Stats->MaxHealth, 100.0f);
-	TestEqual(TEXT("Repeated v1 does not duplicate XP"), Target->Stats->CurrentExperience, 12);
+	TestEqual(TEXT("Repeated v1 does not stack health"), Target->Stats->MaxHealth, 110.0f);
+	TestEqual(TEXT("Repeated v1 does not duplicate XP"), Target->Stats->CurrentExperience, 125);
 	TestEqual(TEXT("Compatibility load never rewrites source format"), LegacySave->FormatVersion, EmbermereSaveGameVersion::ProgressionOnly);
 	return true;
 }
@@ -1199,6 +1210,7 @@ bool FEmbermerePersistenceSlotInspectionTest::RunTest(const FString& Parameters)
 		EEmbermerePersistenceResult::Success);
 	const FString ValidSummary = Summary.ToString();
 	TestTrue(TEXT("Slot summary reports read-only identity"), ValidSummary.Contains(TEXT("Elf Wizard")));
+	TestTrue(TEXT("Slot summary reports derived level"), ValidSummary.Contains(TEXT("Level 2")));
 	TestTrue(TEXT("Slot summary reports exact copper"), ValidSummary.Contains(TEXT("22 copper")));
 	TestTrue(TEXT("Slot summary reports exact XP"), ValidSummary.Contains(TEXT("125 XP")));
 	TestTrue(TEXT("Slot summary reports bag stack count"), ValidSummary.Contains(TEXT("1 bag stacks")));
@@ -1347,6 +1359,235 @@ bool FEmbermereRaceClassRulesTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Strike belongs to Warrior"), StrikeDefinition.OwningClass, EEmbermereClass::Warrior);
 	TestEqual(TEXT("Strike targets enemies"), StrikeDefinition.TargetKind, EEmbermereAbilityTargetKind::Enemy);
 
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereLevelProgressionRulesTest,
+	"Embermere.Progression.LevelRules",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereLevelProgressionRulesTest::RunTest(const FString& Parameters)
+{
+	UEmbermereRulesData* Rules = NewObject<UEmbermereRulesData>();
+	if (!Rules)
+	{
+		AddError(TEXT("Could not create level progression rules fixture"));
+		return false;
+	}
+
+	TestTrue(TEXT("Native progression definition is valid"), Rules->IsProgressionDefinitionValid());
+	const TArray<TPair<int32, int32>> ThresholdCases = {
+		{0, 1}, {99, 1}, {100, 2}, {249, 2}, {250, 3},
+		{449, 3}, {450, 4}, {699, 4}, {700, 5}, {MAX_int32, 5}};
+	for (const TPair<int32, int32>& ThresholdCase : ThresholdCases)
+	{
+		FEmbermereAttributeBlock Attributes;
+		int32 Level = 0;
+		TestTrue(
+			*FString::Printf(TEXT("XP %d resolves"), ThresholdCase.Key),
+			Rules->ResolveProgressionAttributes(
+				EEmbermereRace::Human,
+				EEmbermereClass::Warrior,
+				ThresholdCase.Key,
+				Attributes,
+				Level));
+		TestEqual(
+			*FString::Printf(TEXT("XP %d derives exact level"), ThresholdCase.Key),
+			Level,
+			ThresholdCase.Value);
+	}
+
+	FEmbermereAttributeBlock HumanWarriorAttributes;
+	FEmbermereAttributeBlock ElfWizardAttributes;
+	int32 HumanWarriorLevel = 0;
+	int32 ElfWizardLevel = 0;
+	TestTrue(TEXT("Human Warrior level-two attributes resolve"),
+		Rules->ResolveProgressionAttributes(
+			EEmbermereRace::Human,
+			EEmbermereClass::Warrior,
+			100,
+			HumanWarriorAttributes,
+			HumanWarriorLevel));
+	TestTrue(TEXT("Elf Wizard level-two attributes resolve"),
+		Rules->ResolveProgressionAttributes(
+			EEmbermereRace::Elf,
+			EEmbermereClass::Wizard,
+			100,
+			ElfWizardAttributes,
+			ElfWizardLevel));
+	TestEqual(TEXT("Human Warrior reaches level two"), HumanWarriorLevel, 2);
+	TestEqual(TEXT("Human Warrior gains combined health growth"), HumanWarriorAttributes.MaxHealth, 110.0f);
+	TestEqual(TEXT("Human Warrior gains combined strength growth"), HumanWarriorAttributes.Strength, 12.0f);
+	TestEqual(TEXT("Elf Wizard reaches level two"), ElfWizardLevel, 2);
+	TestEqual(TEXT("Elf Wizard uses its distinct health growth"), ElfWizardAttributes.MaxHealth, 84.0f);
+	TestEqual(TEXT("Elf Wizard uses its distinct mana growth"), ElfWizardAttributes.MaxMana, 122.0f);
+
+	UEmbermereRulesData* NonMonotonic = DuplicateObject<UEmbermereRulesData>(Rules, GetTransientPackage());
+	NonMonotonic->ExperienceThresholds = {0, 100, 100};
+	TestFalse(TEXT("Duplicate thresholds invalidate progression"), NonMonotonic->IsProgressionDefinitionValid());
+	FEmbermereAttributeBlock RejectedAttributes;
+	int32 RejectedLevel = 0;
+	TestFalse(TEXT("Malformed thresholds cannot resolve attributes"),
+		NonMonotonic->ResolveProgressionAttributes(
+			EEmbermereRace::Human,
+			EEmbermereClass::Warrior,
+			100,
+			RejectedAttributes,
+			RejectedLevel));
+
+	UEmbermereRulesData* NegativeGrowth = DuplicateObject<UEmbermereRulesData>(Rules, GetTransientPackage());
+	NegativeGrowth->Classes[0].LevelGrowth.Strength = -1.0f;
+	TestFalse(TEXT("Negative class growth invalidates progression"), NegativeGrowth->IsProgressionDefinitionValid());
+	UEmbermereRulesData* NonFiniteGrowth = DuplicateObject<UEmbermereRulesData>(Rules, GetTransientPackage());
+	NonFiniteGrowth->Races[0].LevelGrowth.MaxHealth = std::numeric_limits<float>::infinity();
+	TestFalse(TEXT("Non-finite race growth invalidates progression"), NonFiniteGrowth->IsProgressionDefinitionValid());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereLiveLevelProgressionTest,
+	"Embermere.Progression.LiveExperienceAndEquipment",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereLiveLevelProgressionTest::RunTest(const FString& Parameters)
+{
+	UEmbermereRulesData* Rules = NewObject<UEmbermereRulesData>();
+	UEmbermereStatsComponent* Stats = NewObject<UEmbermereStatsComponent>();
+	if (!Rules || !Stats)
+	{
+		AddError(TEXT("Could not create live level progression fixtures"));
+		return false;
+	}
+
+	FEmbermereProgressionProfile Profile;
+	TestTrue(TEXT("Human Warrior progression profile resolves"),
+		Rules->GetProgressionProfile(
+			EEmbermereRace::Human,
+			EEmbermereClass::Warrior,
+			Profile));
+	TestTrue(TEXT("Stats accepts the validated profile"), Stats->ConfigureProgression(Profile, 0, true));
+	TestTrue(TEXT("Stats records configured progression"), Stats->IsProgressionConfigured());
+	TestEqual(TEXT("Fresh profile starts at level one"), Stats->Level, 1);
+
+	FEmbermereItemStatBonuses EquipmentBonuses;
+	EquipmentBonuses.MaxHealth = 5.0f;
+	EquipmentBonuses.Power = 2.0f;
+	EquipmentBonuses.Armor = 1.0f;
+	Stats->ApplyEquipmentBonuses(EquipmentBonuses);
+	Stats->CurrentHealth = Stats->MaxHealth - 10.0f;
+	TestTrue(TEXT("One grant may cross three thresholds"), Stats->TryAddExperience(450));
+	TestEqual(TEXT("Multi-level grant reaches level four"), Stats->Level, 4);
+	TestEqual(TEXT("Level-four health includes equipment once"), Stats->MaxHealth, 135.0f);
+	TestEqual(TEXT("Level-up preserves absolute missing health"), Stats->CurrentHealth, 125.0f);
+	TestEqual(TEXT("Level-four attack includes equipment once"), Stats->AttackPower, 18.0f);
+	TestEqual(TEXT("Armor remains a single equipment layer"), Stats->Armor, 1.0f);
+
+	TestTrue(TEXT("XP beyond the first cap remains safe"), Stats->TryAddExperience(1000));
+	TestEqual(TEXT("Progression remains at the explicit level-five cap"), Stats->Level, 5);
+	TestEqual(TEXT("Capped health still includes equipment once"), Stats->MaxHealth, 145.0f);
+	Stats->ApplyEquipmentBonuses(EquipmentBonuses);
+	TestEqual(TEXT("Reapplying identical equipment does not stack health"), Stats->MaxHealth, 145.0f);
+	TestEqual(TEXT("Reapplying identical equipment does not stack power"), Stats->AttackPower, 20.0f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereProgressionRewardOwnersTest,
+	"Embermere.Progression.RewardOwners",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereProgressionRewardOwnersTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	UEmbermereTrainerComponent* Trainer = NewObject<UEmbermereTrainerComponent>();
+	UEmbermereTrainerOfferingsData* Offerings = NewObject<UEmbermereTrainerOfferingsData>();
+	UEmbermereQuestData* Quest = NewObject<UEmbermereQuestData>();
+	if (!Character || !Trainer || !Offerings || !Quest || !Character->Stats ||
+		!Character->Wallet || !Character->QuestLog)
+	{
+		AddError(TEXT("Could not create progression reward-owner fixtures"));
+		return false;
+	}
+
+	TestTrue(TEXT("Reward owner fixture confirms Human Warrior"),
+		Character->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	Character->Wallet->SetCopperForPrototype(40);
+	FEmbermereTrainerOffering CombatDrills;
+	CombatDrills.OfferingId = TEXT("CombatDrills");
+	CombatDrills.DisplayName = FText::FromString(TEXT("Combat Drills"));
+	CombatDrills.CopperCost = 10;
+	CombatDrills.RequiredLevel = 1;
+	CombatDrills.ExperienceReward = 25;
+	Offerings->Offerings.Add(CombatDrills);
+	Trainer->SetOfferingsData(Offerings);
+	TestEqual(TEXT("Trainer remains the owner of its atomic XP transaction"),
+		Trainer->TryTrain(0, Character->Stats, Character->Wallet),
+		EEmbermereTrainingResult::Success);
+	TestEqual(TEXT("One Combat Drills grant remains level one"), Character->Stats->Level, 1);
+	TestEqual(TEXT("Combat Drills grants exact XP"), Character->Stats->CurrentExperience, 25);
+
+	Quest->QuestId = TEXT("ProgressionOwnerProof");
+	Quest->Title = FText::FromString(TEXT("Progression Owner Proof"));
+	Quest->ObjectiveId = TEXT("ProofComplete");
+	Quest->RequiredObjectiveCount = 1;
+	Quest->RewardExperience = 125;
+	Quest->RewardCopper = 20;
+	TestTrue(TEXT("Progression proof quest can be accepted"), Character->QuestLog->AcceptQuest(Quest));
+	TestTrue(TEXT("Progression proof objective advances"),
+		Character->QuestLog->AddObjectiveProgress(TEXT("ProofComplete"), 1));
+	TestTrue(TEXT("Quest remains the owner of its completion XP"),
+		Character->QuestLog->TryCompleteActiveQuest());
+	TestEqual(TEXT("Trainer plus quest XP totals exactly 150"), Character->Stats->CurrentExperience, 150);
+	TestEqual(TEXT("Quest XP crosses the level-two threshold"), Character->Stats->Level, 2);
+	TestEqual(TEXT("Level-two Warrior health uses progression rules"), Character->Stats->MaxHealth, 110.0f);
+	TestEqual(TEXT("Quest and trainer currency remains exact"), Character->Wallet->Copper, 50);
+	TestFalse(TEXT("Completed quest cannot replay its level transition"),
+		Character->QuestLog->TryCompleteActiveQuest());
+	TestEqual(TEXT("Rejected replay preserves exact level"), Character->Stats->Level, 2);
+	TestEqual(TEXT("Rejected replay preserves exact XP"), Character->Stats->CurrentExperience, 150);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereProgressionRollbackTest,
+	"Embermere.Progression.ValidationRollback",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereProgressionRollbackTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	if (!Character || !Character->Stats || !Character->Hotbar)
+	{
+		AddError(TEXT("Could not create progression rollback fixture"));
+		return false;
+	}
+	TestTrue(TEXT("Rollback fixture confirms Human Warrior"),
+		Character->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	Character->Stats->RestoreExperienceForSaveGame(100);
+	const float BaselineHealth = Character->Stats->MaxHealth;
+	const FName BaselineAbility = Character->Hotbar->Slots[0].AbilityId;
+
+	UEmbermereRulesData* MalformedRules = NewObject<UEmbermereRulesData>(Character);
+	MalformedRules->ExperienceThresholds = {0, 100, 90};
+	Character->RulesData = MalformedRules;
+	int32 CandidateLevel = 0;
+	TestFalse(TEXT("Malformed rules reject save progression preflight"),
+		Character->CanRestoreCharacterProgressionForSaveGame(
+			EEmbermereRace::Elf,
+			EEmbermereClass::Wizard,
+			250,
+			CandidateLevel));
+	TestFalse(TEXT("Malformed rules reject progression commit"),
+		Character->TryRestoreCharacterProgressionForSaveGame(
+			EEmbermereRace::Elf,
+			EEmbermereClass::Wizard,
+			250));
+	TestEqual(TEXT("Rejected progression preserves race"), Character->Race, EEmbermereRace::Human);
+	TestEqual(TEXT("Rejected progression preserves class"), Character->Class, EEmbermereClass::Warrior);
+	TestEqual(TEXT("Rejected progression preserves derived level"), Character->Stats->Level, 2);
+	TestEqual(TEXT("Rejected progression preserves health"), Character->Stats->MaxHealth, BaselineHealth);
+	TestEqual(TEXT("Rejected progression preserves hotbar"), Character->Hotbar->Slots[0].AbilityId, BaselineAbility);
 	return true;
 }
 
