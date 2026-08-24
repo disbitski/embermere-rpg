@@ -177,6 +177,35 @@ For Embermere's first mouse-driven inventory pass:
 
 Automation can cover direct selection and invalid indices, but a clean-restart PIE pass still needs to verify real cursor capture and right-mouse camera behavior against the live viewport.
 
+## Ignore Input Is Reference-Counted Ownership
+
+`SetIgnoreMoveInput` and `SetIgnoreLookInput` are not ordinary boolean setters.
+Each `true` call adds to an internal ignore count, and one `false` call removes
+only one entry. A modal opened from more than one controller lifecycle path can
+therefore leave gameplay locked even after the UI appears to close correctly.
+
+Embermere exposed this after character creation could be requested from both
+`OnPossess` and `BeginPlay`. Both paths suppressed movement and look, while the
+single confirmation path released each only once. Inventory close then hid the
+cursor, making the remaining camera lock look like an Inventory bug.
+
+The durable pattern is:
+
+- model each modal's input suppression as one owned, idempotent state;
+- return immediately when the requested ownership state is unchanged;
+- acquire and release Unreal's ignore-input count only when that owned state
+  actually changes;
+- test duplicate acquisition followed by one release, then reproduce the real
+  modal-to-game transition in clean PIE;
+- when returning to classic game-only mouse input, use
+  `FInputModeGameOnly::SetConsumeCaptureMouseDown(false)` so the first
+  right-mouse press can both capture and reach camera control.
+
+Live controller-state inspection was decisive here: movement and look were
+still ignored after the visible modal was gone. Resetting those counts repaired
+the current PIE session immediately; the owned-state fix made the repair
+permanent and testable.
+
 ## Slate Input Is Not Asset Persistence
 
 `SlateInspectorToolset.PressKey` can successfully deliver `Cmd+S` while PIE or the viewport has focus without saving the dirty map package. A successful input result proves the key event was accepted, not that the asset reached disk.

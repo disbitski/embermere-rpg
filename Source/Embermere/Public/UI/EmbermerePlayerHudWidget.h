@@ -125,6 +125,15 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Persistence")
 	FVector2D GetSaveLoadPanelDimensions() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Persistence")
+	FVector2D GetChronicleButtonDimensions() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Persistence")
+	FVector2D GetChronicleButtonViewportOffset() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Persistence")
+	bool IsChronicleButtonBottomRightAnchored() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
 	bool SelectVendorStockItem(int32 StockIndex);
 

@@ -2535,6 +2535,34 @@ Lesson: steady state and celebration are different contracts. Publish one
 authoritative snapshot for the former and one live-only event for the latter;
 then persistence can restore facts without reenacting history.
 
+## 2026-08-24 - One Modal Had Two Input Locks
+
+A real Dwarf Warrior playtest found something the first character-creation
+tests had missed: after confirmation and closing Inventory, the cursor was gone
+but the mouse could not turn the camera. Live controller inspection showed both
+movement and look were still ignored. Resetting those flags repaired the
+running PIE session immediately and proved this was input ownership, not an
+Inventory widget failure.
+
+Character creation could be requested from both `OnPossess` and `BeginPlay`.
+Unreal's ignore-input calls are reference-counted, so the modal had acquired
+two locks and confirmation had released only one. The controller now tracks one
+idempotent character-creation suppression state and changes Unreal's counters
+only when that owned state changes. Returning from Inventory also leaves the
+capture mouse-down unconsumed, allowing the first right-mouse press to rotate
+instead of acting as a discarded viewport-capture click.
+
+The same playtest exposed a separate layout issue: the Chronicle command
+overlapped the top-right Inventory. It is now a larger fixed `140x38` control
+anchored to the bottom-right with a `24`-pixel margin. A fresh-module PIE pass
+accepted Dwarf Warrior, closed Inventory, proved move/look active and cursor
+hidden, then reopened Inventory and verified the Chronicle stayed clear of the
+Inventory, hotbar, and chat. The no-hot-reload build and all 69 tests passed.
+
+Lesson: UI visibility is not proof that input ownership balanced. Treat every
+modal lock as an owned resource, test duplicate lifecycle entry, and finish
+with the exact human transition that originally failed.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

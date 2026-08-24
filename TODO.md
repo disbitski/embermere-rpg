@@ -7,7 +7,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 ## Start Here
 
 - Confirm Unreal is running the 2026-08-24 no-hot-reload progression-
-  presentation module plus the accepted derived-level module and serialized
+  presentation and post-creation input/Chronicle-layout module plus the
+  accepted derived-level module and serialized
   `DA_EmbermereRules` thresholds/growth,
   save-version-2 character identity, the accepted Fenwatch notice-board asset/map package and
   combat-feedback module,
@@ -67,7 +68,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative
-  2026-08-24 no-hot-reload build and isolated commandlet passed 69/69; the
+  latest 2026-08-24 no-hot-reload build and isolated commandlet passed 69/69,
+  including the idempotent character-creation input lock and bottom-right
+  Chronicle geometry; the
   standalone progression validator and fresh 15-package aggregate passed with
   explicit success markers while retaining 53 grounded Fab plus 23 original-
   art actors.
@@ -82,15 +85,31 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - one successful character-side confirmation atomically applies identity,
     full starting vitals, attributes, and four hotbar abilities, then the
     controller restores the normal HUD and game-only input path;
+  - the controller owns exactly one idempotent character-creation move/look
+    suppression lock even when both `OnPossess` and `BeginPlay` request the
+    modal; one confirmation releases it completely;
   - clean PIE accepted Elf Wizard at exact `80/80` health, `110/110` mana, and
     Spark Bolt, Frost Root, Arcane Burst, and Meditate, with
     `Journey begun: Elf Wizard` in chat;
+  - the focused regression accepted Dwarf Warrior, closed the initially open
+    Inventory with `I`, and proved movement/look were both enabled, the cursor
+    was hidden, and classic mouse camera control returned immediately;
   - Human Warrior remains the reversible construction fallback. Save version
     `2` now persists a deliberately confirmed race/class pair through stable
     IDs, while version `1` remains loadable through an explicit current-rules
     Human Warrior compatibility fallback without rewriting the old slot. Treat
     [Docs/CHARACTER_CREATION_CONTRACT.md](Docs/CHARACTER_CREATION_CONTRACT.md)
     as the authority and first-slice boundary.
+- Retain the accepted post-modal input and Chronicle layout contract:
+  - closing Inventory clears held mouse state, enters game-only input with the
+    capture mouse-down left unconsumed, and restores the first right-mouse
+    camera press instead of requiring a throwaway click;
+  - the `Chronicle` command is fixed to the bottom-right at `140x38` with a
+    `24`-pixel edge margin, remains clear of the top-right Inventory and the
+    bottom hotbar/chat, and keeps its existing `M` keyboard path;
+  - `Embermere.CharacterCreation.ControllerLifecycle` covers duplicate lock
+    acquisition/release, and `Embermere.UI.SaveLoadPanel` covers the durable
+    Chronicle anchor, offset, and dimensions.
 - Retain the accepted derived-level progression contract:
   - durable XP remains the only serialized progression quantity; level is
     derived from cumulative thresholds `0`, `100`, `250`, `450`, and `700`
@@ -992,6 +1011,18 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Last Completed
 
+- 2026-08-24: fixed the post-character-creation mouse lock by making the
+  controller own one idempotent move/look suppression state. `OnPossess` and
+  `BeginPlay` can both request the modal without stacking Unreal's reference-
+  counted ignore-input calls, and confirmation now releases the owned lock
+  exactly once.
+- Returning from Inventory now uses game-only input without consuming the
+  first capture mouse-down. Clean PIE confirmed the exact Dwarf Warrior ->
+  close Inventory path with move/look enabled and the cursor hidden.
+- Moved the larger `140x38` Chronicle command to the bottom-right with a fixed
+  `24`-pixel margin. It remained clear of the open top-right Inventory, hotbar,
+  and chat in the live viewport. The no-hot-reload build and all 69 tests
+  passed in a fresh commandlet.
 - 2026-08-24: added a Stats-owned progression presentation snapshot with
   derived level, total XP, current/next threshold, explicit cap state, and
   normalized within-level progress. UMG consumes the result without owning a

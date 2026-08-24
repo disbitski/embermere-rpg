@@ -122,8 +122,13 @@ protected:
 	void ActivateHotbar10();
 
 private:
+#if WITH_DEV_AUTOMATION_TESTS
+	friend class FEmbermereCharacterCreationControllerLifecycleTest;
+#endif
+
 	bool bLeftMouseDown = false;
 	bool bRightMouseDown = false;
+	bool bCharacterCreationInputSuppressed = false;
 	FTransform ControlledSpawnTransform;
 	FTimerHandle PlayerRespawnTimerHandle;
 	TObjectPtr<UEmbermerePlayerHudWidget> PlayerHudWidget;
@@ -133,6 +138,7 @@ private:
 	bool InteractWithNearestActor();
 	void EnsurePlayerHud();
 	void ShowCharacterCreationIfNeeded();
+	void SetCharacterCreationInputSuppressed(bool bSuppressed);
 	void ShowTargetFeedback(AActor* TargetActor) const;
 	void UpdateClassicMouseCameraMode();
 	void UpdateInventoryInputMode(bool bInventoryVisible);

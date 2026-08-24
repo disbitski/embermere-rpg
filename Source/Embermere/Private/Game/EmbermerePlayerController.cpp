@@ -543,6 +543,7 @@ void AEmbermerePlayerController::ShowCharacterCreationIfNeeded()
 	AEmbermereCharacter* Character = GetEmbermereCharacter();
 	if (!ShouldPresentCharacterCreation(Character))
 	{
+		SetCharacterCreationInputSuppressed(false);
 		return;
 	}
 
@@ -574,8 +575,7 @@ void AEmbermerePlayerController::ShowCharacterCreationIfNeeded()
 	}
 
 	bAutorunEnabled = false;
-	SetIgnoreMoveInput(true);
-	SetIgnoreLookInput(true);
+	SetCharacterCreationInputSuppressed(true);
 	bShowMouseCursor = true;
 	bEnableClickEvents = true;
 	bEnableMouseOverEvents = true;
@@ -584,6 +584,18 @@ void AEmbermerePlayerController::ShowCharacterCreationIfNeeded()
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	SetInputMode(InputMode);
 	CharacterCreationWidget->SetKeyboardFocus();
+}
+
+void AEmbermerePlayerController::SetCharacterCreationInputSuppressed(bool bSuppressed)
+{
+	if (bCharacterCreationInputSuppressed == bSuppressed)
+	{
+		return;
+	}
+
+	bCharacterCreationInputSuppressed = bSuppressed;
+	SetIgnoreMoveInput(bSuppressed);
+	SetIgnoreLookInput(bSuppressed);
 }
 
 void AEmbermerePlayerController::HandleCharacterChoiceConfirmed(
@@ -602,8 +614,7 @@ void AEmbermerePlayerController::HandleCharacterChoiceConfirmed(
 		CharacterCreationWidget->RemoveFromParent();
 		CharacterCreationWidget = nullptr;
 	}
-	SetIgnoreMoveInput(false);
-	SetIgnoreLookInput(false);
+	SetCharacterCreationInputSuppressed(false);
 	if (PlayerHudWidget)
 	{
 		PlayerHudWidget->SetVisibility(ESlateVisibility::Visible);
@@ -729,5 +740,7 @@ void AEmbermerePlayerController::UpdateInventoryInputMode(bool bInventoryVisible
 	bLeftMouseDown = false;
 	bRightMouseDown = false;
 	UpdateClassicMouseCameraMode();
-	SetInputMode(FInputModeGameOnly());
+	FInputModeGameOnly InputMode;
+	InputMode.SetConsumeCaptureMouseDown(false);
+	SetInputMode(InputMode);
 }

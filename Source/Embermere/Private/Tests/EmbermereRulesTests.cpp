@@ -1834,6 +1834,16 @@ bool FEmbermereCharacterCreationControllerLifecycleTest::RunTest(const FString& 
 	TestEqual(TEXT("Fallback health remains established baseline"), Character->Stats->MaxHealth, 100.0f);
 	TestEqual(TEXT("Fallback mana remains established baseline"), Character->Stats->MaxMana, 50.0f);
 
+	TestFalse(TEXT("Creation input starts unsuppressed"), Controller->bCharacterCreationInputSuppressed);
+	Controller->SetCharacterCreationInputSuppressed(true);
+	TestTrue(TEXT("Creation presentation suppresses movement"), Controller->IsMoveInputIgnored());
+	TestTrue(TEXT("Creation presentation suppresses camera look"), Controller->IsLookInputIgnored());
+	Controller->SetCharacterCreationInputSuppressed(true);
+	Controller->SetCharacterCreationInputSuppressed(false);
+	TestFalse(TEXT("Repeated presentation needs only one movement release"), Controller->IsMoveInputIgnored());
+	TestFalse(TEXT("Repeated presentation needs only one look release"), Controller->IsLookInputIgnored());
+	TestFalse(TEXT("Creation input ownership is released"), Controller->bCharacterCreationInputSuppressed);
+
 	Controller->bShowCharacterCreationOnFirstPlay = true;
 	TestTrue(TEXT("Valid deliberate fallback choice can still be confirmed"), Character->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
 	TestFalse(TEXT("Confirmed character never reopens first-play creation"), Controller->ShouldPresentCharacterCreation(Character));
@@ -2767,6 +2777,16 @@ bool FEmbermereSaveLoadPanelTest::RunTest(const FString& Parameters)
 		AddError(TEXT("Could not create Chronicle panel fixture"));
 		return false;
 	}
+	Hud->TakeWidget();
+	TestTrue(TEXT("Chronicle button is fixed to the bottom-right viewport corner"), Hud->IsChronicleButtonBottomRightAnchored());
+	TestEqual(
+		TEXT("Chronicle button uses larger reviewed dimensions"),
+		Hud->GetChronicleButtonDimensions(),
+		FVector2D(140.0f, 38.0f));
+	TestEqual(
+		TEXT("Chronicle button keeps a stable screen-edge margin"),
+		Hud->GetChronicleButtonViewportOffset(),
+		FVector2D(-24.0f, -24.0f));
 
 	TestFalse(TEXT("Chronicle panel starts hidden"), Hud->IsSaveLoadPanelVisible());
 	TestTrue(TEXT("Chronicle toggle opens the panel"), Hud->ToggleSaveLoadPanel());

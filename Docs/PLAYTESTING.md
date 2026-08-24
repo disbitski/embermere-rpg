@@ -196,7 +196,12 @@ and a repeat `F` preserved `125` XP without reward replay.
    hotbar slots.
 7. Confirm gameplay input and classic mouse capture return after acceptance.
    A second confirmation request must not reapply stats or reset the hotbar.
-8. Repeat with at least one other legal pair when changing rules data. The
+8. Run the focused regression in a fresh PIE world: confirm Dwarf Warrior,
+   close the initially visible Inventory with `I`, and verify the cursor hides,
+   `WASD` moves, and the first right-mouse press rotates immediately without a
+   throwaway capture click. Movement and look must not remain ignored when both
+   controller possession and begin-play lifecycle paths requested the modal.
+9. Repeat with at least one other legal pair when changing rules data. The
    picker must consume the rules asset rather than maintain a second allow-list.
 
 Save version `2` persists only a deliberately confirmed race/class pair through
@@ -253,7 +258,10 @@ Warrior fallback without rewriting the old file.
 6. Mouse Y starts inverted by default; press `Ctrl+M` to toggle normal/inverted.
 7. Press `Q` to toggle autorun.
 8. Press `W` or `S` while autorunning to stop autorun.
-9. Confirm the visible inventory opens in cursor-aware game/UI mode, then press `I` to hide/show it; closing the inventory should restore classic game-only mouse control.
+9. Confirm the visible inventory opens in cursor-aware game/UI mode, then press
+   `I` to hide/show it. Closing the inventory must hide the cursor, restore
+   classic game-only mouse control, and allow the first right-mouse press to
+   rotate immediately instead of consuming it only for viewport capture.
 10. Inspect the icon pass before and after earning items: all ten empty
     equipment slots show distinct fixed symbols; Recruit Pack and Marsh Tonic
     show project-owned art in their `18x18` rows, selected `42x42` detail header,
@@ -517,6 +525,9 @@ The full ownership and rollback contract is in
 - A styled first-pass HUD overlay shows player HP, mana, XP, current target, target HP, range state, quest progress, and all hotbar slots.
 - A 700x330 structured inventory/equipment window appears in the top-right with `Slots X / 24`, an explicit category/name Sort control, clickable/draggable highlighted item rows, fixed project-owned item/slot icons and fantasy drag token, selected-item effects and net equipment comparison, row/occupied-slot tooltips, ten stable clickable/drop-target paper-doll slots layered over a restrained illustrated adventurer, gold/red drag feedback, equipment-to-bag return, aggregate bonuses, description, empty/reward state, `[`/`]` cycling, `I` close/show behavior, and Equip or Use actions when supported.
 - Opening the inventory shows the cursor and permits UI clicks; closing it hides the cursor and restores classic game-only mouse input.
+- The larger `140x38` Chronicle command remains anchored to the bottom-right
+  with a `24`-pixel edge margin and stays clear of the top-right Inventory,
+  bottom hotbar, and bottom-left chat.
 - Interacting with Mara shows a temporary bottom-screen dialogue panel.
 - Interacting with the Fenwatch quartermaster shows a fixed native stock panel
   with purse, wares, prices, finite stock, details, Buy, Sell selected, latest
@@ -524,7 +535,7 @@ The full ownership and rollback contract is in
 - Interacting with the Fenwatch armsmaster shows a fixed native training panel
   with purse, data-driven offerings, requirements, costs, XP rewards, Train,
   rejection state, and clean peer-panel handoff.
-- Pressing `M` or the top-center Chronicle command opens the fixed one-slot
+- Pressing `M` or the bottom-right Chronicle command opens the fixed one-slot
   Save/Load panel with read-only race/class and progression summary, deliberate
   confirmations, cancel/close controls, readable rejection feedback, and clean
   cursor/input handoff.

@@ -60,6 +60,9 @@ namespace
 	constexpr float StatusEffectSlotHeight = 32.0f;
 	constexpr float SaveLoadPanelWidth = 460.0f;
 	constexpr float SaveLoadPanelHeight = 260.0f;
+	constexpr float ChronicleButtonWidth = 140.0f;
+	constexpr float ChronicleButtonHeight = 38.0f;
+	constexpr float ChronicleButtonMargin = 24.0f;
 	constexpr float TrainerPanelWidth = 500.0f;
 	constexpr float TrainerPanelHeight = 300.0f;
 	constexpr float ProgressionBarWidth = 260.0f;
@@ -722,6 +725,49 @@ bool UEmbermerePlayerHudWidget::IsSaveLoadPanelVisible() const
 FVector2D UEmbermerePlayerHudWidget::GetSaveLoadPanelDimensions() const
 {
 	return FVector2D(SaveLoadPanelWidth, SaveLoadPanelHeight);
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetChronicleButtonDimensions() const
+{
+	if (MenuButton)
+	{
+		if (const UCanvasPanelSlot* MenuSlot = Cast<UCanvasPanelSlot>(MenuButton->Slot))
+		{
+			return MenuSlot->GetSize();
+		}
+	}
+	return FVector2D::ZeroVector;
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetChronicleButtonViewportOffset() const
+{
+	if (MenuButton)
+	{
+		if (const UCanvasPanelSlot* MenuSlot = Cast<UCanvasPanelSlot>(MenuButton->Slot))
+		{
+			return MenuSlot->GetPosition();
+		}
+	}
+	return FVector2D::ZeroVector;
+}
+
+bool UEmbermerePlayerHudWidget::IsChronicleButtonBottomRightAnchored() const
+{
+	if (!MenuButton)
+	{
+		return false;
+	}
+
+	const UCanvasPanelSlot* MenuSlot = Cast<UCanvasPanelSlot>(MenuButton->Slot);
+	if (!MenuSlot)
+	{
+		return false;
+	}
+
+	const FAnchors Anchors = MenuSlot->GetAnchors();
+	return Anchors.Minimum.Equals(FVector2D(1.0f, 1.0f)) &&
+		Anchors.Maximum.Equals(FVector2D(1.0f, 1.0f)) &&
+		MenuSlot->GetAlignment().Equals(FVector2D(1.0f, 1.0f));
 }
 
 bool UEmbermerePlayerHudWidget::SelectVendorStockItem(int32 StockIndex)
@@ -2515,7 +2561,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		WidgetTree,
 		TEXT("MenuText"),
 		FLinearColor(0.94f, 0.84f, 0.58f, 1.0f),
-		12.0f);
+		14.0f);
 	if (MenuButton && MenuText)
 	{
 		MenuButton->SetBackgroundColor(FLinearColor(0.07f, 0.09f, 0.065f, 0.92f));
@@ -2850,10 +2896,10 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	{
 		if (UCanvasPanelSlot* MenuSlot = RootCanvas->AddChildToCanvas(MenuButton))
 		{
-			MenuSlot->SetAnchors(FAnchors(0.5f, 0.0f, 0.5f, 0.0f));
-			MenuSlot->SetAlignment(FVector2D(0.5f, 0.0f));
-			MenuSlot->SetPosition(FVector2D(280.0f, 24.0f));
-			MenuSlot->SetSize(FVector2D(104.0f, 28.0f));
+			MenuSlot->SetAnchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f));
+			MenuSlot->SetAlignment(FVector2D(1.0f, 1.0f));
+			MenuSlot->SetPosition(FVector2D(-ChronicleButtonMargin, -ChronicleButtonMargin));
+			MenuSlot->SetSize(FVector2D(ChronicleButtonWidth, ChronicleButtonHeight));
 		}
 	}
 
