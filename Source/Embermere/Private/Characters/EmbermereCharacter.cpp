@@ -145,6 +145,27 @@ bool AEmbermereCharacter::TryApplyRaceAndClass(EEmbermereRace NewRace, EEmbermer
 		Stats->CurrentExperience);
 }
 
+FText AEmbermereCharacter::GetJourneyIdentitySummary() const
+{
+	const UEmbermereRulesData* EffectiveRules = RulesData.Get()
+		? RulesData.Get()
+		: GetDefault<UEmbermereRulesData>();
+	FEmbermereRaceDefinition RaceDefinition;
+	FEmbermereClassDefinition ClassDefinition;
+	const FText RaceName = EffectiveRules && EffectiveRules->GetRaceDefinition(Race, RaceDefinition)
+		? RaceDefinition.DisplayName
+		: UEnum::GetDisplayValueAsText(Race);
+	const FText ClassName = EffectiveRules && EffectiveRules->GetClassDefinition(Class, ClassDefinition)
+		? ClassDefinition.DisplayName
+		: UEnum::GetDisplayValueAsText(Class);
+	const int32 Level = Stats ? FMath::Max(1, Stats->Level) : 1;
+	return FText::FromString(FString::Printf(
+		TEXT("%s %s  |  Level %d"),
+		*RaceName.ToString(),
+		*ClassName.ToString(),
+		Level));
+}
+
 bool AEmbermereCharacter::CanRestoreRaceAndClassForSaveGame(
 	EEmbermereRace NewRace,
 	EEmbermereClass NewClass) const

@@ -2563,6 +2563,32 @@ Lesson: UI visibility is not proof that input ownership balanced. Treat every
 modal lock as an owned resource, test duplicate lifecycle entry, and finish
 with the exact human transition that originally failed.
 
+## 2026-08-24 - Chronicle Learned The Difference Between Now And Saved
+
+The Dwarf Warrior playtest uncovered another subtle truth after the input fix.
+Chat said `Journey begun: Dwarf Warrior`, but Chronicle said `Elf Wizard`.
+Nothing had corrupted character creation: Chronicle was correctly inspecting an
+older Elf Wizard save slot. The problem was that the panel displayed saved-slot
+metadata as though it described the live session.
+
+Chronicle now names both owners. A gold `Current Journey` row reads the possessed
+Dwarf Warrior directly, while `Saved Journey | Local slot` continues to inspect
+the existing Elf Wizard save without mutation. The actions are now directional
+too: `Save Current` and `Load Saved`. This lets the player understand the state
+before deciding which side should replace the other.
+
+The same report exposed a physical layout bug. The third saved-summary line for
+bag stacks, equipment, and quest state shared space with the buttons. The panel
+grew from `460x260` to `500x320`; the saved summary now owns a fixed `460x78`
+region followed by a 12-pixel gap and a separate action row. Clean PIE recreated
+the exact current Dwarf Warrior versus saved Elf Wizard state, showed both
+clearly, and kept the full summary above the buttons without touching the slot.
+The no-hot-reload build and all 69 tests passed.
+
+Lesson: current state and persisted state are different products, even when
+their values happen to match. Name both owners, label the direction of every
+mutation, and test with intentionally different data.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

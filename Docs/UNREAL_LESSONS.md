@@ -996,6 +996,26 @@ restore game-only input on close. Then repeat the existing two-session proof
 through the new surface. A polished button proves nothing if it bypasses the
 idempotent load contract beneath it.
 
+## Name Live State And Saved State Separately
+
+A save inspector and the current session can both be correct while disagreeing.
+Embermere exposed this when chat correctly confirmed Dwarf Warrior but Chronicle
+showed Elf Wizard from an older local slot. The persistence read was valid; the
+UI was misleading because it presented saved metadata without naming its owner.
+
+Chronicle now has an explicit live `Current Journey` row sourced from the
+possessed character and a separate `Saved Journey` section sourced from
+read-only slot inspection. `Save Current` and `Load Saved` make the transaction
+direction equally clear. A visual acceptance pass should deliberately use
+different current and saved identities, because identical data hides this class
+of semantic bug.
+
+Reserve layout space by meaning as well as by pixels. The complete saved summary
+occupies one fixed clipped region, followed by explicit padding and a separate
+action row. Dynamic bag, equipment, or quest copy can no longer borrow the
+buttons' space. Test widget order and dimensions in automation, then inspect the
+longest real summary in PIE.
+
 ## Separate Saved Animation Intent From Live Playback State
 
 A skeletal component can look fully configured while no animation player

@@ -82,6 +82,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Identity")
 	bool TryApplyRaceAndClass(EEmbermereRace NewRace, EEmbermereClass NewClass);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Identity")
+	FText GetJourneyIdentitySummary() const;
+
 	bool CanRestoreRaceAndClassForSaveGame(EEmbermereRace NewRace, EEmbermereClass NewClass) const;
 	bool TryRestoreRaceAndClassForSaveGame(EEmbermereRace NewRace, EEmbermereClass NewClass);
 	bool CanRestoreCharacterProgressionForSaveGame(

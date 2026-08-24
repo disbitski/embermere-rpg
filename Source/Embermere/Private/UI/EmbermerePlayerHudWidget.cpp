@@ -58,8 +58,10 @@ namespace
 	constexpr float StatusEffectIconSize = 22.0f;
 	constexpr float StatusEffectSlotWidth = 128.0f;
 	constexpr float StatusEffectSlotHeight = 32.0f;
-	constexpr float SaveLoadPanelWidth = 460.0f;
-	constexpr float SaveLoadPanelHeight = 260.0f;
+	constexpr float SaveLoadPanelWidth = 500.0f;
+	constexpr float SaveLoadPanelHeight = 320.0f;
+	constexpr float SaveLoadContentWidth = 460.0f;
+	constexpr float SaveLoadSummaryHeight = 78.0f;
 	constexpr float ChronicleButtonWidth = 140.0f;
 	constexpr float ChronicleButtonHeight = 38.0f;
 	constexpr float ChronicleButtonMargin = 24.0f;
@@ -2623,6 +2625,11 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		TEXT("SaveLoadSlotText"),
 		FLinearColor(0.72f, 0.86f, 0.72f, 1.0f),
 		12.0f);
+	SaveLoadCurrentText = MakeHudText(
+		WidgetTree,
+		TEXT("SaveLoadCurrentText"),
+		FLinearColor(1.0f, 0.82f, 0.38f, 1.0f),
+		13.0f);
 	SaveLoadSummaryText = MakeHudText(
 		WidgetTree,
 		TEXT("SaveLoadSummaryText"),
@@ -2635,7 +2642,12 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		11.0f);
 	if (SaveLoadSlotText)
 	{
-		SaveLoadSlotText->SetText(FText::FromString(TEXT("Local Chronicle  |  One journey slot")));
+		SaveLoadSlotText->SetText(FText::FromString(TEXT("Saved Journey  |  Local slot")));
+	}
+	if (SaveLoadCurrentText)
+	{
+		SaveLoadCurrentText->SetText(FText::FromString(TEXT("Current Journey  |  No active character")));
+		SaveLoadCurrentText->SetClipping(EWidgetClipping::ClipToBounds);
 	}
 	if (SaveLoadSummaryText)
 	{
@@ -2647,11 +2659,25 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		SaveLoadStatusText->SetAutoWrapText(true);
 		SaveLoadStatusText->SetClipping(EWidgetClipping::ClipToBounds);
 	}
+	AddStackChild(
+		SaveLoadStack,
+		MakeSizedWidget(
+			WidgetTree,
+			SaveLoadCurrentText,
+			TEXT("SaveLoadCurrentSize"),
+			SaveLoadContentWidth,
+			22.0f),
+		8.0f);
 	AddStackChild(SaveLoadStack, SaveLoadSlotText, 5.0f);
 	AddStackChild(
 		SaveLoadStack,
-		MakeSizedWidget(WidgetTree, SaveLoadSummaryText, TEXT("SaveLoadSummarySize"), 420.0f, 62.0f),
-		10.0f);
+		MakeSizedWidget(
+			WidgetTree,
+			SaveLoadSummaryText,
+			TEXT("SaveLoadSummarySize"),
+			SaveLoadContentWidth,
+			SaveLoadSummaryHeight),
+		12.0f);
 
 	UHorizontalBox* SaveLoadActionRow = WidgetTree->ConstructWidget<UHorizontalBox>(
 		UHorizontalBox::StaticClass(),
@@ -2735,7 +2761,12 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	AddStackChild(SaveLoadStack, SaveLoadActionRow, 8.0f);
 	AddStackChild(
 		SaveLoadStack,
-		MakeSizedWidget(WidgetTree, SaveLoadStatusText, TEXT("SaveLoadStatusSize"), 420.0f, 42.0f),
+		MakeSizedWidget(
+			WidgetTree,
+			SaveLoadStatusText,
+			TEXT("SaveLoadStatusSize"),
+			SaveLoadContentWidth,
+			42.0f),
 		0.0f);
 	if (SaveLoadPanel)
 	{
@@ -3263,12 +3294,24 @@ void UEmbermerePlayerHudWidget::UpdateSaveLoadPanelVisibility()
 void UEmbermerePlayerHudWidget::RefreshSaveLoadWindow()
 {
 	AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer());
+	AEmbermereCharacter* Character = Controller
+		? Cast<AEmbermereCharacter>(Controller->GetPawn())
+		: nullptr;
 	FText SlotSummary = FText::FromString(TEXT("No saved journey yet."));
 	const EEmbermerePersistenceResult InspectResult = Controller
 		? Controller->InspectPrototypeSave(SlotSummary)
 		: EEmbermerePersistenceResult::InvalidRequest;
 	const bool bCanLoad = InspectResult == EEmbermerePersistenceResult::Success;
 
+	if (SaveLoadCurrentText)
+	{
+		const FString CurrentIdentity = Character
+			? Character->GetJourneyIdentitySummary().ToString()
+			: TEXT("No active character");
+		SaveLoadCurrentText->SetText(FText::FromString(FString::Printf(
+			TEXT("Current Journey  |  %s"),
+			*CurrentIdentity)));
+	}
 	if (SaveLoadSummaryText)
 	{
 		SaveLoadSummaryText->SetText(SlotSummary);
@@ -3282,14 +3325,14 @@ void UEmbermerePlayerHudWidget::RefreshSaveLoadWindow()
 		SaveLoadSaveText->SetText(FText::FromString(
 			PendingSaveLoadConfirmation == ESaveLoadConfirmation::Save
 				? TEXT("Confirm Overwrite")
-				: TEXT("Save Journey")));
+				: TEXT("Save Current")));
 	}
 	if (SaveLoadLoadText)
 	{
 		SaveLoadLoadText->SetText(FText::FromString(
 			PendingSaveLoadConfirmation == ESaveLoadConfirmation::Load
 				? TEXT("Confirm Load")
-				: TEXT("Load Journey")));
+				: TEXT("Load Saved")));
 	}
 	if (SaveLoadSaveButton)
 	{
@@ -3324,7 +3367,7 @@ void UEmbermerePlayerHudWidget::RefreshSaveLoadWindow()
 	else if (StatusMessage.IsEmpty())
 	{
 		StatusMessage = bCanLoad
-			? FText::FromString(TEXT("Local journey ready."))
+			? FText::FromString(TEXT("Saved journey ready."))
 			: SlotSummary;
 		StatusColor = bCanLoad
 			? FLinearColor(0.7f, 0.82f, 0.68f, 1.0f)

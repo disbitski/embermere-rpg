@@ -20,7 +20,10 @@
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/EmbermereWalletComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SizeBox.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/TextBlock.h"
+#include "Components/VerticalBox.h"
 #include "Components/WidgetComponent.h"
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
@@ -1758,6 +1761,12 @@ bool FEmbermereCharacterCreationRestrictionsTest::RunTest(const FString& Paramet
 	TestFalse(TEXT("Bullywug Wizard remains disabled"), Widget->IsClassAvailable(EEmbermereClass::Wizard));
 	TestFalse(TEXT("Bullywug Wizard cannot be confirmed"), Widget->TryConfirmChoice(Character));
 	TestFalse(TEXT("Atomic pair setter also rejects Dwarf Ranger"), Widget->SetRaceAndClass(EEmbermereRace::Dwarf, EEmbermereClass::Ranger));
+	TestTrue(TEXT("Dwarf Warrior remains a valid deliberate choice"), Widget->SetRaceAndClass(EEmbermereRace::Dwarf, EEmbermereClass::Warrior));
+	TestTrue(TEXT("Dwarf Warrior can be confirmed after rejected pairs"), Widget->TryConfirmChoice(Character));
+	TestEqual(
+		TEXT("Dwarf Warrior publishes the current Chronicle identity"),
+		Character->GetJourneyIdentitySummary().ToString(),
+		FString(TEXT("Dwarf Warrior  |  Level 1")));
 
 	return true;
 }
@@ -1789,6 +1798,10 @@ bool FEmbermereCharacterCreationConfirmationLoadoutTest::RunTest(const FString& 
 	TestEqual(TEXT("Wizard Spirit is retained"), Character->Stats->Spirit, 12.0f);
 	TestEqual(TEXT("Wizard Agility is retained"), Character->Stats->Agility, 8.0f);
 	TestEqual(TEXT("Wizard Intellect is retained"), Character->Stats->Intellect, 16.0f);
+	TestEqual(
+		TEXT("Character publishes its current Chronicle identity"),
+		Character->GetJourneyIdentitySummary().ToString(),
+		FString(TEXT("Elf Wizard  |  Level 1")));
 	TestEqual(TEXT("Confirmation fills health"), Character->Stats->CurrentHealth, 80.0f);
 	TestEqual(TEXT("Confirmation fills mana"), Character->Stats->CurrentMana, 110.0f);
 	const TArray<FName> ExpectedAbilities = {TEXT("SparkBolt"), TEXT("FrostRoot"), TEXT("ArcaneBurst"), TEXT("Meditate")};
@@ -2796,7 +2809,39 @@ bool FEmbermereSaveLoadPanelTest::RunTest(const FString& Parameters)
 	TestEqual(
 		TEXT("Chronicle uses stable reviewed dimensions"),
 		Hud->GetSaveLoadPanelDimensions(),
-		FVector2D(460.0f, 260.0f));
+		FVector2D(500.0f, 320.0f));
+	UTextBlock* CurrentJourneyText = Cast<UTextBlock>(Hud->GetWidgetFromName(TEXT("SaveLoadCurrentText")));
+	UTextBlock* SavedJourneyText = Cast<UTextBlock>(Hud->GetWidgetFromName(TEXT("SaveLoadSlotText")));
+	UTextBlock* SaveActionText = Cast<UTextBlock>(Hud->GetWidgetFromName(TEXT("SaveLoadSaveText")));
+	UTextBlock* LoadActionText = Cast<UTextBlock>(Hud->GetWidgetFromName(TEXT("SaveLoadLoadText")));
+	USizeBox* SavedSummarySize = Cast<USizeBox>(Hud->GetWidgetFromName(TEXT("SaveLoadSummarySize")));
+	UVerticalBox* ChronicleStack = Cast<UVerticalBox>(Hud->GetWidgetFromName(TEXT("SaveLoadStack")));
+	UWidget* ActionRow = Hud->GetWidgetFromName(TEXT("SaveLoadActionRow"));
+	TestNotNull(TEXT("Chronicle exposes an explicit current-journey row"), CurrentJourneyText);
+	TestNotNull(TEXT("Chronicle exposes an explicit saved-journey label"), SavedJourneyText);
+	TestNotNull(TEXT("Chronicle reserves a fixed saved-summary region"), SavedSummarySize);
+	TestTrue(
+		TEXT("Current identity is labeled separately from saved identity"),
+		CurrentJourneyText && CurrentJourneyText->GetText().ToString().StartsWith(TEXT("Current Journey")));
+	TestTrue(
+		TEXT("Slot identity is labeled as the saved journey"),
+		SavedJourneyText && SavedJourneyText->GetText().ToString().StartsWith(TEXT("Saved Journey")));
+	TestEqual(
+		TEXT("Chronicle makes save direction explicit"),
+		SaveActionText ? SaveActionText->GetText().ToString() : FString(),
+		FString(TEXT("Save Current")));
+	TestEqual(
+		TEXT("Chronicle makes load direction explicit"),
+		LoadActionText ? LoadActionText->GetText().ToString() : FString(),
+		FString(TEXT("Load Saved")));
+	TestEqual(
+		TEXT("Saved summary has room for all three explicit lines"),
+		SavedSummarySize ? SavedSummarySize->GetHeightOverride() : 0.0f,
+		78.0f);
+	TestTrue(
+		TEXT("Action row follows the complete saved-summary region"),
+		ChronicleStack && SavedSummarySize && ActionRow &&
+		ChronicleStack->GetChildIndex(SavedSummarySize) < ChronicleStack->GetChildIndex(ActionRow));
 
 	TestTrue(TEXT("Inventory command opens inventory from Chronicle"), Hud->ToggleInventoryPanel());
 	TestFalse(TEXT("Inventory command closes Chronicle"), Hud->IsSaveLoadPanelVisible());

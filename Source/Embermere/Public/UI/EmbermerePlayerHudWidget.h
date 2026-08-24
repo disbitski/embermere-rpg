@@ -548,6 +548,9 @@ private:
 	TObjectPtr<UTextBlock> SaveLoadSlotText;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> SaveLoadCurrentText;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> SaveLoadSummaryText;
 
 	UPROPERTY(Transient)

@@ -7,7 +7,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 ## Start Here
 
 - Confirm Unreal is running the 2026-08-24 no-hot-reload progression-
-  presentation and post-creation input/Chronicle-layout module plus the
+  presentation, post-creation input, and Chronicle current/saved-state module plus the
   accepted derived-level module and serialized
   `DA_EmbermereRules` thresholds/growth,
   save-version-2 character identity, the accepted Fenwatch notice-board asset/map package and
@@ -69,8 +69,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative
   latest 2026-08-24 no-hot-reload build and isolated commandlet passed 69/69,
-  including the idempotent character-creation input lock and bottom-right
-  Chronicle geometry; the
+  including the idempotent character-creation input lock, bottom-right
+  Chronicle command geometry, live Dwarf Warrior identity, and fixed current-
+  versus-saved Chronicle layout; the
   standalone progression validator and fresh 15-package aggregate passed with
   explicit success markers while retaining 53 grounded Fab plus 23 original-
   art actors.
@@ -107,9 +108,19 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - the `Chronicle` command is fixed to the bottom-right at `140x38` with a
     `24`-pixel edge margin, remains clear of the top-right Inventory and the
     bottom hotbar/chat, and keeps its existing `M` keyboard path;
+  - the centered Chronicle panel is fixed at `500x320`; its gold `Current
+    Journey` row reads the possessed live character, while `Saved Journey`
+    remains a separate read-only inspection of `EmbermerePrototype` and may
+    legitimately show a different identity;
+  - the saved summary owns a fixed `460x78` clipped region followed by 12
+    pixels of spacing before `Save Current` and `Load Saved`, so its bag,
+    equipment, and quest line cannot collide with either action;
+  - clean PIE accepted current `Dwarf Warrior | Level 1` above the existing
+    saved `Elf Wizard | Level 1` slot without overwriting or loading it;
   - `Embermere.CharacterCreation.ControllerLifecycle` covers duplicate lock
     acquisition/release, and `Embermere.UI.SaveLoadPanel` covers the durable
-    Chronicle anchor, offset, and dimensions.
+    Chronicle anchor, current/saved labels, summary ordering, spacing, and
+    dimensions.
 - Retain the accepted derived-level progression contract:
   - durable XP remains the only serialized progression quantity; level is
     derived from cumulative thresholds `0`, `100`, `250`, `450`, and `700`
@@ -254,12 +265,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   remained exactly `30`/`25` with no items, equipment, quest, vendor-stock, or
   buyback mutation. Trainer offerings, selection, panel state, and interaction
   remain transient, and save version 1 gained no trainer-specific field.
-- Retain the accepted player-facing Chronicle. `M` opens a centered `460x260`
-  one-slot panel while `Ctrl+M` still toggles mouse inversion. The panel
-  inspects `EmbermerePrototype` without mutating it and displays race/class as
-  a read-only first line above the accepted `Level 2`, `22 copper | 125 XP`,
-  `2 bag stacks | 1 equipped | Quest complete` summary. Version `1` slots label
-  their explicit Human Warrior legacy fallback.
+- Retain the accepted player-facing Chronicle. `M` opens a centered `500x320`
+  one-slot panel while `Ctrl+M` still toggles mouse inversion. A distinct
+  `Current Journey` row reads the live possessed character; the separately
+  labeled `Saved Journey | Local slot` inspects `EmbermerePrototype` without
+  mutating it and displays its race/class above the accepted `Level 2`,
+  `22 copper | 125 XP`, `2 bag stacks | 1 equipped | Quest complete` summary.
+  Version `1` slots label their explicit Human Warrior legacy fallback.
+  `Save Current` and `Load Saved` describe their direction explicitly and sit
+  below the complete saved summary rather than sharing its vertical space.
   Save requires explicit overwrite confirmation when the slot exists; Load
   always confirms replacement of the current session. Empty, unreadable,
   unsupported-version, missing-asset, and other rejected states surface the
@@ -917,6 +931,10 @@ targeting, rewards, AI, quests, or persistence.
   identity, malformed-record rollback, and the explicit version `1` Human
   Warrior fallback. Do not add appearance, naming, autosave, multiple profiles,
   deletion, or implicit migration without another deliberate versioned contract.
+- Retain Chronicle's accepted two-state presentation: use a deliberately
+  different live identity and saved identity, verify both labels and levels,
+  keep the final bag/equipment/quest summary line fully above the action row,
+  and do not overwrite or load the user's slot during a visual-only check.
 - Retain the accepted data-driven level progression contract: level derives
   only from durable XP, the first cap remains level `5`, race/class growth is
   rules-owned, equipment remains additive once, and save/load remains silent,
@@ -1011,6 +1029,18 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Last Completed
 
+- 2026-08-24: clarified Chronicle's live-versus-saved state after a real Dwarf
+  Warrior session correctly inspected an older Elf Wizard slot but presented
+  the slot as though it were the current character. Chronicle now shows a gold
+  `Current Journey | Dwarf Warrior | Level 1` row and a separate `Saved
+  Journey | Local slot` section whose existing `Elf Wizard | Level 1` identity
+  remains read-only until the player deliberately saves or loads.
+- Enlarged the centered panel to `500x320`, reserved a fixed `460x78` saved-
+  summary region plus a 12-pixel action gap, and renamed the controls `Save
+  Current` and `Load Saved`. Clean PIE reproduced the mismatched identities
+  without touching the save and confirmed the final bag/equipment/quest line
+  no longer overlaps either button. The no-hot-reload build and all 69 tests
+  passed.
 - 2026-08-24: fixed the post-character-creation mouse lock by making the
   controller own one idempotent move/look suppression state. `OnPossess` and
   `BeginPlay` can both request the modal without stacking Unreal's reference-

@@ -480,12 +480,16 @@ The full ownership and rollback contract is in
 1. Complete the Fenwatch vendor sequence through the `22` copper quest state.
 2. Equip one Recruit Pack in Back, leaving the quest reward pack and Marsh
    Tonic in the bag.
-3. Press `M` or click `Chronicle`. Confirm the centered fixed panel opens with
-   cursor input and shows the confirmed race/class plus derived `Level 2`,
-   `22 copper | 125 XP`,
-   `2 bag stacks | 1 equipped`, and `Quest complete` without covering the
-   hotbar or chat.
-4. Choose Save Journey. Because the acceptance slot already exists, confirm
+3. Before overwriting, use a deliberately different live identity from the
+   existing slot when available, such as current Dwarf Warrior with saved Elf
+   Wizard. Press `M` or click `Chronicle`. Confirm the centered fixed `500x320`
+   panel opens with cursor input, `Current Journey` reports the live possessed
+   character, and the separate `Saved Journey | Local slot` section reports
+   the inspected slot identity plus derived level, copper, XP, bag, equipment,
+   and quest summary without implying that it is current state.
+4. Confirm the complete bottom summary line remains inside the fixed summary
+   region with visible space before the action row. Choose `Save Current`.
+   Because the acceptance slot already exists, confirm
    that `Confirm Overwrite` and Cancel appear; cancel once and verify no state
    changes, then confirm the save and its success feedback.
 5. Close Chronicle with `M` or `X`. Confirm game-only input returns. Opening
@@ -494,7 +498,7 @@ The full ownership and rollback contract is in
 6. Stop PIE and start a second fresh PIE session. Confirm a different legal
    race/class and verify its class stats and hotbar, then confirm live objects
    begin at the normal 40-copper, empty-bag, stock-one baseline before loading.
-7. Open Chronicle, choose Load Journey, and verify `Confirm Load` appears before
+7. Open Chronicle, choose `Load Saved`, and verify `Confirm Load` appears before
    any mutation. Confirm it and verify exact restoration: `22` copper, `125` XP,
    derived level `2`,
    the saved race/class, its class base stats and starter hotbar, one tonic, one
@@ -535,10 +539,11 @@ The full ownership and rollback contract is in
 - Interacting with the Fenwatch armsmaster shows a fixed native training panel
   with purse, data-driven offerings, requirements, costs, XP rewards, Train,
   rejection state, and clean peer-panel handoff.
-- Pressing `M` or the bottom-right Chronicle command opens the fixed one-slot
-  Save/Load panel with read-only race/class and progression summary, deliberate
-  confirmations, cancel/close controls, readable rejection feedback, and clean
-  cursor/input handoff.
+- Pressing `M` or the bottom-right Chronicle command opens the fixed `500x320`
+  one-slot panel with separately labeled live `Current Journey` and read-only
+  `Saved Journey` identity/progression state, a fixed summary region above
+  explicit `Save Current` and `Load Saved` controls, deliberate confirmations,
+  readable rejection feedback, and clean cursor/input handoff.
 - Mara has a temporary gold quest marker above her in PIE.
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
 - `Ctrl+M` toggles mouse Y inversion and posts a bottom-left chat/combat log message.
