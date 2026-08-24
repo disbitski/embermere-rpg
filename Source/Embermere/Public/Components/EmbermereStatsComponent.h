@@ -11,7 +11,43 @@ class UTexture2D;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEmbermereHealthChangedSignature, float, CurrentHealth, float, MaxHealth);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEmbermereManaChangedSignature, float, CurrentMana, float, MaxMana);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEmbermereXpChangedSignature, int32, CurrentExperience);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
+	FEmbermereLevelChangedSignature,
+	int32,
+	PreviousLevel,
+	int32,
+	CurrentLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEmbermereDiedSignature);
+
+USTRUCT(BlueprintType)
+struct FEmbermereProgressionPresentation
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Progression")
+	int32 CurrentLevel = 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Progression")
+	int32 CurrentExperience = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Progression")
+	int32 CurrentLevelThreshold = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Progression")
+	int32 NextLevelThreshold = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Progression")
+	int32 ExperienceIntoLevel = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Progression")
+	int32 ExperienceRequiredForLevel = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Progression")
+	float NormalizedProgress = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Progression")
+	bool bAtLevelCap = false;
+};
 
 USTRUCT(BlueprintType)
 struct FEmbermereActiveStatusEffect
@@ -94,6 +130,9 @@ public:
 	FEmbermereXpChangedSignature OnExperienceChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FEmbermereLevelChangedSignature OnLevelChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FEmbermereDiedSignature OnDied;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
@@ -173,6 +212,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
 	bool TryAddExperience(int32 ExperienceAmount);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats|Progression")
+	bool GetProgressionPresentation(FEmbermereProgressionPresentation& OutPresentation) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats")
 	bool IsDead() const;

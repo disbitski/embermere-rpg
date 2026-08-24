@@ -19,6 +19,7 @@ class UEmbermereItemData;
 class UEmbermereUiIconSet;
 class UEmbermereInventoryRowButton;
 class UEmbermereInventoryComponent;
+class UEmbermereLevelUpWidget;
 class UEmbermereQuestLogComponent;
 class UEmbermereTrainerComponent;
 class UEmbermereTrainerOfferingButton;
@@ -277,6 +278,15 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Status Effects")
 	FVector2D GetStatusEffectSlotDimensions() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Progression")
+	FText GetProgressionDisplayText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Progression")
+	float GetProgressionPercent() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Progression")
+	FVector2D GetProgressionBarDimensions() const;
+
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void NativeConstruct() override;
@@ -308,6 +318,12 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UProgressBar> ManaBar;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UProgressBar> ExperienceBar;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UEmbermereLevelUpWidget> LevelUpOverlay;
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UBorder>> PlayerStatusEffectPanels;

@@ -2508,6 +2508,33 @@ Lesson: do not persist a consequence when its durable inputs and authoritative
 rules can reproduce it. Derive once, validate the candidate world, then commit
 every dependent owner together.
 
+## 2026-08-24 - Progress Became Visible Without Becoming Authority
+
+The first level curve worked, but the HUD still exposed XP as a bare total. We
+needed the player to understand what `25 XP` meant without letting UMG acquire
+its own copy of the curve. Stats now publishes one read-only presentation
+snapshot containing the derived level, total XP, current and next thresholds,
+cap state, and normalized within-level progress. The HUD consumes that result
+as `XP 25 / 100` and a fixed gold bar; it never reads the rules asset or derives
+a level itself.
+
+Celebration follows a different path from steady state. A separate
+hit-test-invisible observer listens only to a post-commit live level-transition
+event, then shows a fixed `360x76` panel for 2.75 seconds. One large grant can
+say `Advanced 3 levels`; the cap uses explicit copy. Save restoration performs
+the same authoritative stat resolution but emits no live transition, so loading
+can update the steady bar without replaying a level-up.
+
+Two focused tests cover level-1 progress, `99/100`, exact-threshold rollover,
+within-level normalization, cap copy, multi-level feedback, fixed geometry,
+expiry, teardown, and silent restore. The no-hot-reload build passed, all 69
+tests passed in a fresh commandlet, and the full 15-package validator retained
+the 53 grounded Fab plus 23 original-art world baseline.
+
+Lesson: steady state and celebration are different contracts. Publish one
+authoritative snapshot for the former and one live-only event for the latter;
+then persistence can restore facts without reenacting history.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

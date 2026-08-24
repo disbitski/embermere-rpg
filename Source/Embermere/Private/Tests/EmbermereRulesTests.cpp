@@ -49,6 +49,7 @@
 #include "UI/EmbermereCharacterCreationWidget.h"
 #include "UI/EmbermereEnemyNameplateWidget.h"
 #include "UI/EmbermereItemDragDropOperation.h"
+#include "UI/EmbermereLevelUpWidget.h"
 #include "UI/EmbermereNpcGreetingWidget.h"
 #include "UI/EmbermerePlayerHudWidget.h"
 
@@ -1489,6 +1490,113 @@ bool FEmbermereLiveLevelProgressionTest::RunTest(const FString& Parameters)
 	Stats->ApplyEquipmentBonuses(EquipmentBonuses);
 	TestEqual(TEXT("Reapplying identical equipment does not stack health"), Stats->MaxHealth, 145.0f);
 	TestEqual(TEXT("Reapplying identical equipment does not stack power"), Stats->AttackPower, 20.0f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereExperienceProgressPresentationTest,
+	"Embermere.UI.ExperienceProgressPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereExperienceProgressPresentationTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	if (!Character || !Character->Stats || !Hud)
+	{
+		AddError(TEXT("Could not create experience presentation fixtures"));
+		return false;
+	}
+
+	TestTrue(TEXT("Experience fixture confirms Human Warrior"),
+		Character->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	Hud->BindToCharacter(Character);
+	TestEqual(TEXT("XP bar keeps fixed reviewed dimensions"), Hud->GetProgressionBarDimensions(), FVector2D(260.0f, 8.0f));
+	TestEqual(TEXT("Fresh progress names the next authoritative threshold"),
+		Hud->GetProgressionDisplayText().ToString(), FString(TEXT("Level 1   XP 0 / 100")));
+	TestTrue(TEXT("Fresh level begins with an empty progress bar"), FMath::IsNearlyZero(Hud->GetProgressionPercent()));
+
+	TestTrue(TEXT("Threshold-approach XP commits"), Character->Stats->TryAddExperience(99));
+	TestEqual(TEXT("Threshold approach preserves the exact next total"),
+		Hud->GetProgressionDisplayText().ToString(), FString(TEXT("Level 1   XP 99 / 100")));
+	TestTrue(TEXT("Threshold approach reports exact within-level progress"),
+		FMath::IsNearlyEqual(Hud->GetProgressionPercent(), 0.99f, KINDA_SMALL_NUMBER));
+
+	TestTrue(TEXT("Exact threshold XP commits"), Character->Stats->TryAddExperience(1));
+	TestEqual(TEXT("Exact threshold advances and exposes the following total"),
+		Hud->GetProgressionDisplayText().ToString(), FString(TEXT("Level 2   XP 100 / 250")));
+	TestTrue(TEXT("Exact threshold begins the new level at zero progress"),
+		FMath::IsNearlyZero(Hud->GetProgressionPercent()));
+
+	TestTrue(TEXT("Mid-level XP commits"), Character->Stats->TryAddExperience(50));
+	TestTrue(TEXT("Level-two progress is normalized between rules-owned thresholds"),
+		FMath::IsNearlyEqual(Hud->GetProgressionPercent(), 1.0f / 3.0f, KINDA_SMALL_NUMBER));
+	TestEqual(TEXT("Mid-level copy keeps total XP and next threshold"),
+		Hud->GetProgressionDisplayText().ToString(), FString(TEXT("Level 2   XP 150 / 250")));
+
+	TestTrue(TEXT("Cap-reaching XP commits"), Character->Stats->TryAddExperience(550));
+	TestEqual(TEXT("Cap copy is explicit and stable"),
+		Hud->GetProgressionDisplayText().ToString(), FString(TEXT("Level 5   XP 700   CAP")));
+	TestTrue(TEXT("Cap presentation reports a full bar"),
+		FMath::IsNearlyEqual(Hud->GetProgressionPercent(), 1.0f, KINDA_SMALL_NUMBER));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereLevelUpPresentationTest,
+	"Embermere.UI.LevelUpPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereLevelUpPresentationTest::RunTest(const FString& Parameters)
+{
+	UEmbermereRulesData* Rules = NewObject<UEmbermereRulesData>();
+	UEmbermereStatsComponent* Stats = NewObject<UEmbermereStatsComponent>();
+	UEmbermereLevelUpWidget* Widget = NewObject<UEmbermereLevelUpWidget>();
+	if (!Rules || !Stats || !Widget)
+	{
+		AddError(TEXT("Could not create level-up presentation fixtures"));
+		return false;
+	}
+
+	FEmbermereProgressionProfile Profile;
+	TestTrue(TEXT("Level-up fixture resolves Human Warrior progression"),
+		Rules->GetProgressionProfile(EEmbermereRace::Human, EEmbermereClass::Warrior, Profile));
+	TestTrue(TEXT("Level-up fixture configures progression"), Stats->ConfigureProgression(Profile, 0, true));
+	Widget->BindToStats(Stats);
+	TestFalse(TEXT("Observer starts hidden"), Widget->IsLevelUpVisible());
+	TestEqual(TEXT("Level-up panel keeps fixed reviewed dimensions"),
+		Widget->GetPanelDimensions(), FVector2D(360.0f, 76.0f));
+	TestTrue(TEXT("Level-up lifetime remains deterministic"),
+		FMath::IsNearlyEqual(Widget->GetPresentationLifetimeSeconds(), 2.75f, KINDA_SMALL_NUMBER));
+
+	Stats->RestoreExperienceForSaveGame(100);
+	TestFalse(TEXT("Silent restore never replays level-up presentation"), Widget->IsLevelUpVisible());
+	Stats->RestoreExperienceForSaveGame(0);
+	TestFalse(TEXT("Silent rollback-style restore also remains presentation-free"), Widget->IsLevelUpVisible());
+
+	TestTrue(TEXT("One live grant may cross three levels"), Stats->TryAddExperience(450));
+	TestTrue(TEXT("Live level transition opens presentation"), Widget->IsLevelUpVisible());
+	TestEqual(TEXT("Multi-level title reports the authoritative result"),
+		Widget->GetLevelUpTitle().ToString(), FString(TEXT("LEVEL 4")));
+	TestEqual(TEXT("Multi-level detail reports exact levels advanced and XP"),
+		Widget->GetLevelUpDetail().ToString(), FString(TEXT("Advanced 3 levels  |  450 XP")));
+	Widget->AdvancePresentation(2.74f);
+	TestTrue(TEXT("Presentation remains until its full lifetime"), Widget->IsLevelUpVisible());
+	Widget->AdvancePresentation(0.02f);
+	TestFalse(TEXT("Presentation expires deterministically"), Widget->IsLevelUpVisible());
+
+	Stats->RestoreExperienceForSaveGame(0);
+	TestTrue(TEXT("Live cap grant commits"), Stats->TryAddExperience(700));
+	TestEqual(TEXT("Cap title reports the final derived level"),
+		Widget->GetLevelUpTitle().ToString(), FString(TEXT("LEVEL 5")));
+	TestEqual(TEXT("Cap detail uses explicit cap copy"),
+		Widget->GetLevelUpDetail().ToString(), FString(TEXT("700 XP  |  LEVEL CAP")));
+
+	Widget->BindToStats(nullptr);
+	TestFalse(TEXT("Unbinding tears down active presentation"), Widget->IsLevelUpVisible());
+	Stats->RestoreExperienceForSaveGame(0);
+	TestTrue(TEXT("Stats remain independently usable after observer teardown"), Stats->TryAddExperience(100));
+	TestFalse(TEXT("Torn-down observer receives no later transition"), Widget->IsLevelUpVisible());
 	return true;
 }
 

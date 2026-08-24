@@ -81,8 +81,10 @@ The repo currently contains the C++ gameplay scaffold for:
 - data-driven level progression derived only from durable XP, with validated
   cumulative thresholds for levels 1 through 5, distinct race/class growth,
   atomic identity-base recomputation, one additive equipment layer, exact live
-  level-up feedback, silent idempotent load, and read-only HUD/Chronicle level
-  presentation without serializing duplicate level state
+  level-up feedback, silent idempotent load, a fixed next-threshold XP bar, a
+  live-only multi-level-aware celebration panel, and read-only HUD/Chronicle
+  presentation without serializing duplicate level state or calculating level
+  inside UMG
 - a real native pre-play character picker over the data-driven rules matrix:
   all eight races and four classes remain visible, invalid combinations stay
   visibly disabled, confirmation atomically applies starting stats and the

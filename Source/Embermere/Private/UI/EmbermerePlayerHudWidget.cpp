@@ -17,6 +17,7 @@
 #include "UI/EmbermereEquipmentSlotButton.h"
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermereInventoryRowButton.h"
+#include "UI/EmbermereLevelUpWidget.h"
 #include "UI/EmbermereTrainerOfferingButton.h"
 #include "UI/EmbermereVendorStockButton.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
@@ -61,6 +62,8 @@ namespace
 	constexpr float SaveLoadPanelHeight = 260.0f;
 	constexpr float TrainerPanelWidth = 500.0f;
 	constexpr float TrainerPanelHeight = 300.0f;
+	constexpr float ProgressionBarWidth = 260.0f;
+	constexpr float ProgressionBarHeight = 8.0f;
 
 	const TCHAR* GetEquipmentSlotLabel(EEmbermereEquipmentSlot Slot)
 	{
@@ -253,6 +256,39 @@ FVector2D UEmbermerePlayerHudWidget::GetPaperDollBackdropDimensions() const
 	return FVector2D(PaperDollBackdropWidth, PaperDollBackdropHeight);
 }
 
+FText UEmbermerePlayerHudWidget::GetProgressionDisplayText() const
+{
+	FEmbermereProgressionPresentation Progression;
+	if (!Stats || !Stats->GetProgressionPresentation(Progression))
+	{
+		return FText::FromString(TEXT("Level --   XP --"));
+	}
+
+	return Progression.bAtLevelCap
+		? FText::FromString(FString::Printf(
+			TEXT("Level %d   XP %d   CAP"),
+			Progression.CurrentLevel,
+			Progression.CurrentExperience))
+		: FText::FromString(FString::Printf(
+			TEXT("Level %d   XP %d / %d"),
+			Progression.CurrentLevel,
+			Progression.CurrentExperience,
+			Progression.NextLevelThreshold));
+}
+
+float UEmbermerePlayerHudWidget::GetProgressionPercent() const
+{
+	FEmbermereProgressionPresentation Progression;
+	return Stats && Stats->GetProgressionPresentation(Progression)
+		? Progression.NormalizedProgress
+		: 0.0f;
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetProgressionBarDimensions() const
+{
+	return FVector2D(ProgressionBarWidth, ProgressionBarHeight);
+}
+
 int32 UEmbermerePlayerHudWidget::GetPlayerStatusEffectCount() const
 {
 	return Stats ? Stats->GetActiveStatusEffects().Num() : 0;
@@ -347,6 +383,17 @@ void UEmbermerePlayerHudWidget::NativeConstruct()
 			CombatFeedbackOverlay->SynchronizeViewportBounds();
 		}
 	}
+	if (!LevelUpOverlay && GetOwningPlayer())
+	{
+		LevelUpOverlay = CreateWidget<UEmbermereLevelUpWidget>(
+			GetOwningPlayer(),
+			UEmbermereLevelUpWidget::StaticClass());
+		if (LevelUpOverlay)
+		{
+			LevelUpOverlay->AddToPlayerScreen(18);
+			LevelUpOverlay->SynchronizeViewportBounds();
+		}
+	}
 	BindComponentEvents();
 	RefreshHudText();
 }
@@ -378,6 +425,12 @@ void UEmbermerePlayerHudWidget::NativeDestruct()
 		CombatFeedbackOverlay->ClearAllFeedback();
 		CombatFeedbackOverlay->RemoveFromParent();
 		CombatFeedbackOverlay = nullptr;
+	}
+	if (LevelUpOverlay)
+	{
+		LevelUpOverlay->BindToStats(nullptr);
+		LevelUpOverlay->RemoveFromParent();
+		LevelUpOverlay = nullptr;
 	}
 	Super::NativeDestruct();
 }
@@ -1616,6 +1669,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	PlayerStatusText = MakeHudText(WidgetTree, TEXT("PlayerStatusText"), FLinearColor(0.95f, 0.92f, 0.82f, 1.0f), 17.0f);
 	HealthBar = MakeBar(WidgetTree, TEXT("HealthBar"), FLinearColor(0.72f, 0.08f, 0.06f, 1.0f));
 	ManaBar = MakeBar(WidgetTree, TEXT("ManaBar"), FLinearColor(0.08f, 0.24f, 0.8f, 1.0f));
+	ExperienceBar = MakeBar(WidgetTree, TEXT("ExperienceBar"), FLinearColor(0.92f, 0.62f, 0.14f, 1.0f));
 	USizeBox* PlayerStatusEffectRow = MakeStatusEffectRow(
 		TEXT("PlayerStatusEffect"),
 		PlayerStatusEffectPanels,
@@ -1624,6 +1678,15 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	AddStackChild(StatusStack, PlayerStatusText, 8.0f);
 	AddStackChild(StatusStack, MakeSizedWidget(WidgetTree, HealthBar, TEXT("HealthBarSize"), 260.0f, 14.0f), 5.0f);
 	AddStackChild(StatusStack, MakeSizedWidget(WidgetTree, ManaBar, TEXT("ManaBarSize"), 260.0f, 12.0f), 5.0f);
+	AddStackChild(
+		StatusStack,
+		MakeSizedWidget(
+			WidgetTree,
+			ExperienceBar,
+			TEXT("ExperienceBarSize"),
+			ProgressionBarWidth,
+			ProgressionBarHeight),
+		5.0f);
 	AddStackChild(StatusStack, PlayerStatusEffectRow, 0.0f);
 
 	TargetPanel = MakePanel(WidgetTree, TEXT("TargetPanel"), FLinearColor(0.075f, 0.04f, 0.025f, 0.78f));
@@ -2945,9 +3008,8 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 		if (Stats)
 		{
 			PlayerStatusText->SetText(FText::FromString(FString::Printf(
-				TEXT("Level %d   XP %d\nHP %.0f/%.0f   Mana %.0f/%.0f"),
-				Stats->Level,
-				Stats->CurrentExperience,
+				TEXT("%s\nHP %.0f/%.0f   Mana %.0f/%.0f"),
+				*GetProgressionDisplayText().ToString(),
 				Stats->CurrentHealth,
 				Stats->MaxHealth,
 				Stats->CurrentMana,
@@ -2960,6 +3022,10 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 			{
 				ManaBar->SetPercent(Stats->MaxMana > 0.0f ? Stats->CurrentMana / Stats->MaxMana : 0.0f);
 			}
+			if (ExperienceBar)
+			{
+				ExperienceBar->SetPercent(GetProgressionPercent());
+			}
 		}
 		else
 		{
@@ -2971,6 +3037,10 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 			if (ManaBar)
 			{
 				ManaBar->SetPercent(0.0f);
+			}
+			if (ExperienceBar)
+			{
+				ExperienceBar->SetPercent(0.0f);
 			}
 		}
 	}
@@ -4068,6 +4138,10 @@ void UEmbermerePlayerHudWidget::ShowDialogue_Implementation(const FText& Speaker
 
 void UEmbermerePlayerHudWidget::BindComponentEvents()
 {
+	if (LevelUpOverlay)
+	{
+		LevelUpOverlay->BindToStats(Stats);
+	}
 	if (Inventory)
 	{
 		Inventory->OnItemAdded.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleItemAdded);
@@ -4082,6 +4156,10 @@ void UEmbermerePlayerHudWidget::BindComponentEvents()
 
 void UEmbermerePlayerHudWidget::UnbindComponentEvents()
 {
+	if (LevelUpOverlay)
+	{
+		LevelUpOverlay->BindToStats(nullptr);
+	}
 	if (Inventory)
 	{
 		Inventory->OnItemAdded.RemoveDynamic(this, &UEmbermerePlayerHudWidget::HandleItemAdded);

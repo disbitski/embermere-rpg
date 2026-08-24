@@ -376,6 +376,10 @@ bool UEmbermereStatsComponent::TryAddExperience(int32 ExperienceAmount)
 			false);
 	}
 	OnExperienceChanged.Broadcast(CurrentExperience);
+	if (ResolvedLevel > PreviousLevel)
+	{
+		OnLevelChanged.Broadcast(PreviousLevel, ResolvedLevel);
+	}
 	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
 		this,
 		FText::FromString(FString::Printf(TEXT("Gained %d XP (Total: %d)"), ExperienceAmount, CurrentExperience)),
@@ -393,6 +397,59 @@ bool UEmbermereStatsComponent::TryAddExperience(int32 ExperienceAmount)
 			FText::FromString(LevelMessage),
 			FLinearColor(0.35f, 0.9f, 1.0f, 1.0f));
 	}
+	return true;
+}
+
+bool UEmbermereStatsComponent::GetProgressionPresentation(
+	FEmbermereProgressionPresentation& OutPresentation) const
+{
+	OutPresentation = FEmbermereProgressionPresentation();
+	if (!bProgressionConfigured ||
+		!UEmbermereRulesData::IsProgressionProfileValid(ProgressionProfile) ||
+		CurrentExperience < 0)
+	{
+		return false;
+	}
+
+	FEmbermereAttributeBlock ResolvedAttributes;
+	int32 ResolvedLevel = 0;
+	if (!UEmbermereRulesData::ResolveProgression(
+			ProgressionProfile,
+			CurrentExperience,
+			ResolvedAttributes,
+			ResolvedLevel) ||
+		ResolvedLevel != Level)
+	{
+		return false;
+	}
+
+	const int32 ThresholdIndex = ResolvedLevel - 1;
+	if (!ProgressionProfile.ExperienceThresholds.IsValidIndex(ThresholdIndex))
+	{
+		return false;
+	}
+
+	OutPresentation.CurrentLevel = ResolvedLevel;
+	OutPresentation.CurrentExperience = CurrentExperience;
+	OutPresentation.CurrentLevelThreshold = ProgressionProfile.ExperienceThresholds[ThresholdIndex];
+	OutPresentation.bAtLevelCap =
+		ThresholdIndex == ProgressionProfile.ExperienceThresholds.Num() - 1;
+	OutPresentation.NextLevelThreshold = OutPresentation.bAtLevelCap
+		? OutPresentation.CurrentLevelThreshold
+		: ProgressionProfile.ExperienceThresholds[ThresholdIndex + 1];
+	OutPresentation.ExperienceIntoLevel = FMath::Max(
+		0,
+		CurrentExperience - OutPresentation.CurrentLevelThreshold);
+	OutPresentation.ExperienceRequiredForLevel = OutPresentation.bAtLevelCap
+		? 0
+		: OutPresentation.NextLevelThreshold - OutPresentation.CurrentLevelThreshold;
+	OutPresentation.NormalizedProgress = OutPresentation.bAtLevelCap
+		? 1.0f
+		: FMath::Clamp(
+			static_cast<float>(OutPresentation.ExperienceIntoLevel) /
+				static_cast<float>(OutPresentation.ExperienceRequiredForLevel),
+			0.0f,
+			1.0f);
 	return true;
 }
 

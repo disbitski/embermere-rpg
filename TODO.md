@@ -6,8 +6,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-23 no-hot-reload derived-level
-  progression module plus the serialized `DA_EmbermereRules` thresholds/growth,
+- Confirm Unreal is running the 2026-08-24 no-hot-reload progression-
+  presentation module plus the accepted derived-level module and serialized
+  `DA_EmbermereRules` thresholds/growth,
   save-version-2 character identity, the accepted Fenwatch notice-board asset/map package and
   combat-feedback module,
   along with the accepted rigged Fenwatch keeper, armsmaster, and quartermaster
@@ -15,11 +16,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 67 Embermere tests.
+  predates that work or test discovery exposes fewer than 69 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 67 tests, especially
+- Discover and run all 69 tests, especially
+  `Embermere.UI.ExperienceProgressPresentation`,
+  `Embermere.UI.LevelUpPresentation`,
   `Embermere.Progression.LevelRules`,
   `Embermere.Progression.LiveExperienceAndEquipment`,
   `Embermere.Progression.RewardOwners`,
@@ -64,9 +67,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative
-  2026-08-23 no-hot-reload build, isolated commandlet, and fresh aggregate
-  passed 67/67 plus all 15 package validators while retaining 53 grounded Fab
-  plus 23 original-art actors.
+  2026-08-24 no-hot-reload build and isolated commandlet passed 69/69; the
+  standalone progression validator and fresh 15-package aggregate passed with
+  explicit success markers while retaining 53 grounded Fab plus 23 original-
+  art actors.
 - Retain the accepted character-creation authority and lifecycle contract:
   - the centered fixed `940x560` modal shows all eight races and four classes
     before gameplay while the normal HUD remains hidden;
@@ -109,6 +113,18 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     `150 XP`, one bag stack, no equipment, and the completed Mara quest.
   Treat [Docs/LEVEL_PROGRESSION_CONTRACT.md](Docs/LEVEL_PROGRESSION_CONTRACT.md)
   as the XP, level, growth, load, and presentation authority boundary.
+- Retain the accepted progression-presentation contract:
+  - Stats alone resolves one read-only snapshot containing derived level,
+    total XP, current/next thresholds, cap state, and normalized within-level
+    progress; UMG owns no threshold table or level calculation;
+  - the top-left status uses fixed `260x8` gold progress geometry and shows
+    `Level 1   XP 0 / 100`, exact next-threshold totals, or explicit `CAP` copy;
+  - the separate hit-test-invisible observer uses a fixed `360x76` panel and
+    `2.75`-second lifetime for one-level or multi-level live transitions;
+  - exact chat remains the durable fallback, and silent load updates steady
+    state without broadcasting or replaying transient celebration;
+  - Trainer, Mara, rules, Stats, equipment, rewards, and persistence retain all
+    existing authority.
 - Retain the accepted Fenwatch practice-target split:
   - `Embermere_FenwatchPracticeDummy_TrainingYard_01` remains the visible
     project-owned art and the sole owner of its two purposeful solid boxes;
@@ -886,18 +902,19 @@ targeting, rewards, AI, quests, or persistence.
   only from durable XP, the first cap remains level `5`, race/class growth is
   rules-owned, equipment remains additive once, and save/load remains silent,
   atomic, idempotent, and compatible with version `1` and `2` slots.
-- Build the next bounded progression-presentation milestone:
-  - define a presentation-only level-up/XP-progress contract over the existing
-    authoritative Stats and rules results;
-  - show current XP, the next threshold, and cap state in fixed readable bounds
-    without copying thresholds or calculating level inside UMG;
-  - retain exact chat as a durable fallback while adding restrained transient
-    level-up feedback that handles multi-level gains and never replays on load;
-  - keep Trainer, Mara, save data, stats, abilities, rewards, and equipment
-    ownership unchanged;
-  - add focused automation for level `1`, threshold approach, exact threshold,
-    multi-level feedback, level `5` cap copy, expiry/teardown, and silent load,
-    then accept both Trainer and Mara flows at normal camera distance in PIE.
+- Retain the accepted progression-presentation milestone:
+  - verify the fixed gold XP bar reads `25 / 100` after Combat Drills and the
+    top-center level-up observer reads `LEVEL 2` plus `150 XP | Next: 250 XP`
+    after Mara's quest without overlapping loot, Chronicle, target, or chat;
+  - verify the panel expires without layout movement and a confirmed Chronicle
+    load restores the steady XP surface without replaying celebration;
+  - keep the Stats snapshot, live-only level event, exact chat fallback, fixed
+    geometry, multi-level/cap behavior, and every existing authority boundary.
+- After visual acceptance, choose the next bounded player-progression slice:
+  prefer a small data-driven level requirement/reward extension that uses the
+  existing derived-level contract, or a restrained project-owned world module.
+  Do not add duplicate durable level state, talents, ability unlocks, or a save
+  migration without a separate contract and tests.
 - Retain the accepted trainer Chronicle proof under save version `2`:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
@@ -975,6 +992,20 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Last Completed
 
+- 2026-08-24: added a Stats-owned progression presentation snapshot with
+  derived level, total XP, current/next threshold, explicit cap state, and
+  normalized within-level progress. UMG consumes the result without owning a
+  threshold table or level calculation.
+- Added a fixed `260x8` gold XP bar and next-threshold copy to the player status
+  panel, plus a separate hit-test-invisible `360x76` live level-up observer with
+  a `2.75`-second lifetime, multi-level/cap copy, fade, replacement, and safe
+  teardown. Save restoration emits no level-transition event and cannot replay
+  celebration.
+- Added `Embermere.UI.ExperienceProgressPresentation` and
+  `Embermere.UI.LevelUpPresentation`. The no-hot-reload build passed all 69
+  tests in a fresh commandlet; the standalone progression marker and full
+  15-package aggregate passed with no `LogPython: Error`, retaining 53 grounded
+  Fab plus 23 original-art placements.
 - 2026-08-23: made level a deterministic result of durable XP rather than a
   second saved field. Serialized the first `0/100/250/450/700` level curve and
   distinct race/class growth profiles in `DA_EmbermereRules` for a bounded

@@ -231,6 +231,17 @@ Warrior fallback without rewriting the old file.
 8. Keep exact-threshold edges, multi-level grants, the level-5 cap, malformed
    rules, version-1 fallback, and candidate-level item requirements covered by
    automation rather than manufacturing those states in the main world.
+9. Confirm the top-left status reads `Level 1   XP 0 / 100` and the fixed gold
+   XP bar is empty without moving the health, mana, status, target, or quest
+   layout.
+10. Complete Combat Drills and verify `XP 25 / 100` with a quarter-filled bar
+    and no level-up panel because the derived level remains 1.
+11. Complete Mara's quest and verify the fixed top-center level-up panel shows
+    `LEVEL 2` plus `150 XP | Next: 250 XP`, remains clear of loot, Chronicle,
+    target/nameplate, chat, and hotbar presentation, then fades after 2.75
+    seconds without moving neighboring HUD elements.
+12. Save and load the same level-2 state. Confirm the steady XP surface restores
+    immediately while the transient level-up panel does not replay.
 
 ## Current Play Loop
 
