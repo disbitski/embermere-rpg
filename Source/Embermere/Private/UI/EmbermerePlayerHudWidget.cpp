@@ -1071,13 +1071,20 @@ FText UEmbermerePlayerHudWidget::GetTrainerDisplayText() const
 		{
 			continue;
 		}
+		const EEmbermereTrainingResult TrainingState = ActiveTrainer->CanTrain(OfferingIndex, Stats, Wallet);
+		const FString Availability = TrainingState == EEmbermereTrainingResult::Success
+			? TEXT("Ready")
+			: ActiveTrainer->GetTrainingResultText(TrainingState, OfferingIndex).ToString();
 
 		Lines.Add(FString::Printf(
-			TEXT("%s%s - %d copper - +%d XP"),
+			TEXT("%s%s - Level %d - %d copper - +%d XP - %s - %s"),
 			OfferingIndex == SelectedTrainerOfferingIndex ? TEXT("> ") : TEXT("  "),
 			*Offering.DisplayName.ToString(),
+			Offering.RequiredLevel,
 			Offering.CopperCost,
-			Offering.ExperienceReward));
+			Offering.ExperienceReward,
+			Offering.bRepeatable ? TEXT("Repeatable") : TEXT("Once per session"),
+			*Availability));
 	}
 	return FText::FromString(FString::Join(Lines, TEXT("\n")));
 }
@@ -2436,7 +2443,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			WidgetTree,
 			*FString::Printf(TEXT("TrainerRowText_%d"), RowIndex),
 			FLinearColor(0.84f, 0.9f, 0.7f, 1.0f),
-			12.0f);
+			11.0f);
 		if (!RowButton || !RowText)
 		{
 			continue;
@@ -3601,25 +3608,38 @@ void UEmbermerePlayerHudWidget::RefreshTrainerWindow()
 			}
 			continue;
 		}
+		const EEmbermereTrainingResult RowTrainingState = ActiveTrainer->CanTrain(RowIndex, Stats, Wallet);
+		const bool bRowTrainable = RowTrainingState == EEmbermereTrainingResult::Success;
+		const FText AvailabilityText = bRowTrainable
+			? FText::FromString(TEXT("Ready"))
+			: ActiveTrainer->GetTrainingResultText(RowTrainingState, RowIndex);
 
 		RowButton->SetVisibility(ESlateVisibility::Visible);
+		// Unavailable lessons remain selectable so mouse and keyboard users can inspect the rejection reason.
 		RowButton->SetIsEnabled(true);
 		RowButton->SetBackgroundColor(
 			RowIndex == SelectedTrainerOfferingIndex
-				? FLinearColor(0.2f, 0.31f, 0.09f, 0.97f)
-				: FLinearColor(0.06f, 0.085f, 0.065f, 0.9f));
+				? (bRowTrainable
+					? FLinearColor(0.2f, 0.31f, 0.09f, 0.97f)
+					: FLinearColor(0.19f, 0.12f, 0.07f, 0.97f))
+				: (bRowTrainable
+					? FLinearColor(0.06f, 0.085f, 0.065f, 0.9f)
+					: FLinearColor(0.075f, 0.068f, 0.06f, 0.9f)));
 		RowButton->SetToolTipText(FText::FromString(FString::Printf(
-			TEXT("%s\n%s\nLevel %d  |  %d copper  |  +%d XP"),
+			TEXT("%s\n%s\nLevel %d  |  %d copper  |  +%d XP  |  %s\n%s"),
 			*Offering.DisplayName.ToString(),
 			*Offering.Description.ToString(),
 			Offering.RequiredLevel,
 			Offering.CopperCost,
-			Offering.ExperienceReward)));
+			Offering.ExperienceReward,
+			Offering.bRepeatable ? TEXT("Repeatable") : TEXT("Once per session"),
+			*AvailabilityText.ToString())));
 		RowText->SetText(FText::FromString(FString::Printf(
-			TEXT("%s\n%d copper  |  +%d XP"),
+			TEXT("%s\n%s"),
 			*Offering.DisplayName.ToString(),
-			Offering.CopperCost,
-			Offering.ExperienceReward)));
+			bRowTrainable
+				? *FString::Printf(TEXT("READY  |  L%d  |  %dc"), Offering.RequiredLevel, Offering.CopperCost)
+				: *FString::Printf(TEXT("LOCKED  |  Requires L%d"), Offering.RequiredLevel))));
 	}
 
 	FEmbermereTrainerOffering SelectedOffering;
@@ -3636,10 +3656,11 @@ void UEmbermerePlayerHudWidget::RefreshTrainerWindow()
 	{
 		TrainerDetailMetaText->SetText(bHasSelection
 			? FText::FromString(FString::Printf(
-				TEXT("Level %d  |  %d copper  |  +%d XP"),
+				TEXT("L%d  |  %dc  |  +%d XP  |  %s"),
 				SelectedOffering.RequiredLevel,
 				SelectedOffering.CopperCost,
-				SelectedOffering.ExperienceReward))
+				SelectedOffering.ExperienceReward,
+				SelectedOffering.bRepeatable ? TEXT("Repeatable") : TEXT("Once per session")))
 			: FText::GetEmpty());
 	}
 	if (TrainerDetailDescriptionText)
@@ -3655,10 +3676,12 @@ void UEmbermerePlayerHudWidget::RefreshTrainerWindow()
 	{
 		TrainerActionButton->SetIsEnabled(TrainingState == EEmbermereTrainingResult::Success);
 		TrainerActionButton->SetToolTipText(bHasSelection
-			? FText::FromString(FString::Printf(
-				TEXT("Complete %s for %d copper."),
-				*SelectedOffering.DisplayName.ToString(),
-				SelectedOffering.CopperCost))
+			? (TrainingState == EEmbermereTrainingResult::Success
+				? FText::FromString(FString::Printf(
+					TEXT("Complete %s for %d copper."),
+					*SelectedOffering.DisplayName.ToString(),
+					SelectedOffering.CopperCost))
+				: ActiveTrainer->GetTrainingResultText(TrainingState, SelectedTrainerOfferingIndex))
 			: FText::FromString(TEXT("No training selected.")));
 	}
 	if (TrainerActionText)
@@ -3667,7 +3690,7 @@ void UEmbermerePlayerHudWidget::RefreshTrainerWindow()
 			? FText::FromString(FString::Printf(TEXT("Train  |  %d copper"), SelectedOffering.CopperCost))
 			: FText::FromString(TEXT("Train")));
 	}
-	if (TrainerStatusText && TrainerStatusText->GetText().IsEmpty())
+	if (TrainerStatusText)
 	{
 		TrainerStatusText->SetText(
 			TrainingState == EEmbermereTrainingResult::Success
@@ -3675,7 +3698,10 @@ void UEmbermerePlayerHudWidget::RefreshTrainerWindow()
 					TEXT("Ready. Current XP: %d."),
 					Stats ? Stats->CurrentExperience : 0))
 				: ActiveTrainer->GetTrainingResultText(TrainingState, SelectedTrainerOfferingIndex));
-		TrainerStatusText->SetColorAndOpacity(FSlateColor(FLinearColor(0.72f, 0.78f, 0.68f, 1.0f)));
+		TrainerStatusText->SetColorAndOpacity(FSlateColor(
+			TrainingState == EEmbermereTrainingResult::Success
+				? FLinearColor(0.72f, 0.84f, 0.68f, 1.0f)
+				: FLinearColor(1.0f, 0.62f, 0.38f, 1.0f)));
 	}
 }
 

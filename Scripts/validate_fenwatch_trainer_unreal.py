@@ -44,19 +44,27 @@ def main():
     entries = list(offerings.get_editor_property("offerings"))
     if str(offerings.get_editor_property("trainer_name")) != "Fenwatch Training":
         fail("trainer name drifted")
-    if len(entries) != 1:
-        fail("expected one training offering, found {}".format(len(entries)))
-    entry = entries[0]
-    if str(entry.get_editor_property("offering_id")) != "CombatDrills":
-        fail("offering ID drifted")
-    if str(entry.get_editor_property("display_name")) != "Combat Drills":
-        fail("offering display name drifted")
-    if int(entry.get_editor_property("copper_cost")) != 10:
-        fail("offering copper cost drifted")
-    if int(entry.get_editor_property("required_level")) != 1:
-        fail("offering level requirement drifted")
-    if int(entry.get_editor_property("experience_reward")) != 25:
-        fail("offering XP reward drifted")
+    if len(entries) != 2:
+        fail("expected two training offerings, found {}".format(len(entries)))
+
+    expected_entries = (
+        ("CombatDrills", "Combat Drills", 1, 10, 25, True),
+        ("AdvancedCombatDrills", "Advanced Combat Drills", 2, 20, 50, True),
+    )
+    for entry, expected in zip(entries, expected_entries):
+        offering_id, display_name, required_level, copper_cost, xp_reward, repeatable = expected
+        if str(entry.get_editor_property("offering_id")) != offering_id:
+            fail("offering ID drifted: expected {}".format(offering_id))
+        if str(entry.get_editor_property("display_name")) != display_name:
+            fail("offering display name drifted: expected {}".format(display_name))
+        if int(entry.get_editor_property("required_level")) != required_level:
+            fail("{} level requirement drifted".format(display_name))
+        if int(entry.get_editor_property("copper_cost")) != copper_cost:
+            fail("{} copper cost drifted".format(display_name))
+        if int(entry.get_editor_property("experience_reward")) != xp_reward:
+            fail("{} XP reward drifted".format(display_name))
+        if bool(entry.get_editor_property("repeatable")) != repeatable:
+            fail("{} repeatability drifted".format(display_name))
 
     mesh = unreal.EditorAssetLibrary.load_asset(MESH_PATH)
     if not mesh or not isinstance(mesh, unreal.StaticMesh):
@@ -141,7 +149,7 @@ def main():
         fail("presentation no longer resolves the single-node Idle lane")
 
     unreal.log(
-        "Embermere Fenwatch trainer validation passed: one data-driven Combat Drills offering, one saved art-free service, one grounded rigged Idle presentation with static fallback, and trainer/art ownership separation intact"
+        "Embermere Fenwatch trainer validation passed: two data-driven repeatable offerings with exact level gates and rewards, one saved art-free service, one grounded rigged Idle presentation with static fallback, and trainer/art ownership separation intact"
     )
 
 

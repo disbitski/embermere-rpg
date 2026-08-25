@@ -449,24 +449,34 @@ The full ownership and rollback contract is in
 
 1. Start a fresh PIE session, hide Inventory with `I`, approach the armsmaster
    near the quartermaster, and press `F`.
-2. Confirm `Fenwatch Training` opens with `Purse: 40 copper`, one selected
-   `Combat Drills` row, level 1 requirement, `10 copper`, `+25 XP`, description,
-   Train, close, and no overlapping Inventory, Vendor, Chronicle, hotbar, or
-   chat panel.
-3. Train once. Confirm the purse becomes `30 copper`, player XP becomes `25`,
-   and identical completion feedback appears in the fixed result cell and
-   bottom-left chat.
-4. Repeat until the purse reaches zero. Confirm the action disables, the panel
+2. Confirm `Fenwatch Training` opens with `Purse: 40 copper`, readable
+   `Combat Drills` and `Advanced Combat Drills` rows, and no overlapping
+   Inventory, Vendor, Chronicle, hotbar, or chat panel. Combat Drills must show
+   level 1, `10 copper`, and `+25 XP`; Advanced must remain selectable for
+   inspection while showing `LOCKED`, level 2, `20 copper`, and `+50 XP`.
+3. Select Advanced at level 1. Confirm Train is disabled, the exact service
+   copy reads `Advanced Combat Drills requires level 2.`, and a direct action
+   attempt changes neither copper nor XP.
+4. Select Combat Drills and train once. Confirm the purse becomes `30 copper`,
+   player XP becomes `25`, the fixed status cell refreshes to the current
+   eligibility/XP state, and exact completion feedback appears in bottom-left
+   chat.
+5. Reach level 2 through authoritative XP while the panel remains open or
+   reopen it afterward. Confirm Advanced changes to `READY`, Train enables,
+   and no stale level-1 rejection remains. With `50` copper and `100` XP, train
+   once and prove the exact `30` copper / `150` XP result and matching chat.
+6. Repeat a lesson according to its authored repeatability until the purse
+   cannot cover the selected cost. Confirm the action disables, the panel
    reports insufficient copper, and no extra XP or negative currency appears.
-5. Press `I` while the trainer is open. Confirm the trainer closes and Inventory
+7. Press `I` while the trainer is open. Confirm the trainer closes and Inventory
    opens in its place. Reopen the trainer and click Chronicle; confirm the same
    exclusive handoff.
-6. Close the trainer with `X`. Confirm the panel disappears, game-only input
+8. Close the trainer with `X`. Confirm the panel disappears, game-only input
    returns, and movement/camera controls still work.
-7. Retain the visual/service split: the armsmaster remains non-colliding art;
+9. Retain the visual/service split: the armsmaster remains non-colliding art;
    the separate service actor owns the marker, `F` interaction, offering data,
    and transaction authority.
-8. For the trainer persistence lane, begin again at `40` copper and `0` XP,
+10. For the baseline trainer persistence lane, begin again at `40` copper and `0` XP,
    train once to `30`/`25`, and save deliberately through Chronicle. Stop PIE,
    start a fresh world, confirm the normal `40`/`0` baseline, then load through
    Chronicle twice. Both loads must resolve to exactly `30`/`25` with no items,

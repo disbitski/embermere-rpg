@@ -58,9 +58,10 @@ The repo currently contains the C++ gameplay scaffold for:
   finite/unlimited stock, complete buy/sell/buyback preflight, rollback-safe
   transactions, native fixed stock UI, inventory/chat feedback, and no art
   ownership
-- a separate data-driven Fenwatch trainer service with level/currency/XP
-  preflight, rollback-safe progression, a fixed native training panel,
-  inventory/Chronicle handoff, and no art ownership
+- a separate data-driven Fenwatch trainer service with stable lesson IDs,
+  authored level gates and repeatability, complete level/currency/XP preflight,
+  rollback-safe progression, two visible Combat Drills tiers in a fixed native
+  training panel, inventory/Chronicle handoff, and no art ownership
 - a separate art-free Fenwatch practice target that shares normal tab-target,
   hotbar, nameplate, and cyan-circle systems while remaining stationary,
   non-colliding, non-retaliating, reward-free, quest-credit-free, and safely
@@ -346,8 +347,10 @@ actor remains the sole owner of her interaction, dialogue, quest, marker, and
 rewards. Mara's rigged wrapper can now observe that authority and render
 available, active, ready, and completed context copy without owning or replaying
 any quest behavior.
-Its first data-driven Combat Drills action
-atomically converts `10` copper into `25` XP through a fixed native panel,
-without moving progression or interaction authority into the model.
+Its data-driven training list now keeps repeatable level-1 Combat Drills at
+`10` copper for `25` XP and exposes repeatable level-2 Advanced Combat Drills
+at `20` copper for `50` XP. Locked lessons remain visible with service-owned
+rejection copy, then refresh immediately when the Stats-derived level changes,
+without moving progression or interaction authority into the model or UMG.
 Autosave, deletion, multiple profiles, migrations, and position persistence
 remain later product decisions.

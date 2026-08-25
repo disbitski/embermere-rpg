@@ -66,9 +66,24 @@ def load_or_create_offerings():
     combat_drills.set_editor_property("copper_cost", 10)
     combat_drills.set_editor_property("required_level", 1)
     combat_drills.set_editor_property("experience_reward", 25)
+    combat_drills.set_editor_property("repeatable", True)
+
+    advanced_combat_drills = unreal.EmbermereTrainerOffering()
+    advanced_combat_drills.set_editor_property(
+        "offering_id", unreal.Name("AdvancedCombatDrills")
+    )
+    advanced_combat_drills.set_editor_property("display_name", "Advanced Combat Drills")
+    advanced_combat_drills.set_editor_property(
+        "description",
+        "Refine guarded footwork and coordinated strikes for 50 experience.",
+    )
+    advanced_combat_drills.set_editor_property("copper_cost", 20)
+    advanced_combat_drills.set_editor_property("required_level", 2)
+    advanced_combat_drills.set_editor_property("experience_reward", 50)
+    advanced_combat_drills.set_editor_property("repeatable", True)
 
     offerings.set_editor_property("trainer_name", "Fenwatch Training")
-    offerings.set_editor_property("offerings", [combat_drills])
+    offerings.set_editor_property("offerings", [combat_drills, advanced_combat_drills])
     if not unreal.EditorAssetLibrary.save_loaded_asset(offerings, only_if_is_dirty=False):
         fail("could not save {}".format(OFFERINGS_PATH))
     return offerings
@@ -129,7 +144,7 @@ def main():
     offerings = load_or_create_offerings()
     removed = place_service(offerings)
     unreal.log(
-        "Embermere Fenwatch trainer integration passed: offerings={}, entries=1, service={}, removed={}".format(
+        "Embermere Fenwatch trainer integration passed: offerings={}, entries=2, service={}, removed={}".format(
             OFFERINGS_PATH,
             SERVICE_LABEL,
             removed,

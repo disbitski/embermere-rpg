@@ -2589,6 +2589,34 @@ Lesson: current state and persisted state are different products, even when
 their values happen to match. Name both owners, label the direction of every
 mutation, and test with intentionally different data.
 
+## 2026-08-25 - A Locked Lesson Became A Live Progression Contract
+
+Fenwatch Training began as one repeatable copper-to-XP transaction. Today it
+became a real level-gated list without letting the panel acquire level rules.
+The offerings asset now owns two unique stable IDs and explicit repeatability:
+Combat Drills remains level 1 at 10 copper for 25 XP, while Advanced Combat
+Drills requires level 2 and converts 20 copper into 50 XP. The service validates
+the complete asset, asks Stats for the current derived level, preflights wallet
+and XP overflow, commits atomically, and refunds the spend if progression ever
+fails unexpectedly.
+
+The first live pass exposed a subtle observer bug. Advanced correctly unlocked
+when Stats reached level 2 and the Train action enabled, but the panel still
+displayed its old `requires level 2` sentence. Eligibility authority was right;
+the presentation snapshot was stale. Refresh now recomputes both the action and
+status copy from the same service preflight. Clean PIE retained the visible
+level-1 lock with zero mutation, then accepted a real Advanced transaction from
+50 copper / 100 XP to 30 copper / 150 XP without reopening the panel.
+
+Two focused tests brought the suite to 71. The no-hot-reload build, full fresh
+commandlet suite, exact Fenwatch trainer validator, standalone progression
+validator, and sequential 15-package aggregate all passed without Python
+errors while retaining the 53 Fab plus 23 original-art map baseline.
+
+Lesson: a disabled control and its explanation are one presentation contract.
+When authority changes, refresh both from the same current preflight; otherwise
+the UI can tell yesterday's truth beside today's valid action.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

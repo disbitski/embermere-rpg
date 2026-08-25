@@ -15,7 +15,8 @@ enum class EEmbermereTrainingResult : uint8
 	InvalidRequest,
 	LevelTooLow,
 	InsufficientFunds,
-	ProgressionCap
+	ProgressionCap,
+	AlreadyCompleted
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEmbermereTrainingCompletedSignature);
@@ -57,4 +58,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Trainer")
 	FText GetTrainingResultText(EEmbermereTrainingResult Result, int32 OfferingIndex) const;
+
+private:
+	TSet<FName> CompletedNonRepeatableOfferingIds;
 };

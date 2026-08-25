@@ -9,6 +9,10 @@ UEmbermereTrainerComponent::UEmbermereTrainerComponent()
 
 void UEmbermereTrainerComponent::SetOfferingsData(UEmbermereTrainerOfferingsData* NewOfferingsData)
 {
+	if (OfferingsData != NewOfferingsData)
+	{
+		CompletedNonRepeatableOfferingIds.Reset();
+	}
 	OfferingsData = NewOfferingsData;
 }
 
@@ -36,9 +40,15 @@ EEmbermereTrainingResult UEmbermereTrainerComponent::CanTrain(
 	const UEmbermereWalletComponent* Wallet) const
 {
 	FEmbermereTrainerOffering Offering;
-	if (!Stats || !Wallet || !GetOffering(OfferingIndex, Offering) || !Offering.IsValid())
+	if (!Stats || !Wallet || !OfferingsData || !OfferingsData->HasValidOfferings() ||
+		!GetOffering(OfferingIndex, Offering))
 	{
 		return EEmbermereTrainingResult::InvalidRequest;
+	}
+
+	if (!Offering.bRepeatable && CompletedNonRepeatableOfferingIds.Contains(Offering.OfferingId))
+	{
+		return EEmbermereTrainingResult::AlreadyCompleted;
 	}
 
 	if (Stats->Level < Offering.RequiredLevel)
@@ -83,6 +93,11 @@ EEmbermereTrainingResult UEmbermereTrainerComponent::TryTrain(
 		return EEmbermereTrainingResult::ProgressionCap;
 	}
 
+	if (!Offering.bRepeatable)
+	{
+		CompletedNonRepeatableOfferingIds.Add(Offering.OfferingId);
+	}
+
 	OnTrainingCompleted.Broadcast();
 	return EEmbermereTrainingResult::Success;
 }
@@ -113,6 +128,10 @@ FText UEmbermereTrainerComponent::GetTrainingResultText(
 		return FText::FromString(TEXT("You do not have enough copper for that training."));
 	case EEmbermereTrainingResult::ProgressionCap:
 		return FText::FromString(TEXT("That training cannot be applied to your current progression."));
+	case EEmbermereTrainingResult::AlreadyCompleted:
+		return FText::FromString(FString::Printf(
+			TEXT("%s has already been completed."),
+			*OfferingName));
 	default:
 		return FText::FromString(TEXT("That training is unavailable."));
 	}

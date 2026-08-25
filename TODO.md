@@ -6,8 +6,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-24 no-hot-reload progression-
-  presentation, post-creation input, and Chronicle current/saved-state module plus the
+- Confirm Unreal is running the 2026-08-25 no-hot-reload level-gated trainer,
+  progression-presentation, post-creation input, and Chronicle current/saved-state module plus the
   accepted derived-level module and serialized
   `DA_EmbermereRules` thresholds/growth,
   save-version-2 character identity, the accepted Fenwatch notice-board asset/map package and
@@ -17,11 +17,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 69 Embermere tests.
+  predates that work or test discovery exposes fewer than 71 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 69 tests, especially
+- Discover and run all 71 tests, especially
   `Embermere.UI.ExperienceProgressPresentation`,
   `Embermere.UI.LevelUpPresentation`,
   `Embermere.Progression.LevelRules`,
@@ -52,6 +52,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   `Embermere.Trainer.TransactionRules`,
   `Embermere.Trainer.ServiceContract`,
   `Embermere.Trainer.FenwatchOfferingsData`,
+  `Embermere.Trainer.LevelGatedProgression`,
+  `Embermere.Trainer.LevelGatedPersistence`,
   `Embermere.NPC.FenwatchArmsmasterPresentation`,
   `Embermere.NPC.FenwatchArmsmasterIdlePresentation`,
   `Embermere.NPC.FenwatchQuartermasterIdlePresentation`,
@@ -68,7 +70,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative
-  latest 2026-08-24 no-hot-reload build and isolated commandlet passed 69/69,
+  latest 2026-08-25 no-hot-reload build and isolated commandlet passed 71/71,
   including the idempotent character-creation input lock, bottom-right
   Chronicle command geometry, live Dwarf Warrior identity, and fixed current-
   versus-saved Chronicle layout; the
@@ -219,14 +221,24 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     `NoCollision`;
   - co-located `Embermere_FenwatchArmsmaster_Service_01` exclusively owns the
     marker, interaction, offering data, and transaction behavior without art;
-  - `DA_FenwatchArmsmasterOfferings` exposes one repeatable level-1 Combat
-    Drills action costing `10` copper and granting `25` XP;
-  - fresh PIE starts at `40` copper and `0` XP; one accepted action must produce
-    exactly `30` copper and `25` XP with matching panel/chat feedback;
+  - `DA_FenwatchArmsmasterOfferings` exposes two stable-ID repeatable lessons:
+    level-1 Combat Drills costs `10` copper for `25` XP, while level-2 Advanced
+    Combat Drills costs `20` copper for `50` XP;
+  - at level 1, Advanced Combat Drills remains visible and inspectable but
+    locked, exposes exact `Advanced Combat Drills requires level 2.` copy, and
+    rejects direct requests without mutating copper or XP;
+  - fresh PIE starts at `40` copper and `0` XP; Combat Drills must still produce
+    exactly `30` copper and `25` XP with current panel status and exact chat
+    feedback;
+  - after authoritative XP derives level 2, Advanced Combat Drills becomes
+    `READY` without reopening the panel or retaining stale rejection copy. The
+    accepted isolated transaction changed `50` copper / `100` XP to exactly
+    `30` copper / `150` XP and remained level 2;
   - exhausting the purse disables training, reports insufficient funds, and
     preserves nonnegative copper and exact XP;
-  - the fixed `500x300` panel keeps the offering, level/cost/reward details,
-    result, footer, and close control inside bounds and clear of chat/hotbar;
+  - the fixed `500x300` panel keeps both offering names, compact lock/ready
+    state, level/cost/reward/repeatability detail, current preflight status,
+    footer, and close control inside bounds and clear of chat/hotbar;
   - Inventory and Chronicle each replace the trainer cleanly, while closing the
     final interactive panel restores classic game-only input.
 - Treat [Docs/VENDOR_SERVICE_CONTRACT.md](Docs/VENDOR_SERVICE_CONTRACT.md) as
@@ -461,42 +473,47 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. retain the accepted practice-target loop in clean PIE: art/gameplay split,
+  1. retain the accepted two-offering Fenwatch trainer in clean PIE: exact
+     level-1 lock and zero mutation, live level-2 unlock without stale copy,
+     exact `20`-copper/`50`-XP transaction, authored repeatability, insufficient-
+     funds rollback, and Inventory/Chronicle/input handoff;
+  2. run the deliberate Chronicle round-trip after Advanced Combat Drills and
+     prove only the existing durable copper/XP owners restore twice without
+     trainer-specific schema, replay, or drift;
+  3. retain the accepted practice-target loop in clean PIE: art/gameplay split,
      stationary transform, real hotbar damage, immediate target clear, exact
      three-second reset, and zero retaliation/reward/quest mutation;
-  2. retain the accepted immutable combat-result and fixed floating-feedback
+  4. retain the accepted immutable combat-result and fixed floating-feedback
      presentation on both the practice target and saved Prowlers: exact applied
      amounts, three-entry cap, 1.25-second expiry, nameplate clearance, target
      switch/death/reset clearing, and unchanged chat/target-HP fallbacks;
-  3. retain the accepted training workshop in clean PIE: complete open-front
+  5. retain the accepted training workshop in clean PIE: complete open-front
      read, grounded supports, solid rear wall and bench, visual-only roof/tools,
      visible practice dummy, clear armsmaster approach, and road-side bypass;
-  4. retain all three accepted production Idles from the normal village route:
+  6. retain all three accepted production Idles from the normal village route:
      grounded feet, restrained motion, readable silhouettes, advancing clocks,
      clear markers/path, and unchanged quest, vendor, and trainer interactions;
-  5. rerun the exact vendor and trainer transaction chains plus the
-     trainer-to-Chronicle `40/0 -> 30/25` save, fresh-world load, and second
-     idempotent load with both rigged presentations active, proving art cannot
-     alter service or persistence state;
-  6. retain both accepted Chronicle proofs, including trainer-produced
+  7. retain both accepted Chronicle proofs, including trainer-produced
      `30`-copper/`25`-XP state, slot inspection, confirmation, rejection,
      panel handoff, and two-session idempotence contracts; keep console commands
      as debug fallbacks and defer autosave, deletion, profiles, and migrations;
-  7. retain Mara's accepted four-state contextual greeting and original real
+  8. retain Mara's accepted four-state contextual greeting and original real
      interaction loop; the wrapper may observe authority but must never own
      `F`, dialogue, marker, quest mutation, rewards, vendor, or trainer logic;
-  8. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
+  9. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete issue;
-  9. consider authored Niagara, class-specific VFX, or audio only after the
-     current asset-agnostic presentation has carried the playable slice farther.
+  10. consider a restrained class-specific level-up VFX/audio observer or the
+     next cohesive Fenwatch module only after the trainer persistence sweep;
+     keep both presentation-only and preserve the accepted authority contracts.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-22
-  character-identity persistence module, rigged Fenwatch keeper, armsmaster, and
+- Restart Unreal before manual PIE when the editor predates the 2026-08-25
+  level-gated trainer/progression module, character-identity persistence,
+  rigged Fenwatch keeper, armsmaster, and
   quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 63 tests.
+  Current code passes all 71 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -537,9 +554,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - inspect the rigged Fenwatch armsmaster for grounded feet, planted staff,
     restrained looping Idle, readable shield/staff silhouette, no collision,
     clear route separation, and its nearby service marker; press `F` and run
-    the trainer acceptance sequence from Start Here, including `40 -> 30`
-    copper, `0 -> 25` XP, insufficient-funds rejection, fixed panel bounds,
-    chat, and Inventory/Chronicle/close handoffs.
+    the trainer acceptance sequence from Start Here, including the visible
+    level-2 lock, `40 -> 30` copper / `0 -> 25` XP Combat Drills path, live
+    Advanced unlock, exact `20` copper / `50` XP advanced transaction,
+    insufficient-funds rejection, fixed panel bounds, chat, and Inventory/
+    Chronicle/close handoffs.
   - inspect the Fenwatch practice dummy at `(-1120, -1120, 0)`, yaw `45`, for
     grounded contact, a target face aimed toward the armsmaster, five shared
     materials, a solid base and torso/core, clear outstretched arms, open route
@@ -1029,6 +1048,22 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Last Completed
 
+- 2026-08-25: expanded `DA_FenwatchArmsmasterOfferings` from one lesson to two
+  stable-ID, data-driven, repeatable lessons. Combat Drills remains level 1 at
+  `10` copper for `25` XP; Advanced Combat Drills is level 2 at `20` copper for
+  `50` XP. Complete offering validation now rejects malformed or duplicate
+  IDs, and the service owns level, currency, overflow, repeatability, atomic
+  spend/grant, and refund preflight while UMG remains a selector.
+- The fixed `500x300` panel keeps both rows readable. Advanced remains visible
+  and inspectable at level 1 with exact rejection and zero mutation, becomes
+  ready from the live Stats-derived level without reopening the panel, and no
+  longer retains stale lock copy after progression changes. Clean PIE accepted
+  a real Advanced transaction from `50` copper / `100` XP to `30` / `150`.
+- Added `Embermere.Trainer.LevelGatedProgression` and
+  `Embermere.Trainer.LevelGatedPersistence`. The no-hot-reload build and all
+  71 tests passed; the focused trainer validator, standalone progression
+  validator, and full 15-package aggregate emitted exact success markers with
+  no `LogPython: Error`, retaining 53 grounded Fab plus 23 original-art actors.
 - 2026-08-24: clarified Chronicle's live-versus-saved state after a real Dwarf
   Warrior session correctly inspected an older Elf Wizard slot but presented
   the slot as though it were the current character. Chronicle now shows a gold

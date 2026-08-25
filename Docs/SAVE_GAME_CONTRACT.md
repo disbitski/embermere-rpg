@@ -150,6 +150,14 @@ or currency/XP drift. Save version 1 did not expand. Version `2` continues to
 serialize the resulting copper and XP through those existing owners without
 adding trainer state.
 
+The 2026-08-25 level-gated trainer extension preserves that boundary. Both
+repeatable offerings have stable data IDs, but only their successful copper and
+XP mutations are durable. Required level, repeatability, current selection,
+lock/ready presentation, and interaction state remain rules or session data.
+Advanced Combat Drills therefore restores through the existing version-2
+wallet/XP records and derived-level resolver without a trainer record, reward
+replay, or schema expansion.
+
 ## Prototype Commands
 
 The player-facing `Embermere Chronicle` opens with `M` or the top-center
@@ -265,11 +273,17 @@ live mutation.
   slot summaries without mutating gameplay owners.
 - `Embermere.UI.SaveLoadPanel` locks the panel's fixed bounds, visibility,
   inventory handoff, and explicit close behavior.
+- `Embermere.Trainer.LevelGatedProgression` locks the visible level-1 rejection,
+  exact level-2 transaction, repeatability policy, malformed-data rejection,
+  and complete wallet/XP rollback.
+- `Embermere.Trainer.LevelGatedPersistence` proves the resulting copper and XP
+  round-trip through existing save owners without trainer-specific state or
+  repeated-load drift.
 - `Embermere.Vendor.ServiceContract` and the Fenwatch package validator lock
   the stable vendor ID to the art-free service boundary.
 - Full automation, saved-package validators, initialized-world route traces,
   and the two-session PIE validator remain separate acceptance layers. The
-  2026-08-23 baseline is 67/67 tests plus all 15 package validators.
+  2026-08-25 baseline is 71/71 tests plus all 15 package validators.
 
 Future format changes must increment `EmbermereSaveGameVersion::Current` and
 either provide an explicit compatibility interpretation or reject the older

@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-23
+Last updated: 2026-08-25
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -82,9 +82,10 @@ The project currently includes:
   atomic buy/sell/buyback rollback, fixed native stock UI, and saved ownership
   validation;
 - a separate Fenwatch trainer vertical slice with an art-only rigged and
-  Idle-animated armsmaster, art-free interactable service, data-driven Combat
-  Drills, atomic copper-to-XP progression, fixed native training UI, and a
-  matching solid-core practice dummy that owns no service authority;
+  Idle-animated armsmaster, art-free interactable service, two stable-ID
+  repeatable Combat Drills tiers with data-driven level gates, atomic copper-
+  to-XP progression, fixed native training UI, and a matching solid-core
+  practice dummy that owns no service authority;
 - a versioned save-game contract that atomically captures and restores confirmed
   race/class identity, copper, XP, inventory/equipment identity, quest state,
   and finite vendor stock. Version 2 uses stable semantic race/class IDs and
@@ -101,7 +102,7 @@ The project currently includes:
   four classes, exposes disabled combinations, atomically applies data-driven
   starter stats/abilities once, restores the normal controller/HUD path, and
   feeds the confirmed identity into the version-2 persistence contract;
-- 67 passing Unreal automation tests plus fresh-process character-creation,
+- 71 passing Unreal automation tests plus fresh-process character-creation,
   derived-level progression, and
   character-identity persistence,
   combat-feedback,
@@ -1422,15 +1423,50 @@ field.
   `12` Attack Power, `12` Strength, `9` Spirit, `11.25` Agility, and `7.75`
   Intellect. Chronicle read the same identity/level and durable owner state.
 
-The next bounded milestone is presentation-only XP-to-next-threshold and
-level-up feedback over this accepted contract. It must consume Stats/rules,
-retain exact chat, handle multi-level and cap states in fixed bounds, remain
-silent on load, and own no XP, level, growth, rewards, or persistence.
+## 2026-08-24 Progression Presentation And UI Recovery Update
+
+- Stats now publishes one read-only XP/threshold/cap snapshot. The HUD renders
+  a fixed `260x8` gold progress bar, while a separate fixed `360x76`, 2.75-
+  second live-only observer handles one-level, multi-level, and cap feedback.
+  Save restoration updates steady state silently and never replays celebration.
+- Character creation now owns one idempotent controller move/look lock even
+  when both `OnPossess` and `BeginPlay` request the modal. Dwarf Warrior clean
+  PIE confirmed Inventory close returns movement, look, a hidden cursor, and
+  first-press classic mouse control.
+- Chronicle moved to a `140x38` bottom-right command and now distinguishes live
+  `Current Journey` from read-only `Saved Journey`. Its `500x320` panel reserves
+  a fixed saved-summary region above nonoverlapping Save/Load actions.
+- Two presentation tests brought the authoritative suite to 69. The build,
+  full commandlet, progression validator, and 15-package aggregate passed.
+
+## 2026-08-25 Level-Gated Trainer Update
+
+- `DA_FenwatchArmsmasterOfferings` now contains repeatable level-1 Combat
+  Drills (`10` copper, `25` XP) and repeatable level-2 Advanced Combat Drills
+  (`20` copper, `50` XP), each with a unique stable ID.
+- The service validates the complete asset and owns level/currency/XP/
+  repeatability preflight plus atomic commit/refund. UMG keeps unavailable rows
+  visible and inspectable but owns no level math or transaction authority.
+- Clean PIE kept Advanced locked at level 1 with exact rejection and zero
+  mutation, then refreshed the same panel to ready when Stats derived level 2.
+  The final HUD request changed `50` copper / `100` XP to `30` / `150` exactly.
+- A live pass found and fixed stale rejection copy after the action had become
+  valid. Action state and status text now come from the same current preflight.
+- Two focused tests brought the suite to 71. The no-hot-reload build, complete
+  fresh commandlet, focused trainer validator, progression validator, and
+  15-package aggregate all passed with no `LogPython: Error` and retained the
+  53 Fab plus 23 original-art baseline.
+
+The next bounded gate is a deliberate Chronicle round-trip after Advanced
+Combat Drills, proving the existing copper/XP owners restore twice with no
+trainer schema, replay, or drift. After that, prefer a restrained presentation-
+only level-up VFX/audio observer or the next cohesive Fenwatch village module.
 
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-23 no-hot-reload derived-level progression module, serialized rules
+2026-08-25 no-hot-reload level-gated trainer and progression-presentation
+module, serialized rules
 asset, accepted notice-board
 asset/map package,
 combat-feedback module, quest/map packages, all
@@ -1447,7 +1483,7 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 67 tests, including
+3. Run/discover all 71 tests, including
    `Embermere.Progression.LevelRules`,
    `Embermere.Progression.LiveExperienceAndEquipment`,
    `Embermere.Progression.RewardOwners`,
@@ -1466,6 +1502,8 @@ First fresh-session checks:
    `Embermere.Trainer.TransactionRules`,
    `Embermere.Trainer.ServiceContract`,
    `Embermere.Trainer.FenwatchOfferingsData`,
+   `Embermere.Trainer.LevelGatedProgression`,
+   `Embermere.Trainer.LevelGatedPersistence`,
    `Embermere.NPC.FenwatchArmsmasterPresentation`,
    `Embermere.NPC.FenwatchArmsmasterIdlePresentation`,
    `Embermere.NPC.FenwatchQuartermasterIdlePresentation`,
@@ -1731,8 +1769,8 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-23 no-hot-reload
-derived-level progression module, serialized rules asset, character-identity
+Follow TODO.md's Start Here section. Confirm the 2026-08-25 no-hot-reload
+level-gated trainer and progression-presentation module, serialized rules asset, character-identity
 persistence and quest/map packages, the accepted notice-board,
 vendor-stall,
 cottage, training-workshop, practice-dummy, and native practice-target map packages,
@@ -1742,7 +1780,7 @@ bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 67 tests, including the four progression tests,
+route-repair map, then run all 71 tests, including the four progression tests,
 the four character-creation lifecycle/restriction/loadout tests, the three
 character-identity persistence tests, combat-result and floating-feedback
 presentation, the two practice-target policy/combat-reset tests,
@@ -1810,9 +1848,11 @@ Retain the accepted Fenwatch armsmaster and trainer separation: the grounded,
 non-colliding art-only rigged armsmaster and co-located art-free service sit at
 `(-1320, -920, 0)`, yaw `100`; the skeletal lane has nine authored Blender
 bones plus one imported Unreal Armature root, an exact 3.2-second Idle, measured
-live playback, and the reviewed static-mesh fallback. The saved offering exposes repeatable level-1
-Combat Drills for 10 copper and 25 XP. Exercise the normal `F` trainer loop and
-prove `40 -> 30` copper plus `0 -> 25` XP, insufficient-funds rejection,
+live playback, and the reviewed static-mesh fallback. The saved offering list
+exposes repeatable level-1 Combat Drills for 10 copper and 25 XP plus repeatable
+level-2 Advanced Combat Drills for 20 copper and 50 XP. Exercise the normal `F`
+trainer loop and prove the visible level-1 lock, live level-2 unlock, exact
+advanced transaction, insufficient-funds rejection, current status copy,
 fixed-panel bounds, chat, and Inventory/Chronicle/close handoff. Preserve the
 2,824 Blender-source versus 2,800 post-import Unreal topology distinction.
 Retain the accepted practice dummy at `(-1120, -1120, 0)`, yaw `45`: grounded
@@ -1867,17 +1907,20 @@ Dwarf Ranger and Bullywug Wizard paths, exact data-driven starter stats and
 hotbars, one-shot confirmation, and controller input/HUD handoff. Retain the
 accepted derived-level contract: thresholds `0/100/250/450/700`, level-5 cap,
 rules-owned race/class growth, candidate-level equipment validation, silent
-idempotent restore, and no serialized level. Next build a bounded
-presentation-only XP-to-next-threshold and transient level-up surface that
-consumes Stats/rules, handles multi-level and cap states, preserves exact chat,
-and never replays on load or owns progression. Do not add naming, appearance,
-autosave, profiles, deletion, or implicit migration in that slice.
+idempotent restore, and no serialized level. Retain the fixed XP/level-up
+presentation and the two-offering level-gated trainer. First round-trip an
+Advanced Combat Drills result through Chronicle twice, proving only existing
+copper and XP state is durable. Then choose a restrained presentation-only
+level-up VFX/audio observer or the next cohesive Fenwatch module. Do not add
+naming, appearance, autosave, profiles, deletion, or implicit migration in
+that slice.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
 Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
-current commit, 67-test and 15-validator baseline, accepted character creation,
-v2 identity persistence, derived-level progression, and next bounded milestone
+current commit, 71-test and 15-validator baseline, accepted character creation,
+v2 identity persistence, derived-level progression, level-gated trainer, and
+next bounded milestone
 before ending the run.
 ```
 

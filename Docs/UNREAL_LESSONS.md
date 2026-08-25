@@ -1486,3 +1486,19 @@ candidate. Only after the entire candidate passes should load commit identity,
 XP, derived stats, hotbar, and one additive equipment layer. This pattern
 generalizes to any saved dependent whose validity is determined by another
 saved owner.
+
+## Refresh Eligibility And Its Explanation Together
+
+A level-gated trainer row can consume authoritative progression without owning
+it. Offering data owns the required level; the service asks Stats for the
+current derived result and returns one preflight outcome; UMG displays that
+outcome. Copper and XP remain the only durable owners, so adding a lesson does
+not require another save field.
+
+Live PIE caught a presentation split that unit-level transaction success alone
+did not reveal: Advanced Combat Drills unlocked correctly at level 2 and its
+button enabled, but the fixed status cell still showed the prior level-1
+rejection. Refreshing only control availability had left explanation text on a
+different clock. Recompute the control, detail, tooltip, and status sentence
+from the same current preflight whenever an authority input changes. A valid
+action beside stale rejection copy is still a broken interface.

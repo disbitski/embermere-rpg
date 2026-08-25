@@ -80,6 +80,8 @@ bool FEmbermereTrainerTransactionRulesTest::RunTest(const FString& Parameters)
 	CombatDrills.CopperCost = 10;
 	CombatDrills.RequiredLevel = 1;
 	CombatDrills.ExperienceReward = 25;
+	CombatDrills.bRepeatable = true;
+	Offerings->TrainerName = FText::FromString(TEXT("Fenwatch Training"));
 	Offerings->Offerings.Add(CombatDrills);
 	Trainer->SetOfferingsData(Offerings);
 	Wallet->SetCopperForPrototype(40);
@@ -126,6 +128,28 @@ bool FEmbermereTrainerTransactionRulesTest::RunTest(const FString& Parameters)
 		TEXT("Malformed offerings are rejected"),
 		Trainer->TryTrain(0, Stats, Wallet),
 		EEmbermereTrainingResult::InvalidRequest);
+
+	Offerings->Offerings[0].CopperCost = 1;
+	Offerings->Offerings[0].ExperienceReward = 1;
+	Offerings->Offerings[0].bRepeatable = false;
+	Stats->RestoreExperienceForSaveGame(0);
+	Wallet->SetCopperForPrototype(5);
+	TestEqual(TEXT("A non-repeatable lesson may commit once"),
+		Trainer->TryTrain(0, Stats, Wallet), EEmbermereTrainingResult::Success);
+	TestEqual(TEXT("One-time lesson charges once"), Wallet->Copper, 4);
+	TestEqual(TEXT("One-time lesson grants XP once"), Stats->CurrentExperience, 1);
+	TestEqual(TEXT("A completed one-time lesson is rejected"),
+		Trainer->TryTrain(0, Stats, Wallet), EEmbermereTrainingResult::AlreadyCompleted);
+	TestEqual(TEXT("Repeated one-time rejection preserves copper"), Wallet->Copper, 4);
+	TestEqual(TEXT("Repeated one-time rejection preserves XP"), Stats->CurrentExperience, 1);
+
+	FEmbermereTrainerOffering DuplicateId = Offerings->Offerings[0];
+	DuplicateId.DisplayName = FText::FromString(TEXT("Duplicate Lesson"));
+	Offerings->Offerings.Add(DuplicateId);
+	TestEqual(TEXT("Duplicate stable offering IDs invalidate the complete data set"),
+		Trainer->TryTrain(0, Stats, Wallet), EEmbermereTrainingResult::InvalidRequest);
+	TestEqual(TEXT("Duplicate-ID rejection preserves copper"), Wallet->Copper, 4);
+	TestEqual(TEXT("Duplicate-ID rejection preserves XP"), Stats->CurrentExperience, 1);
 	return true;
 }
 
@@ -186,9 +210,12 @@ bool FEmbermereTrainerPanelTest::RunTest(const FString& Parameters)
 	CombatDrills.RequiredLevel = 1;
 	CombatDrills.ExperienceReward = 25;
 	FEmbermereTrainerOffering AdvancedForms = CombatDrills;
-	AdvancedForms.OfferingId = TEXT("AdvancedForms");
-	AdvancedForms.DisplayName = FText::FromString(TEXT("Advanced Forms"));
+	AdvancedForms.OfferingId = TEXT("AdvancedCombatDrills");
+	AdvancedForms.DisplayName = FText::FromString(TEXT("Advanced Combat Drills"));
 	AdvancedForms.RequiredLevel = 2;
+	AdvancedForms.CopperCost = 20;
+	AdvancedForms.ExperienceReward = 50;
+	AdvancedForms.bRepeatable = true;
 	Offerings->TrainerName = FText::FromString(TEXT("Fenwatch Training"));
 	Offerings->Offerings = {CombatDrills, AdvancedForms};
 	Trainer->SetOfferingsData(Offerings);
@@ -203,15 +230,38 @@ bool FEmbermereTrainerPanelTest::RunTest(const FString& Parameters)
 	const FString TrainerText = Hud->GetTrainerDisplayText().ToString();
 	TestTrue(TEXT("Trainer display reports its data-driven name"), TrainerText.Contains(TEXT("Fenwatch Training")));
 	TestTrue(TEXT("Trainer display reports purse and progression"), TrainerText.Contains(TEXT("Copper: 40")) && TrainerText.Contains(TEXT("XP: 0")));
-	TestTrue(TEXT("Trainer display reports offering cost and reward"), TrainerText.Contains(TEXT("Combat Drills - 10 copper - +25 XP")));
+	TestTrue(TEXT("Trainer display reports offering level, cost, and reward"),
+		TrainerText.Contains(TEXT("Combat Drills - Level 1 - 10 copper - +25 XP")));
+	TestTrue(TEXT("Level-two offering remains visible at level one"), TrainerText.Contains(TEXT("Advanced Combat Drills")));
+	TestTrue(TEXT("Locked offering exposes exact level rejection"), TrainerText.Contains(TEXT("Advanced Combat Drills requires level 2.")));
 	TestEqual(TEXT("Trainer selection starts at first offering"), Hud->GetSelectedTrainerOfferingIndex(), 0);
 	TestTrue(TEXT("Bracket-style selection advances offerings"), Hud->SelectNextTrainerOffering(1));
 	TestEqual(TEXT("Selection advances to the second offering"), Hud->GetSelectedTrainerOfferingIndex(), 1);
+	TestFalse(TEXT("Locked selected offering cannot train"), Hud->TrainSelectedOffering());
+	TestEqual(TEXT("Locked UI action preserves wallet"), Wallet->Copper, 40);
+	TestEqual(TEXT("Locked UI action preserves XP"), Stats->CurrentExperience, 0);
 	TestTrue(TEXT("Selection wraps backward"), Hud->SelectNextTrainerOffering(-1));
 	TestEqual(TEXT("Wrapped selection returns to first offering"), Hud->GetSelectedTrainerOfferingIndex(), 0);
 	TestTrue(TEXT("Trainer panel completes selected training"), Hud->TrainSelectedOffering());
 	TestEqual(TEXT("Panel training updates wallet"), Wallet->Copper, 30);
 	TestEqual(TEXT("Panel training updates experience"), Stats->CurrentExperience, 25);
+	Stats->Level = 2;
+	Wallet->SetCopperForPrototype(50);
+	const FString UnlockedTrainerText = Hud->GetTrainerDisplayText().ToString();
+	TestTrue(TEXT("Derived level refresh exposes the advanced offering as ready"),
+		UnlockedTrainerText.Contains(TEXT("Advanced Combat Drills - Level 2 - 20 copper - +50 XP - Repeatable - Ready")));
+	TestFalse(TEXT("Derived level refresh clears the stale level rejection"),
+		UnlockedTrainerText.Contains(TEXT("Advanced Combat Drills requires level 2.")));
+	TestTrue(TEXT("Level-two selection remains reachable"), Hud->SelectTrainerOffering(1));
+	TestTrue(TEXT("Unlocked advanced training commits"), Hud->TrainSelectedOffering());
+	TestEqual(TEXT("Advanced panel training charges exact copper"), Wallet->Copper, 30);
+	TestEqual(TEXT("Advanced panel training grants exact XP"), Stats->CurrentExperience, 75);
+	TestTrue(TEXT("Repeatable advanced training commits again"), Hud->TrainSelectedOffering());
+	TestEqual(TEXT("Repeated advanced training charges again"), Wallet->Copper, 10);
+	TestEqual(TEXT("Repeated advanced training grants again"), Stats->CurrentExperience, 125);
+	TestFalse(TEXT("Insufficient funds reject a further repeat"), Hud->TrainSelectedOffering());
+	TestEqual(TEXT("Rejected repeat preserves wallet"), Wallet->Copper, 10);
+	TestEqual(TEXT("Rejected repeat preserves XP"), Stats->CurrentExperience, 125);
 	TestTrue(TEXT("Inventory toggle hands off from trainer"), Hud->ToggleInventoryPanel());
 	TestFalse(TEXT("Inventory handoff closes trainer"), Hud->IsTrainerPanelVisible());
 	TestTrue(TEXT("Inventory handoff shows inventory"), Hud->IsInventoryPanelVisible());
@@ -238,8 +288,8 @@ bool FEmbermereFenwatchTrainerOfferingsDataTest::RunTest(const FString& Paramete
 		TEXT("Trainer data keeps the reviewed service name"),
 		Offerings->TrainerName.ToString(),
 		FString(TEXT("Fenwatch Training")));
-	TestEqual(TEXT("Trainer data exposes one bounded starter offering"), Offerings->Offerings.Num(), 1);
-	if (Offerings->Offerings.Num() == 1)
+	TestEqual(TEXT("Trainer data exposes two bounded progression offerings"), Offerings->Offerings.Num(), 2);
+	if (Offerings->Offerings.Num() == 2)
 	{
 		const FEmbermereTrainerOffering& CombatDrills = Offerings->Offerings[0];
 		TestEqual(TEXT("Offering identity remains stable"), CombatDrills.OfferingId, FName(TEXT("CombatDrills")));
@@ -254,8 +304,167 @@ bool FEmbermereFenwatchTrainerOfferingsDataTest::RunTest(const FString& Paramete
 			CombatDrills.EffectType,
 			EEmbermereTrainingEffectType::Experience);
 		TestEqual(TEXT("Combat Drills grants twenty-five experience"), CombatDrills.ExperienceReward, 25);
+		TestTrue(TEXT("Combat Drills is explicitly repeatable"), CombatDrills.bRepeatable);
 		TestTrue(TEXT("Saved Combat Drills data passes the native validity contract"), CombatDrills.IsValid());
+
+		const FEmbermereTrainerOffering& AdvancedCombatDrills = Offerings->Offerings[1];
+		TestEqual(TEXT("Advanced offering identity remains stable"),
+			AdvancedCombatDrills.OfferingId, FName(TEXT("AdvancedCombatDrills")));
+		TestEqual(TEXT("Advanced offering keeps its player-facing name"),
+			AdvancedCombatDrills.DisplayName.ToString(), FString(TEXT("Advanced Combat Drills")));
+		TestEqual(TEXT("Advanced Combat Drills costs twenty copper"), AdvancedCombatDrills.CopperCost, 20);
+		TestEqual(TEXT("Advanced Combat Drills requires derived level two"), AdvancedCombatDrills.RequiredLevel, 2);
+		TestEqual(TEXT("Advanced Combat Drills grants fifty experience"), AdvancedCombatDrills.ExperienceReward, 50);
+		TestTrue(TEXT("Advanced Combat Drills is explicitly repeatable"), AdvancedCombatDrills.bRepeatable);
+		TestTrue(TEXT("Saved Advanced Combat Drills data passes the native validity contract"),
+			AdvancedCombatDrills.IsValid());
+		TestTrue(TEXT("Saved trainer data has valid unique offerings"), Offerings->HasValidOfferings());
 	}
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereTrainerLevelGatedProgressionTest,
+	"Embermere.Trainer.LevelGatedProgression",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereTrainerLevelGatedProgressionTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	UEmbermereTrainerComponent* Trainer = NewObject<UEmbermereTrainerComponent>();
+	UEmbermereTrainerOfferingsData* Offerings = LoadObject<UEmbermereTrainerOfferingsData>(
+		nullptr,
+		TEXT("/Game/Data/Trainers/DA_FenwatchArmsmasterOfferings.DA_FenwatchArmsmasterOfferings"));
+	if (!Character || !Trainer || !Offerings || !Character->Stats || !Character->Wallet)
+	{
+		AddError(TEXT("Could not create level-gated trainer fixtures"));
+		return false;
+	}
+
+	TestTrue(TEXT("Trainer progression fixture confirms Human Warrior"),
+		Character->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	Trainer->SetOfferingsData(Offerings);
+	Character->Wallet->SetCopperForPrototype(50);
+	TestEqual(TEXT("Advanced training is locked below its derived level"),
+		Trainer->CanTrain(1, Character->Stats, Character->Wallet),
+		EEmbermereTrainingResult::LevelTooLow);
+	TestEqual(TEXT("Locked training returns exact player-facing copy"),
+		Trainer->GetTrainingResultText(EEmbermereTrainingResult::LevelTooLow, 1).ToString(),
+		FString(TEXT("Advanced Combat Drills requires level 2.")));
+	TestEqual(TEXT("Locked training rejects without mutation"),
+		Trainer->TryTrain(1, Character->Stats, Character->Wallet),
+		EEmbermereTrainingResult::LevelTooLow);
+	TestEqual(TEXT("Locked training preserves copper"), Character->Wallet->Copper, 50);
+	TestEqual(TEXT("Locked training preserves XP"), Character->Stats->CurrentExperience, 0);
+
+	TestTrue(TEXT("Authoritative XP reaches derived level two"), Character->Stats->TryAddExperience(150));
+	TestEqual(TEXT("Level gate consumes the derived Stats result"), Character->Stats->Level, 2);
+	TestEqual(TEXT("Advanced training unlocks at the exact threshold"),
+		Trainer->CanTrain(1, Character->Stats, Character->Wallet),
+		EEmbermereTrainingResult::Success);
+	TestEqual(TEXT("First advanced transaction succeeds"),
+		Trainer->TryTrain(1, Character->Stats, Character->Wallet),
+		EEmbermereTrainingResult::Success);
+	TestEqual(TEXT("First advanced transaction charges twenty copper"), Character->Wallet->Copper, 30);
+	TestEqual(TEXT("First advanced transaction grants fifty XP"), Character->Stats->CurrentExperience, 200);
+	TestEqual(TEXT("First advanced transaction stays level two"), Character->Stats->Level, 2);
+	TestEqual(TEXT("Repeatable advanced transaction succeeds again"),
+		Trainer->TryTrain(1, Character->Stats, Character->Wallet),
+		EEmbermereTrainingResult::Success);
+	TestEqual(TEXT("Second advanced transaction charges exact copper"), Character->Wallet->Copper, 10);
+	TestEqual(TEXT("Second advanced transaction reaches level-three threshold"), Character->Stats->CurrentExperience, 250);
+	TestEqual(TEXT("Second advanced transaction derives level three"), Character->Stats->Level, 3);
+	TestEqual(TEXT("Insufficient funds reject a third repeat"),
+		Trainer->TryTrain(1, Character->Stats, Character->Wallet),
+		EEmbermereTrainingResult::InsufficientFunds);
+	TestEqual(TEXT("Rejected third repeat preserves copper"), Character->Wallet->Copper, 10);
+	TestEqual(TEXT("Rejected third repeat preserves XP"), Character->Stats->CurrentExperience, 250);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereTrainerLevelGatedPersistenceTest,
+	"Embermere.Trainer.LevelGatedPersistence",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereTrainerLevelGatedPersistenceTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Source = NewObject<AEmbermereCharacter>();
+	AEmbermereCharacter* Target = NewObject<AEmbermereCharacter>();
+	UEmbermereTrainerComponent* Trainer = NewObject<UEmbermereTrainerComponent>();
+	UEmbermereTrainerOfferingsData* Offerings = LoadObject<UEmbermereTrainerOfferingsData>(
+		nullptr,
+		TEXT("/Game/Data/Trainers/DA_FenwatchArmsmasterOfferings.DA_FenwatchArmsmasterOfferings"));
+	if (!Source || !Target || !Trainer || !Offerings || !Source->Stats || !Source->Wallet)
+	{
+		AddError(TEXT("Could not create trainer persistence fixtures"));
+		return false;
+	}
+
+	TestTrue(TEXT("Source confirms Human Warrior"),
+		Source->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	Source->Wallet->SetCopperForPrototype(50);
+	TestTrue(TEXT("Source reaches level two through authoritative XP"), Source->Stats->TryAddExperience(150));
+	Trainer->SetOfferingsData(Offerings);
+	TestEqual(TEXT("First advanced training commits before capture"),
+		Trainer->TryTrain(1, Source->Stats, Source->Wallet), EEmbermereTrainingResult::Success);
+	TestEqual(TEXT("Second repeat commits before capture"),
+		Trainer->TryTrain(1, Source->Stats, Source->Wallet), EEmbermereTrainingResult::Success);
+	TestEqual(TEXT("Captured source has exact trainer-produced copper"), Source->Wallet->Copper, 10);
+	TestEqual(TEXT("Captured source has exact trainer-produced XP"), Source->Stats->CurrentExperience, 250);
+	TestEqual(TEXT("Captured source derives level three"), Source->Stats->Level, 3);
+
+	UEmbermereSaveGame* CapturedSave = nullptr;
+	FText PersistenceMessage;
+	TestEqual(TEXT("Trainer-produced state captures through existing owners"),
+		UEmbermerePersistenceLibrary::CaptureGameState(Source, {}, CapturedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestNotNull(TEXT("Trainer-produced capture creates save data"), CapturedSave);
+	if (!CapturedSave)
+	{
+		return false;
+	}
+	TestEqual(TEXT("Trainer progression requires no save schema expansion"),
+		CapturedSave->FormatVersion, EmbermereSaveGameVersion::Current);
+	TestEqual(TEXT("Save captures existing copper owner"), CapturedSave->Copper, 10);
+	TestEqual(TEXT("Save captures existing XP owner"), CapturedSave->CurrentExperience, 250);
+
+	TArray<uint8> SerializedBytes;
+	TestTrue(TEXT("Trainer progression serializes through the Chronicle save format"),
+		UGameplayStatics::SaveGameToMemory(CapturedSave, SerializedBytes));
+	UEmbermereSaveGame* LoadedSave = Cast<UEmbermereSaveGame>(
+		UGameplayStatics::LoadGameFromMemory(SerializedBytes));
+	TestNotNull(TEXT("Trainer progression reloads from serialized bytes"), LoadedSave);
+	if (!LoadedSave)
+	{
+		return false;
+	}
+
+	TestTrue(TEXT("Target begins as a genuinely different legal identity"),
+		Target->TryApplyRaceAndClass(EEmbermereRace::Elf, EEmbermereClass::Wizard));
+	Target->Wallet->SetCopperForPrototype(99);
+	Target->Stats->RestoreExperienceForSaveGame(100);
+	TestEqual(TEXT("Trainer-produced save applies"),
+		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, LoadedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Load restores trainer-produced copper exactly"), Target->Wallet->Copper, 10);
+	TestEqual(TEXT("Load restores trainer-produced XP exactly"), Target->Stats->CurrentExperience, 250);
+	TestEqual(TEXT("Load derives trainer-produced level exactly"), Target->Stats->Level, 3);
+	TestEqual(TEXT("Load restores saved race"), Target->Race, EEmbermereRace::Human);
+	TestEqual(TEXT("Load restores saved class"), Target->Class, EEmbermereClass::Warrior);
+	TestEqual(TEXT("Repeated load remains valid"),
+		UEmbermerePersistenceLibrary::ApplyGameState(Target, {}, LoadedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Repeated load does not replay trainer XP"), Target->Stats->CurrentExperience, 250);
+	TestEqual(TEXT("Repeated load does not replay trainer cost"), Target->Wallet->Copper, 10);
+
+	UEmbermereTrainerComponent* LoadedTrainer = NewObject<UEmbermereTrainerComponent>();
+	LoadedTrainer->SetOfferingsData(Offerings);
+	TestEqual(TEXT("Post-load training still obeys current affordability"),
+		LoadedTrainer->TryTrain(1, Target->Stats, Target->Wallet),
+		EEmbermereTrainingResult::InsufficientFunds);
+	TestEqual(TEXT("Rejected post-load training preserves XP"), Target->Stats->CurrentExperience, 250);
+	TestEqual(TEXT("Rejected post-load training preserves copper"), Target->Wallet->Copper, 10);
 	return true;
 }
 
@@ -1630,6 +1839,7 @@ bool FEmbermereProgressionRewardOwnersTest::RunTest(const FString& Parameters)
 	CombatDrills.CopperCost = 10;
 	CombatDrills.RequiredLevel = 1;
 	CombatDrills.ExperienceReward = 25;
+	Offerings->TrainerName = FText::FromString(TEXT("Fenwatch Training"));
 	Offerings->Offerings.Add(CombatDrills);
 	Trainer->SetOfferingsData(Offerings);
 	TestEqual(TEXT("Trainer remains the owner of its atomic XP transaction"),

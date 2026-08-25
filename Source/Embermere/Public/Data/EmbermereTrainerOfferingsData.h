@@ -36,6 +36,9 @@ struct FEmbermereTrainerOffering
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trainer", meta = (ClampMin = "1"))
 	int32 ExperienceReward = 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trainer")
+	bool bRepeatable = true;
+
 	bool IsValid() const
 	{
 		return !OfferingId.IsNone() && !DisplayName.IsEmpty() && CopperCost > 0 && RequiredLevel > 0 &&
@@ -54,4 +57,23 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trainer")
 	TArray<FEmbermereTrainerOffering> Offerings;
+
+	bool HasValidOfferings() const
+	{
+		if (TrainerName.IsEmpty() || Offerings.IsEmpty())
+		{
+			return false;
+		}
+
+		TSet<FName> OfferingIds;
+		for (const FEmbermereTrainerOffering& Offering : Offerings)
+		{
+			if (!Offering.IsValid() || OfferingIds.Contains(Offering.OfferingId))
+			{
+				return false;
+			}
+			OfferingIds.Add(Offering.OfferingId);
+		}
+		return true;
+	}
 };

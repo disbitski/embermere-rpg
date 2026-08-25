@@ -23,32 +23,43 @@ quartermaster: art may communicate identity, but it does not own gameplay.
 stats components remain the authorities for copper and progression. The HUD
 only displays those owners and requests a transaction.
 
-## First Fenwatch Offering
+## Fenwatch Offerings
 
-`DA_FenwatchArmsmasterOfferings` currently contains one bounded starter action:
+`DA_FenwatchArmsmasterOfferings` contains two compact repeatable XP lessons:
 
-| ID | Name | Required level | Cost | Reward |
-| --- | --- | ---: | ---: | ---: |
-| `CombatDrills` | Combat Drills | 1 | 10 copper | 25 XP |
+| ID | Name | Required level | Cost | Reward | Repeatable |
+| --- | --- | ---: | ---: | ---: | --- |
+| `CombatDrills` | Combat Drills | 1 | 10 copper | 25 XP | Yes |
+| `AdvancedCombatDrills` | Advanced Combat Drills | 2 | 20 copper | 50 XP | Yes |
 
-The offering is intentionally repeatable and has no independent persistent
-stock. Copper and XP already belong to the versioned save-game contract, so a
-successful training action becomes durable without adding trainer-specific
-save records.
+Both current offerings are intentionally repeatable and have no independent
+persistent stock. Copper and XP already belong to the versioned save-game
+contract, so successful training becomes durable without adding trainer-
+specific save records. Offering selection, panel state, and service interaction
+remain transient.
+
+Each offering owns an explicit repeatability policy. A future non-repeatable
+lesson is enforced once per service runtime and reports a distinct completed
+result; making that completion durable would require its own deliberate save-
+format contract. No current Fenwatch offering creates that hidden persistent
+state.
 
 ## Transaction Order
 
 `Train()` performs complete preflight before changing live state:
 
-1. Resolve the authored offering by stable index and verify its ID, cost,
-   required level, and positive reward.
-2. Confirm the character meets the level requirement.
-3. Confirm the wallet can spend the exact copper cost.
-4. Confirm the stats component can accept the XP without integer overflow.
-5. Spend copper.
-6. Commit XP.
-7. If the progression commit unexpectedly fails after the spend, refund the
+1. Validate the complete offerings asset, including nonempty unique stable IDs,
+   positive costs/rewards, and explicit repeatability.
+2. Resolve the authored offering by index.
+3. Reject a completed non-repeatable lesson before any mutation.
+4. Confirm the authoritative Stats-derived level meets the requirement.
+5. Confirm the wallet can spend the exact copper cost.
+6. Confirm the stats component can accept the XP without integer overflow.
+7. Spend copper.
+8. Commit XP.
+9. If the progression commit unexpectedly fails after the spend, refund the
    exact copper amount before reporting rejection.
+10. Record non-repeatable runtime completion only after both owner commits.
 
 Malformed data, low level, insufficient funds, missing owners, and XP overflow
 must leave both wallet and progression unchanged. The panel disables an
@@ -60,11 +71,19 @@ through another path.
 The first native panel is fixed at `500x300` and contains:
 
 - the data-driven trainer name and current purse;
-- one selectable offering row;
-- level, cost, XP reward, and description details;
-- a Train command and a fixed two-line result cell;
+- two selectable offering rows with stable fixed bounds;
+- level, cost, XP reward, repeatability, and description details;
+- a Train command and a fixed two-line current preflight/status cell, with
+  exact transaction outcomes retained in bottom-left chat;
 - bracket-key selection, `T` action, and `X` close guidance;
 - cursor-aware game/UI input without covering chat or the hotbar.
+
+Unavailable rows remain visible and inspectable by mouse or bracket-key
+selection. They use a restrained locked treatment while the Train command is
+disabled. At level 1, Advanced Combat Drills must expose the exact service-owned
+copy `Advanced Combat Drills requires level 2.` and mutate neither copper nor
+XP. The HUD never calculates a level threshold or silently selects another
+lesson.
 
 Trainer, Vendor, Inventory, and Chronicle panels are mutually exclusive.
 Opening one closes the active peer before showing the new surface. Closing the
@@ -102,6 +121,8 @@ The trainer slice is eligible only when all layers pass:
 - `Embermere.Trainer.TransactionRules`;
 - `Embermere.Trainer.ServiceContract`;
 - `Embermere.Trainer.FenwatchOfferingsData`;
+- `Embermere.Trainer.LevelGatedProgression`;
+- `Embermere.Trainer.LevelGatedPersistence`;
 - `Embermere.NPC.FenwatchArmsmasterPresentation`;
 - `Embermere.NPC.FenwatchArmsmasterIdlePresentation`;
 - `Embermere.UI.TrainerPanel`;
@@ -127,6 +148,14 @@ rig/trainer/zone validators accepted the saved packages, and live PIE measured
 the Idle advancing from `0.193888` to `1.670905` seconds while remaining
 `playing=true` and `NoCollision`. The trainer service, offering, marker, wallet,
 XP transaction, panel, and save schema did not change.
+
+The 2026-08-25 level-gated extension passed the no-hot-reload build, all 71
+automation tests, the exact trainer package validator, the standalone
+progression validator, and the sequential 15-package aggregate. Clean PIE kept
+Advanced Combat Drills visible and locked at level 1 with exact rejection and
+zero mutation. After Stats derived level 2, the same open panel changed it to
+ready with no stale lock sentence. A real HUD request then changed `50` copper /
+`100` XP to exactly `30` / `150`, posted exact chat, and remained level 2.
 
 ## Training-Yard Presentation
 
@@ -170,6 +199,13 @@ the XP mutation to Stats. Thresholds, race/class growth, equipment
 reapplication, Chronicle level display, save restore, and level-up feedback
 remain outside Trainer authority. The progression boundary is documented in
 [LEVEL_PROGRESSION_CONTRACT.md](LEVEL_PROGRESSION_CONTRACT.md).
+
+Advanced Combat Drills extends that same boundary. It is visible but locked at
+level 1, becomes available when Stats reports derived level 2, charges exactly
+20 copper, and grants exactly 50 XP. Repeated use follows its authored
+repeatability flag. Save version 2 needs no new field because Chronicle already
+captures the resulting wallet and XP owners; load restores those values and
+derives level silently without replaying a lesson.
 
 ## Working Rule
 

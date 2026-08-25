@@ -70,6 +70,22 @@ result and preserve one additive application across level-up and repeated load.
 Reaching a threshold grants no extra item, currency, quest credit, or ability.
 Starter abilities remain class-owned in this first slice.
 
+## Level-Gated Trainer Consumer
+
+Trainer offering data may require the authoritative derived level, but it does
+not own a threshold table or calculate level. The service asks Stats for the
+current derived level during every preflight, then validates level, wallet, XP
+overflow, and repeatability before mutation. UMG displays that same preflight
+result and must refresh both action state and status copy when progression
+changes; an enabled button beside stale lock text is a failed presentation.
+
+The accepted Fenwatch list contains repeatable `CombatDrills` at level 1 for
+`10` copper and `25` XP and repeatable `AdvancedCombatDrills` at level 2 for
+`20` copper and `50` XP. Advanced remains visible and inspectable at level 1,
+rejects without mutation, and becomes ready as soon as Stats derives level 2.
+Training persists through the existing copper and XP owners, so neither the
+offering list nor its transient selection expands save version 2.
+
 ## Save And Load Lifecycle
 
 1. Resolve stable race/class IDs, with the explicit current-rules Human Warrior
@@ -115,6 +131,9 @@ unchanged.
 - Version-2 round-trip, repeated-load idempotence, and complete rollback.
 - Version-1 Human Warrior fallback derives its level from legacy XP.
 - Trainer XP and Mara quest XP produce the expected live level transitions.
+- Level-gated Trainer rows remain visible when locked, consume the current
+  derived level, refresh without stale rejection copy, and mutate only through
+  the service's atomic wallet/XP transaction.
 - Chronicle and HUD report the authoritative derived level.
 - Level-1 progress, threshold approach, exact-threshold rollover, within-level
   normalization, and explicit cap copy.

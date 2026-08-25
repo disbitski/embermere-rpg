@@ -79,8 +79,9 @@ First local placement pass:
   co-located art-free vendor service, its stock asset, prices, quantities,
   transform, tags, and ownership separation.
   `Scripts/validate_fenwatch_trainer_unreal.py` independently locks the
-  co-located art-free trainer service, one Combat Drills offering, imported
-  armsmaster skeletal mesh/Skeleton/Idle, reversible static fallback,
+  co-located art-free trainer service, the exact repeatable level-1 Combat
+  Drills and level-2 Advanced Combat Drills offerings with unique stable IDs,
+  imported armsmaster skeletal mesh/Skeleton/Idle, reversible static fallback,
   transform, tags, and ownership separation.
   `Scripts/validate_fenwatch_practice_dummy_unreal.py` locks the project-owned
   target's dimensions, topology, five shared materials, two authored support/
