@@ -1813,6 +1813,79 @@ bool FEmbermereLevelUpPresentationTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereLevelUpWorldVfxPresentationTest,
+	"Embermere.UI.LevelUpWorldVfxPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereLevelUpWorldVfxPresentationTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	if (!Character || !Character->Stats)
+	{
+		AddError(TEXT("Could not create level-up world VFX fixtures"));
+		return false;
+	}
+
+	TestTrue(
+		TEXT("World VFX fixture confirms Elf Wizard"),
+		Character->TryApplyRaceAndClass(EEmbermereRace::Elf, EEmbermereClass::Wizard));
+	Character->BindLevelUpWorldVfx();
+	TestTrue(TEXT("World observer binds to the authoritative live transition"), Character->Stats->OnLevelChanged.IsBound());
+	TestFalse(TEXT("World observer starts hidden"), Character->IsLevelUpWorldVfxVisible());
+	TestEqual(TEXT("Transient geometry is deferred until a real level-up"), Character->GetLevelUpWorldVfxSegmentCount(), 0);
+
+	Character->Stats->RestoreExperienceForSaveGame(100);
+	TestFalse(TEXT("Silent restore never starts world VFX"), Character->IsLevelUpWorldVfxVisible());
+	Character->Stats->RestoreExperienceForSaveGame(0);
+	TestFalse(TEXT("Silent rollback-style restore remains presentation-free"), Character->IsLevelUpWorldVfxVisible());
+
+	TestTrue(TEXT("One live grant may cross three levels for world VFX"), Character->Stats->TryAddExperience(450));
+	TestEqual(TEXT("Authoritative live grant reaches level four"), Character->Stats->Level, 4);
+	Character->HandleLevelChangedForWorldVfx(1, 4);
+	TestTrue(TEXT("Post-commit level result starts world VFX"), Character->IsLevelUpWorldVfxVisible());
+	TestEqual(TEXT("World VFX uses twelve stable segments"), Character->GetLevelUpWorldVfxSegmentCount(), 12);
+	TestEqual(TEXT("Every world VFX segment becomes visible"), Character->GetVisibleLevelUpWorldVfxSegmentCount(), 12);
+	TestEqual(TEXT("World VFX records the exact multi-level span"), Character->GetLevelUpWorldVfxLevelsGained(), 3);
+	TestTrue(
+		TEXT("World VFX uses the project-owned emissive material"),
+		Character->GetLevelUpWorldVfxMaterialPath().Contains(TEXT("M_EmbermereTargetRing")));
+	TestTrue(TEXT("World VFX geometry is presentation-only"), Character->AreLevelUpWorldVfxSegmentsNonColliding());
+	TestTrue(
+		TEXT("Wizard world VFX resolves to a cyan-blue class palette"),
+		Character->GetLevelUpWorldVfxColor().B > Character->GetLevelUpWorldVfxColor().R &&
+			Character->GetLevelUpWorldVfxColor().G > Character->GetLevelUpWorldVfxColor().R);
+	TestTrue(
+		TEXT("World VFX lifetime remains deterministic"),
+		FMath::IsNearlyEqual(Character->GetLevelUpWorldVfxLifetimeSeconds(), 1.6f, KINDA_SMALL_NUMBER));
+	const float StartingRadius = Character->GetLevelUpWorldVfxRadius();
+	Character->AdvanceLevelUpWorldVfx(0.8f);
+	TestTrue(TEXT("World VFX remains visible halfway through its lifetime"), Character->IsLevelUpWorldVfxVisible());
+	TestTrue(TEXT("World VFX expands without growing layout or gameplay state"), Character->GetLevelUpWorldVfxRadius() > StartingRadius);
+	Character->AdvanceLevelUpWorldVfx(0.79f);
+	TestTrue(TEXT("World VFX remains until its full lifetime"), Character->IsLevelUpWorldVfxVisible());
+	Character->AdvanceLevelUpWorldVfx(0.02f);
+	TestFalse(TEXT("World VFX expires deterministically"), Character->IsLevelUpWorldVfxVisible());
+	TestEqual(TEXT("Expiry hides every segment"), Character->GetVisibleLevelUpWorldVfxSegmentCount(), 0);
+
+	Character->Stats->RestoreExperienceForSaveGame(0);
+	Character->UnbindLevelUpWorldVfx();
+	TestFalse(TEXT("World observer removes its authoritative delegate"), Character->Stats->OnLevelChanged.IsBound());
+	TestTrue(TEXT("Stats remain independently usable after world observer teardown"), Character->Stats->TryAddExperience(100));
+	TestFalse(TEXT("Torn-down world observer receives no later transition"), Character->IsLevelUpWorldVfxVisible());
+
+	Character->Stats->RestoreExperienceForSaveGame(0);
+	Character->BindLevelUpWorldVfx();
+	TestTrue(TEXT("World observer may bind again without duplication"), Character->Stats->OnLevelChanged.IsBound());
+	TestTrue(TEXT("Rebound observer receives a later live level-up"), Character->Stats->TryAddExperience(100));
+	Character->HandleLevelChangedForWorldVfx(1, 2);
+	TestTrue(TEXT("Rebound world observer becomes visible"), Character->IsLevelUpWorldVfxVisible());
+	Character->Stats->ForceDeath();
+	Character->AdvanceLevelUpWorldVfx(0.0f);
+	TestFalse(TEXT("Death clears world VFX immediately"), Character->IsLevelUpWorldVfxVisible());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereProgressionRewardOwnersTest,
 	"Embermere.Progression.RewardOwners",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

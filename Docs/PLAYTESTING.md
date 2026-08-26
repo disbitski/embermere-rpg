@@ -247,6 +247,17 @@ Warrior fallback without rewriting the old file.
     seconds without moving neighboring HUD elements.
 12. Save and load the same level-2 state. Confirm the steady XP surface restores
     immediately while the transient level-up panel does not replay.
+13. In a fresh Human Warrior world, complete four real Combat Drills
+    transactions to cross `100` XP. Confirm the live level transition also
+    creates twelve orange-gold project-material segments around the player's
+    feet without collision, navigation, HUD movement, or chat obstruction.
+14. Look down from the normal first-person camera and verify the segments read
+    as one restrained expanding ground circle rather than floating bars. Close
+    the initially visible Inventory with `I` while the effect is active and
+    retain the normal cursor/game-input handoff.
+15. Let the effect expire after `1.6` seconds, then load a saved level-2 state.
+    The steady level/XP presentation must restore, but neither the world circle
+    nor the top-center level-up panel may replay.
 
 ## Current Play Loop
 
@@ -477,10 +488,17 @@ The full ownership and rollback contract is in
    the separate service actor owns the marker, `F` interaction, offering data,
    and transaction authority.
 10. For the baseline trainer persistence lane, begin again at `40` copper and `0` XP,
-   train once to `30`/`25`, and save deliberately through Chronicle. Stop PIE,
-   start a fresh world, confirm the normal `40`/`0` baseline, then load through
-   Chronicle twice. Both loads must resolve to exactly `30`/`25` with no items,
-   equipment, quest, vendor-stock, buyback, reward, or schema mutation.
+    train once to `30`/`25`, and save deliberately through Chronicle. Stop PIE,
+    start a fresh world, confirm the normal `40`/`0` baseline, then load through
+    Chronicle twice. Both loads must resolve to exactly `30`/`25` with no items,
+    equipment, quest, vendor-stock, buyback, reward, or schema mutation.
+11. For the richer Advanced lane, confirm Elf Wizard, complete Mara's quest,
+    train once through Advanced, equip the quest Recruit Pack, and save through
+    Chronicle at exact level `2`, `175` XP, and `40` copper. Stop PIE, confirm
+    Dwarf Warrior in a fresh world at level `1`, `0` XP, and `40` copper, then
+    load twice. Both loads must restore the exact Elf Wizard base/equipment
+    stats, Wizard hotbar, completed quest, untouched finite stock, wallet, and
+    XP without trainer-specific state, reward replay, duplication, or drift.
 
 The full ownership and rollback contract is in
 [TRAINER_SERVICE_CONTRACT.md](TRAINER_SERVICE_CONTRACT.md).
@@ -533,6 +551,12 @@ The full ownership and rollback contract is in
     verify it with `validate_fresh_trainer_session_before_chronicle_load()`,
     then validate each confirmed Chronicle load with
     `validate_trainer_chronicle_load()`.
+14. For the Advanced lane, use
+    `prepare_advanced_trainer_progression_for_chronicle()`, save through the
+    real Chronicle control, verify the slot with
+    `validate_advanced_chronicle_slot_created()`, begin a fresh Dwarf Warrior
+    world, run `validate_fresh_advanced_session_before_chronicle_load()`, and
+    validate both confirmed loads with `validate_advanced_chronicle_load()`.
 
 ## Expected Temporary Feedback
 

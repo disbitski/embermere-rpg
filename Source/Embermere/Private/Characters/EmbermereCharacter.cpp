@@ -32,6 +32,13 @@ constexpr float StatusEffectVfxHarmfulFootprintScale = 0.70f;
 constexpr float StatusEffectVfxHarmfulMaximumRadius = 128.0f;
 constexpr float StatusEffectVfxSurfaceClearance = 21.0f;
 constexpr float StatusEffectVfxSegmentThickness = 3.5f;
+constexpr int32 LevelUpWorldVfxSegmentCount = 12;
+constexpr float LevelUpWorldVfxLifetimeSeconds = 1.6f;
+constexpr float LevelUpWorldVfxStartRadius = 62.0f;
+constexpr float LevelUpWorldVfxEndRadius = 116.0f;
+constexpr float LevelUpWorldVfxSurfaceClearance = 27.0f;
+constexpr float LevelUpWorldVfxSegmentThickness = 4.5f;
+constexpr float LevelUpWorldVfxRotationSpeedDegreesPerSecond = 110.0f;
 }
 
 AEmbermereCharacter::AEmbermereCharacter()
@@ -101,12 +108,20 @@ AEmbermereCharacter::AEmbermereCharacter()
 void AEmbermereCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	BindLevelUpWorldVfx();
 	if (Equipment)
 	{
 		Equipment->OnEquipmentChanged.AddUniqueDynamic(this, &AEmbermereCharacter::HandleEquipmentChanged);
 	}
 	RefreshEquipmentStats();
 	PrimeStarterHotbar();
+}
+
+void AEmbermereCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UnbindLevelUpWorldVfx();
+	ClearLevelUpWorldVfx();
+	Super::EndPlay(EndPlayReason);
 }
 
 void AEmbermereCharacter::Tick(float DeltaSeconds)
@@ -119,6 +134,7 @@ void AEmbermereCharacter::Tick(float DeltaSeconds)
 			BaseWalkSpeedCmPerSecond * Stats->GetMovementSpeedMultiplier();
 	}
 	UpdateStatusEffectVfx(DeltaSeconds);
+	AdvanceLevelUpWorldVfx(DeltaSeconds);
 }
 
 void AEmbermereCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -328,6 +344,304 @@ float AEmbermereCharacter::GetStatusEffectVfxRadius() const
 float AEmbermereCharacter::GetStatusEffectVfxRelativeHeight() const
 {
 	return StatusEffectVfxRelativeHeight;
+}
+
+void AEmbermereCharacter::AdvanceLevelUpWorldVfx(float DeltaSeconds)
+{
+	if (!bLevelUpWorldVfxVisible)
+	{
+		return;
+	}
+
+	if (!Stats || Stats->IsDead())
+	{
+		ClearLevelUpWorldVfx();
+		return;
+	}
+
+	LevelUpWorldVfxAgeSeconds += FMath::Max(0.0f, DeltaSeconds);
+	if (LevelUpWorldVfxAgeSeconds >= LevelUpWorldVfxLifetimeSeconds)
+	{
+		ClearLevelUpWorldVfx();
+		return;
+	}
+
+	EnsureLevelUpWorldVfxComponents();
+	if (LevelUpWorldVfxSegments.IsEmpty())
+	{
+		ClearLevelUpWorldVfx();
+		return;
+	}
+
+	const float NormalizedAge = FMath::Clamp(
+		LevelUpWorldVfxAgeSeconds / LevelUpWorldVfxLifetimeSeconds,
+		0.0f,
+		1.0f);
+	const float ExpansionAlpha = FMath::InterpEaseOut(0.0f, 1.0f, NormalizedAge, 2.0f);
+	const float VisibilityEnvelope = FMath::Sin(NormalizedAge * PI);
+	LevelUpWorldVfxRadius = FMath::Lerp(
+		LevelUpWorldVfxStartRadius,
+		LevelUpWorldVfxEndRadius,
+		ExpansionAlpha);
+	LevelUpWorldVfxRotationDegrees = FMath::Fmod(
+		LevelUpWorldVfxRotationDegrees +
+			FMath::Max(0.0f, DeltaSeconds) * LevelUpWorldVfxRotationSpeedDegreesPerSecond,
+		360.0f);
+
+	FLinearColor AnimatedColor = LevelUpWorldVfxColor;
+	const float Brightness = 0.35f + 0.85f * VisibilityEnvelope;
+	AnimatedColor.R *= Brightness;
+	AnimatedColor.G *= Brightness;
+	AnimatedColor.B *= Brightness;
+	const float EmissiveStrength = 0.7f + 1.65f * VisibilityEnvelope;
+	const float SegmentLength =
+		2.0f * LevelUpWorldVfxRadius *
+		FMath::Tan(PI / static_cast<float>(LevelUpWorldVfxSegmentCount)) * 0.64f;
+	const float GroundRelativeZ =
+		ResolveStatusEffectVfxHeightOffset() - StatusEffectVfxSurfaceClearance +
+		LevelUpWorldVfxSurfaceClearance;
+
+	if (LevelUpWorldVfxMaterials.Num() != LevelUpWorldVfxSegments.Num())
+	{
+		LevelUpWorldVfxMaterials.SetNum(LevelUpWorldVfxSegments.Num());
+	}
+	for (int32 SegmentIndex = 0; SegmentIndex < LevelUpWorldVfxSegments.Num(); ++SegmentIndex)
+	{
+		UStaticMeshComponent* Segment = LevelUpWorldVfxSegments[SegmentIndex];
+		if (!Segment)
+		{
+			continue;
+		}
+
+		Segment->SetVisibility(true);
+		Segment->SetHiddenInGame(false);
+		if (!LevelUpWorldVfxMaterials[SegmentIndex])
+		{
+			LevelUpWorldVfxMaterials[SegmentIndex] = Segment->CreateDynamicMaterialInstance(0);
+		}
+		if (LevelUpWorldVfxMaterials[SegmentIndex])
+		{
+			LevelUpWorldVfxMaterials[SegmentIndex]->SetVectorParameterValue(TEXT("Color"), AnimatedColor);
+			LevelUpWorldVfxMaterials[SegmentIndex]->SetVectorParameterValue(TEXT("BaseColor"), AnimatedColor);
+			LevelUpWorldVfxMaterials[SegmentIndex]->SetScalarParameterValue(
+				TEXT("EmissiveStrength"),
+				EmissiveStrength);
+		}
+
+		const float AngleDegrees =
+			(360.0f * static_cast<float>(SegmentIndex)) /
+				static_cast<float>(LevelUpWorldVfxSegments.Num()) +
+			LevelUpWorldVfxRotationDegrees;
+		const float AngleRadians = FMath::DegreesToRadians(AngleDegrees);
+		Segment->SetRelativeLocation(FVector(
+			FMath::Cos(AngleRadians) * LevelUpWorldVfxRadius,
+			FMath::Sin(AngleRadians) * LevelUpWorldVfxRadius,
+			GroundRelativeZ));
+		Segment->SetRelativeRotation(FRotator(0.0f, AngleDegrees + 90.0f, 0.0f));
+		Segment->SetRelativeScale3D(FVector(
+			SegmentLength / 100.0f,
+			LevelUpWorldVfxSegmentThickness / 100.0f,
+			1.0f));
+	}
+}
+
+void AEmbermereCharacter::ClearLevelUpWorldVfx()
+{
+	bLevelUpWorldVfxVisible = false;
+	LevelUpWorldVfxAgeSeconds = 0.0f;
+	LevelUpWorldVfxRotationDegrees = 0.0f;
+	LevelUpWorldVfxRadius = 0.0f;
+	LevelUpWorldVfxColor = FLinearColor::Transparent;
+	LevelUpWorldVfxLevelsGained = 0;
+	for (UStaticMeshComponent* Segment : LevelUpWorldVfxSegments)
+	{
+		if (Segment)
+		{
+			Segment->SetVisibility(false);
+			Segment->SetHiddenInGame(true);
+		}
+	}
+}
+
+bool AEmbermereCharacter::IsLevelUpWorldVfxVisible() const
+{
+	return bLevelUpWorldVfxVisible;
+}
+
+int32 AEmbermereCharacter::GetLevelUpWorldVfxSegmentCount() const
+{
+	return LevelUpWorldVfxSegments.Num();
+}
+
+int32 AEmbermereCharacter::GetVisibleLevelUpWorldVfxSegmentCount() const
+{
+	return bLevelUpWorldVfxVisible ? LevelUpWorldVfxSegments.Num() : 0;
+}
+
+bool AEmbermereCharacter::AreLevelUpWorldVfxSegmentsNonColliding() const
+{
+	if (LevelUpWorldVfxSegments.IsEmpty())
+	{
+		return false;
+	}
+
+	for (const UStaticMeshComponent* Segment : LevelUpWorldVfxSegments)
+	{
+		if (!Segment ||
+			Segment->GetCollisionEnabled() != ECollisionEnabled::NoCollision ||
+			Segment->CanEverAffectNavigation())
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+FLinearColor AEmbermereCharacter::GetLevelUpWorldVfxColor() const
+{
+	return LevelUpWorldVfxColor;
+}
+
+FString AEmbermereCharacter::GetLevelUpWorldVfxMaterialPath() const
+{
+	return LevelUpWorldVfxMaterialPath;
+}
+
+float AEmbermereCharacter::GetLevelUpWorldVfxRadius() const
+{
+	return LevelUpWorldVfxRadius;
+}
+
+float AEmbermereCharacter::GetLevelUpWorldVfxLifetimeSeconds() const
+{
+	return LevelUpWorldVfxLifetimeSeconds;
+}
+
+int32 AEmbermereCharacter::GetLevelUpWorldVfxLevelsGained() const
+{
+	return LevelUpWorldVfxLevelsGained;
+}
+
+void AEmbermereCharacter::BindLevelUpWorldVfx()
+{
+	if (!Stats)
+	{
+		return;
+	}
+
+	Stats->OnLevelChanged.RemoveDynamic(this, &AEmbermereCharacter::HandleLevelChangedForWorldVfx);
+	Stats->OnLevelChanged.AddUniqueDynamic(this, &AEmbermereCharacter::HandleLevelChangedForWorldVfx);
+}
+
+void AEmbermereCharacter::UnbindLevelUpWorldVfx()
+{
+	if (Stats)
+	{
+		Stats->OnLevelChanged.RemoveDynamic(this, &AEmbermereCharacter::HandleLevelChangedForWorldVfx);
+	}
+}
+
+void AEmbermereCharacter::EnsureLevelUpWorldVfxComponents()
+{
+	if (LevelUpWorldVfxSegments.Num() == LevelUpWorldVfxSegmentCount)
+	{
+		return;
+	}
+
+	for (UStaticMeshComponent* Segment : LevelUpWorldVfxSegments)
+	{
+		if (Segment)
+		{
+			Segment->DestroyComponent();
+		}
+	}
+	LevelUpWorldVfxSegments.Reset();
+	LevelUpWorldVfxMaterials.Reset();
+
+	UStaticMesh* SegmentMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Plane.Plane"));
+	UMaterialInterface* SegmentMaterial = LoadObject<UMaterialInterface>(
+		nullptr,
+		TEXT("/Game/Art/Embermere/Targeting/M_EmbermereTargetRing.M_EmbermereTargetRing"));
+	if (!SegmentMaterial)
+	{
+		SegmentMaterial = LoadObject<UMaterialInterface>(
+			nullptr,
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+	}
+	if (!SegmentMesh || !SegmentMaterial || !RootComponent)
+	{
+		return;
+	}
+	LevelUpWorldVfxMaterialPath = SegmentMaterial->GetPathName();
+
+	for (int32 SegmentIndex = 0; SegmentIndex < LevelUpWorldVfxSegmentCount; ++SegmentIndex)
+	{
+		UStaticMeshComponent* Segment = NewObject<UStaticMeshComponent>(
+			this,
+			*FString::Printf(TEXT("LevelUpWorldVfxSegment_%02d"), SegmentIndex),
+			RF_Transient);
+		if (!Segment)
+		{
+			continue;
+		}
+
+		Segment->SetStaticMesh(SegmentMesh);
+		Segment->SetMaterial(0, SegmentMaterial);
+		Segment->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Segment->SetGenerateOverlapEvents(false);
+		Segment->SetCanEverAffectNavigation(false);
+		Segment->SetCastShadow(false);
+		Segment->SetMobility(EComponentMobility::Movable);
+		Segment->SetTranslucentSortPriority(4);
+		Segment->SetVisibility(false);
+		Segment->SetHiddenInGame(true);
+		Segment->SetupAttachment(RootComponent);
+		AddInstanceComponent(Segment);
+		if (GetWorld())
+		{
+			Segment->RegisterComponent();
+		}
+		LevelUpWorldVfxSegments.Add(Segment);
+	}
+}
+
+FLinearColor AEmbermereCharacter::ResolveLevelUpWorldVfxColor() const
+{
+	switch (Class)
+	{
+	case EEmbermereClass::Cleric:
+		return FLinearColor(0.48f, 0.82f, 1.0f, 1.0f);
+	case EEmbermereClass::Ranger:
+		return FLinearColor(0.32f, 0.9f, 0.38f, 1.0f);
+	case EEmbermereClass::Wizard:
+		return FLinearColor(0.38f, 0.86f, 1.0f, 1.0f);
+	case EEmbermereClass::Warrior:
+	default:
+		return FLinearColor(1.0f, 0.5f, 0.08f, 1.0f);
+	}
+}
+
+void AEmbermereCharacter::HandleLevelChangedForWorldVfx(int32 PreviousLevel, int32 CurrentLevel)
+{
+	if (CurrentLevel <= PreviousLevel || !Stats || Stats->IsDead())
+	{
+		return;
+	}
+
+	EnsureLevelUpWorldVfxComponents();
+	if (LevelUpWorldVfxSegments.Num() != LevelUpWorldVfxSegmentCount)
+	{
+		ClearLevelUpWorldVfx();
+		return;
+	}
+
+	LevelUpWorldVfxAgeSeconds = 0.0f;
+	LevelUpWorldVfxRotationDegrees = 0.0f;
+	LevelUpWorldVfxRadius = LevelUpWorldVfxStartRadius;
+	LevelUpWorldVfxColor = ResolveLevelUpWorldVfxColor();
+	LevelUpWorldVfxLevelsGained = CurrentLevel - PreviousLevel;
+	bLevelUpWorldVfxVisible = true;
+	AdvanceLevelUpWorldVfx(0.0f);
 }
 
 void AEmbermereCharacter::UpdateStatusEffectVfx(float DeltaSeconds)

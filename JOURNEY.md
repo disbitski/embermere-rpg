@@ -2617,6 +2617,49 @@ Lesson: a disabled control and its explanation are one presentation contract.
 When authority changes, refresh both from the same current preflight; otherwise
 the UI can tell yesterday's truth beside today's valid action.
 
+## 2026-08-26 - A Level-Up Became History Only Once
+
+The level-gated trainer was technically complete, but its persistence promise
+still needed the hard version of the test. We confirmed Elf Wizard, completed
+Mara's existing reward flow, ran one real Advanced Combat Drills transaction,
+equipped the quest Recruit Pack, and saved through the visible Chronicle at
+exactly level `2`, `175` XP, and `40` copper. The slot also carried completed
+quest state, Wizard base and equipment stats, the Wizard hotbar, and untouched
+finite vendor stock.
+
+The load world was deliberately different: Dwarf Warrior, level `1`, `0` XP,
+`40` copper, no equipment. Chronicle showed both owners before mutation. Two
+confirmed loads each restored the exact Elf Wizard state without replaying the
+quest reward, duplicating the Recruit Pack bonus, serializing trainer selection,
+or drifting copper, XP, stats, stock, or abilities. That is much stronger than
+loading over a world that already looks like the save.
+
+With the durable boundary closed, progression gained one removable world
+observer. The same post-commit live level event that feeds the fixed HUD panel
+now creates twelve transient segments around the player's feet. They lazily use
+the project-owned emissive material, resolve orange-gold, blue-white, green, or
+cyan-blue from the confirmed class, expand and rotate for `1.6` seconds, then
+clear. They own no XP, thresholds, stats, rewards, collision, navigation, or
+save behavior, and silent load cannot replay them.
+
+Clean PIE reached Human Warrior level `2` through four real Combat Drills
+transactions and exposed all twelve orange-gold segments. Capturing that short
+first-person effect taught another practical lesson: an immediate pause
+preserved the geometry but also froze camera updates. Tiny global time dilation
+let the real camera tick after a keyword-constructed downward `Rotator` while
+the effect consumed almost no lifetime. The final frame showed a restrained,
+grounded circle clear of HUD and chat, and `I` still closed Inventory normally
+while it was active.
+
+The no-hot-reload build passed, all 72 automation tests passed, and the focused
+trainer validator, standalone progression validator, and sequential 15-package
+aggregate emitted their exact success markers without `LogPython: Error`. The
+world baseline remains 53 grounded Fab actors plus 23 original-art placements.
+
+Lesson: durable restoration and transient celebration should share an
+authoritative result, not a lifetime. Prove the former by replacing a genuinely
+different world; prove the latter on real ticks, then let it disappear.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

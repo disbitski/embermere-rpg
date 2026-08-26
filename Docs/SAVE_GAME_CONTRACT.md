@@ -158,9 +158,20 @@ Advanced Combat Drills therefore restores through the existing version-2
 wallet/XP records and derived-level resolver without a trainer record, reward
 replay, or schema expansion.
 
+The accepted 2026-08-26 integration proof exercised that richer boundary
+through the real Chronicle UI. An Elf Wizard completed Mara's authoritative
+quest reward, ran one real Advanced transaction, equipped the resulting Recruit
+Pack, and saved at exactly level `2`, `175` XP, and `40` copper with completed
+quest state and untouched finite vendor stock. A fresh Dwarf Warrior world
+proved level `1`, `0` XP, and `40` copper before two confirmed loads restored
+the exact Elf Wizard identity, base and equipment stats, Wizard hotbar, quest,
+stock, wallet, and XP. Neither load restored transient trainer selection or
+panel state, replayed the quest reward, duplicated equipment bonuses, expanded
+the schema, or drifted any owner.
+
 ## Prototype Commands
 
-The player-facing `Embermere Chronicle` opens with `M` or the top-center
+The player-facing `Embermere Chronicle` opens with `M` or the bottom-right
 Chronicle button. It is a fixed one-slot surface over `EmbermerePrototype`, user
 index `0`; it does not own serialization or mutate state while inspecting the
 slot.
@@ -226,6 +237,23 @@ The trainer helper also proves one transient offering remains available while
 inventory, equipment, quest, finite vendor stock, and buyback remain untouched.
 This is an integration proof over existing durable owners, not a new serialized
 trainer record.
+
+The accepted 2026-08-26 Advanced lane deliberately uses a richer, different-
+identity fixture:
+
+1. confirm Elf Wizard and run
+   `prepare_advanced_trainer_progression_for_chronicle()`;
+2. use Chronicle `Save Current`, then run
+   `validate_advanced_chronicle_slot_created()`;
+3. stop PIE, confirm Dwarf Warrior in a genuinely fresh world, and run
+   `validate_fresh_advanced_session_before_chronicle_load()`;
+4. confirm `Load Saved`, then run `validate_advanced_chronicle_load()`;
+5. confirm `Load Saved` a second time and run the same validation again.
+
+This lane proves exact identity, derived progression, class base stats,
+equipment, hotbar, completed quest, wallet, and finite stock together while
+still proving that offerings, selection, interaction, panel state, and buyback
+are transient.
 
 The accepted 2026-08-22 identity lane adds a deliberately different-state
 proof. Chronicle first inspected a preexisting malformed version-2 slot,

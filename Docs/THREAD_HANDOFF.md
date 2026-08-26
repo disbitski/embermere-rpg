@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-25
+Last updated: 2026-08-26
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -95,14 +95,16 @@ The project currently includes:
 - data-driven level progression that derives levels 1 through 5 from durable
   XP thresholds, combines validated race/class growth, rebuilds identity base
   stats atomically, applies equipment once, restores silently, and exposes
-  level read-only to HUD, Trainer, and Chronicle without saving it twice;
+  level read-only to HUD, Trainer, and Chronicle without saving it twice. One
+  removable live-only observer adds a class-colored twelve-segment ground
+  effect without owning progression, collision, navigation, or save state;
 - the first original rigged Marsh Prowler with six animations and
   asset-agnostic runtime presentation across all three saved enemy instances;
 - a fixed native pre-play character picker that presents all eight races and
   four classes, exposes disabled combinations, atomically applies data-driven
   starter stats/abilities once, restores the normal controller/HUD path, and
   feeds the confirmed identity into the version-2 persistence contract;
-- 71 passing Unreal automation tests plus fresh-process character-creation,
+- 72 passing Unreal automation tests plus fresh-process character-creation,
   derived-level progression, and
   character-identity persistence,
   combat-feedback,
@@ -111,9 +113,10 @@ The project currently includes:
   armsmaster-rig, quartermaster-rig, practice-dummy, trainer, vendor,
   UI-art/package, and
   saved-map validators, initialized-live-world route/collision traces,
-  measured live NPC Idle advancement, and accepted two-session Chronicle
-  proofs for both the full commerce/quest fixture and trainer-produced
-  progression.
+  measured live NPC Idle advancement, accepted two-session Chronicle proofs
+  for the full commerce/quest fixture, baseline trainer progression, and a
+  richer Advanced Combat Drills result, plus live normal-camera acceptance of
+  the class-colored level-up world effect.
 
 This is still prototype art. The first black-sky problem is corrected, but the
 scene remains mixed in style and is missing a cohesive fantasy village kit,
@@ -738,6 +741,11 @@ Current automation tests:
 65. `Embermere.Progression.LiveExperienceAndEquipment`
 66. `Embermere.Progression.RewardOwners`
 67. `Embermere.Progression.ValidationRollback`
+68. `Embermere.UI.ExperienceProgressPresentation`
+69. `Embermere.UI.LevelUpPresentation`
+70. `Embermere.Trainer.LevelGatedProgression`
+71. `Embermere.Trainer.LevelGatedPersistence`
+72. `Embermere.UI.LevelUpWorldVfxPresentation`
 
 Current verified baseline (2026-08-23):
 
@@ -1457,16 +1465,39 @@ field.
   15-package aggregate all passed with no `LogPython: Error` and retained the
   53 Fab plus 23 original-art baseline.
 
-The next bounded gate is a deliberate Chronicle round-trip after Advanced
-Combat Drills, proving the existing copper/XP owners restore twice with no
-trainer schema, replay, or drift. After that, prefer a restrained presentation-
-only level-up VFX/audio observer or the next cohesive Fenwatch village module.
+## 2026-08-26 Advanced Persistence And Level-Up World VFX Update
+
+- A clean Elf Wizard world completed Mara's authoritative reward, ran one real
+  Advanced Combat Drills transaction, equipped the quest Recruit Pack, and
+  saved through Chronicle at exact level `2`, `175` XP, and `40` copper.
+- A genuinely fresh Dwarf Warrior world proved level `1`, `0` XP, and `40`
+  copper before two confirmed Chronicle loads restored exact Elf Wizard
+  identity, base/equipment stats, Wizard hotbar, completed quest, untouched
+  finite vendor stock, wallet, and XP without replay, duplication, transient
+  trainer state, schema expansion, or drift.
+- The player now observes the existing post-commit live level event through
+  twelve lazily created project-material segments. They resolve color from the
+  confirmed class, expand and rotate for `1.6` seconds, remain non-colliding and
+  navigation-free, then clear on expiry, death, or teardown. Silent load never
+  broadcasts the event and cannot replay the effect.
+- Clean PIE used four real Combat Drills transactions to reach Human Warrior
+  level `2` at `100` XP, proved all twelve orange-gold segments, and visually
+  accepted their grounded first-person read plus Inventory-close handoff.
+- One focused test brought the suite to 72. The no-hot-reload build, complete
+  fresh commandlet, focused trainer validator, progression validator, and
+  15-package aggregate all passed with exact markers and no
+  `LogPython: Error`, retaining the 53 Fab plus 23 original-art baseline.
+
+The next bounded gate is a compact project-owned Fenwatch communal well through
+the reviewed deterministic Blender, classic `FbxFactory`, explicit package
+save, exact validator, native trace, and clean-PIE lane. Keep only the curb and
+supports purposefully solid and preserve every protected village route.
 
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-25 no-hot-reload level-gated trainer and progression-presentation
-module, serialized rules
+2026-08-26 no-hot-reload class-colored level-up world-VFX module plus the
+2026-08-25 level-gated trainer and progression-presentation module, serialized rules
 asset, accepted notice-board
 asset/map package,
 combat-feedback module, quest/map packages, all
@@ -1483,7 +1514,8 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 71 tests, including
+3. Run/discover all 72 tests, including
+   `Embermere.UI.LevelUpWorldVfxPresentation`,
    `Embermere.Progression.LevelRules`,
    `Embermere.Progression.LiveExperienceAndEquipment`,
    `Embermere.Progression.RewardOwners`,
@@ -1759,6 +1791,7 @@ Start by reading, in order:
 11. Docs/PRACTICE_TARGET_CONTRACT.md
 12. Docs/COMBAT_FEEDBACK_CONTRACT.md
 13. Docs/CHARACTER_CREATION_CONTRACT.md
+14. Docs/LEVEL_PROGRESSION_CONTRACT.md
 
 Then inspect git status and recent commits. Preserve the existing unstaged Config/DefaultEngine.ini and Config/DefaultInput.ini changes; do not stage, revert, or overwrite them unless we intentionally decide they are required.
 
@@ -1769,8 +1802,9 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-25 no-hot-reload
-level-gated trainer and progression-presentation module, serialized rules asset, character-identity
+Follow TODO.md's Start Here section. Confirm the 2026-08-26 no-hot-reload
+class-colored level-up world-VFX module, level-gated trainer and
+progression-presentation module, serialized rules asset, character-identity
 persistence and quest/map packages, the accepted notice-board,
 vendor-stall,
 cottage, training-workshop, practice-dummy, and native practice-target map packages,
@@ -1780,7 +1814,8 @@ bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 71 tests, including the four progression tests,
+route-repair map, then run all 72 tests, including the class-colored level-up
+world-VFX presentation test, the four progression tests,
 the four character-creation lifecycle/restriction/loadout tests, the three
 character-identity persistence tests, combat-result and floating-feedback
 presentation, the two practice-target policy/combat-reset tests,
@@ -1877,9 +1912,10 @@ plain `M`, exact slot summary, overwrite/load confirmations and cancel paths,
 empty/rejected feedback, mutually exclusive panel handoff, and console-command
 fallbacks over the same atomic contract. Retain both wrapper production
 skeletal/Idle lanes and the accepted vendor and trainer ownership contracts.
-First prove
-the accepted trainer-produced 30-copper/25-XP Chronicle state remains exact in
-a fresh PIE world and a second idempotent load without adding trainer-specific
+Retain both accepted trainer Chronicle lanes: the baseline `30`-copper/`25`-XP
+state and the richer Elf Wizard Advanced state at level `2`, `175` XP, `40`
+copper, equipped Recruit Pack, completed quest, and untouched finite stock.
+Each fresh-world second load must remain exact without trainer-specific
 serialized state.
 Then retain grounded normal-camera keeper, armsmaster, and quartermaster
 motion, clear markers/routes, advancing animation clocks, and all three static
@@ -1908,19 +1944,19 @@ hotbars, one-shot confirmation, and controller input/HUD handoff. Retain the
 accepted derived-level contract: thresholds `0/100/250/450/700`, level-5 cap,
 rules-owned race/class growth, candidate-level equipment validation, silent
 idempotent restore, and no serialized level. Retain the fixed XP/level-up
-presentation and the two-offering level-gated trainer. First round-trip an
-Advanced Combat Drills result through Chronicle twice, proving only existing
-copper and XP state is durable. Then choose a restrained presentation-only
-level-up VFX/audio observer or the next cohesive Fenwatch module. Do not add
-naming, appearance, autosave, profiles, deletion, or implicit migration in
-that slice.
+presentation, the twelve-segment class-colored live world effect, and the two-
+offering level-gated trainer. Build a compact project-owned Fenwatch communal
+well next through the reviewed Blender/classic-FBX/import/save/validation lane,
+keeping only purposeful curb/support collision and every protected route clear.
+Do not add naming, appearance, autosave, profiles, deletion, or implicit
+migration in that slice.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
 Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
-current commit, 71-test and 15-validator baseline, accepted character creation,
-v2 identity persistence, derived-level progression, level-gated trainer, and
-next bounded milestone
+current commit, 72-test and 15-validator baseline, accepted character creation,
+v2 identity persistence, derived-level progression, level-gated trainer,
+Advanced Chronicle proof, class-colored world VFX, and next bounded milestone
 before ending the run.
 ```
 

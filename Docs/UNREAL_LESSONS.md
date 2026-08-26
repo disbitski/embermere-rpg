@@ -1502,3 +1502,46 @@ rejection. Refreshing only control availability had left explanation text on a
 different clock. Recompute the control, detail, tooltip, and status sentence
 from the same current preflight whenever an authority input changes. A valid
 action beside stale rejection copy is still a broken interface.
+
+## Make Current And Saved Worlds Deliberately Disagree
+
+A persistence proof is weak when the fresh world already resembles the slot.
+The Advanced Combat Drills lane saved an Elf Wizard with level-2 growth, a
+Wizard hotbar, equipped gear, completed quest, and one stock state, then began
+the load world as an unequipped level-1 Dwarf Warrior. Chronicle displayed both
+identities before mutation, and two loads had to replace every durable owner
+with the exact saved result.
+
+Choose fixtures that disagree across identity, progression, equipment, quest,
+wallet, and stock wherever the contract owns those values. Validate transient
+state separately and require it to stay fresh. A deliberately different world
+turns a successful load from "the numbers still look plausible" into evidence
+that the correct owners were actually replaced.
+
+## Separate Delegate Wiring From Spawned-Lifecycle Proof
+
+A bare `NewObject<ACharacter>` fixture is useful for deterministic geometry and
+teardown assertions, but it is not a substitute for a spawned actor entering
+`BeginPlay`, ticking in a real world, and receiving a live dynamic delegate.
+The level-up world-effect test therefore locks delegate bind/unbind, class
+palette, segment geometry, lifetime, collision, death clearing, and silent-load
+exclusion in automation, while clean PIE proves a real Trainer transaction
+reaches the possessed character and renders the effect.
+
+Name which layer each test proves. Unit-style fixtures should not imply that
+world lifecycle happened; live acceptance should not be the only place where
+deterministic geometry and teardown rules exist.
+
+## Slow Time When A Transient Frame Still Needs Camera Ticks
+
+Pausing a short-lived effect immediately preserves it, but a control-rotation
+change made afterward may not reach the player camera while the world is
+frozen. Blocking the game thread is not a solution. For the level-up capture,
+the accepted sequence set a tiny global time dilation, unpaused, applied a
+keyword-constructed control rotation, and let normal camera ticks advance while
+the 1.6-second effect consumed almost no game time.
+
+Use named `Rotator` fields in Unreal Python; positional construction can map to
+an unexpected field order and produce a rolled or inverted view. More broadly,
+preserve transient evidence by slowing simulation, not by starving the ticks
+needed to compose the evidence.

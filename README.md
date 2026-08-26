@@ -83,7 +83,8 @@ The repo currently contains the C++ gameplay scaffold for:
   cumulative thresholds for levels 1 through 5, distinct race/class growth,
   atomic identity-base recomputation, one additive equipment layer, exact live
   level-up feedback, silent idempotent load, a fixed next-threshold XP bar, a
-  live-only multi-level-aware celebration panel, and read-only HUD/Chronicle
+  live-only multi-level-aware celebration panel, a class-colored twelve-segment
+  ground effect that tears down after `1.6` seconds, and read-only HUD/Chronicle
   presentation without serializing duplicate level state or calculating level
   inside UMG
 - a real native pre-play character picker over the data-driven rules matrix:
@@ -331,7 +332,10 @@ rewritten. Level remains derived from XP rather than serialized: the first
 rules-owned curve reaches level 2 at `100` XP and caps at level 5 at `700`,
 then combines race/class growth before applying equipment once. Trainer and
 Mara still own only their XP grants; HUD and Chronicle consume the resulting
-level read-only. See
+level read-only. A second removable observer consumes only the post-commit live
+transition and briefly expands twelve project-material segments around the
+player's feet; it owns no progression, collision, navigation, or persistence
+state and never replays on load. See
 [Docs/LEVEL_PROGRESSION_CONTRACT.md](Docs/LEVEL_PROGRESSION_CONTRACT.md).
 
 The NPC wrapper's skeletal/Idle lane is now in production on three matching
@@ -352,5 +356,9 @@ Its data-driven training list now keeps repeatable level-1 Combat Drills at
 at `20` copper for `50` XP. Locked lessons remain visible with service-owned
 rejection copy, then refresh immediately when the Stats-derived level changes,
 without moving progression or interaction authority into the model or UMG.
+The richer persistence gate now saves a real Advanced result through Chronicle,
+starts a fresh world with a deliberately different identity, and restores the
+exact identity, stats, equipment, hotbar, quest, stock, copper, and XP twice
+without trainer-specific schema or drift.
 Autosave, deletion, multiple profiles, migrations, and position persistence
 remain later product decisions.

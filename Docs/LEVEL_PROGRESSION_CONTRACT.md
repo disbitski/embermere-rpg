@@ -115,6 +115,21 @@ unchanged.
 - The observer listens only to the post-commit live level-transition event.
   Save restoration does not broadcast that event, so load cannot replay the
   celebration even when the restored identity implies a different level.
+- A second removable world observer on the player consumes that same live-only
+  event. It creates twelve transient project-material segments only when a
+  level is actually gained, resolves color from the confirmed class, expands
+  for `1.6` seconds, and then tears down. Its geometry is NoCollision, does not
+  affect navigation, and owns no XP, level, stats, abilities, rewards, audio,
+  save data, or load behavior.
+- World segments remain uncreated during normal play until the first live
+  level-up. Silent restore, rollback, death, observer unbinding, and world
+  teardown cannot leave them visible. Multi-level grants change only the
+  presentation span; they do not add another gameplay mutation.
+- The accepted Warrior PIE probe reached level `2` through four real Combat
+  Drills transactions, exposed all twelve orange-gold segments, and paused the
+  live frame for normal-camera inspection. The ring read cleanly on the village
+  road beneath the first-person camera, remained clear of the HUD and chat, and
+  did not interfere with the normal Inventory-close input handoff.
 - Trainer requirements continue to read the same derived Stats level.
 - Chronicle adds the derived level to its read-only identity summary.
 - Exact XP and level-up chat remains the durable fallback.
@@ -139,6 +154,9 @@ unchanged.
   normalization, and explicit cap copy.
 - Multi-level transient copy, fixed geometry, deterministic expiry, teardown,
   and silent save restoration.
+- Twelve-segment world geometry, class palette, exact multi-level
+  span, NoCollision/navigation exclusion, deterministic `1.6` second lifetime,
+  death clearing, observer teardown, and silent-load exclusion.
 
 ## Deferred
 

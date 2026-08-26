@@ -127,6 +127,39 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Status Effects")
 	float GetStatusEffectVfxRelativeHeight() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Presentation|Progression")
+	void AdvanceLevelUpWorldVfx(float DeltaSeconds);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|Presentation|Progression")
+	void ClearLevelUpWorldVfx();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Progression")
+	bool IsLevelUpWorldVfxVisible() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Progression")
+	int32 GetLevelUpWorldVfxSegmentCount() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Progression")
+	int32 GetVisibleLevelUpWorldVfxSegmentCount() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Progression")
+	bool AreLevelUpWorldVfxSegmentsNonColliding() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Progression")
+	FLinearColor GetLevelUpWorldVfxColor() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Progression")
+	FString GetLevelUpWorldVfxMaterialPath() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Progression")
+	float GetLevelUpWorldVfxRadius() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Progression")
+	float GetLevelUpWorldVfxLifetimeSeconds() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Presentation|Progression")
+	int32 GetLevelUpWorldVfxLevelsGained() const;
+
 	virtual bool IsAlive_Implementation() const override;
 	virtual bool IsHostileTo_Implementation(const AActor* Viewer) const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
@@ -136,6 +169,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
@@ -150,6 +184,13 @@ protected:
 	void UpdateStatusEffectVfx(float DeltaSeconds);
 	float ResolveStatusEffectVfxRadius(bool bBeneficial) const;
 	float ResolveStatusEffectVfxHeightOffset() const;
+	void BindLevelUpWorldVfx();
+	void UnbindLevelUpWorldVfx();
+	void EnsureLevelUpWorldVfxComponents();
+	FLinearColor ResolveLevelUpWorldVfxColor() const;
+
+	UFUNCTION()
+	void HandleLevelChangedForWorldVfx(int32 PreviousLevel, int32 CurrentLevel);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Presentation|Status Effects")
 	TArray<TObjectPtr<UStaticMeshComponent>> StatusEffectVfxSegments;
@@ -164,6 +205,24 @@ protected:
 	bool bStatusEffectVfxVisible = false;
 	bool bStatusEffectVfxBeneficial = false;
 
+	UPROPERTY(VisibleAnywhere, Transient, Category = "Presentation|Progression")
+	TArray<TObjectPtr<UStaticMeshComponent>> LevelUpWorldVfxSegments;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UMaterialInstanceDynamic>> LevelUpWorldVfxMaterials;
+
+	float LevelUpWorldVfxAgeSeconds = 0.0f;
+	float LevelUpWorldVfxRotationDegrees = 0.0f;
+	float LevelUpWorldVfxRadius = 0.0f;
+	FLinearColor LevelUpWorldVfxColor = FLinearColor::Transparent;
+	FString LevelUpWorldVfxMaterialPath;
+	int32 LevelUpWorldVfxLevelsGained = 0;
+	bool bLevelUpWorldVfxVisible = false;
+
 	UFUNCTION()
 	void HandleEquipmentChanged();
+
+#if WITH_DEV_AUTOMATION_TESTS
+	friend class FEmbermereLevelUpWorldVfxPresentationTest;
+#endif
 };

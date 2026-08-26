@@ -6,7 +6,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-25 no-hot-reload level-gated trainer,
+- Confirm Unreal is running the 2026-08-26 no-hot-reload class-colored level-up
+  world-VFX module plus the 2026-08-25 level-gated trainer,
   progression-presentation, post-creation input, and Chronicle current/saved-state module plus the
   accepted derived-level module and serialized
   `DA_EmbermereRules` thresholds/growth,
@@ -17,11 +18,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 71 Embermere tests.
+  predates that work or test discovery exposes fewer than 72 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 71 tests, especially
+- Discover and run all 72 tests, especially
+  `Embermere.UI.LevelUpWorldVfxPresentation`,
   `Embermere.UI.ExperienceProgressPresentation`,
   `Embermere.UI.LevelUpPresentation`,
   `Embermere.Progression.LevelRules`,
@@ -70,13 +72,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative
-  latest 2026-08-25 no-hot-reload build and isolated commandlet passed 71/71,
+  latest 2026-08-26 no-hot-reload build and isolated commandlet passed 72/72,
   including the idempotent character-creation input lock, bottom-right
   Chronicle command geometry, live Dwarf Warrior identity, and fixed current-
   versus-saved Chronicle layout; the
   standalone progression validator and fresh 15-package aggregate passed with
   explicit success markers while retaining 53 grounded Fab plus 23 original-
-  art actors.
+  art actors. Clean two-world PIE also accepted the Advanced Combat Drills
+  Chronicle round-trip and the live twelve-segment Warrior level-up effect.
 - Retain the accepted character-creation authority and lifecycle contract:
   - the centered fixed `940x560` modal shows all eight races and four classes
     before gameplay while the normal HUD remains hidden;
@@ -155,6 +158,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     `2.75`-second lifetime for one-level or multi-level live transitions;
   - exact chat remains the durable fallback, and silent load updates steady
     state without broadcasting or replaying transient celebration;
+  - the player also observes that same post-commit live-only transition through
+    twelve transient project-material ground segments. They resolve color from
+    the confirmed class, expand and rotate for `1.6` seconds, remain
+    `NoCollision` and navigation-free, then clear on expiry, death, or teardown;
+  - clean PIE used four real Combat Drills transactions to reach Human Warrior
+    level `2` at `100` XP, proved all twelve orange-gold segments live, and
+    visually accepted their readable ground contact beneath the first-person
+    camera with Inventory both open and closed;
   - Trainer, Mara, rules, Stats, equipment, rewards, and persistence retain all
     existing authority.
 - Retain the accepted Fenwatch practice-target split:
@@ -277,6 +288,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   remained exactly `30`/`25` with no items, equipment, quest, vendor-stock, or
   buyback mutation. Trainer offerings, selection, panel state, and interaction
   remain transient, and save version 1 gained no trainer-specific field.
+- Retain the accepted Advanced Combat Drills Chronicle proof. One Elf Wizard
+  world completed Mara's authoritative reward flow, ran one real Advanced transaction,
+  equipped the quest Recruit Pack, and saved through the visible Chronicle at
+  exactly level `2`, `175` XP, and `40` copper with completed quest state and
+  untouched finite vendor stock. A genuinely fresh Dwarf Warrior world began
+  at level `1`, `0` XP, and `40` copper before two confirmed Chronicle loads
+  restored the exact Elf Wizard identity, base/equipment stats, Wizard hotbar,
+  quest, stock, copper, and XP without reward replay, duplicate bonuses,
+  transient trainer state, schema expansion, or drift.
 - Retain the accepted player-facing Chronicle. `M` opens a centered `500x320`
   one-slot panel while `Ctrl+M` still toggles mouse inversion. A distinct
   `Current Journey` row reads the live possessed character; the separately
@@ -473,13 +493,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor packages. Prefer replacing affected meshes with project-owned Blender
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
-  1. retain the accepted two-offering Fenwatch trainer in clean PIE: exact
-     level-1 lock and zero mutation, live level-2 unlock without stale copy,
-     exact `20`-copper/`50`-XP transaction, authored repeatability, insufficient-
-     funds rollback, and Inventory/Chronicle/input handoff;
-  2. run the deliberate Chronicle round-trip after Advanced Combat Drills and
-     prove only the existing durable copper/XP owners restore twice without
-     trainer-specific schema, replay, or drift;
+  1. retain the accepted Advanced Chronicle proof: deliberately different live
+     and saved identities, one real Advanced transaction, exact version-2 owner
+     restoration, and a second idempotent load with no transient trainer state;
+  2. retain the accepted class-colored level-up world observer: twelve
+     non-colliding segments, live-event-only activation, fixed `1.6`-second
+     teardown, chat/HUD coexistence, and no replay on load. Sample Cleric,
+     Ranger, and Wizard palettes in PIE only if a normal-camera issue is
+     suspected; do not duplicate the authoritative event or progression math;
   3. retain the accepted practice-target loop in clean PIE: art/gameplay split,
      stationary transform, real hotbar damage, immediate target clear, exact
      three-second reset, and zero retaliation/reward/quest mutation;
@@ -502,18 +523,21 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
      `F`, dialogue, marker, quest mutation, rewards, vendor, or trainer logic;
   9. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete issue;
-  10. consider a restrained class-specific level-up VFX/audio observer or the
-     next cohesive Fenwatch module only after the trainer persistence sweep;
-     keep both presentation-only and preserve the accepted authority contracts.
+  10. build the next cohesive project-owned Fenwatch module, preferably a
+      compact communal well through the deterministic Blender/classic-
+      `FbxFactory`/explicit-save/validator/live-trace lane. Keep the well
+      presentation-only, make only the curb/supports purposefully solid, and
+      preserve Mara, vendor, trainer, PlayerStart, and all protected routes.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-25
-  level-gated trainer/progression module, character-identity persistence,
+- Restart Unreal before manual PIE when the editor predates the 2026-08-26
+  level-up world-VFX module and 2026-08-25 level-gated trainer/progression
+  module, character-identity persistence,
   rigged Fenwatch keeper, armsmaster, and
   quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 71 tests.
+  Current code passes all 72 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -1048,6 +1072,26 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Last Completed
 
+- 2026-08-26: completed the deliberate Advanced Combat Drills persistence gate
+  through the real Chronicle UI. An Elf Wizard completed Mara's owner-driven
+  reward, trained once through Advanced, equipped the Recruit Pack, and saved
+  exact level-2 `175` XP / `40` copper state. A fresh Dwarf Warrior world then
+  loaded that slot twice, restoring exact identity, Wizard hotbar, base and
+  equipment stats, completed quest, untouched finite stock, copper, and XP
+  without reward replay, transient trainer serialization, duplication, or
+  drift.
+- Added a removable class-colored world observer to the existing post-commit
+  live level event. It lazily creates twelve project-material segments, expands
+  and rotates for `1.6` seconds, owns no progression state, collision, or
+  navigation, and cannot replay on silent load. Clean PIE accepted the
+  orange-gold Warrior treatment after four real Combat Drills transactions;
+  tilting the live first-person view confirmed grounded readability and the
+  normal Inventory-close handoff while the effect was active.
+- Added `Embermere.UI.LevelUpWorldVfxPresentation` plus tracked live validation
+  helpers. The no-hot-reload build, all 72 tests, focused trainer validator,
+  standalone progression validator, and full 15-package aggregate passed with
+  exact markers and no `LogPython: Error`, retaining 53 grounded Fab plus 23
+  original-art actors.
 - 2026-08-25: expanded `DA_FenwatchArmsmasterOfferings` from one lesson to two
   stable-ID, data-driven, repeatable lessons. Combat Drills remains level 1 at
   `10` copper for `25` XP; Advanced Combat Drills is level 2 at `20` copper for
