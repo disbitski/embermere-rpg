@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-26
+Last updated: 2026-08-27
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -1488,15 +1488,43 @@ field.
   15-package aggregate all passed with exact markers and no
   `LogPython: Error`, retaining the 53 Fab plus 23 original-art baseline.
 
-The next bounded gate is a compact project-owned Fenwatch communal well through
-the reviewed deterministic Blender, classic `FbxFactory`, explicit package
-save, exact validator, native trace, and clean-PIE lane. Keep only the curb and
-supports purposefully solid and preserve every protected village route.
+## 2026-08-27 Fenwatch Communal-Well Update
+
+- `Scripts/blender/build_embermere_fenwatch_communal_well.py` produces the
+  grounded `SM_EmbermereFenwatchCommunalWell_01` at
+  `348 x 220 x 322` cm, 6,760 triangles, one UV channel, clean topology, and
+  five shared Fenwatch stone, moss, timber, iron, and ember materials.
+- Four curb sections and two uprights own the only six UBX collision boxes.
+  The open shaft, roof, axle, rope, bucket, crank, trim, and crest remain
+  decorative and non-colliding.
+- Classic `FbxFactory` import explicitly saved the mesh and map and placed
+  `Embermere_FenwatchCommunalWell_SouthCommons_01` at
+  `(-950, -1600, 0)`, yaw `-135`, as presentation-only project-owned art.
+- Focused and full-zone validation lock classic-FBX provenance, exact bounds,
+  topology, materials, collider count, transform, tag, collision profile, and
+  spacing from Mara, PlayerStart, the quartermaster, armsmaster, practice
+  dummy, workshop, and vendor stall. Initialized-world traces prove all six
+  purposeful surfaces solid, all decorative/open-shaft samples clear, and six
+  village or service circulation lanes open.
+- Clean PIE accepted the grounded south-commons composition. Character
+  creation confirmed, Inventory closed cleanly, Q moved from
+  `(-2400, -1200)` to `(-1793.188, -831.382)`, and W stopped all later
+  movement. The no-hot-reload build, all 72 isolated tests, focused trainer
+  validator, progression validator, and fresh 16-package aggregate passed with
+  exact markers and no `LogPython: Error`.
+
+The current map baseline is 53 grounded Fab actors plus 24 original-art
+placements. The next bounded gate should define a separate art-free well/rest
+service with explicit recovery, resource, cooldown, UI, and rollback rules if
+that interaction genuinely improves the playable loop. Otherwise add one
+smaller matching Fenwatch prop. The well mesh itself must remain removable and
+free of interaction, recovery, reward, quest, or persistence authority.
 
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-26 no-hot-reload class-colored level-up world-VFX module plus the
+2026-08-27 no-hot-reload base module plus the accepted communal-well asset/map
+package, the 2026-08-26 class-colored level-up world-VFX module, and the
 2026-08-25 level-gated trainer and progression-presentation module, serialized rules
 asset, accepted notice-board
 asset/map package,
@@ -1629,7 +1657,7 @@ First fresh-session checks:
    - the vendor stall at `(-1530, -1430, 0)`, yaw `180`, with a customer-facing
      counter, four solid supports, clear service approach and east bypass, and
      unchanged normal-`F` Fenwatch Supplies ownership on the art-free service;
-   - 53 grounded upright Fab actors plus 23 original placements from the
+   - 53 grounded upright Fab actors plus 24 original placements from the
      waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
      quartermaster/armsmaster/vendor-stall/practice-dummy/cottage/workshop/
      notice-board/reed family;
@@ -1859,9 +1887,10 @@ feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy
 nameplate, bounds-aware surface-traced cyan-blue target circle, quest/reward
 loop, enemy
 leash, respawn protection, chat clipping, atmospheric daylight and the
-38-expression moss/earth road, 53 grounded upright Fab actors, and all 23
+38-expression moss/earth road, 53 grounded upright Fab actors, and all 24
 original-art placements including the vendor stall, closed west cottage,
-open-front training workshop, roadside notice board, four
+open-front training workshop, roadside notice board, south-commons communal
+well, four
 `NoCollision` reed clusters, the
 open-sided Fenwatch shelter at `(-1740, -700, 0)`, yaw `-64`, and the
   grounded front-facing non-colliding rigged Mara keeper wrapper with its
@@ -1945,16 +1974,17 @@ accepted derived-level contract: thresholds `0/100/250/450/700`, level-5 cap,
 rules-owned race/class growth, candidate-level equipment validation, silent
 idempotent restore, and no serialized level. Retain the fixed XP/level-up
 presentation, the twelve-segment class-colored live world effect, and the two-
-offering level-gated trainer. Build a compact project-owned Fenwatch communal
-well next through the reviewed Blender/classic-FBX/import/save/validation lane,
-keeping only purposeful curb/support collision and every protected route clear.
+offering level-gated trainer. Retain the accepted communal well at its exact
+south-commons transform, with only purposeful curb/upright collision and every
+protected route clear. Define any future well/rest interaction on a separate
+art-free service before implementation; the mesh must remain removable.
 Do not add naming, appearance, autosave, profiles, deletion, or implicit
 migration in that slice.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
 Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
-current commit, 72-test and 15-validator baseline, accepted character creation,
+current commit, 72-test and 16-validator baseline, accepted character creation,
 v2 identity persistence, derived-level progression, level-gated trainer,
 Advanced Chronicle proof, class-colored world VFX, and next bounded milestone
 before ending the run.

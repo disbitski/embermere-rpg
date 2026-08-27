@@ -11,6 +11,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 VALIDATOR_MODULES = (
     "validate_embermere_ui_icons_unreal",
     "validate_fenwatch_armsmaster_rig_unreal",
+    "validate_fenwatch_communal_well_unreal",
     "validate_fenwatch_cottage_unreal",
     "validate_fenwatch_keeper_greeting_unreal",
     "validate_fenwatch_keeper_rig_unreal",

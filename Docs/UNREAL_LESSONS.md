@@ -1545,3 +1545,27 @@ Use named `Rotator` fields in Unreal Python; positional construction can map to
 an unexpected field order and produce a rolled or inverted view. More broadly,
 preserve transient evidence by slowing simulation, not by starving the ticks
 needed to compose the evidence.
+
+## Measure Empty Space And Validate Both Solids And Voids
+
+A visually open patch of level is not automatically available for a new
+building. It may carry a protected route, service approach, sightline, or
+camera composition that is easy to miss in one viewport. Before authoring the
+Fenwatch communal well, we queried the saved actor layout, measured the nearby
+Mara, PlayerStart, vendor, trainer, workshop, and practice-yard anchors, and
+chose the transform from those constraints rather than from an attractive
+screenshot.
+
+Collision acceptance also needs paired assertions. Positive traces should hit
+every surface the player expects to be solid; negative traces should clear the
+openings and decoration that must remain traversable or presentation-only. The
+well therefore has six purposeful UBX boxes on four curb sections and two
+uprights, while its open shaft, roof, axle, rope, bucket, crank, trim, and crest
+remain clear. Separate route traces protect the larger circulation contract.
+
+Lock the same facts at three layers: a saved-package validator for provenance,
+bounds, materials, collider count, tag, and transform; initialized-world traces
+for solids, voids, and neighboring routes; and clean PIE for normal-camera
+readability and actual movement. Keep civic art removable and free of quest,
+service, recovery, reward, or persistence authority unless a separate gameplay
+owner is deliberately designed.

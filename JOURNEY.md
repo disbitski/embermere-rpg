@@ -2660,6 +2660,34 @@ Lesson: durable restoration and transient celebration should share an
 authoritative result, not a lifetime. Prove the former by replacing a genuinely
 different world; prove the latter on real ticks, then let it disappear.
 
+## 2026-08-27 - The Village Gained A Center Without Losing Its Paths
+
+Fenwatch had shelters, a cottage, a workshop, service stalls, and a notice
+board, but the southern commons still read as leftover space. We used the
+actual saved actor layout instead of guessing from a screenshot, selected
+`(-950, -1600, 0)` as a measured opening, and built a roofed communal well to
+give that space a civic center.
+
+The deterministic Blender script produced a grounded `348 x 220 x 322` cm
+mesh with 6,760 triangles, five shared Fenwatch materials, one UV channel, and
+clean topology. Six UBX boxes make only the four curb sections and two uprights
+solid. The open shaft, roof, axle, rope, bucket, crank, trim, and ember crest
+remain decorative. Classic `FbxFactory` import explicitly saved both the mesh
+and map, then focused validation rejected any drift in provenance, dimensions,
+materials, collision, transform, tag, or protected neighbor spacing.
+
+The useful proof was not one pretty frame. Positive traces hit every surface a
+player expects to be solid; negative traces cleared the shaft and decoration;
+route traces protected Mara, the road, both service approaches, the vendor
+bypass, and workshop circulation. Clean PIE then confirmed the grounded read,
+normal Inventory handoff, Q movement, and W autorun cancellation. The
+no-hot-reload build, all 72 tests, and the fresh 16-package chain passed while
+the map advanced to 53 grounded Fab actors plus 24 original-art placements.
+
+Lesson: apparently empty world space is not necessarily available space. Pick
+architecture from measured neighbors and protected movement lanes, then make
+it prove both where collision exists and where it must not.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

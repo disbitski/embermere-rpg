@@ -6,8 +6,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-26 no-hot-reload class-colored level-up
-  world-VFX module plus the 2026-08-25 level-gated trainer,
+- Confirm Unreal is running the 2026-08-27 no-hot-reload base module plus the
+  accepted Fenwatch communal-well asset/map package, the 2026-08-26
+  class-colored level-up world-VFX module, and the 2026-08-25 level-gated trainer,
   progression-presentation, post-creation input, and Chronicle current/saved-state module plus the
   accepted derived-level module and serialized
   `DA_EmbermereRules` thresholds/growth,
@@ -72,12 +73,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative
-  latest 2026-08-26 no-hot-reload build and isolated commandlet passed 72/72,
+  latest 2026-08-27 no-hot-reload build and isolated commandlet passed 72/72,
   including the idempotent character-creation input lock, bottom-right
   Chronicle command geometry, live Dwarf Warrior identity, and fixed current-
   versus-saved Chronicle layout; the
-  standalone progression validator and fresh 15-package aggregate passed with
-  explicit success markers while retaining 53 grounded Fab plus 23 original-
+  standalone progression validator and fresh 16-package aggregate passed with
+  explicit success markers while retaining 53 grounded Fab plus 24 original-
   art actors. Clean two-world PIE also accepted the Advanced Combat Drills
   Chronicle round-trip and the live twelve-segment Warrior level-up effect.
 - Retain the accepted character-creation authority and lifecycle contract:
@@ -339,7 +340,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - all three saved map instances retain the skeletal mesh and animation set,
     not only the Blueprint CDO.
 - Recheck the completed grounding pass:
-  - 53 grounded upright `FabPass_` actors and 23 original-art placements;
+  - 53 grounded upright `FabPass_` actors and 24 original-art placements;
   - all ordinary art that previously sat at `Z=20` now rests at `Z=0`;
   - the unsupported SoulCave arch/pillar accents and three enemy marker meshes
     remain removed;
@@ -968,6 +969,15 @@ targeting, rewards, AI, quests, or persistence.
   materials, three purposeful colliders, decorative clearance, grounded road
   composition, and four protected routes. Do not make the mesh itself a quest,
   interaction, vendor, trainer, reward, or persistence authority.
+- Retain `Embermere_FenwatchCommunalWell_SouthCommons_01` as presentation-only
+  world art at `(-950, -1600, 0)`, yaw `-135`: exact `348 x 220 x 322` cm
+  bounds, 6,760 triangles, five shared Fenwatch materials, six authored boxes
+  on the four curb sections and two uprights, and `NoCollision` roof, axle,
+  rope, bucket, crank, trim, and crest. Preserve the open shaft read, grounded
+  contact, all seven protected neighbor spacings, and the PlayerStart-to-Mara,
+  village-to-road, quartermaster, vendor-bypass, armsmaster, and workshop
+  circulation traces. The art owns no quest, interaction, reward, service, or
+  persistence behavior.
 - Retain the accepted save version `2` character-identity contract: stable
   race/class IDs, current-rules legality validation, atomic class-stat and
   starter-hotbar restoration, repeated-load idempotence, read-only Chronicle
@@ -990,11 +1000,14 @@ targeting, rewards, AI, quests, or persistence.
     load restores the steady XP surface without replaying celebration;
   - keep the Stats snapshot, live-only level event, exact chat fallback, fixed
     geometry, multi-level/cap behavior, and every existing authority boundary.
-- After visual acceptance, choose the next bounded player-progression slice:
-  prefer a small data-driven level requirement/reward extension that uses the
-  existing derived-level contract, or a restrained project-owned world module.
-  Do not add duplicate durable level state, talents, ability unlocks, or a save
-  migration without a separate contract and tests.
+- After retaining the well in clean PIE, define the next bounded gameplay
+  contract before implementation. Prefer a separate art-free well/rest service
+  that can offer one explicit, data-driven recovery action with complete
+  resource/cooldown preflight, fixed native feedback, and focused rollback
+  tests while leaving all art removable. If that is not yet a useful gameplay
+  step, build one compact matching Fenwatch prop instead. Do not put
+  interaction or recovery authority on the static mesh, add duplicate durable
+  state, or expand save version `2` implicitly.
 - Retain the accepted trainer Chronicle proof under save version `2`:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
@@ -1072,6 +1085,25 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Last Completed
 
+- 2026-08-27: built `SM_EmbermereFenwatchCommunalWell_01` through the reviewed
+  deterministic Blender and classic-`FbxFactory` lane. The grounded
+  `348 x 220 x 322` cm mesh has 6,760 triangles, one UV channel, clean
+  topology, five shared Fenwatch materials, and six authored curb/upright
+  collision boxes; roof, axle, rope, bucket, crank, trim, and crest remain
+  decorative and non-colliding.
+- Explicit import saved the mesh and map and placed
+  `Embermere_FenwatchCommunalWell_SouthCommons_01` at
+  `(-950, -1600, 0)`, yaw `-135`. Focused package validation, full-zone
+  validation, and initialized-world traces locked its provenance, exact
+  metrics, transform, art-only tag, collision intent, protected neighbor
+  spacing, and six clear village/service circulation lanes. Clean PIE accepted
+  the grounded south-commons composition; Q moved from `(-2400, -1200)` to
+  `(-1793.188, -831.382)` and W stopped all later autorun movement.
+- The no-hot-reload Mac build, all 72 isolated automation tests, focused
+  trainer validator, standalone progression validator, and fresh 16-package
+  aggregate passed with exact success markers and no `LogPython: Error`. The
+  current map baseline is 53 grounded Fab actors plus 24 original-art
+  placements.
 - 2026-08-26: completed the deliberate Advanced Combat Drills persistence gate
   through the real Chronicle UI. An Elf Wizard completed Mara's owner-driven
   reward, trained once through Advanced, equipped the Recruit Pack, and saved

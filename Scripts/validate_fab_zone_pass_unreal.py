@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 53
-EXPECTED_ORIGINAL_ART_COUNT = 23
+EXPECTED_ORIGINAL_ART_COUNT = 24
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -156,6 +156,16 @@ ORIGINAL_NOTICE_BOARD_PATH = (
 )
 ORIGINAL_NOTICE_BOARD_LOCATION = (-1560.0, -260.0, 0.0)
 ORIGINAL_NOTICE_BOARD_YAW = -35.0
+ORIGINAL_COMMUNAL_WELL_LABEL = (
+    "Embermere_FenwatchCommunalWell_SouthCommons_01"
+)
+ORIGINAL_COMMUNAL_WELL_PATH = (
+    "/Game/Art/Embermere/Environment/PrototypeVillage/"
+    "SM_EmbermereFenwatchCommunalWell_01."
+    "SM_EmbermereFenwatchCommunalWell_01"
+)
+ORIGINAL_COMMUNAL_WELL_LOCATION = (-950.0, -1600.0, 0.0)
+ORIGINAL_COMMUNAL_WELL_YAW = -135.0
 SPAWN_AUTORUN_ROUTE_START = (-2400.0, -1200.0)
 SPAWN_AUTORUN_ROUTE_END = (-1350.0, -750.0)
 SUPPLY_CHEST_ROUTE_CLEARANCE = 225.0
@@ -277,6 +287,7 @@ REQUIRED_LABELS = {
     ORIGINAL_FENWATCH_COTTAGE_LABEL,
     ORIGINAL_TRAINING_WORKSHOP_LABEL,
     ORIGINAL_NOTICE_BOARD_LABEL,
+    ORIGINAL_COMMUNAL_WELL_LABEL,
     ORIGINAL_FENWATCH_SHELTER_LABEL,
     FENWATCH_KEEPER_PRESENTATION_LABEL,
     FENWATCH_QUARTERMASTER_LABEL,
@@ -2199,6 +2210,142 @@ def main():
             notice_board_armsmaster_distance,
         ))
 
+    communal_well_mesh = unreal.EditorAssetLibrary.load_asset(
+        ORIGINAL_COMMUNAL_WELL_PATH
+    )
+    if not communal_well_mesh or not isinstance(
+        communal_well_mesh,
+        unreal.StaticMesh,
+    ):
+        fail("missing original Fenwatch communal well {}".format(
+            ORIGINAL_COMMUNAL_WELL_PATH,
+        ))
+    communal_well_import_data = communal_well_mesh.get_editor_property(
+        "asset_import_data"
+    )
+    communal_well_import_class = (
+        communal_well_import_data.get_class().get_name()
+        if communal_well_import_data
+        else "None"
+    )
+    if communal_well_import_class != "FbxStaticMeshImportData":
+        fail("Fenwatch communal well must retain classic FBX import data, found {}".format(
+            communal_well_import_class,
+        ))
+    communal_well_body_setup = communal_well_mesh.get_editor_property(
+        "body_setup"
+    )
+    communal_well_aggregate = (
+        communal_well_body_setup.get_editor_property("agg_geom")
+        if communal_well_body_setup
+        else None
+    )
+    communal_well_box_count = (
+        len(communal_well_aggregate.get_editor_property("box_elems"))
+        if communal_well_aggregate
+        else 0
+    )
+    if communal_well_box_count != 6:
+        fail("Fenwatch communal well must retain 6 authored curb/upright box colliders, found {}".format(
+            communal_well_box_count,
+        ))
+    communal_well_bounds = communal_well_mesh.get_bounds()
+    if not all((
+        nearly_equal(communal_well_bounds.box_extent.x, 174.0, 1.0),
+        nearly_equal(communal_well_bounds.box_extent.y, 110.0, 1.0),
+        nearly_equal(communal_well_bounds.origin.z, 161.0, 1.0),
+        nearly_equal(communal_well_bounds.box_extent.z, 161.0, 1.0),
+    )):
+        fail("Fenwatch communal well bounds drifted: origin={}, extent={}".format(
+            communal_well_bounds.origin,
+            communal_well_bounds.box_extent,
+        ))
+    if communal_well_mesh.get_num_triangles(0) != 6760:
+        fail("Fenwatch communal well triangle count drifted: {}".format(
+            communal_well_mesh.get_num_triangles(0),
+        ))
+    communal_well_material_paths = set()
+    for static_material in list(
+        communal_well_mesh.get_editor_property("static_materials")
+    ):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            communal_well_material_paths.add(material.get_path_name())
+    if communal_well_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("Fenwatch communal well material set drifted: {}".format(
+            sorted(communal_well_material_paths),
+        ))
+
+    communal_well = actors_by_label[ORIGINAL_COMMUNAL_WELL_LABEL]
+    communal_well_component = communal_well.get_component_by_class(
+        unreal.StaticMeshComponent
+    )
+    placed_communal_well_mesh = (
+        communal_well_component.get_editor_property("static_mesh")
+        if communal_well_component
+        else None
+    )
+    placed_communal_well_path = (
+        placed_communal_well_mesh.get_path_name()
+        if placed_communal_well_mesh
+        else "None"
+    )
+    if placed_communal_well_path != ORIGINAL_COMMUNAL_WELL_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_COMMUNAL_WELL_LABEL,
+            ORIGINAL_COMMUNAL_WELL_PATH,
+            placed_communal_well_path,
+        ))
+    communal_well_location = communal_well.get_actor_location()
+    communal_well_rotation = communal_well.get_actor_rotation()
+    communal_well_scale = communal_well.get_actor_scale3d()
+    if not all((
+        nearly_equal(communal_well_location.x, ORIGINAL_COMMUNAL_WELL_LOCATION[0], 1.0),
+        nearly_equal(communal_well_location.y, ORIGINAL_COMMUNAL_WELL_LOCATION[1], 1.0),
+        nearly_equal(communal_well_location.z, ORIGINAL_COMMUNAL_WELL_LOCATION[2], 1.0),
+        nearly_equal(communal_well_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(communal_well_rotation.yaw, ORIGINAL_COMMUNAL_WELL_YAW, 0.1),
+        nearly_equal(communal_well_rotation.roll, 0.0, 0.1),
+        nearly_equal(communal_well_scale.x, 1.0, 0.001),
+        nearly_equal(communal_well_scale.y, 1.0, 0.001),
+        nearly_equal(communal_well_scale.z, 1.0, 0.001),
+    )):
+        fail("{} transform drifted: location={}, rotation={}, scale={}".format(
+            ORIGINAL_COMMUNAL_WELL_LABEL,
+            communal_well_location,
+            communal_well_rotation,
+            communal_well_scale,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(communal_well.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_COMMUNAL_WELL_LABEL,
+        ))
+    if str(communal_well_component.get_collision_profile_name()) != "BlockAll":
+        fail("{} collision profile drifted: {}".format(
+            ORIGINAL_COMMUNAL_WELL_LABEL,
+            communal_well_component.get_collision_profile_name(),
+        ))
+    communal_well_spacing_contract = {
+        FENWATCH_KEEPER_LABEL: 1250.0,
+        FENWATCH_QUARTERMASTER_LABEL: 675.0,
+        FENWATCH_ARMSMASTER_LABEL: 725.0,
+        "PlayerStart_Embermere_Village": 1450.0,
+        ORIGINAL_PRACTICE_DUMMY_LABEL: 475.0,
+        ORIGINAL_TRAINING_WORKSHOP_LABEL: 575.0,
+        ORIGINAL_VENDOR_STALL_LABEL: 575.0,
+    }
+    for context_label, minimum_distance in communal_well_spacing_contract.items():
+        context_location = actors_by_label[context_label].get_actor_location()
+        actual_distance = math.hypot(
+            communal_well_location.x - context_location.x,
+            communal_well_location.y - context_location.y,
+        )
+        if actual_distance < minimum_distance:
+            fail("Fenwatch communal well moved too close to {}: {:.1f} cm".format(
+                context_label,
+                actual_distance,
+            ))
+
     marsh_reed_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_MARSH_REED_PATH)
     if not marsh_reed_mesh or not isinstance(marsh_reed_mesh, unreal.StaticMesh):
         fail("missing original marsh reed mesh {}".format(ORIGINAL_MARSH_REED_PATH))
@@ -2553,7 +2700,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision Fenwatch cottage, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision Fenwatch cottage, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

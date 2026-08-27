@@ -1097,6 +1097,48 @@ Lesson: a civic prop can imply a larger settlement without acquiring the
 systems its silhouette suggests. Let art say "notice board" while a future
 service, if one is ever needed, owns interaction and content separately.
 
+## Fenwatch Communal Well
+
+`SM_EmbermereFenwatchCommunalWell_01` gives the southern village commons a
+recognizable civic anchor without turning its silhouette into gameplay
+authority. The open twelve-sided stone shaft, moss curb, timber uprights, pale
+roof, iron axle and crank, hanging rope and bucket, and ember crest reuse the
+established Fenwatch material language.
+
+The reviewed source is
+`Scripts/blender/build_embermere_fenwatch_communal_well.py`; editable source,
+FBX, preview, and metrics live under
+`ArtSource/Blender/Environment/FenwatchCommunalWell`. A factory-clean headless
+Blender process produced the accepted contract:
+
+- grounded `348 x 220 x 322` cm bounds with applied unit scale;
+- 6,760 triangles, one UV channel, and zero non-manifold edges;
+- five existing project-owned stone, moss, timber, iron, and ember materials;
+- six UBX boxes for the four curb sections and two timber uprights;
+- visual-only roof, axle, rope, bucket, crank, trim, and ember crest.
+
+`Scripts/import_embermere_fenwatch_communal_well_unreal.py` uses classic
+`FbxFactory`, reassigns the exact shared materials, rejects any collider-count
+drift, explicitly saves both mesh and level, and places
+`Embermere_FenwatchCommunalWell_SouthCommons_01` at
+`(-950, -1600, 0)`, yaw `-135`. The saved actor is tagged project-owned art and
+owns no quest, marker, dialogue, interaction, recovery, reward, vendor,
+trainer, or persistence behavior.
+
+The focused package validator locks import provenance, dimensions, triangle
+count, materials, six colliders, transform, tag, collision profile, and spacing
+from Mara, PlayerStart, both service NPCs, the practice dummy, workshop, and
+vendor stall. Initialized-world traces prove each curb/support solid while
+leaving the shaft, roof, axle, rope, bucket, crank, trim, and crest clear. They
+also protect PlayerStart-to-Mara, village-to-road, quartermaster, vendor east
+bypass, armsmaster, and workshop circulation. Clean PIE accepted the grounded
+south-commons composition and retained Q movement plus W autorun cancellation.
+The map now contains 53 Fab actors and 24 original-art placements.
+
+Lesson: choose civic architecture from measured world space, not an apparently
+empty screenshot. Lock the neighbors and routes first, then let the asset earn
+its place through both positive collision and negative traversal evidence.
+
 ## Sources
 
 - Article/post: https://x.com/explosss1ve/status/2075654835597164769

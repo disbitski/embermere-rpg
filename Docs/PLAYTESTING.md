@@ -8,11 +8,11 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
 3. Confirm the map shows a blue atmospheric sky, readable ambient light, the
    varied moss/earth road surface, 53 grounded upright `FabPass_` actors plus
-   23 original-art placements from the waystone, ember-lamp, road-signpost,
+   24 original-art placements from the waystone, ember-lamp, road-signpost,
    road-gate, boundary-fence, boundary-stone, supply-chest, Fenwatch shelter,
    Mara's keeper, the Fenwatch quartermaster and armsmaster, the vendor stall,
    practice dummy, first closed cottage, open-front training workshop,
-   roadside notice board, and four marsh-reed clusters, a
+   roadside notice board, south-commons communal well, and four marsh-reed clusters, a
    navigable PlayerStart/Mara
    route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three original
    Marsh Prowlers.
@@ -113,10 +113,21 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     PlayerStart-to-Mara, village-to-road, quartermaster, and armsmaster routes
     remain open. The board must stay presentation-only with no quest marker,
     dialogue, interaction, reward, vendor, trainer, or persistence authority.
-19. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
+19. Inspect `Embermere_FenwatchCommunalWell_SouthCommons_01` at
+    `(-950, -1600, 0)`, yaw `-135`. Its open stone-and-moss curb, timber
+    uprights, pale roof, iron axle/crank, hanging rope and bucket, and ember
+    crest should read as one grounded Fenwatch silhouette from the southern
+    commons and service-lane approaches. Confirm the four curb sections and two
+    uprights are solid; the open shaft, roof, axle, rope, bucket, crank, trim,
+    and crest are clear; and PlayerStart-to-Mara, village-to-road,
+    quartermaster, vendor east-bypass, armsmaster, and workshop circulation
+    remain open. The well must stay presentation-only with no quest, marker,
+    dialogue, interaction, recovery, reward, vendor, trainer, or persistence
+    authority.
+20. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
     should blend into the ground, reeds should add scale without hiding the
     route, and the whole cluster must remain `NoCollision`.
-20. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
+21. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
     marker meshes have not returned. Foliage should use readable
     project-owned overrides rather than white/default rendering.
 
