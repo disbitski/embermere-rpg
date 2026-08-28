@@ -23,7 +23,10 @@ Embermere does not have final high-fantasy art assets installed yet. The current
   project-owned notice board now adds a civic roadside silhouette without
   acquiring quest or interaction authority. A project-owned communal well now
   anchors the southern commons with purposeful curb/support collision while
-  remaining presentation-only. A separate colocated native
+  remaining presentation-only. A separate colocated art-free rest service now
+  owns one explicit stay-still Health/Mana recovery action without putting
+  interaction, timing, cooldown, combat checks, or mutation on the mesh. A
+  separate colocated native
   practice-target actor supplies repeatable combat without moving
   targeting, damage, reset, or reward policy into the dummy mesh. Service and
   gameplay actors do not change the 24-piece art baseline.

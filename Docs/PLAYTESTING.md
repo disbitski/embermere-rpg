@@ -121,13 +121,18 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     uprights are solid; the open shaft, roof, axle, rope, bucket, crank, trim,
     and crest are clear; and PlayerStart-to-Mara, village-to-road,
     quartermaster, vendor east-bypass, armsmaster, and workshop circulation
-    remain open. The well must stay presentation-only with no quest, marker,
-    dialogue, interaction, recovery, reward, vendor, trainer, or persistence
-    authority.
-20. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
+    remain open. The static well mesh must stay presentation-only with no
+    quest, marker, dialogue, interaction, recovery, reward, vendor, trainer,
+    or persistence authority.
+20. Confirm the separate art-free
+    `Embermere_FenwatchCommunalWell_RestService_01` remains colocated with the
+    well. Its marker and prompt may identify the service, but it must add no
+    mesh, collision, navigation, quest, reward, vendor, trainer, or durable
+    save state.
+21. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
     should blend into the ground, reeds should add scale without hiding the
     route, and the whole cluster must remain `NoCollision`.
-21. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
+22. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
     marker meshes have not returned. Foliage should use readable
     project-owned overrides rather than white/default rendering.
 
@@ -386,6 +391,34 @@ Warrior fallback without rewriting the old file.
     and the player returns to the village after five seconds at full health
     with walking restored, zero residual velocity, and three seconds of damage
     protection.
+
+## Fenwatch Communal-Well Rest Loop
+
+1. Start clean PIE, confirm a legal character, hide Inventory with `I`, and
+   approach the south-commons well from a protected village route.
+2. Take real damage and spend mana. Press `F` within `300` cm and confirm the
+   fixed well prompt plus `Resting at Fenwatch Communal Well. Remain still.`
+   appear without opening a modal or moving the HUD.
+3. Remain within `35` cm of the starting point for `1.5` seconds. Confirm
+   Health and Mana restore together to their current maxima and chat reports
+   the exact amounts. The accepted reference restored `30 Health` and
+   `20 Mana`, from `70/100` and `30/50` to full.
+4. Press `F` again at full resources. Confirm
+   `Health and mana are already full.` and zero mutation.
+5. Damage or spend resources again during the `12` second cooldown. Confirm a
+   cooldown result with zero mutation. The cooldown is session-only and must
+   not enter Chronicle/save version `2`.
+6. Start another eligible rest, move more than `35` cm before completion, and
+   confirm `Rest interrupted.` with neither resource changed. Repeat while a
+   real Marsh Prowler is engaged and confirm combat rejection. Merely selecting
+   the stationary practice target must not count as active combat.
+7. Retain the art/service split: all six purposeful well surfaces remain solid,
+   its shaft and decoration remain clear, and the non-colliding art-free
+   service exclusively owns interaction, timing, preflight, transaction, and
+   outcome feedback.
+
+The full authority and rollback contract is in
+[REST_SERVICE_CONTRACT.md](REST_SERVICE_CONTRACT.md).
 
 ## Fenwatch Practice Target Loop
 

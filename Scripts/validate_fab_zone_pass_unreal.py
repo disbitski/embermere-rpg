@@ -166,6 +166,13 @@ ORIGINAL_COMMUNAL_WELL_PATH = (
 )
 ORIGINAL_COMMUNAL_WELL_LOCATION = (-950.0, -1600.0, 0.0)
 ORIGINAL_COMMUNAL_WELL_YAW = -135.0
+FENWATCH_REST_SERVICE_LABEL = (
+    "Embermere_FenwatchCommunalWell_RestService_01"
+)
+FENWATCH_REST_DATA_PATH = (
+    "/Game/Data/Services/"
+    "DA_FenwatchCommunalWellRest.DA_FenwatchCommunalWellRest"
+)
 SPAWN_AUTORUN_ROUTE_START = (-2400.0, -1200.0)
 SPAWN_AUTORUN_ROUTE_END = (-1350.0, -750.0)
 SUPPLY_CHEST_ROUTE_CLEARANCE = 225.0
@@ -288,6 +295,7 @@ REQUIRED_LABELS = {
     ORIGINAL_TRAINING_WORKSHOP_LABEL,
     ORIGINAL_NOTICE_BOARD_LABEL,
     ORIGINAL_COMMUNAL_WELL_LABEL,
+    FENWATCH_REST_SERVICE_LABEL,
     ORIGINAL_FENWATCH_SHELTER_LABEL,
     FENWATCH_KEEPER_PRESENTATION_LABEL,
     FENWATCH_QUARTERMASTER_LABEL,
@@ -2345,6 +2353,58 @@ def main():
                 context_label,
                 actual_distance,
             ))
+
+    rest_service = actors_by_label[FENWATCH_REST_SERVICE_LABEL]
+    if rest_service.get_class().get_name() != "EmbermereRestServiceActor":
+        fail("{} must use the art-free rest service class, found {}".format(
+            FENWATCH_REST_SERVICE_LABEL,
+            rest_service.get_class().get_name(),
+        ))
+    rest_location = rest_service.get_actor_location()
+    rest_rotation = rest_service.get_actor_rotation()
+    if not all((
+        nearly_equal(rest_location.x, ORIGINAL_COMMUNAL_WELL_LOCATION[0], 1.0),
+        nearly_equal(rest_location.y, ORIGINAL_COMMUNAL_WELL_LOCATION[1], 1.0),
+        nearly_equal(rest_location.z, ORIGINAL_COMMUNAL_WELL_LOCATION[2], 1.0),
+        nearly_equal(rest_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(rest_rotation.yaw, ORIGINAL_COMMUNAL_WELL_YAW, 0.1),
+        nearly_equal(rest_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            FENWATCH_REST_SERVICE_LABEL,
+            rest_location,
+            rest_rotation,
+        ))
+    rest_component = rest_service.get_component_by_class(
+        unreal.EmbermereRestServiceComponent
+    )
+    rest_interactable = rest_service.get_component_by_class(
+        unreal.EmbermereInteractableComponent
+    )
+    if not rest_component or not rest_interactable:
+        fail("Fenwatch rest service is missing recovery or interaction authority")
+    rest_data = rest_component.get_editor_property("rest_data")
+    rest_data_path = rest_data.get_path_name() if rest_data else "None"
+    if rest_data_path != FENWATCH_REST_DATA_PATH:
+        fail("Fenwatch rest-service data drifted: {}".format(rest_data_path))
+    rest_tags = set(rest_service.get_editor_property("tags"))
+    if not {
+        unreal.Name("EmbermereGameplayService"),
+        unreal.Name("EmbermereRestService"),
+    }.issubset(rest_tags):
+        fail("Fenwatch rest-service tags drifted: {}".format(rest_tags))
+    if unreal.Name("EmbermereOriginalArt") in rest_tags:
+        fail("Fenwatch rest service must stay outside the original-art count")
+    if rest_service.get_actor_enable_collision():
+        fail("Fenwatch rest service must remain collision-free")
+    if rest_service.get_component_by_class(unreal.StaticMeshComponent):
+        fail("Fenwatch rest service must not own static art")
+    if rest_service.get_component_by_class(unreal.SkeletalMeshComponent):
+        fail("Fenwatch rest service must not own skeletal art")
+    if communal_well.get_component_by_class(unreal.EmbermereInteractableComponent):
+        fail("Fenwatch communal-well art must not own interaction")
+    if communal_well.get_component_by_class(unreal.EmbermereRestServiceComponent):
+        fail("Fenwatch communal-well art must not own recovery authority")
 
     marsh_reed_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_MARSH_REED_PATH)
     if not marsh_reed_mesh or not isinstance(marsh_reed_mesh, unreal.StaticMesh):

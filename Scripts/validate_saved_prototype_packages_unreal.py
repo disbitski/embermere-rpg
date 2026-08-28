@@ -19,6 +19,7 @@ VALIDATOR_MODULES = (
     "validate_fenwatch_practice_dummy_unreal",
     "validate_fenwatch_practice_target_gameplay_unreal",
     "validate_fenwatch_quartermaster_rig_unreal",
+    "validate_fenwatch_rest_service_unreal",
     "validate_fenwatch_trainer_unreal",
     "validate_fenwatch_training_workshop_unreal",
     "validate_fenwatch_vendor_stall_unreal",

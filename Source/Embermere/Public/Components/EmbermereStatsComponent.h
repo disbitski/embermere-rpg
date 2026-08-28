@@ -177,6 +177,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats")
 	float RestoreMana(float ManaAmount);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats")
+	bool HasValidVitalState() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Stats")
+	bool NeedsVitalRecovery(bool bRestoreHealth, bool bRestoreMana) const;
+
+	bool TryRestoreVitalsToFull(
+		bool bRestoreHealth,
+		bool bRestoreMana,
+		float& OutHealthRestored,
+		float& OutManaRestored);
+
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Stats|Temporary Effects")
 	bool GrantTemporaryAttackPower(float BonusAmount, float DurationSeconds);
 

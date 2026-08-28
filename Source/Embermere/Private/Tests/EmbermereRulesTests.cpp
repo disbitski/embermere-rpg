@@ -7,6 +7,7 @@
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Characters/EmbermereNpcPresentationActor.h"
 #include "Characters/EmbermerePracticeTargetActor.h"
+#include "Characters/EmbermereRestServiceActor.h"
 #include "Characters/EmbermereTrainerServiceActor.h"
 #include "Characters/EmbermereVendorServiceActor.h"
 #include "Components/EmbermereCombatComponent.h"
@@ -15,6 +16,7 @@
 #include "Components/EmbermereInteractableComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
+#include "Components/EmbermereRestServiceComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/EmbermereTrainerComponent.h"
 #include "Components/EmbermereVendorComponent.h"
@@ -27,6 +29,7 @@
 #include "Components/WidgetComponent.h"
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
+#include "Data/EmbermereRestServiceData.h"
 #include "Data/EmbermereRulesData.h"
 #include "Data/EmbermereTrainerOfferingsData.h"
 #include "Data/EmbermereUiIconSet.h"
@@ -5080,6 +5083,269 @@ bool FEmbermereMarshProwlerPresentationTest::RunTest(const FString& Parameters)
 		}
 	}
 
+	return true;
+}
+
+namespace
+{
+UEmbermereRestServiceData* MakeValidRestServiceData()
+{
+	UEmbermereRestServiceData* Data = NewObject<UEmbermereRestServiceData>();
+	if (!Data)
+	{
+		return nullptr;
+	}
+	Data->ServiceId = TEXT("FenwatchCommunalWellRest");
+	Data->DisplayName = FText::FromString(TEXT("Fenwatch Communal Well"));
+	Data->PromptText = FText::FromString(
+		TEXT("Cool emberlit water gathers beneath the old stone."));
+	Data->RestingText = FText::FromString(
+		TEXT("Resting at Fenwatch Communal Well. Remain still."));
+	Data->InteractionRadius = 300.0f;
+	Data->ChannelDurationSeconds = 1.5f;
+	Data->CooldownSeconds = 12.0f;
+	Data->MovementInterruptDistance = 35.0f;
+	Data->bRestoreHealth = true;
+	Data->bRestoreMana = true;
+	return Data;
+}
+
+void ConfigureRestFixture(
+	AEmbermereRestServiceActor* Service,
+	AEmbermereCharacter* Character,
+	UEmbermereRestServiceData* Data)
+{
+	Service->SetActorLocation(FVector::ZeroVector);
+	Character->SetActorLocation(FVector(100.0f, 0.0f, 0.0f));
+	Service->RestService->SetRestData(Data);
+	Character->Stats->InitializeVitals();
+}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereRestServiceContractTest,
+	"Embermere.Rest.ServiceContract",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereRestServiceContractTest::RunTest(const FString& Parameters)
+{
+	AEmbermereRestServiceActor* Service = NewObject<AEmbermereRestServiceActor>();
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	const UEmbermereRestServiceData* SavedData = LoadObject<UEmbermereRestServiceData>(
+		nullptr,
+		TEXT("/Game/Data/Services/DA_FenwatchCommunalWellRest.DA_FenwatchCommunalWellRest"));
+	TestNotNull(TEXT("Rest service actor can be created"), Service);
+	TestNotNull(TEXT("Rest service character fixture can be created"), Character);
+	TestNotNull(TEXT("Saved Fenwatch rest definition loads"), SavedData);
+	if (!Service || !Character || !Character->Stats || !SavedData)
+	{
+		return false;
+	}
+
+	TestNotNull(TEXT("Rest service owns standard interaction"), Service->Interactable.Get());
+	TestNotNull(TEXT("Rest service owns recovery policy"), Service->RestService.Get());
+	TestNull(TEXT("Rest service owns no static art"), Service->FindComponentByClass<UStaticMeshComponent>());
+	TestNull(TEXT("Rest service owns no skeletal art"), Service->FindComponentByClass<USkeletalMeshComponent>());
+	TestNull(TEXT("Rest service owns no vendor authority"), Service->FindComponentByClass<UEmbermereVendorComponent>());
+	TestNull(TEXT("Rest service owns no trainer authority"), Service->FindComponentByClass<UEmbermereTrainerComponent>());
+	TestEqual(
+		TEXT("Rest interaction uses the reviewed well name"),
+		Service->Interactable->DisplayName.ToString(),
+		FString(TEXT("Fenwatch Communal Well")));
+	TestTrue(TEXT("Rest interaction supplies a world marker"), Service->Interactable->bShowWorldMarker);
+	TestEqual(TEXT("Rest marker clears the accepted roof"), Service->Interactable->MarkerHeight, 355.0f);
+
+	TestTrue(TEXT("Saved rest definition passes native validation"), SavedData->HasValidDefinition());
+	TestEqual(TEXT("Saved rest identity is stable"), SavedData->ServiceId, FName(TEXT("FenwatchCommunalWellRest")));
+	TestEqual(TEXT("Saved rest radius is bounded"), SavedData->InteractionRadius, 300.0f);
+	TestEqual(TEXT("Saved rest channel stays deliberate"), SavedData->ChannelDurationSeconds, 1.5f);
+	TestEqual(TEXT("Saved rest cooldown stays session-only and bounded"), SavedData->CooldownSeconds, 12.0f);
+	TestEqual(TEXT("Saved rest movement threshold stays fixed"), SavedData->MovementInterruptDistance, 35.0f);
+	TestTrue(TEXT("Saved rest restores health"), SavedData->bRestoreHealth);
+	TestTrue(TEXT("Saved rest restores mana"), SavedData->bRestoreMana);
+
+	ConfigureRestFixture(Service, Character, const_cast<UEmbermereRestServiceData*>(SavedData));
+	TestEqual(
+		TEXT("Full resources reject without beginning a channel"),
+		Service->RestService->CanBeginRest(Character),
+		EEmbermereRestResult::ResourcesFull);
+	Character->Stats->ApplyDamage(20.0f);
+	Character->SetActorLocation(FVector(301.0f, 0.0f, 0.0f));
+	TestEqual(
+		TEXT("Data-owned range rejects a reachable global interaction edge"),
+		Service->RestService->CanBeginRest(Character),
+		EEmbermereRestResult::OutOfRange);
+	Character->SetActorLocation(FVector(100.0f, 0.0f, 0.0f));
+	TestEqual(
+		TEXT("Missing resources inside range are eligible"),
+		Service->RestService->CanBeginRest(Character),
+		EEmbermereRestResult::Started);
+
+	UEmbermereRestServiceData* MalformedData = MakeValidRestServiceData();
+	MalformedData->ServiceId = NAME_None;
+	Service->RestService->SetRestData(MalformedData);
+	TestFalse(TEXT("Malformed rest definition fails validation"), MalformedData->HasValidDefinition());
+	TestEqual(
+		TEXT("Malformed rest definition rejects before mutation"),
+		Service->RestService->TryBeginRest(Character),
+		EEmbermereRestResult::InvalidRequest);
+	TestEqual(TEXT("Malformed request preserves missing health"), Character->Stats->CurrentHealth, 80.0f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereRestRecoveryTransactionsTest,
+	"Embermere.Rest.RecoveryTransactions",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereRestRecoveryTransactionsTest::RunTest(const FString& Parameters)
+{
+	AEmbermereRestServiceActor* Service = NewObject<AEmbermereRestServiceActor>();
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	UEmbermereRestServiceData* Data = MakeValidRestServiceData();
+	if (!Service || !Character || !Character->Stats || !Data)
+	{
+		AddError(TEXT("Could not create rest recovery fixtures"));
+		return false;
+	}
+	ConfigureRestFixture(Service, Character, Data);
+	Character->Stats->ApplyDamage(30.0f);
+	TestTrue(TEXT("Recovery fixture spends mana"), Character->Stats->SpendMana(20.0f));
+
+	TestEqual(
+		TEXT("Eligible request begins one channel"),
+		Service->RestService->TryBeginRest(Character),
+		EEmbermereRestResult::Started);
+	TestTrue(TEXT("Rest channel reports pending"), Service->RestService->IsRestPending());
+	TestEqual(
+		TEXT("Started outcome uses exact authored copy"),
+		Service->RestService->GetRestResultText(Service->RestService->GetLastOutcome()).ToString(),
+		FString(TEXT("Resting at Fenwatch Communal Well. Remain still.")));
+	TestEqual(
+		TEXT("Duplicate request is rejected without restarting the channel"),
+		Service->RestService->TryBeginRest(Character),
+		EEmbermereRestResult::AlreadyResting);
+	Service->RestService->AdvanceRest(1.49f);
+	TestEqual(TEXT("Health does not mutate before channel completion"), Character->Stats->CurrentHealth, 70.0f);
+	TestEqual(TEXT("Mana does not mutate before channel completion"), Character->Stats->CurrentMana, 30.0f);
+	Service->RestService->AdvanceRest(0.01f);
+
+	const FEmbermereRestOutcome Success = Service->RestService->GetLastOutcome();
+	TestEqual(TEXT("Completion publishes success"), Success.Result, EEmbermereRestResult::Success);
+	TestEqual(TEXT("Completion reports exact health restored"), Success.HealthRestored, 30.0f);
+	TestEqual(TEXT("Completion reports exact mana restored"), Success.ManaRestored, 20.0f);
+	TestEqual(TEXT("Completion restores health once"), Character->Stats->CurrentHealth, 100.0f);
+	TestEqual(TEXT("Completion restores mana once"), Character->Stats->CurrentMana, 50.0f);
+	TestFalse(TEXT("Completion clears pending state"), Service->RestService->IsRestPending());
+	TestEqual(TEXT("Successful rest starts exact cooldown"), Service->RestService->GetCooldownRemainingSeconds(), 12.0f);
+	TestEqual(
+		TEXT("Cooldown rejects a duplicate recovery transaction"),
+		Service->RestService->TryBeginRest(Character),
+		EEmbermereRestResult::Cooldown);
+	TestEqual(TEXT("Cooldown rejection preserves health"), Character->Stats->CurrentHealth, 100.0f);
+	TestEqual(TEXT("Cooldown rejection preserves mana"), Character->Stats->CurrentMana, 50.0f);
+
+	Service->RestService->AdvanceRest(12.0f);
+	Character->Stats->ApplyDamage(10.0f);
+	TestEqual(TEXT("A later missing-health-only request begins"),
+		Service->RestService->TryBeginRest(Character), EEmbermereRestResult::Started);
+	Service->RestService->AdvanceRest(1.5f);
+	const FEmbermereRestOutcome HealthOnlySuccess = Service->RestService->GetLastOutcome();
+	TestEqual(TEXT("Health-only recovery reports exact amount"), HealthOnlySuccess.HealthRestored, 10.0f);
+	TestEqual(TEXT("Health-only recovery reports no fake mana"), HealthOnlySuccess.ManaRestored, 0.0f);
+
+	Service->RestService->AdvanceRest(12.0f);
+	Character->Stats->CurrentHealth = 50.0f;
+	Character->Stats->CurrentMana = std::numeric_limits<float>::quiet_NaN();
+	TestEqual(
+		TEXT("Malformed vital state rejects before any owner mutates"),
+		Service->RestService->TryBeginRest(Character),
+		EEmbermereRestResult::InvalidRequest);
+	TestEqual(TEXT("Malformed vital rollback preserves health"), Character->Stats->CurrentHealth, 50.0f);
+	TestTrue(TEXT("Malformed vital rollback preserves the invalid mana sentinel"), FMath::IsNaN(Character->Stats->CurrentMana));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereRestInterruptionAndCombatTest,
+	"Embermere.Rest.InterruptionAndCombat",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereRestInterruptionAndCombatTest::RunTest(const FString& Parameters)
+{
+	AEmbermereRestServiceActor* Service = NewObject<AEmbermereRestServiceActor>();
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	AEmbermerePracticeTargetActor* PracticeTarget = NewObject<AEmbermerePracticeTargetActor>();
+	AEmbermereEnemyCharacter* Prowler = NewObject<AEmbermereEnemyCharacter>();
+	UEmbermereRestServiceData* Data = MakeValidRestServiceData();
+	if (!Service || !Character || !Character->Stats || !Character->Combat ||
+		!PracticeTarget || !Prowler || !Prowler->Stats || !Data)
+	{
+		AddError(TEXT("Could not create rest interruption fixtures"));
+		return false;
+	}
+	ConfigureRestFixture(Service, Character, Data);
+	Character->Stats->ApplyDamage(25.0f);
+	TestEqual(TEXT("Movement-interruption fixture begins"),
+		Service->RestService->TryBeginRest(Character), EEmbermereRestResult::Started);
+	Character->SetActorLocation(FVector(136.0f, 0.0f, 0.0f));
+	Service->RestService->AdvanceRest(0.1f);
+	TestEqual(
+		TEXT("Moving beyond the data-owned threshold interrupts"),
+		Service->RestService->GetLastOutcome().Result,
+		EEmbermereRestResult::Interrupted);
+	TestEqual(TEXT("Interrupted rest preserves health"), Character->Stats->CurrentHealth, 75.0f);
+	TestEqual(TEXT("Interrupted rest starts no cooldown"), Service->RestService->GetCooldownRemainingSeconds(), 0.0f);
+
+	Character->Combat->SetTarget(PracticeTarget);
+	TestFalse(TEXT("The stationary practice target is not active combat"), PracticeTarget->bPrototypeAiEnabled);
+	TestEqual(
+		TEXT("Practice-target selection does not block village recovery"),
+		Service->RestService->CanBeginRest(Character),
+		EEmbermereRestResult::Started);
+	TestEqual(TEXT("Practice-target selection can begin rest"),
+		Service->RestService->TryBeginRest(Character), EEmbermereRestResult::Started);
+	Service->RestService->AdvanceRest(1.5f);
+	TestEqual(TEXT("Practice-target selection still permits exact recovery"), Character->Stats->CurrentHealth, 100.0f);
+
+	Service->RestService->AdvanceRest(12.0f);
+	Character->Stats->ApplyDamage(10.0f);
+	Character->Combat->SetTarget(nullptr);
+	TestEqual(TEXT("A safe request begins before combat changes"),
+		Service->RestService->TryBeginRest(Character), EEmbermereRestResult::Started);
+	Prowler->Stats->InitializeVitals();
+	Prowler->SetActorLocation(Character->GetActorLocation() + FVector(100.0f, 0.0f, 0.0f));
+	Character->Combat->SetTarget(Prowler);
+	Service->RestService->AdvanceRest(0.1f);
+	TestEqual(
+		TEXT("Enemy engagement during the channel interrupts before recovery"),
+		Service->RestService->GetLastOutcome().Result,
+		EEmbermereRestResult::InCombat);
+	TestEqual(TEXT("Combat interruption preserves health"), Character->Stats->CurrentHealth, 90.0f);
+	TestEqual(TEXT("Combat interruption starts no cooldown"), Service->RestService->GetCooldownRemainingSeconds(), 0.0f);
+	TestEqual(
+		TEXT("A live nearby prototype enemy blocks rest"),
+		Service->RestService->TryBeginRest(Character),
+		EEmbermereRestResult::InCombat);
+	TestEqual(TEXT("Combat rejection preserves health"), Character->Stats->CurrentHealth, 90.0f);
+	TestEqual(TEXT("Combat rejection starts no cooldown"), Service->RestService->GetCooldownRemainingSeconds(), 0.0f);
+
+	Character->Combat->SetTarget(nullptr);
+	Character->Stats->ForceDeath();
+	TestEqual(
+		TEXT("Dead characters reject before recovery"),
+		Service->RestService->TryBeginRest(Character),
+		EEmbermereRestResult::Dead);
+	TestTrue(TEXT("Death rejection preserves the dead state"), Character->Stats->IsDead());
+
+	Character->Stats->InitializeVitals();
+	Character->Stats->ApplyDamage(10.0f);
+	TestEqual(TEXT("Teardown fixture begins"),
+		Service->RestService->TryBeginRest(Character), EEmbermereRestResult::Started);
+	Service->RestService->ResetTransientState();
+	TestFalse(TEXT("Component teardown clears pending recovery"), Service->RestService->IsRestPending());
+	TestEqual(TEXT("Component teardown clears session cooldown"), Service->RestService->GetCooldownRemainingSeconds(), 0.0f);
+	TestEqual(TEXT("Component teardown never commits partial recovery"), Character->Stats->CurrentHealth, 90.0f);
 	return true;
 }
 

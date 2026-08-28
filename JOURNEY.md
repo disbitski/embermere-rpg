@@ -2688,6 +2688,46 @@ Lesson: apparently empty world space is not necessarily available space. Pick
 architecture from measured neighbors and protected movement lanes, then make
 it prove both where collision exists and where it must not.
 
+## 2026-08-28 - The Well Became Useful Without Becoming The Rulebook
+
+The communal well earned its place yesterday as art. Today we tested the more
+important boundary: could it become useful without putting recovery logic on
+the mesh? The answer is a separate, invisible native service at the same
+transform. The static well still owns only its six intentional collision boxes
+and visual language. The service owns the existing `F` interaction, data,
+range, channel, interruption, cooldown, validation, transaction, and feedback.
+
+Rest is deliberately explicit. An eligible character stands within `300` cm
+and remains within `35` cm of the starting point for `1.5` seconds. The service
+rechecks death, active enemy engagement, range, and vital state at completion,
+then asks Stats to restore configured Health and Mana in one atomic operation.
+Malformed data, full resources, cooldown, duplicate requests, movement, and
+teardown all reject without a partial resource change. A practice target can
+be selected without pretending the player is in combat, and the `12` second
+cooldown remains session-only under save version `2`.
+
+Clean PIE made the contract tangible. We applied real damage and mana spend,
+walked to the well, pressed the actual `F` path, and watched `70/100` Health and
+`30/50` Mana become full after the stay-still copy. Chat reported exactly
+`30 Health` and `20 Mana`; the next full-resource request was rejected. Native
+traces then reproved the well's solids, open shaft, decorative clearance, and
+every protected village lane.
+
+The tests also taught two engine lessons. Manually calling `EndPlay` on a
+component that never began play is not teardown coverage; it violates Unreal's
+lifecycle assertion. A shared cleanup helper now lets production `EndPlay` and
+the focused test exercise the same logic through valid lifecycles. After that
+crash, Crash Reporter inherited the editor's MCP flags and temporarily bound
+port `8123`, so a new editor looked disconnected even though the real problem
+was the listener owner. Inspect the port before rebuilding or blaming MCP.
+
+The no-hot-reload build, all 75 tests, focused validators, fresh 17-package
+aggregate, full-zone checks, and live traces passed. The map remains 53 grounded
+Fab actors plus 24 original-art placements.
+
+Lesson: let world art invite an action, let a separate service decide whether
+it is legal, and let the resource owner commit it only after the final check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

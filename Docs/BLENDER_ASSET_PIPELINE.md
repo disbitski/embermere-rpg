@@ -1135,6 +1135,13 @@ bypass, armsmaster, and workshop circulation. Clean PIE accepted the grounded
 south-commons composition and retained Q movement plus W autorun cancellation.
 The map now contains 53 Fab actors and 24 original-art placements.
 
+The later recovery slice preserved this boundary: the colocated
+`Embermere_FenwatchCommunalWell_RestService_01` is a native art-free actor with
+its own data, interaction, channel, cooldown, and atomic Health/Mana contract.
+The saved static well gained no components or gameplay tags. Replacing the FBX
+or moving to another well mesh therefore cannot change recovery rules, and the
+service actor does not increase the original-art count.
+
 Lesson: choose civic architecture from measured world space, not an apparently
 empty screenshot. Lock the neighbors and routes first, then let the asset earn
 its place through both positive collision and negative traversal evidence.

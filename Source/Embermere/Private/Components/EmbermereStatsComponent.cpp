@@ -194,6 +194,61 @@ float UEmbermereStatsComponent::RestoreMana(float ManaAmount)
 	return CurrentMana - PreviousMana;
 }
 
+bool UEmbermereStatsComponent::HasValidVitalState() const
+{
+	return FMath::IsFinite(MaxHealth) && MaxHealth > 0.0f &&
+		FMath::IsFinite(CurrentHealth) && CurrentHealth >= 0.0f && CurrentHealth <= MaxHealth + KINDA_SMALL_NUMBER &&
+		FMath::IsFinite(MaxMana) && MaxMana >= 0.0f &&
+		FMath::IsFinite(CurrentMana) && CurrentMana >= 0.0f && CurrentMana <= MaxMana + KINDA_SMALL_NUMBER;
+}
+
+bool UEmbermereStatsComponent::NeedsVitalRecovery(
+	bool bRestoreHealth,
+	bool bRestoreMana) const
+{
+	if ((!bRestoreHealth && !bRestoreMana) || !HasValidVitalState() || IsDead())
+	{
+		return false;
+	}
+
+	return (bRestoreHealth && CurrentHealth < MaxHealth - KINDA_SMALL_NUMBER) ||
+		(bRestoreMana && CurrentMana < MaxMana - KINDA_SMALL_NUMBER);
+}
+
+bool UEmbermereStatsComponent::TryRestoreVitalsToFull(
+	bool bRestoreHealth,
+	bool bRestoreMana,
+	float& OutHealthRestored,
+	float& OutManaRestored)
+{
+	OutHealthRestored = 0.0f;
+	OutManaRestored = 0.0f;
+	if (!NeedsVitalRecovery(bRestoreHealth, bRestoreMana))
+	{
+		return false;
+	}
+
+	OutHealthRestored = bRestoreHealth ? MaxHealth - CurrentHealth : 0.0f;
+	OutManaRestored = bRestoreMana ? MaxMana - CurrentMana : 0.0f;
+	if (OutHealthRestored > 0.0f)
+	{
+		CurrentHealth = MaxHealth;
+	}
+	if (OutManaRestored > 0.0f)
+	{
+		CurrentMana = MaxMana;
+	}
+	if (OutHealthRestored > 0.0f)
+	{
+		OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+	}
+	if (OutManaRestored > 0.0f)
+	{
+		OnManaChanged.Broadcast(CurrentMana, MaxMana);
+	}
+	return true;
+}
+
 bool UEmbermereStatsComponent::GrantTemporaryAttackPower(float BonusAmount, float DurationSeconds)
 {
 	if (BonusAmount <= 0.0f || DurationSeconds <= 0.0f)

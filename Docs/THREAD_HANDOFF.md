@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-27
+Last updated: 2026-08-28
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -1520,11 +1520,44 @@ that interaction genuinely improves the playable loop. Otherwise add one
 smaller matching Fenwatch prop. The well mesh itself must remain removable and
 free of interaction, recovery, reward, quest, or persistence authority.
 
+## 2026-08-28 Communal-Well Rest-Service Update
+
+- Added `UEmbermereRestServiceData`, `UEmbermereRestServiceComponent`, and the
+  art-free `AEmbermereRestServiceActor`. The saved service is colocated with the
+  accepted static well at `(-950, -1600, 0)`, yaw `-135`, but carries no mesh,
+  collision, navigation, or `EmbermereOriginalArt` tag.
+- The service owns a `300` cm interaction range, `1.5` second stationary
+  channel, `35` cm movement interruption, complete start/commit preflight,
+  exact full-Health/full-Mana atomic recovery, and a `12` second session-only
+  cooldown. The static well remains removable presentation art and owns none
+  of those decisions.
+- Rejections cover malformed data/vitals, range, death, live enemy engagement,
+  full resources, cooldown, duplicate requests, movement, and teardown without
+  partial mutation. The stationary practice target deliberately does not count
+  as combat.
+- Clean PIE used the real `F` path to restore exactly `30 Health` and `20 Mana`
+  from `70/100` and `30/50`, showed fixed prompt/start/result chat, and rejected
+  a full-resource repeat. Initialized-world traces retained all six purposeful
+  well surfaces, clear decoration/open shaft, and all protected routes.
+- Added three focused tests, bringing the authoritative suite to `75/75` with
+  zero failures or skips. The no-hot-reload build, focused rest/well/trainer/
+  progression validators, fresh 17-package aggregate, full-zone validator,
+  and live native traces passed with exact markers and no `LogPython: Error`.
+  Save version `2` and the 53 Fab plus 24 original-art baseline are unchanged.
+- A first teardown test incorrectly called `EndPlay` on a component that had
+  never entered `BeginPlay`, triggering Unreal's lifecycle assertion. Cleanup
+  now lives in a shared private reset helper that production `EndPlay` and the
+  focused test can each reach through their valid boundary. After that crash,
+  Crash Reporter inherited the MCP launch flags and briefly owned port `8123`;
+  checking the listener process before restarting avoided misdiagnosing the
+  healthy editor.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-27 no-hot-reload base module plus the accepted communal-well asset/map
-package, the 2026-08-26 class-colored level-up world-VFX module, and the
+2026-08-28 no-hot-reload rest-service module plus the accepted rest data/map
+packages and communal-well art package, the 2026-08-26 class-colored level-up
+world-VFX module, and the
 2026-08-25 level-gated trainer and progression-presentation module, serialized rules
 asset, accepted notice-board
 asset/map package,
@@ -1542,7 +1575,10 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 72 tests, including
+3. Run/discover all 75 tests, including
+   `Embermere.Rest.ServiceContract`,
+   `Embermere.Rest.RecoveryTransactions`,
+   `Embermere.Rest.InterruptionAndCombat`,
    `Embermere.UI.LevelUpWorldVfxPresentation`,
    `Embermere.Progression.LevelRules`,
    `Embermere.Progression.LiveExperienceAndEquipment`,
@@ -1579,6 +1615,12 @@ First fresh-session checks:
    `Embermere.NPC.SkeletalIdlePresentation`, and
    `Embermere.NPC.FenwatchQuartermasterPresentation`.
 4. Start PIE and verify:
+   - damage Health and spend Mana, approach the separate communal-well service,
+     and use real `F`. Retain the fixed prompt, exact `1.5` second stay-still
+     copy, atomic full-vitals result, exact restored amounts, full-resource and
+     cooldown rejection, movement/combat interruption, practice-target
+     exclusion, and unchanged well collision/routes. The static mesh must own
+     no service component and the service must own no art or collision;
    - the fixed creation modal precedes play, all eight races and four classes
      remain visible, Dwarf Ranger and Bullywug Wizard stay disabled without
      silent correction, and valid confirmation restores the HUD/input path;

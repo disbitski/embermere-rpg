@@ -1569,3 +1569,55 @@ for solids, voids, and neighboring routes; and clean PIE for normal-camera
 readability and actual movement. Keep civic art removable and free of quest,
 service, recovery, reward, or persistence authority unless a separate gameplay
 owner is deliberately designed.
+
+## Revalidate Delayed Interactions At Commit Time
+
+An interaction that completes later cannot safely rely on its opening frame.
+The Fenwatch well begins a short rest channel, then rechecks the complete
+character and service state before committing recovery. Death, enemy
+engagement, range, movement, malformed vitals, or an already-full result can
+change while the channel is pending.
+
+Keep the layers explicit:
+
+- data owns stable identity, copy, range, timing, and configured resources;
+- an art-free service owns preflight, pending state, interruption, cooldown,
+  and exact outcomes;
+- Stats owns Health/Mana validation and the final atomic mutation;
+- presentation observes the resolved outcome and owns no eligibility.
+
+Only a successful commit starts cooldown. Every rejection and teardown path
+must leave all resources unchanged. This keeps the static well replaceable and
+also makes a future inn, campfire, shrine, or class recovery service reuse the
+same transaction discipline without inheriting mesh assumptions.
+
+## Do Not Manually Call EndPlay On An Unstarted Component
+
+Calling `UActorComponent::EndPlay` directly in a focused fixture can look like
+a convenient teardown test, but Unreal asserts when that component never
+entered `BeginPlay`. The assertion is correct: the test manufactured an engine
+lifecycle that cannot exist.
+
+Extract transient cleanup into one narrow helper. Production `EndPlay` calls
+that helper before `Super::EndPlay`; a test-specific friend or fixture may call
+the helper directly. Keep a separate spawned-world test when the real
+BeginPlay/EndPlay transition itself is what needs proof. Shared cleanup logic is
+useful; forged lifecycle state is not.
+
+## Check The MCP Port Owner After An Editor Crash
+
+After the lifecycle assertion, Unreal's Crash Reporter inherited the editor's
+`-ModelContextProtocolStartServer -ModelContextProtocolPort=8123` arguments and
+briefly held the localhost listener. A freshly launched editor was healthy but
+could not bind the expected port, which looked like another MCP failure.
+
+Before rebuilding or repeatedly relaunching after a crash:
+
+1. inspect the process listening on `127.0.0.1:8123`;
+2. distinguish the real `UnrealEditor` from Crash Reporter or another stale
+   process;
+3. close only the stale owner;
+4. relaunch once with the full spaced `.uproject` path after `open --args`;
+5. initialize MCP and confirm the current editor owns the listener.
+
+Port availability is not editor freshness. Verify both facts independently.

@@ -6,8 +6,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-27 no-hot-reload base module plus the
-  accepted Fenwatch communal-well asset/map package, the 2026-08-26
+- Confirm Unreal is running the 2026-08-28 no-hot-reload communal-well rest
+  service module plus the accepted rest data/map packages and the 2026-08-27
+  Fenwatch communal-well art package, the 2026-08-26
   class-colored level-up world-VFX module, and the 2026-08-25 level-gated trainer,
   progression-presentation, post-creation input, and Chronicle current/saved-state module plus the
   accepted derived-level module and serialized
@@ -19,11 +20,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 72 Embermere tests.
+  predates that work or test discovery exposes fewer than 75 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 72 tests, especially
+- Discover and run all 75 tests, especially
+  `Embermere.Rest.ServiceContract`,
+  `Embermere.Rest.RecoveryTransactions`,
+  `Embermere.Rest.InterruptionAndCombat`,
   `Embermere.UI.LevelUpWorldVfxPresentation`,
   `Embermere.UI.ExperienceProgressPresentation`,
   `Embermere.UI.LevelUpPresentation`,
@@ -73,14 +77,18 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative
-  latest 2026-08-27 no-hot-reload build and isolated commandlet passed 72/72,
+  latest 2026-08-28 no-hot-reload build and isolated commandlet passed 75/75,
   including the idempotent character-creation input lock, bottom-right
   Chronicle command geometry, live Dwarf Warrior identity, and fixed current-
   versus-saved Chronicle layout; the
-  standalone progression validator and fresh 16-package aggregate passed with
+  standalone communal-well rest, communal-well art, trainer, and progression
+  validators plus the fresh 17-package aggregate passed with
   explicit success markers while retaining 53 grounded Fab plus 24 original-
-  art actors. Clean two-world PIE also accepted the Advanced Combat Drills
-  Chronicle round-trip and the live twelve-segment Warrior level-up effect.
+  art actors. Clean PIE accepted the real `F` rest channel at the separate
+  art-free service, exact `70/100 -> 100/100` health and `30/50 -> 50/50`
+  mana restoration, fixed prompt/chat feedback, and full-resource rejection.
+  Initialized-world traces retained all six intentional well surfaces, clear
+  decoration, and every protected village route.
 - Retain the accepted character-creation authority and lifecycle contract:
   - the centered fixed `940x560` modal shows all eight races and four classes
     before gameplay while the normal HUD remains hidden;
@@ -462,6 +470,18 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   marker, dialogue, interaction, reward, vendor, trainer, and persistence
   authority while preserving the PlayerStart-to-Mara, village-to-road,
   quartermaster, and armsmaster routes.
+- Retain the accepted communal-well art/service split. The static
+  `Embermere_FenwatchCommunalWell_SouthCommons_01` remains removable
+  presentation art with six purposeful curb/upright colliders and clear shaft,
+  roof, rope, bucket, trim, and crest. The separate art-free
+  `Embermere_FenwatchCommunalWell_RestService_01` exclusively owns the existing
+  `F` interaction, `300` cm range, `1.5` second stay-still channel, `35` cm
+  movement interruption, full Health/Mana transaction, and `12` second
+  session-only cooldown. Reject full resources, range, death, live enemy
+  engagement, cooldown, duplicates, malformed data, and interruption without
+  partial mutation. Practice-target selection is not combat. Preserve save
+  version `2` and treat [Docs/REST_SERVICE_CONTRACT.md](Docs/REST_SERVICE_CONTRACT.md)
+  as the authority boundary.
 - Retain the accepted wrapper Idle lane. Anim Blueprint art takes precedence;
   otherwise a skeleton-compatible soft Idle asset uses `AnimationSingleNode`
   with data-driven loop and play rate. The production armsmaster is the first
@@ -524,21 +544,24 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
      `F`, dialogue, marker, quest mutation, rewards, vendor, or trainer logic;
   9. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete issue;
-  10. build the next cohesive project-owned Fenwatch module, preferably a
-      compact communal well through the deterministic Blender/classic-
-      `FbxFactory`/explicit-save/validator/live-trace lane. Keep the well
-      presentation-only, make only the curb/supports purposefully solid, and
-      preserve Mara, vendor, trainer, PlayerStart, and all protected routes.
+  10. after retaining the well-rest loop, take one bounded presentation or
+      content milestone without moving authority into art. Prefer a restrained
+      presentation-only channel/completion observer over the existing rest
+      outcomes, with fixed lifetime, NoCollision geometry, interruption and
+      teardown clearing, and no persistence replay. If that does not improve
+      normal-camera play, define a small second quest/content slice or build
+      one matching Fenwatch prop through the established acceptance lane.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-26
+- Restart Unreal before manual PIE when the editor predates the 2026-08-28
+  communal-well rest-service module, the 2026-08-26
   level-up world-VFX module and 2026-08-25 level-gated trainer/progression
   module, character-identity persistence,
   rigged Fenwatch keeper, armsmaster, and
   quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 72 tests.
+  Current code passes all 75 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -599,6 +622,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     clear roof/trim/tools, an open player-height bay, and unobstructed
     armsmaster-to-dummy and road-side bypass routes. Confirm
     `FabPass_Village_Fence_03` remains absent.
+  - inspect the Fenwatch communal well at `(-950, -1600, 0)`, yaw `-135`, then
+    damage Health and spend Mana before pressing `F` at its separate service.
+    Confirm the fixed prompt, exact stay-still copy, full recovery after `1.5`
+    seconds, exact chat amounts, full-resource rejection, movement/combat
+    interruption, cooldown copy, clear shaft/decoration, and unchanged village
+    routes. The static mesh must remain free of interaction or recovery
+    components and the service must remain art-free and non-colliding.
 - Confirm both first-class MCP servers after their host apps restart. Blender's
   bridge remains Safe Mode on, inline code off, localhost-only, and limited to
   approved project script roots.
@@ -637,6 +667,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - `Embermere.Persistence.ValidationRollback`
   - `Embermere.Player.OutOfBoundsRecovery`
   - `Embermere.Quests.CompletionRewards`
+  - `Embermere.Rest.ServiceContract`
+  - `Embermere.Rest.RecoveryTransactions`
+  - `Embermere.Rest.InterruptionAndCombat`
   - `Embermere.Rules.RaceClassMatrix`
   - `Embermere.Stats.DamageImmunity`
   - `Embermere.UI.AbilityIconPresentation`
@@ -1000,14 +1033,14 @@ targeting, rewards, AI, quests, or persistence.
     load restores the steady XP surface without replaying celebration;
   - keep the Stats snapshot, live-only level event, exact chat fallback, fixed
     geometry, multi-level/cap behavior, and every existing authority boundary.
-- After retaining the well in clean PIE, define the next bounded gameplay
-  contract before implementation. Prefer a separate art-free well/rest service
-  that can offer one explicit, data-driven recovery action with complete
-  resource/cooldown preflight, fixed native feedback, and focused rollback
-  tests while leaving all art removable. If that is not yet a useful gameplay
-  step, build one compact matching Fenwatch prop instead. Do not put
-  interaction or recovery authority on the static mesh, add duplicate durable
-  state, or expand save version `2` implicitly.
+- Retain the accepted art-free communal-well rest service: exact data ID and
+  transform, `300` cm range, `1.5` second channel, `35` cm movement threshold,
+  full Health/Mana atomic commit, `12` second session cooldown, fixed prompt
+  and chat, every rejection/rollback edge, and zero art or persistence
+  authority. Next, judge whether a restrained outcome-driven channel/completion
+  observer improves normal-camera readability. It must remain presentation-
+  only, fixed-lifetime, non-colliding, clear on interruption/teardown, and never
+  replay on load. Otherwise take a small second content slice or matching prop.
 - Retain the accepted trainer Chronicle proof under save version `2`:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
@@ -1085,6 +1118,25 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Last Completed
 
+- 2026-08-28: added the separate native
+  `Embermere_FenwatchCommunalWell_RestService_01` and data asset beside the
+  accepted static well. The art-free service owns the existing `F` lane,
+  complete preflight, a `1.5` second stationary channel, `35` cm movement
+  interruption, exact full-Health/full-Mana atomic recovery, fixed outcome
+  feedback, and a `12` second session-only cooldown. The mesh remains removable
+  art with no interaction, recovery, quest, reward, combat, or save authority.
+- Added `Embermere.Rest.ServiceContract`,
+  `Embermere.Rest.RecoveryTransactions`, and
+  `Embermere.Rest.InterruptionAndCombat`. The suite covers full and one-vital
+  recovery, range, death, enemy engagement, full resources, cooldown,
+  duplicate requests, malformed data, movement, practice-target exclusion,
+  teardown, exact amounts, and no partial mutation. Clean PIE used real `F` to
+  restore `30` Health and `20` Mana and then rejected a full-resource repeat.
+- The no-hot-reload Mac build, all 75 isolated tests, four focused validators,
+  fresh 17-package aggregate, full-zone validation, and initialized-world well
+  traces passed with exact markers and no `LogPython: Error`. The map remains
+  at 53 grounded Fab actors plus 24 original-art placements and save version
+  `2` remains unchanged.
 - 2026-08-27: built `SM_EmbermereFenwatchCommunalWell_01` through the reviewed
   deterministic Blender and classic-`FbxFactory` lane. The grounded
   `348 x 220 x 322` cm mesh has 6,760 triangles, one UV channel, clean

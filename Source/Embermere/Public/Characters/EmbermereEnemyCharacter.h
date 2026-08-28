@@ -189,6 +189,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|AI")
 	float GetEffectiveMoveSpeedCmPerSecond() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|AI")
+	bool IsActivelyEngagedWith(const AActor* Candidate) const;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Visuals")
 	bool HasCompleteVisualAnimationSet() const;
 

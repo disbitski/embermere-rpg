@@ -797,6 +797,12 @@ float AEmbermereEnemyCharacter::GetEffectiveMoveSpeedCmPerSecond() const
 		(Stats ? Stats->GetMovementSpeedMultiplier() : 1.0f);
 }
 
+bool AEmbermereEnemyCharacter::IsActivelyEngagedWith(const AActor* Candidate) const
+{
+	return Candidate && bPrototypeAiEnabled && Stats && !Stats->IsDead() &&
+		!IsHidden() && AggroTarget.Get() == Candidate;
+}
+
 bool AEmbermereEnemyCharacter::HasCompleteVisualAnimationSet() const
 {
 	return !IdleAnimation.IsNull() &&
