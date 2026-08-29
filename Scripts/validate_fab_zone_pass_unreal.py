@@ -169,6 +169,9 @@ ORIGINAL_COMMUNAL_WELL_YAW = -135.0
 FENWATCH_REST_SERVICE_LABEL = (
     "Embermere_FenwatchCommunalWell_RestService_01"
 )
+FENWATCH_REST_PRESENTATION_LABEL = (
+    "Embermere_FenwatchCommunalWell_RestPresentation_01"
+)
 FENWATCH_REST_DATA_PATH = (
     "/Game/Data/Services/"
     "DA_FenwatchCommunalWellRest.DA_FenwatchCommunalWellRest"
@@ -296,6 +299,7 @@ REQUIRED_LABELS = {
     ORIGINAL_NOTICE_BOARD_LABEL,
     ORIGINAL_COMMUNAL_WELL_LABEL,
     FENWATCH_REST_SERVICE_LABEL,
+    FENWATCH_REST_PRESENTATION_LABEL,
     ORIGINAL_FENWATCH_SHELTER_LABEL,
     FENWATCH_KEEPER_PRESENTATION_LABEL,
     FENWATCH_QUARTERMASTER_LABEL,
@@ -2405,6 +2409,50 @@ def main():
         fail("Fenwatch communal-well art must not own interaction")
     if communal_well.get_component_by_class(unreal.EmbermereRestServiceComponent):
         fail("Fenwatch communal-well art must not own recovery authority")
+
+    rest_presentation = actors_by_label[FENWATCH_REST_PRESENTATION_LABEL]
+    if rest_presentation.get_class().get_name() != "EmbermereRestPresentationActor":
+        fail("{} must use the native presentation observer, found {}".format(
+            FENWATCH_REST_PRESENTATION_LABEL,
+            rest_presentation.get_class().get_name(),
+        ))
+    presentation_location = rest_presentation.get_actor_location()
+    presentation_rotation = rest_presentation.get_actor_rotation()
+    if not all((
+        nearly_equal(presentation_location.x, ORIGINAL_COMMUNAL_WELL_LOCATION[0], 1.0),
+        nearly_equal(presentation_location.y, ORIGINAL_COMMUNAL_WELL_LOCATION[1], 1.0),
+        nearly_equal(presentation_location.z, ORIGINAL_COMMUNAL_WELL_LOCATION[2], 1.0),
+        nearly_equal(presentation_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(presentation_rotation.yaw, ORIGINAL_COMMUNAL_WELL_YAW, 0.1),
+        nearly_equal(presentation_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            FENWATCH_REST_PRESENTATION_LABEL,
+            presentation_location,
+            presentation_rotation,
+        ))
+    if rest_presentation.get_editor_property("observed_rest_service") != rest_service:
+        fail("Fenwatch rest presentation no longer observes the saved service")
+    presentation_tags = set(rest_presentation.get_editor_property("tags"))
+    if not {
+        unreal.Name("EmbermereGameplayPresentation"),
+        unreal.Name("EmbermereRestPresentation"),
+    }.issubset(presentation_tags):
+        fail("Fenwatch rest-presentation tags drifted: {}".format(
+            presentation_tags,
+        ))
+    if unreal.Name("EmbermereOriginalArt") in presentation_tags:
+        fail("Fenwatch rest presentation must stay outside the original-art count")
+    if rest_presentation.get_actor_enable_collision():
+        fail("Fenwatch rest presentation must remain collision-free")
+    if rest_presentation.get_component_by_class(unreal.EmbermereInteractableComponent):
+        fail("Fenwatch rest presentation must not own interaction")
+    if rest_presentation.get_component_by_class(unreal.EmbermereRestServiceComponent):
+        fail("Fenwatch rest presentation must not own recovery authority")
+    if rest_presentation.get_component_by_class(unreal.StaticMeshComponent):
+        fail("Fenwatch rest presentation must defer transient visual segments")
+    if rest_presentation.get_component_by_class(unreal.SkeletalMeshComponent):
+        fail("Fenwatch rest presentation must not own skeletal art")
 
     marsh_reed_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_MARSH_REED_PATH)
     if not marsh_reed_mesh or not isinstance(marsh_reed_mesh, unreal.StaticMesh):

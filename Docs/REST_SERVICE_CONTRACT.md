@@ -8,7 +8,9 @@ The interaction is deliberately modest. It does not replace consumables,
 respawn, class abilities, or future inn and camp systems.
 
 The static well remains removable presentation art. A separate native service
-actor owns every gameplay decision.
+actor owns every gameplay decision, and a third removable observer owns only
+transient channel/completion geometry. The observer contract is documented in
+[REST_PRESENTATION_CONTRACT.md](REST_PRESENTATION_CONTRACT.md).
 
 ## Authority Boundary
 
@@ -71,7 +73,9 @@ request. It may show:
 - the existing fixed dialogue panel for the well prompt;
 - exact bottom-left chat for starting, success, interruption, cooldown, range,
   death, combat, full-resource, and malformed-data outcomes;
-- the standard non-colliding world marker above the well roof.
+- the standard non-colliding world marker above the well roof;
+- the separate twelve-segment cyan shaft channel and `1.1`-second mint
+  committed-recovery bloom defined by the rest-presentation contract.
 
 Presentation owns no eligibility, timing, health, mana, combat, or save state.
 No dedicated modal is required for this bounded first slice.
@@ -80,6 +84,7 @@ No dedicated modal is required for this bounded first slice.
 
 - Data: `/Game/Data/Services/DA_FenwatchCommunalWellRest`
 - Service: `Embermere_FenwatchCommunalWell_RestService_01`
+- Observer: `Embermere_FenwatchCommunalWell_RestPresentation_01`
 - Transform: `(-950, -1600, 0)`, yaw `-135`
 - Art: `Embermere_FenwatchCommunalWell_SouthCommons_01`
 
@@ -104,9 +109,12 @@ separation. Clean PIE must prove real `F` interaction, fixed prompt/chat,
 stay-still success, movement interruption, cooldown rejection, full-resource
 rejection, and preserved well collision, composition, and village routes.
 
-The accepted 2026-08-28 pass used the real `F` path to restore exactly
+The accepted 2026-08-28 service pass used the real `F` path to restore exactly
 `30 Health` and `20 Mana`, then rejected a full-resource repeat. Automation
 also starts an eligible channel before engaging a live Prowler and proves the
-new combat state cancels before mutation. All 75 tests, the fresh 17-package
-aggregate, focused validators, and initialized-world well traces passed; save
-version `2` and the 53 Fab plus 24 original-art baseline remained unchanged.
+new combat state cancels before mutation. The 2026-08-29 presentation pass then
+visually accepted the real cyan shaft channel and mint committed bloom while
+the service alone restored `35 Health` and `20 Mana`. All 76 tests, the fresh
+18-package aggregate, focused validators, and initialized-world well traces
+passed; save version `2` and the 53 Fab plus 24 original-art baseline remained
+unchanged.

@@ -7,6 +7,7 @@
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Characters/EmbermereNpcPresentationActor.h"
 #include "Characters/EmbermerePracticeTargetActor.h"
+#include "Characters/EmbermereRestPresentationActor.h"
 #include "Characters/EmbermereRestServiceActor.h"
 #include "Characters/EmbermereTrainerServiceActor.h"
 #include "Characters/EmbermereVendorServiceActor.h"
@@ -5346,6 +5347,129 @@ bool FEmbermereRestInterruptionAndCombatTest::RunTest(const FString& Parameters)
 	TestFalse(TEXT("Component teardown clears pending recovery"), Service->RestService->IsRestPending());
 	TestEqual(TEXT("Component teardown clears session cooldown"), Service->RestService->GetCooldownRemainingSeconds(), 0.0f);
 	TestEqual(TEXT("Component teardown never commits partial recovery"), Character->Stats->CurrentHealth, 90.0f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereRestWorldPresentationTest,
+	"Embermere.UI.RestWorldPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereRestWorldPresentationTest::RunTest(const FString& Parameters)
+{
+	AEmbermereRestServiceActor* Service = NewObject<AEmbermereRestServiceActor>();
+	AEmbermereRestPresentationActor* Presentation =
+		NewObject<AEmbermereRestPresentationActor>();
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	UEmbermereRestServiceData* Data = MakeValidRestServiceData();
+	if (!Service || !Presentation || !Character || !Character->Stats || !Data)
+	{
+		AddError(TEXT("Could not create rest presentation fixtures"));
+		return false;
+	}
+
+	ConfigureRestFixture(Service, Character, Data);
+	Presentation->SetObservedRestService(Service);
+	TestTrue(TEXT("Presentation observer binds to the separate rest service"),
+		Presentation->IsBoundToRestService());
+	TestTrue(TEXT("Native rest outcome stream has a live presentation observer"),
+		Service->RestService->OnRestOutcomeNative.IsBound());
+	TestFalse(TEXT("Presentation starts hidden"), Presentation->IsRestPresentationVisible());
+	TestEqual(TEXT("Transient geometry is deferred until a live channel"),
+		Presentation->GetRestPresentationSegmentCount(), 0);
+	TestNull(TEXT("Presentation owns no interaction"),
+		Presentation->FindComponentByClass<UEmbermereInteractableComponent>());
+	TestNull(TEXT("Presentation owns no recovery service"),
+		Presentation->FindComponentByClass<UEmbermereRestServiceComponent>());
+	TestNull(TEXT("Presentation owns no vendor authority"),
+		Presentation->FindComponentByClass<UEmbermereVendorComponent>());
+	TestNull(TEXT("Presentation owns no trainer authority"),
+		Presentation->FindComponentByClass<UEmbermereTrainerComponent>());
+
+	Character->Stats->ApplyDamage(30.0f);
+	TestTrue(TEXT("Presentation fixture spends mana"), Character->Stats->SpendMana(20.0f));
+	TestEqual(TEXT("Authoritative service begins the observed channel"),
+		Service->RestService->TryBeginRest(Character), EEmbermereRestResult::Started);
+	TestEqual(TEXT("Started outcome reaches the presentation observer exactly once"),
+		Presentation->ObservedOutcomeCount, 1);
+	TestEqual(TEXT("Started outcome selects the channel phase"),
+		Presentation->GetPresentationPhase(), EEmbermereRestPresentationPhase::Channeling);
+	TestEqual(TEXT("Channel owns twelve fixed visual segments"),
+		Presentation->GetRestPresentationSegmentCount(), 12);
+	TestEqual(TEXT("Every channel segment is visible"),
+		Presentation->GetVisibleRestPresentationSegmentCount(), 12);
+	TestTrue(TEXT("Channel geometry is presentation-only"),
+		Presentation->AreRestPresentationSegmentsNonColliding());
+	TestTrue(TEXT("Channel uses the project target-ring material"),
+		Presentation->GetRestPresentationMaterialPath().Contains(TEXT("M_EmbermereTargetRing")));
+	TestTrue(TEXT("Channel color is cyan"),
+		Presentation->GetRestPresentationColor().B > Presentation->GetRestPresentationColor().R &&
+			Presentation->GetRestPresentationColor().G > Presentation->GetRestPresentationColor().R);
+	TestTrue(TEXT("Channel remains inside the open well shaft"),
+		Presentation->GetRestPresentationRadius() <= 48.5f);
+
+	TestEqual(TEXT("Duplicate request is rejected by authority"),
+		Service->RestService->TryBeginRest(Character), EEmbermereRestResult::AlreadyResting);
+	Presentation->AdvanceRestPresentation(0.25f);
+	TestEqual(TEXT("Duplicate request neither restarts nor clears the channel"),
+		Presentation->GetPresentationPhase(), EEmbermereRestPresentationPhase::Channeling);
+	Character->SetActorLocation(FVector(136.0f, 0.0f, 0.0f));
+	Service->RestService->AdvanceRest(0.1f);
+	TestFalse(TEXT("Movement interruption clears the channel immediately"),
+		Presentation->IsRestPresentationVisible());
+	TestEqual(TEXT("Interruption hides every segment"),
+		Presentation->GetVisibleRestPresentationSegmentCount(), 0);
+	TestEqual(TEXT("Presentation never commits partial recovery"),
+		Character->Stats->CurrentHealth, 70.0f);
+
+	Character->SetActorLocation(FVector(100.0f, 0.0f, 0.0f));
+	TestEqual(TEXT("A later valid request starts a fresh observed channel"),
+		Service->RestService->TryBeginRest(Character), EEmbermereRestResult::Started);
+	Service->RestService->AdvanceRest(1.5f);
+	TestEqual(TEXT("Only committed success selects completion presentation"),
+		Presentation->GetPresentationPhase(), EEmbermereRestPresentationPhase::Completion);
+	TestTrue(TEXT("Completion color is mint rather than failure red"),
+		Presentation->GetRestPresentationColor().G > Presentation->GetRestPresentationColor().B &&
+			Presentation->GetRestPresentationColor().B > Presentation->GetRestPresentationColor().R);
+	TestTrue(TEXT("Completion restores health through service authority"),
+		FMath::IsNearlyEqual(Character->Stats->CurrentHealth, 100.0f));
+	TestTrue(TEXT("Completion restores mana through service authority"),
+		FMath::IsNearlyEqual(Character->Stats->CurrentMana, 50.0f));
+	TestTrue(TEXT("Completion lifetime is deliberately fixed"),
+		FMath::IsNearlyEqual(Presentation->GetCompletionLifetimeSeconds(), 1.1f));
+	const float CompletionStartRadius = Presentation->GetRestPresentationRadius();
+	Presentation->AdvanceRestPresentation(0.55f);
+	TestTrue(TEXT("Completion expands after the committed outcome"),
+		Presentation->GetRestPresentationRadius() > CompletionStartRadius);
+	TestTrue(TEXT("Completion remains inside its fixed world bound"),
+		Presentation->GetRestPresentationRadius() <= 120.0f);
+	Presentation->AdvanceRestPresentation(0.54f);
+	TestTrue(TEXT("Completion remains visible for its full lifetime"),
+		Presentation->IsRestPresentationVisible());
+	Presentation->AdvanceRestPresentation(0.02f);
+	TestFalse(TEXT("Completion expires deterministically"),
+		Presentation->IsRestPresentationVisible());
+
+	Service->RestService->AdvanceRest(12.0f);
+	Character->Stats->ApplyDamage(10.0f);
+	TestEqual(TEXT("Death-clear fixture begins"),
+		Service->RestService->TryBeginRest(Character), EEmbermereRestResult::Started);
+	Character->Stats->ForceDeath();
+	Presentation->AdvanceRestPresentation(0.0f);
+	TestFalse(TEXT("Character death clears presentation immediately"),
+		Presentation->IsRestPresentationVisible());
+	Service->RestService->ResetTransientState();
+
+	Character->Stats->InitializeVitals();
+	Character->Stats->ApplyDamage(10.0f);
+	Presentation->UnbindFromRestService();
+	TestFalse(TEXT("Unbinding clears presentation and observer state"),
+		Presentation->IsBoundToRestService());
+	TestEqual(TEXT("Unbound service can still start its authoritative transaction"),
+		Service->RestService->TryBeginRest(Character), EEmbermereRestResult::Started);
+	TestFalse(TEXT("Torn-down observer receives no later live outcome"),
+		Presentation->IsRestPresentationVisible());
+	Service->RestService->ResetTransientState();
 	return true;
 }
 

@@ -45,6 +45,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
 	FEmbermereRestOutcome,
 	Outcome);
 
+DECLARE_MULTICAST_DELEGATE_OneParam(
+	FEmbermereRestOutcomeNativeSignature,
+	const FEmbermereRestOutcome&);
+
 UCLASS(ClassGroup = (Embermere), meta = (BlueprintSpawnableComponent))
 class EMBERMERE_API UEmbermereRestServiceComponent : public UActorComponent
 {
@@ -58,6 +62,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FEmbermereRestOutcomeSignature OnRestOutcome;
+
+	FEmbermereRestOutcomeNativeSignature OnRestOutcomeNative;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Rest")
 	void SetRestData(UEmbermereRestServiceData* NewRestData);
@@ -113,5 +119,6 @@ private:
 #if WITH_DEV_AUTOMATION_TESTS
 	friend class FEmbermereRestRecoveryTransactionsTest;
 	friend class FEmbermereRestInterruptionAndCombatTest;
+	friend class FEmbermereRestWorldPresentationTest;
 #endif
 };

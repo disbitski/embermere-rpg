@@ -2728,6 +2728,44 @@ Fab actors plus 24 original-art placements.
 Lesson: let world art invite an action, let a separate service decide whether
 it is legal, and let the resource owner commit it only after the final check.
 
+## 2026-08-29 - The Well Learned To Speak Without Taking Control
+
+The well's recovery loop worked, but the world itself gave little indication
+that a stay-still channel was active or that recovery had committed. We added a
+third owner instead of expanding either existing one. The static mesh still
+owns appearance and purposeful collision. The art-free service still owns
+interaction, validation, channel state, cooldown, and atomic Health/Mana
+recovery. A new removable observer only listens to immutable outcomes and
+renders transient evidence.
+
+The observer lazily creates twelve non-colliding project-material segments. A
+restrained cyan ring remains inside the open shaft while the authoritative
+channel is pending. Only the service's committed `Success` turns it into a mint
+bloom, expanding from `52` to no more than `120` cm for exactly `1.1` seconds.
+Movement interruption, death, unbinding, expiry, and teardown clear it; a fresh
+or loaded world starts hidden. Duplicate requests do not restart presentation,
+and the effect owns no recovery rule, resource mutation, chat, or persistence.
+
+One implementation detail mattered. The existing dynamic Blueprint multicast
+remains the public Blueprint/chat stream, but a bare native fixture could
+report that binding existed without reliably dispatching between transient
+unspawned actor fixtures. The service now mirrors the same immutable outcome
+through a native C++ multicast first. Native observers get deterministic
+subscription without replacing or bypassing the established Blueprint event.
+
+Clean PIE supplied the final judgment. We slowed simulation enough to preserve
+each short-lived state while allowing real camera ticks, used named `Rotator`
+fields to frame the well, and saw the cyan channel sit cleanly inside the shaft.
+The committed mint bloom remained restrained and clear of the roof, marker,
+route, chat, and HUD while the service alone restored exactly `35 Health` and
+`20 Mana`. The no-hot-reload build, all 76 tests, the fresh 18-package
+aggregate, focused validators, and initialized-world route traces passed. The
+map remains 53 grounded Fab actors plus 24 original-art placements.
+
+Lesson: an authoritative service can publish the truth once, while removable
+observers translate that truth into world feedback without becoming another
+rulebook.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

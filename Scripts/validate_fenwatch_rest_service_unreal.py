@@ -8,6 +8,7 @@ import unreal
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 REST_DATA_PATH = "/Game/Data/Services/DA_FenwatchCommunalWellRest"
 SERVICE_LABEL = "Embermere_FenwatchCommunalWell_RestService_01"
+PRESENTATION_LABEL = "Embermere_FenwatchCommunalWell_RestPresentation_01"
 WELL_LABEL = "Embermere_FenwatchCommunalWell_SouthCommons_01"
 EXPECTED_LOCATION = unreal.Vector(-950.0, -1600.0, 0.0)
 EXPECTED_YAW = -135.0
@@ -59,24 +60,34 @@ def main():
     unreal.EditorLevelLibrary.load_level(LEVEL_PATH)
     actor_subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     services = []
+    presentations = []
     wells = []
     for actor in actor_subsystem.get_all_level_actors():
         label = actor_label(actor)
         if label == SERVICE_LABEL:
             services.append(actor)
+        elif label == PRESENTATION_LABEL:
+            presentations.append(actor)
         elif label == WELL_LABEL:
             wells.append(actor)
     if len(services) != 1:
         fail("expected one saved rest service, found {}".format(len(services)))
     if len(wells) != 1:
         fail("expected one saved communal well, found {}".format(len(wells)))
+    if len(presentations) != 1:
+        fail("expected one saved rest presentation, found {}".format(
+            len(presentations)
+        ))
 
     service = services[0]
+    presentation = presentations[0]
     well = wells[0]
     if not isinstance(service, unreal.EmbermereRestServiceActor):
         fail("saved service uses the wrong native class")
     if not isinstance(well, unreal.StaticMeshActor):
         fail("saved well no longer uses art-only StaticMeshActor")
+    if not isinstance(presentation, unreal.EmbermereRestPresentationActor):
+        fail("saved presentation uses the wrong native observer class")
     if (service.get_actor_location() - EXPECTED_LOCATION).length() > 0.1:
         fail("service location drifted: {}".format(service.get_actor_location()))
     yaw_delta = abs(
@@ -88,6 +99,10 @@ def main():
         fail("service yaw drifted: {}".format(service.get_actor_rotation().yaw))
     if (well.get_actor_location() - EXPECTED_LOCATION).length() > 0.1:
         fail("art and service are no longer colocated")
+    if (presentation.get_actor_location() - EXPECTED_LOCATION).length() > 0.1:
+        fail("presentation and service are no longer colocated")
+    if presentation.get_editor_property("observed_rest_service") != service:
+        fail("presentation does not observe the accepted rest service")
 
     tags = {str(tag) for tag in service.get_editor_property("tags")}
     if not {"EmbermereGameplayService", "EmbermereRestService"}.issubset(tags):
@@ -128,13 +143,34 @@ def main():
     if service.get_component_by_class(unreal.EmbermereTrainerComponent):
         fail("rest service unexpectedly owns trainer authority")
 
+    presentation_tags = {
+        str(tag) for tag in presentation.get_editor_property("tags")
+    }
+    if not {
+        "EmbermereGameplayPresentation",
+        "EmbermereRestPresentation",
+    }.issubset(presentation_tags):
+        fail("presentation tags drifted: {}".format(sorted(presentation_tags)))
+    if "EmbermereOriginalArt" in presentation_tags:
+        fail("rest presentation must remain outside the original-art count")
+    if presentation.get_actor_enable_collision():
+        fail("rest presentation unexpectedly enables actor collision")
+    if presentation.get_component_by_class(unreal.EmbermereInteractableComponent):
+        fail("rest presentation unexpectedly owns interaction")
+    if presentation.get_component_by_class(unreal.EmbermereRestServiceComponent):
+        fail("rest presentation unexpectedly owns recovery authority")
+    if presentation.get_component_by_class(unreal.StaticMeshComponent):
+        fail("rest presentation must defer transient static visual segments")
+    if presentation.get_component_by_class(unreal.SkeletalMeshComponent):
+        fail("rest presentation unexpectedly owns skeletal art")
+
     if well.get_component_by_class(unreal.EmbermereInteractableComponent):
         fail("well art unexpectedly owns interaction")
     if well.get_component_by_class(unreal.EmbermereRestServiceComponent):
         fail("well art unexpectedly owns recovery authority")
 
     unreal.log(
-        "Embermere Fenwatch rest-service validation passed: one saved data-driven art-free service colocated with presentation-only communal-well art; exact 300 cm range, 1.5 second channel, 35 cm movement interruption, 12 second session cooldown, full health/mana recovery, native interaction copy, and ownership separation intact"
+        "Embermere Fenwatch rest-service validation passed: one saved data-driven art-free service colocated with presentation-only communal-well art and one separate outcome observer; exact 300 cm range, 1.5 second channel, 35 cm movement interruption, 12 second session cooldown, full health/mana recovery, native interaction copy, deferred transient VFX, and ownership separation intact"
     )
 
 

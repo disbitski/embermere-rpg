@@ -1142,6 +1142,13 @@ The saved static well gained no components or gameplay tags. Replacing the FBX
 or moving to another well mesh therefore cannot change recovery rules, and the
 service actor does not increase the original-art count.
 
+The later presentation slice preserves it again. The colocated
+`Embermere_FenwatchCommunalWell_RestPresentation_01` observes immutable rest
+outcomes and creates only transient cyan channel and mint completion geometry.
+It has no mesh package, interaction, collision, recovery, or persistence
+authority and does not enter the 24-piece original-art count. Art, service, and
+observer can each be replaced independently.
+
 Lesson: choose civic architecture from measured world space, not an apparently
 empty screenshot. Lock the neighbors and routes first, then let the asset earn
 its place through both positive collision and negative traversal evidence.

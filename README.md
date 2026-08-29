@@ -105,6 +105,10 @@ The repo currently contains the C++ gameplay scaffold for:
   `F` interaction lane, validates range/resources/death/combat/cooldown and a
   stay-still channel before atomically restoring missing Health and Mana, and
   keeps all recovery authority out of the removable well mesh
+- a third, removable communal-well presentation observer that consumes only
+  resolved rest outcomes: twelve non-colliding cyan segments mark the live
+  shaft channel and a short mint bloom confirms committed recovery without
+  owning eligibility, timing, mutation, chat, or persistence
 - structured inventory/equipment window with clickable and draggable item rows, a fixed project-owned icon-bearing fantasy drag token, ten clickable/drop-target paper-doll slots over a data-driven illustrated adventurer backdrop, gold/red drop feedback, equipment-to-bag return, aggregate bonuses, cursor-aware game/UI input, capacity, selected-item effects, icon-bearing reward feedback, empty/reward states, `[`/`]` inspection cycling, `I` show/hide behavior, transactional Equip/Unequip, and consumable Use actions
 - data-driven project-owned item and equipment-slot icons with explicit soft
   item references, category/missing-art fallbacks, fixed row/detail/slot sizes,
@@ -256,6 +260,9 @@ This is not just a code repo. It is the record of building a fantasy RPG from ze
 - [Docs/REST_SERVICE_CONTRACT.md](Docs/REST_SERVICE_CONTRACT.md) records the
   communal-well art/service split, channel lifecycle, atomic recovery, and
   rejection/rollback guarantees.
+- [Docs/REST_PRESENTATION_CONTRACT.md](Docs/REST_PRESENTATION_CONTRACT.md)
+  records the separate transient channel/completion observer and its strict
+  no-authority lifecycle.
 - [Docs/COMBAT_FEEDBACK_CONTRACT.md](Docs/COMBAT_FEEDBACK_CONTRACT.md) records
   the immutable combat-outcome and short-lived world-presentation boundary.
 - [Docs/SAVE_GAME_CONTRACT.md](Docs/SAVE_GAME_CONTRACT.md) records the versioned

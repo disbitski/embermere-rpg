@@ -1621,3 +1621,40 @@ Before rebuilding or repeatedly relaunching after a crash:
 5. initialize MCP and confirm the current editor owns the listener.
 
 Port availability is not editor freshness. Verify both facts independently.
+
+## Mirror Immutable Outcomes For Native Presentation Observers
+
+An established dynamic Blueprint multicast can remain the public Blueprint and
+chat stream while a native presentation observer needs deterministic C++
+subscription. In the communal-well presentation test, two transient unspawned
+actors could report that the dynamic binding existed without reliably
+dispatching the callback. Replacing the Blueprint event would have widened the
+change and risked existing consumers.
+
+Publish one immutable outcome, then mirror that same value through a native
+multicast before the existing dynamic broadcast. Both streams describe the
+same already-committed result; neither performs mutation. Native observers can
+be tested directly, Blueprint consumers remain compatible, and gameplay still
+has one truth rather than two outcome calculations.
+
+## Give Transient World Feedback Its Own Removable Owner
+
+The Fenwatch well now has three explicit owners:
+
+- static art owns its mesh and purposeful collision;
+- an art-free service owns interaction, eligibility, channel, cooldown, and
+  atomic Health/Mana recovery;
+- a presentation actor observes resolved outcomes and owns only twelve
+  short-lived non-colliding segments.
+
+The observer does not infer success from elapsed visual time. It shows cyan
+only while the service reports a real pending channel, and switches to mint
+only after a committed `Success`. Interruption, death, unbinding, expiry, and
+teardown clear it. This makes the effect independently removable and prevents
+art polish from acquiring transaction or persistence authority.
+
+For physical acceptance of short-lived states, slow world time rather than
+pausing it completely so the camera can still tick. Construct Unreal Python
+`Rotator` values with named `pitch`, `yaw`, and `roll` fields; positional values
+can silently frame the wrong axis. The accepted cyan channel and mint bloom
+were judged in the actual saved PIE world, not inferred from component state.

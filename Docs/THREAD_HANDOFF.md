@@ -1552,12 +1552,42 @@ free of interaction, recovery, reward, quest, or persistence authority.
   checking the listener process before restarting avoided misdiagnosing the
   healthy editor.
 
+## 2026-08-29 Communal-Well Rest-Presentation Update
+
+- Added the native, removable
+  `AEmbermereRestPresentationActor` and saved
+  `Embermere_FenwatchCommunalWell_RestPresentation_01` beside the existing
+  well art and art-free service. The observer references the service but owns
+  no interaction, eligibility, channel rule, cooldown, recovery mutation,
+  chat, quest, reward, or persistence state.
+- The observer lazily creates exactly twelve transient project-material plane
+  segments. The live channel is restrained cyan at a `46` cm radius inside the
+  open shaft. Only a committed `Success` produces the mint bloom, expanding
+  from `52` to at most `120` cm for exactly `1.1` seconds. All geometry is
+  `NoCollision`, navigation-free, overlap-free, and shadow-free.
+- Added a native C++ mirror of the existing immutable rest outcome before the
+  established dynamic Blueprint broadcast. Native observers now have a
+  deterministic subscription lane while existing Blueprint/chat consumers
+  remain unchanged and no second outcome calculation exists.
+- `Embermere.UI.RestWorldPresentation` proves deferred geometry, fixed count
+  and bounds, duplicate safety, service-owned atomic recovery, success-only
+  completion, deterministic expiry, interruption/death/unbind/teardown
+  clearing, and zero gameplay authority. The authoritative suite is now
+  `76/76`.
+- Clean PIE visually accepted the real cyan shaft channel and mint committed
+  bloom at normal camera distance. The service alone restored exactly
+  `35 Health` and `20 Mana`; the observer remained clear of the roof, marker,
+  route, chat, and HUD. The no-hot-reload build, focused validators, fresh
+  18-package aggregate, full-zone validation, and initialized-world well,
+  notice-board, workshop, cottage, stall, and road traces all passed. Save
+  version `2` and the 53 Fab plus 24 original-art baseline remain unchanged.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-28 no-hot-reload rest-service module plus the accepted rest data/map
-packages and communal-well art package, the 2026-08-26 class-colored level-up
-world-VFX module, and the
+2026-08-29 no-hot-reload rest-presentation module plus the accepted observer,
+rest-service data/map, and communal-well art packages, the 2026-08-26
+class-colored level-up world-VFX module, and the
 2026-08-25 level-gated trainer and progression-presentation module, serialized rules
 asset, accepted notice-board
 asset/map package,
@@ -1575,7 +1605,8 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 75 tests, including
+3. Run/discover all 76 tests, including
+   `Embermere.UI.RestWorldPresentation`,
    `Embermere.Rest.ServiceContract`,
    `Embermere.Rest.RecoveryTransactions`,
    `Embermere.Rest.InterruptionAndCombat`,
@@ -1619,8 +1650,12 @@ First fresh-session checks:
      and use real `F`. Retain the fixed prompt, exact `1.5` second stay-still
      copy, atomic full-vitals result, exact restored amounts, full-resource and
      cooldown rejection, movement/combat interruption, practice-target
-     exclusion, and unchanged well collision/routes. The static mesh must own
-     no service component and the service must own no art or collision;
+     exclusion, and unchanged well collision/routes. Retain the twelve cyan
+     shaft segments during the real channel and the fixed `1.1`-second mint
+     bloom only after committed recovery; interruption, death, unbind, expiry,
+     teardown, and fresh/load worlds must clear it. The static mesh must own no
+     service component, the service must own no art or collision, and the
+     observer must own no interaction or mutation;
    - the fixed creation modal precedes play, all eight races and four classes
      remain visible, Dwarf Ranger and Bullywug Wizard stay disabled without
      silent correction, and valid confirmation restores the HUD/input path;

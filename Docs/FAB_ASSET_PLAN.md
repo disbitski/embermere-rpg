@@ -26,7 +26,9 @@ Embermere does not have final high-fantasy art assets installed yet. The current
   remaining presentation-only. A separate colocated art-free rest service now
   owns one explicit stay-still Health/Mana recovery action without putting
   interaction, timing, cooldown, combat checks, or mutation on the mesh. A
-  separate colocated native
+  third colocated presentation actor observes resolved rest outcomes and owns
+  only transient non-colliding channel/completion geometry; it is gameplay
+  presentation, not an original-art placement. A separate colocated native
   practice-target actor supplies repeatable combat without moving
   targeting, damage, reset, or reward policy into the dummy mesh. Service and
   gameplay actors do not change the 24-piece art baseline.

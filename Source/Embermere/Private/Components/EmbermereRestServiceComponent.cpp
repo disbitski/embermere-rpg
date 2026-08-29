@@ -339,5 +339,6 @@ void UEmbermereRestServiceComponent::PublishOutcome(
 	Outcome.HealthRestored = HealthRestored;
 	Outcome.ManaRestored = ManaRestored;
 	LastOutcome = Outcome;
+	OnRestOutcomeNative.Broadcast(Outcome);
 	OnRestOutcome.Broadcast(Outcome);
 }

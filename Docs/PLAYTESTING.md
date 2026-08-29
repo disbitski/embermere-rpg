@@ -398,11 +398,16 @@ Warrior fallback without rewriting the old file.
    approach the south-commons well from a protected village route.
 2. Take real damage and spend mana. Press `F` within `300` cm and confirm the
    fixed well prompt plus `Resting at Fenwatch Communal Well. Remain still.`
-   appear without opening a modal or moving the HUD.
+   appear without opening a modal or moving the HUD. Confirm exactly twelve
+   restrained cyan segments rotate inside the open shaft, remain below the
+   roof and marker, and add no collision or navigation obstruction.
 3. Remain within `35` cm of the starting point for `1.5` seconds. Confirm
    Health and Mana restore together to their current maxima and chat reports
    the exact amounts. The accepted reference restored `30 Health` and
-   `20 Mana`, from `70/100` and `30/50` to full.
+   `20 Mana`, from `70/100` and `30/50` to full. Only after that authoritative
+   commit, confirm the cyan channel becomes a mint bloom that expands from
+   `52` to at most `120` cm, remains clear of the HUD and approach, and expires
+   after exactly `1.1` seconds.
 4. Press `F` again at full resources. Confirm
    `Health and mana are already full.` and zero mutation.
 5. Damage or spend resources again during the `12` second cooldown. Confirm a
@@ -411,14 +416,19 @@ Warrior fallback without rewriting the old file.
 6. Start another eligible rest, move more than `35` cm before completion, and
    confirm `Rest interrupted.` with neither resource changed. Repeat while a
    real Marsh Prowler is engaged and confirm combat rejection. Merely selecting
-   the stationary practice target must not count as active combat.
-7. Retain the art/service split: all six purposeful well surfaces remain solid,
-   its shaft and decoration remain clear, and the non-colliding art-free
-   service exclusively owns interaction, timing, preflight, transaction, and
-   outcome feedback.
+   the stationary practice target must not count as active combat. The cyan
+   observer must clear immediately, and neither rejection may produce the mint
+   completion bloom.
+7. Retain the art/service/presentation split: all six purposeful well surfaces
+   remain solid, its shaft and decoration remain clear, the non-colliding
+   art-free service exclusively owns interaction, timing, preflight,
+   transaction, and outcomes, and the observer owns only transient geometry.
+   Death, unbinding, teardown, and fresh/load worlds must begin with no stale
+   segments or replayed completion.
 
-The full authority and rollback contract is in
-[REST_SERVICE_CONTRACT.md](REST_SERVICE_CONTRACT.md).
+The full authority and rollback contracts are in
+[REST_SERVICE_CONTRACT.md](REST_SERVICE_CONTRACT.md) and
+[REST_PRESENTATION_CONTRACT.md](REST_PRESENTATION_CONTRACT.md).
 
 ## Fenwatch Practice Target Loop
 
