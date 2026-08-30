@@ -12,7 +12,7 @@ UEmbermereQuestLogComponent::UEmbermereQuestLogComponent()
 
 bool UEmbermereQuestLogComponent::AcceptQuest(UEmbermereQuestData* Quest)
 {
-	if (!Quest || ActiveQuest.Quest)
+	if (EvaluateQuestAcceptance(Quest) != EEmbermereQuestAcceptanceResult::Success)
 	{
 		return false;
 	}
@@ -26,6 +26,45 @@ bool UEmbermereQuestLogComponent::AcceptQuest(UEmbermereQuestData* Quest)
 		FText::FromString(FString::Printf(TEXT("Quest accepted: %s"), *Quest->Title.ToString())),
 		FLinearColor(1.0f, 0.86f, 0.22f, 1.0f));
 	return true;
+}
+
+EEmbermereQuestAcceptanceResult UEmbermereQuestLogComponent::EvaluateQuestAcceptance(
+	UEmbermereQuestData* Quest) const
+{
+	if (!Quest || Quest->QuestId.IsNone() || Quest->ObjectiveId.IsNone() ||
+		Quest->RequiredObjectiveCount <= 0)
+	{
+		return EEmbermereQuestAcceptanceResult::InvalidQuest;
+	}
+	if (!ActiveQuest.Quest)
+	{
+		return EEmbermereQuestAcceptanceResult::Success;
+	}
+	return ActiveQuest.Quest == Quest
+		? EEmbermereQuestAcceptanceResult::AlreadyTracked
+		: EEmbermereQuestAcceptanceResult::OccupiedByOtherQuest;
+}
+
+FText UEmbermereQuestLogComponent::GetQuestAcceptanceResultText(
+	EEmbermereQuestAcceptanceResult Result,
+	UEmbermereQuestData* Quest) const
+{
+	switch (Result)
+	{
+	case EEmbermereQuestAcceptanceResult::InvalidQuest:
+		return FText::FromString(TEXT("That quest is unavailable."));
+	case EEmbermereQuestAcceptanceResult::AlreadyTracked:
+		return FText::FromString(FString::Printf(
+			TEXT("Quest already tracked: %s"),
+			Quest ? *Quest->Title.ToString() : TEXT("Unknown Quest")));
+	case EEmbermereQuestAcceptanceResult::OccupiedByOtherQuest:
+		return FText::FromString(FString::Printf(
+			TEXT("Finish your current quest before accepting %s."),
+			Quest ? *Quest->Title.ToString() : TEXT("another quest")));
+	case EEmbermereQuestAcceptanceResult::Success:
+	default:
+		return FText::GetEmpty();
+	}
 }
 
 bool UEmbermereQuestLogComponent::AddObjectiveProgress(FName ObjectiveId, int32 Amount)
@@ -99,6 +138,11 @@ bool UEmbermereQuestLogComponent::TryCompleteActiveQuest()
 		FText::FromString(FString::Printf(TEXT("Quest complete: %s"), *ActiveQuest.Quest->Title.ToString())),
 		FLinearColor(0.42f, 1.0f, 0.48f, 1.0f));
 	return true;
+}
+
+bool UEmbermereQuestLogComponent::TryCompleteQuest(UEmbermereQuestData* Quest)
+{
+	return Quest && ActiveQuest.Quest == Quest && TryCompleteActiveQuest();
 }
 
 bool UEmbermereQuestLogComponent::CanRestoreQuestStateForSaveGame(

@@ -1658,3 +1658,32 @@ pausing it completely so the camera can still tick. Construct Unreal Python
 `Rotator` values with named `pitch`, `yaw`, and `roll` fields; positional values
 can silently frame the wrong axis. The accepted cyan channel and mint bloom
 were judged in the actual saved PIE world, not inferred from component state.
+
+## Treat A Singular Save Record As A Product Boundary
+
+The existing quest component and save version `2` each hold one quest record.
+That shape is not merely an implementation detail: completed Mara state must
+remain there to prevent reward replay. A second quest cannot safely replace the
+record, and a transient side table would disappear on load. The correct next
+step is a deliberate versioned ledger with compatibility and rollback, not a
+clever place to hide another pointer.
+
+Before adding content, trace each new durable fact through live ownership,
+capture, validation, commit, repeated load, and legacy interpretation. If one
+field cannot represent all valid simultaneous states, stop at the boundary and
+design the next format explicitly. Content pressure is useful architecture
+feedback; it is not permission to weaken persistence.
+
+## Failed Acceptance Must Not Mutate An Unrelated Owner
+
+The first quest interaction treated any failed `AcceptQuest` call as a signal
+to attempt completion of the active quest. That happened to work while
+Embermere had only Mara, because "already tracked" was the only normal failure.
+A second quest fixture revealed the hidden ambiguity: invalid data, an occupied
+slot, and revisiting the same quest are different outcomes.
+
+Return a typed preflight result and branch deliberately. Only an exact
+same-quest revisit may enter turn-in; an occupied slot gets readable rejection;
+invalid data does nothing. More generally, failure to acquire one resource is
+never authorization to mutate whichever resource is already present. Carry
+stable identity through the request and verify it again at commit time.

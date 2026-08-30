@@ -746,14 +746,20 @@ Current automation tests:
 70. `Embermere.Trainer.LevelGatedProgression`
 71. `Embermere.Trainer.LevelGatedPersistence`
 72. `Embermere.UI.LevelUpWorldVfxPresentation`
+73. `Embermere.Rest.ServiceContract`
+74. `Embermere.Rest.RecoveryTransactions`
+75. `Embermere.Rest.InterruptionAndCombat`
+76. `Embermere.UI.RestWorldPresentation`
+77. `Embermere.Quests.SingleSlotCompatibility`
 
-Current verified baseline (2026-08-23):
+Current verified baseline (2026-08-30):
 
 - the no-hot-reload Mac editor build succeeded;
-- an isolated commandlet discovered and passed all 67 tests with no failed or
+- an isolated commandlet and the restarted editor's first-class MCP runner each
+  discovered and passed all 77 tests with no failed or
   skipped Embermere tests;
-- the fresh 15-package aggregate emitted every expected success marker,
-  retained the exact 53 grounded Fab plus 23 original-art baseline, and logged
+- the fresh 18-package aggregate emitted every expected success marker,
+  retained the exact 53 grounded Fab plus 24 original-art baseline, and logged
   no Python error;
 - clean PIE used the real Combat Drills transaction for `25` XP and Mara's
   original physical-F quest completion for another `125`, producing Human
@@ -1582,10 +1588,37 @@ free of interaction, recovery, reward, quest, or persistence authority.
   notice-board, workshop, cottage, stall, and road traces all passed. Save
   version `2` and the 53 Fab plus 24 original-art baseline remain unchanged.
 
+## 2026-08-30 Single-Quest Compatibility And Version-3 Plan
+
+- Inspection proved that `UEmbermereQuestLogComponent` and save version `2`
+  each own one quest record. Mara's completed record is durable no-replay
+  history, so a second quest cannot safely replace it or live outside
+  persistence. `Docs/MULTI_QUEST_CONTRACT.md` now defines the deliberate
+  version-3 keyed ledger, version-1/2 read adapters, complete atomic validation,
+  and the bounded future `Still Waters` content slice.
+- Quest acceptance now returns `Success`, `InvalidQuest`, `AlreadyTracked`, or
+  `OccupiedByOtherQuest`. Only an exact same-quest revisit may attempt turn-in.
+  A different valid offer produces fixed occupied-slot feedback and cannot
+  replace or complete the current quest.
+- `Embermere.Quests.SingleSlotCompatibility` proves wrong-giver rejection,
+  matching Mara completion, unchanged wallet/XP on rejection, completed-history
+  retention, version-2 capture/restore, and no schema expansion. The suite is
+  now `77/77` in both an isolated commandlet and the restarted editor's MCP
+  runner.
+- The no-hot-reload Mac build, focused rest-presentation/rest-service/well/
+  trainer/progression validators, and fresh 18-package aggregate passed with
+  exact markers and no `LogPython: Error`. The aggregate retained 53 grounded
+  Fab actors plus 24 original-art placements.
+- Clean normal-route PIE confirmed Human Warrior startup, Inventory close,
+  physical Q movement plus W cancellation, and real `F` acceptance of `First
+  Signs at the Ruin` through `Quest_Giver_Mara_Fenwatch`. The compatibility
+  guard did not disturb Mara's original authority or UI path.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-29 no-hot-reload rest-presentation module plus the accepted observer,
+2026-08-30 no-hot-reload single-quest compatibility module plus the accepted
+2026-08-29 rest-presentation observer,
 rest-service data/map, and communal-well art packages, the 2026-08-26
 class-colored level-up world-VFX module, and the
 2026-08-25 level-gated trainer and progression-presentation module, serialized rules
@@ -1605,7 +1638,8 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 76 tests, including
+3. Run/discover all 77 tests, including
+   `Embermere.Quests.SingleSlotCompatibility`,
    `Embermere.UI.RestWorldPresentation`,
    `Embermere.Rest.ServiceContract`,
    `Embermere.Rest.RecoveryTransactions`,
@@ -1794,6 +1828,17 @@ First fresh-session checks:
 
 High-value milestones after that:
 
+- implement the deliberate version-3 multi-quest ledger from
+  `Docs/MULTI_QUEST_CONTRACT.md` before adding content: keyed runtime records,
+  a bounded saved record array, version-1/2 singular-record read adapters,
+  complete preflight and rollback, repeated-load idempotence, and exact
+  quest-specific progress/completion/reward APIs. Keep
+  `EmbermereSaveGameVersion::Current` unchanged until the complete migration
+  and compatibility suite passes;
+- only after that foundation is accepted, add `Still Waters` through a
+  separate art-free notice-board quest owner and a dedicated router that
+  observes committed rest `Success`. The notice-board art, well art, rest
+  service/presentation, and trainer remain quest-free;
 - retain the accepted art-free practice-target contract around the visible
   dummy, including exact stationary transform, normal hotbar damage,
   three-second reset, target clear/reacquisition, and zero retaliation, loot,
@@ -1802,9 +1847,6 @@ High-value milestones after that:
   presentation on Prowlers and the practice target, including exact amounts,
   rapid-result cap, expiry, target/death/reset clearing, and chat/nameplate
   fallbacks; do not emit `MISS` until authoritative resolution produces it;
-- after that acceptance sweep, prefer one compact project-owned Fenwatch notice
-  board through the deterministic Blender/classic-FBX/package/validation lane,
-  keeping all quest and interaction authority outside the art;
 - retain the accepted 48-segment cyan target circle and the `Z=-1000`
   finite-world recovery contract; fresh PIE has accepted target switching,
   autorun cancellation, exact village respawn, full health, walking, zero

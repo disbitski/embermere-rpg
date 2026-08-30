@@ -2766,6 +2766,43 @@ Lesson: an authoritative service can publish the truth once, while removable
 observers translate that truth into world feedback without becoming another
 rulebook.
 
+## 2026-08-30 - The Second Quest Found The Edge Of The Save
+
+Today began as a content question: what small Fenwatch quest should follow
+Mara? The strongest candidate was `Still Waters`, offered through a separate
+notice-board owner and advanced by one committed communal-well rest. Following
+that event through the existing owners exposed the more important fact first:
+both the live quest log and save version `2` hold exactly one quest record.
+Mara's completed state must remain in that slot to prevent reward replay, so a
+second quest would either erase history or fail to survive a load.
+
+The investigation also found a real one-quest assumption in interaction code.
+Any failed quest acceptance previously fell through to `TryCompleteActiveQuest`.
+With only Mara, "already tracked" made that look reasonable. With a different
+quest giver, an occupied slot could accidentally complete Mara's ready quest.
+Quest acceptance now returns a typed result. Only the exact tracked quest may
+enter turn-in; invalid and different-quest offers reject with fixed feedback
+and no wallet, XP, progress, or reward mutation.
+
+`Embermere.Quests.SingleSlotCompatibility` brings the suite to `77`. It proves
+the occupied boundary, wrong-giver rejection, matching turn-in, completed-state
+retention, version-2 capture/restore, and no schema expansion. The
+no-hot-reload build, isolated `77/77` commandlet and live MCP runs, focused
+validators, and fresh 18-package aggregate passed. Clean PIE then confirmed
+Human Warrior startup, Inventory handoff, Q movement, W cancellation, and the
+original physical-`F` Mara acceptance path. The world remains 53 grounded Fab
+actors plus 24 original-art placements.
+
+`Still Waters` is now a reviewed content contract rather than a hidden hack.
+The next implementation lane is a deliberate version `3` keyed quest ledger,
+with version `1`/`2` adapters, complete preflight, atomic rollback, repeated-load
+idempotence, and exactly-once rewards. Only after that foundation passes will
+the notice-board owner and rest-success objective router enter the game.
+
+Lesson: sometimes the smallest new content request is an architecture test.
+When it finds a durable boundary, preserve the boundary, fix the latent
+assumption it exposed, and version the next truth deliberately.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

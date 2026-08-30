@@ -6,8 +6,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-29 no-hot-reload communal-well rest
-  presentation module plus the accepted observer/map package, the 2026-08-28
+- Confirm Unreal is running the 2026-08-30 no-hot-reload single-quest
+  compatibility module plus the 2026-08-29 communal-well rest-presentation
+  module and accepted observer/map package, the 2026-08-28
   rest-service module and data package, and the 2026-08-27
   Fenwatch communal-well art package, the 2026-08-26
   class-colored level-up world-VFX module, and the 2026-08-25 level-gated trainer,
@@ -21,11 +22,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 76 Embermere tests.
+  predates that work or test discovery exposes fewer than 77 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 76 tests, especially
+- Discover and run all 77 tests, especially
+  `Embermere.Quests.SingleSlotCompatibility`,
   `Embermere.UI.RestWorldPresentation`,
   `Embermere.Rest.ServiceContract`,
   `Embermere.Rest.RecoveryTransactions`,
@@ -79,8 +81,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative
-  latest 2026-08-29 no-hot-reload build and isolated commandlet passed 76/76,
-  including the idempotent character-creation input lock, bottom-right
+  latest 2026-08-30 no-hot-reload build and isolated commandlet passed 77/77,
+  including the single-quest compatibility guard; the restarted editor's
+  first-class MCP runner independently passed the same 77/77. The guard proves
+  that a different quest offer cannot replace or complete Mara's tracked quest,
+  preserves rewards on rejection, and retains completed history through
+  version-2 capture/restore without expanding the schema. The run also retained
+  the idempotent character-creation input lock, bottom-right
   Chronicle command geometry, live Dwarf Warrior identity, and fixed current-
   versus-saved Chronicle layout; the
   standalone communal-well presentation, communal-well rest, communal-well
@@ -95,6 +102,18 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   movement, and exact service-owned `35 Health` / `20 Mana` recovery.
   Initialized-world traces retained all six intentional well surfaces, clear
   decoration, and every protected village route.
+- Retain the accepted version-2 single-quest compatibility boundary:
+  - one valid quest or completed history record occupies the current live/save
+    slot;
+  - a same-quest revisit may enter turn-in, while invalid and different-quest
+    offers cannot complete, replace, or reward the tracked quest;
+  - occupied-slot rejection uses exact readable feedback and no wallet, XP,
+    progress, or reward mutation;
+  - version-2 capture/restore retains Mara's completed history and repeated
+    load remains idempotent;
+  - do not add `Still Waters` or bump the save version until the full
+    [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md) migration and
+    compatibility suite is implemented.
 - Retain the accepted character-creation authority and lifecycle contract:
   - the centered fixed `940x560` modal shows all eight races and four classes
     before gameplay while the normal HUD remains hidden;
@@ -558,25 +577,27 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
      `F`, dialogue, marker, quest mutation, rewards, vendor, or trainer logic;
   9. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete issue;
-  10. retain the accepted three-owner well loop in normal-camera PIE, then
-      define one small second quest/content slice before implementation. Keep
-      quest state, objectives, rewards, and interaction on a dedicated gameplay
-      owner; let existing art, services, and observers remain removable. Prefer
-      a bounded Fenwatch task that reuses the practice target, trainer, or road
-      space without turning the dummy, armsmaster art, notice board, or another
-      prop into quest authority.
+  10. implement the deliberate version-3 multi-quest ledger from
+      [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md) before adding
+      a second durable quest. Use keyed runtime records, a bounded saved array,
+      version-1/2 singular-record read adapters, complete preflight/rollback,
+      repeated-load idempotence, and exactly-once quest-specific rewards. Only
+      after that suite passes should `Still Waters` observe committed rest
+      success through a dedicated router; the notice board, well art, rest
+      service/presentation, and trainer remain quest-free.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-29
-  communal-well rest-presentation module, the 2026-08-28 rest-service module,
+- Restart Unreal before manual PIE when the editor predates the 2026-08-30
+  single-quest compatibility module, the 2026-08-29 communal-well
+  rest-presentation module, the 2026-08-28 rest-service module,
   the 2026-08-26
   level-up world-VFX module and 2026-08-25 level-gated trainer/progression
   module, character-identity persistence,
   rigged Fenwatch keeper, armsmaster, and
   quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 76 tests.
+  Current code passes all 77 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -979,6 +1000,22 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- Implement the version-3 multi-quest foundation before adding `Still Waters`:
+  - replace the implicit single active slot with a keyed, bounded live ledger;
+  - add a versioned saved quest-record array and bump
+    `EmbermereSaveGameVersion::Current` only when the full implementation and
+    compatibility suite are complete;
+  - interpret version `1` and `2` singular quest records through an explicit
+    read-only adapter without rewriting old slots;
+  - preflight every record, stable ID, asset, objective, count, completion
+    state, duplicate, and capacity edge before one atomic ledger replacement;
+  - prove independent parallel progress, exact quest-specific turn-in,
+    repeated-load idempotence, exactly-once rewards, malformed-record rollback,
+    Chronicle/HUD read-only consumption, and no authority on art or services;
+  - only then add the separate art-free notice-board owner for `Still Waters`
+    and a dedicated objective router that observes committed rest `Success`.
+  Treat [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md) as the
+  implementation and content boundary.
 - Retain Mara's accepted contextual greeting contract in clean PIE:
   - outside `420` cm the observer must be hidden; inside range it must show the
     quest-owned available, active, ready, or completed copy;
@@ -1055,8 +1092,9 @@ targeting, rewards, AI, quests, or persistence.
   authority. Retain the separate accepted presentation observer: twelve fixed
   cyan shaft segments while channeling, one `1.1`-second mint committed bloom,
   no collision/navigation or gameplay mutation, immediate interruption/death/
-  teardown clearing, and no load replay. The next bounded lane is a deliberately
-  owned second quest/content slice, not another responsibility on the well.
+  teardown clearing, and no load replay. The next bounded lane is the deliberate
+  version-3 quest ledger; the future second quest observes committed rest
+  through its own router and never becomes another responsibility on the well.
 - Retain the accepted trainer Chronicle proof under save version `2`:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
@@ -1133,6 +1171,24 @@ targeting, rewards, AI, quests, or persistence.
   scale, color, or motion only from normal-camera feedback.
 
 ## Last Completed
+
+- 2026-08-30: traced the proposed second Fenwatch quest through the live and
+  persistence owners and proved that save version `2` is intentionally a
+  single-quest format. Added `Docs/MULTI_QUEST_CONTRACT.md` for the deliberate
+  version-3 keyed ledger, legacy adapters, atomic validation/rollback, and the
+  future `Still Waters` rest-success slice without moving quest authority into
+  the notice board, well, rest service/presentation, or trainer.
+- Replaced the ambiguous accept-failure turn-in fallback with typed quest
+  acceptance results. Only the exact tracked quest may attempt completion; a
+  different offer reports the occupied slot and cannot replace or complete
+  Mara's quest or mutate rewards.
+- Added `Embermere.Quests.SingleSlotCompatibility`, bringing the suite to
+  77. The no-hot-reload build, isolated commandlet `77/77`, restarted-editor
+  MCP `77/77`, five focused validators, and fresh 18-package aggregate passed
+  with no Python errors. Clean PIE retained Human Warrior startup, Inventory
+  handoff, Q movement, W cancellation, and physical-`F` Mara acceptance. The
+  world remains 53 grounded Fab actors plus 24 original-art placements, and
+  save version `2` remains unchanged.
 
 - 2026-08-29: added the separate native
   `Embermere_FenwatchCommunalWell_RestPresentation_01` as a removable observer

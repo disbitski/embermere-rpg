@@ -18,7 +18,7 @@ silently migrates its bytes.
 - character race and starting class as stable IDs;
 - inventory stack item identity, asset path, and quantity;
 - equipped item identity, asset path, and body slot;
-- active quest identity, objective progress, and completion state;
+- one quest identity, objective progress, and completion state;
 - every persistent vendor's stable ID, stock-data asset, and remaining finite
   or unlimited quantities.
 
@@ -70,6 +70,25 @@ migration.
 
 Appearance, character name, creation-panel selection, confirmation UI state,
 and per-character slot/profile ownership are not serialized in version `2`.
+
+## Version 2 Single-Quest Boundary
+
+Version `2` has exactly one saved `QuestState`, matching the live quest log's
+single tracked record. A completed Mara quest remains in that record as durable
+history so its rewards cannot replay. Replacing it with a second quest would
+erase that history; keeping a second quest elsewhere would make it
+non-durable. Both outcomes violate the atomic persistence contract.
+
+Until a deliberate version `3` migration exists, a different valid quest offer
+must report the occupied slot without replacing or completing the tracked
+quest. Only the matching quest may use the turn-in path. Capture and repeated
+restore retain the exact singular record under version `2`.
+
+The proposed keyed ledger, legacy adapter, validation rules, and bounded
+`Still Waters` content slice live in
+[MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md). Do not add a second durable
+quest, overwrite completed history, or expand `EmbermereSaveGameVersion::Current`
+implicitly.
 
 ## Derived Level And Growth
 
@@ -297,6 +316,9 @@ live mutation.
   complete rollback.
 - `Embermere.Persistence.ValidationRollback` proves malformed candidates do
   not partially mutate live state.
+- `Embermere.Quests.SingleSlotCompatibility` proves a different quest offer
+  cannot replace or complete the tracked quest, preserves rewards, and retains
+  Mara's completed history across version-2 capture and restore.
 - `Embermere.Persistence.SlotInspection` proves empty, valid, and unsupported
   slot summaries without mutating gameplay owners.
 - `Embermere.UI.SaveLoadPanel` locks the panel's fixed bounds, visibility,
@@ -311,7 +333,7 @@ live mutation.
   the stable vendor ID to the art-free service boundary.
 - Full automation, saved-package validators, initialized-world route traces,
   and the two-session PIE validator remain separate acceptance layers. The
-  2026-08-25 baseline is 71/71 tests plus all 15 package validators.
+  2026-08-30 baseline is 77/77 tests plus the sequential 18-package aggregate.
 
 Future format changes must increment `EmbermereSaveGameVersion::Current` and
 either provide an explicit compatibility interpretation or reject the older

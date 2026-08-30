@@ -78,7 +78,10 @@ The repo currently contains the C++ gameplay scaffold for:
   vendor stock; version 2 resolves stable race/class IDs through current rules,
   restores class stats and starter hotbars atomically, keeps version 1 loadable
   through an explicit Human Warrior fallback, rejects malformed records without
-  partial state, and keeps buyback session-only
+  partial state, and keeps buyback session-only; its quest record is
+  intentionally singular, so additional durable quests wait for the explicit
+  version-3 ledger in
+  [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md)
 - data-driven level progression derived only from durable XP, with validated
   cumulative thresholds for levels 1 through 5, distinct race/class growth,
   atomic identity-base recomputation, one additive equipment layer, exact live

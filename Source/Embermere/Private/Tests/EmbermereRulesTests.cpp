@@ -4126,6 +4126,121 @@ bool FEmbermereQuestRewardTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereSecondQuestCompatibilityTest,
+	"Embermere.Quests.SingleSlotCompatibility",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereSecondQuestCompatibilityTest::RunTest(const FString& Parameters)
+{
+	UEmbermereQuestData* MaraQuest = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	AEmbermereCharacter* Source = NewObject<AEmbermereCharacter>();
+	AEmbermereCharacter* Restored = NewObject<AEmbermereCharacter>();
+	AActor* SecondQuestGiver = NewObject<AActor>();
+	UEmbermereInteractableComponent* SecondInteractable =
+		NewObject<UEmbermereInteractableComponent>(SecondQuestGiver);
+	UEmbermereQuestData* SecondQuest = NewObject<UEmbermereQuestData>();
+	if (!MaraQuest || !Source || !Restored || !SecondQuestGiver ||
+		!SecondInteractable || !SecondQuest)
+	{
+		AddError(TEXT("Could not create second-quest compatibility fixtures"));
+		return false;
+	}
+
+	SecondQuest->QuestId = TEXT("FenwatchStillWaters");
+	SecondQuest->Title = FText::FromString(TEXT("Still Waters"));
+	SecondQuest->ObjectiveId = TEXT("FenwatchRestCompleted");
+	SecondQuest->RequiredObjectiveCount = 1;
+	SecondQuest->RewardExperience = 50;
+	SecondQuest->RewardCopper = 10;
+	SecondInteractable->QuestToOffer = SecondQuest;
+
+	TestEqual(
+		TEXT("A valid first quest passes acceptance preflight"),
+		Source->QuestLog->EvaluateQuestAcceptance(MaraQuest),
+		EEmbermereQuestAcceptanceResult::Success);
+	TestTrue(TEXT("Mara quest occupies the version-2 quest slot"),
+		Source->QuestLog->AcceptQuest(MaraQuest));
+	TestTrue(TEXT("Mara quest reaches ready-to-turn-in state"),
+		Source->QuestLog->AddObjectiveProgress(
+			MaraQuest->ObjectiveId,
+			MaraQuest->RequiredObjectiveCount));
+	TestEqual(
+		TEXT("A different quest reports the occupied single-slot boundary"),
+		Source->QuestLog->EvaluateQuestAcceptance(SecondQuest),
+		EEmbermereQuestAcceptanceResult::OccupiedByOtherQuest);
+	TestEqual(
+		TEXT("Occupied-slot feedback names the blocked quest"),
+		Source->QuestLog->GetQuestAcceptanceResultText(
+			EEmbermereQuestAcceptanceResult::OccupiedByOtherQuest,
+			SecondQuest).ToString(),
+		FString(TEXT("Finish your current quest before accepting Still Waters.")));
+
+	const int32 CopperBeforeWrongGiver = Source->Wallet->Copper;
+	const int32 ExperienceBeforeWrongGiver = Source->Stats->CurrentExperience;
+	SecondInteractable->Interact(Source);
+	TestTrue(TEXT("A different quest giver cannot replace Mara's quest"),
+		Source->QuestLog->ActiveQuest.Quest == MaraQuest);
+	TestFalse(TEXT("A different quest giver cannot complete Mara's ready quest"),
+		Source->QuestLog->ActiveQuest.bCompleted);
+	TestEqual(TEXT("Wrong-giver rejection preserves copper"),
+		Source->Wallet->Copper, CopperBeforeWrongGiver);
+	TestEqual(TEXT("Wrong-giver rejection preserves experience"),
+		Source->Stats->CurrentExperience, ExperienceBeforeWrongGiver);
+
+	TestTrue(TEXT("Only Mara's matching quest turn-in may complete the quest"),
+		Source->QuestLog->TryCompleteQuest(MaraQuest));
+	TestFalse(TEXT("The second quest remains blocked by durable completion history"),
+		Source->QuestLog->AcceptQuest(SecondQuest));
+	TestTrue(TEXT("Mara completion history remains active"),
+		Source->QuestLog->ActiveQuest.Quest == MaraQuest &&
+		Source->QuestLog->ActiveQuest.bCompleted);
+
+	TestTrue(
+		TEXT("Source confirms a deliberate identity before version-2 capture"),
+		Source->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	UEmbermereSaveGame* CapturedSave = nullptr;
+	FText PersistenceMessage;
+	TestEqual(
+		TEXT("The guarded single quest captures under save version 2"),
+		UEmbermerePersistenceLibrary::CaptureGameState(
+			Source, {}, CapturedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestNotNull(TEXT("Single-slot compatibility capture creates a save"), CapturedSave);
+	if (!CapturedSave)
+	{
+		return false;
+	}
+	TestEqual(TEXT("Compatibility guard does not expand the save version"),
+		CapturedSave->FormatVersion, EmbermereSaveGameVersion::CharacterIdentity);
+	TestEqual(TEXT("Version 2 retains Mara's stable quest ID"),
+		CapturedSave->QuestState.QuestId, MaraQuest->QuestId);
+	TestTrue(TEXT("Version 2 retains Mara's completed state"),
+		CapturedSave->QuestState.bCompleted);
+
+	TestEqual(
+		TEXT("The guarded version-2 save restores successfully"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Restored, {}, CapturedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestTrue(TEXT("Restore retains Mara's completion history"),
+		Restored->QuestLog->ActiveQuest.Quest == MaraQuest &&
+		Restored->QuestLog->ActiveQuest.bCompleted);
+	TestEqual(
+		TEXT("A second quest remains blocked after restore"),
+		Restored->QuestLog->EvaluateQuestAcceptance(SecondQuest),
+		EEmbermereQuestAcceptanceResult::OccupiedByOtherQuest);
+	const int32 RestoredCopper = Restored->Wallet->Copper;
+	TestFalse(TEXT("A mismatched turn-in cannot pay rewards after restore"),
+		Restored->QuestLog->TryCompleteQuest(SecondQuest));
+	TestEqual(TEXT("Rejected mismatched turn-in preserves restored copper"),
+		Restored->Wallet->Copper, RestoredCopper);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereFenwatchKeeperPresentationTest,
 	"Embermere.NPC.FenwatchKeeperPresentation",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

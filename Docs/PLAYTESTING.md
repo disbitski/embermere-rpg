@@ -155,6 +155,16 @@ mouse input. Physical `F` must still open and mutate only the original
 Blueprint-owned quest flow, and a second completed interaction must not replay
 XP, copper, or the Recruit Pack.
 
+Until the deliberate version-3 multi-quest ledger lands, version `2` has one
+tracked quest record. Exercise the compatibility guard whenever a second quest
+fixture is available: make Mara's quest ready to turn in, interact with a
+different quest giver, and confirm it reports the occupied slot without
+replacing or completing Mara's quest or changing XP/copper. Only Mara's
+matching interaction may complete it. Save and load twice, then confirm Mara's
+completed history still occupies the version-2 record and neither giver can
+replay rewards. See
+[MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md) for the future ledger lane.
+
 ## NPC Skeletal Idle Acceptance
 
 Use this focused lane when accepting wrapper-based NPC art. The Fenwatch
@@ -698,6 +708,10 @@ The full ownership and rollback contract is in
   damage protection, not a full corpse run or revive system. It now also owns
   the finite-world recovery contract: crossing below `Z=-1000` forces death,
   cancels autorun, and restores walking with cleared velocity.
+- Save version `2` and the live quest log intentionally retain one quest record.
+  Different-quest offers now reject without replacing or completing Mara's
+  tracked state, but parallel durable quests remain blocked until the explicit
+  version-3 ledger in `Docs/MULTI_QUEST_CONTRACT.md` is implemented and tested.
 - Inventory presentation now has clickable and draggable rows, fixed
   project-owned item/equipment icons and fantasy drag token, category/missing-art
   fallbacks, stable identity-preserving category/name sorting, keyboard
