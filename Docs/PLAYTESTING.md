@@ -155,15 +155,13 @@ mouse input. Physical `F` must still open and mutate only the original
 Blueprint-owned quest flow, and a second completed interaction must not replay
 XP, copper, or the Recruit Pack.
 
-Until the deliberate version-3 multi-quest ledger lands, version `2` has one
-tracked quest record. Exercise the compatibility guard whenever a second quest
-fixture is available: make Mara's quest ready to turn in, interact with a
-different quest giver, and confirm it reports the occupied slot without
-replacing or completing Mara's quest or changing XP/copper. Only Mara's
-matching interaction may complete it. Save and load twice, then confirm Mara's
-completed history still occupies the version-2 record and neither giver can
-replay rewards. See
-[MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md) for the future ledger lane.
+Version `3` now supports parallel keyed quests. Exercise the exact-owner guard
+whenever a second quest fixture is available: make Mara ready to turn in,
+interact with the other giver, and confirm it cannot complete Mara or change her
+XP/copper/reward state. Only Mara's matching interaction may complete her
+record. Save and load twice, then confirm both histories remain independent and
+neither giver can replay rewards. See
+[MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
 
 ## NPC Skeletal Idle Acceptance
 
@@ -230,7 +228,7 @@ and a repeat `F` preserved `125` XP without reward replay.
 9. Repeat with at least one other legal pair when changing rules data. The
    picker must consume the rules asset rather than maintain a second allow-list.
 
-Save version `2` persists only a deliberately confirmed race/class pair through
+Save version `3` continues to persist a deliberately confirmed race/class pair through
 stable IDs. Each fresh prototype world still presents the picker first; a
 confirmed Chronicle load may then atomically replace that temporary choice with
 the saved identity, class stats, starter hotbar, equipment, and progression.
@@ -567,6 +565,40 @@ The full ownership and rollback contract is in
 The full ownership and rollback contract is in
 [TRAINER_SERVICE_CONTRACT.md](TRAINER_SERVICE_CONTRACT.md).
 
+## Version 3 Multi-Quest Foundation
+
+1. Build with `-NoHotReloadFromIDE`, restart Unreal, force automation
+   rediscovery, and confirm exactly `80` Embermere tests are available.
+2. Run `Embermere.Quests.MultiQuestRuntime` and verify two valid quests coexist,
+   exact objective progress affects only its quest, an unrelated giver cannot
+   turn in Mara, a failed reward preflight preserves ready state, and each
+   successful completion pays once.
+3. Run `Embermere.Persistence.MultiQuestRoundTrip` and verify empty and
+   two-record version-3 ledgers serialize through Unreal's SaveGame archive,
+   restore atomically, and remain exact on a second load without reward replay.
+4. Run `Embermere.Persistence.LegacyQuestCompatibility` and verify version `1`
+   and `2` singular records adapt to one live ledger record without changing the
+   source save version or singular bytes.
+5. Run `Embermere.Persistence.MultiQuestValidationRollback` and verify duplicate
+   IDs, missing assets, mismatched quest/objective IDs, invalid progress,
+   contradictory completion, over-capacity ledgers, and mixed legacy/native
+   version-3 state reject without changing live quest, wallet, XP, inventory,
+   equipment, or vendor owners.
+6. In clean PIE, confirm Human Warrior and close Inventory. Refresh the Slate
+   snapshot and click the viewport before each measured key. Verify Q changes
+   player transform and W cancels at the resulting transform.
+7. Enter Mara's real interaction radius and press physical `F`. Confirm the
+   original dialogue/acceptance path still shows `First Signs at the Ruin 0/3`.
+8. Inspect the possessed character's `QuestLog`: `questStates` must contain one
+   `FirstSignsAtTheRuin` record at progress zero, `focusedQuestId` must match,
+   and `activeQuest` must be the same read-only compatibility projection.
+9. Do not overwrite the player's Chronicle slot merely to inspect this
+   foundation. Native round-trip and rollback are covered by automation; the
+   next two-quest physical save/load gate belongs to the `Still Waters` slice.
+
+The complete contract is in
+[MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
+
 ## Prototype Save And Load
 
 1. Complete the Fenwatch vendor sequence through the `22` copper quest state.
@@ -708,10 +740,10 @@ The full ownership and rollback contract is in
   damage protection, not a full corpse run or revive system. It now also owns
   the finite-world recovery contract: crossing below `Z=-1000` forces death,
   cancels autorun, and restores walking with cleared velocity.
-- Save version `2` and the live quest log intentionally retain one quest record.
-  Different-quest offers now reject without replacing or completing Mara's
-  tracked state, but parallel durable quests remain blocked until the explicit
-  version-3 ledger in `Docs/MULTI_QUEST_CONTRACT.md` is implemented and tested.
+- Save version `3` and the live quest log now own a bounded keyed quest ledger.
+  Versions `1` and `2` remain loadable through singular-record adapters. The
+  foundation is accepted; the next gap is the physical two-quest `Still Waters`
+  content/save loop, not another persistence schema change.
 - Inventory presentation now has clickable and draggable rows, fixed
   project-owned item/equipment icons and fantasy drag token, category/missing-art
   fallbacks, stable identity-preserving category/name sorting, keyboard

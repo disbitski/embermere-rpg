@@ -34,7 +34,7 @@ namespace
 		int32 Level = 1;
 		TArray<FEmbermereInventoryStack> InventoryStacks;
 		TArray<FEmbermereEquippedItem> EquippedItems;
-		FEmbermereQuestState QuestState;
+		TArray<FEmbermereQuestState> QuestStates;
 		TArray<FResolvedVendorStock> VendorStocks;
 	};
 
@@ -88,10 +88,10 @@ namespace
 		{
 			return true;
 		}
-		if (SaveGame->FormatVersion != EmbermereSaveGameVersion::CharacterIdentity ||
+		if (SaveGame->FormatVersion < EmbermereSaveGameVersion::CharacterIdentity ||
 			SaveGame->RaceId.IsNone() || SaveGame->ClassId.IsNone())
 		{
-			OutError = TEXT("The version-2 save is missing its stable character identity.");
+			OutError = TEXT("The save is missing its stable character identity.");
 			return false;
 		}
 		if (!UEmbermereRulesData::TryResolveStableRaceId(SaveGame->RaceId, OutRace))
@@ -109,6 +109,163 @@ namespace
 			return false;
 		}
 		return true;
+	}
+
+	bool IsLegacyQuestStateEmpty(const FEmbermereSavedQuestState& QuestState)
+	{
+		return !QuestState.bHasActiveQuest && QuestState.QuestId.IsNone() &&
+			QuestState.QuestAsset.IsNull() && QuestState.CurrentObjectiveCount == 0 &&
+			!QuestState.bCompleted;
+	}
+
+	EEmbermerePersistenceResult ResolveQuestRecord(
+		FName QuestId,
+		const FSoftObjectPath& QuestAsset,
+		FName ObjectiveId,
+		int32 CurrentObjectiveCount,
+		bool bCompleted,
+		bool bRequireSavedObjectiveId,
+		FEmbermereQuestState& OutQuestState,
+		FText& OutMessage)
+	{
+		OutQuestState = FEmbermereQuestState();
+		if (QuestId.IsNone() || QuestAsset.IsNull() ||
+			(bRequireSavedObjectiveId && ObjectiveId.IsNone()))
+		{
+			return Fail(
+				EEmbermerePersistenceResult::InvalidData,
+				OutMessage,
+				TEXT("A quest record is missing its stable quest or objective identity."));
+		}
+
+		UEmbermereQuestData* Quest = ResolveAsset<UEmbermereQuestData>(QuestAsset);
+		if (!Quest)
+		{
+			return Fail(
+				EEmbermerePersistenceResult::MissingAsset,
+				OutMessage,
+				FString::Printf(
+					TEXT("Quest asset '%s' could not be resolved."),
+					*QuestAsset.ToString()));
+		}
+		if (Quest->QuestId.IsNone() || Quest->ObjectiveId.IsNone() ||
+			Quest->RequiredObjectiveCount <= 0 || Quest->RewardExperience < 0 ||
+			Quest->RewardCopper < 0 || Quest->QuestId != QuestId ||
+			(bRequireSavedObjectiveId && Quest->ObjectiveId != ObjectiveId))
+		{
+			return Fail(
+				EEmbermerePersistenceResult::InvalidData,
+				OutMessage,
+				FString::Printf(
+					TEXT("Quest record '%s' no longer matches its authored identity."),
+					*QuestId.ToString()));
+		}
+		if (CurrentObjectiveCount < 0 ||
+			CurrentObjectiveCount > Quest->RequiredObjectiveCount ||
+			(bCompleted && CurrentObjectiveCount != Quest->RequiredObjectiveCount))
+		{
+			return Fail(
+				EEmbermerePersistenceResult::InvalidData,
+				OutMessage,
+				FString::Printf(
+					TEXT("Quest record '%s' has invalid progress or completion state."),
+					*QuestId.ToString()));
+		}
+
+		OutQuestState.Quest = Quest;
+		OutQuestState.CurrentObjectiveCount = CurrentObjectiveCount;
+		OutQuestState.bCompleted = bCompleted;
+		return EEmbermerePersistenceResult::Success;
+	}
+
+	EEmbermerePersistenceResult ResolveSavedQuestStates(
+		const UEmbermereSaveGame* SaveGame,
+		TArray<FEmbermereQuestState>& OutQuestStates,
+		FText& OutMessage)
+	{
+		OutQuestStates.Reset();
+		if (!SaveGame)
+		{
+			return Fail(
+				EEmbermerePersistenceResult::InvalidRequest,
+				OutMessage,
+				TEXT("The save record is unavailable."));
+		}
+
+		if (SaveGame->FormatVersion == EmbermereSaveGameVersion::MultiQuestLedger)
+		{
+			if (!IsLegacyQuestStateEmpty(SaveGame->QuestState))
+			{
+				return Fail(
+					EEmbermerePersistenceResult::InvalidData,
+					OutMessage,
+					TEXT("A version-3 save contains contradictory legacy quest state."));
+			}
+			if (SaveGame->QuestStates.Num() > UEmbermereQuestLogComponent::MaxTrackedQuests)
+			{
+				return Fail(
+					EEmbermerePersistenceResult::CapacityConflict,
+					OutMessage,
+					TEXT("The saved quest ledger exceeds the current bounded capacity."));
+			}
+
+			TSet<FName> SeenQuestIds;
+			for (const FEmbermereSavedQuestRecord& SavedQuest : SaveGame->QuestStates)
+			{
+				if (SavedQuest.QuestId.IsNone() || SeenQuestIds.Contains(SavedQuest.QuestId))
+				{
+					return Fail(
+						EEmbermerePersistenceResult::InvalidData,
+						OutMessage,
+						TEXT("The saved quest ledger contains a missing or duplicate quest ID."));
+				}
+				SeenQuestIds.Add(SavedQuest.QuestId);
+
+				FEmbermereQuestState& ResolvedQuest = OutQuestStates.AddDefaulted_GetRef();
+				const EEmbermerePersistenceResult QuestResult = ResolveQuestRecord(
+					SavedQuest.QuestId,
+					SavedQuest.QuestAsset,
+					SavedQuest.ObjectiveId,
+					SavedQuest.CurrentObjectiveCount,
+					SavedQuest.bCompleted,
+					true,
+					ResolvedQuest,
+					OutMessage);
+				if (QuestResult != EEmbermerePersistenceResult::Success)
+				{
+					return QuestResult;
+				}
+			}
+			return EEmbermerePersistenceResult::Success;
+		}
+
+		if (!SaveGame->QuestStates.IsEmpty())
+		{
+			return Fail(
+				EEmbermerePersistenceResult::InvalidData,
+				OutMessage,
+				TEXT("A legacy save contains unsupported version-3 quest records."));
+		}
+		if (!SaveGame->QuestState.bHasActiveQuest)
+		{
+			return IsLegacyQuestStateEmpty(SaveGame->QuestState)
+				? EEmbermerePersistenceResult::Success
+				: Fail(
+					EEmbermerePersistenceResult::InvalidData,
+					OutMessage,
+					TEXT("An empty legacy quest record contains contradictory progression data."));
+		}
+
+		FEmbermereQuestState& ResolvedQuest = OutQuestStates.AddDefaulted_GetRef();
+		return ResolveQuestRecord(
+			SaveGame->QuestState.QuestId,
+			SaveGame->QuestState.QuestAsset,
+			NAME_None,
+			SaveGame->QuestState.CurrentObjectiveCount,
+			SaveGame->QuestState.bCompleted,
+			false,
+			ResolvedQuest,
+			OutMessage);
 	}
 
 	EEmbermerePersistenceResult BuildVendorMap(
@@ -287,52 +444,20 @@ namespace
 				TEXT("The saved equipment violates current slot or level rules."));
 		}
 
-		if (SaveGame->QuestState.bHasActiveQuest)
+		const EEmbermerePersistenceResult QuestResult = ResolveSavedQuestStates(
+			SaveGame,
+			OutState.QuestStates,
+			OutMessage);
+		if (QuestResult != EEmbermerePersistenceResult::Success)
 		{
-			if (SaveGame->QuestState.QuestId.IsNone() || SaveGame->QuestState.QuestAsset.IsNull())
-			{
-				return Fail(
-					EEmbermerePersistenceResult::InvalidData,
-					OutMessage,
-					TEXT("The active quest record is missing its stable identity."));
-			}
-			UEmbermereQuestData* Quest = ResolveAsset<UEmbermereQuestData>(SaveGame->QuestState.QuestAsset);
-			if (!Quest)
-			{
-				return Fail(
-					EEmbermerePersistenceResult::MissingAsset,
-					OutMessage,
-					FString::Printf(
-						TEXT("Quest asset '%s' could not be resolved."),
-						*SaveGame->QuestState.QuestAsset.ToString()));
-			}
-			if (Quest->QuestId != SaveGame->QuestState.QuestId)
-			{
-				return Fail(
-					EEmbermerePersistenceResult::InvalidData,
-					OutMessage,
-					TEXT("The saved quest ID no longer matches its data asset."));
-			}
-			OutState.QuestState.Quest = Quest;
-			OutState.QuestState.CurrentObjectiveCount = SaveGame->QuestState.CurrentObjectiveCount;
-			OutState.QuestState.bCompleted = SaveGame->QuestState.bCompleted;
+			return QuestResult;
 		}
-		else if (!SaveGame->QuestState.QuestId.IsNone() ||
-			!SaveGame->QuestState.QuestAsset.IsNull() ||
-			SaveGame->QuestState.CurrentObjectiveCount != 0 ||
-			SaveGame->QuestState.bCompleted)
+		if (!Character->QuestLog->CanRestoreQuestStatesForSaveGame(OutState.QuestStates))
 		{
 			return Fail(
 				EEmbermerePersistenceResult::InvalidData,
 				OutMessage,
-				TEXT("An empty quest record contains contradictory progression data."));
-		}
-		if (!Character->QuestLog->CanRestoreQuestStateForSaveGame(OutState.QuestState))
-		{
-			return Fail(
-				EEmbermerePersistenceResult::InvalidData,
-				OutMessage,
-				TEXT("The saved quest progress is outside the current objective contract."));
+				TEXT("The saved quest ledger is outside the current runtime contract."));
 		}
 
 		TMap<FName, UEmbermereVendorComponent*> VendorMap;
@@ -489,22 +614,37 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::CaptureGameState(
 		SavedItem.ItemAsset = ItemPath;
 	}
 
-	if (Character->QuestLog->ActiveQuest.Quest)
+	TArray<FEmbermereQuestState> QuestStates = Character->QuestLog->GetQuestStatesForSaveGame();
+	if (!Character->QuestLog->CanRestoreQuestStatesForSaveGame(QuestStates))
 	{
-		const UEmbermereQuestData* Quest = Character->QuestLog->ActiveQuest.Quest;
+		return Fail(
+			EEmbermerePersistenceResult::InvalidData,
+			OutMessage,
+			TEXT("The live quest ledger is outside the current persistence contract."));
+	}
+	QuestStates.Sort([](const FEmbermereQuestState& Left, const FEmbermereQuestState& Right)
+	{
+		return Left.Quest && Right.Quest
+			? Left.Quest->QuestId.ToString() < Right.Quest->QuestId.ToString()
+			: Left.Quest != nullptr;
+	});
+	for (const FEmbermereQuestState& QuestState : QuestStates)
+	{
+		const UEmbermereQuestData* Quest = QuestState.Quest;
 		const FSoftObjectPath QuestPath = GetPersistentAssetPath(Quest);
-		if (Quest->QuestId.IsNone() || QuestPath.IsNull())
+		if (!Quest || Quest->QuestId.IsNone() || Quest->ObjectiveId.IsNone() || QuestPath.IsNull())
 		{
 			return Fail(
 				EEmbermerePersistenceResult::InvalidData,
 				OutMessage,
-				TEXT("The active quest does not have a stable data-asset identity."));
+				TEXT("A tracked quest does not have a stable data-asset identity."));
 		}
-		Candidate->QuestState.bHasActiveQuest = true;
-		Candidate->QuestState.QuestId = Quest->QuestId;
-		Candidate->QuestState.QuestAsset = QuestPath;
-		Candidate->QuestState.CurrentObjectiveCount = Character->QuestLog->ActiveQuest.CurrentObjectiveCount;
-		Candidate->QuestState.bCompleted = Character->QuestLog->ActiveQuest.bCompleted;
+		FEmbermereSavedQuestRecord& SavedQuest = Candidate->QuestStates.AddDefaulted_GetRef();
+		SavedQuest.QuestId = Quest->QuestId;
+		SavedQuest.QuestAsset = QuestPath;
+		SavedQuest.ObjectiveId = Quest->ObjectiveId;
+		SavedQuest.CurrentObjectiveCount = QuestState.CurrentObjectiveCount;
+		SavedQuest.bCompleted = QuestState.bCompleted;
 	}
 
 	TMap<FName, UEmbermereVendorComponent*> VendorMap;
@@ -589,7 +729,7 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::ApplyGameState(
 	Character->Equipment->RestoreEquippedItemsForSaveGame(ResolvedState.EquippedItems);
 	Character->Stats->ApplyEquipmentBonuses(Character->Equipment->GetTotalStatBonuses());
 	Character->Wallet->SetCopperForPrototype(SaveGame->Copper);
-	Character->QuestLog->RestoreQuestStateForSaveGame(ResolvedState.QuestState);
+	Character->QuestLog->RestoreQuestStatesForSaveGame(ResolvedState.QuestStates);
 	for (const FResolvedVendorStock& VendorState : ResolvedState.VendorStocks)
 	{
 		VendorState.Vendor->RestoreStockForSaveGame(VendorState.RemainingQuantities);
@@ -763,12 +903,38 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::InspectSaveSlot(
 	}
 	IdentitySummary += FString::Printf(TEXT("  |  Level %d"), SavedLevel);
 
-	FString QuestSummary = TEXT("No active quest");
-	if (SaveGame->QuestState.bHasActiveQuest)
+	TArray<FEmbermereQuestState> ResolvedQuestStates;
+	FText QuestValidationMessage;
+	const EEmbermerePersistenceResult QuestResult = ResolveSavedQuestStates(
+		SaveGame,
+		ResolvedQuestStates,
+		QuestValidationMessage);
+	if (QuestResult != EEmbermerePersistenceResult::Success)
 	{
-		QuestSummary = SaveGame->QuestState.bCompleted
+		OutSummary = QuestValidationMessage;
+		return QuestResult;
+	}
+
+	FString QuestSummary = TEXT("No tracked quests");
+	if (ResolvedQuestStates.Num() == 1)
+	{
+		QuestSummary = ResolvedQuestStates[0].bCompleted
 			? TEXT("Quest complete")
-			: FString::Printf(TEXT("Quest progress %d"), SaveGame->QuestState.CurrentObjectiveCount);
+			: FString::Printf(
+				TEXT("Quest progress %d"),
+				ResolvedQuestStates[0].CurrentObjectiveCount);
+	}
+	else if (ResolvedQuestStates.Num() > 1)
+	{
+		int32 CompletedQuestCount = 0;
+		for (const FEmbermereQuestState& QuestState : ResolvedQuestStates)
+		{
+			CompletedQuestCount += QuestState.bCompleted ? 1 : 0;
+		}
+		QuestSummary = FString::Printf(
+			TEXT("%d quests | %d complete"),
+			ResolvedQuestStates.Num(),
+			CompletedQuestCount);
 	}
 	OutSummary = FText::FromString(FString::Printf(
 		TEXT("%s\n%d copper  |  %d XP\n%d bag stacks  |  %d equipped  |  %s"),

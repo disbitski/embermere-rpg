@@ -2,37 +2,19 @@
 
 ## Purpose
 
-Embermere save version `2` has one durable `QuestState`, and the live
-`UEmbermereQuestLogComponent` has one `ActiveQuest`. That is enough for Mara's
-first quest, including completed history that prevents reward replay. It is not
-enough for a second quest: accepting another record would either erase Mara's
-completion history or leave the new quest outside persistence.
+Embermere save version `3` makes multiple durable quests possible without
+erasing completed no-replay history or hiding progress in world art and
+services. The runtime and save formats now share one bounded keyed-ledger
+contract. Versions `1` and `2` remain readable through explicit singular-record
+adapters.
 
-The second Fenwatch quest therefore requires a deliberate save version `3`
-multi-quest ledger. Do not ship another durable quest by replacing the version
-`2` slot, hiding state in an art actor or service, or expanding the existing
-schema without changing its version.
+The migration was accepted on 2026-08-31. This document is now both the durable
+foundation contract and the implementation boundary for the first second-quest
+slice, `Still Waters`.
 
-## Current Version-2 Boundary
+## Accepted Version-3 Save Shape
 
-Until version `3` is implemented:
-
-- one valid quest may occupy the live and saved quest slot;
-- the same quest giver may revisit that quest and complete it when ready;
-- a different quest offer reports an explicit occupied-slot result;
-- a different quest giver cannot complete, replace, or reward the tracked
-  quest;
-- a completed quest remains in the slot as durable no-replay history;
-- capture and restore retain that exact record under save version `2`.
-
-`Embermere.Quests.SingleSlotCompatibility` locks this boundary. It also guards
-against the prior generic interaction fallback where any failed quest
-acceptance could attempt to complete the unrelated active quest.
-
-## Proposed Version-3 Save Shape
-
-Version `3` replaces the singular saved quest record with a bounded array of
-records. Each record must contain:
+Version `3` adds a bounded array of records. Each record must contain:
 
 - stable quest ID;
 - matching soft quest-data path;
@@ -40,9 +22,10 @@ records. Each record must contain:
 - validated objective progress;
 - completed state.
 
-The first implementation should remain deliberately small. A bounded ledger
-is preferable to an unbounded archive, and presentation may expose one
-transient focused quest without making focus durable authority.
+The ledger is bounded to eight records. Presentation may expose one transient
+focused quest without making focus durable authority. The old singular
+`QuestState` field remains serialized only so versions `1` and `2` can be read;
+a native version-3 save must not mix that legacy field with the new array.
 
 Before any live mutation, load must resolve and validate the entire candidate:
 
@@ -58,21 +41,25 @@ Only after all records pass may the live ledger be replaced atomically. A
 repeated load must replace the same ledger without duplicating progress or
 replaying rewards.
 
-## Backward Compatibility
+## Legacy Version-1 And Version-2 Boundary
 
-Versions `1` and `2` remain readable. Their singular `QuestState` is interpreted
-as zero or one version-3 ledger record during load. Reading an older slot does
-not rewrite it, silently migrate its bytes, or discard its completed history.
+Versions `1` and `2` each contain zero or one singular quest record. That source
+shape is preserved as history rather than promoted to a second runtime
+authority:
 
-The compatibility adapter must use the same stable-ID, asset, objective,
-progress, and completion validation as a native version-3 record. An invalid
-legacy record rejects the complete candidate through the existing rollback
-path.
+- the adapter resolves the legacy asset and validates stable quest/objective
+  IDs, progress, and completion through the same native version-3 path;
+- a valid singular record becomes a one-record candidate ledger in memory;
+- an empty record becomes an empty candidate ledger;
+- an invalid record rejects the entire load before mutation;
+- reading an older slot never rewrites, migrates, or drops its completed
+  history.
 
 ## Runtime Authority
 
-The runtime quest owner becomes a keyed ledger rather than one implicit active
-slot. Its mutation APIs take stable quest and objective IDs explicitly:
+The runtime quest owner is `QuestStates`, a keyed ledger rather than one
+implicit active slot. Its mutation APIs take stable quest and objective IDs
+explicitly:
 
 - offer or accept one quest by quest ID;
 - add committed objective progress to one matching quest/objective pair;
@@ -86,10 +73,17 @@ reward commit. UI and world presentation remain read-only consumers. Art,
 rest, trainer, vendor, combat, and persistence services must not acquire quest
 authority merely because a quest observes one of their committed outcomes.
 
+`ActiveQuest` remains only a derived compatibility projection for established
+Blueprint and HUD readers. `FocusedQuestId` selects that projection, follows
+explicit focus or exact progress, and is transient. Save capture serializes the
+ledger, never focus or projection state. Mara's contextual greeting queries
+`FirstSignsAtTheRuin` directly, so focusing a second quest cannot hide or alter
+her authoritative state.
+
 ## Second Fenwatch Slice: Still Waters
 
-After the version-3 ledger and compatibility suite are accepted, the first
-additional content slice is:
+The version-3 ledger and compatibility suite are accepted. The first
+additional content slice is now:
 
 - quest ID: `FenwatchStillWaters`;
 - title: `Still Waters`;
@@ -110,9 +104,9 @@ Only a committed rest `Success` may advance `FenwatchRestCompleted`. Pending,
 interrupted, rejected, duplicate, loaded, or replayed presentation state must
 not advance it.
 
-## Verification
+## Accepted Foundation Verification
 
-Version `3` is not accepted until focused automation proves:
+The 2026-08-31 foundation is accepted. Focused automation proves:
 
 - empty, one-record, and multiple-record round trips;
 - version `1` and `2` singular-record compatibility without slot rewriting;
@@ -122,11 +116,33 @@ Version `3` is not accepted until focused automation proves:
 - two simultaneous quests can progress independently;
 - an unrelated quest giver cannot complete or replace another quest;
 - exact quest/objective routing and exactly-once completion rewards;
-- Chronicle and HUD read ledger state without owning it;
+- the established HUD reads the focused compatibility projection without
+  owning or mutating the ledger;
 - focused-quest selection remains transient unless a later contract says
   otherwise;
 - the notice board, well art, rest service, rest presentation, and trainer stay
   free of quest authority.
+
+The focused suite is:
+
+- `Embermere.Quests.MultiQuestRuntime`;
+- `Embermere.Persistence.MultiQuestRoundTrip`;
+- `Embermere.Persistence.LegacyQuestCompatibility`;
+- `Embermere.Persistence.MultiQuestValidationRollback`.
+
+Both the isolated commandlet and restarted-editor MCP runner passed all `80`
+Embermere tests. The no-hot-reload build, five focused validators, sequential
+18-package aggregate, full-zone validator, and initialized-world well,
+notice-board, workshop, cottage, stall, and road traces also passed with no
+`LogPython: Error` while retaining 53 grounded Fab actors plus 24 original-art
+placements.
+
+Clean PIE confirmed Human Warrior creation, Inventory close, measured Q movement
+and W cancellation, and physical `F` acceptance of Mara's original quest. Live
+inspection showed one keyed `FirstSignsAtTheRuin` record, matching transient
+focus, and the expected read-only compatibility projection.
+
+## Still Waters Acceptance Gate
 
 Clean PIE must then prove Mara's existing quest and `Still Waters` can coexist,
 save, restore twice, complete independently, and never replay either reward.

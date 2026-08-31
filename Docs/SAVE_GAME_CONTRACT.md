@@ -6,10 +6,10 @@ Embermere's first persistence slice saves durable progression without turning
 runtime object pointers into a file format. The contract is intentionally
 small, versioned, and independent of character, NPC, or environment art.
 
-`UEmbermereSaveGame` writes format version `2` to the prototype slot
-`EmbermerePrototype` for user index `0`. Version `1` remains readable through
-the explicit compatibility rule below; loading it never rewrites the slot or
-silently migrates its bytes.
+`UEmbermereSaveGame` writes format version `3` to the prototype slot
+`EmbermerePrototype` for user index `0`. Versions `1` and `2` remain readable
+through the explicit compatibility rules below; loading either never rewrites
+the slot or silently migrates its bytes.
 
 ## Persisted State
 
@@ -18,7 +18,8 @@ silently migrates its bytes.
 - character race and starting class as stable IDs;
 - inventory stack item identity, asset path, and quantity;
 - equipped item identity, asset path, and body slot;
-- one quest identity, objective progress, and completion state;
+- a bounded keyed array of quest identity, objective, progress, and completion
+  records;
 - every persistent vendor's stable ID, stock-data asset, and remaining finite
   or unlimited quantities.
 
@@ -69,30 +70,35 @@ not alter the version `1` file. This is backward compatibility, not an implicit
 migration.
 
 Appearance, character name, creation-panel selection, confirmation UI state,
-and per-character slot/profile ownership are not serialized in version `2`.
+and per-character slot/profile ownership are not serialized in version `3`.
 
-## Version 2 Single-Quest Boundary
+## Version 3 Multi-Quest Ledger
 
-Version `2` has exactly one saved `QuestState`, matching the live quest log's
-single tracked record. A completed Mara quest remains in that record as durable
-history so its rewards cannot replay. Replacing it with a second quest would
-erase that history; keeping a second quest elsewhere would make it
-non-durable. Both outcomes violate the atomic persistence contract.
+Version `3` adds `QuestStates`, a bounded array of at most eight records. Each
+record carries a stable quest ID, matching soft quest-data path, stable
+objective ID, validated progress, and completed state. The live
+`UEmbermereQuestLogComponent::QuestStates` ledger is the only mutable quest
+authority.
 
-Until a deliberate version `3` migration exists, a different valid quest offer
-must report the occupied slot without replacing or completing the tracked
-quest. Only the matching quest may use the turn-in path. Capture and repeated
-restore retain the exact singular record under version `2`.
+Load resolves the entire candidate ledger before mutation. Assets and authored
+IDs must match, quest IDs must be unique, progress must be in range, completed
+records must be terminal, and the array must fit the bound. Missing,
+duplicated, mismatched, invalid, contradictory, over-capacity, or mixed native
+and legacy records reject the complete load. Only a fully valid candidate may
+replace the live ledger atomically.
 
-The proposed keyed ledger, legacy adapter, validation rules, and bounded
-`Still Waters` content slice live in
-[MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md). Do not add a second durable
-quest, overwrite completed history, or expand `EmbermereSaveGameVersion::Current`
-implicitly.
+The singular version-1/version-2 `QuestState` field remains solely as a read
+adapter. Zero or one legacy record is resolved through the same validator and
+becomes an in-memory candidate ledger without rewriting the older slot.
+`ActiveQuest` is a derived Blueprint/HUD compatibility projection;
+`FocusedQuestId` is transient and never serialized.
+
+The full runtime, compatibility, and first second-quest boundaries live in
+[MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
 
 ## Derived Level And Growth
 
-Save versions `1` and `2` use the same current-rules progression resolver. The
+Save versions `1`, `2`, and `3` use the same current-rules progression resolver. The
 first bounded cumulative curve is `0`, `100`, `250`, `450`, and `700` XP for
 levels `1` through `5`. Thresholds must begin at zero and rise strictly;
 race/class growth must remain finite and nonnegative.
@@ -119,6 +125,8 @@ The following state is deliberately not serialized:
 - current health and mana;
 - cooldown timers and temporary buffs or control effects;
 - UI selection, open panels, chat history, and cursor mode.
+- focused-quest selection and the derived `ActiveQuest` compatibility
+  projection.
 
 Buyback is a bounded convenience history for the current merchant session, not
 durable ownership. A successful load clears it. Loading also clears the combat
@@ -144,12 +152,13 @@ rejects:
 
 - unsupported format versions;
 - negative XP or malformed/non-monotonic progression rules;
-- missing, unknown, or illegal version-2 race/class IDs;
+- missing, unknown, or illegal version-2/version-3 race/class IDs;
 - missing assets and mismatched stable IDs;
 - invalid or over-stack quantities;
 - bags larger than current capacity;
 - duplicate, invalid, or level-ineligible equipment slots;
-- contradictory or out-of-range quest progress;
+- duplicate, missing, mismatched, contradictory, out-of-range, mixed-format,
+  or over-capacity quest records;
 - missing, duplicate, or unknown persistent vendor IDs;
 - changed stock assets and finite quantities above their authored maximum.
 
@@ -165,7 +174,7 @@ a normal `40` copper/`0` XP world trained once, saved at `30`/`25` through the
 real Chronicle control, began a second world at the normal `40`/`0` baseline,
 and restored `30`/`25` through two confirmed loads. Neither load created items,
 equipment, quest state, vendor-stock changes, buyback history, repeated rewards,
-or currency/XP drift. Save version 1 did not expand. Version `2` continues to
+or currency/XP drift. Save version 1 did not expand. Version `3` continues to
 serialize the resulting copper and XP through those existing owners without
 adding trainer state.
 
@@ -173,7 +182,7 @@ The 2026-08-25 level-gated trainer extension preserves that boundary. Both
 repeatable offerings have stable data IDs, but only their successful copper and
 XP mutations are durable. Required level, repeatability, current selection,
 lock/ready presentation, and interaction state remain rules or session data.
-Advanced Combat Drills therefore restores through the existing version-2
+Advanced Combat Drills therefore restores through the existing version-3
 wallet/XP records and derived-level resolver without a trainer record, reward
 replay, or schema expansion.
 
@@ -187,6 +196,15 @@ the exact Elf Wizard identity, base and equipment stats, Wizard hotbar, quest,
 stock, wallet, and XP. Neither load restored transient trainer selection or
 panel state, replayed the quest reward, duplicated equipment bonuses, expanded
 the schema, or drifted any owner.
+
+The accepted 2026-08-31 foundation advances the format to version `3` without
+changing any non-quest durable owner. Native capture sorts and writes the
+bounded quest ledger as stable records, while versions `1` and `2` adapt their
+singular quest field in memory. Focused coverage round-trips zero, one, and two
+quests, loads the same ledger repeatedly, preserves exactly-once rewards, and
+rejects malformed collections before wallet, XP, inventory, equipment, quest,
+or vendor mutation. The old source save is never rewritten merely because it
+was read through an adapter.
 
 ## Prototype Commands
 
@@ -208,7 +226,7 @@ slot.
 - Inventory, Vendor, and Chronicle are mutually exclusive. Closing Chronicle
   restores game-only input.
 - There is no autosave, delete action, multiple-profile lifecycle, or implicit
-  migration in version `2`.
+  migration in version `3`.
 
 `InspectSaveSlot` is deliberately read-only. It resolves enough slot metadata
 to provide a summary and detect unavailable or unsupported files, while the
@@ -316,9 +334,16 @@ live mutation.
   complete rollback.
 - `Embermere.Persistence.ValidationRollback` proves malformed candidates do
   not partially mutate live state.
-- `Embermere.Quests.SingleSlotCompatibility` proves a different quest offer
-  cannot replace or complete the tracked quest, preserves rewards, and retains
-  Mara's completed history across version-2 capture and restore.
+- `Embermere.Quests.MultiQuestRuntime` proves two simultaneous keyed quests,
+  independent exact progress, wrong-giver rejection, reward-preflight rollback,
+  explicit focus, and exactly-once completion.
+- `Embermere.Persistence.MultiQuestRoundTrip` proves empty and multi-record
+  serialization plus repeated-load idempotence without reward replay.
+- `Embermere.Persistence.LegacyQuestCompatibility` proves version-1/version-2
+  singular adapters without source-slot rewriting.
+- `Embermere.Persistence.MultiQuestValidationRollback` proves duplicate,
+  missing, mismatched, invalid-progress, contradictory, mixed-format, and
+  over-capacity ledgers reject without partial owner mutation.
 - `Embermere.Persistence.SlotInspection` proves empty, valid, and unsupported
   slot summaries without mutating gameplay owners.
 - `Embermere.UI.SaveLoadPanel` locks the panel's fixed bounds, visibility,
@@ -333,7 +358,7 @@ live mutation.
   the stable vendor ID to the art-free service boundary.
 - Full automation, saved-package validators, initialized-world route traces,
   and the two-session PIE validator remain separate acceptance layers. The
-  2026-08-30 baseline is 77/77 tests plus the sequential 18-package aggregate.
+  2026-08-31 baseline is 80/80 tests plus the sequential 18-package aggregate.
 
 Future format changes must increment `EmbermereSaveGameVersion::Current` and
 either provide an explicit compatibility interpretation or reject the older

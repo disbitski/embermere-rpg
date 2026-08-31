@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-28
+Last updated: 2026-08-31
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -29,13 +29,14 @@ this snapshot. A new task should read files in this order:
 9. `Docs/NPC_PRESENTATION_CONTRACT.md` when NPC/service work is active
 10. `Docs/VENDOR_SERVICE_CONTRACT.md` when economy work is active
 11. `Docs/SAVE_GAME_CONTRACT.md` when persistence/lifecycle work is active
-12. `Docs/CHARACTER_CREATION_CONTRACT.md` when identity/lifecycle work is active
-13. `Docs/LEVEL_PROGRESSION_CONTRACT.md` when XP/level/growth work is active
-14. `Docs/PRACTICE_TARGET_CONTRACT.md` when training-target work is active
-15. `Docs/COMBAT_FEEDBACK_CONTRACT.md` when combat-result presentation is active
-16. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
-17. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
-18. `JOURNEY.md` when historical detail is useful
+12. `Docs/MULTI_QUEST_CONTRACT.md` when quest/content work is active
+13. `Docs/CHARACTER_CREATION_CONTRACT.md` when identity/lifecycle work is active
+14. `Docs/LEVEL_PROGRESSION_CONTRACT.md` when XP/level/growth work is active
+15. `Docs/PRACTICE_TARGET_CONTRACT.md` when training-target work is active
+16. `Docs/COMBAT_FEEDBACK_CONTRACT.md` when combat-result presentation is active
+17. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
+18. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
+19. `JOURNEY.md` when historical detail is useful
 
 ## One-Page State
 
@@ -64,7 +65,7 @@ The project currently includes:
   paper-doll equipment backdrop, data-driven timed buff/control rows with live
   countdowns, chat log, and a fixed three-entry floating-damage observer fed by
   immutable post-commit combat results;
-- a grounded local Fab/Epic art pass with 53 upright environment actors and 23
+- a grounded local Fab/Epic art pass with 53 upright environment actors and 24
   project-owned placements from an original Blender-built Embermere
   waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
   quartermaster/armsmaster/practice-dummy/reed family, a 38-expression moss/
@@ -87,11 +88,13 @@ The project currently includes:
   to-XP progression, fixed native training UI, and a matching solid-core
   practice dummy that owns no service authority;
 - a versioned save-game contract that atomically captures and restores confirmed
-  race/class identity, copper, XP, inventory/equipment identity, quest state,
-  and finite vendor stock. Version 2 uses stable semantic race/class IDs and
-  current-rules validation; version 1 remains loadable through an explicit Human
-  Warrior compatibility fallback. Buyback, combat, cooldowns, temporary
-  effects, and position remain intentionally session-only;
+  race/class identity, copper, XP, inventory/equipment identity, a bounded
+  keyed quest ledger, and finite vendor stock. Version 3 keeps stable semantic
+  identity IDs, writes stable quest/objective records, validates the entire
+  ledger before mutation, and reads version-1/version-2 singular quest history
+  through explicit adapters without rewriting old slots. Version 1 still has
+  its explicit Human Warrior identity fallback. Buyback, focused quest,
+  combat, cooldowns, temporary effects, and position remain session-only;
 - data-driven level progression that derives levels 1 through 5 from durable
   XP thresholds, combines validated race/class growth, rebuilds identity base
   stats atomically, applies equipment once, restores silently, and exposes
@@ -103,10 +106,10 @@ The project currently includes:
 - a fixed native pre-play character picker that presents all eight races and
   four classes, exposes disabled combinations, atomically applies data-driven
   starter stats/abilities once, restores the normal controller/HUD path, and
-  feeds the confirmed identity into the version-2 persistence contract;
-- 72 passing Unreal automation tests plus fresh-process character-creation,
+  feeds the confirmed identity into the version-3 persistence contract;
+- 80 passing Unreal automation tests plus fresh-process character-creation,
   derived-level progression, and
-  character-identity persistence,
+  character-identity and multi-quest persistence,
   combat-feedback,
   practice-target, keeper-greeting,
   keeper-rig,
@@ -1614,10 +1617,38 @@ free of interaction, recovery, reward, quest, or persistence authority.
   Signs at the Ruin` through `Quest_Giver_Mara_Fenwatch`. The compatibility
   guard did not disturb Mara's original authority or UI path.
 
+## 2026-08-31 Save-Version-3 Multi-Quest Foundation
+
+- `UEmbermereQuestLogComponent` now owns a bounded eight-record `QuestStates`
+  ledger keyed by stable quest ID. Exact quest/objective APIs own progress and
+  completion; reward preflight remains atomic and exactly once.
+- Existing `ActiveQuest` Blueprint/HUD consumers remain compatible through a
+  derived projection selected by transient `FocusedQuestId`. Neither focus nor
+  projection is serialized. Mara's contextual observer queries
+  `FirstSignsAtTheRuin` directly.
+- Save version `3` serializes stable quest ID, asset, objective ID, progress,
+  and completion records. The complete ledger resolves before mutation;
+  duplicate, missing, mismatched, invalid-progress, contradictory,
+  mixed-format, and over-capacity candidates reject atomically.
+- Versions `1` and `2` remain readable through zero-or-one singular-record
+  adapters that use the same validator and never rewrite the old source slot.
+- `Embermere.Quests.MultiQuestRuntime`,
+  `Embermere.Persistence.MultiQuestRoundTrip`,
+  `Embermere.Persistence.LegacyQuestCompatibility`, and
+  `Embermere.Persistence.MultiQuestValidationRollback` bring the suite to `80`.
+  The no-hot-reload build, isolated commandlet `80/80`, restarted-editor MCP
+  `80/80`, five focused validators, fresh 18-package aggregate, full-zone
+  validation, and initialized-world well/board/workshop/cottage/stall/road
+  traces all passed with no Python errors.
+- Clean PIE retained Human Warrior creation and Inventory close. Q moved from
+  `(-2400,-1200)` to `(-1793.189,-831.382)` and W cancelled there. Physical `F`
+  accepted Mara's original quest; live QuestLog inspection showed exactly one
+  keyed Mara record, matching transient focus, and the compatibility projection.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-30 no-hot-reload single-quest compatibility module plus the accepted
+2026-08-31 no-hot-reload save-version-3 multi-quest module plus the accepted
 2026-08-29 rest-presentation observer,
 rest-service data/map, and communal-well art packages, the 2026-08-26
 class-colored level-up world-VFX module, and the
@@ -1638,8 +1669,11 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 77 tests, including
-   `Embermere.Quests.SingleSlotCompatibility`,
+3. Run/discover all 80 tests, including
+   `Embermere.Quests.MultiQuestRuntime`,
+   `Embermere.Persistence.MultiQuestRoundTrip`,
+   `Embermere.Persistence.LegacyQuestCompatibility`,
+   `Embermere.Persistence.MultiQuestValidationRollback`,
    `Embermere.UI.RestWorldPresentation`,
    `Embermere.Rest.ServiceContract`,
    `Embermere.Rest.RecoveryTransactions`,
@@ -1828,17 +1862,13 @@ First fresh-session checks:
 
 High-value milestones after that:
 
-- implement the deliberate version-3 multi-quest ledger from
-  `Docs/MULTI_QUEST_CONTRACT.md` before adding content: keyed runtime records,
-  a bounded saved record array, version-1/2 singular-record read adapters,
-  complete preflight and rollback, repeated-load idempotence, and exact
-  quest-specific progress/completion/reward APIs. Keep
-  `EmbermereSaveGameVersion::Current` unchanged until the complete migration
-  and compatibility suite passes;
-- only after that foundation is accepted, add `Still Waters` through a
-  separate art-free notice-board quest owner and a dedicated router that
-  observes committed rest `Success`. The notice-board art, well art, rest
-  service/presentation, and trainer remain quest-free;
+- build `Still Waters` over the accepted version-3 foundation: add its stable
+  data asset, a separate art-free notice-board offer/turn-in owner, and one
+  dedicated objective router that forwards only the rest service's immutable
+  committed `Success`. Prove exact independent Mara/rest progress, two-owner
+  turn-in, exactly-once rewards, native two-quest save/load twice, legacy
+  compatibility, and rollback without adding schema. The notice-board art,
+  well art, rest service/presentation, and trainer remain quest-free;
 - retain the accepted art-free practice-target contract around the visible
   dummy, including exact stationary transform, normal hotbar damage,
   three-second reset, target clear/reacquisition, and zero retaliation, loot,
@@ -1939,6 +1969,7 @@ Start by reading, in order:
 12. Docs/COMBAT_FEEDBACK_CONTRACT.md
 13. Docs/CHARACTER_CREATION_CONTRACT.md
 14. Docs/LEVEL_PROGRESSION_CONTRACT.md
+15. Docs/MULTI_QUEST_CONTRACT.md
 
 Then inspect git status and recent commits. Preserve the existing unstaged Config/DefaultEngine.ini and Config/DefaultInput.ini changes; do not stage, revert, or overwrite them unless we intentionally decide they are required.
 
@@ -1949,8 +1980,8 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-26 no-hot-reload
-class-colored level-up world-VFX module, level-gated trainer and
+Follow TODO.md's Start Here section. Confirm the 2026-08-31 no-hot-reload
+save-version-3 multi-quest module, class-colored level-up world-VFX module, level-gated trainer and
 progression-presentation module, serialized rules asset, character-identity
 persistence and quest/map packages, the accepted notice-board,
 vendor-stall,
@@ -1961,7 +1992,8 @@ bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 72 tests, including the class-colored level-up
+route-repair map, then run all 80 tests, including the four multi-quest runtime,
+round-trip, legacy-adapter, and rollback tests, the class-colored level-up
 world-VFX presentation test, the four progression tests,
 the four character-creation lifecycle/restriction/loadout tests, the three
 character-identity persistence tests, combat-result and floating-feedback
@@ -2103,8 +2135,8 @@ migration in that slice.
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
 Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
-current commit, 72-test and 16-validator baseline, accepted character creation,
-v2 identity persistence, derived-level progression, level-gated trainer,
+current commit, 80-test and 18-validator baseline, accepted character creation,
+v3 identity/multi-quest persistence, derived-level progression, level-gated trainer,
 Advanced Chronicle proof, class-colored world VFX, and next bounded milestone
 before ending the run.
 ```

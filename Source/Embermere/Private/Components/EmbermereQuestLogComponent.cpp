@@ -17,10 +17,11 @@ bool UEmbermereQuestLogComponent::AcceptQuest(UEmbermereQuestData* Quest)
 		return false;
 	}
 
-	ActiveQuest.Quest = Quest;
-	ActiveQuest.CurrentObjectiveCount = 0;
-	ActiveQuest.bCompleted = false;
-	OnQuestStateChanged.Broadcast(ActiveQuest);
+	FEmbermereQuestState& NewState = QuestStates.AddDefaulted_GetRef();
+	NewState.Quest = Quest;
+	FocusedQuestId = Quest->QuestId;
+	RefreshActiveQuestProjection();
+	BroadcastQuestState(NewState);
 	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
 		this,
 		FText::FromString(FString::Printf(TEXT("Quest accepted: %s"), *Quest->Title.ToString())),
@@ -31,18 +32,17 @@ bool UEmbermereQuestLogComponent::AcceptQuest(UEmbermereQuestData* Quest)
 EEmbermereQuestAcceptanceResult UEmbermereQuestLogComponent::EvaluateQuestAcceptance(
 	UEmbermereQuestData* Quest) const
 {
-	if (!Quest || Quest->QuestId.IsNone() || Quest->ObjectiveId.IsNone() ||
-		Quest->RequiredObjectiveCount <= 0)
+	if (!IsQuestDataValid(Quest))
 	{
 		return EEmbermereQuestAcceptanceResult::InvalidQuest;
 	}
-	if (!ActiveQuest.Quest)
+	if (FindQuestStateIndex(Quest->QuestId) != INDEX_NONE)
 	{
-		return EEmbermereQuestAcceptanceResult::Success;
+		return EEmbermereQuestAcceptanceResult::AlreadyTracked;
 	}
-	return ActiveQuest.Quest == Quest
-		? EEmbermereQuestAcceptanceResult::AlreadyTracked
-		: EEmbermereQuestAcceptanceResult::OccupiedByOtherQuest;
+	return QuestStates.Num() < MaxTrackedQuests
+		? EEmbermereQuestAcceptanceResult::Success
+		: EEmbermereQuestAcceptanceResult::LedgerFull;
 }
 
 FText UEmbermereQuestLogComponent::GetQuestAcceptanceResultText(
@@ -61,88 +61,186 @@ FText UEmbermereQuestLogComponent::GetQuestAcceptanceResultText(
 		return FText::FromString(FString::Printf(
 			TEXT("Finish your current quest before accepting %s."),
 			Quest ? *Quest->Title.ToString() : TEXT("another quest")));
+	case EEmbermereQuestAcceptanceResult::LedgerFull:
+		return FText::FromString(TEXT("Your quest ledger is full."));
 	case EEmbermereQuestAcceptanceResult::Success:
 	default:
 		return FText::GetEmpty();
 	}
 }
 
+bool UEmbermereQuestLogComponent::GetQuestStateById(
+	FName QuestId,
+	FEmbermereQuestState& OutQuestState) const
+{
+	OutQuestState = FEmbermereQuestState();
+	const int32 QuestIndex = FindQuestStateIndex(QuestId);
+	if (!QuestStates.IsValidIndex(QuestIndex))
+	{
+		return false;
+	}
+	OutQuestState = QuestStates[QuestIndex];
+	return true;
+}
+
+bool UEmbermereQuestLogComponent::IsQuestTracked(FName QuestId) const
+{
+	return FindQuestStateIndex(QuestId) != INDEX_NONE;
+}
+
+bool UEmbermereQuestLogComponent::FocusQuest(FName QuestId)
+{
+	if (FindQuestStateIndex(QuestId) == INDEX_NONE)
+	{
+		return false;
+	}
+	FocusedQuestId = QuestId;
+	RefreshActiveQuestProjection();
+	return true;
+}
+
 bool UEmbermereQuestLogComponent::AddObjectiveProgress(FName ObjectiveId, int32 Amount)
 {
-	if (!ActiveQuest.Quest || ActiveQuest.bCompleted || Amount <= 0 || ActiveQuest.Quest->ObjectiveId != ObjectiveId)
+	if (ObjectiveId.IsNone() || Amount <= 0)
 	{
 		return false;
 	}
 
-	ActiveQuest.CurrentObjectiveCount = FMath::Clamp(
-		ActiveQuest.CurrentObjectiveCount + Amount,
+	FName MatchingQuestId = NAME_None;
+	for (const FEmbermereQuestState& QuestState : QuestStates)
+	{
+		if (QuestState.Quest && !QuestState.bCompleted &&
+			QuestState.Quest->ObjectiveId == ObjectiveId)
+		{
+			if (!MatchingQuestId.IsNone())
+			{
+				return false;
+			}
+			MatchingQuestId = QuestState.Quest->QuestId;
+		}
+	}
+	return !MatchingQuestId.IsNone() &&
+		AddObjectiveProgressForQuest(MatchingQuestId, ObjectiveId, Amount);
+}
+
+bool UEmbermereQuestLogComponent::AddObjectiveProgressForQuest(
+	FName QuestId,
+	FName ObjectiveId,
+	int32 Amount)
+{
+	const int32 QuestIndex = FindQuestStateIndex(QuestId);
+	if (!QuestStates.IsValidIndex(QuestIndex) || ObjectiveId.IsNone() || Amount <= 0)
+	{
+		return false;
+	}
+
+	FEmbermereQuestState& QuestState = QuestStates[QuestIndex];
+	if (!QuestState.Quest || QuestState.bCompleted ||
+		QuestState.Quest->ObjectiveId != ObjectiveId)
+	{
+		return false;
+	}
+
+	QuestState.CurrentObjectiveCount = FMath::Clamp(
+		QuestState.CurrentObjectiveCount + Amount,
 		0,
-		ActiveQuest.Quest->RequiredObjectiveCount);
-	OnQuestStateChanged.Broadcast(ActiveQuest);
+		QuestState.Quest->RequiredObjectiveCount);
+	FocusedQuestId = QuestId;
+	RefreshActiveQuestProjection();
+	BroadcastQuestState(QuestState);
 	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
 		this,
 		FText::FromString(FString::Printf(
 			TEXT("%s: %d/%d"),
-			*ActiveQuest.Quest->Title.ToString(),
-			ActiveQuest.CurrentObjectiveCount,
-			ActiveQuest.Quest->RequiredObjectiveCount)),
+			*QuestState.Quest->Title.ToString(),
+			QuestState.CurrentObjectiveCount,
+			QuestState.Quest->RequiredObjectiveCount)),
 		FLinearColor(0.46f, 0.95f, 1.0f, 1.0f));
 	return true;
 }
 
 bool UEmbermereQuestLogComponent::TryCompleteActiveQuest()
 {
-	if (!ActiveQuest.Quest || ActiveQuest.bCompleted ||
-		ActiveQuest.CurrentObjectiveCount < ActiveQuest.Quest->RequiredObjectiveCount)
+	return !FocusedQuestId.IsNone() && TryCompleteQuestById(FocusedQuestId);
+}
+
+bool UEmbermereQuestLogComponent::TryCompleteQuestById(FName QuestId)
+{
+	const int32 QuestIndex = FindQuestStateIndex(QuestId);
+	if (!QuestStates.IsValidIndex(QuestIndex))
+	{
+		return false;
+	}
+	FEmbermereQuestState& QuestState = QuestStates[QuestIndex];
+	UEmbermereQuestData* Quest = QuestState.Quest;
+	if (!Quest || QuestState.bCompleted ||
+		QuestState.CurrentObjectiveCount < Quest->RequiredObjectiveCount)
 	{
 		return false;
 	}
 
 	AActor* Owner = GetOwner();
-	if (Owner)
+	UEmbermereStatsComponent* Stats = Owner
+		? Owner->FindComponentByClass<UEmbermereStatsComponent>()
+		: nullptr;
+	UEmbermereWalletComponent* Wallet = Owner
+		? Owner->FindComponentByClass<UEmbermereWalletComponent>()
+		: nullptr;
+	UEmbermereInventoryComponent* Inventory = Owner
+		? Owner->FindComponentByClass<UEmbermereInventoryComponent>()
+		: nullptr;
+	UEmbermereItemData* RewardItem = Quest->RewardItem.IsNull()
+		? nullptr
+		: Quest->RewardItem.LoadSynchronous();
+	if ((Quest->RewardExperience > 0 && (!Stats || !Stats->CanAddExperience(Quest->RewardExperience))) ||
+		(Quest->RewardCopper > 0 && (!Wallet || !Wallet->CanAddCopper(Quest->RewardCopper))) ||
+		(!Quest->RewardItem.IsNull() && (!RewardItem || !Inventory || !Inventory->CanAddItem(RewardItem, 1))))
 	{
-		if (UEmbermereStatsComponent* Stats = Owner->FindComponentByClass<UEmbermereStatsComponent>())
-		{
-			Stats->AddExperience(ActiveQuest.Quest->RewardExperience);
-		}
-
-		if (ActiveQuest.Quest->RewardCopper > 0)
-		{
-			if (UEmbermereWalletComponent* Wallet = Owner->FindComponentByClass<UEmbermereWalletComponent>())
-			{
-				if (Wallet->AddCopper(ActiveQuest.Quest->RewardCopper))
-				{
-					UEmbermereGameplayMessageLibrary::PostGameplayMessage(
-						this,
-						FText::FromString(FString::Printf(
-							TEXT("Reward: %d copper"),
-							ActiveQuest.Quest->RewardCopper)),
-						FLinearColor(1.0f, 0.82f, 0.38f, 1.0f));
-				}
-			}
-		}
-
-		if (UEmbermereInventoryComponent* Inventory = Owner->FindComponentByClass<UEmbermereInventoryComponent>())
-		{
-			if (UEmbermereItemData* RewardItem = ActiveQuest.Quest->RewardItem.LoadSynchronous())
-			{
-				Inventory->AddItem(RewardItem, 1);
-			}
-		}
+		return false;
 	}
 
-	ActiveQuest.bCompleted = true;
-	OnQuestStateChanged.Broadcast(ActiveQuest);
+	// Mark completion before reward delegates fire so a reentrant turn-in cannot
+	// grant the same reward twice. All fallible reward operations were preflighted.
+	QuestState.bCompleted = true;
+	if (RewardItem)
+	{
+		Inventory->AddItem(RewardItem, 1);
+	}
+	if (Quest->RewardCopper > 0)
+	{
+		Wallet->AddCopper(Quest->RewardCopper);
+		UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+			this,
+			FText::FromString(FString::Printf(
+				TEXT("Reward: %d copper"),
+				Quest->RewardCopper)),
+			FLinearColor(1.0f, 0.82f, 0.38f, 1.0f));
+	}
+	if (Quest->RewardExperience > 0)
+	{
+		Stats->TryAddExperience(Quest->RewardExperience);
+	}
+
+	FocusedQuestId = QuestId;
+	RefreshActiveQuestProjection();
+	BroadcastQuestState(QuestState);
 	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
 		this,
-		FText::FromString(FString::Printf(TEXT("Quest complete: %s"), *ActiveQuest.Quest->Title.ToString())),
+		FText::FromString(FString::Printf(TEXT("Quest complete: %s"), *Quest->Title.ToString())),
 		FLinearColor(0.42f, 1.0f, 0.48f, 1.0f));
 	return true;
 }
 
 bool UEmbermereQuestLogComponent::TryCompleteQuest(UEmbermereQuestData* Quest)
 {
-	return Quest && ActiveQuest.Quest == Quest && TryCompleteActiveQuest();
+	if (!Quest)
+	{
+		return false;
+	}
+	const int32 QuestIndex = FindQuestStateIndex(Quest->QuestId);
+	return QuestStates.IsValidIndex(QuestIndex) &&
+		QuestStates[QuestIndex].Quest == Quest &&
+		TryCompleteQuestById(Quest->QuestId);
 }
 
 bool UEmbermereQuestLogComponent::CanRestoreQuestStateForSaveGame(
@@ -152,20 +250,111 @@ bool UEmbermereQuestLogComponent::CanRestoreQuestStateForSaveGame(
 	{
 		return NewState.CurrentObjectiveCount == 0 && !NewState.bCompleted;
 	}
-
-	if (NewState.Quest->RequiredObjectiveCount <= 0 ||
-		NewState.CurrentObjectiveCount < 0 ||
-		NewState.CurrentObjectiveCount > NewState.Quest->RequiredObjectiveCount)
-	{
-		return false;
-	}
-	return !NewState.bCompleted ||
-		NewState.CurrentObjectiveCount == NewState.Quest->RequiredObjectiveCount;
+	return CanRestoreQuestStatesForSaveGame(
+		TArray<FEmbermereQuestState>{NewState});
 }
 
 void UEmbermereQuestLogComponent::RestoreQuestStateForSaveGame(
 	const FEmbermereQuestState& NewState)
 {
-	ActiveQuest = NewState;
+	if (!CanRestoreQuestStateForSaveGame(NewState))
+	{
+		return;
+	}
+	RestoreQuestStatesForSaveGame(
+		NewState.Quest ? TArray<FEmbermereQuestState>{NewState} : TArray<FEmbermereQuestState>());
+}
+
+bool UEmbermereQuestLogComponent::CanRestoreQuestStatesForSaveGame(
+	const TArray<FEmbermereQuestState>& NewStates) const
+{
+	if (NewStates.Num() > MaxTrackedQuests)
+	{
+		return false;
+	}
+
+	TSet<FName> SeenQuestIds;
+	for (const FEmbermereQuestState& NewState : NewStates)
+	{
+		if (!IsQuestDataValid(NewState.Quest) ||
+			SeenQuestIds.Contains(NewState.Quest->QuestId) ||
+			NewState.CurrentObjectiveCount < 0 ||
+			NewState.CurrentObjectiveCount > NewState.Quest->RequiredObjectiveCount ||
+			(NewState.bCompleted &&
+				NewState.CurrentObjectiveCount != NewState.Quest->RequiredObjectiveCount))
+		{
+			return false;
+		}
+		SeenQuestIds.Add(NewState.Quest->QuestId);
+	}
+	return true;
+}
+
+void UEmbermereQuestLogComponent::RestoreQuestStatesForSaveGame(
+	const TArray<FEmbermereQuestState>& NewStates)
+{
+	if (!CanRestoreQuestStatesForSaveGame(NewStates))
+	{
+		return;
+	}
+
+	QuestStates = NewStates;
+	FocusedQuestId = NAME_None;
+	for (const FEmbermereQuestState& QuestState : QuestStates)
+	{
+		if (!QuestState.bCompleted)
+		{
+			FocusedQuestId = QuestState.Quest->QuestId;
+			break;
+		}
+	}
+	if (FocusedQuestId.IsNone() && !QuestStates.IsEmpty())
+	{
+		FocusedQuestId = QuestStates[0].Quest->QuestId;
+	}
+	RefreshActiveQuestProjection();
 	OnQuestStateChanged.Broadcast(ActiveQuest);
+}
+
+const TArray<FEmbermereQuestState>& UEmbermereQuestLogComponent::GetQuestStatesForSaveGame() const
+{
+	return QuestStates;
+}
+
+int32 UEmbermereQuestLogComponent::FindQuestStateIndex(FName QuestId) const
+{
+	if (QuestId.IsNone())
+	{
+		return INDEX_NONE;
+	}
+	return QuestStates.IndexOfByPredicate([QuestId](const FEmbermereQuestState& QuestState)
+	{
+		return QuestState.Quest && QuestState.Quest->QuestId == QuestId;
+	});
+}
+
+bool UEmbermereQuestLogComponent::IsQuestDataValid(const UEmbermereQuestData* Quest) const
+{
+	return Quest && !Quest->QuestId.IsNone() && !Quest->ObjectiveId.IsNone() &&
+		Quest->RequiredObjectiveCount > 0 && Quest->RewardExperience >= 0 &&
+		Quest->RewardCopper >= 0;
+}
+
+void UEmbermereQuestLogComponent::RefreshActiveQuestProjection()
+{
+	ActiveQuest = FEmbermereQuestState();
+	const int32 QuestIndex = FindQuestStateIndex(FocusedQuestId);
+	if (QuestStates.IsValidIndex(QuestIndex))
+	{
+		ActiveQuest = QuestStates[QuestIndex];
+	}
+	else
+	{
+		FocusedQuestId = NAME_None;
+	}
+}
+
+void UEmbermereQuestLogComponent::BroadcastQuestState(const FEmbermereQuestState& QuestState)
+{
+	OnQuestStateChanged.Broadcast(QuestState);
 }

@@ -9,11 +9,13 @@ namespace EmbermereSaveGameVersion
 {
 	inline constexpr int32 ProgressionOnly = 1;
 	inline constexpr int32 CharacterIdentity = 2;
-	inline constexpr int32 Current = CharacterIdentity;
+	inline constexpr int32 MultiQuestLedger = 3;
+	inline constexpr int32 Current = MultiQuestLedger;
 
 	inline bool IsSupported(int32 Version)
 	{
-		return Version == ProgressionOnly || Version == CharacterIdentity;
+		return Version == ProgressionOnly || Version == CharacterIdentity ||
+			Version == MultiQuestLedger;
 	}
 }
 
@@ -69,6 +71,27 @@ struct FEmbermereSavedQuestState
 };
 
 USTRUCT(BlueprintType)
+struct FEmbermereSavedQuestRecord
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
+	FName QuestId = NAME_None;
+
+	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
+	FSoftObjectPath QuestAsset;
+
+	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
+	FName ObjectiveId = NAME_None;
+
+	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
+	int32 CurrentObjectiveCount = 0;
+
+	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
+	bool bCompleted = false;
+};
+
+USTRUCT(BlueprintType)
 struct FEmbermereSavedVendorStock
 {
 	GENERATED_BODY()
@@ -112,6 +135,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
 	FEmbermereSavedQuestState QuestState;
+
+	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
+	TArray<FEmbermereSavedQuestRecord> QuestStates;
 
 	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
 	TArray<FEmbermereSavedVendorStock> VendorStocks;

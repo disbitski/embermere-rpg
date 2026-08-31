@@ -303,14 +303,16 @@ why human taste becomes more important as building gets easier.
 
 Early playable Unreal prototype scaffold with Unreal and Blender MCP connected,
 a fixed player-facing race/class picker that initializes data-driven starter
-stats and hotbars before play, plus save version 2 persistence for that
-confirmed identity with a backward-compatible version 1 Human Warrior fallback,
+stats and hotbars before play, plus save version 3 persistence for that
+confirmed identity, a bounded keyed quest ledger, backward-compatible version
+1 Human Warrior identity fallback, and version-1/version-2 singular quest
+adapters,
 a rules-owned `0/100/250/450/700` XP curve that derives levels 1 through 5,
 combines race/class stat growth, restores silently and idempotently, and exposes
 the result read-only through status and Chronicle,
 a daylight starter-zone loop mixing a local Fab pass with an original Embermere
 waystone/lamp/signpost/gate/fence/end-stone/chest/shelter/keeper/
-quartermaster/armsmaster/vendor-stall/cottage/workshop/notice-board/reed family,
+quartermaster/armsmaster/vendor-stall/cottage/workshop/notice-board/communal-well/reed family,
 the first original rigged and animated Marsh
 Prowler, grounded moss/earth road presentation,
 collision-cleared solo-pull tab-target combat, a fully illustrated data-driven
@@ -341,12 +343,16 @@ the same fixed vendor panel. The native `Embermere Chronicle` now gives players
 a deliberate one-slot Save/Load surface with non-mutating slot inspection,
 overwrite/load confirmation, exact progression summaries, and readable
 rejection feedback. Explicit `EmbermereSave` and `EmbermereLoad` commands remain
-debug fallbacks. Version 2 persists confirmed race/class, copper, XP, exact
-item/equipment identity, completed quest, and finite merchant stock across
-fresh PIE worlds. Chronicle presents identity read-only; repeated loads do not
-duplicate class stats, starter abilities, rewards, or equipment bonuses.
-Version 1 slots remain loadable as Human Warrior without being silently
-rewritten. Level remains derived from XP rather than serialized: the first
+debug fallbacks. Version 3 persists confirmed race/class, copper, XP, exact
+item/equipment identity, up to eight stable quest records, and finite merchant
+stock across fresh PIE worlds. Exact quest/objective APIs keep parallel progress
+and turn-in independent; complete-ledger preflight rejects malformed candidates
+without partial owner mutation. Chronicle and the existing HUD consume a
+read-only focused compatibility projection; focus itself is transient.
+Repeated loads do not duplicate class stats, starter abilities, progress,
+rewards, or equipment bonuses. Version 1 slots remain loadable as Human Warrior,
+and version 1/2 singular quest history remains readable, without either source
+slot being silently rewritten. Level remains derived from XP rather than serialized: the first
 rules-owned curve reaches level 2 at `100` XP and caps at level 5 at `700`,
 then combines race/class growth before applying equipment once. Trainer and
 Mara still own only their XP grants; HUD and Chronicle consume the resulting
@@ -355,6 +361,15 @@ transition and briefly expands twelve project-material segments around the
 player's feet; it owns no progression, collision, navigation, or persistence
 state and never replays on load. See
 [Docs/LEVEL_PROGRESSION_CONTRACT.md](Docs/LEVEL_PROGRESSION_CONTRACT.md).
+
+The version-3 quest foundation is accepted independently of the next content
+slice. Mara's existing quest still uses its original Blueprint interaction and
+reward owner, while Prowler credit now targets its stable quest/objective pair.
+The first second quest, `Still Waters`, is specified as a separate art-free
+notice-board owner plus a dedicated router that observes only a committed
+communal-well rest success. The notice-board mesh, well art, rest service, and
+rest VFX observer remain removable and quest-free. See
+[Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md).
 
 The NPC wrapper's skeletal/Idle lane is now in production on three matching
 Fenwatch characters. The armsmaster has `2,824` source triangles and a

@@ -115,7 +115,10 @@ bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition
 				{
 					if (UEmbermereQuestLogComponent* QuestLog = Owner->FindComponentByClass<UEmbermereQuestLogComponent>())
 					{
-						QuestLog->AddObjectiveProgress("StarterEnemyDefeated", 1);
+						QuestLog->AddObjectiveProgressForQuest(
+							TEXT("FirstSignsAtTheRuin"),
+							TEXT("StarterEnemyDefeated"),
+							1);
 					}
 				}
 			}

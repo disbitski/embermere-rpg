@@ -6,8 +6,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-08-30 no-hot-reload single-quest
-  compatibility module plus the 2026-08-29 communal-well rest-presentation
+- Confirm Unreal is running the 2026-08-31 no-hot-reload save-version-3
+  multi-quest module plus the 2026-08-29 communal-well rest-presentation
   module and accepted observer/map package, the 2026-08-28
   rest-service module and data package, and the 2026-08-27
   Fenwatch communal-well art package, the 2026-08-26
@@ -22,12 +22,15 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 77 Embermere tests.
+  predates that work or test discovery exposes fewer than 80 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 77 tests, especially
-  `Embermere.Quests.SingleSlotCompatibility`,
+- Discover and run all 80 tests, especially
+  `Embermere.Quests.MultiQuestRuntime`,
+  `Embermere.Persistence.MultiQuestRoundTrip`,
+  `Embermere.Persistence.LegacyQuestCompatibility`,
+  `Embermere.Persistence.MultiQuestValidationRollback`,
   `Embermere.UI.RestWorldPresentation`,
   `Embermere.Rest.ServiceContract`,
   `Embermere.Rest.RecoveryTransactions`,
@@ -81,12 +84,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative
-  latest 2026-08-30 no-hot-reload build and isolated commandlet passed 77/77,
-  including the single-quest compatibility guard; the restarted editor's
-  first-class MCP runner independently passed the same 77/77. The guard proves
-  that a different quest offer cannot replace or complete Mara's tracked quest,
-  preserves rewards on rejection, and retains completed history through
-  version-2 capture/restore without expanding the schema. The run also retained
+  latest 2026-08-31 no-hot-reload build and isolated commandlet passed 80/80;
+  the restarted editor's first-class MCP runner independently passed the same
+  80/80. The new coverage proves two simultaneous keyed quests, exact objective
+  routing and turn-in, reward-preflight rollback, exactly-once completion,
+  native version-3 round-trip, repeated-load idempotence, full-ledger malformed
+  rollback, and read-only version-1/version-2 singular adapters. The run also retained
   the idempotent character-creation input lock, bottom-right
   Chronicle command geometry, live Dwarf Warrior identity, and fixed current-
   versus-saved Chronicle layout; the
@@ -101,19 +104,29 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   and committed mint recovery bloom with fixed bounds, no collision, no HUD
   movement, and exact service-owned `35 Health` / `20 Mana` recovery.
   Initialized-world traces retained all six intentional well surfaces, clear
-  decoration, and every protected village route.
-- Retain the accepted version-2 single-quest compatibility boundary:
-  - one valid quest or completed history record occupies the current live/save
-    slot;
-  - a same-quest revisit may enter turn-in, while invalid and different-quest
-    offers cannot complete, replace, or reward the tracked quest;
-  - occupied-slot rejection uses exact readable feedback and no wallet, XP,
-    progress, or reward mutation;
-  - version-2 capture/restore retains Mara's completed history and repeated
-    load remains idempotent;
-  - do not add `Still Waters` or bump the save version until the full
-    [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md) migration and
-    compatibility suite is implemented.
+  decoration, and every protected village route. Clean PIE confirmed Human
+  Warrior creation, Inventory close, Q movement from `(-2400,-1200)` to
+  `(-1793.189,-831.382)`, exact W cancellation, and physical `F` Mara
+  acceptance. Live inspection showed one keyed `FirstSignsAtTheRuin` record,
+  matching transient focus, and the expected compatibility projection.
+- Retain the accepted save-version-3 multi-quest boundary:
+  - `QuestStates` is the only mutable runtime quest authority and is bounded to
+    eight unique stable quest IDs;
+  - every progress and completion mutation targets an exact quest/objective ID
+    pair; a wrong giver cannot complete or reward another ready quest;
+  - `ActiveQuest` is a derived compatibility projection for existing Blueprint
+    and HUD readers, while `FocusedQuestId` is transient and not serialized;
+  - native version `3` saves a stable-ID/asset/objective/progress/completion
+    record array; the entire candidate ledger must resolve and validate before
+    one atomic replacement;
+  - versions `1` and `2` remain readable by adapting their zero-or-one singular
+    record through the same validator without rewriting the source slot;
+  - duplicate, missing, mismatched, over-capacity, invalid-progress, and
+    contradictory records reject the whole load without wallet, XP, item,
+    equipment, quest, or vendor mutation;
+  - `Still Waters` may now be implemented only through the separate art-free
+    notice-board owner and committed-rest objective router defined in
+    [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md).
 - Retain the accepted character-creation authority and lifecycle contract:
   - the centered fixed `940x560` modal shows all eight races and four classes
     before gameplay while the normal HUD remains hidden;
@@ -135,8 +148,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     Inventory with `I`, and proved movement/look were both enabled, the cursor
     was hidden, and classic mouse camera control returned immediately;
   - Human Warrior remains the reversible construction fallback. Save version
-    `2` now persists a deliberately confirmed race/class pair through stable
-    IDs, while version `1` remains loadable through an explicit current-rules
+    `3` persists a deliberately confirmed race/class pair through the version-2
+    identity fields plus the new quest ledger, while version `1` remains
+    loadable through an explicit current-rules
     Human Warrior compatibility fallback without rewriting the old slot. Treat
     [Docs/CHARACTER_CREATION_CONTRACT.md](Docs/CHARACTER_CREATION_CONTRACT.md)
     as the authority and first-slice boundary.
@@ -548,7 +562,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   art or a complete signed-in Stylized Classic pack.
 - Highest-value next work:
   1. retain the accepted Advanced Chronicle proof: deliberately different live
-     and saved identities, one real Advanced transaction, exact version-2 owner
+     and saved identities, one real Advanced transaction, exact version-3 owner
      restoration, and a second idempotent load with no transient trainer state;
   2. retain the accepted class-colored level-up world observer: twelve
      non-colliding segments, live-event-only activation, fixed `1.6`-second
@@ -577,19 +591,16 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
      `F`, dialogue, marker, quest mutation, rewards, vendor, or trainer logic;
   9. tune Prowler timing or add subtle `NoCollision` marsh dressing only when
      normal-route PIE exposes a concrete issue;
-  10. implement the deliberate version-3 multi-quest ledger from
-      [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md) before adding
-      a second durable quest. Use keyed runtime records, a bounded saved array,
-      version-1/2 singular-record read adapters, complete preflight/rollback,
-      repeated-load idempotence, and exactly-once quest-specific rewards. Only
-      after that suite passes should `Still Waters` observe committed rest
-      success through a dedicated router; the notice board, well art, rest
+  10. build the accepted `Still Waters` content slice over version `3`: a
+      separate art-free notice-board quest owner, one dedicated router for the
+      rest service's committed `Success`, exact keyed progress/turn-in, and a
+      two-quest round-trip. The notice-board mesh, well art, rest
       service/presentation, and trainer remain quest-free.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-08-30
-  single-quest compatibility module, the 2026-08-29 communal-well
+- Restart Unreal before manual PIE when the editor predates the 2026-08-31
+  save-version-3 multi-quest module, the 2026-08-29 communal-well
   rest-presentation module, the 2026-08-28 rest-service module,
   the 2026-08-26
   level-up world-VFX module and 2026-08-25 level-gated trainer/progression
@@ -597,7 +608,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   rigged Fenwatch keeper, armsmaster, and
   quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 77 tests.
+  Current code passes all 80 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -863,8 +874,9 @@ Embermere has a working first-pass starter slice:
   native training panel, chat feedback, saved-package validation, and an
   accepted two-world Chronicle proof for trainer-produced `30` copper/`25` XP;
 - a versioned, atomic prototype save/load contract for copper, XP, inventory
-  and equipment identity, quest state, and finite vendor stock, with stable
+  and equipment identity, a bounded keyed multi-quest ledger, and finite vendor stock, with stable
   asset/service identifiers, malformed-record rollback, session-only buyback,
+  native version-3 records plus version-1/version-2 quest adapters,
   explicit `EmbermereSave`/`EmbermereLoad` commands, and fresh-session PIE
   round-trip proof;
 - hostile starter enemies that aggro, chase, attack, die, and respawn;
@@ -872,7 +884,7 @@ Embermere has a working first-pass starter slice:
   project-owned dummy: normal `Tab`/hotbar/nameplate/cyan-circle behavior,
   150 health, immediate target clear, three-second repeatable reset, and
   explicit exclusion from AI, collision, retaliation, loot, XP, quest credit,
-  trainer authority, and save version 1;
+  trainer authority, and persistence;
 - starter enemy leash and return-home behavior for safer village/wilderness boundaries;
 - player respawn protection for safer recovery during prototype combat;
 - bottom-left chat/combat log feedback for targeting, combat, death, respawn, quest progress, XP, inventory, and rewards;
@@ -1000,20 +1012,21 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
-- Implement the version-3 multi-quest foundation before adding `Still Waters`:
-  - replace the implicit single active slot with a keyed, bounded live ledger;
-  - add a versioned saved quest-record array and bump
-    `EmbermereSaveGameVersion::Current` only when the full implementation and
-    compatibility suite are complete;
-  - interpret version `1` and `2` singular quest records through an explicit
-    read-only adapter without rewriting old slots;
-  - preflight every record, stable ID, asset, objective, count, completion
-    state, duplicate, and capacity edge before one atomic ledger replacement;
-  - prove independent parallel progress, exact quest-specific turn-in,
-    repeated-load idempotence, exactly-once rewards, malformed-record rollback,
-    Chronicle/HUD read-only consumption, and no authority on art or services;
-  - only then add the separate art-free notice-board owner for `Still Waters`
-    and a dedicated objective router that observes committed rest `Success`.
+- Build the first content slice over the accepted version-3 foundation:
+  - create `DQ_FenwatchStillWaters` with stable quest ID
+    `FenwatchStillWaters`, objective ID `FenwatchRestCompleted`, one required
+    committed rest, `50` XP, `10` copper, and no item reward;
+  - add a separate art-free notice-board quest owner that offers and turns in
+    the quest while the existing notice-board mesh remains presentation-only;
+  - add a dedicated objective router that observes only the rest service's
+    immutable committed `Success` outcome and forwards one exact quest/objective
+    event; pending, interrupted, rejected, duplicate, and loaded presentation
+    must never advance progress;
+  - prove Mara and `Still Waters` coexist, progress independently, complete
+    through their exact owners, pay each reward once, and round-trip together
+    through version `3` with repeated-load idempotence and full rollback;
+  - keep the focused quest read-only/transient, preserve the version-1/version-2
+    adapters, and add no new save schema fields.
   Treat [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md) as the
   implementation and content boundary.
 - Retain Mara's accepted contextual greeting contract in clean PIE:
@@ -1063,11 +1076,12 @@ targeting, rewards, AI, quests, or persistence.
   village-to-road, quartermaster, vendor-bypass, armsmaster, and workshop
   circulation traces. The art owns no quest, interaction, reward, service, or
   persistence behavior.
-- Retain the accepted save version `2` character-identity contract: stable
+- Retain the accepted save version `3` contract: stable
   race/class IDs, current-rules legality validation, atomic class-stat and
   starter-hotbar restoration, repeated-load idempotence, read-only Chronicle
-  identity, malformed-record rollback, and the explicit version `1` Human
-  Warrior fallback. Do not add appearance, naming, autosave, multiple profiles,
+  identity, the bounded keyed quest ledger, malformed-record rollback, the
+  explicit version `1` Human Warrior fallback, and version-1/version-2 singular
+  quest adapters. Do not add appearance, naming, autosave, multiple profiles,
   deletion, or implicit migration without another deliberate versioned contract.
 - Retain Chronicle's accepted two-state presentation: use a deliberately
   different live identity and saved identity, verify both labels and levels,
@@ -1095,7 +1109,7 @@ targeting, rewards, AI, quests, or persistence.
   teardown clearing, and no load replay. The next bounded lane is the deliberate
   version-3 quest ledger; the future second quest observes committed rest
   through its own router and never becomes another responsibility on the well.
-- Retain the accepted trainer Chronicle proof under save version `2`:
+- Retain the accepted trainer Chronicle proof under save version `3`:
   - train once from fresh state to `30` copper plus `25` XP;
   - save deliberately, begin fresh PIE, load, then load again;
   - prove exact restoration, idempotence, and no item, equipment, quest,
@@ -1171,6 +1185,31 @@ targeting, rewards, AI, quests, or persistence.
   scale, color, or motion only from normal-camera feedback.
 
 ## Last Completed
+
+- 2026-08-31: implemented the accepted save-version-3 multi-quest foundation.
+  `UEmbermereQuestLogComponent` now owns a bounded eight-record keyed ledger;
+  objective progress, completion, and reward commit target an exact stable
+  quest/objective pair. `ActiveQuest` remains only a derived compatibility
+  projection and `FocusedQuestId` remains transient.
+- Version `3` serializes a stable quest-record array. Load resolves and
+  validates the complete candidate before one atomic replacement; duplicate,
+  missing, mismatched, invalid-progress, contradictory, mixed-format, and
+  over-capacity records reject without partial mutation. Versions `1` and `2`
+  adapt their zero-or-one singular record through the same validation path and
+  are never rewritten.
+- Replaced generic Prowler objective credit with exact Mara quest routing and
+  made Mara's contextual observer query her stable quest ID instead of the
+  transient focused projection. Wrong-giver turn-in cannot complete a different
+  ready quest, and reward preflight remains exactly-once and rollback-safe.
+- Added `Embermere.Quests.MultiQuestRuntime`,
+  `Embermere.Persistence.MultiQuestRoundTrip`,
+  `Embermere.Persistence.LegacyQuestCompatibility`, and
+  `Embermere.Persistence.MultiQuestValidationRollback`, bringing the suite to
+  80. The no-hot-reload build, isolated commandlet `80/80`, restarted-editor MCP
+  `80/80`, focused validators, fresh 18-package aggregate, and all initialized-
+  world route traces passed with no Python errors. Clean PIE retained Human
+  Warrior creation, Inventory close, measured Q/W controls, and physical Mara
+  acceptance; live inspection showed the exact keyed quest record and focus.
 
 - 2026-08-30: traced the proposed second Fenwatch quest through the live and
   persistence owners and proved that save version `2` is intentionally a

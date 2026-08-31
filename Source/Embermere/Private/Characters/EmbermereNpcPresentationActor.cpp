@@ -279,10 +279,15 @@ EEmbermereNpcGreetingState AEmbermereNpcPresentationActor::GetResolvedContextGre
 	const UEmbermereInteractableComponent* Authority = ContextAuthorityActor
 		? ContextAuthorityActor->FindComponentByClass<UEmbermereInteractableComponent>()
 		: nullptr;
-	const FEmbermereQuestState EmptyQuestState;
+	FEmbermereQuestState QuestState;
+	const UEmbermereQuestData* OfferedQuest = Authority ? Authority->QuestToOffer.Get() : nullptr;
+	if (BoundQuestLog && OfferedQuest)
+	{
+		BoundQuestLog->GetQuestStateById(OfferedQuest->QuestId, QuestState);
+	}
 	return ResolveContextGreetingState(
-		Authority ? Authority->QuestToOffer.Get() : nullptr,
-		BoundQuestLog ? BoundQuestLog->ActiveQuest : EmptyQuestState);
+		OfferedQuest,
+		QuestState);
 }
 
 FText AEmbermereNpcPresentationActor::GetResolvedContextGreetingText() const

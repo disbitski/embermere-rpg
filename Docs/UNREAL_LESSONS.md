@@ -1687,3 +1687,47 @@ same-quest revisit may enter turn-in; an occupied slot gets readable rejection;
 invalid data does nothing. More generally, failure to acquire one resource is
 never authorization to mutate whichever resource is already present. Carry
 stable identity through the request and verify it again at commit time.
+
+## Migrate Authority, Preserve Compatibility As A Projection
+
+Replacing one active quest with a keyed ledger did not require every Blueprint
+and HUD reader to change on the same day. `QuestStates` became the only mutable
+authority, while the established `ActiveQuest` property became a derived view
+of one transient `FocusedQuestId`. Old readers still receive coherent state;
+they can no longer create a competing quest truth.
+
+This pattern is useful when widening any durable owner:
+
+1. move all mutation into the new canonical collection;
+2. derive the old shape from one explicit selection rule;
+3. make that selection transient unless product requirements make it durable;
+4. update identity-sensitive observers to query their stable ID directly;
+5. test that changing focus cannot alter another record.
+
+Compatibility should let old consumers read the new truth. It should not keep
+the old owner alive beside it.
+
+## Validate A Saved Collection Before Mutating Any Owner
+
+Per-record validation is insufficient when the collection itself has rules.
+The version-3 quest candidate must also prove unique IDs, bounded capacity, no
+mixed legacy/native shapes, and coherent completion across every record. Only
+after all assets and authored IDs resolve does persistence replace the live
+ledger.
+
+Keep legacy adapters on the candidate side of that boundary. Version-1 and
+version-2 singular quest records become zero-or-one in-memory candidates, pass
+the same validator, and are never rewritten merely because they loaded. This
+keeps backward compatibility explicit and rollback complete.
+
+## Do Not Add A TArray Element From A Reference Into The Same Array
+
+A malformed-save fixture originally used `Array.Add(Array[0])` to create a
+duplicate record. Unreal correctly asserted because growing the `TArray` can
+invalidate the source reference while `Add` is still copying it. The crash was
+in the test fixture, not the persistence implementation.
+
+Copy the element to a local value first, then add that value. The same rule
+applies in production whenever a container operation may reallocate: do not
+pass a reference or pointer into that container back to a mutating operation on
+the same container.

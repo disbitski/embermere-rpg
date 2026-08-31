@@ -43,6 +43,7 @@ void UEmbermereInteractableComponent::Interact(AActor* Interactor)
 				break;
 			case EEmbermereQuestAcceptanceResult::InvalidQuest:
 			case EEmbermereQuestAcceptanceResult::OccupiedByOtherQuest:
+			case EEmbermereQuestAcceptanceResult::LedgerFull:
 				UEmbermereGameplayMessageLibrary::PostGameplayMessage(
 					this,
 					QuestLog->GetQuestAcceptanceResultText(Acceptance, QuestToOffer),

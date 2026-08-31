@@ -59,6 +59,48 @@
 #include "UI/EmbermereLevelUpWidget.h"
 #include "UI/EmbermereNpcGreetingWidget.h"
 #include "UI/EmbermerePlayerHudWidget.h"
+#include "UObject/Package.h"
+
+namespace
+{
+	UEmbermereQuestData* CreateAutomationQuestAsset(
+		const TCHAR* AssetName,
+		FName QuestId,
+		FName ObjectiveId,
+		int32 RequiredObjectiveCount,
+		int32 RewardExperience = 0,
+		int32 RewardCopper = 0)
+	{
+		const FString PackageName = FString::Printf(TEXT("/Game/Automation/%s"), AssetName);
+		UPackage* Package = CreatePackage(*PackageName);
+		if (!Package)
+		{
+			return nullptr;
+		}
+
+		UEmbermereQuestData* Quest = FindObject<UEmbermereQuestData>(Package, AssetName);
+		if (!Quest)
+		{
+			Quest = NewObject<UEmbermereQuestData>(
+				Package,
+				FName(AssetName),
+				RF_Public | RF_Standalone);
+		}
+		if (!Quest)
+		{
+			return nullptr;
+		}
+
+		Quest->QuestId = QuestId;
+		Quest->Title = FText::FromName(QuestId);
+		Quest->ObjectiveId = ObjectiveId;
+		Quest->RequiredObjectiveCount = RequiredObjectiveCount;
+		Quest->RewardExperience = RewardExperience;
+		Quest->RewardCopper = RewardCopper;
+		Quest->RewardItem.Reset();
+		return Quest;
+	}
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereTrainerTransactionRulesTest,
@@ -910,7 +952,13 @@ bool FEmbermerePersistenceRoundTripTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Save captures XP"), CapturedSave->CurrentExperience, 125);
 	TestEqual(TEXT("Equipped item is absent from bag records"), CapturedSave->InventoryStacks.Num(), 1);
 	TestEqual(TEXT("Save captures one equipment record"), CapturedSave->EquippedItems.Num(), 1);
-	TestTrue(TEXT("Save captures completed quest state"), CapturedSave->QuestState.bCompleted);
+	TestEqual(TEXT("Save captures one quest-ledger record"), CapturedSave->QuestStates.Num(), 1);
+	if (CapturedSave->QuestStates.Num() == 1)
+	{
+		TestTrue(TEXT("Save captures completed quest state"), CapturedSave->QuestStates[0].bCompleted);
+		TestEqual(TEXT("Save captures stable quest objective ID"), CapturedSave->QuestStates[0].ObjectiveId, Quest->ObjectiveId);
+	}
+	TestFalse(TEXT("Version 3 leaves the legacy singular quest field empty"), CapturedSave->QuestState.bHasActiveQuest);
 	TestEqual(TEXT("Save captures one persistent vendor"), CapturedSave->VendorStocks.Num(), 1);
 	TestEqual(TEXT("Save captures exhausted finite stock"), CapturedSave->VendorStocks[0].RemainingQuantities[1], 0);
 
@@ -1023,7 +1071,7 @@ bool FEmbermerePersistenceCharacterIdentityRoundTripTest::RunTest(const FString&
 	{
 		return false;
 	}
-	TestEqual(TEXT("Identity save uses v2"), CapturedSave->FormatVersion, EmbermereSaveGameVersion::CharacterIdentity);
+	TestEqual(TEXT("Identity save uses the current v3 format"), CapturedSave->FormatVersion, EmbermereSaveGameVersion::Current);
 	TestEqual(TEXT("Elf uses explicit stable ID"), CapturedSave->RaceId, FName(TEXT("Elf")));
 	TestEqual(TEXT("Wizard uses explicit stable ID"), CapturedSave->ClassId, FName(TEXT("Wizard")));
 
@@ -1328,10 +1376,12 @@ bool FEmbermerePersistenceValidationRollbackTest::RunTest(const FString& Paramet
 	AssertLiveStateUnchanged();
 
 	UEmbermereSaveGame* InvalidQuest = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
-	InvalidQuest->QuestState.bHasActiveQuest = true;
-	InvalidQuest->QuestState.QuestId = Quest->QuestId;
-	InvalidQuest->QuestState.QuestAsset = FSoftObjectPath(Quest);
-	InvalidQuest->QuestState.CurrentObjectiveCount = Quest->RequiredObjectiveCount + 1;
+	FEmbermereSavedQuestRecord InvalidQuestRecord;
+	InvalidQuestRecord.QuestId = Quest->QuestId;
+	InvalidQuestRecord.QuestAsset = FSoftObjectPath(Quest);
+	InvalidQuestRecord.ObjectiveId = Quest->ObjectiveId;
+	InvalidQuestRecord.CurrentObjectiveCount = Quest->RequiredObjectiveCount + 1;
+	InvalidQuest->QuestStates.Add(InvalidQuestRecord);
 	TestEqual(
 		TEXT("Out-of-range quest progress is rejected before mutation"),
 		UEmbermerePersistenceLibrary::ApplyGameState(
@@ -1366,6 +1416,340 @@ bool FEmbermerePersistenceValidationRollbackTest::RunTest(const FString& Paramet
 	TestEqual(TEXT("Successful load keeps captured inventory"), Character->Inventory->GetItemQuantity(Tonic), 1);
 	TestEqual(TEXT("Successful load resets session buyback"), Vendor->GetBuybackEntryCount(), 0);
 
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereMultiQuestPersistenceRoundTripTest,
+	"Embermere.Persistence.MultiQuestRoundTrip",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereMultiQuestPersistenceRoundTripTest::RunTest(const FString& Parameters)
+{
+	UEmbermereQuestData* MaraQuest = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	UEmbermereQuestData* SecondQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationStillWatersRoundTrip"),
+		TEXT("FenwatchStillWatersRoundTrip"),
+		TEXT("FenwatchRestCompletedRoundTrip"),
+		1,
+		50,
+		10);
+	AEmbermereCharacter* EmptySource = NewObject<AEmbermereCharacter>();
+	AEmbermereCharacter* Source = NewObject<AEmbermereCharacter>();
+	AEmbermereCharacter* Target = NewObject<AEmbermereCharacter>();
+	if (!MaraQuest || !SecondQuest || !EmptySource || !Source || !Target)
+	{
+		AddError(TEXT("Could not create multi-quest round-trip fixtures"));
+		return false;
+	}
+
+	FText PersistenceMessage;
+	UEmbermereSaveGame* EmptySave = nullptr;
+	TestTrue(TEXT("Empty-ledger fixture confirms a deliberate identity"),
+		EmptySource->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	TestEqual(TEXT("An empty quest ledger captures successfully"),
+		UEmbermerePersistenceLibrary::CaptureGameState(
+			EmptySource, {}, EmptySave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestNotNull(TEXT("Empty-ledger capture creates a save"), EmptySave);
+	if (EmptySave)
+	{
+		TestEqual(TEXT("Empty-ledger capture writes zero records"), EmptySave->QuestStates.Num(), 0);
+	}
+
+	TestTrue(TEXT("Multi-quest source confirms a deliberate identity"),
+		Source->TryApplyRaceAndClass(EEmbermereRace::Elf, EEmbermereClass::Wizard));
+	TestTrue(TEXT("Mara quest enters the source ledger"), Source->QuestLog->AcceptQuest(MaraQuest));
+	TestTrue(TEXT("Second quest enters the source ledger"), Source->QuestLog->AcceptQuest(SecondQuest));
+	TestTrue(TEXT("Mara receives exact partial progress"),
+		Source->QuestLog->AddObjectiveProgressForQuest(
+			MaraQuest->QuestId,
+			MaraQuest->ObjectiveId,
+			2));
+	TestTrue(TEXT("Second quest reaches its exact objective"),
+		Source->QuestLog->AddObjectiveProgressForQuest(
+			SecondQuest->QuestId,
+			SecondQuest->ObjectiveId,
+			1));
+	TestTrue(TEXT("Second quest commits its reward once"),
+		Source->QuestLog->TryCompleteQuest(SecondQuest));
+	TestTrue(TEXT("Source focus can deliberately point at completed second quest"),
+		Source->QuestLog->FocusQuest(SecondQuest->QuestId));
+
+	UEmbermereSaveGame* CapturedSave = nullptr;
+	TestEqual(TEXT("Two quest records capture under version 3"),
+		UEmbermerePersistenceLibrary::CaptureGameState(
+			Source, {}, CapturedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestNotNull(TEXT("Multi-quest capture creates a save"), CapturedSave);
+	if (!CapturedSave)
+	{
+		return false;
+	}
+	TestEqual(TEXT("Multi-quest capture uses version 3"),
+		CapturedSave->FormatVersion, EmbermereSaveGameVersion::MultiQuestLedger);
+	TestEqual(TEXT("Multi-quest capture writes two records"), CapturedSave->QuestStates.Num(), 2);
+	TestFalse(TEXT("Version 3 writes no singular legacy quest"), CapturedSave->QuestState.bHasActiveQuest);
+	for (const FEmbermereSavedQuestRecord& SavedQuest : CapturedSave->QuestStates)
+	{
+		TestFalse(TEXT("Every version-3 record writes a stable objective ID"), SavedQuest.ObjectiveId.IsNone());
+	}
+
+	TArray<uint8> SerializedBytes;
+	TestTrue(TEXT("Multi-quest version 3 serializes through SaveGame memory"),
+		UGameplayStatics::SaveGameToMemory(CapturedSave, SerializedBytes));
+	UEmbermereSaveGame* LoadedSave = Cast<UEmbermereSaveGame>(
+		UGameplayStatics::LoadGameFromMemory(SerializedBytes));
+	TestNotNull(TEXT("Serialized multi-quest bytes reload"), LoadedSave);
+	if (!LoadedSave)
+	{
+		return false;
+	}
+
+	Target->Wallet->SetCopperForPrototype(3);
+	Target->Stats->RestoreExperienceForSaveGame(7);
+	TestEqual(TEXT("Version-3 ledger applies atomically"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Target, {}, LoadedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	FEmbermereQuestState MaraState;
+	FEmbermereQuestState SecondState;
+	TestTrue(TEXT("Load restores Mara by stable quest ID"),
+		Target->QuestLog->GetQuestStateById(MaraQuest->QuestId, MaraState));
+	TestEqual(TEXT("Load restores exact Mara progress"), MaraState.CurrentObjectiveCount, 2);
+	TestFalse(TEXT("Mara remains incomplete"), MaraState.bCompleted);
+	TestTrue(TEXT("Load restores second quest by stable ID"),
+		Target->QuestLog->GetQuestStateById(SecondQuest->QuestId, SecondState));
+	TestTrue(TEXT("Load restores second completed history"), SecondState.bCompleted);
+	TestEqual(TEXT("Load restores committed second-quest XP"), Target->Stats->CurrentExperience, 50);
+	TestEqual(TEXT("Load restores committed second-quest copper"), Target->Wallet->Copper, 50);
+	TestTrue(TEXT("Transient focus is reselected from current incomplete state"),
+		Target->QuestLog->ActiveQuest.Quest == MaraQuest);
+	TestFalse(TEXT("Loaded completion cannot replay second reward"),
+		Target->QuestLog->TryCompleteQuest(SecondQuest));
+
+	TestEqual(TEXT("Applying the same version-3 ledger twice remains valid"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Target, {}, LoadedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Repeated load preserves two unique records"), Target->QuestLog->QuestStates.Num(), 2);
+	TestEqual(TEXT("Repeated load does not duplicate XP"), Target->Stats->CurrentExperience, 50);
+	TestEqual(TEXT("Repeated load does not duplicate copper"), Target->Wallet->Copper, 50);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereLegacyQuestCompatibilityTest,
+	"Embermere.Persistence.LegacyQuestCompatibility",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereLegacyQuestCompatibilityTest::RunTest(const FString& Parameters)
+{
+	UEmbermereQuestData* MaraQuest = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	AEmbermereCharacter* VersionTwoTarget = NewObject<AEmbermereCharacter>();
+	AEmbermereCharacter* VersionOneTarget = NewObject<AEmbermereCharacter>();
+	UEmbermereSaveGame* VersionTwoSave = NewObject<UEmbermereSaveGame>();
+	if (!MaraQuest || !VersionTwoTarget || !VersionOneTarget || !VersionTwoSave)
+	{
+		AddError(TEXT("Could not create legacy quest compatibility fixtures"));
+		return false;
+	}
+
+	VersionTwoSave->FormatVersion = EmbermereSaveGameVersion::CharacterIdentity;
+	VersionTwoSave->RaceId = TEXT("Elf");
+	VersionTwoSave->ClassId = TEXT("Wizard");
+	VersionTwoSave->Copper = 22;
+	VersionTwoSave->CurrentExperience = 125;
+	VersionTwoSave->QuestState.bHasActiveQuest = true;
+	VersionTwoSave->QuestState.QuestId = MaraQuest->QuestId;
+	VersionTwoSave->QuestState.QuestAsset = FSoftObjectPath(MaraQuest);
+	VersionTwoSave->QuestState.CurrentObjectiveCount = MaraQuest->RequiredObjectiveCount;
+	VersionTwoSave->QuestState.bCompleted = true;
+
+	FText PersistenceMessage;
+	TestEqual(TEXT("Version 2 singular quest adapts into the runtime ledger"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			VersionTwoTarget, {}, VersionTwoSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	FEmbermereQuestState VersionTwoQuestState;
+	TestTrue(TEXT("Version 2 adapter restores exact completed quest"),
+		VersionTwoTarget->QuestLog->GetQuestStateById(
+			MaraQuest->QuestId, VersionTwoQuestState) && VersionTwoQuestState.bCompleted);
+	TestEqual(TEXT("Reading version 2 never rewrites its format"),
+		VersionTwoSave->FormatVersion, EmbermereSaveGameVersion::CharacterIdentity);
+	const int32 VersionTwoCopper = VersionTwoTarget->Wallet->Copper;
+	TestFalse(TEXT("Adapted version-2 completion cannot replay reward"),
+		VersionTwoTarget->QuestLog->TryCompleteQuest(MaraQuest));
+	TestEqual(TEXT("Rejected version-2 replay preserves copper"),
+		VersionTwoTarget->Wallet->Copper, VersionTwoCopper);
+	TestEqual(TEXT("Repeated version-2 adapter load remains valid"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			VersionTwoTarget, {}, VersionTwoSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Repeated version-2 load keeps one ledger record"),
+		VersionTwoTarget->QuestLog->QuestStates.Num(), 1);
+
+	UEmbermereSaveGame* VersionOneSave = DuplicateObject<UEmbermereSaveGame>(
+		VersionTwoSave,
+		GetTransientPackage());
+	VersionOneSave->FormatVersion = EmbermereSaveGameVersion::ProgressionOnly;
+	VersionOneSave->RaceId = NAME_None;
+	VersionOneSave->ClassId = NAME_None;
+	TestEqual(TEXT("Version 1 singular quest uses the same compatibility adapter"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			VersionOneTarget, {}, VersionOneSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	FEmbermereQuestState VersionOneQuestState;
+	TestTrue(TEXT("Version 1 adapter retains completed quest history"),
+		VersionOneTarget->QuestLog->GetQuestStateById(
+			MaraQuest->QuestId, VersionOneQuestState) && VersionOneQuestState.bCompleted);
+	TestEqual(TEXT("Version 1 keeps explicit Human fallback"),
+		VersionOneTarget->Race, EEmbermereRace::Human);
+	TestEqual(TEXT("Reading version 1 never rewrites its format"),
+		VersionOneSave->FormatVersion, EmbermereSaveGameVersion::ProgressionOnly);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereMultiQuestValidationRollbackTest,
+	"Embermere.Persistence.MultiQuestValidationRollback",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereMultiQuestValidationRollbackTest::RunTest(const FString& Parameters)
+{
+	UEmbermereQuestData* MaraQuest = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	UEmbermereQuestData* SecondQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationStillWatersRollback"),
+		TEXT("FenwatchStillWatersRollback"),
+		TEXT("FenwatchRestCompletedRollback"),
+		1);
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	if (!MaraQuest || !SecondQuest || !Character)
+	{
+		AddError(TEXT("Could not create multi-quest rollback fixtures"));
+		return false;
+	}
+
+	TestTrue(TEXT("Rollback fixture confirms a deliberate identity"),
+		Character->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	TestTrue(TEXT("Rollback fixture accepts Mara"), Character->QuestLog->AcceptQuest(MaraQuest));
+	TestTrue(TEXT("Rollback fixture accepts second quest"), Character->QuestLog->AcceptQuest(SecondQuest));
+	TestTrue(TEXT("Rollback fixture records exact Mara progress"),
+		Character->QuestLog->AddObjectiveProgressForQuest(
+			MaraQuest->QuestId, MaraQuest->ObjectiveId, 1));
+
+	UEmbermereSaveGame* GoodSave = nullptr;
+	FText PersistenceMessage;
+	TestEqual(TEXT("Valid two-record ledger captures"),
+		UEmbermerePersistenceLibrary::CaptureGameState(
+			Character, {}, GoodSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	if (!GoodSave || GoodSave->QuestStates.Num() != 2)
+	{
+		AddError(TEXT("Multi-quest rollback baseline save is incomplete"));
+		return false;
+	}
+
+	auto AssertLiveLedgerUnchanged = [this, Character, MaraQuest, SecondQuest]()
+	{
+		FEmbermereQuestState MaraState;
+		FEmbermereQuestState SecondState;
+		TestEqual(TEXT("Rejected ledger preserves record count"), Character->QuestLog->QuestStates.Num(), 2);
+		TestTrue(TEXT("Rejected ledger preserves Mara progress"),
+			Character->QuestLog->GetQuestStateById(MaraQuest->QuestId, MaraState) &&
+			MaraState.CurrentObjectiveCount == 1 && !MaraState.bCompleted);
+		TestTrue(TEXT("Rejected ledger preserves second quest state"),
+			Character->QuestLog->GetQuestStateById(SecondQuest->QuestId, SecondState) &&
+			SecondState.CurrentObjectiveCount == 0 && !SecondState.bCompleted);
+		TestEqual(TEXT("Rejected ledger preserves wallet"), Character->Wallet->Copper, 40);
+		TestEqual(TEXT("Rejected ledger preserves experience"), Character->Stats->CurrentExperience, 0);
+	};
+
+	UEmbermereSaveGame* DuplicateIds = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	const FEmbermereSavedQuestRecord DuplicateRecord = DuplicateIds->QuestStates[0];
+	DuplicateIds->QuestStates.Add(DuplicateRecord);
+	TestEqual(TEXT("Duplicate quest IDs reject the complete candidate"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {}, DuplicateIds, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertLiveLedgerUnchanged();
+
+	UEmbermereSaveGame* MissingAsset = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	MissingAsset->QuestStates[0].QuestAsset = FSoftObjectPath(
+		TEXT("/Game/Automation/DQ_MissingQuest.DQ_MissingQuest"));
+	TestEqual(TEXT("Missing quest assets reject before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {}, MissingAsset, PersistenceMessage),
+		EEmbermerePersistenceResult::MissingAsset);
+	AssertLiveLedgerUnchanged();
+
+	UEmbermereSaveGame* MismatchedId = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	MismatchedId->QuestStates[0].QuestId = TEXT("MismatchedQuestId");
+	TestEqual(TEXT("Mismatched stable quest IDs reject before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {}, MismatchedId, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertLiveLedgerUnchanged();
+
+	UEmbermereSaveGame* MismatchedObjective = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	MismatchedObjective->QuestStates[0].ObjectiveId = TEXT("WrongObjective");
+	TestEqual(TEXT("Mismatched objective IDs reject before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {}, MismatchedObjective, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertLiveLedgerUnchanged();
+
+	UEmbermereSaveGame* InvalidProgress = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	InvalidProgress->QuestStates[0].CurrentObjectiveCount = 100;
+	TestEqual(TEXT("Out-of-range quest progress rejects before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {}, InvalidProgress, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertLiveLedgerUnchanged();
+
+	UEmbermereSaveGame* ContradictoryCompletion = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	ContradictoryCompletion->QuestStates[0].bCompleted = true;
+	ContradictoryCompletion->QuestStates[0].CurrentObjectiveCount = 0;
+	TestEqual(TEXT("Contradictory completion rejects before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {}, ContradictoryCompletion, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertLiveLedgerUnchanged();
+
+	UEmbermereSaveGame* CapacityOverflow = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	const FEmbermereSavedQuestRecord RepeatedRecord = CapacityOverflow->QuestStates[0];
+	CapacityOverflow->QuestStates.Reset();
+	for (int32 Index = 0; Index < UEmbermereQuestLogComponent::MaxTrackedQuests + 1; ++Index)
+	{
+		CapacityOverflow->QuestStates.Add(RepeatedRecord);
+	}
+	TestEqual(TEXT("Over-capacity quest ledgers reject before mutation"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {}, CapacityOverflow, PersistenceMessage),
+		EEmbermerePersistenceResult::CapacityConflict);
+	AssertLiveLedgerUnchanged();
+
+	UEmbermereSaveGame* MixedLegacyState = DuplicateObject<UEmbermereSaveGame>(GoodSave, GetTransientPackage());
+	MixedLegacyState->QuestState.bHasActiveQuest = true;
+	MixedLegacyState->QuestState.QuestId = MaraQuest->QuestId;
+	MixedLegacyState->QuestState.QuestAsset = FSoftObjectPath(MaraQuest);
+	TestEqual(TEXT("Version 3 rejects contradictory singular legacy state"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {}, MixedLegacyState, PersistenceMessage),
+		EEmbermerePersistenceResult::InvalidData);
+	AssertLiveLedgerUnchanged();
+
+	TestEqual(TEXT("Valid ledger still applies after every rejected candidate"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Character, {}, GoodSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Validated restore retains two records"), Character->QuestLog->QuestStates.Num(), 2);
 	return true;
 }
 
@@ -1414,9 +1798,14 @@ bool FEmbermerePersistenceSlotInspectionTest::RunTest(const FString& Parameters)
 	EquipmentItem.ItemAsset = FSoftObjectPath(
 		TEXT("/Game/Data/Items/DI_EmbermereRecruitPack.DI_EmbermereRecruitPack"));
 	SaveGame->EquippedItems.Add(EquipmentItem);
-	SaveGame->QuestState.bHasActiveQuest = true;
-	SaveGame->QuestState.bCompleted = true;
-	SaveGame->QuestState.CurrentObjectiveCount = 3;
+	FEmbermereSavedQuestRecord SavedQuest;
+	SavedQuest.QuestId = TEXT("FirstSignsAtTheRuin");
+	SavedQuest.QuestAsset = FSoftObjectPath(
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	SavedQuest.ObjectiveId = TEXT("StarterEnemyDefeated");
+	SavedQuest.bCompleted = true;
+	SavedQuest.CurrentObjectiveCount = 3;
+	SaveGame->QuestStates.Add(SavedQuest);
 	TestTrue(
 		TEXT("Valid inspection fixture saves through the one-slot lifecycle"),
 		UGameplayStatics::SaveGameToSlot(SaveGame, SlotName, UserIndex));
@@ -1437,6 +1826,12 @@ bool FEmbermerePersistenceSlotInspectionTest::RunTest(const FString& Parameters)
 	SaveGame->FormatVersion = EmbermereSaveGameVersion::ProgressionOnly;
 	SaveGame->RaceId = NAME_None;
 	SaveGame->ClassId = NAME_None;
+	SaveGame->QuestStates.Reset();
+	SaveGame->QuestState.bHasActiveQuest = true;
+	SaveGame->QuestState.QuestId = SavedQuest.QuestId;
+	SaveGame->QuestState.QuestAsset = SavedQuest.QuestAsset;
+	SaveGame->QuestState.CurrentObjectiveCount = SavedQuest.CurrentObjectiveCount;
+	SaveGame->QuestState.bCompleted = SavedQuest.bCompleted;
 	TestTrue(
 		TEXT("Legacy version fixture overwrites the test slot"),
 		UGameplayStatics::SaveGameToSlot(SaveGame, SlotName, UserIndex));
@@ -4126,22 +4521,21 @@ bool FEmbermereQuestRewardTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
-	FEmbermereSecondQuestCompatibilityTest,
-	"Embermere.Quests.SingleSlotCompatibility",
+	FEmbermereMultiQuestRuntimeTest,
+	"Embermere.Quests.MultiQuestRuntime",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
-bool FEmbermereSecondQuestCompatibilityTest::RunTest(const FString& Parameters)
+bool FEmbermereMultiQuestRuntimeTest::RunTest(const FString& Parameters)
 {
 	UEmbermereQuestData* MaraQuest = LoadObject<UEmbermereQuestData>(
 		nullptr,
 		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
 	AEmbermereCharacter* Source = NewObject<AEmbermereCharacter>();
-	AEmbermereCharacter* Restored = NewObject<AEmbermereCharacter>();
 	AActor* SecondQuestGiver = NewObject<AActor>();
 	UEmbermereInteractableComponent* SecondInteractable =
 		NewObject<UEmbermereInteractableComponent>(SecondQuestGiver);
 	UEmbermereQuestData* SecondQuest = NewObject<UEmbermereQuestData>();
-	if (!MaraQuest || !Source || !Restored || !SecondQuestGiver ||
+	if (!MaraQuest || !Source || !SecondQuestGiver ||
 		!SecondInteractable || !SecondQuest)
 	{
 		AddError(TEXT("Could not create second-quest compatibility fixtures"));
@@ -4160,30 +4554,31 @@ bool FEmbermereSecondQuestCompatibilityTest::RunTest(const FString& Parameters)
 		TEXT("A valid first quest passes acceptance preflight"),
 		Source->QuestLog->EvaluateQuestAcceptance(MaraQuest),
 		EEmbermereQuestAcceptanceResult::Success);
-	TestTrue(TEXT("Mara quest occupies the version-2 quest slot"),
+	TestTrue(TEXT("Mara quest enters the bounded runtime ledger"),
 		Source->QuestLog->AcceptQuest(MaraQuest));
+	TestEqual(
+		TEXT("A different valid quest can coexist in version 3"),
+		Source->QuestLog->EvaluateQuestAcceptance(SecondQuest),
+		EEmbermereQuestAcceptanceResult::Success);
+	TestTrue(TEXT("Second quest enters the same ledger"),
+		Source->QuestLog->AcceptQuest(SecondQuest));
+	TestEqual(TEXT("Ledger tracks both stable quest IDs"),
+		Source->QuestLog->QuestStates.Num(), 2);
 	TestTrue(TEXT("Mara quest reaches ready-to-turn-in state"),
-		Source->QuestLog->AddObjectiveProgress(
+		Source->QuestLog->AddObjectiveProgressForQuest(
+			MaraQuest->QuestId,
 			MaraQuest->ObjectiveId,
 			MaraQuest->RequiredObjectiveCount));
-	TestEqual(
-		TEXT("A different quest reports the occupied single-slot boundary"),
-		Source->QuestLog->EvaluateQuestAcceptance(SecondQuest),
-		EEmbermereQuestAcceptanceResult::OccupiedByOtherQuest);
-	TestEqual(
-		TEXT("Occupied-slot feedback names the blocked quest"),
-		Source->QuestLog->GetQuestAcceptanceResultText(
-			EEmbermereQuestAcceptanceResult::OccupiedByOtherQuest,
-			SecondQuest).ToString(),
-		FString(TEXT("Finish your current quest before accepting Still Waters.")));
 
 	const int32 CopperBeforeWrongGiver = Source->Wallet->Copper;
 	const int32 ExperienceBeforeWrongGiver = Source->Stats->CurrentExperience;
 	SecondInteractable->Interact(Source);
-	TestTrue(TEXT("A different quest giver cannot replace Mara's quest"),
-		Source->QuestLog->ActiveQuest.Quest == MaraQuest);
+	FEmbermereQuestState MaraState;
+	FEmbermereQuestState SecondState;
+	TestTrue(TEXT("Mara state remains queryable by stable ID"),
+		Source->QuestLog->GetQuestStateById(MaraQuest->QuestId, MaraState));
 	TestFalse(TEXT("A different quest giver cannot complete Mara's ready quest"),
-		Source->QuestLog->ActiveQuest.bCompleted);
+		MaraState.bCompleted);
 	TestEqual(TEXT("Wrong-giver rejection preserves copper"),
 		Source->Wallet->Copper, CopperBeforeWrongGiver);
 	TestEqual(TEXT("Wrong-giver rejection preserves experience"),
@@ -4191,51 +4586,47 @@ bool FEmbermereSecondQuestCompatibilityTest::RunTest(const FString& Parameters)
 
 	TestTrue(TEXT("Only Mara's matching quest turn-in may complete the quest"),
 		Source->QuestLog->TryCompleteQuest(MaraQuest));
-	TestFalse(TEXT("The second quest remains blocked by durable completion history"),
-		Source->QuestLog->AcceptQuest(SecondQuest));
-	TestTrue(TEXT("Mara completion history remains active"),
-		Source->QuestLog->ActiveQuest.Quest == MaraQuest &&
-		Source->QuestLog->ActiveQuest.bCompleted);
+	TestTrue(TEXT("Mara completion remains keyed in durable history"),
+		Source->QuestLog->GetQuestStateById(MaraQuest->QuestId, MaraState) &&
+		MaraState.bCompleted);
+	TestTrue(TEXT("Completing Mara does not remove the second quest"),
+		Source->QuestLog->GetQuestStateById(SecondQuest->QuestId, SecondState) &&
+		!SecondState.bCompleted && SecondState.CurrentObjectiveCount == 0);
 
-	TestTrue(
-		TEXT("Source confirms a deliberate identity before version-2 capture"),
-		Source->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
-	UEmbermereSaveGame* CapturedSave = nullptr;
-	FText PersistenceMessage;
-	TestEqual(
-		TEXT("The guarded single quest captures under save version 2"),
-		UEmbermerePersistenceLibrary::CaptureGameState(
-			Source, {}, CapturedSave, PersistenceMessage),
-		EEmbermerePersistenceResult::Success);
-	TestNotNull(TEXT("Single-slot compatibility capture creates a save"), CapturedSave);
-	if (!CapturedSave)
-	{
-		return false;
-	}
-	TestEqual(TEXT("Compatibility guard does not expand the save version"),
-		CapturedSave->FormatVersion, EmbermereSaveGameVersion::CharacterIdentity);
-	TestEqual(TEXT("Version 2 retains Mara's stable quest ID"),
-		CapturedSave->QuestState.QuestId, MaraQuest->QuestId);
-	TestTrue(TEXT("Version 2 retains Mara's completed state"),
-		CapturedSave->QuestState.bCompleted);
+	TestTrue(TEXT("Exact second objective routing advances only the second quest"),
+		Source->QuestLog->AddObjectiveProgressForQuest(
+			SecondQuest->QuestId,
+			SecondQuest->ObjectiveId,
+			1));
+	TestTrue(TEXT("Transient focus follows the exact progressed quest"),
+		Source->QuestLog->ActiveQuest.Quest == SecondQuest);
+	TestTrue(TEXT("Mara progress remains unchanged after second-quest progress"),
+		Source->QuestLog->GetQuestStateById(MaraQuest->QuestId, MaraState) &&
+		MaraState.CurrentObjectiveCount == MaraQuest->RequiredObjectiveCount);
 
-	TestEqual(
-		TEXT("The guarded version-2 save restores successfully"),
-		UEmbermerePersistenceLibrary::ApplyGameState(
-			Restored, {}, CapturedSave, PersistenceMessage),
-		EEmbermerePersistenceResult::Success);
-	TestTrue(TEXT("Restore retains Mara's completion history"),
-		Restored->QuestLog->ActiveQuest.Quest == MaraQuest &&
-		Restored->QuestLog->ActiveQuest.bCompleted);
-	TestEqual(
-		TEXT("A second quest remains blocked after restore"),
-		Restored->QuestLog->EvaluateQuestAcceptance(SecondQuest),
-		EEmbermereQuestAcceptanceResult::OccupiedByOtherQuest);
-	const int32 RestoredCopper = Restored->Wallet->Copper;
-	TestFalse(TEXT("A mismatched turn-in cannot pay rewards after restore"),
-		Restored->QuestLog->TryCompleteQuest(SecondQuest));
-	TestEqual(TEXT("Rejected mismatched turn-in preserves restored copper"),
-		Restored->Wallet->Copper, RestoredCopper);
+	Source->Wallet->SetCopperForPrototype(MAX_int32 - 5);
+	const int32 ExperienceBeforeRejectedReward = Source->Stats->CurrentExperience;
+	TestFalse(TEXT("Reward overflow rejects the complete turn-in before mutation"),
+		Source->QuestLog->TryCompleteQuest(SecondQuest));
+	TestTrue(TEXT("Rejected reward leaves the exact quest ready but incomplete"),
+		Source->QuestLog->GetQuestStateById(SecondQuest->QuestId, SecondState) &&
+		!SecondState.bCompleted && SecondState.CurrentObjectiveCount == 1);
+	TestEqual(TEXT("Rejected reward preserves experience"),
+		Source->Stats->CurrentExperience, ExperienceBeforeRejectedReward);
+
+	Source->Wallet->SetCopperForPrototype(60);
+	TestTrue(TEXT("Second quest completes once after reward preflight succeeds"),
+		Source->QuestLog->TryCompleteQuestById(SecondQuest->QuestId));
+	TestFalse(TEXT("Second quest cannot pay rewards twice"),
+		Source->QuestLog->TryCompleteQuestById(SecondQuest->QuestId));
+	TestEqual(TEXT("Both quest rewards grant exact copper once"), Source->Wallet->Copper, 70);
+	TestEqual(TEXT("Both quest rewards grant exact XP once"), Source->Stats->CurrentExperience, 175);
+	TestTrue(TEXT("Explicit focus can return to Mara without mutating either record"),
+		Source->QuestLog->FocusQuest(MaraQuest->QuestId) &&
+		Source->QuestLog->ActiveQuest.Quest == MaraQuest);
+	TestEqual(TEXT("Duplicate quest acceptance remains rejected"),
+		Source->QuestLog->EvaluateQuestAcceptance(MaraQuest),
+		EEmbermereQuestAcceptanceResult::AlreadyTracked);
 
 	return true;
 }

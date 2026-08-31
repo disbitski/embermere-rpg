@@ -2803,6 +2803,52 @@ Lesson: sometimes the smallest new content request is an architecture test.
 When it finds a durable boundary, preserve the boundary, fix the latent
 assumption it exposed, and version the next truth deliberately.
 
+## 2026-08-31 - One Active Quest Became A Ledger Without Breaking Mara
+
+Yesterday found the boundary; today we moved it deliberately. Save version `3`
+now carries a bounded array of stable quest records, and the live quest log owns
+the matching keyed ledger. Each record names its quest asset, stable quest ID,
+objective ID, progress, and completion state. Progress and turn-in APIs target
+an exact quest/objective pair, so a rest objective cannot move Mara and a
+different giver cannot complete or reward her ready quest.
+
+Compatibility was the delicate part. Existing Blueprint and HUD code still
+expects one `ActiveQuest`, so deleting that surface would have turned a durable
+data migration into a broad UI rewrite. Instead, `QuestStates` became the only
+mutable authority while `ActiveQuest` became a derived projection selected by
+a transient `FocusedQuestId`. Mara's contextual greeting now queries her stable
+ID directly, which means focusing another quest cannot alter what she says.
+Neither focus nor projection is serialized.
+
+The save migration follows the same rule: adapt history, do not create two
+authorities. Versions `1` and `2` still expose their singular quest field. Load
+turns that zero-or-one record into an in-memory candidate ledger and validates
+it through the exact version-3 path without rewriting the old slot. Native
+version `3` rejects mixed legacy fields, duplicate IDs, missing or mismatched
+assets, invalid progress, contradictory completion, and more than eight
+records. The whole collection resolves before any wallet, XP, inventory,
+equipment, quest, or vendor owner mutates.
+
+Four focused tests replaced the old one-slot guard and brought the suite to
+`80`. They cover two simultaneous quests, independent progress, wrong-giver
+turn-in, reward overflow rollback, exactly-once completion, empty and
+multi-record serialization, repeated load, v1/v2 adapters, malformed ledgers,
+mixed formats, and capacity overflow. The no-hot-reload build, isolated
+commandlet `80/80`, restarted-editor MCP `80/80`, focused validators, fresh
+18-package aggregate, and every initialized-world route trace passed.
+
+Clean PIE then made the compatibility claim physical. Human Warrior creation
+and Inventory close remained intact. Q moved the player from `(-2400,-1200)`
+to `(-1793.189,-831.382)` and W stopped autorun at that exact transform.
+Physical `F` accepted Mara's original quest, and live inspection showed one
+keyed `FirstSignsAtTheRuin` record with matching focus and compatibility
+projection. The world remains 53 grounded Fab actors plus 24 original-art
+placements.
+
+Lesson: migrations stay small when compatibility is a projection over the new
+truth, not a second truth allowed to mutate beside it. Validate the entire
+collection, then commit once.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
