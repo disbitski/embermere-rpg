@@ -565,10 +565,10 @@ The full ownership and rollback contract is in
 The full ownership and rollback contract is in
 [TRAINER_SERVICE_CONTRACT.md](TRAINER_SERVICE_CONTRACT.md).
 
-## Version 3 Multi-Quest Foundation
+## Version 3 Multi-Quest And Still Waters
 
 1. Build with `-NoHotReloadFromIDE`, restart Unreal, force automation
-   rediscovery, and confirm exactly `80` Embermere tests are available.
+   rediscovery, and confirm exactly `83` Embermere tests are available.
 2. Run `Embermere.Quests.MultiQuestRuntime` and verify two valid quests coexist,
    exact objective progress affects only its quest, an unrelated giver cannot
    turn in Mara, a failed reward preflight preserves ready state, and each
@@ -592,9 +592,24 @@ The full ownership and rollback contract is in
 8. Inspect the possessed character's `QuestLog`: `questStates` must contain one
    `FirstSignsAtTheRuin` record at progress zero, `focusedQuestId` must match,
    and `activeQuest` must be the same read-only compatibility projection.
-9. Do not overwrite the player's Chronicle slot merely to inspect this
-   foundation. Native round-trip and rollback are covered by automation; the
-   next two-quest physical save/load gate belongs to the `Still Waters` slice.
+9. Approach `Embermere_FenwatchNoticeBoard_Road_01` and press physical `F`.
+   Confirm the separate art-free owner accepts `Still Waters` at `0/1` while
+   the board mesh remains presentation-only. Then accept Mara physically and
+   confirm both records coexist as Still Waters `0/1` and Mara `0/3`.
+10. Damage Health and spend Mana, start a real well rest with `F`, then move at
+    least `75` cm during the pending channel. Confirm the service reports
+    interruption and Still Waters remains `0/1` with no partial recovery.
+11. Start another real rest and remain still. Confirm atomic recovery commits,
+    the external router advances only Still Waters to `1/1`, and Mara remains
+    `0/3`.
+12. Return to the notice board and press physical `F`. Confirm exact `50` XP
+    and `10` copper, completed copy, and no item. Press `F` again and verify no
+    reward or progress replay.
+13. Do not overwrite the player's Chronicle slot for this acceptance. Use the
+    isolated `EmbermereStillWatersLiveProbe` lane to capture completed Still
+    Waters plus active Mara, deliberately diverge live state, load twice, and
+    prove exact two-record, XP, and copper restoration. The probe must delete
+    its own slot and restore `EmbermerePrototype` as the real Chronicle target.
 
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
@@ -678,6 +693,10 @@ The complete contract is in
 - `Q` toggles autorun, and manual `W`/`S` forward/back input cancels it.
 - `Ctrl+M` toggles mouse Y inversion and posts a bottom-left chat/combat log message.
 - Accepting the quest posts a bottom-left quest accepted message.
+- The road notice board offers `Still Waters` through its colocated art-free
+  owner. One committed well rest advances it to `1/1`; its exact available,
+  active, ready, and completed dialogue changes without giving the board mesh
+  or well service quest authority.
 - Tab targeting shows the selected target name, HP, first-ability range state,
   a temporary screen-space UMG nameplate, HP-aware accent/health bar coloring,
   and a restrained cyan-blue emissive ground circle around the target's
@@ -716,6 +735,9 @@ The complete contract is in
 - Completing the quest shows bottom-left completion/XP and `20` copper reward
   messages, a temporary loot/reward popup with fixed item art, and the reward
   item in the inventory panel. Repeated completion must not pay twice.
+- Completing `Still Waters` at its notice-board owner posts exact `50` XP and
+  `10` copper feedback with no item; Mara's record remains independent and a
+  repeated turn-in pays nothing.
 
 ## Known Prototype Gaps
 
@@ -740,10 +762,12 @@ The complete contract is in
   damage protection, not a full corpse run or revive system. It now also owns
   the finite-world recovery contract: crossing below `Z=-1000` forces death,
   cancels autorun, and restores walking with cleared velocity.
-- Save version `3` and the live quest log now own a bounded keyed quest ledger.
-  Versions `1` and `2` remain loadable through singular-record adapters. The
-  foundation is accepted; the next gap is the physical two-quest `Still Waters`
-  content/save loop, not another persistence schema change.
+- Save version `3` and the live quest log own a bounded keyed quest ledger.
+  Versions `1` and `2` remain loadable through singular-record adapters.
+  `Still Waters` is accepted as the first real second quest with physical
+  independent acceptance, committed-rest routing, exact turn-in, replay guard,
+  and an isolated two-load proof. The next gap is a readable multi-quest ledger
+  and transient focus surface, not another persistence schema change.
 - Inventory presentation now has clickable and draggable rows, fixed
   project-owned item/equipment icons and fantasy drag token, category/missing-art
   fallbacks, stable identity-preserving category/name sorting, keyboard

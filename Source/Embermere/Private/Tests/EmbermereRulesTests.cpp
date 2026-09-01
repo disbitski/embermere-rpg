@@ -8,6 +8,7 @@
 #include "Characters/EmbermereNpcPresentationActor.h"
 #include "Characters/EmbermerePracticeTargetActor.h"
 #include "Characters/EmbermereRestPresentationActor.h"
+#include "Characters/EmbermereRestQuestServiceActor.h"
 #include "Characters/EmbermereRestServiceActor.h"
 #include "Characters/EmbermereTrainerServiceActor.h"
 #include "Characters/EmbermereVendorServiceActor.h"
@@ -18,6 +19,7 @@
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereRestServiceComponent.h"
+#include "Components/EmbermereRestQuestObjectiveRouterComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/EmbermereTrainerComponent.h"
 #include "Components/EmbermereVendorComponent.h"
@@ -5976,6 +5978,293 @@ bool FEmbermereRestWorldPresentationTest::RunTest(const FString& Parameters)
 	TestFalse(TEXT("Torn-down observer receives no later live outcome"),
 		Presentation->IsRestPresentationVisible());
 	Service->RestService->ResetTransientState();
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereStillWatersServiceContractTest,
+	"Embermere.Quests.StillWatersServiceContract",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereStillWatersServiceContractTest::RunTest(const FString& Parameters)
+{
+	const UEmbermereQuestData* StillWaters = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FenwatchStillWaters.DQ_FenwatchStillWaters"));
+	AEmbermereRestQuestServiceActor* QuestService =
+		NewObject<AEmbermereRestQuestServiceActor>();
+	TestNotNull(TEXT("Still Waters data asset resolves"), StillWaters);
+	TestNotNull(TEXT("Art-free notice-board quest service can be created"), QuestService);
+	if (!StillWaters || !QuestService || !QuestService->Interactable ||
+		!QuestService->RestObjectiveRouter)
+	{
+		return false;
+	}
+
+	TestEqual(TEXT("Still Waters owns its stable quest ID"),
+		StillWaters->QuestId, FName(TEXT("FenwatchStillWaters")));
+	TestEqual(TEXT("Still Waters owns its stable objective ID"),
+		StillWaters->ObjectiveId, FName(TEXT("FenwatchRestCompleted")));
+	TestEqual(TEXT("Still Waters requires one committed rest"),
+		StillWaters->RequiredObjectiveCount, 1);
+	TestEqual(TEXT("Still Waters grants exact XP"), StillWaters->RewardExperience, 50);
+	TestEqual(TEXT("Still Waters grants exact copper"), StillWaters->RewardCopper, 10);
+	TestTrue(TEXT("Still Waters grants no item"), StillWaters->RewardItem.IsNull());
+	TestEqual(TEXT("Still Waters title is exact"),
+		StillWaters->Title.ToString(), FString(TEXT("Still Waters")));
+	TestEqual(TEXT("Still Waters active copy is exact"),
+		StillWaters->ActiveGreeting.ToString(),
+		FString(TEXT("Still Waters: Complete one successful rest at the Fenwatch communal well.")));
+
+	TestNotNull(TEXT("Quest service owns standard interaction"), QuestService->Interactable.Get());
+	TestNotNull(TEXT("Quest service owns a dedicated rest router"),
+		QuestService->RestObjectiveRouter.Get());
+	TestNull(TEXT("Quest service owns no static art"),
+		QuestService->FindComponentByClass<UStaticMeshComponent>());
+	TestNull(TEXT("Quest service owns no skeletal art"),
+		QuestService->FindComponentByClass<USkeletalMeshComponent>());
+	TestNull(TEXT("Quest service owns no recovery authority"),
+		QuestService->FindComponentByClass<UEmbermereRestServiceComponent>());
+	TestNull(TEXT("Quest service owns no vendor authority"),
+		QuestService->FindComponentByClass<UEmbermereVendorComponent>());
+	TestNull(TEXT("Quest service owns no trainer authority"),
+		QuestService->FindComponentByClass<UEmbermereTrainerComponent>());
+	TestFalse(TEXT("Art-free quest service has no actor collision"),
+		QuestService->GetActorEnableCollision());
+	TestTrue(TEXT("Notice interaction enables quest-state dialogue"),
+		QuestService->Interactable->bUseQuestStateDialogue);
+	TestEqual(TEXT("Notice interaction keeps a fixed marker height"),
+		QuestService->Interactable->MarkerHeight, 305.0f);
+	TestEqual(TEXT("Router targets the exact quest"),
+		QuestService->RestObjectiveRouter->QuestId,
+		StillWaters->QuestId);
+	TestEqual(TEXT("Router targets the exact objective"),
+		QuestService->RestObjectiveRouter->ObjectiveId,
+		StillWaters->ObjectiveId);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereStillWatersRestRoutingTest,
+	"Embermere.Quests.StillWatersRestRouting",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereStillWatersRestRoutingTest::RunTest(const FString& Parameters)
+{
+	AEmbermereRestServiceActor* RestService = NewObject<AEmbermereRestServiceActor>();
+	AEmbermereRestQuestServiceActor* QuestService =
+		NewObject<AEmbermereRestQuestServiceActor>();
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	UEmbermereRestServiceData* RestData = MakeValidRestServiceData();
+	UEmbermereQuestData* MaraQuest = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	UEmbermereQuestData* StillWaters = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FenwatchStillWaters.DQ_FenwatchStillWaters"));
+	if (!RestService || !QuestService || !Character || !Character->Stats ||
+		!Character->QuestLog || !Character->Wallet || !RestData ||
+		!MaraQuest || !StillWaters)
+	{
+		AddError(TEXT("Could not create Still Waters routing fixtures"));
+		return false;
+	}
+
+	QuestService->Interactable->QuestToOffer = StillWaters;
+	QuestService->RestObjectiveRouter->SetObservedRestService(RestService);
+	ConfigureRestFixture(RestService, Character, RestData);
+	TestTrue(TEXT("Dedicated router binds to the exact rest service"),
+		QuestService->RestObjectiveRouter->IsBoundToObservedRestService());
+	TestTrue(TEXT("Rest outcome stream has a quest observer"),
+		RestService->RestService->OnRestOutcomeNative.IsBound());
+	TestEqual(TEXT("Untracked notice resolves available copy"),
+		QuestService->Interactable->GetInteractionDialogueText(Character).ToString(),
+		StillWaters->AvailableGreeting.ToString());
+
+	TestTrue(TEXT("Mara and Still Waters can coexist"),
+		Character->QuestLog->AcceptQuest(MaraQuest));
+	QuestService->Interactable->Interact(Character);
+	FEmbermereQuestState StillWatersState;
+	FEmbermereQuestState MaraState;
+	TestTrue(TEXT("Notice owner accepts Still Waters by stable ID"),
+		Character->QuestLog->GetQuestStateById(StillWaters->QuestId, StillWatersState));
+	TestEqual(TEXT("Both quests occupy independent ledger records"),
+		Character->QuestLog->QuestStates.Num(), 2);
+	TestEqual(TEXT("Tracked notice resolves active copy"),
+		QuestService->Interactable->GetInteractionDialogueText(Character).ToString(),
+		StillWaters->ActiveGreeting.ToString());
+
+	TestEqual(TEXT("Full-resource rejection remains rest authority"),
+		RestService->RestService->TryBeginRest(Character),
+		EEmbermereRestResult::ResourcesFull);
+	TestTrue(TEXT("Rejected rest leaves Still Waters at zero"),
+		Character->QuestLog->GetQuestStateById(StillWaters->QuestId, StillWatersState) &&
+		StillWatersState.CurrentObjectiveCount == 0);
+
+	Character->Stats->ApplyDamage(30.0f);
+	TestTrue(TEXT("Routing fixture spends mana"), Character->Stats->SpendMana(20.0f));
+	TestEqual(TEXT("Eligible rest starts"),
+		RestService->RestService->TryBeginRest(Character), EEmbermereRestResult::Started);
+	Character->SetActorLocation(FVector(136.0f, 0.0f, 0.0f));
+	RestService->RestService->AdvanceRest(0.1f);
+	TestEqual(TEXT("Movement produces an authoritative interruption"),
+		RestService->RestService->GetLastOutcome().Result,
+		EEmbermereRestResult::Interrupted);
+	TestTrue(TEXT("Interrupted rest cannot advance Still Waters"),
+		Character->QuestLog->GetQuestStateById(StillWaters->QuestId, StillWatersState) &&
+		StillWatersState.CurrentObjectiveCount == 0);
+
+	Character->SetActorLocation(FVector(100.0f, 0.0f, 0.0f));
+	TestEqual(TEXT("Second eligible rest starts"),
+		RestService->RestService->TryBeginRest(Character), EEmbermereRestResult::Started);
+	RestService->RestService->AdvanceRest(1.5f);
+	TestEqual(TEXT("Committed service outcome is Success"),
+		RestService->RestService->GetLastOutcome().Result,
+		EEmbermereRestResult::Success);
+	TestTrue(TEXT("One committed success advances the exact objective once"),
+		Character->QuestLog->GetQuestStateById(StillWaters->QuestId, StillWatersState) &&
+		StillWatersState.CurrentObjectiveCount == 1 && !StillWatersState.bCompleted);
+	TestTrue(TEXT("Committed rest focuses only Still Waters"),
+		Character->QuestLog->ActiveQuest.Quest == StillWaters);
+	TestTrue(TEXT("Mara remains independently unprogressed"),
+		Character->QuestLog->GetQuestStateById(MaraQuest->QuestId, MaraState) &&
+		MaraState.CurrentObjectiveCount == 0 && !MaraState.bCompleted);
+	TestEqual(TEXT("Ready notice resolves ready copy"),
+		QuestService->Interactable->GetInteractionDialogueText(Character).ToString(),
+		StillWaters->ReadyGreeting.ToString());
+
+	const FEmbermereRestOutcome DuplicateSuccess =
+		RestService->RestService->GetLastOutcome();
+	RestService->RestService->OnRestOutcomeNative.Broadcast(DuplicateSuccess);
+	TestTrue(TEXT("Duplicate committed outcome cannot grow a capped objective"),
+		Character->QuestLog->GetQuestStateById(StillWaters->QuestId, StillWatersState) &&
+		StillWatersState.CurrentObjectiveCount == 1);
+
+	Character->Wallet->SetCopperForPrototype(MAX_int32 - 5);
+	QuestService->Interactable->Interact(Character);
+	TestTrue(TEXT("Reward overflow leaves Still Waters ready and incomplete"),
+		Character->QuestLog->GetQuestStateById(StillWaters->QuestId, StillWatersState) &&
+		!StillWatersState.bCompleted);
+	TestEqual(TEXT("Rejected turn-in preserves XP"),
+		Character->Stats->CurrentExperience, 0);
+
+	Character->Wallet->SetCopperForPrototype(40);
+	QuestService->Interactable->Interact(Character);
+	TestTrue(TEXT("Correct notice owner completes Still Waters"),
+		Character->QuestLog->GetQuestStateById(StillWaters->QuestId, StillWatersState) &&
+		StillWatersState.bCompleted);
+	TestEqual(TEXT("Still Waters grants 50 XP exactly once"),
+		Character->Stats->CurrentExperience, 50);
+	TestEqual(TEXT("Still Waters grants 10 copper exactly once"),
+		Character->Wallet->Copper, 50);
+	TestEqual(TEXT("Completed notice resolves completed copy"),
+		QuestService->Interactable->GetInteractionDialogueText(Character).ToString(),
+		StillWaters->CompletedGreeting.ToString());
+	QuestService->Interactable->Interact(Character);
+	TestEqual(TEXT("Repeated notice interaction cannot replay XP"),
+		Character->Stats->CurrentExperience, 50);
+	TestEqual(TEXT("Repeated notice interaction cannot replay copper"),
+		Character->Wallet->Copper, 50);
+
+	QuestService->RestObjectiveRouter->SetObservedRestService(nullptr);
+	TestFalse(TEXT("Router teardown removes its rest subscription"),
+		QuestService->RestObjectiveRouter->IsBoundToObservedRestService());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereStillWatersPersistenceRoundTripTest,
+	"Embermere.Persistence.StillWatersRoundTrip",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereStillWatersPersistenceRoundTripTest::RunTest(const FString& Parameters)
+{
+	UEmbermereQuestData* MaraQuest = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	UEmbermereQuestData* StillWaters = LoadObject<UEmbermereQuestData>(
+		nullptr,
+		TEXT("/Game/Data/Quests/DQ_FenwatchStillWaters.DQ_FenwatchStillWaters"));
+	AEmbermereCharacter* Source = NewObject<AEmbermereCharacter>();
+	AEmbermereCharacter* Target = NewObject<AEmbermereCharacter>();
+	if (!MaraQuest || !StillWaters || !Source || !Target)
+	{
+		AddError(TEXT("Could not create Still Waters persistence fixtures"));
+		return false;
+	}
+
+	TestTrue(TEXT("Still Waters source confirms identity"),
+		Source->TryApplyRaceAndClass(EEmbermereRace::Elf, EEmbermereClass::Wizard));
+	TestTrue(TEXT("Source accepts Mara"), Source->QuestLog->AcceptQuest(MaraQuest));
+	TestTrue(TEXT("Source accepts saved Still Waters asset"),
+		Source->QuestLog->AcceptQuest(StillWaters));
+	TestTrue(TEXT("Source advances Mara independently"),
+		Source->QuestLog->AddObjectiveProgressForQuest(
+			MaraQuest->QuestId, MaraQuest->ObjectiveId, 2));
+	TestTrue(TEXT("Source completes Still Waters objective"),
+		Source->QuestLog->AddObjectiveProgressForQuest(
+			StillWaters->QuestId, StillWaters->ObjectiveId, 1));
+	TestTrue(TEXT("Source commits Still Waters rewards once"),
+		Source->QuestLog->TryCompleteQuest(StillWaters));
+
+	FText PersistenceMessage;
+	UEmbermereSaveGame* CapturedSave = nullptr;
+	TestEqual(TEXT("Still Waters captures through save version 3"),
+		UEmbermerePersistenceLibrary::CaptureGameState(
+			Source, {}, CapturedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestNotNull(TEXT("Still Waters capture creates a save"), CapturedSave);
+	if (!CapturedSave)
+	{
+		return false;
+	}
+	TestEqual(TEXT("Still Waters capture keeps version 3"),
+		CapturedSave->FormatVersion, EmbermereSaveGameVersion::MultiQuestLedger);
+	TestEqual(TEXT("Still Waters capture writes both quests"),
+		CapturedSave->QuestStates.Num(), 2);
+
+	TArray<uint8> SerializedBytes;
+	TestTrue(TEXT("Still Waters save serializes through memory"),
+		UGameplayStatics::SaveGameToMemory(CapturedSave, SerializedBytes));
+	UEmbermereSaveGame* LoadedSave = Cast<UEmbermereSaveGame>(
+		UGameplayStatics::LoadGameFromMemory(SerializedBytes));
+	TestNotNull(TEXT("Still Waters save reloads from memory"), LoadedSave);
+	if (!LoadedSave)
+	{
+		return false;
+	}
+
+	TestTrue(TEXT("Fresh target begins with a different legal identity"),
+		Target->TryApplyRaceAndClass(EEmbermereRace::Dwarf, EEmbermereClass::Warrior));
+	TestEqual(TEXT("First Still Waters load succeeds"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Target, {}, LoadedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	FEmbermereQuestState MaraState;
+	FEmbermereQuestState StillWatersState;
+	TestTrue(TEXT("Load restores independent Mara progress"),
+		Target->QuestLog->GetQuestStateById(MaraQuest->QuestId, MaraState) &&
+		MaraState.CurrentObjectiveCount == 2 && !MaraState.bCompleted);
+	TestTrue(TEXT("Load restores completed Still Waters history"),
+		Target->QuestLog->GetQuestStateById(StillWaters->QuestId, StillWatersState) &&
+		StillWatersState.CurrentObjectiveCount == 1 && StillWatersState.bCompleted);
+	TestEqual(TEXT("Load restores exact Still Waters XP"),
+		Target->Stats->CurrentExperience, 50);
+	TestEqual(TEXT("Load restores exact Still Waters copper"),
+		Target->Wallet->Copper, 50);
+	TestFalse(TEXT("Loaded Still Waters cannot replay rewards"),
+		Target->QuestLog->TryCompleteQuest(StillWaters));
+
+	TestEqual(TEXT("Second Still Waters load remains idempotent"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Target, {}, LoadedSave, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Repeated load keeps exactly two quests"),
+		Target->QuestLog->QuestStates.Num(), 2);
+	TestEqual(TEXT("Repeated load does not duplicate XP"),
+		Target->Stats->CurrentExperience, 50);
+	TestEqual(TEXT("Repeated load does not duplicate copper"),
+		Target->Wallet->Copper, 50);
 	return true;
 }
 

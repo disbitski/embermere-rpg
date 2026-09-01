@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-08-31
+Last updated: 2026-09-01
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -95,6 +95,12 @@ The project currently includes:
   through explicit adapters without rewriting old slots. Version 1 still has
   its explicit Human Warrior identity fallback. Buyback, focused quest,
   combat, cooldowns, temporary effects, and position remain session-only;
+- `Still Waters`, the first real parallel quest over that ledger: a separate
+  art-free notice-board owner offers and turns it in, while a dedicated router
+  converts only immutable committed communal-well rest success into exact
+  `FenwatchStillWaters/FenwatchRestCompleted` progress. It grants `50` XP and
+  `10` copper once; the board/well art, rest service/VFX, and trainer remain
+  quest-free;
 - data-driven level progression that derives levels 1 through 5 from durable
   XP thresholds, combines validated race/class growth, rebuilds identity base
   stats atomically, applies equipment once, restores silently, and exposes
@@ -107,7 +113,7 @@ The project currently includes:
   four classes, exposes disabled combinations, atomically applies data-driven
   starter stats/abilities once, restores the normal controller/HUD path, and
   feeds the confirmed identity into the version-3 persistence contract;
-- 80 passing Unreal automation tests plus fresh-process character-creation,
+- 83 passing Unreal automation tests plus fresh-process character-creation,
   derived-level progression, and
   character-identity and multi-quest persistence,
   combat-feedback,
@@ -1645,10 +1651,40 @@ free of interaction, recovery, reward, quest, or persistence authority.
   accepted Mara's original quest; live QuestLog inspection showed exactly one
   keyed Mara record, matching transient focus, and the compatibility projection.
 
+## 2026-09-01 Still Waters Parallel Quest
+
+- Added `DQ_FenwatchStillWaters` with stable quest/objective IDs
+  `FenwatchStillWaters/FenwatchRestCompleted`, one committed-rest requirement,
+  four-state copy, `50` XP, `10` copper, and no item reward.
+- Added the separate art-free native
+  `AEmbermereRestQuestServiceActor`, saved as
+  `Embermere_FenwatchNoticeBoard_StillWatersService_01` at the notice board,
+  plus `UEmbermereRestQuestObjectiveRouterComponent`. The owner exclusively
+  offers/turns in; the router forwards only immutable rest `Success`. The
+  notice-board mesh, well art, rest service/presentation, and trainer remain
+  free of quest components and authority.
+- Added `Embermere.Quests.StillWatersServiceContract`,
+  `Embermere.Quests.StillWatersRestRouting`, and
+  `Embermere.Persistence.StillWatersRoundTrip`, bringing the suite to `83`.
+  The no-hot-reload build, isolated commandlet `83/83`, restarted-editor MCP
+  `83/83`, focused validators, sequential 19-package aggregate, full-zone
+  validation, and initialized-world well/board/workshop/cottage/stall/road
+  traces passed.
+- Clean PIE used physical `F` to accept Still Waters, then Mara, proving two
+  active records at `0/1` and `0/3`. Moving `75` cm interrupted one real rest
+  without progress or partial recovery; one stationary committed rest advanced
+  only Still Waters to `1/1`. Physical notice-board turn-in paid exact `50` XP
+  and `10` copper once while Mara remained active; repeated `F` paid nothing.
+- The isolated `EmbermereStillWatersLiveProbe` save slot captured completed
+  Still Waters plus active Mara, diverged live state, and restored the exact
+  ledger, `50` XP, and `50` copper twice without replay. It then deleted itself
+  and restored the controller's real Chronicle slot target.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-08-31 no-hot-reload save-version-3 multi-quest module plus the accepted
+2026-09-01 no-hot-reload Still Waters quest/service/router module and saved
+quest/map packages, the 2026-08-31 save-version-3 multi-quest module, plus the accepted
 2026-08-29 rest-presentation observer,
 rest-service data/map, and communal-well art packages, the 2026-08-26
 class-colored level-up world-VFX module, and the
@@ -1669,7 +1705,10 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 80 tests, including
+3. Run/discover all 83 tests, including
+   `Embermere.Quests.StillWatersServiceContract`,
+   `Embermere.Quests.StillWatersRestRouting`,
+   `Embermere.Persistence.StillWatersRoundTrip`,
    `Embermere.Quests.MultiQuestRuntime`,
    `Embermere.Persistence.MultiQuestRoundTrip`,
    `Embermere.Persistence.LegacyQuestCompatibility`,
@@ -1724,6 +1763,11 @@ First fresh-session checks:
      teardown, and fresh/load worlds must clear it. The static mesh must own no
      service component, the service must own no art or collision, and the
      observer must own no interaction or mutation;
+   - use physical `F` at the road notice board to accept `Still Waters`, then
+     accept Mara independently. Interrupt one real well channel and verify
+     `0/1`, commit one stationary channel to reach `1/1`, turn in at the board
+     for exactly `50` XP and `10` copper once, and retain Mara unchanged. Do
+     not use the user's Chronicle slot for the double-load proof;
    - the fixed creation modal precedes play, all eight races and four classes
      remain visible, Dwarf Ranger and Bullywug Wizard stay disabled without
      silent correction, and valid confirmation restores the HUD/input path;
@@ -1862,13 +1906,13 @@ First fresh-session checks:
 
 High-value milestones after that:
 
-- build `Still Waters` over the accepted version-3 foundation: add its stable
-  data asset, a separate art-free notice-board offer/turn-in owner, and one
-  dedicated objective router that forwards only the rest service's immutable
-  committed `Success`. Prove exact independent Mara/rest progress, two-owner
-  turn-in, exactly-once rewards, native two-quest save/load twice, legacy
-  compatibility, and rollback without adding schema. The notice-board art,
-  well art, rest service/presentation, and trainer remain quest-free;
+- build a fixed native multi-quest ledger/focus panel over the accepted two
+  records. `QuestStates` remains authoritative; UI may only read records and
+  request transient focus. Cover empty/one/two/eight-record layouts, exact
+  active/ready/completed copy, mouse/keyboard and peer-panel handoff, focus
+  switching without mutation, completed history, teardown, and save/load
+  non-persistence. In clean PIE, switch the HUD projection between Mara and
+  Still Waters without changing either record or replaying rewards;
 - retain the accepted art-free practice-target contract around the visible
   dummy, including exact stationary transform, normal hotbar damage,
   three-second reset, target clear/reacquisition, and zero retaliation, loot,
@@ -1980,8 +2024,9 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-08-31 no-hot-reload
-save-version-3 multi-quest module, class-colored level-up world-VFX module, level-gated trainer and
+Follow TODO.md's Start Here section. Confirm the 2026-09-01 no-hot-reload
+Still Waters quest/service/router module and saved quest/map packages, the
+2026-08-31 save-version-3 multi-quest module, class-colored level-up world-VFX module, level-gated trainer and
 progression-presentation module, serialized rules asset, character-identity
 persistence and quest/map packages, the accepted notice-board,
 vendor-stall,
@@ -1992,8 +2037,9 @@ bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 80 tests, including the four multi-quest runtime,
-round-trip, legacy-adapter, and rollback tests, the class-colored level-up
+route-repair map, then run all 83 tests, including the three Still Waters
+service/routing/round-trip tests, the four multi-quest runtime, round-trip,
+legacy-adapter, and rollback tests, the class-colored level-up
 world-VFX presentation test, the four progression tests,
 the four character-creation lifecycle/restriction/loadout tests, the three
 character-identity persistence tests, combat-result and floating-feedback
@@ -2073,7 +2119,7 @@ fixed-panel bounds, chat, and Inventory/Chronicle/close handoff. Preserve the
 Retain the accepted practice dummy at `(-1120, -1120, 0)`, yaw `45`: grounded
 target face toward the armsmaster, five shared materials, 2,572 triangles,
 solid base/core, clear arms, and no generic crate.
-Retain the accepted version 2 persistence contract and live two-session proof:
+Retain the accepted version 3 persistence contract and live two-session proof:
 Chronicle captured stable Elf Wizard identity alongside durable progression; a
 fresh Lizardman Ranger session restored the exact saved Elf Wizard class stats,
 hotbar, and progression twice without duplication, repeated reward, or stat
@@ -2127,15 +2173,19 @@ idempotent restore, and no serialized level. Retain the fixed XP/level-up
 presentation, the twelve-segment class-colored live world effect, and the two-
 offering level-gated trainer. Retain the accepted communal well at its exact
 south-commons transform, with only purposeful curb/upright collision and every
-protected route clear. Define any future well/rest interaction on a separate
-art-free service before implementation; the mesh must remain removable.
+protected route clear. Retain its separate art-free rest service and
+presentation observer, then retain Still Waters through its own separate
+art-free notice-board owner and committed-success router. The board/well art,
+rest service/VFX, and trainer must remain removable and quest-free. Next, build
+a fixed read-only multi-quest ledger that can request transient focus without
+mutating or serializing it.
 Do not add naming, appearance, autosave, profiles, deletion, or implicit
 migration in that slice.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
 Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
-current commit, 80-test and 18-validator baseline, accepted character creation,
+current commit, 83-test and 19-validator baseline, accepted character creation,
 v3 identity/multi-quest persistence, derived-level progression, level-gated trainer,
 Advanced Chronicle proof, class-colored world VFX, and next bounded milestone
 before ending the run.

@@ -8,9 +8,9 @@ services. The runtime and save formats now share one bounded keyed-ledger
 contract. Versions `1` and `2` remain readable through explicit singular-record
 adapters.
 
-The migration was accepted on 2026-08-31. This document is now both the durable
-foundation contract and the implementation boundary for the first second-quest
-slice, `Still Waters`.
+The migration was accepted on 2026-08-31. The first real second-quest slice,
+`Still Waters`, was accepted on 2026-09-01. This document is now the durable
+foundation, content, and presentation boundary for both.
 
 ## Accepted Version-3 Save Shape
 
@@ -83,17 +83,20 @@ her authoritative state.
 ## Second Fenwatch Slice: Still Waters
 
 The version-3 ledger and compatibility suite are accepted. The first
-additional content slice is now:
+additional content slice is also accepted:
 
 - quest ID: `FenwatchStillWaters`;
 - title: `Still Waters`;
 - objective ID: `FenwatchRestCompleted`;
 - requirement: one committed successful communal-well rest;
 - reward: `50` XP and `10` copper, with no item reward;
-- offer owner: a separate art-free notice-board quest actor or component;
+- offer and turn-in owner: the separate art-free
+  `AEmbermereRestQuestServiceActor` saved as
+  `Embermere_FenwatchNoticeBoard_StillWatersService_01` at the notice board's
+  `(-1560, -260, 0)`, yaw `-35` transform;
 - progress owner: a dedicated quest objective router that observes the
   immutable committed rest outcome and forwards one stable objective event to
-  the quest ledger.
+  the quest ledger: `UEmbermereRestQuestObjectiveRouterComponent`.
 
 The notice-board mesh remains presentation-only. The well mesh remains art and
 collision only. The rest service continues to own recovery eligibility and
@@ -101,12 +104,14 @@ mutation; the rest observer continues to own only transient VFX. None of them
 contains quest data, progress, completion, or reward logic.
 
 Only a committed rest `Success` may advance `FenwatchRestCompleted`. Pending,
-interrupted, rejected, duplicate, loaded, or replayed presentation state must
-not advance it.
+interrupted, rejected, duplicate, loaded, or replayed presentation state does
+not advance it. Reaching the authored cap also blocks duplicate post-completion
+progress before turn-in or after completion.
 
-## Accepted Foundation Verification
+## Accepted Verification
 
-The 2026-08-31 foundation is accepted. Focused automation proves:
+The 2026-08-31 foundation and 2026-09-01 content slice are accepted. Focused
+automation proves:
 
 - empty, one-record, and multiple-record round trips;
 - version `1` and `2` singular-record compatibility without slot rewriting;
@@ -121,28 +126,46 @@ The 2026-08-31 foundation is accepted. Focused automation proves:
 - focused-quest selection remains transient unless a later contract says
   otherwise;
 - the notice board, well art, rest service, rest presentation, and trainer stay
-  free of quest authority.
+  free of quest authority;
+- the saved Still Waters data and owner/router separation, exact IDs/copy,
+  committed-success filtering, objective-cap duplicate safety, exact
+  once-only rewards, and two-record version-3 round-trip.
 
 The focused suite is:
 
 - `Embermere.Quests.MultiQuestRuntime`;
 - `Embermere.Persistence.MultiQuestRoundTrip`;
 - `Embermere.Persistence.LegacyQuestCompatibility`;
-- `Embermere.Persistence.MultiQuestValidationRollback`.
+- `Embermere.Persistence.MultiQuestValidationRollback`;
+- `Embermere.Quests.StillWatersServiceContract`;
+- `Embermere.Quests.StillWatersRestRouting`;
+- `Embermere.Persistence.StillWatersRoundTrip`.
 
-Both the isolated commandlet and restarted-editor MCP runner passed all `80`
-Embermere tests. The no-hot-reload build, five focused validators, sequential
-18-package aggregate, full-zone validator, and initialized-world well,
+Both the isolated commandlet and restarted-editor MCP runner passed all `83`
+Embermere tests. The no-hot-reload build, focused validators, sequential
+19-package aggregate, full-zone validator, and initialized-world well,
 notice-board, workshop, cottage, stall, and road traces also passed with no
 `LogPython: Error` while retaining 53 grounded Fab actors plus 24 original-art
 placements.
 
-Clean PIE confirmed Human Warrior creation, Inventory close, measured Q movement
-and W cancellation, and physical `F` acceptance of Mara's original quest. Live
-inspection showed one keyed `FirstSignsAtTheRuin` record, matching transient
-focus, and the expected read-only compatibility projection.
+Clean PIE confirmed Human Warrior creation and Inventory close, then used the
+real `F` path to accept `Still Waters` at the notice board and Mara's original
+quest independently. Moving `75` cm during one pending rest produced an
+interruption and left Still Waters at `0/1`; a second stationary channel
+committed recovery and advanced it to `1/1`. Physical notice-board turn-in paid
+exactly `50` XP and `10` copper once while Mara remained active at `0/3`; a
+repeat `F` paid nothing.
 
-## Still Waters Acceptance Gate
+An isolated `EmbermereStillWatersLiveProbe` slot then captured completed Still
+Waters and active Mara, deliberately diverged live state, and restored the exact
+two-record ledger, `50` XP, and `50` copper on two confirmed loads. The probe
+deleted its slot and restored the controller's real `EmbermerePrototype` target,
+so acceptance did not inspect, overwrite, or load the user's Chronicle save.
 
-Clean PIE must then prove Mara's existing quest and `Still Waters` can coexist,
-save, restore twice, complete independently, and never replay either reward.
+## Next Presentation Boundary
+
+A future quest ledger may list and transiently focus the accepted records, but
+it remains a read-only consumer. `QuestStates` stays authoritative;
+`FocusedQuestId` stays session-only; changing focus may only change the existing
+compatibility projection. The UI must not accept, advance, complete, reward,
+serialize, abandon, reorder, or rewrite a quest.

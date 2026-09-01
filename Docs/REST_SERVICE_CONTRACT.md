@@ -53,7 +53,7 @@ The service rejects without mutation when:
 The stationary practice target is not active combat and does not block rest.
 Only a successful completion begins the `12` second session cooldown. The
 cooldown, pending request, prompt state, and last result are transient and do
-not enter save version `2`.
+not enter save version `3`.
 
 ## Transaction Rule
 
@@ -79,6 +79,21 @@ request. It may show:
 
 Presentation owns no eligibility, timing, health, mana, combat, or save state.
 No dedicated modal is required for this bounded first slice.
+
+## External Quest Observation
+
+The rest service remains quest-free even though `Still Waters` observes its
+result. It publishes one immutable resolved outcome after the service has made
+and committed its decision. The separate
+`UEmbermereRestQuestObjectiveRouterComponent` subscribes from the art-free
+notice-board quest owner and forwards exactly one
+`FenwatchStillWaters/FenwatchRestCompleted` event only for `Success`.
+
+Pending channels, movement/combat interruption, range/full-resource/cooldown
+rejection, duplicate requests, rest VFX, save restore, and world teardown do
+not advance quest progress. Removing the router or quest owner changes no
+recovery result; removing the rest service leaves no second recovery or quest
+calculation behind.
 
 ## Saved Integration
 
@@ -114,7 +129,9 @@ The accepted 2026-08-28 service pass used the real `F` path to restore exactly
 also starts an eligible channel before engaging a live Prowler and proves the
 new combat state cancels before mutation. The 2026-08-29 presentation pass then
 visually accepted the real cyan shaft channel and mint committed bloom while
-the service alone restored `35 Health` and `20 Mana`. All 76 tests, the fresh
-18-package aggregate, focused validators, and initialized-world well traces
-passed; save version `2` and the 53 Fab plus 24 original-art baseline remained
-unchanged.
+the service alone restored `35 Health` and `20 Mana`. The accepted 2026-09-01
+`Still Waters` pass then proved one interrupted physical channel leaves quest
+progress at `0/1`, while one committed channel advances exactly once to `1/1`
+through the external router. All 83 tests, the fresh 19-package aggregate,
+focused validators, and initialized-world well traces passed; save version `3`
+and the 53 Fab plus 24 original-art baseline remained unchanged.

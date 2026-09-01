@@ -19,11 +19,15 @@ void UEmbermereInteractableComponent::BeginPlay()
 
 void UEmbermereInteractableComponent::Interact(AActor* Interactor)
 {
-	if (!DialogueText.IsEmpty())
+	const FText ResolvedDialogueText = GetInteractionDialogueText(Interactor);
+	if (!ResolvedDialogueText.IsEmpty())
 	{
 		UEmbermereGameplayMessageLibrary::PostGameplayMessage(
 			this,
-			FText::FromString(FString::Printf(TEXT("%s: %s"), *DisplayName.ToString(), *DialogueText.ToString())),
+			FText::FromString(FString::Printf(
+				TEXT("%s: %s"),
+				*DisplayName.ToString(),
+				*ResolvedDialogueText.ToString())),
 			FLinearColor(0.92f, 0.92f, 0.88f, 1.0f));
 	}
 
@@ -56,6 +60,42 @@ void UEmbermereInteractableComponent::Interact(AActor* Interactor)
 	}
 
 	OnInteracted.Broadcast(Interactor, this);
+}
+
+FText UEmbermereInteractableComponent::GetInteractionDialogueText(AActor* Interactor) const
+{
+	if (!bUseQuestStateDialogue || !QuestToOffer || !Interactor)
+	{
+		return DialogueText;
+	}
+
+	const UEmbermereQuestLogComponent* QuestLog =
+		Interactor->FindComponentByClass<UEmbermereQuestLogComponent>();
+	FEmbermereQuestState QuestState;
+	if (!QuestLog || !QuestLog->GetQuestStateById(QuestToOffer->QuestId, QuestState))
+	{
+		return QuestToOffer->AvailableGreeting.IsEmpty()
+			? DialogueText
+			: QuestToOffer->AvailableGreeting;
+	}
+
+	if (QuestState.bCompleted)
+	{
+		return QuestToOffer->CompletedGreeting.IsEmpty()
+			? DialogueText
+			: QuestToOffer->CompletedGreeting;
+	}
+
+	if (QuestState.CurrentObjectiveCount >= QuestToOffer->RequiredObjectiveCount)
+	{
+		return QuestToOffer->ReadyGreeting.IsEmpty()
+			? DialogueText
+			: QuestToOffer->ReadyGreeting;
+	}
+
+	return QuestToOffer->ActiveGreeting.IsEmpty()
+		? DialogueText
+		: QuestToOffer->ActiveGreeting;
 }
 
 void UEmbermereInteractableComponent::CreateWorldMarker()

@@ -362,13 +362,16 @@ player's feet; it owns no progression, collision, navigation, or persistence
 state and never replays on load. See
 [Docs/LEVEL_PROGRESSION_CONTRACT.md](Docs/LEVEL_PROGRESSION_CONTRACT.md).
 
-The version-3 quest foundation is accepted independently of the next content
+The version-3 quest foundation now carries its first real parallel content
 slice. Mara's existing quest still uses its original Blueprint interaction and
-reward owner, while Prowler credit now targets its stable quest/objective pair.
-The first second quest, `Still Waters`, is specified as a separate art-free
-notice-board owner plus a dedicated router that observes only a committed
-communal-well rest success. The notice-board mesh, well art, rest service, and
-rest VFX observer remain removable and quest-free. See
+reward owner, while Prowler credit targets its stable quest/objective pair.
+`Still Waters` is owned by a separate art-free notice-board service and a
+dedicated router that observes only an immutable committed communal-well rest
+success. Pending, interrupted, rejected, duplicate, presentation, and loaded
+state cannot advance it. Physical play accepted both quests together, exact
+`50` XP and `10` copper turn-in once, and an isolated two-load version-3 proof
+without reward replay or focus persistence. The notice-board mesh, well art,
+rest service, rest VFX observer, and trainer remain removable and quest-free. See
 [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md).
 
 The NPC wrapper's skeletal/Idle lane is now in production on three matching

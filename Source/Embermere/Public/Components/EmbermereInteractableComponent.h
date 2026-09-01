@@ -24,6 +24,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quest")
 	TObjectPtr<UEmbermereQuestData> QuestToOffer;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quest")
+	bool bUseQuestStateDialogue = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Marker")
 	bool bShowWorldMarker = true;
 
@@ -35,6 +38,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Interaction")
 	void Interact(AActor* Interactor);
+
+	UFUNCTION(BlueprintPure, Category = "Embermere|Interaction")
+	FText GetInteractionDialogueText(AActor* Interactor) const;
 
 protected:
 	virtual void BeginPlay() override;

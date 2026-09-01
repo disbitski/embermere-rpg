@@ -2849,6 +2849,60 @@ Lesson: migrations stay small when compatibility is a projection over the new
 truth, not a second truth allowed to mutate beside it. Validate the entire
 collection, then commit once.
 
+## 2026-09-01 - Still Waters Became Embermere's First Parallel Quest
+
+The version-3 ledger was ready, so today we asked it to carry real content.
+`DQ_FenwatchStillWaters` now defines one clear village task: accept a notice,
+complete one successful rest at the communal well, and return for `50` XP plus
+`10` copper. Its stable IDs are `FenwatchStillWaters` and
+`FenwatchRestCompleted`; its four state-specific lines come from quest data,
+and it grants no item.
+
+The implementation kept the owner map deliberately narrow. A separate art-free
+`AEmbermereRestQuestServiceActor` sits at the accepted road notice board and
+owns only offer/turn-in interaction. A dedicated
+`UEmbermereRestQuestObjectiveRouterComponent` listens to the rest service's
+immutable native outcome and forwards progress only after committed `Success`.
+The notice-board mesh still owns only presentation and collision. The well mesh
+still owns art and purposeful collision. Recovery eligibility and atomic
+Health/Mana mutation stay on the rest service, while its cyan/mint observer
+still owns only transient VFX. The trainer remains unrelated.
+
+That split made the rejection proof as important as the success. In clean PIE,
+physical `F` accepted Still Waters at `0/1`, then accepted Mara independently at
+`0/3`. We began a real rest and moved `75` cm while it was pending: the service
+reported interruption, vitals did not partially commit, and the quest stayed at
+zero. A second stationary channel committed recovery and advanced only Still
+Waters to `1/1`. Returning to the board paid exactly `50` XP and `10` copper;
+another physical `F` left completed state, XP, and copper unchanged.
+
+Persistence got a real two-record acceptance without risking the player's
+Chronicle save. An isolated `EmbermereStillWatersLiveProbe` slot captured
+completed Still Waters beside active Mara, then the live world deliberately
+diverged. Two confirmed loads each restored both records, `50` XP, and `50`
+copper with no focus persistence, progress drift, or reward replay. The probe
+deleted its slot and restored the controller's real `EmbermerePrototype` target
+when finished.
+
+Three focused tests bring the suite to `83`: service/data separation, committed
+rest routing and rollback, and Still Waters version-3 round-trip. The
+no-hot-reload build, isolated commandlet `83/83`, restarted-editor MCP `83/83`,
+focused validators, sequential 19-package aggregate, full-zone validation, and
+all six initialized-world route/collision validators passed. The map remains 53
+grounded Fab actors plus 24 original-art placements.
+
+One live-probe detail was worth keeping. Unreal Python did not expose the
+expected character-movement convenience getter, so the probe now resolves the
+reflected `CharacterMovementComponent` by class. The initial scripting error
+was not package staleness; rerunning the corrected phase proved the actual
+gameplay state. Durable probes should use reflected component lookup and their
+own disposable save slots rather than making assumptions about bindings or
+user data.
+
+Lesson: cross-system content stays composable when one owner publishes a
+committed fact and a dedicated adapter translates that fact into another
+owner's stable identity. Test interruption and replay as seriously as success.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -120,5 +120,6 @@ private:
 	friend class FEmbermereRestRecoveryTransactionsTest;
 	friend class FEmbermereRestInterruptionAndCombatTest;
 	friend class FEmbermereRestWorldPresentationTest;
+	friend class FEmbermereStillWatersRestRoutingTest;
 #endif
 };

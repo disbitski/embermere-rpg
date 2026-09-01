@@ -471,9 +471,10 @@ bool AEmbermerePlayerController::InteractWithNearestActor()
 		return false;
 	}
 
-	if (PlayerHudWidget && !BestInteractable->DialogueText.IsEmpty())
+	const FText InteractionDialogue = BestInteractable->GetInteractionDialogueText(Character);
+	if (PlayerHudWidget && !InteractionDialogue.IsEmpty())
 	{
-		PlayerHudWidget->ShowDialogue(BestInteractable->DisplayName, BestInteractable->DialogueText);
+		PlayerHudWidget->ShowDialogue(BestInteractable->DisplayName, InteractionDialogue);
 	}
 
 	BestInteractable->Interact(Character);

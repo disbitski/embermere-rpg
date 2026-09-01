@@ -1731,3 +1731,56 @@ Copy the element to a local value first, then add that value. The same rule
 applies in production whenever a container operation may reallocate: do not
 pass a reference or pointer into that container back to a mutating operation on
 the same container.
+
+## Route Committed Cross-System Events Through A Dedicated Adapter
+
+`Still Waters` cares that a communal-well rest committed, but the rest service
+does not need to know that a quest exists. The service publishes one immutable
+resolved outcome. A dedicated objective-router component owned beside the
+art-free quest giver filters for `Success` and forwards one exact stable
+quest/objective event. The notice-board art, well art, recovery service, and VFX
+observer all remain replaceable and quest-free.
+
+This keeps both sides honest. Interrupted and rejected attempts cannot become
+progress, loaded presentation cannot replay an event, and removing the quest
+cannot alter recovery. When one authoritative system becomes an objective for
+another, subscribe after commit and translate identity in a narrow adapter;
+do not add the second system's rules to the first owner.
+
+## Stable Quest IDs Keep Focus Out Of Authority
+
+With two live quests, the focused HUD projection is no longer a safe mutation
+target. Mara and Still Waters query and mutate their exact stable IDs, while
+`FocusedQuestId` only decides which compatibility projection old HUD readers
+see. A player may switch focus without changing progress, completion, rewards,
+or save bytes.
+
+Presentation selection should answer "what am I looking at?" It must never
+answer "what may this giver or event mutate?" Carry stable identity from
+request through commit, and treat focus as transient until a separate product
+contract deliberately makes it durable.
+
+## Probe Unreal Python Bindings Instead Of Assuming C++ Convenience Names
+
+The first live Still Waters probe tried a familiar character-movement
+convenience accessor, but that method was not exposed under the expected Unreal
+Python name. The underlying component was available and stable through
+`get_component_by_class(unreal.CharacterMovementComponent)`.
+
+Live automation should prefer reflected properties and component-class lookup
+when a C++ convenience getter is absent. A Python binding mismatch is a probe
+implementation issue, not evidence that the gameplay package or editor is
+stale. Fix the probe, rerun the exact acceptance phase, and keep authoritative
+fresh-commandlet logs separate from exploratory live output.
+
+## Use Isolated Save Slots For Destructive Persistence Acceptance
+
+A true double-load test must write, diverge, and restore state, but it should
+not borrow the player's Chronicle slot merely because that slot already exists.
+The Still Waters live probe used a uniquely named temporary slot, verified both
+loads, deleted it, and restored the controller's target to
+`EmbermerePrototype`.
+
+Treat user saves as data, not disposable fixtures. Persistence probes should
+own an isolated slot lifecycle, clean up in success and failure paths, and
+restore any runtime slot selector they temporarily changed.

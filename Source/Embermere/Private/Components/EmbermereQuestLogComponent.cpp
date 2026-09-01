@@ -136,7 +136,8 @@ bool UEmbermereQuestLogComponent::AddObjectiveProgressForQuest(
 
 	FEmbermereQuestState& QuestState = QuestStates[QuestIndex];
 	if (!QuestState.Quest || QuestState.bCompleted ||
-		QuestState.Quest->ObjectiveId != ObjectiveId)
+		QuestState.Quest->ObjectiveId != ObjectiveId ||
+		QuestState.CurrentObjectiveCount >= QuestState.Quest->RequiredObjectiveCount)
 	{
 		return false;
 	}

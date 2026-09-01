@@ -206,6 +206,16 @@ rejects malformed collections before wallet, XP, inventory, equipment, quest,
 or vendor mutation. The old source save is never rewritten merely because it
 was read through an adapter.
 
+The accepted 2026-09-01 `Still Waters` proof exercises the first real
+two-record slot. An isolated `EmbermereStillWatersLiveProbe` slot captured
+completed `FenwatchStillWaters` at `1/1` beside active
+`FirstSignsAtTheRuin` at `0/3`, exact `50` XP, and exact `50` copper. After
+deliberate live divergence, two confirmed loads restored both records and both
+durable values without replaying the `50` XP / `10` copper quest reward,
+persisting transient focus, or drifting owners. The probe deleted its own slot
+and restored the controller's `EmbermerePrototype` target, leaving the user's
+Chronicle save untouched.
+
 ## Prototype Commands
 
 The player-facing `Embermere Chronicle` opens with `M` or the bottom-right
@@ -344,6 +354,14 @@ live mutation.
 - `Embermere.Persistence.MultiQuestValidationRollback` proves duplicate,
   missing, mismatched, invalid-progress, contradictory, mixed-format, and
   over-capacity ledgers reject without partial owner mutation.
+- `Embermere.Quests.StillWatersServiceContract` proves the first real second
+  quest's data, exact stable IDs/rewards, art-free owner, and service/art
+  separation.
+- `Embermere.Quests.StillWatersRestRouting` proves only committed rest success
+  advances the exact objective, reward overflow rolls back, and turn-in pays
+  once without changing Mara.
+- `Embermere.Persistence.StillWatersRoundTrip` proves the real two-record
+  version-3 shape, repeated-load idempotence, and no reward replay.
 - `Embermere.Persistence.SlotInspection` proves empty, valid, and unsupported
   slot summaries without mutating gameplay owners.
 - `Embermere.UI.SaveLoadPanel` locks the panel's fixed bounds, visibility,
@@ -358,7 +376,7 @@ live mutation.
   the stable vendor ID to the art-free service boundary.
 - Full automation, saved-package validators, initialized-world route traces,
   and the two-session PIE validator remain separate acceptance layers. The
-  2026-08-31 baseline is 80/80 tests plus the sequential 18-package aggregate.
+  2026-09-01 baseline is 83/83 tests plus the sequential 19-package aggregate.
 
 Future format changes must increment `EmbermereSaveGameVersion::Current` and
 either provide an explicit compatibility interpretation or reject the older

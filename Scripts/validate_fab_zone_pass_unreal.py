@@ -172,6 +172,13 @@ FENWATCH_REST_SERVICE_LABEL = (
 FENWATCH_REST_PRESENTATION_LABEL = (
     "Embermere_FenwatchCommunalWell_RestPresentation_01"
 )
+FENWATCH_STILL_WATERS_SERVICE_LABEL = (
+    "Embermere_FenwatchNoticeBoard_StillWatersService_01"
+)
+FENWATCH_STILL_WATERS_QUEST_PATH = (
+    "/Game/Data/Quests/"
+    "DQ_FenwatchStillWaters.DQ_FenwatchStillWaters"
+)
 FENWATCH_REST_DATA_PATH = (
     "/Game/Data/Services/"
     "DA_FenwatchCommunalWellRest.DA_FenwatchCommunalWellRest"
@@ -300,6 +307,7 @@ REQUIRED_LABELS = {
     ORIGINAL_COMMUNAL_WELL_LABEL,
     FENWATCH_REST_SERVICE_LABEL,
     FENWATCH_REST_PRESENTATION_LABEL,
+    FENWATCH_STILL_WATERS_SERVICE_LABEL,
     ORIGINAL_FENWATCH_SHELTER_LABEL,
     FENWATCH_KEEPER_PRESENTATION_LABEL,
     FENWATCH_QUARTERMASTER_LABEL,
@@ -2453,6 +2461,83 @@ def main():
         fail("Fenwatch rest presentation must defer transient visual segments")
     if rest_presentation.get_component_by_class(unreal.SkeletalMeshComponent):
         fail("Fenwatch rest presentation must not own skeletal art")
+
+    still_waters_service = actors_by_label[FENWATCH_STILL_WATERS_SERVICE_LABEL]
+    if still_waters_service.get_class().get_name() != "EmbermereRestQuestServiceActor":
+        fail("{} must use the native art-free quest service class, found {}".format(
+            FENWATCH_STILL_WATERS_SERVICE_LABEL,
+            still_waters_service.get_class().get_name(),
+        ))
+    still_waters_location = still_waters_service.get_actor_location()
+    still_waters_rotation = still_waters_service.get_actor_rotation()
+    if not all((
+        nearly_equal(still_waters_location.x, ORIGINAL_NOTICE_BOARD_LOCATION[0], 1.0),
+        nearly_equal(still_waters_location.y, ORIGINAL_NOTICE_BOARD_LOCATION[1], 1.0),
+        nearly_equal(still_waters_location.z, ORIGINAL_NOTICE_BOARD_LOCATION[2], 1.0),
+        nearly_equal(still_waters_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(still_waters_rotation.yaw, ORIGINAL_NOTICE_BOARD_YAW, 0.1),
+        nearly_equal(still_waters_rotation.roll, 0.0, 0.1),
+    )):
+        fail("{} transform drifted: location={}, rotation={}".format(
+            FENWATCH_STILL_WATERS_SERVICE_LABEL,
+            still_waters_location,
+            still_waters_rotation,
+        ))
+    still_waters_tags = set(still_waters_service.get_editor_property("tags"))
+    if not {
+        unreal.Name("EmbermereGameplayService"),
+        unreal.Name("EmbermereQuestService"),
+        unreal.Name("EmbermereStillWaters"),
+    }.issubset(still_waters_tags):
+        fail("Still Waters service tags drifted: {}".format(still_waters_tags))
+    if unreal.Name("EmbermereOriginalArt") in still_waters_tags:
+        fail("Still Waters service must stay outside the original-art count")
+    if still_waters_service.get_actor_enable_collision():
+        fail("Still Waters service must remain collision-free")
+    still_waters_interactable = still_waters_service.get_component_by_class(
+        unreal.EmbermereInteractableComponent
+    )
+    still_waters_router = still_waters_service.get_component_by_class(
+        unreal.EmbermereRestQuestObjectiveRouterComponent
+    )
+    if not still_waters_interactable or not still_waters_router:
+        fail("Still Waters service is missing interaction or exact routing")
+    still_waters_quest = still_waters_interactable.get_editor_property(
+        "quest_to_offer"
+    )
+    still_waters_quest_path = (
+        still_waters_quest.get_path_name() if still_waters_quest else "None"
+    )
+    if still_waters_quest_path != FENWATCH_STILL_WATERS_QUEST_PATH:
+        fail("Still Waters quest data drifted: {}".format(
+            still_waters_quest_path,
+        ))
+    if not bool(still_waters_interactable.get_editor_property(
+        "use_quest_state_dialogue"
+    )):
+        fail("Still Waters four-state interaction copy is disabled")
+    if still_waters_router.get_editor_property("observed_rest_service") != rest_service:
+        fail("Still Waters router no longer observes the saved rest service")
+    if str(still_waters_router.get_editor_property("quest_id")) != "FenwatchStillWaters":
+        fail("Still Waters router quest ID drifted")
+    if str(still_waters_router.get_editor_property("objective_id")) != "FenwatchRestCompleted":
+        fail("Still Waters router objective ID drifted")
+    if still_waters_service.get_component_by_class(unreal.StaticMeshComponent):
+        fail("Still Waters service must not own static art")
+    if still_waters_service.get_component_by_class(unreal.SkeletalMeshComponent):
+        fail("Still Waters service must not own skeletal art")
+    if still_waters_service.get_component_by_class(unreal.EmbermereRestServiceComponent):
+        fail("Still Waters service must not own recovery authority")
+    if notice_board.get_component_by_class(unreal.EmbermereInteractableComponent):
+        fail("Fenwatch notice-board art must remain interaction-free")
+    if notice_board.get_component_by_class(unreal.EmbermereRestQuestObjectiveRouterComponent):
+        fail("Fenwatch notice-board art must remain quest-routing-free")
+    if communal_well.get_component_by_class(unreal.EmbermereRestQuestObjectiveRouterComponent):
+        fail("Fenwatch communal-well art must remain quest-routing-free")
+    if rest_service.get_component_by_class(unreal.EmbermereRestQuestObjectiveRouterComponent):
+        fail("Fenwatch rest service must remain quest-routing-free")
+    if rest_presentation.get_component_by_class(unreal.EmbermereRestQuestObjectiveRouterComponent):
+        fail("Fenwatch rest presentation must remain quest-routing-free")
 
     marsh_reed_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_MARSH_REED_PATH)
     if not marsh_reed_mesh or not isinstance(marsh_reed_mesh, unreal.StaticMesh):
