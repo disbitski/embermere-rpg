@@ -568,7 +568,7 @@ The full ownership and rollback contract is in
 ## Version 3 Multi-Quest And Still Waters
 
 1. Build with `-NoHotReloadFromIDE`, restart Unreal, force automation
-   rediscovery, and confirm exactly `83` Embermere tests are available.
+   rediscovery, and confirm exactly `85` Embermere tests are available.
 2. Run `Embermere.Quests.MultiQuestRuntime` and verify two valid quests coexist,
    exact objective progress affects only its quest, an unrelated giver cannot
    turn in Mara, a failed reward preflight preserves ready state, and each
@@ -610,6 +610,21 @@ The full ownership and rollback contract is in
     Waters plus active Mara, deliberately diverge live state, load twice, and
     prove exact two-record, XP, and copper restoration. The probe must delete
     its own slot and restore `EmbermerePrototype` as the real Chronicle target.
+14. Run `Embermere.UI.QuestLedgerPresentation` and
+    `Embermere.UI.QuestLedgerFocusLifecycle`. Verify empty, one-, two-, and
+    eight-record fixed layouts; exact `ACTIVE`, `READY`, and `COMPLETED` rows;
+    wrapped selection; explicit focus; duplicate-focus safety; peer-panel
+    handoff; teardown; nonserialized focus; and zero quest/reward mutation.
+15. In clean PIE, leave Mara active at `0/3` and complete Still Waters at
+    `1/1`. Press `J` and confirm both records fit the fixed `620x430` panel in
+    `596x30` rows, with the separate `140x38` Quest Ledger command eight pixels
+    above Chronicle and clear of chat, hotbar, target, and the compact tracker.
+16. Use Up/Down to select each record and Enter to focus it. Confirm selection
+    alone does not change the tracker; explicit focus switches the compact HUD
+    between Mara and completed Still Waters; XP, copper, progress, completion,
+    and rewards remain exact. Open Inventory and Chronicle from the ledger,
+    then reopen it with `J`, proving mutually exclusive panel and cursor/input
+    ownership.
 
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
@@ -766,8 +781,10 @@ The complete contract is in
   Versions `1` and `2` remain loadable through singular-record adapters.
   `Still Waters` is accepted as the first real second quest with physical
   independent acceptance, committed-rest routing, exact turn-in, replay guard,
-  and an isolated two-load proof. The next gap is a readable multi-quest ledger
-  and transient focus surface, not another persistence schema change.
+  and an isolated two-load proof. The fixed native multi-quest ledger now shows
+  up to eight active/ready/completed records and changes only transient focus.
+  The next presentation gap is a quest-data-owned selected-detail and reward
+  summary, not another persistence schema change.
 - Inventory presentation now has clickable and draggable rows, fixed
   project-owned item/equipment icons and fantasy drag token, category/missing-art
   fallbacks, stable identity-preserving category/name sorting, keyboard

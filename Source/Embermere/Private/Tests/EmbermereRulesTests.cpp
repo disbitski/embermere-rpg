@@ -61,6 +61,7 @@
 #include "UI/EmbermereLevelUpWidget.h"
 #include "UI/EmbermereNpcGreetingWidget.h"
 #include "UI/EmbermerePlayerHudWidget.h"
+#include "UI/EmbermereQuestLedgerRowButton.h"
 #include "UObject/Package.h"
 
 namespace
@@ -6265,6 +6266,257 @@ bool FEmbermereStillWatersPersistenceRoundTripTest::RunTest(const FString& Param
 		Target->Stats->CurrentExperience, 50);
 	TestEqual(TEXT("Repeated load does not duplicate copper"),
 		Target->Wallet->Copper, 50);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereQuestLedgerPresentationTest,
+	"Embermere.UI.QuestLedgerPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereQuestLedgerPresentationTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereQuestLogComponent* QuestLog = NewObject<UEmbermereQuestLogComponent>();
+	if (!Hud || !QuestLog)
+	{
+		AddError(TEXT("Could not create quest-ledger presentation fixtures"));
+		return false;
+	}
+
+	Hud->QuestLog = QuestLog;
+	Hud->TakeWidget();
+	TestTrue(TEXT("Quest-ledger command is bottom-right anchored"),
+		Hud->IsQuestLedgerButtonBottomRightAnchored());
+	TestEqual(TEXT("Quest-ledger command keeps fixed dimensions"),
+		Hud->GetQuestLedgerButtonDimensions(), FVector2D(140.0f, 38.0f));
+	TestEqual(TEXT("Quest-ledger command sits above Chronicle with fixed offset"),
+		Hud->GetQuestLedgerButtonViewportOffset(), FVector2D(-24.0f, -70.0f));
+	TestEqual(TEXT("Quest ledger keeps fixed panel dimensions"),
+		Hud->GetQuestLedgerPanelDimensions(), FVector2D(620.0f, 430.0f));
+	TestEqual(TEXT("Every quest row keeps fixed dimensions"),
+		Hud->GetQuestLedgerRowDimensions(), FVector2D(596.0f, 30.0f));
+	TestFalse(TEXT("Quest ledger starts hidden"), Hud->IsQuestLedgerPanelVisible());
+	TestTrue(TEXT("Quest ledger opens through its explicit command"),
+		Hud->ToggleQuestLedgerPanel());
+	TestTrue(TEXT("Opening the ledger hides Inventory"), !Hud->IsInventoryPanelVisible());
+	TestEqual(TEXT("Empty ledger reports zero records"),
+		Hud->GetQuestLedgerVisibleRecordCount(), 0);
+	TestTrue(TEXT("Empty ledger copy is explicit"),
+		Hud->GetQuestLedgerDisplayText().ToString().Contains(TEXT("No quests tracked.")));
+	UTextBlock* EmptyText = Cast<UTextBlock>(Hud->GetWidgetFromName(TEXT("QuestLedgerEmptyText")));
+	TestTrue(TEXT("Empty ledger keeps its fixed empty-state presentation"),
+		EmptyText && EmptyText->GetVisibility() == ESlateVisibility::HitTestInvisible);
+
+	UEmbermereQuestData* ActiveQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationLedgerActive"),
+		TEXT("AutomationLedgerActive"),
+		TEXT("AutomationLedgerActiveObjective"),
+		3);
+	UEmbermereQuestData* ReadyQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationLedgerReady"),
+		TEXT("AutomationLedgerReady"),
+		TEXT("AutomationLedgerReadyObjective"),
+		1);
+	if (!ActiveQuest || !ReadyQuest)
+	{
+		AddError(TEXT("Could not create quest-ledger row fixtures"));
+		return false;
+	}
+	ActiveQuest->Title = FText::FromString(TEXT("First Signs at the Ruin"));
+	ReadyQuest->Title = FText::FromString(TEXT("Still Waters"));
+	TestTrue(TEXT("One active quest enters the ledger"), QuestLog->AcceptQuest(ActiveQuest));
+	TestEqual(TEXT("One-record layout reports one row"),
+		Hud->GetQuestLedgerVisibleRecordCount(), 1);
+	TestEqual(TEXT("Active row uses exact quest-owned title, state, and progress"),
+		Hud->GetQuestLedgerRowDisplayText(0).ToString(),
+		FString(TEXT("First Signs at the Ruin   |   ACTIVE   |   0/3")));
+
+	TestTrue(TEXT("Second quest enters the ledger independently"), QuestLog->AcceptQuest(ReadyQuest));
+	TestTrue(TEXT("Second quest reaches ready state through quest authority"),
+		QuestLog->AddObjectiveProgressForQuest(
+			ReadyQuest->QuestId, ReadyQuest->ObjectiveId, 1));
+	TestEqual(TEXT("Ready row uses exact state copy"),
+		Hud->GetQuestLedgerRowDisplayText(1).ToString(),
+		FString(TEXT("Still Waters   |   READY   |   1/1")));
+	TestTrue(TEXT("Quest authority commits the ready record"),
+		QuestLog->TryCompleteQuestById(ReadyQuest->QuestId));
+	TestEqual(TEXT("Completed history remains visible with exact copy"),
+		Hud->GetQuestLedgerRowDisplayText(1).ToString(),
+		FString(TEXT("Still Waters   |   COMPLETED   |   1/1")));
+	TestEqual(TEXT("Two-record layout reports both rows"),
+		Hud->GetQuestLedgerVisibleRecordCount(), 2);
+
+	for (int32 QuestIndex = 2; QuestIndex < UEmbermereQuestLogComponent::MaxTrackedQuests; ++QuestIndex)
+	{
+		UEmbermereQuestData* Quest = CreateAutomationQuestAsset(
+			*FString::Printf(TEXT("DQ_AutomationLedgerFull_%d"), QuestIndex),
+			*FString::Printf(TEXT("AutomationLedgerFull%d"), QuestIndex),
+			*FString::Printf(TEXT("AutomationLedgerObjective%d"), QuestIndex),
+			QuestIndex + 1);
+		TestTrue(
+			*FString::Printf(TEXT("Full-ledger fixture accepts row %d"), QuestIndex + 1),
+			QuestLog->AcceptQuest(Quest));
+	}
+	TestEqual(TEXT("Full layout exposes all eight bounded records"),
+		Hud->GetQuestLedgerVisibleRecordCount(), UEmbermereQuestLogComponent::MaxTrackedQuests);
+	TestTrue(TEXT("Selecting the last record refreshes the bounded row presentation"),
+		Hud->SelectQuestLedgerRecord(UEmbermereQuestLogComponent::MaxTrackedQuests - 1));
+	UWidget* EighthRow = Hud->GetWidgetFromName(TEXT("QuestLedgerRowButton_7"));
+	TestTrue(TEXT("Eighth fixed row remains visible at capacity"),
+		EighthRow && EighthRow->GetVisibility() == ESlateVisibility::Visible);
+	TestTrue(TEXT("Inventory command cleanly takes ownership from the ledger"),
+		Hud->ToggleInventoryPanel());
+	TestFalse(TEXT("Inventory handoff closes the ledger"), Hud->IsQuestLedgerPanelVisible());
+	TestTrue(TEXT("Ledger can reopen after Inventory handoff"), Hud->ToggleQuestLedgerPanel());
+	TestTrue(TEXT("Chronicle opens from the ledger"), Hud->ToggleSaveLoadPanel());
+	TestFalse(TEXT("Chronicle handoff closes the ledger"), Hud->IsQuestLedgerPanelVisible());
+	TestFalse(TEXT("Chronicle closes explicitly"), Hud->ToggleSaveLoadPanel());
+	TestTrue(TEXT("Ledger reopens after Chronicle handoff"), Hud->ToggleQuestLedgerPanel());
+	Hud->CloseQuestLedgerPanel();
+	TestFalse(TEXT("Explicit close tears down visible ledger state"),
+		Hud->IsQuestLedgerPanelVisible());
+	TestEqual(TEXT("Close resets only transient row selection"),
+		Hud->GetSelectedQuestLedgerIndex(), 0);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereQuestLedgerFocusLifecycleTest,
+	"Embermere.UI.QuestLedgerFocusLifecycle",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereQuestLedgerFocusLifecycleTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Source = NewObject<AEmbermereCharacter>();
+	AEmbermereCharacter* Target = NewObject<AEmbermereCharacter>();
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereQuestData* ActiveQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationLedgerFocusActive"),
+		TEXT("AActiveLedgerQuest"),
+		TEXT("AActiveLedgerObjective"),
+		3);
+	UEmbermereQuestData* CompletedQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationLedgerFocusCompleted"),
+		TEXT("ZCompletedLedgerQuest"),
+		TEXT("ZCompletedLedgerObjective"),
+		1);
+	if (!Source || !Target || !Hud || !ActiveQuest || !CompletedQuest)
+	{
+		AddError(TEXT("Could not create quest-ledger focus fixtures"));
+		return false;
+	}
+
+	ActiveQuest->Title = FText::FromString(TEXT("First Signs at the Ruin"));
+	CompletedQuest->Title = FText::FromString(TEXT("Still Waters"));
+	TestTrue(TEXT("Focus fixture confirms a deliberate source identity"),
+		Source->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	TestTrue(TEXT("Focus fixture confirms a distinct target identity"),
+		Target->TryApplyRaceAndClass(EEmbermereRace::Elf, EEmbermereClass::Wizard));
+	TestTrue(TEXT("Focus fixture accepts active quest"), Source->QuestLog->AcceptQuest(ActiveQuest));
+	TestTrue(TEXT("Focus fixture accepts completion-history quest"),
+		Source->QuestLog->AcceptQuest(CompletedQuest));
+	TestTrue(TEXT("Focus fixture advances active quest independently"),
+		Source->QuestLog->AddObjectiveProgressForQuest(
+			ActiveQuest->QuestId, ActiveQuest->ObjectiveId, 1));
+	TestTrue(TEXT("Focus fixture reaches completed objective"),
+		Source->QuestLog->AddObjectiveProgressForQuest(
+			CompletedQuest->QuestId, CompletedQuest->ObjectiveId, 1));
+	TestTrue(TEXT("Focus fixture commits completed history once"),
+		Source->QuestLog->TryCompleteQuestById(CompletedQuest->QuestId));
+
+	Hud->BindToCharacter(Source);
+	Hud->TakeWidget();
+	TestTrue(TEXT("Ledger opens aligned to the current focused record"),
+		Hud->ToggleQuestLedgerPanel());
+	TestEqual(TEXT("Completed quest begins selected because it is focused"),
+		Hud->GetSelectedQuestLedgerIndex(), 1);
+	UEmbermereQuestLedgerRowButton* ActiveRow = Cast<UEmbermereQuestLedgerRowButton>(
+		Hud->GetWidgetFromName(TEXT("QuestLedgerRowButton_0")));
+	TestNotNull(TEXT("Mouse-facing active row exists"), ActiveRow);
+	if (ActiveRow)
+	{
+		ActiveRow->OnQuestLedgerRowClicked.Broadcast(0);
+	}
+	TestEqual(TEXT("Mouse row selection changes only transient selection"),
+		Hud->GetSelectedQuestLedgerIndex(), 0);
+	TestEqual(TEXT("Row selection alone preserves focused quest"),
+		Source->QuestLog->FocusedQuestId, CompletedQuest->QuestId);
+
+	FEmbermereQuestState ActiveBefore;
+	FEmbermereQuestState CompletedBefore;
+	Source->QuestLog->GetQuestStateById(ActiveQuest->QuestId, ActiveBefore);
+	Source->QuestLog->GetQuestStateById(CompletedQuest->QuestId, CompletedBefore);
+	const int32 CopperBeforeFocus = Source->Wallet->Copper;
+	const int32 ExperienceBeforeFocus = Source->Stats->CurrentExperience;
+	const int32 InventoryStacksBeforeFocus = Source->Inventory->Stacks.Num();
+	TestTrue(TEXT("Explicit focus projects the selected active quest"), Hud->FocusSelectedQuest());
+	TestEqual(TEXT("Focus updates only transient stable ID"),
+		Source->QuestLog->FocusedQuestId, ActiveQuest->QuestId);
+	TestTrue(TEXT("Compatibility tracker projects the focused active quest"),
+		Source->QuestLog->ActiveQuest.Quest == ActiveQuest);
+	TestTrue(TEXT("Duplicate focus input remains a safe idempotent request"),
+		Hud->FocusSelectedQuest());
+	TestTrue(TEXT("Keyboard-style selection wraps backward"),
+		Hud->SelectNextQuestLedgerRecord(-1));
+	TestEqual(TEXT("Wrapped selection reaches completed history"),
+		Hud->GetSelectedQuestLedgerIndex(), 1);
+	TestTrue(TEXT("Keyboard-style focus projects completed history"),
+		Hud->FocusSelectedQuest());
+	TestTrue(TEXT("Compatibility tracker projects completed Still Waters"),
+		Source->QuestLog->ActiveQuest.Quest == CompletedQuest &&
+		Source->QuestLog->ActiveQuest.bCompleted);
+
+	FEmbermereQuestState ActiveAfter;
+	FEmbermereQuestState CompletedAfter;
+	Source->QuestLog->GetQuestStateById(ActiveQuest->QuestId, ActiveAfter);
+	Source->QuestLog->GetQuestStateById(CompletedQuest->QuestId, CompletedAfter);
+	TestEqual(TEXT("Focus preserves active quest progress"),
+		ActiveAfter.CurrentObjectiveCount, ActiveBefore.CurrentObjectiveCount);
+	TestEqual(TEXT("Focus preserves active completion state"),
+		ActiveAfter.bCompleted, ActiveBefore.bCompleted);
+	TestEqual(TEXT("Focus preserves completed quest progress"),
+		CompletedAfter.CurrentObjectiveCount, CompletedBefore.CurrentObjectiveCount);
+	TestEqual(TEXT("Focus preserves completed history"),
+		CompletedAfter.bCompleted, CompletedBefore.bCompleted);
+	TestEqual(TEXT("Focus preserves wallet"), Source->Wallet->Copper, CopperBeforeFocus);
+	TestEqual(TEXT("Focus preserves experience"),
+		Source->Stats->CurrentExperience, ExperienceBeforeFocus);
+	TestEqual(TEXT("Focus preserves inventory"),
+		Source->Inventory->Stacks.Num(), InventoryStacksBeforeFocus);
+
+	FText PersistenceMessage;
+	UEmbermereSaveGame* SaveGame = nullptr;
+	TestEqual(TEXT("Focused ledger captures through normal version-3 persistence"),
+		UEmbermerePersistenceLibrary::CaptureGameState(
+			Source, {}, SaveGame, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestNotNull(TEXT("Focused ledger capture creates a save"), SaveGame);
+	if (!SaveGame)
+	{
+		return false;
+	}
+	TestEqual(TEXT("Focus does not add a durable record or schema field"),
+		SaveGame->QuestStates.Num(), 2);
+	TestEqual(TEXT("Captured format remains save version 3"),
+		SaveGame->FormatVersion, EmbermereSaveGameVersion::MultiQuestLedger);
+	TestEqual(TEXT("Version-3 restore succeeds without focus input"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Target, {}, SaveGame, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Load derives fresh transient focus from the first active record"),
+		Target->QuestLog->FocusedQuestId, ActiveQuest->QuestId);
+	TestTrue(TEXT("Saved completed focus is not restored"),
+		Target->QuestLog->ActiveQuest.Quest == ActiveQuest &&
+		!Target->QuestLog->ActiveQuest.bCompleted);
+	TestEqual(TEXT("Load preserves both authoritative quest records"),
+		Target->QuestLog->QuestStates.Num(), 2);
+	TestEqual(TEXT("Repeated load remains focus-idempotent"),
+		UEmbermerePersistenceLibrary::ApplyGameState(
+			Target, {}, SaveGame, PersistenceMessage),
+		EEmbermerePersistenceResult::Success);
+	TestEqual(TEXT("Repeated load derives the same active focus"),
+		Target->QuestLog->FocusedQuestId, ActiveQuest->QuestId);
 	return true;
 }
 

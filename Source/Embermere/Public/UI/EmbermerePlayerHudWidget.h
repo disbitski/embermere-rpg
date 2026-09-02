@@ -21,6 +21,7 @@ class UEmbermereInventoryRowButton;
 class UEmbermereInventoryComponent;
 class UEmbermereLevelUpWidget;
 class UEmbermereQuestLogComponent;
+class UEmbermereQuestLedgerRowButton;
 class UEmbermereTrainerComponent;
 class UEmbermereTrainerOfferingButton;
 class UEmbermereVendorComponent;
@@ -35,6 +36,7 @@ class UTextBlock;
 class UTexture2D;
 class UVerticalBox;
 struct FEmbermereCombatResult;
+struct FEmbermereQuestState;
 
 UCLASS(Blueprintable)
 class EMBERMERE_API UEmbermerePlayerHudWidget : public UUserWidget
@@ -133,6 +135,51 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Persistence")
 	bool IsChronicleButtonBottomRightAnchored() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Quest Ledger")
+	bool ToggleQuestLedgerPanel();
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Quest Ledger")
+	void CloseQuestLedgerPanel();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	bool IsQuestLedgerPanelVisible() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Quest Ledger")
+	bool SelectQuestLedgerRecord(int32 QuestIndex);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Quest Ledger")
+	bool SelectNextQuestLedgerRecord(int32 Direction);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Quest Ledger")
+	bool FocusSelectedQuest();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	int32 GetSelectedQuestLedgerIndex() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	int32 GetQuestLedgerVisibleRecordCount() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	FText GetQuestLedgerDisplayText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	FText GetQuestLedgerRowDisplayText(int32 QuestIndex) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	FVector2D GetQuestLedgerPanelDimensions() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	FVector2D GetQuestLedgerRowDimensions() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	FVector2D GetQuestLedgerButtonDimensions() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	FVector2D GetQuestLedgerButtonViewportOffset() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	bool IsQuestLedgerButtonBottomRightAnchored() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
 	bool SelectVendorStockItem(int32 StockIndex);
@@ -372,6 +419,45 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> QuestText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> QuestLedgerMenuButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestLedgerMenuText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UBorder> QuestLedgerPanel;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestLedgerTitleText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestLedgerCountText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> QuestLedgerCloseButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestLedgerCloseText;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UEmbermereQuestLedgerRowButton>> QuestLedgerRowButtons;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UTextBlock>> QuestLedgerRowTexts;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestLedgerEmptyText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestLedgerStatusText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UButton> QuestLedgerFocusButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestLedgerFocusText;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UBorder> InventoryPanel;
@@ -622,6 +708,7 @@ private:
 	bool bVendorPanelVisible = false;
 	bool bTrainerPanelVisible = false;
 	bool bSaveLoadPanelVisible = false;
+	bool bQuestLedgerPanelVisible = false;
 	enum class ESaveLoadConfirmation : uint8
 	{
 		None,
@@ -633,6 +720,7 @@ private:
 	int32 SelectedInventoryStackIndex = 0;
 	int32 SelectedVendorStockIndex = 0;
 	int32 SelectedTrainerOfferingIndex = 0;
+	int32 SelectedQuestLedgerIndex = 0;
 	int32 FirstDisplayedInventoryStackIndex = 0;
 	TArray<TPair<FText, FLinearColor>> ChatMessages;
 	TObjectPtr<UEmbermereItemData> PendingDragItem;
@@ -662,6 +750,9 @@ private:
 	void RefreshTrainerWindow();
 	void UpdateSaveLoadPanelVisibility();
 	void RefreshSaveLoadWindow();
+	void UpdateQuestLedgerPanelVisibility();
+	void RefreshQuestLedgerWindow();
+	FString GetQuestLedgerStateLabel(const FEmbermereQuestState& QuestState) const;
 	void RefreshChatMessages();
 	void ShowLootPopupWithIcon(const FText& LootText, UTexture2D* Icon);
 	void ClampSelectedInventoryStackIndex();
@@ -719,6 +810,18 @@ private:
 
 	UFUNCTION()
 	void HandleMenuClicked();
+
+	UFUNCTION()
+	void HandleQuestLedgerMenuClicked();
+
+	UFUNCTION()
+	void HandleQuestLedgerRowClicked(int32 QuestIndex);
+
+	UFUNCTION()
+	void HandleQuestLedgerFocusClicked();
+
+	UFUNCTION()
+	void HandleQuestLedgerCloseClicked();
 
 	UFUNCTION()
 	void HandleSaveLoadSaveClicked();

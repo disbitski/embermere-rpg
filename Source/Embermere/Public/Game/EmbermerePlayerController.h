@@ -104,6 +104,7 @@ protected:
 	void ToggleInvertMouseY();
 	void ToggleInventoryPanel();
 	void ToggleSaveLoadPanel();
+	void ToggleQuestLedgerPanel();
 	void SelectPreviousInventoryItem();
 	void SelectNextInventoryItem();
 	void CycleTarget();

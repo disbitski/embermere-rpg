@@ -70,18 +70,22 @@ The repo currently contains the C++ gameplay scaffold for:
   floating-feedback observer shared by Prowlers and the practice target; exact
   damage briefly rises beside the world nameplate while chat and target HP stay
   authoritative fallbacks, and presentation owns no hit resolution or rewards
+- a fixed native eight-row quest ledger that shows active, ready, and completed
+  history, supports mouse plus keyboard selection, and requests only a
+  transient compact-tracker focus without owning quest or reward mutation
 - data-driven item sell values plus an earned-currency loop: Mara's first quest
   grants copper exactly once, selected bag items can be sold by identity, and
   the latest sale can be bought back at its recorded price
 - a versioned save-game contract for confirmed race/class identity, copper,
   XP, inventory/equipment identity, quest progress/completion, and finite
-  vendor stock; version 2 resolves stable race/class IDs through current rules,
-  restores class stats and starter hotbars atomically, keeps version 1 loadable
-  through an explicit Human Warrior fallback, rejects malformed records without
-  partial state, and keeps buyback session-only; its quest record is
-  intentionally singular, so additional durable quests wait for the explicit
-  version-3 ledger in
-  [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md)
+  vendor stock; version 3 stores a bounded keyed quest ledger, validates the
+  complete candidate before atomic restore, and keeps versions 1 and 2 loadable
+  through explicit singular-quest adapters without rewriting old slots. Stable
+  race/class IDs rebuild class stats and starter hotbars before equipment,
+  malformed records reject without partial state, and buyback plus quest focus
+  remain session-only. See
+  [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md) and
+  [Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md](Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md)
 - data-driven level progression derived only from durable XP, with validated
   cumulative thresholds for levels 1 through 5, distinct race/class growth,
   atomic identity-base recomputation, one additive equipment layer, exact live
@@ -371,8 +375,12 @@ success. Pending, interrupted, rejected, duplicate, presentation, and loaded
 state cannot advance it. Physical play accepted both quests together, exact
 `50` XP and `10` copper turn-in once, and an isolated two-load version-3 proof
 without reward replay or focus persistence. The notice-board mesh, well art,
-rest service, rest VFX observer, and trainer remain removable and quest-free. See
-[Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md).
+rest service, rest VFX observer, and trainer remain removable and quest-free.
+The fixed native Quest Ledger now shows both records together, preserves
+completed history, and switches only the transient compact-tracker projection
+through explicit stable-ID focus. See
+[Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md) and
+[Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md](Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md).
 
 The NPC wrapper's skeletal/Idle lane is now in production on three matching
 Fenwatch characters. The armsmaster has `2,824` source triangles and a

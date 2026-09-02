@@ -1784,3 +1784,24 @@ loads, deleted it, and restored the controller's target to
 Treat user saves as data, not disposable fixtures. Persistence probes should
 own an isolated slot lifecycle, clean up in success and failure paths, and
 restore any runtime slot selector they temporarily changed.
+
+## Give Transient Selection Its Own Identity Path
+
+A multi-quest UI needs two different notions of "current": the row being
+inspected and the quest projected into the compact HUD. Conflating them makes
+arrow navigation mutate game-facing focus before the player confirms anything.
+The native ledger keeps selected row index inside the widget and changes
+`FocusedQuestId` only through one explicit stable-ID action.
+
+Do not recover identity from title text. A tiny row-button type reports its
+fixed occupied-row index; the explicit focus action then resolves the current
+authoritative record and passes that record's stable quest ID. Mouse and
+keyboard paths converge on the same request, and the quest log validates the
+ID before refreshing its compatibility projection. This keeps localized copy
+free to change without changing mutation targets.
+
+Test the negative space as carefully as the visible update: selection alone
+must not change focus; focus must not change progress, completion, rewards, or
+save bytes; duplicate focus must be harmless; and teardown must clear only UI
+state. Presentation becomes trustworthy when every path identifies what it may
+change and the test fixture proves everything else stayed still.

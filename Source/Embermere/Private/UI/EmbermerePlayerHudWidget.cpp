@@ -18,6 +18,7 @@
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermereInventoryRowButton.h"
 #include "UI/EmbermereLevelUpWidget.h"
+#include "UI/EmbermereQuestLedgerRowButton.h"
 #include "UI/EmbermereTrainerOfferingButton.h"
 #include "UI/EmbermereVendorStockButton.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
@@ -65,6 +66,15 @@ namespace
 	constexpr float ChronicleButtonWidth = 140.0f;
 	constexpr float ChronicleButtonHeight = 38.0f;
 	constexpr float ChronicleButtonMargin = 24.0f;
+	constexpr int32 QuestLedgerVisibleRowCount = UEmbermereQuestLogComponent::MaxTrackedQuests;
+	constexpr float QuestLedgerPanelWidth = 620.0f;
+	constexpr float QuestLedgerPanelHeight = 430.0f;
+	constexpr float QuestLedgerContentWidth = 596.0f;
+	constexpr float QuestLedgerRowHeight = 30.0f;
+	constexpr float QuestLedgerButtonWidth = 140.0f;
+	constexpr float QuestLedgerButtonHeight = 38.0f;
+	constexpr float QuestLedgerButtonMargin = 24.0f;
+	constexpr float QuestLedgerButtonVerticalOffset = 70.0f;
 	constexpr float TrainerPanelWidth = 500.0f;
 	constexpr float TrainerPanelHeight = 300.0f;
 	constexpr float ProgressionBarWidth = 260.0f;
@@ -425,6 +435,8 @@ void UEmbermerePlayerHudWidget::NativeTick(const FGeometry& MyGeometry, float In
 void UEmbermerePlayerHudWidget::NativeDestruct()
 {
 	UnbindComponentEvents();
+	bQuestLedgerPanelVisible = false;
+	SelectedQuestLedgerIndex = 0;
 	if (CombatFeedbackOverlay)
 	{
 		CombatFeedbackOverlay->ClearAllFeedback();
@@ -623,6 +635,13 @@ void UEmbermerePlayerHudWidget::NativeOnDragCancelled(
 
 bool UEmbermerePlayerHudWidget::ToggleInventoryPanel()
 {
+	if (bQuestLedgerPanelVisible)
+	{
+		CloseQuestLedgerPanel();
+		bInventoryPanelVisible = true;
+		UpdateInventoryPanelVisibility();
+		return true;
+	}
 	if (bVendorPanelVisible)
 	{
 		CloseVendor();
@@ -664,6 +683,7 @@ bool UEmbermerePlayerHudWidget::ShowVendor(UEmbermereVendorComponent* Vendor)
 
 	CloseTrainer();
 	CloseSaveLoadPanel();
+	CloseQuestLedgerPanel();
 	ActiveVendor = Vendor;
 	bVendorPanelVisible = true;
 	bInventoryPanelVisible = false;
@@ -701,6 +721,7 @@ bool UEmbermerePlayerHudWidget::ToggleSaveLoadPanel()
 
 	CloseVendor();
 	CloseTrainer();
+	CloseQuestLedgerPanel();
 	bInventoryPanelVisible = false;
 	bSaveLoadPanelVisible = true;
 	PendingSaveLoadConfirmation = ESaveLoadConfirmation::None;
@@ -738,6 +759,7 @@ FVector2D UEmbermerePlayerHudWidget::GetChronicleButtonDimensions() const
 			return MenuSlot->GetSize();
 		}
 	}
+
 	return FVector2D::ZeroVector;
 }
 
@@ -770,6 +792,210 @@ bool UEmbermerePlayerHudWidget::IsChronicleButtonBottomRightAnchored() const
 	return Anchors.Minimum.Equals(FVector2D(1.0f, 1.0f)) &&
 		Anchors.Maximum.Equals(FVector2D(1.0f, 1.0f)) &&
 		MenuSlot->GetAlignment().Equals(FVector2D(1.0f, 1.0f));
+}
+
+bool UEmbermerePlayerHudWidget::ToggleQuestLedgerPanel()
+{
+	if (bQuestLedgerPanelVisible)
+	{
+		CloseQuestLedgerPanel();
+		return false;
+	}
+
+	CloseVendor();
+	CloseTrainer();
+	CloseSaveLoadPanel();
+	bInventoryPanelVisible = false;
+	bQuestLedgerPanelVisible = true;
+	SelectedQuestLedgerIndex = 0;
+	if (QuestLog && !QuestLog->FocusedQuestId.IsNone())
+	{
+		for (int32 QuestIndex = 0; QuestIndex < QuestLog->QuestStates.Num(); ++QuestIndex)
+		{
+			const FEmbermereQuestState& QuestState = QuestLog->QuestStates[QuestIndex];
+			if (QuestState.Quest && QuestState.Quest->QuestId == QuestLog->FocusedQuestId)
+			{
+				SelectedQuestLedgerIndex = QuestIndex;
+				break;
+			}
+		}
+	}
+	UpdateInventoryPanelVisibility();
+	UpdateQuestLedgerPanelVisibility();
+	RefreshQuestLedgerWindow();
+	return true;
+}
+
+void UEmbermerePlayerHudWidget::CloseQuestLedgerPanel()
+{
+	bQuestLedgerPanelVisible = false;
+	SelectedQuestLedgerIndex = 0;
+	UpdateQuestLedgerPanelVisibility();
+}
+
+bool UEmbermerePlayerHudWidget::IsQuestLedgerPanelVisible() const
+{
+	return bQuestLedgerPanelVisible;
+}
+
+bool UEmbermerePlayerHudWidget::SelectQuestLedgerRecord(int32 QuestIndex)
+{
+	if (!QuestLog || !QuestLog->QuestStates.IsValidIndex(QuestIndex))
+	{
+		return false;
+	}
+
+	SelectedQuestLedgerIndex = QuestIndex;
+	RefreshQuestLedgerWindow();
+	return true;
+}
+
+bool UEmbermerePlayerHudWidget::SelectNextQuestLedgerRecord(int32 Direction)
+{
+	const int32 RecordCount = GetQuestLedgerVisibleRecordCount();
+	if (RecordCount <= 1 || Direction == 0)
+	{
+		return false;
+	}
+
+	const int32 Step = Direction > 0 ? 1 : -1;
+	SelectedQuestLedgerIndex = (SelectedQuestLedgerIndex + Step + RecordCount) % RecordCount;
+	RefreshQuestLedgerWindow();
+	return true;
+}
+
+bool UEmbermerePlayerHudWidget::FocusSelectedQuest()
+{
+	if (!QuestLog || !QuestLog->QuestStates.IsValidIndex(SelectedQuestLedgerIndex))
+	{
+		return false;
+	}
+
+	const FEmbermereQuestState& SelectedState = QuestLog->QuestStates[SelectedQuestLedgerIndex];
+	if (!SelectedState.Quest || !QuestLog->FocusQuest(SelectedState.Quest->QuestId))
+	{
+		return false;
+	}
+
+	RefreshHudText();
+	return true;
+}
+
+int32 UEmbermerePlayerHudWidget::GetSelectedQuestLedgerIndex() const
+{
+	return SelectedQuestLedgerIndex;
+}
+
+int32 UEmbermerePlayerHudWidget::GetQuestLedgerVisibleRecordCount() const
+{
+	return QuestLog
+		? FMath::Min(QuestLog->QuestStates.Num(), QuestLedgerVisibleRowCount)
+		: 0;
+}
+
+FString UEmbermerePlayerHudWidget::GetQuestLedgerStateLabel(
+	const FEmbermereQuestState& QuestState) const
+{
+	if (QuestState.bCompleted)
+	{
+		return TEXT("COMPLETED");
+	}
+	if (QuestState.Quest &&
+		QuestState.CurrentObjectiveCount >= QuestState.Quest->RequiredObjectiveCount)
+	{
+		return TEXT("READY");
+	}
+	return TEXT("ACTIVE");
+}
+
+FText UEmbermerePlayerHudWidget::GetQuestLedgerRowDisplayText(int32 QuestIndex) const
+{
+	if (!QuestLog || !QuestLog->QuestStates.IsValidIndex(QuestIndex))
+	{
+		return FText::GetEmpty();
+	}
+
+	const FEmbermereQuestState& QuestState = QuestLog->QuestStates[QuestIndex];
+	if (!QuestState.Quest)
+	{
+		return FText::GetEmpty();
+	}
+
+	return FText::FromString(FString::Printf(
+		TEXT("%s   |   %s   |   %d/%d"),
+		*QuestState.Quest->Title.ToString(),
+		*GetQuestLedgerStateLabel(QuestState),
+		QuestState.CurrentObjectiveCount,
+		QuestState.Quest->RequiredObjectiveCount));
+}
+
+FText UEmbermerePlayerHudWidget::GetQuestLedgerDisplayText() const
+{
+	TArray<FString> Lines;
+	Lines.Add(TEXT("Quest Ledger"));
+	const int32 RecordCount = GetQuestLedgerVisibleRecordCount();
+	if (RecordCount == 0)
+	{
+		Lines.Add(TEXT("No quests tracked."));
+	}
+	else
+	{
+		for (int32 QuestIndex = 0; QuestIndex < RecordCount; ++QuestIndex)
+		{
+			Lines.Add(GetQuestLedgerRowDisplayText(QuestIndex).ToString());
+		}
+	}
+	return FText::FromString(FString::Join(Lines, TEXT("\n")));
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetQuestLedgerPanelDimensions() const
+{
+	return FVector2D(QuestLedgerPanelWidth, QuestLedgerPanelHeight);
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetQuestLedgerRowDimensions() const
+{
+	return FVector2D(QuestLedgerContentWidth, QuestLedgerRowHeight);
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetQuestLedgerButtonDimensions() const
+{
+	if (QuestLedgerMenuButton)
+	{
+		if (const UCanvasPanelSlot* ButtonSlot = Cast<UCanvasPanelSlot>(QuestLedgerMenuButton->Slot))
+		{
+			return ButtonSlot->GetSize();
+		}
+	}
+	return FVector2D::ZeroVector;
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetQuestLedgerButtonViewportOffset() const
+{
+	if (QuestLedgerMenuButton)
+	{
+		if (const UCanvasPanelSlot* ButtonSlot = Cast<UCanvasPanelSlot>(QuestLedgerMenuButton->Slot))
+		{
+			return ButtonSlot->GetPosition();
+		}
+	}
+	return FVector2D::ZeroVector;
+}
+
+bool UEmbermerePlayerHudWidget::IsQuestLedgerButtonBottomRightAnchored() const
+{
+	const UCanvasPanelSlot* ButtonSlot = QuestLedgerMenuButton
+		? Cast<UCanvasPanelSlot>(QuestLedgerMenuButton->Slot)
+		: nullptr;
+	if (!ButtonSlot)
+	{
+		return false;
+	}
+
+	const FAnchors Anchors = ButtonSlot->GetAnchors();
+	return Anchors.Minimum.Equals(FVector2D(1.0f, 1.0f)) &&
+		Anchors.Maximum.Equals(FVector2D(1.0f, 1.0f)) &&
+		ButtonSlot->GetAlignment().Equals(FVector2D(1.0f, 1.0f));
 }
 
 bool UEmbermerePlayerHudWidget::SelectVendorStockItem(int32 StockIndex)
@@ -953,6 +1179,7 @@ bool UEmbermerePlayerHudWidget::ShowTrainer(UEmbermereTrainerComponent* Trainer)
 
 	CloseVendor();
 	CloseSaveLoadPanel();
+	CloseQuestLedgerPanel();
 	ActiveTrainer = Trainer;
 	bTrainerPanelVisible = true;
 	bInventoryPanelVisible = false;
@@ -2581,6 +2808,26 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		MenuButton->AddChild(MenuText);
 	}
 
+	QuestLedgerMenuButton = WidgetTree->ConstructWidget<UButton>(
+		UButton::StaticClass(),
+		TEXT("QuestLedgerMenuButton"));
+	QuestLedgerMenuText = MakeHudText(
+		WidgetTree,
+		TEXT("QuestLedgerMenuText"),
+		FLinearColor(0.72f, 0.9f, 1.0f, 1.0f),
+		13.0f);
+	if (QuestLedgerMenuButton && QuestLedgerMenuText)
+	{
+		QuestLedgerMenuButton->SetBackgroundColor(FLinearColor(0.035f, 0.1f, 0.13f, 0.94f));
+		QuestLedgerMenuButton->SetToolTipText(FText::FromString(TEXT("Open the quest ledger (J)")));
+		QuestLedgerMenuButton->OnClicked.AddUniqueDynamic(
+			this,
+			&UEmbermerePlayerHudWidget::HandleQuestLedgerMenuClicked);
+		QuestLedgerMenuText->SetText(FText::FromString(TEXT("Quest Ledger")));
+		QuestLedgerMenuText->SetJustification(ETextJustify::Center);
+		QuestLedgerMenuButton->AddChild(QuestLedgerMenuText);
+	}
+
 	SaveLoadPanel = MakePanel(WidgetTree, TEXT("SaveLoadPanel"), FLinearColor(0.025f, 0.03f, 0.024f, 0.97f));
 	UVerticalBox* SaveLoadStack = MakePanelStack(WidgetTree, SaveLoadPanel, TEXT("SaveLoadStack"));
 	UHorizontalBox* SaveLoadHeader = WidgetTree->ConstructWidget<UHorizontalBox>(
@@ -2782,6 +3029,207 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	UpdateSaveLoadPanelVisibility();
 	RefreshSaveLoadWindow();
 
+	QuestLedgerPanel = MakePanel(
+		WidgetTree,
+		TEXT("QuestLedgerPanel"),
+		FLinearColor(0.018f, 0.04f, 0.052f, 0.97f));
+	UVerticalBox* QuestLedgerStack = MakePanelStack(
+		WidgetTree,
+		QuestLedgerPanel,
+		TEXT("QuestLedgerStack"));
+	UHorizontalBox* QuestLedgerHeader = WidgetTree->ConstructWidget<UHorizontalBox>(
+		UHorizontalBox::StaticClass(),
+		TEXT("QuestLedgerHeader"));
+	QuestLedgerTitleText = MakeHudText(
+		WidgetTree,
+		TEXT("QuestLedgerTitleText"),
+		FLinearColor(0.72f, 0.9f, 1.0f, 1.0f),
+		20.0f);
+	QuestLedgerCloseButton = WidgetTree->ConstructWidget<UButton>(
+		UButton::StaticClass(),
+		TEXT("QuestLedgerCloseButton"));
+	QuestLedgerCloseText = MakeHudText(
+		WidgetTree,
+		TEXT("QuestLedgerCloseText"),
+		FLinearColor(0.9f, 0.95f, 1.0f, 1.0f),
+		14.0f);
+	if (QuestLedgerHeader && QuestLedgerTitleText && QuestLedgerCloseButton && QuestLedgerCloseText)
+	{
+		QuestLedgerTitleText->SetText(FText::FromString(TEXT("Quest Ledger")));
+		QuestLedgerCloseText->SetText(FText::FromString(TEXT("X")));
+		QuestLedgerCloseText->SetJustification(ETextJustify::Center);
+		QuestLedgerCloseButton->SetBackgroundColor(FLinearColor(0.12f, 0.045f, 0.035f, 0.92f));
+		QuestLedgerCloseButton->SetToolTipText(FText::FromString(TEXT("Close quest ledger")));
+		QuestLedgerCloseButton->OnClicked.AddUniqueDynamic(
+			this,
+			&UEmbermerePlayerHudWidget::HandleQuestLedgerCloseClicked);
+		QuestLedgerCloseButton->AddChild(QuestLedgerCloseText);
+		if (UHorizontalBoxSlot* TitleSlot = QuestLedgerHeader->AddChildToHorizontalBox(QuestLedgerTitleText))
+		{
+			TitleSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+			TitleSlot->SetVerticalAlignment(VAlign_Center);
+		}
+		if (UHorizontalBoxSlot* CloseSlot = QuestLedgerHeader->AddChildToHorizontalBox(MakeSizedWidget(
+			WidgetTree,
+			QuestLedgerCloseButton,
+			TEXT("QuestLedgerCloseSize"),
+			28.0f,
+			24.0f)))
+		{
+			CloseSlot->SetVerticalAlignment(VAlign_Center);
+		}
+	}
+
+	AddStackChild(QuestLedgerStack, QuestLedgerHeader, 6.0f);
+
+	QuestLedgerCountText = MakeHudText(
+		WidgetTree,
+		TEXT("QuestLedgerCountText"),
+		FLinearColor(0.62f, 0.72f, 0.76f, 1.0f),
+		12.0f);
+	AddStackChild(QuestLedgerStack, QuestLedgerCountText, 6.0f);
+
+	UOverlay* QuestLedgerListOverlay = WidgetTree->ConstructWidget<UOverlay>(
+		UOverlay::StaticClass(),
+		TEXT("QuestLedgerListOverlay"));
+	UVerticalBox* QuestLedgerRows = WidgetTree->ConstructWidget<UVerticalBox>(
+		UVerticalBox::StaticClass(),
+		TEXT("QuestLedgerRows"));
+	QuestLedgerRowButtons.Reset();
+	QuestLedgerRowTexts.Reset();
+	for (int32 RowIndex = 0; RowIndex < QuestLedgerVisibleRowCount; ++RowIndex)
+	{
+		UEmbermereQuestLedgerRowButton* RowButton =
+			WidgetTree->ConstructWidget<UEmbermereQuestLedgerRowButton>(
+				UEmbermereQuestLedgerRowButton::StaticClass(),
+				*FString::Printf(TEXT("QuestLedgerRowButton_%d"), RowIndex));
+		UTextBlock* RowText = MakeHudText(
+			WidgetTree,
+			*FString::Printf(TEXT("QuestLedgerRowText_%d"), RowIndex),
+			FLinearColor(0.82f, 0.9f, 0.92f, 1.0f),
+			13.0f);
+		if (!RowButton || !RowText || !QuestLedgerRows)
+		{
+			continue;
+		}
+
+		RowButton->SetQuestIndex(RowIndex);
+		RowButton->SetBackgroundColor(FLinearColor(0.035f, 0.075f, 0.09f, 0.94f));
+		RowButton->OnQuestLedgerRowClicked.AddUniqueDynamic(
+			this,
+			&UEmbermerePlayerHudWidget::HandleQuestLedgerRowClicked);
+		RowText->SetClipping(EWidgetClipping::ClipToBounds);
+		RowText->SetAutoWrapText(false);
+		RowText->SetJustification(ETextJustify::Left);
+		RowButton->AddChild(RowText);
+		USizeBox* RowSize = MakeSizedWidget(
+			WidgetTree,
+			RowButton,
+			*FString::Printf(TEXT("QuestLedgerRowSize_%d"), RowIndex),
+			QuestLedgerContentWidth,
+			QuestLedgerRowHeight);
+		AddStackChild(
+			QuestLedgerRows,
+			RowSize,
+			RowIndex + 1 < QuestLedgerVisibleRowCount ? 3.0f : 0.0f);
+		QuestLedgerRowButtons.Add(RowButton);
+		QuestLedgerRowTexts.Add(RowText);
+	}
+	if (QuestLedgerListOverlay && QuestLedgerRows)
+	{
+		if (UOverlaySlot* RowsSlot = QuestLedgerListOverlay->AddChildToOverlay(QuestLedgerRows))
+		{
+			RowsSlot->SetHorizontalAlignment(HAlign_Fill);
+			RowsSlot->SetVerticalAlignment(VAlign_Fill);
+		}
+	}
+	QuestLedgerEmptyText = MakeHudText(
+		WidgetTree,
+		TEXT("QuestLedgerEmptyText"),
+		FLinearColor(0.58f, 0.68f, 0.72f, 1.0f),
+		14.0f);
+	if (QuestLedgerEmptyText && QuestLedgerListOverlay)
+	{
+		QuestLedgerEmptyText->SetText(FText::FromString(TEXT("No quests tracked.")));
+		QuestLedgerEmptyText->SetJustification(ETextJustify::Center);
+		if (UOverlaySlot* EmptySlot = QuestLedgerListOverlay->AddChildToOverlay(QuestLedgerEmptyText))
+		{
+			EmptySlot->SetHorizontalAlignment(HAlign_Fill);
+			EmptySlot->SetVerticalAlignment(VAlign_Center);
+		}
+	}
+	AddStackChild(
+		QuestLedgerStack,
+		MakeSizedWidget(
+			WidgetTree,
+			QuestLedgerListOverlay,
+			TEXT("QuestLedgerListSize"),
+			QuestLedgerContentWidth,
+			264.0f),
+		8.0f);
+
+	QuestLedgerStatusText = MakeHudText(
+		WidgetTree,
+		TEXT("QuestLedgerStatusText"),
+		FLinearColor(0.68f, 0.78f, 0.8f, 1.0f),
+		12.0f);
+	if (QuestLedgerStatusText)
+	{
+		QuestLedgerStatusText->SetAutoWrapText(true);
+		QuestLedgerStatusText->SetClipping(EWidgetClipping::ClipToBounds);
+	}
+	AddStackChild(
+		QuestLedgerStack,
+		MakeSizedWidget(
+			WidgetTree,
+			QuestLedgerStatusText,
+			TEXT("QuestLedgerStatusSize"),
+			QuestLedgerContentWidth,
+			38.0f),
+		8.0f);
+
+	QuestLedgerFocusButton = WidgetTree->ConstructWidget<UButton>(
+		UButton::StaticClass(),
+		TEXT("QuestLedgerFocusButton"));
+	QuestLedgerFocusText = MakeHudText(
+		WidgetTree,
+		TEXT("QuestLedgerFocusText"),
+		FLinearColor(0.84f, 0.96f, 1.0f, 1.0f),
+		13.0f);
+	if (QuestLedgerFocusButton && QuestLedgerFocusText)
+	{
+		QuestLedgerFocusButton->SetBackgroundColor(FLinearColor(0.035f, 0.19f, 0.24f, 0.96f));
+		QuestLedgerFocusButton->SetToolTipText(FText::FromString(TEXT("Show the selected quest in the compact tracker")));
+		QuestLedgerFocusButton->OnClicked.AddUniqueDynamic(
+			this,
+			&UEmbermerePlayerHudWidget::HandleQuestLedgerFocusClicked);
+		QuestLedgerFocusText->SetJustification(ETextJustify::Center);
+		QuestLedgerFocusButton->AddChild(QuestLedgerFocusText);
+	}
+	UOverlay* QuestLedgerActionRow = WidgetTree->ConstructWidget<UOverlay>(
+		UOverlay::StaticClass(),
+		TEXT("QuestLedgerActionRow"));
+	if (QuestLedgerActionRow)
+	{
+		if (UOverlaySlot* FocusSlot = QuestLedgerActionRow->AddChildToOverlay(MakeSizedWidget(
+			WidgetTree,
+			QuestLedgerFocusButton,
+			TEXT("QuestLedgerFocusSize"),
+			150.0f,
+			34.0f)))
+		{
+			FocusSlot->SetHorizontalAlignment(HAlign_Center);
+			FocusSlot->SetVerticalAlignment(VAlign_Center);
+		}
+	}
+	AddStackChild(QuestLedgerStack, QuestLedgerActionRow, 0.0f);
+	if (QuestLedgerPanel)
+	{
+		QuestLedgerPanel->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+	}
+	UpdateQuestLedgerPanelVisibility();
+	RefreshQuestLedgerWindow();
+
 	ChatPanel = MakePanel(WidgetTree, TEXT("ChatPanel"), FLinearColor(0.015f, 0.018f, 0.022f, 0.76f));
 	ChatMessageStack = MakePanelStack(WidgetTree, ChatPanel, TEXT("ChatMessageStack"));
 	if (ChatPanel)
@@ -2941,6 +3389,21 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		}
 	}
 
+	if (QuestLedgerMenuButton)
+	{
+		if (UCanvasPanelSlot* QuestLedgerButtonSlot = RootCanvas->AddChildToCanvas(QuestLedgerMenuButton))
+		{
+			QuestLedgerButtonSlot->SetAnchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f));
+			QuestLedgerButtonSlot->SetAlignment(FVector2D(1.0f, 1.0f));
+			QuestLedgerButtonSlot->SetPosition(FVector2D(
+				-QuestLedgerButtonMargin,
+				-QuestLedgerButtonVerticalOffset));
+			QuestLedgerButtonSlot->SetSize(FVector2D(
+				QuestLedgerButtonWidth,
+				QuestLedgerButtonHeight));
+		}
+	}
+
 	if (VendorPanel)
 	{
 		if (UCanvasPanelSlot* VendorSlot = RootCanvas->AddChildToCanvas(VendorPanel))
@@ -2971,6 +3434,19 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			SaveLoadSlot->SetAlignment(FVector2D(0.5f, 0.5f));
 			SaveLoadSlot->SetPosition(FVector2D(0.0f, -20.0f));
 			SaveLoadSlot->SetSize(FVector2D(SaveLoadPanelWidth, SaveLoadPanelHeight));
+		}
+	}
+
+	if (QuestLedgerPanel)
+	{
+		if (UCanvasPanelSlot* QuestLedgerSlot = RootCanvas->AddChildToCanvas(QuestLedgerPanel))
+		{
+			QuestLedgerSlot->SetAnchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f));
+			QuestLedgerSlot->SetAlignment(FVector2D(0.5f, 0.5f));
+			QuestLedgerSlot->SetPosition(FVector2D(0.0f, -20.0f));
+			QuestLedgerSlot->SetSize(FVector2D(
+				QuestLedgerPanelWidth,
+				QuestLedgerPanelHeight));
 		}
 	}
 
@@ -3220,6 +3696,7 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 			}
 		}
 	}
+	RefreshQuestLedgerWindow();
 
 	ClampSelectedInventoryStackIndex();
 	RefreshInventoryWindow();
@@ -3295,6 +3772,111 @@ void UEmbermerePlayerHudWidget::UpdateSaveLoadPanelVisibility()
 	{
 		SaveLoadPanel->SetVisibility(
 			bSaveLoadPanelVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
+}
+
+void UEmbermerePlayerHudWidget::UpdateQuestLedgerPanelVisibility()
+{
+	if (QuestLedgerPanel)
+	{
+		QuestLedgerPanel->SetVisibility(
+			bQuestLedgerPanelVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
+}
+
+void UEmbermerePlayerHudWidget::RefreshQuestLedgerWindow()
+{
+	const int32 RecordCount = GetQuestLedgerVisibleRecordCount();
+	SelectedQuestLedgerIndex = RecordCount > 0
+		? FMath::Clamp(SelectedQuestLedgerIndex, 0, RecordCount - 1)
+		: 0;
+
+	if (QuestLedgerCountText)
+	{
+		QuestLedgerCountText->SetText(FText::FromString(FString::Printf(
+			TEXT("Tracked Quests   %d / %d"),
+			RecordCount,
+			QuestLedgerVisibleRowCount)));
+	}
+	if (QuestLedgerEmptyText)
+	{
+		QuestLedgerEmptyText->SetVisibility(
+			RecordCount == 0 ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+	}
+
+	for (int32 RowIndex = 0; RowIndex < QuestLedgerRowButtons.Num(); ++RowIndex)
+	{
+		UEmbermereQuestLedgerRowButton* RowButton = QuestLedgerRowButtons[RowIndex];
+		UTextBlock* RowText = QuestLedgerRowTexts.IsValidIndex(RowIndex)
+			? QuestLedgerRowTexts[RowIndex]
+			: nullptr;
+		if (!RowButton || !RowText)
+		{
+			continue;
+		}
+
+		if (!QuestLog || !QuestLog->QuestStates.IsValidIndex(RowIndex) ||
+			!QuestLog->QuestStates[RowIndex].Quest)
+		{
+			RowButton->SetQuestIndex(INDEX_NONE);
+			RowButton->SetVisibility(ESlateVisibility::Hidden);
+			RowText->SetText(FText::GetEmpty());
+			continue;
+		}
+
+		const FEmbermereQuestState& QuestState = QuestLog->QuestStates[RowIndex];
+		const bool bSelected = RowIndex == SelectedQuestLedgerIndex;
+		const bool bFocused = QuestState.Quest->QuestId == QuestLog->FocusedQuestId;
+		RowButton->SetQuestIndex(RowIndex);
+		RowButton->SetVisibility(ESlateVisibility::Visible);
+		RowButton->SetBackgroundColor(
+			bSelected
+				? FLinearColor(0.18f, 0.14f, 0.045f, 0.98f)
+				: (bFocused
+					? FLinearColor(0.035f, 0.16f, 0.19f, 0.96f)
+					: FLinearColor(0.035f, 0.075f, 0.09f, 0.94f)));
+		RowText->SetText(GetQuestLedgerRowDisplayText(RowIndex));
+		RowText->SetColorAndOpacity(FSlateColor(
+			QuestState.bCompleted
+				? FLinearColor(0.56f, 0.9f, 0.62f, 1.0f)
+				: (QuestState.CurrentObjectiveCount >= QuestState.Quest->RequiredObjectiveCount
+					? FLinearColor(1.0f, 0.82f, 0.38f, 1.0f)
+					: FLinearColor(0.72f, 0.9f, 1.0f, 1.0f))));
+	}
+
+	const bool bHasSelection = QuestLog &&
+		QuestLog->QuestStates.IsValidIndex(SelectedQuestLedgerIndex) &&
+		QuestLog->QuestStates[SelectedQuestLedgerIndex].Quest;
+	if (QuestLedgerFocusButton)
+	{
+		QuestLedgerFocusButton->SetIsEnabled(bHasSelection);
+	}
+	if (QuestLedgerFocusText)
+	{
+		const bool bSelectionFocused = bHasSelection &&
+			QuestLog->QuestStates[SelectedQuestLedgerIndex].Quest->QuestId == QuestLog->FocusedQuestId;
+		QuestLedgerFocusText->SetText(FText::FromString(
+			bSelectionFocused ? TEXT("Focused") : TEXT("Focus Quest")));
+	}
+	if (QuestLedgerStatusText)
+	{
+		if (!bHasSelection)
+		{
+			QuestLedgerStatusText->SetText(FText::FromString(
+				TEXT("No tracked quest selected.")));
+		}
+		else
+		{
+			const FEmbermereQuestState& SelectedState =
+				QuestLog->QuestStates[SelectedQuestLedgerIndex];
+			const FString FocusedTitle = QuestLog->ActiveQuest.Quest
+				? QuestLog->ActiveQuest.Quest->Title.ToString()
+				: TEXT("None");
+			QuestLedgerStatusText->SetText(FText::FromString(FString::Printf(
+				TEXT("Selected: %s   |   Tracker: %s"),
+				*SelectedState.Quest->Title.ToString(),
+				*FocusedTitle)));
+		}
 	}
 }
 
@@ -4014,6 +4596,34 @@ void UEmbermerePlayerHudWidget::HandleTrainerCloseClicked()
 void UEmbermerePlayerHudWidget::HandleMenuClicked()
 {
 	ToggleSaveLoadPanel();
+	if (AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer()))
+	{
+		Controller->RefreshInteractiveInputMode();
+	}
+}
+
+void UEmbermerePlayerHudWidget::HandleQuestLedgerMenuClicked()
+{
+	ToggleQuestLedgerPanel();
+	if (AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer()))
+	{
+		Controller->RefreshInteractiveInputMode();
+	}
+}
+
+void UEmbermerePlayerHudWidget::HandleQuestLedgerRowClicked(int32 QuestIndex)
+{
+	SelectQuestLedgerRecord(QuestIndex);
+}
+
+void UEmbermerePlayerHudWidget::HandleQuestLedgerFocusClicked()
+{
+	FocusSelectedQuest();
+}
+
+void UEmbermerePlayerHudWidget::HandleQuestLedgerCloseClicked()
+{
+	CloseQuestLedgerPanel();
 	if (AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer()))
 	{
 		Controller->RefreshInteractiveInputMode();

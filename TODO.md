@@ -6,9 +6,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-09-01 no-hot-reload `Still Waters`
-  quest/service/router module plus the saved `DQ_FenwatchStillWaters` and map
-  packages, the 2026-08-31 save-version-3 multi-quest module, and the
+- Confirm Unreal is running the 2026-09-02 no-hot-reload native Quest Ledger
+  module, the 2026-09-01 `Still Waters` quest/service/router module plus the
+  saved `DQ_FenwatchStillWaters` and map packages, the 2026-08-31
+  save-version-3 multi-quest module, and the
   2026-08-29 communal-well rest-presentation
   module and accepted observer/map package, the 2026-08-28
   rest-service module and data package, and the 2026-08-27
@@ -24,11 +25,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 83 Embermere tests.
+  predates that work or test discovery exposes fewer than 85 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 83 tests, especially
+- Discover and run all 85 tests, especially
+  `Embermere.UI.QuestLedgerPresentation`,
+  `Embermere.UI.QuestLedgerFocusLifecycle`,
   `Embermere.Quests.StillWatersServiceContract`,
   `Embermere.Quests.StillWatersRestRouting`,
   `Embermere.Persistence.StillWatersRoundTrip`,
@@ -89,10 +92,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative
-  latest 2026-09-01 no-hot-reload build and isolated commandlet passed 83/83;
+  latest 2026-09-02 no-hot-reload build and isolated commandlet passed 85/85;
   the restarted editor's first-class MCP runner independently passed the same
-  83/83. The new coverage proves the data-driven `Still Waters` owner and
-  committed-rest router in addition to two simultaneous keyed quests, exact objective
+  85/85. The new coverage proves the fixed native Quest Ledger, transient
+  stable-ID focus, full eight-row geometry, peer-panel lifecycle, and zero
+  quest/reward mutation, the data-driven `Still Waters` owner and
+  committed-rest router, two simultaneous keyed quests, exact objective
   routing and turn-in, reward-preflight rollback, exactly-once completion,
   native version-3 round-trip, repeated-load idempotence, full-ledger malformed
   rollback, and read-only version-1/version-2 singular adapters. The run also retained
@@ -119,7 +124,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   progress, commit one real rest to reach `1/1`, and turn in exactly `50` XP
   plus `10` copper once. An isolated version-3 probe slot restored completed
   `Still Waters`, active Mara, `50` XP, and `50` copper on two confirmed loads,
-  then deleted itself without touching the user's Chronicle slot.
+  then deleted itself without touching the user's Chronicle slot. The
+  2026-09-02 clean PIE gate retained active Mara at `0/3`, used real Prowler
+  damage and physical `F` well recovery to complete Still Waters, and paid its
+  exact `50` XP plus `10` copper once. The Quest Ledger then showed both fixed
+  rows as Mara `ACTIVE 0/3` and Still Waters `COMPLETED 1/1`; physical Up/Down
+  and Enter switched the compact tracker both ways, while `I`, `J`, and `M`
+  handed off peer panels with no record or reward mutation.
 - Retain the accepted save-version-3 multi-quest boundary:
   - `QuestStates` is the only mutable runtime quest authority and is bounded to
     eight unique stable quest IDs;
@@ -146,6 +157,24 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   - its physical turn-in grants exactly `50` XP and `10` copper once, coexists
     with Mara, and round-trips as a second version-3 record without durable
     focus or schema expansion.
+- Retain the accepted native Quest Ledger boundary:
+  - the centered panel remains fixed at `620x430`, with eight reserved
+    `596x30` rows, exact tracked-count copy, a fixed footer/action region, and
+    no layout growth for empty, one-, two-, or eight-record states;
+  - every tracked row reads stable quest identity, quest-owned title,
+    `ACTIVE`, `READY`, or `COMPLETED` state, and objective progress from the
+    authoritative quest log and data asset;
+  - row selection remains widget-local while mouse action, `Focus Quest`, or
+    Enter requests one explicit stable-ID focus; Up/Down wraps only over
+    occupied rows and duplicate focus is harmless;
+  - `J` and the fixed `140x38` bottom-right command open the same panel eight
+    pixels above Chronicle; Inventory, Vendor, Trainer, Chronicle, and Quest
+    Ledger remain mutually exclusive under controller-owned cursor/input state;
+  - focus changes only the compact `ActiveQuest` compatibility projection and
+    never acceptance, progress, completion, rewards, wallet, XP, inventory,
+    equipment, save bytes, or service state. Treat
+    [Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md](Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md)
+    as the presentation boundary.
 - Retain the accepted character-creation authority and lifecycle contract:
   - the centered fixed `940x560` modal shows all eight races and four classes
     before gameplay while the normal HUD remains hidden;
@@ -618,8 +647,9 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-09-01
-  `Still Waters` quest/service/router module and saved quest/map packages, the
+- Restart Unreal before manual PIE when the editor predates the 2026-09-02
+  native Quest Ledger module, the 2026-09-01 `Still Waters`
+  quest/service/router module and saved quest/map packages, the
   2026-08-31 save-version-3 multi-quest module, or the 2026-08-29 communal-well
   rest-presentation module, the 2026-08-28 rest-service module,
   the 2026-08-26
@@ -628,7 +658,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   rigged Fenwatch keeper, armsmaster, and
   quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 83 tests.
+  Current code passes all 85 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -1032,28 +1062,31 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
-- Build a bounded player-facing multi-quest ledger/focus surface over the
-  accepted version-3 and `Still Waters` authority:
-  - use one fixed native panel to list up to eight tracked records with exact
-    quest-owned title, available/active/ready/completed state, and objective
-    progress; include empty, one-record, two-record, and full-ledger layouts;
-  - `QuestStates` remains the only mutable authority. UMG may read records and
-    request an explicit transient `FocusQuest`, but it owns no acceptance,
-    progress, completion, reward, save, or load mutation;
-  - keep `FocusedQuestId` session-only and nonserialized. Switching focus may
-    change only the established HUD compatibility projection, never either
-    Mara or `Still Waters` state;
-  - use fixed readable bounds, mouse and keyboard access, clean peer-panel
-    handoff, and no overlap with Inventory, Chronicle, chat, hotbar, or target
-    presentation;
-  - add focused automation for empty/one/two/eight records, exact status copy,
-    focus switching, completed history, teardown, zero gameplay mutation, and
-    save/load non-persistence;
-  - in clean PIE, switch the HUD projection between active Mara and completed
-    `Still Waters` without changing either record or replaying rewards.
-  Treat [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md) as the
-  authority boundary. Do not add quest sorting, abandonment, sharing, pin
-  persistence, map tracking, or schema fields in this slice.
+- Extend the accepted Quest Ledger with one fixed read-only selected-quest
+  detail and reward surface:
+  - quest data remains authoritative for description, state-specific copy,
+    objective requirement, XP, copper, and optional reward-item identity;
+    presentation must not synthesize a second quest rule or reward value;
+  - preserve the eight fixed record rows and stable selection/focus behavior.
+    Add one fixed detail region that remains readable for active, ready, and
+    completed records without resizing the panel into chat, hotbar, target, or
+    peer-panel space;
+  - changing the selected row may refresh only title/description/objective/
+    reward presentation. It must not change compact tracker focus until the
+    player explicitly focuses, and neither action may mutate quest or rewards;
+  - support both Mara's XP/copper/item reward and Still Waters' XP/copper/no-
+    item reward with exact quest-owned copy plus a stable missing-item fallback;
+  - add focused automation for long-copy clipping, item/no-item rewards,
+    active/ready/completed details, mouse and keyboard refresh, focus
+    independence, fixed geometry, peer handoff, teardown, and zero mutation;
+  - in clean PIE, inspect active Mara and completed Still Waters details, then
+    switch focus both ways and retain exact `50` XP, `10`-copper Still Waters
+    payment, and unchanged quest records.
+  Keep save version `3`, `QuestStates`, stable IDs, and every accepted authority
+  boundary unchanged. Do not add acceptance, abandonment, sorting, sharing,
+  map tracking, reward claims, focus persistence, or schema fields in this
+  slice. If fixed details do not fit cleanly, stop at a reviewed geometry/data
+  contract rather than weakening the accepted ledger.
 - Retain Mara's accepted contextual greeting contract in clean PIE:
   - outside `420` cm the observer must be hidden; inside range it must show the
     quest-owned available, active, ready, or completed copy;
@@ -1210,6 +1243,27 @@ targeting, rewards, AI, quests, or persistence.
   scale, color, or motion only from normal-camera feedback.
 
 ## Last Completed
+
+- 2026-09-02: implemented and accepted the fixed native player-facing Quest
+  Ledger over the save-version-3 keyed quest collection. The centered
+  `620x430` panel reserves eight stable `596x30` rows, exact active/ready/
+  completed state and progress, a fixed empty state, and a bottom-right
+  `140x38` command eight pixels above Chronicle.
+- Added dedicated native row buttons, local selection, Up/Down wrapping,
+  stable-ID Enter/button focus, duplicate-focus safety, `J` toggle, and
+  controller-owned exclusive handoff with Inventory, Vendor, Trainer, and
+  Chronicle. Focus remains session-only and can change only the compact
+  compatibility projection.
+- Added `Embermere.UI.QuestLedgerPresentation` and
+  `Embermere.UI.QuestLedgerFocusLifecycle`, bringing the suite to `85`. The
+  no-hot-reload build, isolated commandlet `85/85`, restarted-editor MCP
+  `85/85`, six focused validators, fresh 19-package aggregate, full-zone
+  validation, and all initialized-world route traces passed.
+- Clean PIE completed Still Waters through real Prowler damage, physical well
+  `F`, and physical notice-board turn-in while Mara remained active. The ledger
+  showed Mara `ACTIVE 0/3` beside Still Waters `COMPLETED 1/1`, switched the
+  compact tracker both ways, and preserved exact records and one-time rewards
+  through `I`, `J`, and `M` peer-panel handoffs.
 
 - 2026-09-01: implemented and accepted `Still Waters`, Embermere's first real
   parallel quest over save version `3`. `DQ_FenwatchStillWaters` owns stable

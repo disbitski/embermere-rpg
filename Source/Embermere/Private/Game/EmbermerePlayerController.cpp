@@ -99,9 +99,33 @@ void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 	{
 		ToggleSaveLoadPanel();
 	}
+	if (WasInputKeyJustPressed(EKeys::J))
+	{
+		ToggleQuestLedgerPanel();
+	}
 	if (WasInputKeyJustPressed(EKeys::I))
 	{
 		ToggleInventoryPanel();
+	}
+	if (PlayerHudWidget && PlayerHudWidget->IsQuestLedgerPanelVisible())
+	{
+		if (WasInputKeyJustPressed(EKeys::Escape))
+		{
+			PlayerHudWidget->CloseQuestLedgerPanel();
+			RefreshInteractiveInputMode();
+		}
+		else if (WasInputKeyJustPressed(EKeys::Up))
+		{
+			PlayerHudWidget->SelectNextQuestLedgerRecord(-1);
+		}
+		else if (WasInputKeyJustPressed(EKeys::Down))
+		{
+			PlayerHudWidget->SelectNextQuestLedgerRecord(1);
+		}
+		else if (WasInputKeyJustPressed(EKeys::Enter))
+		{
+			PlayerHudWidget->FocusSelectedQuest();
+		}
 	}
 	if (WasInputKeyJustPressed(EKeys::LeftBracket))
 	{
@@ -322,6 +346,17 @@ void AEmbermerePlayerController::ToggleSaveLoadPanel()
 	}
 
 	PlayerHudWidget->ToggleSaveLoadPanel();
+	RefreshInteractiveInputMode();
+}
+
+void AEmbermerePlayerController::ToggleQuestLedgerPanel()
+{
+	if (!PlayerHudWidget)
+	{
+		return;
+	}
+
+	PlayerHudWidget->ToggleQuestLedgerPanel();
 	RefreshInteractiveInputMode();
 }
 
@@ -648,7 +683,8 @@ void AEmbermerePlayerController::RefreshInteractiveInputMode()
 	}
 	const bool bInteractiveUiVisible = PlayerHudWidget &&
 		(PlayerHudWidget->IsInventoryPanelVisible() || PlayerHudWidget->IsVendorPanelVisible() ||
-			PlayerHudWidget->IsTrainerPanelVisible() || PlayerHudWidget->IsSaveLoadPanelVisible());
+			PlayerHudWidget->IsTrainerPanelVisible() || PlayerHudWidget->IsSaveLoadPanelVisible() ||
+			PlayerHudWidget->IsQuestLedgerPanelVisible());
 	UpdateInventoryInputMode(bInteractiveUiVisible);
 }
 

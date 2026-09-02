@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-01
+Last updated: 2026-09-02
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -30,13 +30,14 @@ this snapshot. A new task should read files in this order:
 10. `Docs/VENDOR_SERVICE_CONTRACT.md` when economy work is active
 11. `Docs/SAVE_GAME_CONTRACT.md` when persistence/lifecycle work is active
 12. `Docs/MULTI_QUEST_CONTRACT.md` when quest/content work is active
-13. `Docs/CHARACTER_CREATION_CONTRACT.md` when identity/lifecycle work is active
-14. `Docs/LEVEL_PROGRESSION_CONTRACT.md` when XP/level/growth work is active
-15. `Docs/PRACTICE_TARGET_CONTRACT.md` when training-target work is active
-16. `Docs/COMBAT_FEEDBACK_CONTRACT.md` when combat-result presentation is active
-17. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
-18. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
-19. `JOURNEY.md` when historical detail is useful
+13. `Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md` when quest UI/focus work is active
+14. `Docs/CHARACTER_CREATION_CONTRACT.md` when identity/lifecycle work is active
+15. `Docs/LEVEL_PROGRESSION_CONTRACT.md` when XP/level/growth work is active
+16. `Docs/PRACTICE_TARGET_CONTRACT.md` when training-target work is active
+17. `Docs/COMBAT_FEEDBACK_CONTRACT.md` when combat-result presentation is active
+18. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
+19. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
+20. `JOURNEY.md` when historical detail is useful
 
 ## One-Page State
 
@@ -64,7 +65,8 @@ The project currently includes:
   sixteen data-driven starter-ability icons with tooltips, an illustrated
   paper-doll equipment backdrop, data-driven timed buff/control rows with live
   countdowns, chat log, and a fixed three-entry floating-damage observer fed by
-  immutable post-commit combat results;
+  immutable post-commit combat results, plus a fixed eight-row native Quest
+  Ledger with transient compact-tracker focus and no quest mutation authority;
 - a grounded local Fab/Epic art pass with 53 upright environment actors and 24
   project-owned placements from an original Blender-built Embermere
   waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
@@ -101,6 +103,12 @@ The project currently includes:
   `FenwatchStillWaters/FenwatchRestCompleted` progress. It grants `50` XP and
   `10` copper once; the board/well art, rest service/VFX, and trainer remain
   quest-free;
+- a fixed `620x430` native Quest Ledger with eight stable `596x30` row cells,
+  exact active/ready/completed state, mouse and keyboard selection, explicit
+  transient focus, a bottom-right command above Chronicle, and mutually
+  exclusive Inventory/Chronicle/service panel handoff. It consumes the keyed
+  quest log read-only and neither serializes focus nor mutates progress or
+  rewards;
 - data-driven level progression that derives levels 1 through 5 from durable
   XP thresholds, combines validated race/class growth, rebuilds identity base
   stats atomically, applies equipment once, restores silently, and exposes
@@ -113,7 +121,7 @@ The project currently includes:
   four classes, exposes disabled combinations, atomically applies data-driven
   starter stats/abilities once, restores the normal controller/HUD path, and
   feeds the confirmed identity into the version-3 persistence contract;
-- 83 passing Unreal automation tests plus fresh-process character-creation,
+- 85 passing Unreal automation tests plus fresh-process character-creation,
   derived-level progression, and
   character-identity and multi-quest persistence,
   combat-feedback,
@@ -1680,10 +1688,36 @@ free of interaction, recovery, reward, quest, or persistence authority.
   ledger, `50` XP, and `50` copper twice without replay. It then deleted itself
   and restored the controller's real Chronicle slot target.
 
+## 2026-09-02 Native Quest Ledger And Transient Focus
+
+- Added a fixed `620x430` native Quest Ledger with eight stable `596x30`
+  record rows, exact active/ready/completed state, objective progress, a fixed
+  empty state, and one explicit transient focus action. The `140x38`
+  bottom-right command sits eight pixels above Chronicle; `J`, Up/Down, Enter,
+  row clicks, and the focus button share the controller-owned input lifecycle.
+- Added a small native row-button type that reports its fixed occupied-row
+  index. Selection remains widget-local; only explicit focus resolves that
+  authoritative record's stable quest ID and calls the quest log. Focus changes
+  only the `ActiveQuest` compatibility projection and is absent from save
+  version `3`.
+- Added `Embermere.UI.QuestLedgerPresentation` and
+  `Embermere.UI.QuestLedgerFocusLifecycle`, bringing the suite to `85`. The
+  no-hot-reload build, isolated commandlet `85/85`, restarted-editor MCP
+  `85/85`, six focused package validators, fresh 19-package aggregate,
+  full-zone validator, and initialized-world well/board/workshop/cottage/stall/
+  road traces all passed.
+- Clean PIE accepted Mara and Still Waters independently, used real Prowler
+  damage plus physical `F` well recovery to make Still Waters ready, and paid
+  exactly `50` XP plus `10` copper through physical notice-board turn-in. The
+  ledger showed active Mara `0/3` beside completed Still Waters `1/1`; physical
+  Up/Down and Enter switched the compact tracker both ways without record or
+  reward mutation. `I`, `J`, and `M` proved exclusive peer-panel handoff.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-09-01 no-hot-reload Still Waters quest/service/router module and saved
+2026-09-02 no-hot-reload native Quest Ledger module, the 2026-09-01 Still
+Waters quest/service/router module and saved
 quest/map packages, the 2026-08-31 save-version-3 multi-quest module, plus the accepted
 2026-08-29 rest-presentation observer,
 rest-service data/map, and communal-well art packages, the 2026-08-26
@@ -1705,7 +1739,9 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 83 tests, including
+3. Run/discover all 85 tests, including
+   `Embermere.UI.QuestLedgerPresentation`,
+   `Embermere.UI.QuestLedgerFocusLifecycle`,
    `Embermere.Quests.StillWatersServiceContract`,
    `Embermere.Quests.StillWatersRestRouting`,
    `Embermere.Persistence.StillWatersRoundTrip`,
@@ -2014,6 +2050,7 @@ Start by reading, in order:
 13. Docs/CHARACTER_CREATION_CONTRACT.md
 14. Docs/LEVEL_PROGRESSION_CONTRACT.md
 15. Docs/MULTI_QUEST_CONTRACT.md
+16. Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md
 
 Then inspect git status and recent commits. Preserve the existing unstaged Config/DefaultEngine.ini and Config/DefaultInput.ini changes; do not stage, revert, or overwrite them unless we intentionally decide they are required.
 
@@ -2024,8 +2061,9 @@ ModelContextProtocol.StartServer 8123
 
 Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
 
-Follow TODO.md's Start Here section. Confirm the 2026-09-01 no-hot-reload
-Still Waters quest/service/router module and saved quest/map packages, the
+Follow TODO.md's Start Here section. Confirm the 2026-09-02 no-hot-reload
+native Quest Ledger module, the 2026-09-01 Still Waters
+quest/service/router module and saved quest/map packages, the
 2026-08-31 save-version-3 multi-quest module, class-colored level-up world-VFX module, level-gated trainer and
 progression-presentation module, serialized rules asset, character-identity
 persistence and quest/map packages, the accepted notice-board,
@@ -2037,8 +2075,9 @@ bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
 world-status VFX,
 Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
 vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 83 tests, including the three Still Waters
-service/routing/round-trip tests, the four multi-quest runtime, round-trip,
+route-repair map, then run all 85 tests, including the two Quest Ledger
+presentation/focus tests, the three Still Waters service/routing/round-trip
+tests, the four multi-quest runtime, round-trip,
 legacy-adapter, and rollback tests, the class-colored level-up
 world-VFX presentation test, the four progression tests,
 the four character-creation lifecycle/restriction/loadout tests, the three
@@ -2177,15 +2216,18 @@ protected route clear. Retain its separate art-free rest service and
 presentation observer, then retain Still Waters through its own separate
 art-free notice-board owner and committed-success router. The board/well art,
 rest service/VFX, and trainer must remain removable and quest-free. Next, build
-a fixed read-only multi-quest ledger that can request transient focus without
-mutating or serializing it.
+a fixed read-only selected-quest detail and reward summary inside the accepted
+ledger. Source description, state copy, objective requirement, XP, copper, and
+optional item identity from quest data; keep selection and focus transient and
+preserve the fixed eight-row layout, peer-panel lifecycle, and zero mutation.
 Do not add naming, appearance, autosave, profiles, deletion, or implicit
 migration in that slice.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
 Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
-current commit, 83-test and 19-validator baseline, accepted character creation,
+current commit, 85-test and 19-validator baseline, accepted Quest Ledger,
+character creation,
 v3 identity/multi-quest persistence, derived-level progression, level-gated trainer,
 Advanced Chronicle proof, class-colored world VFX, and next bounded milestone
 before ending the run.

@@ -162,10 +162,19 @@ two-record ledger, `50` XP, and `50` copper on two confirmed loads. The probe
 deleted its slot and restored the controller's real `EmbermerePrototype` target,
 so acceptance did not inspect, overwrite, or load the user's Chronicle save.
 
-## Next Presentation Boundary
+## Accepted Presentation Boundary
 
-A future quest ledger may list and transiently focus the accepted records, but
-it remains a read-only consumer. `QuestStates` stays authoritative;
-`FocusedQuestId` stays session-only; changing focus may only change the existing
-compatibility projection. The UI must not accept, advance, complete, reward,
-serialize, abandon, reorder, or rewrite a quest.
+The bounded player-facing ledger is defined and accepted in
+[QUEST_LEDGER_PRESENTATION_CONTRACT.md](QUEST_LEDGER_PRESENTATION_CONTRACT.md).
+It may list and transiently focus the accepted records, but remains a read-only
+consumer. `QuestStates` stays authoritative; `FocusedQuestId` stays
+session-only; changing focus may only change the existing compatibility
+projection. The UI must not accept, advance, complete, reward, serialize,
+abandon, reorder, or rewrite a quest.
+
+The fixed native `620x430` panel lists up to eight `596x30` rows with exact
+active, ready, and completed state plus objective progress. Two focused tests
+bring the full suite to `85`; isolated commandlet and restarted-editor MCP runs
+both pass all tests. Clean PIE showed active Mara and completed Still Waters
+together and switched the compact HUD projection both ways through physical
+Up/Down and Enter input without state or reward mutation.

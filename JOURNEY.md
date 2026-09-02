@@ -2903,6 +2903,51 @@ Lesson: cross-system content stays composable when one owner publishes a
 committed fact and a dedicated adapter translates that fact into another
 owner's stable identity. Test interruption and replay as seriously as success.
 
+## 2026-09-02 - The Quest Ledger Learned To Look Without Touching
+
+Two simultaneous quests were durable yesterday, but the player could still see
+only whichever one happened to occupy the compact compatibility tracker. Today
+the keyed quest collection gained its first deliberate player-facing ledger:
+one fixed native `620x430` panel with room for all eight accepted records and
+stable `596x30` rows for title, state, and objective progress. A matching
+bottom-right command sits above Chronicle, and `J` opens the same surface.
+
+The important feature is what the ledger cannot do. `QuestStates` remains the
+only mutable quest owner. Row selection is local widget state, while Enter or
+the Focus Quest action sends one stable ID to the existing transient
+`FocusQuest` API. That may change `FocusedQuestId` and the old `ActiveQuest`
+projection; it cannot accept, advance, complete, reward, save, or load a quest.
+Completed records remain visible history, and focus still never enters save
+version `3`.
+
+A small native row-button type keeps mouse behavior explicit without teaching
+the generic HUD widget to infer identity from display text. It reports its
+fixed row index, then the focus action resolves the current authoritative row's
+stable quest ID. Keyboard Up/Down wraps over occupied rows, Enter focuses the
+selected record, and `I`, `J`, and `M` preserve the controller's established
+one-panel-at-a-time input lifecycle.
+Empty, one-row, two-row, and full eight-row states use the same geometry, so
+content cannot grow the panel into the hotbar or chat.
+
+Clean PIE carried the proof through real content. Mara and Still Waters were
+accepted independently. A saved Prowler produced `18` missing Health, physical
+`F` completed the communal-well channel, and the notice board paid exactly
+`50` XP plus `10` copper once. The ledger then showed `First Signs at the Ruin
+| ACTIVE | 0/3` beside `Still Waters | COMPLETED | 1/1`. Up/Down changed only
+the highlighted row; Enter switched the compact tracker in both directions;
+Inventory and Chronicle replaced the ledger cleanly. Neither record nor its
+reward changed while the player's attention moved.
+
+The no-hot-reload build, isolated commandlet, and restarted-editor MCP runner
+all passed the expanded `85/85` suite. Six focused package validators, the
+fresh 19-package aggregate, full-zone validation, and every initialized-world
+well/notice-board/workshop/cottage/stall/road trace also passed. The map remains
+53 grounded Fab actors plus 24 original-art placements.
+
+Lesson: selection and authority are different kinds of state. A good ledger
+lets the player decide what to look at while stable IDs, explicit mutation
+owners, and tests make it impossible for looking to become doing.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
