@@ -172,9 +172,12 @@ session-only; changing focus may only change the existing compatibility
 projection. The UI must not accept, advance, complete, reward, serialize,
 abandon, reorder, or rewrite a quest.
 
-The fixed native `620x430` panel lists up to eight `596x30` rows with exact
-active, ready, and completed state plus objective progress. Two focused tests
-bring the full suite to `85`; isolated commandlet and restarted-editor MCP runs
-both pass all tests. Clean PIE showed active Mara and completed Still Waters
-together and switched the compact HUD projection both ways through physical
-Up/Down and Enter input without state or reward mutation.
+The fixed native `620x550` panel lists up to eight unchanged `596x30` rows and
+adds one bounded `596x120` selected-record detail region. Rows retain exact
+active, ready, and completed state plus objective progress; details consume the
+quest-owned narrative/state copy and exact XP, copper, and optional item reward
+without gaining mutation authority. Four focused tests bring the full suite to
+`87`; isolated commandlet and restarted-editor MCP runs both pass all tests.
+Clean PIE showed active Mara and completed Still Waters together, refreshed
+details through physical Up/Down, switched the compact projection only through
+Enter, and handed off to Inventory without state or reward mutation.

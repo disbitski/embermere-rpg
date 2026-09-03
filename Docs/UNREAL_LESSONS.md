@@ -1805,3 +1805,22 @@ must not change focus; focus must not change progress, completion, rewards, or
 save bytes; duplicate focus must be harmless; and teardown must clear only UI
 state. Presentation becomes trustworthy when every path identifies what it may
 change and the test fixture proves everything else stayed still.
+
+## Let Read-Only Detail Surfaces Report Authority, Not Recreate It
+
+A quest detail panel is tempting terrain for duplicated rules. The title,
+description, state copy, requirement, currency, XP, and item name already have
+owners in the quest state and data asset. The ledger should resolve and format
+those values, not maintain its own reward table or infer meaning from a title.
+
+Presentation fallback is also different from gameplay validation. If an
+optional reward item is absent, the detail can truthfully say `No item reward`.
+If a non-null item reference has unusable display metadata, it can say `Reward
+item unavailable`. Neither message is permission to alter reward preflight or
+completion. The authoritative owner still decides whether a transaction may
+commit.
+
+Fixed geometry made that boundary testable. Eight row slots stayed unchanged,
+while one bounded detail region wrapped and clipped long copy. Selection
+refreshed only those cells; explicit focus remained a separate stable-ID
+request. Test exact visible values and the state that must not move together.

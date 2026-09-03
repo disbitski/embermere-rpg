@@ -68,9 +68,10 @@ namespace
 	constexpr float ChronicleButtonMargin = 24.0f;
 	constexpr int32 QuestLedgerVisibleRowCount = UEmbermereQuestLogComponent::MaxTrackedQuests;
 	constexpr float QuestLedgerPanelWidth = 620.0f;
-	constexpr float QuestLedgerPanelHeight = 430.0f;
+	constexpr float QuestLedgerPanelHeight = 550.0f;
 	constexpr float QuestLedgerContentWidth = 596.0f;
 	constexpr float QuestLedgerRowHeight = 30.0f;
+	constexpr float QuestLedgerDetailHeight = 120.0f;
 	constexpr float QuestLedgerButtonWidth = 140.0f;
 	constexpr float QuestLedgerButtonHeight = 38.0f;
 	constexpr float QuestLedgerButtonMargin = 24.0f;
@@ -948,6 +949,92 @@ FText UEmbermerePlayerHudWidget::GetQuestLedgerDisplayText() const
 	return FText::FromString(FString::Join(Lines, TEXT("\n")));
 }
 
+const FEmbermereQuestState* UEmbermerePlayerHudWidget::GetSelectedQuestLedgerState() const
+{
+	return QuestLog && QuestLog->QuestStates.IsValidIndex(SelectedQuestLedgerIndex) &&
+		QuestLog->QuestStates[SelectedQuestLedgerIndex].Quest
+		? &QuestLog->QuestStates[SelectedQuestLedgerIndex]
+		: nullptr;
+}
+
+FText UEmbermerePlayerHudWidget::GetQuestLedgerSelectedStateCopy() const
+{
+	const FEmbermereQuestState* QuestState = GetSelectedQuestLedgerState();
+	if (!QuestState)
+	{
+		return FText::GetEmpty();
+	}
+
+	if (QuestState->bCompleted)
+	{
+		return QuestState->Quest->CompletedGreeting;
+	}
+	if (QuestState->CurrentObjectiveCount >= QuestState->Quest->RequiredObjectiveCount)
+	{
+		return QuestState->Quest->ReadyGreeting;
+	}
+	return QuestState->Quest->ActiveGreeting;
+}
+
+FText UEmbermerePlayerHudWidget::GetQuestLedgerSelectedObjectiveText() const
+{
+	const FEmbermereQuestState* QuestState = GetSelectedQuestLedgerState();
+	return QuestState
+		? FText::FromString(FString::Printf(
+			TEXT("Objective progress   %d / %d"),
+			QuestState->CurrentObjectiveCount,
+			QuestState->Quest->RequiredObjectiveCount))
+		: FText::GetEmpty();
+}
+
+FText UEmbermerePlayerHudWidget::GetQuestLedgerSelectedRewardText() const
+{
+	const FEmbermereQuestState* QuestState = GetSelectedQuestLedgerState();
+	if (!QuestState)
+	{
+		return FText::GetEmpty();
+	}
+
+	const UEmbermereQuestData* Quest = QuestState->Quest;
+	FString ItemReward = TEXT("No item reward");
+	if (!Quest->RewardItem.IsNull())
+	{
+		ItemReward = TEXT("Reward item unavailable");
+		const UEmbermereItemData* RewardItem = Quest->RewardItem.Get();
+		if (!RewardItem)
+		{
+			RewardItem = Quest->RewardItem.LoadSynchronous();
+		}
+		if (RewardItem && !RewardItem->DisplayName.IsEmpty())
+		{
+			ItemReward = RewardItem->DisplayName.ToString();
+		}
+	}
+
+	return FText::FromString(FString::Printf(
+		TEXT("Rewards   %d XP   |   %d copper   |   %s"),
+		Quest->RewardExperience,
+		Quest->RewardCopper,
+		*ItemReward));
+}
+
+FText UEmbermerePlayerHudWidget::GetQuestLedgerSelectedDetailDisplayText() const
+{
+	const FEmbermereQuestState* QuestState = GetSelectedQuestLedgerState();
+	if (!QuestState)
+	{
+		return FText::FromString(TEXT("No tracked quest selected."));
+	}
+
+	return FText::FromString(FString::Printf(
+		TEXT("%s\n%s\n%s\n%s\n%s"),
+		*QuestState->Quest->Title.ToString(),
+		*QuestState->Quest->Description.ToString(),
+		*GetQuestLedgerSelectedStateCopy().ToString(),
+		*GetQuestLedgerSelectedObjectiveText().ToString(),
+		*GetQuestLedgerSelectedRewardText().ToString()));
+}
+
 FVector2D UEmbermerePlayerHudWidget::GetQuestLedgerPanelDimensions() const
 {
 	return FVector2D(QuestLedgerPanelWidth, QuestLedgerPanelHeight);
@@ -956,6 +1043,11 @@ FVector2D UEmbermerePlayerHudWidget::GetQuestLedgerPanelDimensions() const
 FVector2D UEmbermerePlayerHudWidget::GetQuestLedgerRowDimensions() const
 {
 	return FVector2D(QuestLedgerContentWidth, QuestLedgerRowHeight);
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetQuestLedgerDetailDimensions() const
+{
+	return FVector2D(QuestLedgerContentWidth, QuestLedgerDetailHeight);
 }
 
 FVector2D UEmbermerePlayerHudWidget::GetQuestLedgerButtonDimensions() const
@@ -3168,6 +3260,114 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			264.0f),
 		8.0f);
 
+	UVerticalBox* QuestLedgerDetailStack = WidgetTree->ConstructWidget<UVerticalBox>(
+		UVerticalBox::StaticClass(),
+		TEXT("QuestLedgerDetailStack"));
+	QuestLedgerDetailTitleText = MakeHudText(
+		WidgetTree,
+		TEXT("QuestLedgerDetailTitleText"),
+		FLinearColor(0.84f, 0.96f, 1.0f, 1.0f),
+		14.0f);
+	QuestLedgerDetailDescriptionText = MakeHudText(
+		WidgetTree,
+		TEXT("QuestLedgerDetailDescriptionText"),
+		FLinearColor(0.78f, 0.84f, 0.82f, 1.0f),
+		11.0f);
+	QuestLedgerDetailStateText = MakeHudText(
+		WidgetTree,
+		TEXT("QuestLedgerDetailStateText"),
+		FLinearColor(0.68f, 0.84f, 0.9f, 1.0f),
+		11.0f);
+	QuestLedgerDetailObjectiveText = MakeHudText(
+		WidgetTree,
+		TEXT("QuestLedgerDetailObjectiveText"),
+		FLinearColor(0.76f, 0.82f, 0.84f, 1.0f),
+		11.0f);
+	QuestLedgerDetailRewardText = MakeHudText(
+		WidgetTree,
+		TEXT("QuestLedgerDetailRewardText"),
+		FLinearColor(0.98f, 0.82f, 0.42f, 1.0f),
+		11.0f);
+	if (QuestLedgerDetailTitleText)
+	{
+		QuestLedgerDetailTitleText->SetAutoWrapText(false);
+		QuestLedgerDetailTitleText->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+	}
+	if (QuestLedgerDetailDescriptionText)
+	{
+		QuestLedgerDetailDescriptionText->SetAutoWrapText(true);
+		QuestLedgerDetailDescriptionText->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+	}
+	if (QuestLedgerDetailStateText)
+	{
+		QuestLedgerDetailStateText->SetAutoWrapText(true);
+		QuestLedgerDetailStateText->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+	}
+	if (QuestLedgerDetailObjectiveText)
+	{
+		QuestLedgerDetailObjectiveText->SetAutoWrapText(false);
+		QuestLedgerDetailObjectiveText->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+	}
+	if (QuestLedgerDetailRewardText)
+	{
+		QuestLedgerDetailRewardText->SetAutoWrapText(false);
+		QuestLedgerDetailRewardText->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+	}
+	AddStackChild(
+		QuestLedgerDetailStack,
+		MakeSizedWidget(
+			WidgetTree,
+			QuestLedgerDetailTitleText,
+			TEXT("QuestLedgerDetailTitleSize"),
+			QuestLedgerContentWidth,
+			18.0f),
+		2.0f);
+	AddStackChild(
+		QuestLedgerDetailStack,
+		MakeSizedWidget(
+			WidgetTree,
+			QuestLedgerDetailDescriptionText,
+			TEXT("QuestLedgerDetailDescriptionSize"),
+			QuestLedgerContentWidth,
+			32.0f),
+		2.0f);
+	AddStackChild(
+		QuestLedgerDetailStack,
+		MakeSizedWidget(
+			WidgetTree,
+			QuestLedgerDetailStateText,
+			TEXT("QuestLedgerDetailStateSize"),
+			QuestLedgerContentWidth,
+			28.0f),
+		2.0f);
+	AddStackChild(
+		QuestLedgerDetailStack,
+		MakeSizedWidget(
+			WidgetTree,
+			QuestLedgerDetailObjectiveText,
+			TEXT("QuestLedgerDetailObjectiveSize"),
+			QuestLedgerContentWidth,
+			16.0f),
+		2.0f);
+	AddStackChild(
+		QuestLedgerDetailStack,
+		MakeSizedWidget(
+			WidgetTree,
+			QuestLedgerDetailRewardText,
+			TEXT("QuestLedgerDetailRewardSize"),
+			QuestLedgerContentWidth,
+			18.0f),
+		0.0f);
+	AddStackChild(
+		QuestLedgerStack,
+		MakeSizedWidget(
+			WidgetTree,
+			QuestLedgerDetailStack,
+			TEXT("QuestLedgerDetailSize"),
+			QuestLedgerContentWidth,
+			QuestLedgerDetailHeight),
+		8.0f);
+
 	QuestLedgerStatusText = MakeHudText(
 		WidgetTree,
 		TEXT("QuestLedgerStatusText"),
@@ -3185,7 +3385,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			QuestLedgerStatusText,
 			TEXT("QuestLedgerStatusSize"),
 			QuestLedgerContentWidth,
-			38.0f),
+			30.0f),
 		8.0f);
 
 	QuestLedgerFocusButton = WidgetTree->ConstructWidget<UButton>(
@@ -3847,6 +4047,36 @@ void UEmbermerePlayerHudWidget::RefreshQuestLedgerWindow()
 	const bool bHasSelection = QuestLog &&
 		QuestLog->QuestStates.IsValidIndex(SelectedQuestLedgerIndex) &&
 		QuestLog->QuestStates[SelectedQuestLedgerIndex].Quest;
+	const FEmbermereQuestState* SelectedQuestState = bHasSelection
+		? &QuestLog->QuestStates[SelectedQuestLedgerIndex]
+		: nullptr;
+	if (QuestLedgerDetailTitleText)
+	{
+		QuestLedgerDetailTitleText->SetText(SelectedQuestState
+			? SelectedQuestState->Quest->Title
+			: FText::FromString(TEXT("Quest Details")));
+	}
+	if (QuestLedgerDetailDescriptionText)
+	{
+		QuestLedgerDetailDescriptionText->SetText(SelectedQuestState
+			? SelectedQuestState->Quest->Description
+			: FText::FromString(TEXT("No tracked quest selected.")));
+	}
+	if (QuestLedgerDetailStateText)
+	{
+		QuestLedgerDetailStateText->SetText(
+			SelectedQuestState ? GetQuestLedgerSelectedStateCopy() : FText::GetEmpty());
+	}
+	if (QuestLedgerDetailObjectiveText)
+	{
+		QuestLedgerDetailObjectiveText->SetText(
+			SelectedQuestState ? GetQuestLedgerSelectedObjectiveText() : FText::GetEmpty());
+	}
+	if (QuestLedgerDetailRewardText)
+	{
+		QuestLedgerDetailRewardText->SetText(
+			SelectedQuestState ? GetQuestLedgerSelectedRewardText() : FText::GetEmpty());
+	}
 	if (QuestLedgerFocusButton)
 	{
 		QuestLedgerFocusButton->SetIsEnabled(bHasSelection);

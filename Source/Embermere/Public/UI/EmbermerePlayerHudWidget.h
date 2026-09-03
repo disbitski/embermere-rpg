@@ -167,10 +167,16 @@ public:
 	FText GetQuestLedgerRowDisplayText(int32 QuestIndex) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	FText GetQuestLedgerSelectedDetailDisplayText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
 	FVector2D GetQuestLedgerPanelDimensions() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
 	FVector2D GetQuestLedgerRowDimensions() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	FVector2D GetQuestLedgerDetailDimensions() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
 	FVector2D GetQuestLedgerButtonDimensions() const;
@@ -449,6 +455,21 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> QuestLedgerEmptyText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestLedgerDetailTitleText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestLedgerDetailDescriptionText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestLedgerDetailStateText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestLedgerDetailObjectiveText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> QuestLedgerDetailRewardText;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> QuestLedgerStatusText;
@@ -753,6 +774,10 @@ private:
 	void UpdateQuestLedgerPanelVisibility();
 	void RefreshQuestLedgerWindow();
 	FString GetQuestLedgerStateLabel(const FEmbermereQuestState& QuestState) const;
+	const FEmbermereQuestState* GetSelectedQuestLedgerState() const;
+	FText GetQuestLedgerSelectedStateCopy() const;
+	FText GetQuestLedgerSelectedObjectiveText() const;
+	FText GetQuestLedgerSelectedRewardText() const;
 	void RefreshChatMessages();
 	void ShowLootPopupWithIcon(const FText& LootText, UTexture2D* Icon);
 	void ClampSelectedInventoryStackIndex();

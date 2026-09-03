@@ -625,6 +625,20 @@ The full ownership and rollback contract is in
     and rewards remain exact. Open Inventory and Chronicle from the ledger,
     then reopen it with `J`, proving mutually exclusive panel and cursor/input
     ownership.
+17. Run `Embermere.UI.QuestLedgerDetailsPresentation` and
+    `Embermere.UI.QuestLedgerDetailLifecycle`. Confirm the ledger remains a
+    fixed `620x550`, all eight rows remain `596x30`, and the selected quest uses
+    one fixed `596x120` detail region. Long description and state copy must wrap
+    and clip inside their cells rather than resize the panel.
+18. In the same two-record PIE state, select completed Still Waters and confirm
+    its quest-owned description and completed copy plus exact `50 XP`, `10
+    copper`, and `No item reward`. Select active Mara and confirm her full
+    description and active copy plus exact `125 XP`, `20 copper`, and `Recruit
+    Pack`. Selection alone must leave the compact tracker on the prior quest.
+19. Press Enter to focus Mara, then use `I` to replace the ledger with
+    Inventory. Confirm the tracker changes only after Enter, all detail text
+    stays inside the panel, peer handoff is exclusive, and neither quest,
+    reward, wallet, XP, nor inventory changes while inspecting details.
 
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
@@ -782,9 +796,11 @@ The complete contract is in
   `Still Waters` is accepted as the first real second quest with physical
   independent acceptance, committed-rest routing, exact turn-in, replay guard,
   and an isolated two-load proof. The fixed native multi-quest ledger now shows
-  up to eight active/ready/completed records and changes only transient focus.
-  The next presentation gap is a quest-data-owned selected-detail and reward
-  summary, not another persistence schema change.
+  up to eight active/ready/completed records, changes only transient focus, and
+  exposes one fixed selected-record detail with quest-owned narrative/state
+  copy plus exact XP, copper, and optional item rewards. The next presentation
+  gap is a short quest-data-owned objective instruction, not another
+  persistence schema change.
 - Inventory presentation now has clickable and draggable rows, fixed
   project-owned item/equipment icons and fantasy drag token, category/missing-art
   fallbacks, stable identity-preserving category/name sorting, keyboard

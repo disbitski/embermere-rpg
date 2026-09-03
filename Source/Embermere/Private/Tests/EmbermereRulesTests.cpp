@@ -6293,7 +6293,7 @@ bool FEmbermereQuestLedgerPresentationTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Quest-ledger command sits above Chronicle with fixed offset"),
 		Hud->GetQuestLedgerButtonViewportOffset(), FVector2D(-24.0f, -70.0f));
 	TestEqual(TEXT("Quest ledger keeps fixed panel dimensions"),
-		Hud->GetQuestLedgerPanelDimensions(), FVector2D(620.0f, 430.0f));
+		Hud->GetQuestLedgerPanelDimensions(), FVector2D(620.0f, 550.0f));
 	TestEqual(TEXT("Every quest row keeps fixed dimensions"),
 		Hud->GetQuestLedgerRowDimensions(), FVector2D(596.0f, 30.0f));
 	TestFalse(TEXT("Quest ledger starts hidden"), Hud->IsQuestLedgerPanelVisible());
@@ -6517,6 +6517,281 @@ bool FEmbermereQuestLedgerFocusLifecycleTest::RunTest(const FString& Parameters)
 		EEmbermerePersistenceResult::Success);
 	TestEqual(TEXT("Repeated load derives the same active focus"),
 		Target->QuestLog->FocusedQuestId, ActiveQuest->QuestId);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereQuestLedgerDetailsPresentationTest,
+	"Embermere.UI.QuestLedgerDetailsPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereQuestLedgerDetailsPresentationTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereQuestLogComponent* QuestLog = NewObject<UEmbermereQuestLogComponent>();
+	UEmbermereItemData* RecruitPack = NewObject<UEmbermereItemData>();
+	UEmbermereItemData* UnavailableReward = NewObject<UEmbermereItemData>();
+	if (!Hud || !QuestLog || !RecruitPack || !UnavailableReward)
+	{
+		AddError(TEXT("Could not create quest-ledger detail fixtures"));
+		return false;
+	}
+
+	RecruitPack->ItemId = TEXT("RecruitPack");
+	RecruitPack->DisplayName = FText::FromString(TEXT("Recruit Pack"));
+	UEmbermereQuestData* MaraQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationLedgerDetailsMara"),
+		TEXT("LedgerDetailsMara"),
+		TEXT("StarterEnemyDefeated"),
+		3,
+		125,
+		20);
+	UEmbermereQuestData* StillWatersQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationLedgerDetailsStillWaters"),
+		TEXT("LedgerDetailsStillWaters"),
+		TEXT("FenwatchRestCompleted"),
+		1);
+	UEmbermereQuestData* MissingItemQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationLedgerDetailsMissingItem"),
+		TEXT("LedgerDetailsMissingItem"),
+		TEXT("MissingItemObjective"),
+		2,
+		75,
+		5);
+	if (!MaraQuest || !StillWatersQuest || !MissingItemQuest)
+	{
+		AddError(TEXT("Could not create quest-ledger detail quest assets"));
+		return false;
+	}
+
+	const FString LongDescription = TEXT(
+		"Scout the old road, study the broken stones, and drive back the Marsh Prowlers "
+		"without losing sight of the village gate or the Fenwatch trail home. This deliberately "
+		"long quest-owned description must wrap and clip inside one fixed detail cell.");
+	MaraQuest->Title = FText::FromString(TEXT("First Signs at the Ruin"));
+	MaraQuest->Description = FText::FromString(LongDescription);
+	MaraQuest->ActiveGreeting = FText::FromString(
+		TEXT("Mara Fenwatch: The prowlers still haunt the old road."));
+	MaraQuest->ReadyGreeting = FText::FromString(
+		TEXT("Mara Fenwatch: You have driven them back. Return to me."));
+	MaraQuest->CompletedGreeting = FText::FromString(
+		TEXT("Mara Fenwatch: Fenwatch remembers what you did."));
+	MaraQuest->RewardItem = RecruitPack;
+
+	StillWatersQuest->Title = FText::FromString(TEXT("Still Waters"));
+	StillWatersQuest->Description = FText::FromString(
+		TEXT("Recover at the Fenwatch communal well, then return to the notice board."));
+	StillWatersQuest->ActiveGreeting = FText::FromString(
+		TEXT("Still Waters: Complete one successful rest at the Fenwatch communal well."));
+	StillWatersQuest->ReadyGreeting = FText::FromString(
+		TEXT("Still Waters: Return to the notice board for payment."));
+	StillWatersQuest->CompletedGreeting = FText::FromString(
+		TEXT("The Still Waters notice bears your completed mark."));
+
+	MissingItemQuest->Title = FText::FromString(TEXT("Lost Parcel"));
+	MissingItemQuest->Description = FText::FromString(TEXT("Find the parcel named in the rain-worn notice."));
+	MissingItemQuest->ActiveGreeting = FText::FromString(TEXT("The parcel is still missing."));
+	UnavailableReward->ItemId = TEXT("UnavailableLedgerReward");
+	MissingItemQuest->RewardItem = UnavailableReward;
+
+	Hud->QuestLog = QuestLog;
+	Hud->TakeWidget();
+	TestTrue(TEXT("Detail fixture opens the quest ledger"), Hud->ToggleQuestLedgerPanel());
+	TestEqual(TEXT("Detail slice grows the panel once within fixed bounds"),
+		Hud->GetQuestLedgerPanelDimensions(), FVector2D(620.0f, 550.0f));
+	TestEqual(TEXT("Detail region keeps fixed dimensions"),
+		Hud->GetQuestLedgerDetailDimensions(), FVector2D(596.0f, 120.0f));
+	TestEqual(TEXT("All eight row dimensions remain unchanged"),
+		Hud->GetQuestLedgerRowDimensions(), FVector2D(596.0f, 30.0f));
+
+	USizeBox* DetailSize = Cast<USizeBox>(Hud->GetWidgetFromName(TEXT("QuestLedgerDetailSize")));
+	UTextBlock* DetailDescription = Cast<UTextBlock>(
+		Hud->GetWidgetFromName(TEXT("QuestLedgerDetailDescriptionText")));
+	UTextBlock* DetailState = Cast<UTextBlock>(
+		Hud->GetWidgetFromName(TEXT("QuestLedgerDetailStateText")));
+	TestNotNull(TEXT("Fixed detail size widget exists"), DetailSize);
+	TestNotNull(TEXT("Wrapped description cell exists"), DetailDescription);
+	TestNotNull(TEXT("Wrapped state-copy cell exists"), DetailState);
+	if (DetailSize)
+	{
+		TestEqual(TEXT("Detail size widget keeps fixed height"),
+			DetailSize->GetHeightOverride(), 120.0f);
+	}
+	if (DetailDescription && DetailState)
+	{
+		TestEqual(TEXT("Long quest copy clips inside its fixed description cell"),
+			DetailDescription->GetClipping(), EWidgetClipping::ClipToBoundsAlways);
+		TestEqual(TEXT("Long state copy clips inside its fixed state cell"),
+			DetailState->GetClipping(), EWidgetClipping::ClipToBoundsAlways);
+	}
+
+	TestTrue(TEXT("Mara enters the authoritative ledger"), QuestLog->AcceptQuest(MaraQuest));
+	TestTrue(TEXT("Selecting Mara refreshes presentation"), Hud->SelectQuestLedgerRecord(0));
+	const FString MaraDetails = Hud->GetQuestLedgerSelectedDetailDisplayText().ToString();
+	TestTrue(TEXT("Selected details retain the exact long quest-owned description"),
+		MaraDetails.Contains(LongDescription));
+	TestTrue(TEXT("Active details retain exact quest-owned state copy"),
+		MaraDetails.Contains(MaraQuest->ActiveGreeting.ToString()));
+	TestTrue(TEXT("Active details show authoritative objective progress"),
+		MaraDetails.Contains(TEXT("Objective progress   0 / 3")));
+	TestTrue(TEXT("Mara details resolve exact XP, copper, and item reward"),
+		MaraDetails.Contains(TEXT("Rewards   125 XP   |   20 copper   |   Recruit Pack")));
+	if (DetailDescription)
+	{
+		TestEqual(TEXT("Description cell receives quest-owned copy without truncating its value"),
+			DetailDescription->GetText().ToString(), LongDescription);
+	}
+
+	TestTrue(TEXT("Still Waters enters independently"), QuestLog->AcceptQuest(StillWatersQuest));
+	TestTrue(TEXT("Still Waters reaches ready through quest authority"),
+		QuestLog->AddObjectiveProgressForQuest(
+			StillWatersQuest->QuestId, StillWatersQuest->ObjectiveId, 1));
+	TestTrue(TEXT("Keyboard-style selection reaches Still Waters"),
+		Hud->SelectNextQuestLedgerRecord(1));
+	const FString ReadyDetails = Hud->GetQuestLedgerSelectedDetailDisplayText().ToString();
+	TestTrue(TEXT("Ready details use exact quest-owned copy"),
+		ReadyDetails.Contains(StillWatersQuest->ReadyGreeting.ToString()));
+	TestTrue(TEXT("No-item rewards keep a stable explicit line"),
+		ReadyDetails.Contains(TEXT("Rewards   0 XP   |   0 copper   |   No item reward")));
+
+	TestTrue(TEXT("Quest authority commits Still Waters for completed-detail coverage"),
+		QuestLog->TryCompleteQuestById(StillWatersQuest->QuestId));
+	StillWatersQuest->RewardExperience = 50;
+	StillWatersQuest->RewardCopper = 10;
+	TestTrue(TEXT("Reselecting completed Still Waters refreshes details"),
+		Hud->SelectQuestLedgerRecord(1));
+	const FString CompletedDetails = Hud->GetQuestLedgerSelectedDetailDisplayText().ToString();
+	TestTrue(TEXT("Completed details use exact quest-owned copy"),
+		CompletedDetails.Contains(StillWatersQuest->CompletedGreeting.ToString()));
+	TestTrue(TEXT("Completed no-item reward shows exact Still Waters values"),
+		CompletedDetails.Contains(TEXT("Rewards   50 XP   |   10 copper   |   No item reward")));
+
+	TestTrue(TEXT("Missing-item fixture enters the ledger"), QuestLog->AcceptQuest(MissingItemQuest));
+	TestTrue(TEXT("Selecting unresolved reward fixture refreshes details"),
+		Hud->SelectQuestLedgerRecord(2));
+	TestTrue(TEXT("Unresolved optional reward uses stable missing-item fallback"),
+		Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
+			TEXT("Rewards   75 XP   |   5 copper   |   Reward item unavailable")));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereQuestLedgerDetailLifecycleTest,
+	"Embermere.UI.QuestLedgerDetailLifecycle",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereQuestLedgerDetailLifecycleTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereQuestData* ActiveQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationLedgerDetailLifecycleActive"),
+		TEXT("AQuestLedgerDetailLifecycle"),
+		TEXT("AQuestLedgerDetailObjective"),
+		3);
+	UEmbermereQuestData* CompletedQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationLedgerDetailLifecycleCompleted"),
+		TEXT("ZQuestLedgerDetailLifecycle"),
+		TEXT("ZQuestLedgerDetailObjective"),
+		1);
+	if (!Character || !Hud || !ActiveQuest || !CompletedQuest)
+	{
+		AddError(TEXT("Could not create quest-ledger detail lifecycle fixtures"));
+		return false;
+	}
+
+	ActiveQuest->Title = FText::FromString(TEXT("First Signs at the Ruin"));
+	ActiveQuest->Description = FText::FromString(TEXT("Active-detail lifecycle copy."));
+	ActiveQuest->ActiveGreeting = FText::FromString(TEXT("Mara active detail."));
+	CompletedQuest->Title = FText::FromString(TEXT("Still Waters"));
+	CompletedQuest->Description = FText::FromString(TEXT("Completed-detail lifecycle copy."));
+	CompletedQuest->ActiveGreeting = FText::FromString(TEXT("Still Waters active detail."));
+	CompletedQuest->ReadyGreeting = FText::FromString(TEXT("Still Waters ready detail."));
+	CompletedQuest->CompletedGreeting = FText::FromString(TEXT("Still Waters completed detail."));
+
+	TestTrue(TEXT("Lifecycle fixture confirms character identity"),
+		Character->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	TestTrue(TEXT("Lifecycle fixture accepts active quest"),
+		Character->QuestLog->AcceptQuest(ActiveQuest));
+	TestTrue(TEXT("Lifecycle fixture accepts second quest"),
+		Character->QuestLog->AcceptQuest(CompletedQuest));
+	TestTrue(TEXT("Lifecycle fixture reaches second objective"),
+		Character->QuestLog->AddObjectiveProgressForQuest(
+			CompletedQuest->QuestId, CompletedQuest->ObjectiveId, 1));
+	TestTrue(TEXT("Lifecycle fixture commits completed history"),
+		Character->QuestLog->TryCompleteQuestById(CompletedQuest->QuestId));
+
+	Hud->BindToCharacter(Character);
+	Hud->TakeWidget();
+	TestTrue(TEXT("Lifecycle fixture opens ledger"), Hud->ToggleQuestLedgerPanel());
+	TestEqual(TEXT("Ledger opens with authoritative focus selected"),
+		Hud->GetSelectedQuestLedgerIndex(), 1);
+	const FName FocusBeforeSelection = Character->QuestLog->FocusedQuestId;
+	const int32 CopperBeforeSelection = Character->Wallet->Copper;
+	const int32 ExperienceBeforeSelection = Character->Stats->CurrentExperience;
+	const int32 InventoryBeforeSelection = Character->Inventory->Stacks.Num();
+	FEmbermereQuestState ActiveBefore;
+	FEmbermereQuestState CompletedBefore;
+	Character->QuestLog->GetQuestStateById(ActiveQuest->QuestId, ActiveBefore);
+	Character->QuestLog->GetQuestStateById(CompletedQuest->QuestId, CompletedBefore);
+
+	UEmbermereQuestLedgerRowButton* ActiveRow = Cast<UEmbermereQuestLedgerRowButton>(
+		Hud->GetWidgetFromName(TEXT("QuestLedgerRowButton_0")));
+	TestNotNull(TEXT("Mouse-facing detail row exists"), ActiveRow);
+	if (ActiveRow)
+	{
+		ActiveRow->OnQuestLedgerRowClicked.Broadcast(0);
+	}
+	TestTrue(TEXT("Mouse selection refreshes only the active quest details"),
+		Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
+			ActiveQuest->ActiveGreeting.ToString()));
+	TestEqual(TEXT("Mouse detail selection preserves compact tracker focus"),
+		Character->QuestLog->FocusedQuestId, FocusBeforeSelection);
+
+	TestTrue(TEXT("Keyboard-style selection refreshes completed details"),
+		Hud->SelectNextQuestLedgerRecord(1));
+	TestTrue(TEXT("Keyboard detail selection uses completed state copy"),
+		Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
+			CompletedQuest->CompletedGreeting.ToString()));
+	TestEqual(TEXT("Keyboard detail selection also preserves focus"),
+		Character->QuestLog->FocusedQuestId, FocusBeforeSelection);
+
+	TestTrue(TEXT("Keyboard-style selection returns to active details"),
+		Hud->SelectNextQuestLedgerRecord(-1));
+	TestTrue(TEXT("Explicit focus remains a separate deliberate action"),
+		Hud->FocusSelectedQuest());
+	TestEqual(TEXT("Explicit focus changes only the compatibility projection"),
+		Character->QuestLog->FocusedQuestId, ActiveQuest->QuestId);
+	TestTrue(TEXT("Inventory peer handoff closes the detail surface"),
+		Hud->ToggleInventoryPanel());
+	TestFalse(TEXT("Ledger is hidden during Inventory ownership"),
+		Hud->IsQuestLedgerPanelVisible());
+	TestFalse(TEXT("Inventory closes explicitly"), Hud->ToggleInventoryPanel());
+	TestTrue(TEXT("Ledger reopens after peer handoff"), Hud->ToggleQuestLedgerPanel());
+	TestTrue(TEXT("Reopened details align to the authoritative focused quest"),
+		Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
+			ActiveQuest->ActiveGreeting.ToString()));
+	Hud->CloseQuestLedgerPanel();
+	TestFalse(TEXT("Detail teardown hides the ledger"), Hud->IsQuestLedgerPanelVisible());
+
+	FEmbermereQuestState ActiveAfter;
+	FEmbermereQuestState CompletedAfter;
+	Character->QuestLog->GetQuestStateById(ActiveQuest->QuestId, ActiveAfter);
+	Character->QuestLog->GetQuestStateById(CompletedQuest->QuestId, CompletedAfter);
+	TestEqual(TEXT("Detail lifecycle preserves active progress"),
+		ActiveAfter.CurrentObjectiveCount, ActiveBefore.CurrentObjectiveCount);
+	TestEqual(TEXT("Detail lifecycle preserves active completion"),
+		ActiveAfter.bCompleted, ActiveBefore.bCompleted);
+	TestEqual(TEXT("Detail lifecycle preserves completed progress"),
+		CompletedAfter.CurrentObjectiveCount, CompletedBefore.CurrentObjectiveCount);
+	TestEqual(TEXT("Detail lifecycle preserves completed history"),
+		CompletedAfter.bCompleted, CompletedBefore.bCompleted);
+	TestEqual(TEXT("Detail lifecycle preserves wallet"),
+		Character->Wallet->Copper, CopperBeforeSelection);
+	TestEqual(TEXT("Detail lifecycle preserves experience"),
+		Character->Stats->CurrentExperience, ExperienceBeforeSelection);
+	TestEqual(TEXT("Detail lifecycle preserves inventory"),
+		Character->Inventory->Stacks.Num(), InventoryBeforeSelection);
 	return true;
 }
 

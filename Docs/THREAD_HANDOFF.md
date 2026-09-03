@@ -1713,10 +1713,34 @@ free of interaction, recovery, reward, quest, or persistence authority.
   Up/Down and Enter switched the compact tracker both ways without record or
   reward mutation. `I`, `J`, and `M` proved exclusive peer-panel handoff.
 
+## 2026-09-03 Selected-Quest Detail And Reward Surface
+
+- Extended the native ledger to one fixed `620x550` panel while preserving all
+  eight `596x30` record rows. One fixed `596x120` selected-record region now
+  reads quest-owned title, wrapped/clipped description, exact state copy,
+  objective progress, XP, copper, and optional reward-item display name.
+- Selection remains local and refreshes details only. Enter or the focus action
+  remains the explicit stable-ID request that changes the compact tracker. No
+  focus, quest, reward, wallet, XP, inventory, equipment, service, or save
+  authority moved into the widget.
+- Added `Embermere.UI.QuestLedgerDetailsPresentation` and
+  `Embermere.UI.QuestLedgerDetailLifecycle`, bringing the suite to `87`. The
+  no-hot-reload build, isolated commandlet `87/87`, restarted-editor MCP
+  `87/87`, focused validators, fresh 19-package aggregate, and full-zone
+  validation passed while retaining 53 grounded Fab plus 24 original-art
+  actors.
+- Clean PIE created both records through their real interaction owners and
+  completed Still Waters through a real communal-well channel and notice-board
+  turn-in. The fixed surface showed exact `50 XP | 10 copper | No item reward`
+  for completed Still Waters and `125 XP | 20 copper | Recruit Pack` for active
+  Mara. Up/Down changed only details, Enter explicitly changed focus, and `I`
+  replaced the ledger with Inventory without overlap or mutation.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-09-02 no-hot-reload native Quest Ledger module, the 2026-09-01 Still
+2026-09-03 no-hot-reload selected-quest detail module, the 2026-09-02 native
+Quest Ledger module, the 2026-09-01 Still
 Waters quest/service/router module and saved
 quest/map packages, the 2026-08-31 save-version-3 multi-quest module, plus the accepted
 2026-08-29 rest-presentation observer,
@@ -1739,7 +1763,9 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 85 tests, including
+3. Run/discover all 87 tests, including
+   `Embermere.UI.QuestLedgerDetailsPresentation`,
+   `Embermere.UI.QuestLedgerDetailLifecycle`,
    `Embermere.UI.QuestLedgerPresentation`,
    `Embermere.UI.QuestLedgerFocusLifecycle`,
    `Embermere.Quests.StillWatersServiceContract`,
@@ -2215,18 +2241,20 @@ south-commons transform, with only purposeful curb/upright collision and every
 protected route clear. Retain its separate art-free rest service and
 presentation observer, then retain Still Waters through its own separate
 art-free notice-board owner and committed-success router. The board/well art,
-rest service/VFX, and trainer must remain removable and quest-free. Next, build
-a fixed read-only selected-quest detail and reward summary inside the accepted
-ledger. Source description, state copy, objective requirement, XP, copper, and
-optional item identity from quest data; keep selection and focus transient and
-preserve the fixed eight-row layout, peer-panel lifecycle, and zero mutation.
-Do not add naming, appearance, autosave, profiles, deletion, or implicit
-migration in that slice.
+rest service/VFX, and trainer must remain removable and quest-free. Retain the
+accepted fixed selected-quest detail and exact reward summary. Next, add one
+short data-owned objective instruction to each quest and consume it read-only
+in the compact tracker and detail region. Preserve stable objective IDs,
+numeric requirements, fixed geometry, transient selection/focus, save version
+`3`, peer-panel lifecycle, and zero mutation; do not derive prose from IDs or
+titles. Do not add naming, appearance, autosave, profiles, deletion, or
+implicit migration in that slice.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
 Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
-current commit, 85-test and 19-validator baseline, accepted Quest Ledger,
+current commit, 87-test and 19-validator baseline, accepted Quest Ledger and
+selected-quest details,
 character creation,
 v3 identity/multi-quest persistence, derived-level progression, level-gated trainer,
 Advanced Chronicle proof, class-colored world VFX, and next bounded milestone

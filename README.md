@@ -378,7 +378,9 @@ without reward replay or focus persistence. The notice-board mesh, well art,
 rest service, rest VFX observer, and trainer remain removable and quest-free.
 The fixed native Quest Ledger now shows both records together, preserves
 completed history, and switches only the transient compact-tracker projection
-through explicit stable-ID focus. See
+through explicit stable-ID focus. Its selected-record detail region reads the
+quest-owned description, current state copy, objective progress, and exact
+XP/copper/optional-item rewards without mutating focus or quest state. See
 [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md) and
 [Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md](Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md).
 

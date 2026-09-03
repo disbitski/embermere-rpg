@@ -2948,6 +2948,42 @@ Lesson: selection and authority are different kinds of state. A good ledger
 lets the player decide what to look at while stable IDs, explicit mutation
 owners, and tests make it impossible for looking to become doing.
 
+## 2026-09-03 - The Quest Ledger Learned To Explain The Work
+
+Yesterday's ledger could show two quests and move the compact tracker, but its
+rows still had to carry the player's whole understanding. Today each selected
+record gained one fixed read-only detail region. The panel grows once to
+`620x550`; all eight established `596x30` rows remain stable, and a bounded
+`596x120` area now reads title, wrapped description, current state copy,
+objective progress, and rewards directly from the authoritative quest record
+and data asset.
+
+The reward surface made ownership visible. Mara reports exactly `125 XP`, `20
+copper`, and `Recruit Pack`; Still Waters reports `50 XP`, `10 copper`, and
+`No item reward`. An unusable optional item has a stable `Reward item
+unavailable` presentation fallback, but that fallback never changes reward
+preflight or completion. Selection can refresh every detail cell without
+moving focus, and Enter remains the deliberate stable-ID action that changes
+the compact tracker.
+
+Clean PIE built the proof from real owners. Physical notice-board and Mara
+interactions created both records, and a real communal-well `F` channel made
+Still Waters ready before its physical turn-in paid exactly once. The ledger
+then showed completed Still Waters beside active Mara at `0/3`. Both detail
+sets fit at normal camera distance; Up/Down changed only the selected details,
+Enter moved focus, and Inventory replaced the ledger without overlap or quest
+mutation.
+
+Two focused tests bring the suite to `87`. The no-hot-reload build, isolated
+commandlet `87/87`, restarted-editor MCP `87/87`, focused validators, fresh
+19-package aggregate, full-zone validation, and initialized-world route checks
+all passed. The map remains 53 grounded Fab actors plus 24 original-art
+placements.
+
+Lesson: a useful read-only surface should expose the facts an authority already
+owns. Exact source values, fixed geometry, and negative mutation tests keep
+explanation from quietly becoming a second rules system.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

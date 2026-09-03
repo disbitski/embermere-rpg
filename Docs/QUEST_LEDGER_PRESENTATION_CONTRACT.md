@@ -52,6 +52,35 @@ tracking, reward claims, save/load controls, focus persistence, auto-focus
 rules, or a new quest state. An available but unaccepted quest belongs to its
 world owner and contextual presentation, not the tracked-record ledger.
 
+## Selected-Quest Detail Slice
+
+The next bounded surface extends the accepted ledger without changing its
+authority. The panel grows once to a fixed `620x550`; all eight existing
+`596x30` record rows remain unchanged. A fixed `596x120` detail region sits
+between the record list and the existing selection/tracker footer.
+
+The selected record reads these values directly from its authoritative quest
+state and quest data:
+
+- quest-owned title and description;
+- the exact active, ready, or completed greeting for the current state;
+- current objective progress and the quest-owned requirement;
+- exact XP and copper rewards;
+- the optional reward item's display name when the soft reference resolves.
+
+The detail region uses fixed title, wrapped description, wrapped state-copy,
+objective, and reward cells. Long copy is clipped inside those cells rather
+than increasing panel or row size. A quest with no reward item shows
+`No item reward`; a non-null item reference that cannot resolve shows the
+stable presentation fallback `Reward item unavailable`. Those phrases report
+presentation availability only and do not change reward validation or commit.
+
+Changing the selected row may refresh only these detail cells. It cannot
+change `FocusedQuestId`, the compact tracker, progress, completion, rewards,
+wallet, XP, inventory, equipment, save bytes, or any service. `Focus Quest`,
+Enter, and explicit row focus remain the only focus requests. The detail
+surface is destroyed with the widget and has no durable state.
+
 ## Acceptance
 
 Focused automation must cover:
@@ -96,3 +125,35 @@ Enter switched the compact tracker in both directions; `I`, `J`, and `M`
 performed exclusive peer-panel handoff. XP remained `50`, the Still Waters
 reward remained exactly once, and neither quest record changed while focus was
 switched.
+
+## Accepted 2026-09-03 Selected-Quest Details
+
+The accepted detail extension grows the panel once to a fixed `620x550` while
+retaining all eight `596x30` record rows. The selected record now owns one fixed
+`596x120` read-only region for quest title, clipped wrapped description, exact
+active/ready/completed quest copy, objective progress, and rewards. Selection
+refreshes those cells without moving compact-tracker focus; Enter or the focus
+action remains the only way to change that transient projection.
+
+Rewards come directly from quest data. Mara displays `125 XP | 20 copper |
+Recruit Pack`; Still Waters displays `50 XP | 10 copper | No item reward`.
+An authored but unusable reward item reports `Reward item unavailable` without
+changing completion validation or reward ownership. The detail and its selected
+row disappear with the widget and add no save field.
+
+`Embermere.UI.QuestLedgerDetailsPresentation` covers fixed geometry, long-copy
+clipping, active/ready/completed copy, exact item/no-item rewards, and the
+unavailable-item fallback. `Embermere.UI.QuestLedgerDetailLifecycle` covers
+mouse and wrapped keyboard selection, focus independence, peer handoff,
+teardown, and zero quest, wallet, XP, inventory, or reward mutation. The
+no-hot-reload build, isolated commandlet, and restarted-editor MCP runner each
+passed the expanded `87/87` suite; all focused validators and the sequential
+19-package aggregate retained their exact success markers.
+
+Clean PIE produced the real two-record state through physical notice-board,
+Mara, and communal-well `F` interactions. Completed Still Waters and active
+Mara fit together at normal camera distance with all detail copy inside the
+fixed panel and clear of chat, hotbar, tracker, and bottom-right commands.
+Up/Down changed details only, Enter moved focus explicitly, and Inventory
+replaced the ledger cleanly. Still Waters remained paid exactly once at `50`
+XP and `10` additional copper while Mara remained active at `0/3`.
