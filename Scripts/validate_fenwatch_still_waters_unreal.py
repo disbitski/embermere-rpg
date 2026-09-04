@@ -20,6 +20,7 @@ EXPECTED_TEXT = {
     "description": (
         "Rest once at the Fenwatch communal well, then return to the notice board."
     ),
+    "objective_instructions": "Complete a rest at the communal well.",
     "available_greeting": (
         "A fresh notice asks travelers to test the emberlit water at "
         "Fenwatch's communal well."

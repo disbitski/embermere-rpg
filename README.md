@@ -72,7 +72,9 @@ The repo currently contains the C++ gameplay scaffold for:
   authoritative fallbacks, and presentation owns no hit resolution or rewards
 - a fixed native eight-row quest ledger that shows active, ready, and completed
   history, supports mouse plus keyboard selection, and requests only a
-  transient compact-tracker focus without owning quest or reward mutation
+  transient compact-tracker focus without owning quest or reward mutation;
+  quest data also owns distinct short objective instructions consumed read-only
+  by the fixed compact tracker and selected detail with a stable legacy fallback
 - data-driven item sell values plus an earned-currency loop: Mara's first quest
   grants copper exactly once, selected bag items can be sold by identity, and
   the latest sale can be bought back at its recorded price
@@ -379,10 +381,15 @@ rest service, rest VFX observer, and trainer remain removable and quest-free.
 The fixed native Quest Ledger now shows both records together, preserves
 completed history, and switches only the transient compact-tracker projection
 through explicit stable-ID focus. Its selected-record detail region reads the
-quest-owned description, current state copy, objective progress, and exact
-XP/copper/optional-item rewards without mutating focus or quest state. See
+quest-owned description, current state copy, exact data-owned objective
+instruction, objective progress, and exact XP/copper/optional-item rewards
+without mutating focus or quest state. The same short instruction appears in a
+fixed `260x68` compact tracker; missing legacy copy uses a read-only fallback
+without changing stable objective identity or save version `3`. See
 [Docs/MULTI_QUEST_CONTRACT.md](Docs/MULTI_QUEST_CONTRACT.md) and
-[Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md](Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md).
+[Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md](Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md),
+plus
+[Docs/QUEST_OBJECTIVE_PRESENTATION_CONTRACT.md](Docs/QUEST_OBJECTIVE_PRESENTATION_CONTRACT.md).
 
 The NPC wrapper's skeletal/Idle lane is now in production on three matching
 Fenwatch characters. The armsmaster has `2,824` source triangles and a

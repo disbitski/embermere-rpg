@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-02
+Last updated: 2026-09-04
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -31,13 +31,14 @@ this snapshot. A new task should read files in this order:
 11. `Docs/SAVE_GAME_CONTRACT.md` when persistence/lifecycle work is active
 12. `Docs/MULTI_QUEST_CONTRACT.md` when quest/content work is active
 13. `Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md` when quest UI/focus work is active
-14. `Docs/CHARACTER_CREATION_CONTRACT.md` when identity/lifecycle work is active
-15. `Docs/LEVEL_PROGRESSION_CONTRACT.md` when XP/level/growth work is active
-16. `Docs/PRACTICE_TARGET_CONTRACT.md` when training-target work is active
-17. `Docs/COMBAT_FEEDBACK_CONTRACT.md` when combat-result presentation is active
-18. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
-19. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
-20. `JOURNEY.md` when historical detail is useful
+14. `Docs/QUEST_OBJECTIVE_PRESENTATION_CONTRACT.md` when quest copy/tracker work is active
+15. `Docs/CHARACTER_CREATION_CONTRACT.md` when identity/lifecycle work is active
+16. `Docs/LEVEL_PROGRESSION_CONTRACT.md` when XP/level/growth work is active
+17. `Docs/PRACTICE_TARGET_CONTRACT.md` when training-target work is active
+18. `Docs/COMBAT_FEEDBACK_CONTRACT.md` when combat-result presentation is active
+19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
+20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
+21. `JOURNEY.md` when historical detail is useful
 
 ## One-Page State
 
@@ -66,7 +67,9 @@ The project currently includes:
   paper-doll equipment backdrop, data-driven timed buff/control rows with live
   countdowns, chat log, and a fixed three-entry floating-damage observer fed by
   immutable post-commit combat results, plus a fixed eight-row native Quest
-  Ledger with transient compact-tracker focus and no quest mutation authority;
+  Ledger with transient compact-tracker focus, quest-data-owned objective
+  instructions in its selected detail and fixed compact tracker, and no quest
+  mutation authority;
 - a grounded local Fab/Epic art pass with 53 upright environment actors and 24
   project-owned placements from an original Blender-built Embermere
   waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
@@ -1736,10 +1739,31 @@ free of interaction, recovery, reward, quest, or persistence authority.
   Mara. Up/Down changed only details, Enter explicitly changed focus, and `I`
   replaced the ledger with Inventory without overlap or mutation.
 
+## 2026-09-04 Quest-Owned Objective Instructions
+
+- Added `UEmbermereQuestData::ObjectiveInstructions` as descriptive metadata
+  independent of stable objective ID and numeric requirement. Mara owns exact
+  `Defeat 3 Marsh Prowlers.` copy; Still Waters owns exact `Complete a rest at
+  the communal well.` copy. Both saved packages were updated explicitly.
+- The compact tracker consumes title, authoritative progress, and the authored
+  instruction inside fixed corrected `260x68` clipped bounds. The unchanged
+  `596x120` selected detail consumes the same field. Missing or blank metadata
+  reports `Objective details unavailable.` without changing quest validation,
+  progress, rewards, focus, or save version `3`.
+- Added `Embermere.UI.QuestObjectiveDisplayPresentation`, bringing the suite to
+  `88`. The no-hot-reload build, isolated `88/88`, focused package validator,
+  sequential 20-package aggregate, full-zone validator, and initialized-world
+  well/board/workshop/cottage/stall/road traces passed without Python errors.
+- Clean PIE physically accepted both quests, showed each exact instruction in
+  the compact tracker and fixed ledger detail, and used Up to select Mara while
+  Still Waters remained focused. The ledger geometry, records, rewards, routes,
+  and 53 Fab plus 24 original-art baseline remained intact.
+
 ## Immediate Next Work
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-09-03 no-hot-reload selected-quest detail module, the 2026-09-02 native
+2026-09-04 no-hot-reload quest-objective presentation module and saved quest
+packages, the 2026-09-03 selected-quest detail module, the 2026-09-02 native
 Quest Ledger module, the 2026-09-01 Still
 Waters quest/service/router module and saved
 quest/map packages, the 2026-08-31 save-version-3 multi-quest module, plus the accepted
@@ -1763,7 +1787,8 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 87 tests, including
+3. Run/discover all 88 tests, including
+   `Embermere.UI.QuestObjectiveDisplayPresentation`,
    `Embermere.UI.QuestLedgerDetailsPresentation`,
    `Embermere.UI.QuestLedgerDetailLifecycle`,
    `Embermere.UI.QuestLedgerPresentation`,
@@ -2242,19 +2267,22 @@ protected route clear. Retain its separate art-free rest service and
 presentation observer, then retain Still Waters through its own separate
 art-free notice-board owner and committed-success router. The board/well art,
 rest service/VFX, and trainer must remain removable and quest-free. Retain the
-accepted fixed selected-quest detail and exact reward summary. Next, add one
-short data-owned objective instruction to each quest and consume it read-only
-in the compact tracker and detail region. Preserve stable objective IDs,
-numeric requirements, fixed geometry, transient selection/focus, save version
-`3`, peer-panel lifecycle, and zero mutation; do not derive prose from IDs or
-titles. Do not add naming, appearance, autosave, profiles, deletion, or
-implicit migration in that slice.
+accepted fixed selected-quest detail, exact reward summary, and distinct
+quest-data-owned objective instructions in the fixed `260x68` tracker and
+unchanged detail region. Next, define one presentation-only quest-update
+observer over immutable post-commit acceptance, progress, ready, and completion
+results. Keep chat, tracker, greeting, and ledger as durable fallbacks; use
+fixed short-lived bounds, bounded rapid updates, teardown/death/load clearing,
+and no replay on silent restore. Preserve stable IDs, quest/reward authority,
+transient selection/focus, save version `3`, peer-panel lifecycle, and zero
+mutation. Do not add another quest, abandonment, sorting, map tracking, naming,
+appearance, autosave, profiles, deletion, or implicit migration in that slice.
 
 The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
 
 Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
-current commit, 87-test and 19-validator baseline, accepted Quest Ledger and
-selected-quest details,
+current commit, 88-test and 20-validator baseline, accepted Quest Ledger,
+selected-quest details, and quest-owned objective instructions,
 character creation,
 v3 identity/multi-quest persistence, derived-level progression, level-gated trainer,
 Advanced Chronicle proof, class-colored world VFX, and next bounded milestone

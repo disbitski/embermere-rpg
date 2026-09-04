@@ -20,6 +20,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quest", meta = (MultiLine = true))
 	FText Description;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quest", meta = (MultiLine = true))
+	FText ObjectiveInstructions;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quest|Context", meta = (MultiLine = true))
 	FText AvailableGreeting;
 

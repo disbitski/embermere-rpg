@@ -30,6 +30,7 @@ ACTIVE_COPY = (
 )
 READY_COPY = "The well's emberlit water answered. Mark the notice complete."
 COMPLETED_COPY = "The Still Waters notice bears your completed mark."
+OBJECTIVE_INSTRUCTIONS = "Complete a rest at the communal well."
 
 
 def fail(message):
@@ -81,6 +82,7 @@ def load_or_create_quest():
         "description",
         "Rest once at the Fenwatch communal well, then return to the notice board.",
     )
+    quest.set_editor_property("objective_instructions", OBJECTIVE_INSTRUCTIONS)
     quest.set_editor_property("available_greeting", AVAILABLE_COPY)
     quest.set_editor_property("active_greeting", ACTIVE_COPY)
     quest.set_editor_property("ready_greeting", READY_COPY)

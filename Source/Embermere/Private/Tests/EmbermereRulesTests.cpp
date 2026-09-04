@@ -6570,6 +6570,7 @@ bool FEmbermereQuestLedgerDetailsPresentationTest::RunTest(const FString& Parame
 		"long quest-owned description must wrap and clip inside one fixed detail cell.");
 	MaraQuest->Title = FText::FromString(TEXT("First Signs at the Ruin"));
 	MaraQuest->Description = FText::FromString(LongDescription);
+	MaraQuest->ObjectiveInstructions = FText::FromString(TEXT("Defeat 3 Marsh Prowlers."));
 	MaraQuest->ActiveGreeting = FText::FromString(
 		TEXT("Mara Fenwatch: The prowlers still haunt the old road."));
 	MaraQuest->ReadyGreeting = FText::FromString(
@@ -6581,6 +6582,8 @@ bool FEmbermereQuestLedgerDetailsPresentationTest::RunTest(const FString& Parame
 	StillWatersQuest->Title = FText::FromString(TEXT("Still Waters"));
 	StillWatersQuest->Description = FText::FromString(
 		TEXT("Recover at the Fenwatch communal well, then return to the notice board."));
+	StillWatersQuest->ObjectiveInstructions = FText::FromString(
+		TEXT("Complete a rest at the communal well."));
 	StillWatersQuest->ActiveGreeting = FText::FromString(
 		TEXT("Still Waters: Complete one successful rest at the Fenwatch communal well."));
 	StillWatersQuest->ReadyGreeting = FText::FromString(
@@ -6634,6 +6637,8 @@ bool FEmbermereQuestLedgerDetailsPresentationTest::RunTest(const FString& Parame
 		MaraDetails.Contains(MaraQuest->ActiveGreeting.ToString()));
 	TestTrue(TEXT("Active details show authoritative objective progress"),
 		MaraDetails.Contains(TEXT("Objective progress   0 / 3")));
+	TestTrue(TEXT("Active details retain exact quest-owned objective instructions"),
+		MaraDetails.Contains(TEXT("Defeat 3 Marsh Prowlers.")));
 	TestTrue(TEXT("Mara details resolve exact XP, copper, and item reward"),
 		MaraDetails.Contains(TEXT("Rewards   125 XP   |   20 copper   |   Recruit Pack")));
 	if (DetailDescription)
@@ -6651,6 +6656,8 @@ bool FEmbermereQuestLedgerDetailsPresentationTest::RunTest(const FString& Parame
 	const FString ReadyDetails = Hud->GetQuestLedgerSelectedDetailDisplayText().ToString();
 	TestTrue(TEXT("Ready details use exact quest-owned copy"),
 		ReadyDetails.Contains(StillWatersQuest->ReadyGreeting.ToString()));
+	TestTrue(TEXT("Ready details retain exact quest-owned objective instructions"),
+		ReadyDetails.Contains(TEXT("Complete a rest at the communal well.")));
 	TestTrue(TEXT("No-item rewards keep a stable explicit line"),
 		ReadyDetails.Contains(TEXT("Rewards   0 XP   |   0 copper   |   No item reward")));
 
@@ -6663,6 +6670,8 @@ bool FEmbermereQuestLedgerDetailsPresentationTest::RunTest(const FString& Parame
 	const FString CompletedDetails = Hud->GetQuestLedgerSelectedDetailDisplayText().ToString();
 	TestTrue(TEXT("Completed details use exact quest-owned copy"),
 		CompletedDetails.Contains(StillWatersQuest->CompletedGreeting.ToString()));
+	TestTrue(TEXT("Completed details retain the same immutable objective instructions"),
+		CompletedDetails.Contains(TEXT("Complete a rest at the communal well.")));
 	TestTrue(TEXT("Completed no-item reward shows exact Still Waters values"),
 		CompletedDetails.Contains(TEXT("Rewards   50 XP   |   10 copper   |   No item reward")));
 
@@ -6672,6 +6681,177 @@ bool FEmbermereQuestLedgerDetailsPresentationTest::RunTest(const FString& Parame
 	TestTrue(TEXT("Unresolved optional reward uses stable missing-item fallback"),
 		Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
 			TEXT("Rewards   75 XP   |   5 copper   |   Reward item unavailable")));
+	TestTrue(TEXT("Legacy quest data uses the stable objective fallback"),
+		Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
+			TEXT("Objective details unavailable.")));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereQuestObjectiveDisplayPresentationTest,
+	"Embermere.UI.QuestObjectiveDisplayPresentation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereQuestObjectiveDisplayPresentationTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereQuestData* MaraQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationObjectiveDisplayMara"),
+		TEXT("ObjectiveDisplayMara"),
+		TEXT("StarterEnemyDefeated"),
+		3);
+	UEmbermereQuestData* StillWatersQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationObjectiveDisplayStillWaters"),
+		TEXT("ObjectiveDisplayStillWaters"),
+		TEXT("FenwatchRestCompleted"),
+		1);
+	UEmbermereQuestData* LegacyQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationObjectiveDisplayLegacy"),
+		TEXT("ObjectiveDisplayLegacy"),
+		TEXT("LegacyObjective"),
+		2);
+	UEmbermereQuestData* LongQuest = CreateAutomationQuestAsset(
+		TEXT("DQ_AutomationObjectiveDisplayLong"),
+		TEXT("ObjectiveDisplayLong"),
+		TEXT("LongObjective"),
+		1);
+	if (!Character || !Hud || !MaraQuest || !StillWatersQuest || !LegacyQuest || !LongQuest)
+	{
+		AddError(TEXT("Could not create objective-display fixtures"));
+		return false;
+	}
+
+	MaraQuest->Title = FText::FromString(TEXT("First Signs at the Ruin"));
+	MaraQuest->ObjectiveInstructions = FText::FromString(TEXT("Defeat 3 Marsh Prowlers."));
+	MaraQuest->ActiveGreeting = FText::FromString(TEXT("Mara objective active."));
+	MaraQuest->ReadyGreeting = FText::FromString(TEXT("Mara objective ready."));
+	MaraQuest->CompletedGreeting = FText::FromString(TEXT("Mara objective completed."));
+	StillWatersQuest->Title = FText::FromString(TEXT("Still Waters"));
+	StillWatersQuest->ObjectiveInstructions = FText::FromString(
+		TEXT("Complete a rest at the communal well."));
+	StillWatersQuest->ActiveGreeting = FText::FromString(TEXT("Still Waters objective active."));
+	StillWatersQuest->ReadyGreeting = FText::FromString(TEXT("Still Waters objective ready."));
+	StillWatersQuest->CompletedGreeting = FText::FromString(TEXT("Still Waters objective completed."));
+	LegacyQuest->Title = FText::FromString(TEXT("Legacy Notice"));
+	LegacyQuest->ObjectiveInstructions = FText::FromString(TEXT("   "));
+	LegacyQuest->ActiveGreeting = FText::FromString(TEXT("Legacy objective active."));
+	const FString LongObjective = TEXT(
+		"Inspect every weathered Fenwatch marker along the eastern road while keeping the village, "
+		"communal well, trainer yard, and return path continuously visible from the normal camera.");
+	LongQuest->Title = FText::FromString(TEXT("The Long Watch"));
+	LongQuest->ObjectiveInstructions = FText::FromString(LongObjective);
+	LongQuest->ActiveGreeting = FText::FromString(TEXT("Long objective active."));
+
+	TestTrue(TEXT("Objective fixture confirms a deliberate identity"),
+		Character->TryApplyRaceAndClass(EEmbermereRace::Human, EEmbermereClass::Warrior));
+	TestTrue(TEXT("Objective fixture accepts Mara"), Character->QuestLog->AcceptQuest(MaraQuest));
+	TestTrue(TEXT("Objective fixture accepts Still Waters"),
+		Character->QuestLog->AcceptQuest(StillWatersQuest));
+	TestTrue(TEXT("Objective fixture accepts legacy data"),
+		Character->QuestLog->AcceptQuest(LegacyQuest));
+	TestTrue(TEXT("Objective fixture accepts long presentation data"),
+		Character->QuestLog->AcceptQuest(LongQuest));
+	TestTrue(TEXT("Objective fixture focuses Mara deliberately"),
+		Character->QuestLog->FocusQuest(MaraQuest->QuestId));
+
+	Hud->BindToCharacter(Character);
+	Hud->TakeWidget();
+	TestEqual(TEXT("Compact tracker retains fixed dimensions"),
+		Hud->GetQuestTrackerDimensions(), FVector2D(260.0f, 68.0f));
+	USizeBox* TrackerSize = Cast<USizeBox>(Hud->GetWidgetFromName(TEXT("QuestTrackerSize")));
+	UTextBlock* TrackerText = Cast<UTextBlock>(Hud->GetWidgetFromName(TEXT("QuestText")));
+	UTextBlock* DetailObjectiveText = Cast<UTextBlock>(
+		Hud->GetWidgetFromName(TEXT("QuestLedgerDetailObjectiveText")));
+	TestNotNull(TEXT("Compact tracker owns a fixed size box"), TrackerSize);
+	TestNotNull(TEXT("Compact tracker text exists"), TrackerText);
+	TestNotNull(TEXT("Ledger objective cell exists"), DetailObjectiveText);
+	if (TrackerSize)
+	{
+		TestEqual(TEXT("Compact tracker width is fixed"), TrackerSize->GetWidthOverride(), 260.0f);
+		TestEqual(TEXT("Compact tracker height is fixed"), TrackerSize->GetHeightOverride(), 68.0f);
+	}
+	if (TrackerText && DetailObjectiveText)
+	{
+		TestEqual(TEXT("Compact objective copy clips inside fixed bounds"),
+			TrackerText->GetClipping(), EWidgetClipping::ClipToBoundsAlways);
+		TestEqual(TEXT("Ledger objective copy clips inside fixed bounds"),
+			DetailObjectiveText->GetClipping(), EWidgetClipping::ClipToBoundsAlways);
+	}
+
+	TestEqual(TEXT("Mara objective copy comes directly from quest data"),
+		Hud->GetQuestObjectiveDisplayText(MaraQuest).ToString(),
+		FString(TEXT("Defeat 3 Marsh Prowlers.")));
+	TestEqual(TEXT("Still Waters objective copy comes directly from quest data"),
+		Hud->GetQuestObjectiveDisplayText(StillWatersQuest).ToString(),
+		FString(TEXT("Complete a rest at the communal well.")));
+	TestEqual(TEXT("Whitespace-only legacy data uses the stable fallback"),
+		Hud->GetQuestObjectiveDisplayText(LegacyQuest).ToString(),
+		FString(TEXT("Objective details unavailable.")));
+	TestEqual(TEXT("Missing quest data uses the same stable fallback"),
+		Hud->GetQuestObjectiveDisplayText(nullptr).ToString(),
+		FString(TEXT("Objective details unavailable.")));
+	TestEqual(TEXT("Active compact tracker combines authoritative progress and authored copy"),
+		Hud->GetQuestTrackerDisplayText().ToString(),
+		FString(TEXT("Quest\nFirst Signs at the Ruin\n0/3   Defeat 3 Marsh Prowlers.")));
+
+	TestTrue(TEXT("Objective fixture opens the ledger"), Hud->ToggleQuestLedgerPanel());
+	TestEqual(TEXT("Focused Mara begins selected"), Hud->GetSelectedQuestLedgerIndex(), 0);
+	TestTrue(TEXT("Active detail combines authoritative progress and authored copy"),
+		Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
+			TEXT("Objective progress   0 / 3   |   Defeat 3 Marsh Prowlers.")));
+	TestTrue(TEXT("Mara reaches ready through quest authority"),
+		Character->QuestLog->AddObjectiveProgressForQuest(
+			MaraQuest->QuestId, MaraQuest->ObjectiveId, 3));
+	TestTrue(TEXT("Ready detail preserves the authored objective copy"),
+		Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
+			TEXT("Objective progress   3 / 3   |   Defeat 3 Marsh Prowlers.")));
+	TestTrue(TEXT("Mara completion commits once through quest authority"),
+		Character->QuestLog->TryCompleteQuestById(MaraQuest->QuestId));
+	TestTrue(TEXT("Completed detail preserves the same authored objective copy"),
+		Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
+			TEXT("Objective progress   3 / 3   |   Defeat 3 Marsh Prowlers.")));
+
+	const FName FocusBeforeSelection = Character->QuestLog->FocusedQuestId;
+	const int32 CopperBeforePresentation = Character->Wallet->Copper;
+	const int32 ExperienceBeforePresentation = Character->Stats->CurrentExperience;
+	const int32 InventoryBeforePresentation = Character->Inventory->Stacks.Num();
+	TestTrue(TEXT("Selecting Still Waters changes ledger detail only"),
+		Hud->SelectQuestLedgerRecord(1));
+	TestEqual(TEXT("Selection alone preserves compact tracker focus"),
+		Character->QuestLog->FocusedQuestId, FocusBeforeSelection);
+	TestTrue(TEXT("Unfocused selection exposes Still Waters objective copy"),
+		Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
+			TEXT("Complete a rest at the communal well.")));
+	TestTrue(TEXT("Explicit focus changes the compact tracker"), Hud->FocusSelectedQuest());
+	TestEqual(TEXT("Focused tracker now uses Still Waters exact copy"),
+		Hud->GetQuestTrackerDisplayText().ToString(),
+		FString(TEXT("Quest\nStill Waters\n0/1   Complete a rest at the communal well.")));
+
+	TestTrue(TEXT("Selecting legacy data exposes the stable fallback"),
+		Hud->SelectQuestLedgerRecord(2));
+	TestTrue(TEXT("Legacy detail uses the stable fallback"),
+		Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
+			TEXT("Objective details unavailable.")));
+	TestTrue(TEXT("Selecting long copy stays inside the same detail surface"),
+		Hud->SelectQuestLedgerRecord(3));
+	TestTrue(TEXT("Long objective remains exact before visual clipping"),
+		Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(LongObjective));
+	if (DetailObjectiveText)
+	{
+		TestTrue(TEXT("Rendered long objective retains its complete source value"),
+			DetailObjectiveText->GetText().ToString().Contains(LongObjective));
+	}
+	TestTrue(TEXT("Inventory takes ownership from objective details"),
+		Hud->ToggleInventoryPanel());
+	TestFalse(TEXT("Objective detail surface closes during peer handoff"),
+		Hud->IsQuestLedgerPanelVisible());
+	TestEqual(TEXT("Objective presentation preserves wallet"),
+		Character->Wallet->Copper, CopperBeforePresentation);
+	TestEqual(TEXT("Objective presentation preserves experience"),
+		Character->Stats->CurrentExperience, ExperienceBeforePresentation);
+	TestEqual(TEXT("Objective presentation preserves inventory"),
+		Character->Inventory->Stacks.Num(), InventoryBeforePresentation);
 	return true;
 }
 

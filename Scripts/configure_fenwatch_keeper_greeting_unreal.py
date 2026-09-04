@@ -22,6 +22,7 @@ GREETING_COPY = {
     "ready_greeting": "You have done enough. Come speak with me.",
     "completed_greeting": "Fenwatch remembers a steady hand.",
 }
+OBJECTIVE_INSTRUCTIONS = "Defeat 3 Marsh Prowlers."
 
 
 def fail(message):
@@ -47,6 +48,7 @@ def main():
 
     for property_name, value in GREETING_COPY.items():
         quest.set_editor_property(property_name, value)
+    quest.set_editor_property("objective_instructions", OBJECTIVE_INSTRUCTIONS)
     if not unreal.EditorAssetLibrary.save_loaded_asset(
         quest, only_if_is_dirty=False
     ):

@@ -10,6 +10,7 @@
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/EmbermereWalletComponent.h"
 #include "Data/EmbermereItemData.h"
+#include "Data/EmbermereQuestData.h"
 #include "Data/EmbermereVendorStockData.h"
 #include "Data/EmbermereUiIconSet.h"
 #include "Game/EmbermerePlayerController.h"
@@ -76,6 +77,8 @@ namespace
 	constexpr float QuestLedgerButtonHeight = 38.0f;
 	constexpr float QuestLedgerButtonMargin = 24.0f;
 	constexpr float QuestLedgerButtonVerticalOffset = 70.0f;
+	constexpr float QuestTrackerWidth = 260.0f;
+	constexpr float QuestTrackerHeight = 68.0f;
 	constexpr float TrainerPanelWidth = 500.0f;
 	constexpr float TrainerPanelHeight = 300.0f;
 	constexpr float ProgressionBarWidth = 260.0f;
@@ -981,10 +984,46 @@ FText UEmbermerePlayerHudWidget::GetQuestLedgerSelectedObjectiveText() const
 	const FEmbermereQuestState* QuestState = GetSelectedQuestLedgerState();
 	return QuestState
 		? FText::FromString(FString::Printf(
-			TEXT("Objective progress   %d / %d"),
+			TEXT("Objective progress   %d / %d   |   %s"),
 			QuestState->CurrentObjectiveCount,
-			QuestState->Quest->RequiredObjectiveCount))
+			QuestState->Quest->RequiredObjectiveCount,
+			*GetQuestObjectiveDisplayText(QuestState->Quest).ToString()))
 		: FText::GetEmpty();
+}
+
+FText UEmbermerePlayerHudWidget::GetQuestObjectiveDisplayText(
+	const UEmbermereQuestData* Quest) const
+{
+	if (!Quest || Quest->ObjectiveInstructions.ToString().TrimStartAndEnd().IsEmpty())
+	{
+		return NSLOCTEXT(
+			"EmbermereQuest",
+			"ObjectiveInstructionsUnavailable",
+			"Objective details unavailable.");
+	}
+
+	return Quest->ObjectiveInstructions;
+}
+
+FText UEmbermerePlayerHudWidget::GetQuestTrackerDisplayText() const
+{
+	if (!QuestLog || !QuestLog->ActiveQuest.Quest)
+	{
+		return FText::FromString(TEXT("Quest: none"));
+	}
+
+	const FEmbermereQuestState& QuestState = QuestLog->ActiveQuest;
+	return FText::FromString(FString::Printf(
+		TEXT("Quest\n%s\n%d/%d   %s"),
+		*QuestState.Quest->Title.ToString(),
+		QuestState.CurrentObjectiveCount,
+		QuestState.Quest->RequiredObjectiveCount,
+		*GetQuestObjectiveDisplayText(QuestState.Quest).ToString()));
+}
+
+FVector2D UEmbermerePlayerHudWidget::GetQuestTrackerDimensions() const
+{
+	return FVector2D(QuestTrackerWidth, QuestTrackerHeight);
 }
 
 FText UEmbermerePlayerHudWidget::GetQuestLedgerSelectedRewardText() const
@@ -2080,8 +2119,21 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 
 	QuestPanel = MakePanel(WidgetTree, TEXT("QuestPanel"), FLinearColor(0.025f, 0.055f, 0.07f, 0.78f));
 	UVerticalBox* QuestStack = MakePanelStack(WidgetTree, QuestPanel, TEXT("QuestStack"));
-	QuestText = MakeHudText(WidgetTree, TEXT("QuestText"), FLinearColor(0.72f, 0.9f, 1.0f, 1.0f), 15.0f);
-	AddStackChild(QuestStack, QuestText, 0.0f);
+	QuestText = MakeHudText(WidgetTree, TEXT("QuestText"), FLinearColor(0.72f, 0.9f, 1.0f, 1.0f), 14.0f);
+	if (QuestText)
+	{
+		QuestText->SetAutoWrapText(false);
+		QuestText->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+	}
+	AddStackChild(
+		QuestStack,
+		MakeSizedWidget(
+			WidgetTree,
+			QuestText,
+			TEXT("QuestTrackerSize"),
+			QuestTrackerWidth,
+			QuestTrackerHeight),
+		0.0f);
 
 	InventoryPanel = MakePanel(WidgetTree, TEXT("InventoryPanel"), FLinearColor(0.025f, 0.028f, 0.024f, 0.94f));
 	UVerticalBox* InventoryStack = MakePanelStack(WidgetTree, InventoryPanel, TEXT("InventoryStack"));
@@ -3881,11 +3933,7 @@ void UEmbermerePlayerHudWidget::RefreshHudText()
 			{
 				QuestPanel->SetVisibility(ESlateVisibility::Visible);
 			}
-			QuestText->SetText(FText::FromString(FString::Printf(
-				TEXT("Quest\n%s\n%d/%d"),
-				*QuestLog->ActiveQuest.Quest->Title.ToString(),
-				QuestLog->ActiveQuest.CurrentObjectiveCount,
-				QuestLog->ActiveQuest.Quest->RequiredObjectiveCount)));
+			QuestText->SetText(GetQuestTrackerDisplayText());
 		}
 		else
 		{

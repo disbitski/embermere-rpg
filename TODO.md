@@ -6,8 +6,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-09-03 no-hot-reload selected-quest detail
-  module over the 2026-09-02 native Quest Ledger, the 2026-09-01 `Still
+- Confirm Unreal is running the 2026-09-04 no-hot-reload quest-objective
+  presentation module and both saved quest packages over the 2026-09-03
+  selected-quest detail module, the 2026-09-02 native Quest Ledger, the
+  2026-09-01 `Still
   Waters` quest/service/router module plus the
   saved `DQ_FenwatchStillWaters` and map packages, the 2026-08-31
   save-version-3 multi-quest module, and the
@@ -26,11 +28,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 87 Embermere tests.
+  predates that work or test discovery exposes fewer than 88 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 87 tests, especially
+- Discover and run all 88 tests, especially
+  `Embermere.UI.QuestObjectiveDisplayPresentation`,
   `Embermere.UI.QuestLedgerDetailsPresentation`,
   `Embermere.UI.QuestLedgerDetailLifecycle`,
   `Embermere.UI.QuestLedgerPresentation`,
@@ -94,11 +97,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   vendor-stall, cottage, training-workshop,
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
-  initialized-world route validators also passed. The authoritative
-  latest 2026-09-03 no-hot-reload build and isolated commandlet passed 87/87;
-  the restarted editor's first-class MCP runner independently passed the same
-  87/87. The new coverage proves the fixed native Quest Ledger, selected-quest
-  details and exact item/no-item rewards, long-copy clipping, transient
+  initialized-world route validators also passed. The authoritative latest
+  2026-09-04 no-hot-reload build and isolated commandlet passed 88/88. The new
+  coverage proves quest-owned objective instructions, their stable fallback,
+  fixed tracker/detail clipping, active/ready/completed continuity, and
+  selection/focus independence alongside the fixed native Quest Ledger,
+  selected-quest details and exact item/no-item rewards, transient
   stable-ID focus, full eight-row geometry, peer-panel lifecycle, and zero
   quest/reward mutation, the data-driven `Still Waters` owner and
   committed-rest router, two simultaneous keyed quests, exact objective
@@ -109,8 +113,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   Chronicle command geometry, live Dwarf Warrior identity, and fixed current-
   versus-saved Chronicle layout; the
   standalone `Still Waters`, communal-well presentation, communal-well rest,
-  communal-well art, trainer, and progression validators plus the fresh
-  19-package aggregate
+  communal-well art, trainer, progression, and quest-objective validators plus
+  the fresh 20-package aggregate
   passed with
   explicit success markers while retaining 53 grounded Fab plus 24 original-
   art actors. Clean PIE accepted the real `F` rest channel at the separate
@@ -136,7 +140,11 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   region showed Mara's exact `125 XP | 20 copper | Recruit Pack` and Still
   Waters' `50 XP | 10 copper | No item reward`. Physical Up/Down refreshed only
   details, Enter switched the compact tracker, and `I` replaced the ledger
-  without record or reward mutation.
+  without record or reward mutation. The 2026-09-04 clean PIE gate physically
+  accepted both quests, showed each exact objective instruction in the corrected
+  fixed `260x68` tracker and unchanged `596x120` detail region, then selected
+  Mara while Still Waters remained tracked. All initialized-world route and
+  collision checks remained clean.
 - Retain the accepted save-version-3 multi-quest boundary:
   - `QuestStates` is the only mutable runtime quest authority and is bounded to
     eight unique stable quest IDs;
@@ -175,8 +183,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     Enter requests one explicit stable-ID focus; Up/Down wraps only over
     occupied rows and duplicate focus is harmless;
   - selected details read the quest-owned title, description, state copy,
-    objective progress, XP, copper, and optional item display name; no item and
-    unusable item metadata use stable presentation-only fallbacks;
+    objective progress, distinct objective instruction, XP, copper, and
+    optional item display name; no item and unusable item metadata use stable
+    presentation-only fallbacks;
+  - the compact tracker remains a fixed `260x68` clipped three-line surface and
+    reads the same data-owned instruction; blank or missing metadata reports
+    `Objective details unavailable.` without changing stable IDs, numeric
+    requirements, progress, save bytes, or rewards;
   - `J` and the fixed `140x38` bottom-right command open the same panel eight
     pixels above Chronicle; Inventory, Vendor, Trainer, Chronicle, and Quest
     Ledger remain mutually exclusive under controller-owned cursor/input state;
@@ -185,6 +198,8 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
     equipment, save bytes, or service state. Treat
     [Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md](Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md)
     as the presentation boundary.
+  Treat [Docs/QUEST_OBJECTIVE_PRESENTATION_CONTRACT.md](Docs/QUEST_OBJECTIVE_PRESENTATION_CONTRACT.md)
+  as the descriptive-copy boundary.
 - Retain the accepted character-creation authority and lifecycle contract:
   - the centered fixed `940x560` modal shows all eight races and four classes
     before gameplay while the normal HUD remains hidden;
@@ -653,11 +668,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
       separate art-free notice-board quest owner, one dedicated router for the
       rest service's committed `Success`, exact keyed progress/turn-in, and a
       two-quest double-load proof. The notice-board mesh, well art, rest
-      service/presentation, and trainer remain quest-free.
+      service/presentation, and trainer remain quest-free. Retain both distinct
+      quest-owned objective instructions in the fixed tracker and ledger detail.
 
 ## Full Manual Regression Checklist
 
-- Restart Unreal before manual PIE when the editor predates the 2026-09-03
+- Restart Unreal before manual PIE when the editor predates the 2026-09-04
+  quest-objective presentation module and saved quest packages, the 2026-09-03
   selected-quest detail module, the 2026-09-02 native Quest Ledger, the
   2026-09-01 `Still Waters`
   quest/service/router module and saved quest/map packages, the
@@ -669,7 +686,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   rigged Fenwatch keeper, armsmaster, and
   quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 87 tests.
+  Current code passes all 88 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -1077,34 +1094,32 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
-- Add one data-owned objective-display field to the accepted quest contract and
-  consume it read-only in the compact tracker and selected-quest details:
-  - `UEmbermereQuestData` should own a short objective instruction distinct
-    from title, narrative description, state greetings, stable `ObjectiveId`,
-    and numeric requirement. Use explicit authored copy for Mara and Still
-    Waters rather than deriving prose from IDs or display titles;
-  - preserve the fixed `620x550` ledger, all eight `596x30` rows, the
-    `596x120` detail region, and the compact tracker's current stable bounds.
-    Long objective copy must wrap or clip inside its existing cell without
-    layout growth;
-  - provide one stable read-only fallback for legacy or malformed quest data,
-    but keep objective identity, progress eligibility, and completion entirely
-    on the existing stable-ID/requirement contract;
-  - update both saved quest assets explicitly through the reviewed package-save
-    lane and extend focused package validation. This is display metadata only:
-    do not change save version `3`, serialize copy, migrate slots, or duplicate
-    progress state;
-  - add focused automation for exact Mara/Still Waters copy, missing-copy
-    fallback, active/ready/completed rendering, long-copy clipping, selection
-    versus focus independence, peer handoff, and zero quest/reward mutation;
-  - in clean PIE, show active Mara and completed Still Waters together and
-    verify each objective instruction remains readable at normal camera
-    distance while exact `0/3`, `1/1`, rewards, and compact focus stay intact.
-  Keep quest acceptance, progress, completion, reward, focus, and persistence
-  owners unchanged. Do not add abandonment, sorting, map tracking, reward
-  claims, or a new quest in this slice. If the display field cannot remain
-  purely descriptive, stop at a reviewed contract rather than coupling it to
-  mutation rules.
+- Define and implement one restrained presentation-only quest update observer
+  over authoritative committed quest changes:
+  - define the event and authority boundary before UI work. Quest owners and
+    `QuestStates` must remain the only acceptance, progress, ready, completion,
+    reward, and focus authorities; the observer may consume immutable results
+    only after their mutation commits;
+  - cover accepted, exact progress, ready-to-turn-in, and completed outcomes
+    with stable quest-owned title/objective copy and exact counts. Keep chat,
+    the compact tracker, contextual greetings, and the Quest Ledger as durable
+    fallbacks;
+  - use one fixed short-lived native surface with deterministic bounds and
+    lifetime, a bounded rapid-update policy, hit-test-invisible behavior, and
+    no movement of HUD, hotbar, chat, target, Chronicle, or ledger geometry;
+  - clear safely on expiry, world teardown, death, and load. Silent restore
+    must never replay acceptance, progress, ready, completion, or reward
+    presentation;
+  - add focused automation for exact post-commit payloads, wrong-ID rejection,
+    duplicate/cap behavior, rapid updates, fixed geometry, expiry/teardown,
+    peer-panel coexistence, silent load, and zero wallet/XP/item/reward drift;
+  - in clean PIE, accept both quests, advance Mara once through real Prowler
+    combat, complete one real Still Waters rest/turn-in, and judge each update
+    at normal camera distance without obscuring existing world or HUD feedback.
+  Do not add abandonment, sorting, map tracking, reward claims, another quest,
+  audio, or persistence fields in this slice. If the runtime cannot expose one
+  trustworthy immutable post-commit result without broad mutation changes,
+  land the reviewed contract and smallest test-backed event seam first.
 - Retain Mara's accepted contextual greeting contract in clean PIE:
   - outside `420` cm the observer must be hidden; inside range it must show the
     quest-owned available, active, ready, or completed copy;
@@ -1261,6 +1276,30 @@ targeting, rewards, AI, quests, or persistence.
   scale, color, or motion only from normal-camera feedback.
 
 ## Last Completed
+
+- 2026-09-04: added quest-data-owned `ObjectiveInstructions` and authored exact
+  `Defeat 3 Marsh Prowlers.` and `Complete a rest at the communal well.` copy
+  into the two saved quest packages. The fixed compact tracker now reads title,
+  exact progress, and instruction inside corrected `260x68` clipped bounds;
+  the unchanged selected detail appends the same read-only metadata.
+- Added the stable `Objective details unavailable.` fallback and
+  `Embermere.UI.QuestObjectiveDisplayPresentation`, bringing the suite to `88`.
+  The no-hot-reload build, isolated `88/88`, focused package validator,
+  sequential 20-package aggregate, full-zone validation, and initialized-world
+  route/collision traces passed with no Python errors.
+- Clean PIE physically accepted Mara and Still Waters, displayed both exact
+  instructions, and selected Mara through Up while Still Waters remained the
+  compact focus. The fixed `620x550` ledger, eight `596x30` rows, `596x120`
+  detail region, records, rewards, and save version `3` remained unchanged.
+
+- 2026-09-03: extended the native Quest Ledger once to fixed `620x550` bounds
+  with one `596x120` selected-record region for quest-owned narrative/state
+  copy, objective progress, and exact XP/copper/optional-item rewards. Selection
+  refreshes details only; explicit stable-ID focus remains separate.
+- Added `Embermere.UI.QuestLedgerDetailsPresentation` and
+  `Embermere.UI.QuestLedgerDetailLifecycle`, bringing the suite to `87`. The
+  no-hot-reload build, isolated and restarted-editor suites, 19-package
+  aggregate, full-zone validation, and clean two-quest PIE gate passed.
 
 - 2026-09-02: implemented and accepted the fixed native player-facing Quest
   Ledger over the save-version-3 keyed quest collection. The centered

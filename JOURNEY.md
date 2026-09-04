@@ -2984,6 +2984,44 @@ Lesson: a useful read-only surface should expose the facts an authority already
 owns. Exact source values, fixed geometry, and negative mutation tests keep
 explanation from quietly becoming a second rules system.
 
+## 2026-09-04 - Objectives Learned To Speak Plainly
+
+The ledger could explain a quest's story, state, count, and reward, but the
+player still had to translate `0/3` into the next action. Today each quest data
+asset gained one short `ObjectiveInstructions` field. Mara now says `Defeat 3
+Marsh Prowlers.` and Still Waters says `Complete a rest at the communal well.`
+The compact tracker and selected ledger detail consume the same authored fact.
+
+The key decision was to keep descriptive text out of identity. Neither UI
+derives prose from `ObjectiveId`, title, or requirement, and the new field is
+never consulted when progress commits. Stable IDs and numeric requirements
+still decide what may mutate. Blank legacy metadata reports `Objective details
+unavailable.` and does nothing else. Save version `3` did not change because
+the loaded quest asset remains the source of display copy.
+
+The first clean PIE pass exposed a useful difference between structural tests
+and actual reading. A three-line tracker inside the old 58-pixel cell clipped
+the new instruction even though its clipping contract was technically correct.
+The tracker now has a fixed `260x68` region and slightly tighter type. It still
+cannot grow, but all three lines are legible at normal camera distance. Long
+copy clips deliberately inside that boundary.
+
+Physical `F` accepted Mara and Still Waters through their existing owners. The
+ledger showed both exact objective lines inside its unchanged `620x550` panel,
+eight `596x30` rows, and `596x120` detail region. Physical Up selected Mara
+while the compact tracker remained on Still Waters, making the selection/focus
+boundary visible rather than merely asserted.
+
+The no-hot-reload build and isolated suite passed `88/88`. Both saved quest
+packages, the focused validator, and the sequential 20-package aggregate passed
+with explicit success markers and no Python errors. Initialized-world route
+traces remained clean, and the map stayed at 53 grounded Fab actors plus 24
+original-art placements.
+
+Lesson: clipping is a containment rule, not proof of readability. Keep display
+copy owned by data and mutation owned by stable IDs, then use a real viewport to
+prove the fixed container actually communicates the fact.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

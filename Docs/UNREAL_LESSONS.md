@@ -1824,3 +1824,25 @@ Fixed geometry made that boundary testable. Eight row slots stayed unchanged,
 while one bounded detail region wrapped and clipped long copy. Selection
 refreshed only those cells; explicit focus remained a separate stable-ID
 request. Test exact visible values and the state that must not move together.
+
+## Keep Objective Copy Descriptive And Prove Its Fixed Cell By Eye
+
+A stable objective ID and numeric requirement are good mutation inputs and poor
+player instructions. Add a separate authored field for the sentence the player
+reads. UI may combine it with authoritative progress, but it must not parse the
+sentence, derive it from an ID, or use it to decide whether progress may commit.
+That keeps localization and copy edits from becoming gameplay changes.
+
+Missing presentation metadata needs a presentation fallback, not an invented
+rule. `Objective details unavailable.` lets legacy or malformed content remain
+honest while the existing stable-ID validator continues to accept or reject the
+actual quest independently. Resolve the field from the quest asset after load;
+do not serialize duplicate prose merely to make a tracker convenient.
+
+Clipping alone is not visual acceptance. Embermere's first fixed 58-pixel
+tracker correctly clipped overflow but also clipped the new third line. A clean
+PIE screenshot caught what object-level tests could not. Increasing the one
+stable bound to `260x68` and tightening the font preserved deterministic layout
+while making title, progress, and instruction readable. Test source retention
+and clipping mechanically, then inspect the rendered result at normal camera
+distance.

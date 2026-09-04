@@ -14,7 +14,8 @@ schema or any quest mutation API.
 
 - `UEmbermereQuestLogComponent::QuestStates` remains the only mutable runtime
   quest authority.
-- Quest data owns stable IDs, title, objective requirement, copy, and rewards.
+- Quest data owns stable IDs, title, objective requirement, objective
+  instructions, contextual copy, and rewards.
 - Quest gameplay owners continue to own acceptance, progress, completion, and
   exactly-once reward commits.
 - The ledger widget may read `QuestStates` in authored order and request one
@@ -64,7 +65,8 @@ state and quest data:
 
 - quest-owned title and description;
 - the exact active, ready, or completed greeting for the current state;
-- current objective progress and the quest-owned requirement;
+- current objective progress, the quest-owned requirement, and the distinct
+  authored objective instruction;
 - exact XP and copper rewards;
 - the optional reward item's display name when the soft reference resolves.
 
@@ -157,3 +159,25 @@ fixed panel and clear of chat, hotbar, tracker, and bottom-right commands.
 Up/Down changed details only, Enter moved focus explicitly, and Inventory
 replaced the ledger cleanly. Still Waters remained paid exactly once at `50`
 XP and `10` additional copper while Mara remained active at `0/3`.
+
+## Accepted 2026-09-04 Objective Instructions
+
+`UEmbermereQuestData::ObjectiveInstructions` now owns one short descriptive
+instruction independent of stable objective identity and numeric requirement.
+Mara owns `Defeat 3 Marsh Prowlers.` and Still Waters owns `Complete a rest at
+the communal well.` The selected detail objective line consumes that field
+read-only. Blank, whitespace-only, or missing data reports `Objective details
+unavailable.` without changing validation, progress, or rewards.
+
+The compact tracker consumes the same field in a fixed `260x68` clipped region.
+The ledger remains exactly `620x550`, with eight unchanged `596x30` rows and one
+unchanged `596x120` detail region. Long source copy remains intact but clips at
+the render boundary instead of growing either surface.
+
+`Embermere.UI.QuestObjectiveDisplayPresentation` covers exact copy, fallback,
+active/ready/completed continuity, fixed geometry, clipping, selection/focus
+independence, peer handoff, and zero mutation. The no-hot-reload build and
+isolated suite passed `88/88`; the focused validator and sequential 20-package
+aggregate passed without Python errors. Clean PIE accepted both quests through
+physical `F`, displayed both exact instructions, and selected Mara while Still
+Waters remained tracked.

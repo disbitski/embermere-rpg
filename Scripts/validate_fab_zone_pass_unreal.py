@@ -57,6 +57,7 @@ FENWATCH_KEEPER_GREETING_COPY = {
     "ready_greeting": "You have done enough. Come speak with me.",
     "completed_greeting": "Fenwatch remembers a steady hand.",
 }
+FENWATCH_KEEPER_OBJECTIVE_INSTRUCTIONS = "Defeat 3 Marsh Prowlers."
 FENWATCH_QUARTERMASTER_LABEL = "Embermere_FenwatchQuartermaster_Vendor_01"
 FENWATCH_QUARTERMASTER_PATH = (
     "/Game/Art/Embermere/Characters/NPCs/FenwatchQuartermaster/"
@@ -178,6 +179,9 @@ FENWATCH_STILL_WATERS_SERVICE_LABEL = (
 FENWATCH_STILL_WATERS_QUEST_PATH = (
     "/Game/Data/Quests/"
     "DQ_FenwatchStillWaters.DQ_FenwatchStillWaters"
+)
+FENWATCH_STILL_WATERS_OBJECTIVE_INSTRUCTIONS = (
+    "Complete a rest at the communal well."
 )
 FENWATCH_REST_DATA_PATH = (
     "/Game/Data/Services/"
@@ -768,6 +772,10 @@ def main():
     for property_name, expected in FENWATCH_KEEPER_GREETING_COPY.items():
         if str(keeper_quest.get_editor_property(property_name)) != expected:
             fail("Fenwatch keeper quest {} drifted".format(property_name))
+    if str(keeper_quest.get_editor_property(
+        "objective_instructions"
+    )) != FENWATCH_KEEPER_OBJECTIVE_INSTRUCTIONS:
+        fail("Fenwatch keeper quest objective instructions drifted")
     if unreal.Name("EmbermereOriginalArt") not in list(keeper_presentation.tags):
         fail("Fenwatch keeper presentation lost the EmbermereOriginalArt tag")
 
@@ -2522,6 +2530,10 @@ def main():
         fail("Still Waters router quest ID drifted")
     if str(still_waters_router.get_editor_property("objective_id")) != "FenwatchRestCompleted":
         fail("Still Waters router objective ID drifted")
+    if str(still_waters_quest.get_editor_property(
+        "objective_instructions"
+    )) != FENWATCH_STILL_WATERS_OBJECTIVE_INSTRUCTIONS:
+        fail("Still Waters quest objective instructions drifted")
     if still_waters_service.get_component_by_class(unreal.StaticMeshComponent):
         fail("Still Waters service must not own static art")
     if still_waters_service.get_component_by_class(unreal.SkeletalMeshComponent):

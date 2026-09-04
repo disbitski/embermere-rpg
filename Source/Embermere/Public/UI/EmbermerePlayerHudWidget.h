@@ -22,6 +22,7 @@ class UEmbermereInventoryComponent;
 class UEmbermereLevelUpWidget;
 class UEmbermereQuestLogComponent;
 class UEmbermereQuestLedgerRowButton;
+class UEmbermereQuestData;
 class UEmbermereTrainerComponent;
 class UEmbermereTrainerOfferingButton;
 class UEmbermereVendorComponent;
@@ -168,6 +169,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
 	FText GetQuestLedgerSelectedDetailDisplayText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	FText GetQuestObjectiveDisplayText(const UEmbermereQuestData* Quest) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	FText GetQuestTrackerDisplayText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
+	FVector2D GetQuestTrackerDimensions() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD|Quest Ledger")
 	FVector2D GetQuestLedgerPanelDimensions() const;

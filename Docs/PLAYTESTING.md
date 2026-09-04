@@ -568,7 +568,7 @@ The full ownership and rollback contract is in
 ## Version 3 Multi-Quest And Still Waters
 
 1. Build with `-NoHotReloadFromIDE`, restart Unreal, force automation
-   rediscovery, and confirm exactly `85` Embermere tests are available.
+   rediscovery, and confirm exactly `88` Embermere tests are available.
 2. Run `Embermere.Quests.MultiQuestRuntime` and verify two valid quests coexist,
    exact objective progress affects only its quest, an unrelated giver cannot
    turn in Mara, a failed reward preflight preserves ready state, and each
@@ -616,7 +616,7 @@ The full ownership and rollback contract is in
     wrapped selection; explicit focus; duplicate-focus safety; peer-panel
     handoff; teardown; nonserialized focus; and zero quest/reward mutation.
 15. In clean PIE, leave Mara active at `0/3` and complete Still Waters at
-    `1/1`. Press `J` and confirm both records fit the fixed `620x430` panel in
+    `1/1`. Press `J` and confirm both records fit the fixed `620x550` panel in
     `596x30` rows, with the separate `140x38` Quest Ledger command eight pixels
     above Chronicle and clear of chat, hotbar, target, and the compact tracker.
 16. Use Up/Down to select each record and Enter to focus it. Confirm selection
@@ -639,6 +639,20 @@ The full ownership and rollback contract is in
     Inventory. Confirm the tracker changes only after Enter, all detail text
     stays inside the panel, peer handoff is exclusive, and neither quest,
     reward, wallet, XP, nor inventory changes while inspecting details.
+20. Run `Embermere.UI.QuestObjectiveDisplayPresentation`. Confirm Mara owns
+    exact `Defeat 3 Marsh Prowlers.` copy, Still Waters owns exact `Complete a
+    rest at the communal well.` copy, blank/missing data uses `Objective details
+    unavailable.`, and active, ready, and completed records retain the same
+    descriptive instruction.
+21. In clean PIE, accept Mara and Still Waters through their physical `F`
+    owners. Confirm the focused compact tracker uses fixed `260x68` bounds and
+    shows title, exact progress, and the authored instruction without moving
+    neighboring HUD. Long copy must clip rather than resize the panel.
+22. Open the ledger, leave Still Waters focused, and use physical Up to select
+    Mara. Confirm Mara's detail shows `Objective progress   0 / 3   |   Defeat
+    3 Marsh Prowlers.` while the compact tracker remains on Still Waters. Then
+    inspect Still Waters' exact objective line and verify no quest, reward,
+    wallet, XP, inventory, or focus mutation occurred from selection alone.
 
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
@@ -700,7 +714,9 @@ The complete contract is in
 
 ## Expected Temporary Feedback
 
-- A styled first-pass HUD overlay shows player HP, mana, XP, current target, target HP, range state, quest progress, and all hotbar slots.
+- A styled first-pass HUD overlay shows player HP, mana, XP, current target,
+  target HP, range state, all hotbar slots, and one fixed three-line quest
+  tracker with quest-owned objective instructions.
 - A 700x330 structured inventory/equipment window appears in the top-right with `Slots X / 24`, an explicit category/name Sort control, clickable/draggable highlighted item rows, fixed project-owned item/slot icons and fantasy drag token, selected-item effects and net equipment comparison, row/occupied-slot tooltips, ten stable clickable/drop-target paper-doll slots layered over a restrained illustrated adventurer, gold/red drag feedback, equipment-to-bag return, aggregate bonuses, description, empty/reward state, `[`/`]` cycling, `I` close/show behavior, and Equip or Use actions when supported.
 - Opening the inventory shows the cursor and permits UI clicks; closing it hides the cursor and restores classic game-only mouse input.
 - The larger `140x38` Chronicle command remains anchored to the bottom-right
@@ -798,9 +814,9 @@ The complete contract is in
   and an isolated two-load proof. The fixed native multi-quest ledger now shows
   up to eight active/ready/completed records, changes only transient focus, and
   exposes one fixed selected-record detail with quest-owned narrative/state
-  copy plus exact XP, copper, and optional item rewards. The next presentation
-  gap is a short quest-data-owned objective instruction, not another
-  persistence schema change.
+  copy, objective instruction, and exact XP, copper, and optional item rewards.
+  The compact tracker consumes the same descriptive field inside fixed bounds;
+  no objective copy is serialized and no persistence schema changed.
 - Inventory presentation now has clickable and draggable rows, fixed
   project-owned item/equipment icons and fantasy drag token, category/missing-art
   fallbacks, stable identity-preserving category/name sorting, keyboard

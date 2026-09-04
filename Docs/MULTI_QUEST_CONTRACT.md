@@ -67,9 +67,10 @@ explicitly:
 - complete and grant rewards for one exact quest ID;
 - reject duplicate acceptance and duplicate completion.
 
-Quest data owns IDs, objective requirements, copy, and rewards. A dedicated
-quest gameplay owner owns acceptance, progress, completion, and exactly-once
-reward commit. UI and world presentation remain read-only consumers. Art,
+Quest data owns IDs, objective requirements, distinct objective instructions,
+contextual copy, and rewards. A dedicated quest gameplay owner owns acceptance,
+progress, completion, and exactly-once reward commit. UI and world presentation
+remain read-only consumers. Art,
 rest, trainer, vendor, combat, and persistence services must not acquire quest
 authority merely because a quest observes one of their committed outcomes.
 
@@ -181,3 +182,17 @@ without gaining mutation authority. Four focused tests bring the full suite to
 Clean PIE showed active Mara and completed Still Waters together, refreshed
 details through physical Up/Down, switched the compact projection only through
 Enter, and handed off to Inventory without state or reward mutation.
+
+## Accepted Objective Display Metadata
+
+The 2026-09-04 presentation extension adds one
+`UEmbermereQuestData::ObjectiveInstructions` field without changing the keyed
+runtime or save schema. Mara and Still Waters own distinct short instructions;
+the compact tracker and selected ledger detail resolve them from quest data.
+Blank legacy metadata uses one stable presentation fallback. Stable IDs,
+numeric requirements, and keyed records remain the only objective authority.
+
+The focused presentation test brings the suite to `88`. Both saved quest
+packages, the focused validator, the sequential 20-package aggregate, and clean
+PIE passed. Physical Up selected Mara while Still Waters remained focused,
+proving that descriptive copy and selection still cannot mutate quest state.

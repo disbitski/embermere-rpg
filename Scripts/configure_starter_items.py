@@ -82,6 +82,9 @@ def main():
     starter_quest = unreal.EditorAssetLibrary.load_asset(STARTER_QUEST_PATH)
     if not starter_quest or not isinstance(starter_quest, unreal.EmbermereQuestData):
         raise RuntimeError(f"Could not load starter quest: {STARTER_QUEST_PATH}")
+    starter_quest.set_editor_property(
+        "objective_instructions", "Defeat 3 Marsh Prowlers."
+    )
     starter_quest.set_editor_property("reward_copper", 20)
     if not unreal.EditorAssetLibrary.save_loaded_asset(starter_quest, only_if_is_dirty=False):
         raise RuntimeError(f"Could not save starter quest: {STARTER_QUEST_PATH}")
