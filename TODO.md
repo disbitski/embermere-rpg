@@ -6,7 +6,25 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
 
 ## Start Here
 
-- Confirm Unreal is running the 2026-09-04 no-hot-reload quest-objective
+- September 4 Astra continuation: the new quest-update observer is implemented
+  and the final isolated suite passes `91/91`. Read
+  `Docs/QUEST_UPDATE_PRESENTATION_CONTRACT.md` and
+  `Docs/ASTRA_EMBERMERE_EVALUATION_2026-09-04.md` before extending it. The
+  journal emblem is project-owned Blender UI art, not a new world placement.
+  After local unlock, fresh Human Warrior Q traversal plus W cancellation
+  reached Mara and real F showed acceptance. A labeled temporary objective
+  fixture then showed 1/3 progress and 3/3 ready; real F committed 125 XP,
+  20 copper, and one Recruit Pack. Completion, reward, and level-up panels
+  coexisted without mutual overlap; Inventory cleared the notice without replay.
+  **First remaining gate:** replay the real Prowler and Still Waters routes,
+  remaining peer panels, and held right-mouse/Ctrl+M input. Do not call injected
+  objective progress a combat-route replay. Do not overwrite the user's slot:
+  Chronicle currently rejects contradictory legacy quest state in its v3 save;
+  this session only inspected it and did not save or load it.
+  Check the inherited long Still Waters tracker instruction for clipping;
+  the full ledger detail remains the readable fallback. No map art moved.
+- Confirm Unreal is running the 2026-09-04 no-hot-reload quest-update observer
+  and saved `T_FenwatchJournalEmblem` texture over the quest-objective
   presentation module and both saved quest packages over the 2026-09-03
   selected-quest detail module, the 2026-09-02 native Quest Ledger, the
   2026-09-01 `Still
@@ -28,11 +46,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 88 Embermere tests.
+  predates that work or test discovery exposes fewer than 91 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 88 tests, especially
+- Discover and run all 91 tests, especially
+  `Embermere.Quests.LiveUpdateContract`,
+  `Embermere.UI.QuestUpdatePresentation`,
+  `Embermere.UI.QuestUpdateLifecycle`,
   `Embermere.UI.QuestObjectiveDisplayPresentation`,
   `Embermere.UI.QuestLedgerDetailsPresentation`,
   `Embermere.UI.QuestLedgerDetailLifecycle`,
@@ -98,8 +119,12 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative latest
-  2026-09-04 no-hot-reload build and isolated commandlet passed 88/88. The new
-  coverage proves quest-owned objective instructions, their stable fallback,
+  2026-09-04 Astra no-hot-reload build and final isolated commandlet passed
+  91/91. New coverage proves post-commit copied quest updates, rejection
+  silence, saturating progress, exact reward state, reentrancy guards,
+  initialized fixed widget geometry, latest-wins/expiry/modal/death cleanup,
+  and full version-3 restore silence twice. Existing coverage proves
+  quest-owned objective instructions, their stable fallback,
   fixed tracker/detail clipping, active/ready/completed continuity, and
   selection/focus independence alongside the fixed native Quest Ledger,
   selected-quest details and exact item/no-item rewards, transient
@@ -114,7 +139,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   versus-saved Chronicle layout; the
   standalone `Still Waters`, communal-well presentation, communal-well rest,
   communal-well art, trainer, progression, and quest-objective validators plus
-  the fresh 20-package aggregate
+  the fresh aggregate (now 21 with the journal texture validator)
   passed with
   explicit success markers while retaining 53 grounded Fab plus 24 original-
   art actors. Clean PIE accepted the real `F` rest channel at the separate
@@ -686,7 +711,7 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   rigged Fenwatch keeper, armsmaster, and
   quartermaster module and accepted
   skeletal-mesh/Skeleton/Idle/offerings/Chronicle/item/quest/stock packages.
-  Current code passes all 88 tests.
+  Current code passes all 91 tests.
 - Verify the original Blender assets in clean-restart PIE:
   - find `Embermere_Waystone_Road_01` where the temporary road stump used to be;
   - approach it from the rune side and confirm scale, terrain contact, camera
@@ -1276,6 +1301,18 @@ targeting, rewards, AI, quests, or persistence.
   scale, color, or motion only from normal-camera feedback.
 
 ## Last Completed
+
+- 2026-09-04 Astra evaluation: implemented copied live quest-update results
+  and a fixed presentation-only observer, plus a deterministic Blender
+  journal emblem and saved Unreal UI texture. Final isolated automation
+  passed `91/91`; the sequential `21` package validators and all six live
+  route/collision validators passed. No save schema or map placement changed.
+  The final editor rediscovered 91 tests through first-class MCP. Added a
+  candid evidence report and unpublished field-note draft. After local unlock,
+  normal Q/W approach and F acceptance passed. Fixture-backed progress/ready,
+  real F rewards, completion/level-up separation, and Inventory suppression
+  were inspected. Full Prowler/Still Waters routes and held mouse/modifier
+  checks remain explicit gates; objective injection is not combat proof.
 
 - 2026-09-04: added quest-data-owned `ObjectiveInstructions` and authored exact
   `Defeat 3 Marsh Prowlers.` and `Complete a rest at the communal well.` copy

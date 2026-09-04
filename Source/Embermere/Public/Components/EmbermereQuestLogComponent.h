@@ -22,6 +22,31 @@ struct FEmbermereQuestState
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEmbermereQuestStateChangedSignature, const FEmbermereQuestState&, QuestState);
 
+enum class EEmbermereQuestUpdateKind : uint8
+{
+	Accepted,
+	Progress,
+	Ready,
+	Completed
+};
+
+// Value-only snapshot: observers never retain pointers into the mutable ledger.
+struct FEmbermereQuestUpdate
+{
+	uint64 Sequence = 0;
+	FName QuestId;
+	FName ObjectiveId;
+	FText Title;
+	FText Instructions;
+	int32 PreviousCount = 0;
+	int32 CurrentCount = 0;
+	int32 RequiredCount = 0;
+	EEmbermereQuestUpdateKind Kind = EEmbermereQuestUpdateKind::Accepted;
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FEmbermereQuestUpdateSignature, const FEmbermereQuestUpdate&);
+DECLARE_MULTICAST_DELEGATE(FEmbermereQuestPresentationResetSignature);
+
 UENUM(BlueprintType)
 enum class EEmbermereQuestAcceptanceResult : uint8
 {
@@ -54,6 +79,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FEmbermereQuestStateChangedSignature OnQuestStateChanged;
+
+	FEmbermereQuestUpdateSignature OnLiveQuestUpdate;
+	FEmbermereQuestPresentationResetSignature OnPresentationReset;
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Quest")
 	bool AcceptQuest(UEmbermereQuestData* Quest);
@@ -97,6 +125,10 @@ public:
 	const TArray<FEmbermereQuestState>& GetQuestStatesForSaveGame() const;
 
 private:
+	bool bMutationInProgress = false;
+	uint64 LiveUpdateSequence = 0;
+	void PublishLiveUpdate(const FEmbermereQuestState& State,
+		EEmbermereQuestUpdateKind Kind, int32 PreviousCount);
 	int32 FindQuestStateIndex(FName QuestId) const;
 	bool IsQuestDataValid(const UEmbermereQuestData* Quest) const;
 	void RefreshActiveQuestProjection();

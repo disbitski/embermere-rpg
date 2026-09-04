@@ -2,6 +2,62 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Live Facts Are Not Restore Notifications
+
+The quest state-change delegate also fires during load. It remains useful for
+steady HUD state, but a transient quest-update observer must subscribe to a
+separate post-commit live event. Copy stable IDs, display metadata, and counts
+into its payload; never expose references to mutable ledger elements. Guard
+reentrant quest mutation while synchronous observers run. Restore should emit
+an explicit presentation reset, not synthesize acceptance or completion.
+
+The September 4 observer tests exercise both quest-log restoration and the
+whole version-3 persistence apply twice. A passing isolated event test is not
+enough to establish load silence across the actual persistence path.
+
+## Widget Tests Must Own A Real Lifetime
+
+A bare `NewObject<UUserWidget>` does not guarantee an initialized WidgetTree.
+For rendered-child assertions, initialize the native widget and retain its
+Slate reference while emitting events:
+
+```cpp
+TestTrue(TEXT("Widget initializes"), Widget->Initialize());
+const TSharedRef<SWidget> SlateWidget = Widget->TakeWidget();
+```
+
+Discarding the temporary shared reference can trigger `NativeDestruct` and
+correctly unbind the observer before later test assertions. Inspect actual
+canvas-slot dimensions and clipping, not only a getter that returns intended
+dimensions. Keep pure state tests separate from this layout/lifecycle fixture.
+
+## Tool Success Needs An Observed Result
+
+During the Astra evaluation CUA reported a locked desktop, while first-class
+MCP continued working. Some Slate actions separately returned successful
+dispatch without the intended UI change; the lock was not isolated as their
+cause. After local unlock, desktop access returned and Q/F actions worked;
+some ref coordinates were still inconsistent with the displayed window.
+Refresh references and verify state; do not infer input acceptance from `true`.
+Console execution could appear in the engine log after the tool returned.
+An atomic modifier
+chord is still not a physically held key. Stop PIE before restoring editor
+view modes, and check that the toolbar reads `Lit`.
+
+The capture probe discovered that this build exposes `unreal.WidgetLibrary`,
+not `unreal.WidgetBlueprintLibrary`. Its inspected `get_all_widgets_of_class`
+API resolves native HUD/observer instances. The controller's `PlayerHudWidget`
+member is not a UPROPERTY and cannot be read through `get_editor_property`.
+Stats XP is `CurrentExperience`, not `Experience`. Inspect source/reflection
+before writing probes; an object iterator may also contain objects without a
+resolvable class. Tick probes must unregister on errors and normal timeout.
+
+A stopped Q run near Mara was not proof of broken input: native bounds
+inspection found the existing `FabPass_Village_Table` at the contact position.
+Take a bypass and remeasure before moving accepted art. The successful
+September 4 Q/W approach moved from roughly (-2400,-1200) to (-1793,-831);
+later stationary transforms must not be counted as additional movement proof.
+
 ## Native UMG Layout Timing
 
 When building a pure C++ `UUserWidget` with no designer-authored root widget, create the widget tree before Unreal rebuilds the underlying Slate widget.

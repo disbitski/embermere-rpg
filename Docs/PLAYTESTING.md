@@ -568,7 +568,7 @@ The full ownership and rollback contract is in
 ## Version 3 Multi-Quest And Still Waters
 
 1. Build with `-NoHotReloadFromIDE`, restart Unreal, force automation
-   rediscovery, and confirm exactly `88` Embermere tests are available.
+   rediscovery, and confirm exactly `91` Embermere tests are available.
 2. Run `Embermere.Quests.MultiQuestRuntime` and verify two valid quests coexist,
    exact objective progress affects only its quest, an unrelated giver cannot
    turn in Mara, a failed reward preflight preserves ready state, and each
@@ -656,6 +656,44 @@ The full ownership and rollback contract is in
 
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
+
+## Quest Update Observer
+
+The September 4 implementation has one fixed 420x108 top-right surface, a
+48x48 Blender journal emblem, and a three-second latest-wins lifetime. It
+observes live committed quest facts; it owns no progress or rewards.
+
+1. In a fresh world confirm an identity and close Inventory. Walk to Mara and
+   use F. Inspect QUEST ACCEPTED, exact title, and `0 / 3` instructions. The
+   unlocked September 4 run passed this from fresh PlayerStart using Q, W
+   cancellation, and F, with movement proved by actor transforms.
+2. Defeat a real Prowler while Mara's quest is active. Inspect exact progress;
+   the third credited kill should show READY TO RETURN once, not two queued
+   messages. Preserve target/nameplate, chat, reward, and hotbar readability.
+3. Turn in through Mara's existing F interaction. Inspect QUEST COMPLETED
+   alongside the existing reward/level presentation. Repeating F must not
+   repeat rewards or the notification.
+4. Repeat the acceptance/ready/completion surface for Still Waters using the
+   real notice-board owner and successful well rest. The new detail wraps in
+   fixed bounds; the older compact tracker can clip its longer instruction.
+5. Open Inventory, Chronicle, Trainer, Vendor, or Quest Ledger during an
+   update. It must clear and stay cleared when the panel closes. Verify
+   physical mouse/camera handoff and no shifted neighboring HUD elements.
+6. Verify normal expiry, death cleanup, and a deliberate load without replay.
+   Use an isolated test slot, never overwrite the user's Chronicle save.
+
+Automated full persistence apply twice, geometry, rapid replacement, duplicate
+sequence, teardown, reward state, and mutation-reentrancy checks pass. After
+local unlock, acceptance passed via the normal approach. A labeled temporary
+objective fixture showed 1/3 progress and 3/3 ready; real F then produced
+completion with exactly 125 XP, 20 copper, and one Recruit Pack. The completion,
+reward, and level-up panels did not overlap each other. Inventory cleared the
+notice and closing it did not replay it. Captures paused the world briefly to
+inspect transient states. These are not a full real-combat or Still Waters
+replay. Those routes, remaining peer panels, and held mouse/Ctrl+M remain open.
+The inherited bottom dialogue can overlap the hotbar; the new observer did
+not change that geometry. Read-only Chronicle inspection rejected the user's
+v3 slot for contradictory legacy quest state; no slot was overwritten or loaded.
 
 ## Prototype Save And Load
 

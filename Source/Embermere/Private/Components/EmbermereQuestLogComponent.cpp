@@ -12,16 +12,18 @@ UEmbermereQuestLogComponent::UEmbermereQuestLogComponent()
 
 bool UEmbermereQuestLogComponent::AcceptQuest(UEmbermereQuestData* Quest)
 {
-	if (EvaluateQuestAcceptance(Quest) != EEmbermereQuestAcceptanceResult::Success)
+	if (bMutationInProgress || EvaluateQuestAcceptance(Quest) != EEmbermereQuestAcceptanceResult::Success)
 	{
 		return false;
 	}
 
+	TGuardValue<bool> MutationGuard(bMutationInProgress, true);
 	FEmbermereQuestState& NewState = QuestStates.AddDefaulted_GetRef();
 	NewState.Quest = Quest;
 	FocusedQuestId = Quest->QuestId;
 	RefreshActiveQuestProjection();
 	BroadcastQuestState(NewState);
+	PublishLiveUpdate(NewState, EEmbermereQuestUpdateKind::Accepted, 0);
 	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
 		this,
 		FText::FromString(FString::Printf(TEXT("Quest accepted: %s"), *Quest->Title.ToString())),
@@ -129,7 +131,7 @@ bool UEmbermereQuestLogComponent::AddObjectiveProgressForQuest(
 	int32 Amount)
 {
 	const int32 QuestIndex = FindQuestStateIndex(QuestId);
-	if (!QuestStates.IsValidIndex(QuestIndex) || ObjectiveId.IsNone() || Amount <= 0)
+	if (bMutationInProgress || !QuestStates.IsValidIndex(QuestIndex) || ObjectiveId.IsNone() || Amount <= 0)
 	{
 		return false;
 	}
@@ -142,13 +144,17 @@ bool UEmbermereQuestLogComponent::AddObjectiveProgressForQuest(
 		return false;
 	}
 
-	QuestState.CurrentObjectiveCount = FMath::Clamp(
-		QuestState.CurrentObjectiveCount + Amount,
-		0,
-		QuestState.Quest->RequiredObjectiveCount);
+	TGuardValue<bool> MutationGuard(bMutationInProgress, true);
+	const int32 PreviousCount = QuestState.CurrentObjectiveCount;
+	const int32 Remaining = QuestState.Quest->RequiredObjectiveCount - PreviousCount;
+	QuestState.CurrentObjectiveCount += FMath::Min(Amount, Remaining);
 	FocusedQuestId = QuestId;
 	RefreshActiveQuestProjection();
 	BroadcastQuestState(QuestState);
+	PublishLiveUpdate(QuestState,
+		QuestState.CurrentObjectiveCount == QuestState.Quest->RequiredObjectiveCount
+			? EEmbermereQuestUpdateKind::Ready : EEmbermereQuestUpdateKind::Progress,
+		PreviousCount);
 	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
 		this,
 		FText::FromString(FString::Printf(
@@ -167,6 +173,10 @@ bool UEmbermereQuestLogComponent::TryCompleteActiveQuest()
 
 bool UEmbermereQuestLogComponent::TryCompleteQuestById(FName QuestId)
 {
+	if (bMutationInProgress)
+	{
+		return false;
+	}
 	const int32 QuestIndex = FindQuestStateIndex(QuestId);
 	if (!QuestStates.IsValidIndex(QuestIndex))
 	{
@@ -202,6 +212,7 @@ bool UEmbermereQuestLogComponent::TryCompleteQuestById(FName QuestId)
 
 	// Mark completion before reward delegates fire so a reentrant turn-in cannot
 	// grant the same reward twice. All fallible reward operations were preflighted.
+	TGuardValue<bool> MutationGuard(bMutationInProgress, true);
 	QuestState.bCompleted = true;
 	if (RewardItem)
 	{
@@ -225,6 +236,7 @@ bool UEmbermereQuestLogComponent::TryCompleteQuestById(FName QuestId)
 	FocusedQuestId = QuestId;
 	RefreshActiveQuestProjection();
 	BroadcastQuestState(QuestState);
+	PublishLiveUpdate(QuestState, EEmbermereQuestUpdateKind::Completed, QuestState.CurrentObjectiveCount);
 	UEmbermereGameplayMessageLibrary::PostGameplayMessage(
 		this,
 		FText::FromString(FString::Printf(TEXT("Quest complete: %s"), *Quest->Title.ToString())),
@@ -269,7 +281,7 @@ void UEmbermereQuestLogComponent::RestoreQuestStateForSaveGame(
 bool UEmbermereQuestLogComponent::CanRestoreQuestStatesForSaveGame(
 	const TArray<FEmbermereQuestState>& NewStates) const
 {
-	if (NewStates.Num() > MaxTrackedQuests)
+	if (bMutationInProgress || NewStates.Num() > MaxTrackedQuests)
 	{
 		return false;
 	}
@@ -299,6 +311,7 @@ void UEmbermereQuestLogComponent::RestoreQuestStatesForSaveGame(
 		return;
 	}
 
+	TGuardValue<bool> MutationGuard(bMutationInProgress, true);
 	QuestStates = NewStates;
 	FocusedQuestId = NAME_None;
 	for (const FEmbermereQuestState& QuestState : QuestStates)
@@ -314,6 +327,7 @@ void UEmbermereQuestLogComponent::RestoreQuestStatesForSaveGame(
 		FocusedQuestId = QuestStates[0].Quest->QuestId;
 	}
 	RefreshActiveQuestProjection();
+	OnPresentationReset.Broadcast();
 	OnQuestStateChanged.Broadcast(ActiveQuest);
 }
 
@@ -357,5 +371,22 @@ void UEmbermereQuestLogComponent::RefreshActiveQuestProjection()
 
 void UEmbermereQuestLogComponent::BroadcastQuestState(const FEmbermereQuestState& QuestState)
 {
-	OnQuestStateChanged.Broadcast(QuestState);
+	const FEmbermereQuestState Snapshot = QuestState;
+	OnQuestStateChanged.Broadcast(Snapshot);
+}
+
+void UEmbermereQuestLogComponent::PublishLiveUpdate(
+	const FEmbermereQuestState& State, EEmbermereQuestUpdateKind Kind, int32 PreviousCount)
+{
+	FEmbermereQuestUpdate Update;
+	Update.Sequence = ++LiveUpdateSequence;
+	Update.QuestId = State.Quest->QuestId;
+	Update.ObjectiveId = State.Quest->ObjectiveId;
+	Update.Title = State.Quest->Title;
+	Update.Instructions = State.Quest->ObjectiveInstructions;
+	Update.PreviousCount = PreviousCount;
+	Update.CurrentCount = State.CurrentObjectiveCount;
+	Update.RequiredCount = State.Quest->RequiredObjectiveCount;
+	Update.Kind = Kind;
+	OnLiveQuestUpdate.Broadcast(Update);
 }

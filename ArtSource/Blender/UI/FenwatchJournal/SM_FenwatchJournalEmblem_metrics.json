@@ -1,0 +1,12 @@
+{
+  "dimensions_cm": [
+    22.45,
+    28.0,
+    7.45
+  ],
+  "triangles": 2580,
+  "non_manifold_edges": 0,
+  "uv_channels": 1,
+  "material_slots": 5,
+  "purpose": "presentation-only UI render source; no map actor or gameplay"
+}

@@ -102,6 +102,10 @@ The repo currently contains the C++ gameplay scaffold for:
   four starter abilities, and controller-owned modal input returns cleanly to
   the normal HUD/game path; Human Warrior remains the reversible fallback
 - native first-pass HUD panels for status, target, range state, quest tracking, dialogue, loot, and hotbar labels
+- a bounded live quest-update observer with a project-owned Blender journal
+  emblem, post-commit copied results, latest-wins expiry, and silent-load
+  clearing; full normal-route visual acceptance remains pending in
+  [the observer contract](Docs/QUEST_UPDATE_PRESENTATION_CONTRACT.md)
 - a fixed quest-owned four-state Mara greeting below her world marker that is
   range-gated, hit-test-invisible, non-colliding, and presentation-only
 - bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback

@@ -21,6 +21,7 @@ class UEmbermereInventoryRowButton;
 class UEmbermereInventoryComponent;
 class UEmbermereLevelUpWidget;
 class UEmbermereQuestLogComponent;
+class UEmbermereQuestUpdateWidget;
 class UEmbermereQuestLedgerRowButton;
 class UEmbermereQuestData;
 class UEmbermereTrainerComponent;
@@ -396,6 +397,9 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UEmbermereLevelUpWidget> LevelUpOverlay;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UEmbermereQuestUpdateWidget> QuestUpdateOverlay;
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UBorder>> PlayerStatusEffectPanels;

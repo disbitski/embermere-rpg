@@ -1153,6 +1153,32 @@ Lesson: choose civic architecture from measured world space, not an apparently
 empty screenshot. Lock the neighbors and routes first, then let the asset earn
 its place through both positive collision and negative traversal evidence.
 
+## Fenwatch Journal UI Emblem
+
+The September 4 Astra evaluation exercised a small UI-art lane, not another
+world-mesh import. `Scripts/blender/build_fenwatch_journal_emblem.py` creates
+a closed moss journal, brass edging, iron clasp, pale pages, and ember crest
+in a factory-clean headless process. It exports editable `.blend`, FBX,
+metrics, and a transparent 512x512 render under
+`ArtSource/Blender/UI/FenwatchJournal`.
+
+The source has 2,580 triangles, five material roles, one UV channel, applied
+scale, and no non-manifold edges. The reviewed live-bridge
+`inspect_fenwatch_journal_emblem.py` checks alpha and framing without replacing
+the scene: occupied bounds `(45,58)-(466,461)`, 166,690 transparent pixels,
+and the original three scene objects retained. Safe Mode stays enabled.
+
+The MCP script namespace does not supply `__file__`; pass `project_root`
+explicitly using the established arguments contract. Inspect nested error
+fields and stdout even when the outer response says `isError: false`.
+
+Unreal imports the render through `TextureFactory`, explicitly saves
+`/Game/UI/Icons/T_FenwatchJournalEmblem`, and validates 512x512, UI group,
+editor-icon compression, sRGB, and no mips. The optional 48x48 image decorates
+the native quest-update observer. The FBX was not imported into Unreal and
+does not establish a collision or animation contract. No map placement or
+original-world-art count changes.
+
 ## Sources
 
 - Article/post: https://x.com/explosss1ve/status/2075654835597164769

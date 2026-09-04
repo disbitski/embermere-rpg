@@ -1761,8 +1761,26 @@ free of interaction, recovery, reward, quest, or persistence authority.
 
 ## Immediate Next Work
 
+The September 4 Astra continuation supersedes the older milestone below:
+the native quest-update observer and Blender-rendered journal emblem are now
+implemented, with `91/91` final automation and a 21-package aggregate.
+Read `Docs/QUEST_UPDATE_PRESENTATION_CONTRACT.md` and the dated Astra
+evaluation report. After local unlock, fresh Q traversal plus W cancellation
+reached Mara for real F acceptance. Injected temporary objective progress
+provided 1/3 and 3/3 visual fixtures, then real F committed exactly 125 XP,
+20 copper, and one Recruit Pack. Completion/reward/level-up surfaces had clear
+separation, and Inventory suppressed the notice without replay on close.
+Finish the real Prowler/Still Waters routes, remaining peer panels, and held
+mouse/Ctrl+M checks. The widget tree and repeated full version-3 restore are
+covered by tests. Do not equate injected objective progress with combat play.
+Do not overwrite the user's Chronicle slot: read-only inspection currently
+rejects contradictory legacy quest state in that v3 file. No save/load occurred.
+The long Still Waters compact-tracker instruction can clip; its full ledger
+detail remains the fallback. Map counts and placements are unchanged.
+
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-09-04 no-hot-reload quest-objective presentation module and saved quest
+2026-09-04 no-hot-reload quest-update and quest-objective modules, saved journal
+texture, and quest
 packages, the 2026-09-03 selected-quest detail module, the 2026-09-02 native
 Quest Ledger module, the 2026-09-01 Still
 Waters quest/service/router module and saved
@@ -1787,7 +1805,10 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 88 tests, including
+3. Run/discover all 91 tests, including
+   `Embermere.Quests.LiveUpdateContract`,
+   `Embermere.UI.QuestUpdatePresentation`,
+   `Embermere.UI.QuestUpdateLifecycle`,
    `Embermere.UI.QuestObjectiveDisplayPresentation`,
    `Embermere.UI.QuestLedgerDetailsPresentation`,
    `Embermere.UI.QuestLedgerDetailLifecycle`,

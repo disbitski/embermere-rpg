@@ -3022,6 +3022,49 @@ Lesson: clipping is a containment rule, not proof of readability. Keep display
 copy owned by data and mutation owned by stable IDs, then use a real viewport to
 prove the fixed container actually communicates the fact.
 
+## 2026-09-04 - Astra Entered The Existing Acceptance Loop
+
+The user selected GPT-6 Astra with extra-high reasoning and asked for a real
+Unreal/Blender MCP evaluation. The existing quest-update milestone provided
+a bounded task that touched gameplay events, native UI, original art, saved
+packages, persistence, tests, and visual inspection.
+
+The key design finding was that quest state changes also broadcast on load.
+A live notification cannot simply attach to that delegate. The quest log now
+publishes a copied result after accepted live mutations, and a separate reset
+on restore. One removable 420x108 observer shows the latest update for three
+seconds; it cannot grant progress, rewards, or save state. Reentrant mutations
+are guarded and progress saturates safely even for very large increments.
+
+Blender MCP built a small moss journal in a factory-clean process without
+touching the open scene. Its 512x512 transparent render became the optional
+48x48 emblem. The source, FBX, PNG, metrics, scripts, and Unreal texture are
+project-owned. This was a UI texture lane, not a new mesh/rig/collision import.
+
+Final verification passed 91/91 tests, all 21 saved-package validators, and
+all six initialized-world trace validators. The expanded geometry test took
+two fixture corrections: initialize the widget tree, then retain the Slate
+reference while testing its events. An early Blender script also needed an
+explicit root instead of unavailable `__file__`, and a PIE probe guessed a
+Python binding that was not exposed. Those mistakes remain in the evaluation.
+
+The first acceptance capture used synthetic relocation. After the user
+unlocked locally, a fresh Human Warrior used Q and W cancellation to reach
+Mara, then real F produced acceptance. A clearly labeled temporary objective
+fixture provided progress/ready captures; real F committed 125 XP, 20 copper,
+and one Recruit Pack. Completion, reward, and level-up panels coexisted without
+mutual overlap. Inventory cleared the notice without replay. Full combat and
+Still Waters routes, remaining peer panels, and held mouse/modifier acceptance
+remain open. The locked desktop had blocked CUA, not the working MCP servers;
+the later Python probes and modifier-input limitations were separate issues.
+No comparison speedup or general model superiority is claimed from this run.
+
+The findings and local, untracked field-note draft are in
+`Docs/ASTRA_EMBERMERE_EVALUATION_2026-09-04.md` and
+`Docs/FieldNotes/2026-09-04-astra-in-the-embermere-build-loop.md`. The inherited
+notes, reliable tools, and growing tests are part of the result, not background
+to be credited entirely to a model switch.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

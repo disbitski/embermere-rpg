@@ -19,6 +19,7 @@
 #include "UI/EmbermereItemDragDropOperation.h"
 #include "UI/EmbermereInventoryRowButton.h"
 #include "UI/EmbermereLevelUpWidget.h"
+#include "UI/EmbermereQuestUpdateWidget.h"
 #include "UI/EmbermereQuestLedgerRowButton.h"
 #include "UI/EmbermereTrainerOfferingButton.h"
 #include "UI/EmbermereVendorStockButton.h"
@@ -413,6 +414,15 @@ void UEmbermerePlayerHudWidget::NativeConstruct()
 			LevelUpOverlay->SynchronizeViewportBounds();
 		}
 	}
+	if (!QuestUpdateOverlay && GetOwningPlayer())
+	{
+		QuestUpdateOverlay = CreateWidget<UEmbermereQuestUpdateWidget>(
+			GetOwningPlayer(), UEmbermereQuestUpdateWidget::StaticClass());
+		if (QuestUpdateOverlay)
+		{
+			QuestUpdateOverlay->AddToPlayerScreen(18);
+		}
+	}
 	BindComponentEvents();
 	RefreshHudText();
 }
@@ -452,6 +462,12 @@ void UEmbermerePlayerHudWidget::NativeDestruct()
 		LevelUpOverlay->BindToStats(nullptr);
 		LevelUpOverlay->RemoveFromParent();
 		LevelUpOverlay = nullptr;
+	}
+	if (QuestUpdateOverlay)
+	{
+		QuestUpdateOverlay->BindToQuestLog(nullptr, nullptr);
+		QuestUpdateOverlay->RemoveFromParent();
+		QuestUpdateOverlay = nullptr;
 	}
 	Super::NativeDestruct();
 }
@@ -3804,6 +3820,11 @@ void UEmbermerePlayerHudWidget::RefreshStatusEffectRow(
 
 void UEmbermerePlayerHudWidget::RefreshHudText()
 {
+	if (QuestUpdateOverlay)
+	{
+		QuestUpdateOverlay->SetSuppressed(bInventoryPanelVisible || bVendorPanelVisible ||
+			bTrainerPanelVisible || bSaveLoadPanelVisible || bQuestLedgerPanelVisible || !IsVisible());
+	}
 	RefreshStatusEffectRow(
 		Stats ? Stats->GetActiveStatusEffects() : TArray<FEmbermereActiveStatusEffect>(),
 		PlayerStatusEffectPanels,
@@ -5141,6 +5162,10 @@ void UEmbermerePlayerHudWidget::ShowDialogue_Implementation(const FText& Speaker
 
 void UEmbermerePlayerHudWidget::BindComponentEvents()
 {
+	if (QuestUpdateOverlay)
+	{
+		QuestUpdateOverlay->BindToQuestLog(QuestLog, Stats);
+	}
 	if (LevelUpOverlay)
 	{
 		LevelUpOverlay->BindToStats(Stats);
@@ -5159,6 +5184,10 @@ void UEmbermerePlayerHudWidget::BindComponentEvents()
 
 void UEmbermerePlayerHudWidget::UnbindComponentEvents()
 {
+	if (QuestUpdateOverlay)
+	{
+		QuestUpdateOverlay->BindToQuestLog(nullptr, nullptr);
+	}
 	if (LevelUpOverlay)
 	{
 		LevelUpOverlay->BindToStats(nullptr);
