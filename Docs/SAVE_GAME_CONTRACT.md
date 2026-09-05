@@ -7,9 +7,30 @@ runtime object pointers into a file format. The contract is intentionally
 small, versioned, and independent of character, NPC, or environment art.
 
 `UEmbermereSaveGame` writes format version `3` to the prototype slot
-`EmbermerePrototype` for user index `0`. Versions `1` and `2` remain readable
-through the explicit compatibility rules below; loading either never rewrites
+`EmbermerePrototype` for user index `0`. Explicitly stamped versions `1` and `2`
+remain readable through the compatibility rules below; loading either never rewrites
 the slot or silently migrates its bytes.
+
+## Explicit Version Stamp
+
+The native `FormatVersion` default is permanently `Unrecorded` (`0`), not
+`Current`. Capture explicitly assigns `Current` (`3`). Unreal's tagged save
+archive can omit values equal to class defaults; keeping the default invalid
+ensures every supported version is written and missing tags cannot inherit a
+new schema number after an upgrade. This adds no field or format version.
+
+Explicitly stamped versions 1, 2, and 3 retain their existing compatibility
+paths. A file with no recorded version rejects before owner mutation and
+Chronicle keeps Load disabled with `Save version was not recorded. Recovery
+requires an explicit legacy version; this file is unchanged.` Never infer a
+version from identity, quest shape, file date, or current class defaults, and
+never rewrite an unstamped file during inspection. Historical unstamped saves,
+including older version-3 captures, need a separately authorized recovery path.
+
+Regression coverage must serialize actual archives, change the class default
+between write and read, simulate historical default-elided versions 1/2/3,
+check byte-preserving inspection and complete rejection rollback, and retain
+explicit legacy adapters and repeated-load idempotence.
 
 ## Persisted State
 

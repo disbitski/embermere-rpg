@@ -7,6 +7,7 @@
 
 namespace EmbermereSaveGameVersion
 {
+	inline constexpr int32 Unrecorded = 0;
 	inline constexpr int32 ProgressionOnly = 1;
 	inline constexpr int32 CharacterIdentity = 2;
 	inline constexpr int32 MultiQuestLedger = 3;
@@ -112,8 +113,9 @@ class EMBERMERE_API UEmbermereSaveGame : public USaveGame
 	GENERATED_BODY()
 
 public:
+	// Tagged save archives omit class defaults; capture must explicitly stamp Current.
 	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
-	int32 FormatVersion = EmbermereSaveGameVersion::Current;
+	int32 FormatVersion = EmbermereSaveGameVersion::Unrecorded;
 
 	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Save Game")
 	int32 Copper = 0;

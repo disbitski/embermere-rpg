@@ -1786,6 +1786,7 @@ bool FEmbermerePersistenceSlotInspectionTest::RunTest(const FString& Parameters)
 		AddError(TEXT("Could not create save-slot inspection fixture"));
 		return false;
 	}
+	SaveGame->FormatVersion = EmbermereSaveGameVersion::Current;
 	SaveGame->Copper = 22;
 	SaveGame->CurrentExperience = 125;
 	SaveGame->RaceId = TEXT("Elf");

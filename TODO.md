@@ -2,10 +2,37 @@
 
 This is the daily handoff file for Codex work. Each session should start here, compare against the broader project plan in `README.md`, `JOURNEY.md`, and `Docs/PLAYTESTING.md`, then update this file before stopping.
 
-For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THREAD_HANDOFF.md) before this daily file.
+For a fresh Codex task or context reset, read Start Here first, then [Docs/THREAD_HANDOFF.md](Docs/THREAD_HANDOFF.md) for broader context.
 
 ## Start Here
 
+- September 5 daily build: the no-hot-reload module now uses a permanent invalid
+  save-version default (`0`) and explicitly writes supported versions. Unreal's
+  default-value archive elision had omitted the user's old version stamp; a
+  same-build round trip did not catch that upgrade hazard. The new archive-level
+  tests pass for stamped versions 1/2/3 and reject historical unstamped records
+  atomically. Current schema stays 3. See `Docs/SAVE_GAME_CONTRACT.md`.
+  Verification: `93/93` isolated tests, all `21` fresh-process package validators,
+  all six initialized-world trace suites, and fresh GUI discovery of 93 tests.
+  The user's `EmbermerePrototype.sav` is byte-for-byte unchanged, not recovered.
+  Clean Dwarf Warrior PIE proved Chronicle's read-only missing-version message
+  and disabled Load, M close into unsuppressed/cursor-hidden game input, Q/W
+  movement from (-2400,-1200) to (-1793.17,-831.37), zero stopped velocity, and
+  real F acceptance of Mara at 0/3. No progress/reward fixture was injected.
+  Viewport-only capture works but excludes the HUD; broad CaptureEditorImage
+  was blocked and must stay blocked. S cancellation did not register reliably
+  through synthetic Slate input, so S, held right-mouse/Ctrl+M, final HUD pixel
+  approval, and the full Prowler/Still Waters replay remain explicit gates.
+  The daily heartbeat targets this task's exact project folder at 8 AM Eastern.
+  Next: complete those accepted-route/panel checks through Unreal MCP where
+  possible, then address a concrete readability issue such as the long Still
+  Waters tracker copy or inherited dialogue/hotbar overlap. Do not add another
+  system or infer/rewrite the old save to bypass an acceptance gate.
+- September 5 user restriction: **no desktop control for this project**. Read
+  `AGENTS.md`. Dedicated Unreal MCP and Blender MCP are the editor-control
+  paths; do not use CUA or OS input/screenshot automation as a fallback. Both
+  MCP connections answered live checks today. Physical-only input checks remain
+  user acceptance gates, not a reason to require an unlocked desktop for MCP.
 - September 4 Astra continuation: the new quest-update observer is implemented
   and the final isolated suite passes `91/91`. Read
   `Docs/QUEST_UPDATE_PRESENTATION_CONTRACT.md` and
@@ -19,11 +46,13 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   **First remaining gate:** replay the real Prowler and Still Waters routes,
   remaining peer panels, and held right-mouse/Ctrl+M input. Do not call injected
   objective progress a combat-route replay. Do not overwrite the user's slot:
-  Chronicle currently rejects contradictory legacy quest state in its v3 save;
-  this session only inspected it and did not save or load it.
+  September 5 traced that rejection to an omitted `FormatVersion` tag, not a
+  proven version-3 file. Read-only inspection now rejects the unknown version
+  honestly. Do not guess a legacy version or rewrite that slot.
   Check the inherited long Still Waters tracker instruction for clipping;
   the full ledger detail remains the readable fallback. No map art moved.
-- Confirm Unreal is running the 2026-09-04 no-hot-reload quest-update observer
+- Confirm Unreal is running the 2026-09-05 explicit save-version-stamp fix over
+  the 2026-09-04 no-hot-reload quest-update observer
   and saved `T_FenwatchJournalEmblem` texture over the quest-objective
   presentation module and both saved quest packages over the 2026-09-03
   selected-quest detail module, the 2026-09-02 native Quest Ledger, the
@@ -46,11 +75,14 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates that work or test discovery exposes fewer than 91 Embermere tests.
+  predates the September 5 explicit save-version-stamp fix or test discovery
+  exposes fewer than 93 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 91 tests, especially
+- Discover and run all 93 tests, especially
+  `Embermere.Persistence.VersionStampRoundTrip`,
+  `Embermere.Persistence.MissingVersionRollback`,
   `Embermere.Quests.LiveUpdateContract`,
   `Embermere.UI.QuestUpdatePresentation`,
   `Embermere.UI.QuestUpdateLifecycle`,
@@ -119,8 +151,10 @@ For a fresh Codex task or context reset, read [Docs/THREAD_HANDOFF.md](Docs/THRE
   keeper-rig, saved-map, UI-art, armsmaster-rig,
   quartermaster-rig, practice-dummy, Fenwatch-trainer, vendor-economy, and
   initialized-world route validators also passed. The authoritative latest
-  2026-09-04 Astra no-hot-reload build and final isolated commandlet passed
-  91/91. New coverage proves post-commit copied quest updates, rejection
+  2026-09-05 no-hot-reload build and final isolated commandlet passed
+  93/93. The two newest tests exercise real archive version stamps across a
+  changed class default and complete rollback for unstamped historical files.
+  Prior coverage proves post-commit copied quest updates, rejection
   silence, saturating progress, exact reward state, reentrancy guards,
   initialized fixed widget geometry, latest-wins/expiry/modal/death cleanup,
   and full version-3 restore silence twice. Existing coverage proves

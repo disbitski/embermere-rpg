@@ -1,3 +1,21 @@
+[computer_use]
+default_app_access = "deny"
+
+[plugins."computer-use@openai-bundled"]
+enabled = false
+
+[plugins."unified-computer-use@openai-bundled"]
+enabled = false
+
+[plugins."unified-computer-use@openai-bundled".mcp_servers.cua_repl]
+enabled = false
+
+[mcp_servers.computer-use]
+enabled = false
+
+[mcp_servers.node_repl]
+enabled = false
+
 [mcp_servers.unreal-mcp]
 url = "http://127.0.0.1:8123/mcp"
 

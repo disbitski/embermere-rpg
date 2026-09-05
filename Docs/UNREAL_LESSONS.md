@@ -2,6 +2,44 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## A Class Default Is Not A Save-File Version
+
+Unreal's `SaveGameToMemory` uses a tagged object archive that can elide values
+equal to the class default. Embermere originally defaulted `FormatVersion` to
+`Current`; the user's August 26 file consequently had no version tag. Reading
+it under the version-3 class default made an older singular quest look like a
+contradictory native version-3 record. The file was not proven corrupt.
+
+Keep a permanent unsupported `Unrecorded = 0` class default and stamp Current
+explicitly during capture. Supported versions then differ from the default,
+while missing tags remain unknown. Do not guess schema from a date, identity,
+or populated fields. Preserve the original bytes and require separately
+authorized recovery for historical unstamped files, including unstamped v3.
+
+A same-build round trip cannot expose this bug. Serialize actual archives,
+change the CDO before reading, and reproduce old default elision for every
+historical version. Check exact rollback and byte-preserving inspection as
+well as successful explicit legacy adapters. The September 5 tests cover both
+paths without changing save version 3 or the user's slot.
+
+## Desktop Control Is Not An MCP Prerequisite
+
+On September 5 the computer-control tool reported a locked Mac while the user
+said they were actively using it. That error alone does not establish the
+machine's real lock state or a model-specific requirement. Dedicated Unreal
+and Blender MCP queries succeeded independently. Keep transport errors,
+desktop-control failures, and gameplay validation failures separate.
+
+The user revoked desktop control for Embermere. Project config disables both
+computer-control plugins and desktop bridges, native-app access defaults to
+deny, and AGENTS.md plus the daily automation prohibit OS automation fallbacks.
+Use Unreal-owned Slate/input/viewport-only capture and Blender-owned scene
+tools through their MCP integrations. CaptureEditorImage was blocked because
+it can include broader desktop/editor windows; do not substitute another
+desktop capture. Viewport-only capture currently excludes UMG, so leave final
+HUD pixels and physically held mouse/modifier checks to the user without
+blocking builds, commandlets, or other MCP work.
+
 ## Live Facts Are Not Restore Notifications
 
 The quest state-change delegate also fires during load. It remains useful for

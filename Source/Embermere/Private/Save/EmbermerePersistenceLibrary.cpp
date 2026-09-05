@@ -47,6 +47,17 @@ namespace
 		return Result;
 	}
 
+	FString UnsupportedVersionMessage(int32 Version)
+	{
+		if (Version == EmbermereSaveGameVersion::Unrecorded)
+		{
+			return TEXT("Save version was not recorded. Recovery requires an explicit legacy version; this file is unchanged.");
+		}
+		return FString::Printf(
+			TEXT("Save version %d is unsupported; this build supports versions %d through %d."),
+			Version, EmbermereSaveGameVersion::ProgressionOnly, EmbermereSaveGameVersion::Current);
+	}
+
 	template <typename AssetType>
 	AssetType* ResolveAsset(const FSoftObjectPath& AssetPath)
 	{
@@ -318,11 +329,7 @@ namespace
 			return Fail(
 				EEmbermerePersistenceResult::UnsupportedVersion,
 				OutMessage,
-				FString::Printf(
-					TEXT("Save version %d is unsupported; this build supports versions %d through %d."),
-					SaveGame->FormatVersion,
-					EmbermereSaveGameVersion::ProgressionOnly,
-					EmbermereSaveGameVersion::Current));
+				UnsupportedVersionMessage(SaveGame->FormatVersion));
 		}
 		if (SaveGame->Copper < 0 || SaveGame->CurrentExperience < 0)
 		{
@@ -854,11 +861,7 @@ EEmbermerePersistenceResult UEmbermerePersistenceLibrary::InspectSaveSlot(
 		return Fail(
 			EEmbermerePersistenceResult::UnsupportedVersion,
 			OutSummary,
-			FString::Printf(
-				TEXT("Save version %d is unsupported; this build supports versions %d through %d."),
-				SaveGame->FormatVersion,
-				EmbermereSaveGameVersion::ProgressionOnly,
-				EmbermereSaveGameVersion::Current));
+			UnsupportedVersionMessage(SaveGame->FormatVersion));
 	}
 
 	EEmbermereRace SavedRace = EEmbermereRace::Human;

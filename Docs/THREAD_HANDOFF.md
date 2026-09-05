@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-04
+Last updated: 2026-09-05
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -18,8 +18,8 @@ would otherwise be trapped in the original long conversation.
 For day-to-day priorities, `TODO.md` remains authoritative and more current than
 this snapshot. A new task should read files in this order:
 
-1. `Docs/THREAD_HANDOFF.md`
-2. `TODO.md`
+1. `TODO.md` (authoritative Start Here)
+2. `Docs/THREAD_HANDOFF.md`
 3. `README.md`
 4. `Docs/PLAYTESTING.md`
 5. `Docs/UNREAL_LESSONS.md`
@@ -96,7 +96,7 @@ The project currently includes:
   race/class identity, copper, XP, inventory/equipment identity, a bounded
   keyed quest ledger, and finite vendor stock. Version 3 keeps stable semantic
   identity IDs, writes stable quest/objective records, validates the entire
-  ledger before mutation, and reads version-1/version-2 singular quest history
+  ledger before mutation, and reads explicitly stamped version-1/version-2 singular quest history
   through explicit adapters without rewriting old slots. Version 1 still has
   its explicit Human Warrior identity fallback. Buyback, focused quest,
   combat, cooldowns, temporary effects, and position remain session-only;
@@ -124,7 +124,7 @@ The project currently includes:
   four classes, exposes disabled combinations, atomically applies data-driven
   starter stats/abilities once, restores the normal controller/HUD path, and
   feeds the confirmed identity into the version-3 persistence contract;
-- 85 passing Unreal automation tests plus fresh-process character-creation,
+- 93 passing Unreal automation tests plus fresh-process character-creation,
   derived-level progression, and
   character-identity and multi-quest persistence,
   combat-feedback,
@@ -1761,7 +1761,36 @@ free of interaction, recovery, reward, quest, or persistence authority.
 
 ## Immediate Next Work
 
-The September 4 Astra continuation supersedes the older milestone below:
+September 5 supersedes the earlier acceptance snapshot below. The daily
+heartbeat is active at 8 AM America/New_York and targets the task rooted at
+`/Users/wizard/Documents/Unreal Game`. Read `AGENTS.md`: desktop control is
+revoked, project Computer Use plugins/bridges are disabled, and the default
+application access is deny. Unreal MCP on 8123 and Blender MCP both answered.
+Use only Unreal-owned Slate/input/viewport capture and Blender-owned operations;
+CaptureEditorImage is too broad and was blocked. Physical-only checks are user
+gates, never a reason to require desktop unlock or re-enable desktop tools.
+
+The September 5 module fixes version-stamp default elision without changing
+schema 3. Fresh capture stamps Current while the CDO permanently stays at 0.
+Two archive-level tests preserve explicit v1/v2/v3 adapters across a different
+reader default and reject unstamped records without state or file mutation.
+The user's Aug 26 slot has no version tag; its old v3/contradictory-state
+diagnosis was incorrect. It remains untouched and requires separately
+authorized explicit-version recovery, not an inferred schema or overwrite.
+
+The no-hot-reload build, 93/93 isolated tests, 21-package aggregate, six native
+trace suites, and fresh GUI discovery passed. Clean Dwarf Warrior PIE showed
+the honest missing-version Chronicle message with Load disabled. M close
+restored cursor-hidden, unsuppressed game input; Q/W traversed from PlayerStart
+to (-1793.17,-831.37) and stopped at zero velocity. F accepted Mara at 0/3.
+No synthetic objective progress or save/load was used. S did not register
+reliably in the synthetic check; do not mark it physically accepted. Full
+Prowler/Still Waters routes, remaining peer panels, held mouse/Ctrl+M, and final
+HUD pixel inspection remain open. Viewport-only captures do not include UMG.
+Complete those gates, then choose a concrete tracker/dialogue readability fix
+from normal-play feedback. Do not reopen completed objective/update milestones.
+
+Historical September 4 acceptance snapshot:
 the native quest-update observer and Blender-rendered journal emblem are now
 implemented, with `91/91` final automation and a 21-package aggregate.
 Read `Docs/QUEST_UPDATE_PRESENTATION_CONTRACT.md` and the dated Astra
@@ -1773,12 +1802,13 @@ separation, and Inventory suppressed the notice without replay on close.
 Finish the real Prowler/Still Waters routes, remaining peer panels, and held
 mouse/Ctrl+M checks. The widget tree and repeated full version-3 restore are
 covered by tests. Do not equate injected objective progress with combat play.
-Do not overwrite the user's Chronicle slot: read-only inspection currently
-rejects contradictory legacy quest state in that v3 file. No save/load occurred.
+Do not overwrite the user's Chronicle slot. September 5 identified its missing
+version tag; it is not a proven v3 file. No live save/load occurred.
 The long Still Waters compact-tracker instruction can clip; its full ledger
 detail remains the fallback. Map counts and placements are unchanged.
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
+2026-09-05 explicit save-version-stamp fix over the
 2026-09-04 no-hot-reload quest-update and quest-objective modules, saved journal
 texture, and quest
 packages, the 2026-09-03 selected-quest detail module, the 2026-09-02 native
@@ -1805,7 +1835,9 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 91 tests, including
+3. Run/discover all 93 tests, including
+   `Embermere.Persistence.VersionStampRoundTrip`,
+   `Embermere.Persistence.MissingVersionRollback`,
    `Embermere.Quests.LiveUpdateContract`,
    `Embermere.UI.QuestUpdatePresentation`,
    `Embermere.UI.QuestUpdateLifecycle`,

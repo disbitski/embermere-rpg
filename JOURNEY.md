@@ -3055,7 +3055,7 @@ fixture provided progress/ready captures; real F committed 125 XP, 20 copper,
 and one Recruit Pack. Completion, reward, and level-up panels coexisted without
 mutual overlap. Inventory cleared the notice without replay. Full combat and
 Still Waters routes, remaining peer panels, and held mouse/modifier acceptance
-remain open. The locked desktop had blocked CUA, not the working MCP servers;
+remain open. CUA reported a locked desktop, not failed MCP connections;
 the later Python probes and modifier-input limitations were separate issues.
 No comparison speedup or general model superiority is claimed from this run.
 
@@ -3064,6 +3064,46 @@ The findings and local, untracked field-note draft are in
 `Docs/FieldNotes/2026-09-04-astra-in-the-embermere-build-loop.md`. The inherited
 notes, reliable tools, and growing tests are part of the result, not background
 to be credited entirely to a model switch.
+
+## 2026-09-05 - Version Stamps And A Project-Scoped MCP Workflow
+
+The user revoked desktop control and asked to run the daily build from this
+project. Local configuration now disables the Computer Use plugins and desktop
+bridges with default application access denied; AGENTS.md and the daily prompt
+preserve that boundary. Unreal MCP and Blender MCP both answered independently.
+The user reported an active, unlocked Mac during the earlier CUA failures, so
+the tool's lock report is not a verified fact or a model-quality comparison.
+
+Today's bounded fix came from inspecting the existing Chronicle slot without
+changing it. Unreal's tagged archive had omitted FormatVersion because it
+matched the old class default. Loading under a newer default made it appear to
+be a contradictory version-3 quest record. It was actually unstamped. Native
+defaults are now permanently invalid (0), while capture explicitly stamps
+Current (3). Explicit legacy adapters remain supported; unknown versions reject
+before mutation. No automatic recovery, schema bump, or overwrite was added.
+
+Two new tests use real save archives, including a changed reader CDO and
+historical default-elided versions 1/2/3. They prove exact restore, repeated-load
+idempotence, byte-preserving inspection, and full rejection rollback. A missing
+test include caused the first compilation to fail; after the include fix the
+no-hot-reload build succeeded, all 93 tests passed, all 21 package validators
+passed without Python errors, and all six live collision suites passed. The
+original 3,667-byte save retained SHA256
+`c29a887c6e9a307221b56da34e10e80cef0af30b777a12206469893cd5b2d778`.
+
+Fresh Dwarf Warrior PIE showed the correct missing-version message and disabled
+Load via Slate. M closed Chronicle into cursor-hidden, unsuppressed game input;
+Q/W moved from PlayerStart to (-1793.17,-831.37) and stopped at zero velocity.
+F accepted Mara at 0/3 without injected progress. Synthetic S did not provide a
+reliable cancellation result. Broad editor capture was blocked; the allowed
+viewport-only capture worked but excluded UMG. Full quest-route, remaining
+panel, held-input, and final HUD pixel checks stay open rather than being
+replaced with desktop control. The original save is preserved, not recovered.
+
+Evidence: `/tmp/embermere-sep5-tests/index.json`,
+`/tmp/embermere-sep5-packages.log`, `/tmp/embermere-sep5-slot.log`, and the live
+editor log. The daily 8 AM Eastern heartbeat keeps this exact task/project and
+now starts from the September 5 handoff instead of stale September 3 work.
 
 ## Principles
 

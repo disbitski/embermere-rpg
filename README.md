@@ -360,8 +360,8 @@ and turn-in independent; complete-ledger preflight rejects malformed candidates
 without partial owner mutation. Chronicle and the existing HUD consume a
 read-only focused compatibility projection; focus itself is transient.
 Repeated loads do not duplicate class stats, starter abilities, progress,
-rewards, or equipment bonuses. Version 1 slots remain loadable as Human Warrior,
-and version 1/2 singular quest history remains readable, without either source
+rewards, or equipment bonuses. Explicitly stamped version 1 slots remain loadable as Human Warrior,
+and stamped version 1/2 singular quest history remains readable, without either source
 slot being silently rewritten. Level remains derived from XP rather than serialized: the first
 rules-owned curve reaches level 2 at `100` XP and caps at level 5 at `700`,
 then combines race/class growth before applying equipment once. Trainer and
@@ -419,3 +419,16 @@ exact identity, stats, equipment, hotbar, quest, stock, copper, and XP twice
 without trainer-specific schema or drift.
 Autosave, deletion, multiple profiles, migrations, and position persistence
 remain later product decisions.
+
+The September 5 build passed 93 automation tests, 21 fresh-process package
+validators, and six initialized-world collision suites. Save versions are now
+explicit archive stamps over a permanent invalid native default. Historical
+unstamped files reject read-only rather than inheriting a newer schema; the
+user's original journey remains unchanged pending explicit recovery. See
+[Docs/SAVE_GAME_CONTRACT.md](Docs/SAVE_GAME_CONTRACT.md) and
+[TODO.md](TODO.md) for the remaining live acceptance gates.
+
+Daily builds run from this project at 8 AM Eastern through the existing task.
+Desktop control is disabled; [AGENTS.md](AGENTS.md) permits dedicated Unreal and
+Blender MCP workflows, shell builds, commandlets, and Git only within their
+existing permissions.

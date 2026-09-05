@@ -568,7 +568,7 @@ The full ownership and rollback contract is in
 ## Version 3 Multi-Quest And Still Waters
 
 1. Build with `-NoHotReloadFromIDE`, restart Unreal, force automation
-   rediscovery, and confirm exactly `91` Embermere tests are available.
+   rediscovery, and confirm exactly `93` Embermere tests are available.
 2. Run `Embermere.Quests.MultiQuestRuntime` and verify two valid quests coexist,
    exact objective progress affects only its quest, an unrelated giver cannot
    turn in Mara, a failed reward preflight preserves ready state, and each
@@ -692,8 +692,29 @@ notice and closing it did not replay it. Captures paused the world briefly to
 inspect transient states. These are not a full real-combat or Still Waters
 replay. Those routes, remaining peer panels, and held mouse/Ctrl+M remain open.
 The inherited bottom dialogue can overlap the hotbar; the new observer did
-not change that geometry. Read-only Chronicle inspection rejected the user's
-v3 slot for contradictory legacy quest state; no slot was overwritten or loaded.
+not change that geometry. September 5 corrected the original diagnosis: the
+user's slot has no version tag, not a proven v3 contradiction. It remains
+byte-for-byte unchanged and cannot be restored without explicit-version recovery.
+
+## Save Version Stamp Regression
+
+- Run `Embermere.Persistence.VersionStampRoundTrip` and
+  `Embermere.Persistence.MissingVersionRollback` with all 93 tests. The former
+  writes actual stamped 1/2/3 archives and loads under a different CDO default;
+  the latter reproduces historical tag omission and proves rejection rollback.
+- Keep the native default at Unrecorded (0), capture at Current (3), and all
+  explicit legacy adapters intact. Do not infer schema from quest shape or date.
+- Inspect an unstamped slot read-only: Current Journey must still show the live
+  identity, Load Saved must be disabled, and the exact missing-version message
+  must fit without overlapping action buttons. Do not overwrite the user's slot
+  to run a test. Compare original file hashes before and after inspection.
+- September 5 clean Dwarf Warrior PIE passed the Slate text/disabled-state gate,
+  M close into cursor-hidden game input, Q/W measured traversal, and Mara F
+  acceptance. S did not register reliably in the synthetic check. Leave S,
+  held mouse/Ctrl+M, remaining routes/panels, and HUD pixel inspection open.
+- Use only allowed Unreal MCP Slate and viewport capture. The latter excludes
+  UMG in this engine path; CaptureEditorImage was blocked as too broad. Do not
+  obtain a desktop screenshot to fill that verification gap.
 
 ## Prototype Save And Load
 
