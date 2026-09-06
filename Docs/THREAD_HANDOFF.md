@@ -124,7 +124,7 @@ The project currently includes:
   four classes, exposes disabled combinations, atomically applies data-driven
   starter stats/abilities once, restores the normal controller/HUD path, and
   feeds the confirmed identity into the version-3 persistence contract;
-- 93 passing Unreal automation tests plus fresh-process character-creation,
+- 94 passing Unreal automation tests plus fresh-process character-creation,
   derived-level progression, and
   character-identity and multi-quest persistence,
   combat-feedback,
@@ -1761,7 +1761,27 @@ free of interaction, recovery, reward, quest, or persistence authority.
 
 ## Immediate Next Work
 
-September 5 supersedes the earlier acceptance snapshot below. The daily
+September 6 adds a bounded dialogue fix over the September 5 save-stamp module.
+Read `Docs/DIALOGUE_PRESENTATION_CONTRACT.md`: fixed 620x120 panel, 596x28
+speaker, 596x72 wrapped body, exact FText, clipping, no hit testing, unchanged
+seven-second lifetime, and 16-pixel hotbar gap. No gameplay or package changed.
+The final no-hot-reload build, 94/94 isolated tests, 21 package validators, six
+live collision suites, and fresh 94-test discovery passed. Clean Human Warrior
+PIE reached Mara via Q, toggled Q off, accepted 0/3 via real F, and showed exact
+separated text and subsequent expiry in Slate. J -> M -> I -> I completed
+Ledger/Chronicle/Inventory handoffs without save/load, ending cursor-hidden and
+move/look unsuppressed. The original save hash and 53 Fab/24 original-art
+baseline are unchanged. Unreal remains open on 8123, out of PIE.
+
+Next: user pixel approval of the dialogue and physical W/S, held right-mouse,
+and Ctrl+M; real Prowler/Still Waters routes through MCP where possible. Earlier
+synthetic W left autorun true today, so stopped velocity at the village table
+is not cancellation proof. Do not mark full routes or pixels accepted, inject
+objective progress, or replace MCP with desktop tools. Inspect the long Still
+Waters tracker only if normal play exposes clipping; full ledger detail remains
+the fallback. No new broad system or implicit original-slot recovery.
+
+September 5 security/save rules still apply. The daily
 heartbeat is active at 8 AM America/New_York and targets the task rooted at
 `/Users/wizard/Documents/Unreal Game`. Read `AGENTS.md`: desktop control is
 revoked, project Computer Use plugins/bridges are disabled, and the default
@@ -1808,7 +1828,7 @@ The long Still Waters compact-tracker instruction can clip; its full ledger
 detail remains the fallback. Map counts and placements are unchanged.
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-09-05 explicit save-version-stamp fix over the
+2026-09-06 bounded-dialogue module over the 2026-09-05 explicit save-version-stamp fix over the
 2026-09-04 no-hot-reload quest-update and quest-objective modules, saved journal
 texture, and quest
 packages, the 2026-09-03 selected-quest detail module, the 2026-09-02 native
@@ -1835,7 +1855,7 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 93 tests, including
+3. Run/discover all 94 tests, including `Embermere.UI.DialoguePresentation`,
    `Embermere.Persistence.VersionStampRoundTrip`,
    `Embermere.Persistence.MissingVersionRollback`,
    `Embermere.Quests.LiveUpdateContract`,
@@ -2130,216 +2150,41 @@ Daily working agreement:
 
 ## Copy-Ready New Task Prompt
 
-Use this as the first message in the fresh Embermere task:
+Use this as the first message in a fresh Embermere task:
 
 ```text
-We are continuing the Embermere RPG Unreal Engine 5.8 prototype in:
-/Users/wizard/Documents/Unreal Game
+Continue Embermere in /Users/wizard/Documents/Unreal Game. Read AGENTS.md and
+TODO.md's Start Here first, then this handoff, README.md, JOURNEY.md,
+Docs/PLAYTESTING.md, Docs/UNREAL_LESSONS.md, and the contracts named by the current
+handoff. TODO is authoritative when historical notes differ.
 
-This is a continuation of a long prior build thread. Treat the repository as the durable source of truth instead of asking me to restate its history.
+Desktop control is revoked. Use dedicated Unreal MCP Slate/input and viewport-
+only captures, Blender MCP scene operations when art is planned, and allowed
+shell builds, commandlets, file edits, and Git. Never use CaptureEditorImage,
+CUA, desktop screenshots, OS/accessibility input, or substitute desktop-control
+scripts. Physical-only and unavailable HUD-pixel checks stay explicit user gates.
 
-Start by reading, in order:
-1. Docs/THREAD_HANDOFF.md
-2. TODO.md
-3. README.md
-4. Docs/PLAYTESTING.md
-5. Docs/UNREAL_LESSONS.md
-6. Docs/FAB_ASSET_PLAN.md
-7. Docs/NPC_PRESENTATION_CONTRACT.md
-8. Docs/VENDOR_SERVICE_CONTRACT.md
-9. Docs/TRAINER_SERVICE_CONTRACT.md
-10. Docs/SAVE_GAME_CONTRACT.md
-11. Docs/PRACTICE_TARGET_CONTRACT.md
-12. Docs/COMBAT_FEEDBACK_CONTRACT.md
-13. Docs/CHARACTER_CREATION_CONTRACT.md
-14. Docs/LEVEL_PROGRESSION_CONTRACT.md
-15. Docs/MULTI_QUEST_CONTRACT.md
-16. Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md
+Confirm the latest pushed module/map and actual UnrealEditor MCP owner on 8123.
+Use -NoHotReloadFromIDE, isolated sequential commandlets with the GUI down,
+explicit validator success markers and no LogPython: Error, fresh discovery
+and the complete current test count, and initialized-world native collision
+traces. Read the exact current counts and next milestone from TODO rather than
+replaying this file's historical snapshots.
 
-Then inspect git status and recent commits. Preserve the existing unstaged Config/DefaultEngine.ini and Config/DefaultInput.ini changes; do not stage, revert, or overwrite them unless we intentionally decide they are required.
+Preserve unrelated changes and the original EmbermerePrototype.sav. It has no
+recorded version; do not infer, overwrite, repair, migrate, delete, or load it.
+Recovery requires separate explicit authorization. Preserve current schema,
+quest/service/reward authority, accepted art/routes, and transaction invariants.
 
-Unreal may already be open with the project loaded. If it has not been restarted since the latest C++ build, ask me to restart it before authoritative PIE checks. Unreal MCP uses port 8123. Prefer launching UE 5.8 with:
--ModelContextProtocolStartServer -ModelContextProtocolPort=8123
-The editor-console fallback is:
-ModelContextProtocol.StartServer 8123
+Continue remaining normal-route acceptance with fresh viewport snapshot/click
+before each measured key. Verify state/transforms, not just PressKey return.
+Do not call injected quest progress a real combat-route replay. Choose a bounded
+test-backed fix only from concrete evidence, and distinguish automated checks,
+MCP state/geometry checks, and physical/pixel approval.
 
-Prefer first-class Unreal MCP tool search. Use direct HTTP only as a fallback. Run Unreal commandlets sequentially, build C++ with -NoHotReloadFromIDE before authoritative headless tests, and save intentional map changes through Unreal asset APIs rather than simulated keyboard shortcuts.
-
-Follow TODO.md's Start Here section. Confirm the 2026-09-02 no-hot-reload
-native Quest Ledger module, the 2026-09-01 Still Waters
-quest/service/router module and saved quest/map packages, the
-2026-08-31 save-version-3 multi-quest module, class-colored level-up world-VFX module, level-gated trainer and
-progression-presentation module, serialized rules asset, character-identity
-persistence and quest/map packages, the accepted notice-board,
-vendor-stall,
-cottage, training-workshop, practice-dummy, and native practice-target map packages,
-and all three accepted skeletal-mesh/Skeleton/Idle sets,
-offering/Chronicle,
-bounds-aware cyan target circle, finite-world recovery, grounded bounds-aware
-world-status VFX,
-Marsh Prowler, terrain, reeds, Fenwatch keeper, quartermaster, NPC wrapper,
-vendor stock/service, item/quest economy data, Blueprint/map packages, and
-route-repair map, then run all 85 tests, including the two Quest Ledger
-presentation/focus tests, the three Still Waters service/routing/round-trip
-tests, the four multi-quest runtime, round-trip,
-legacy-adapter, and rollback tests, the class-colored level-up
-world-VFX presentation test, the four progression tests,
-the four character-creation lifecycle/restriction/loadout tests, the three
-character-identity persistence tests, combat-result and floating-feedback
-presentation, the two practice-target policy/combat-reset tests,
-contextual-greeting,
-persistence round-trip,
-validation/rollback, slot-inspection, native Chronicle panel, trainer
-transaction/service/offering, static armsmaster presentation, production
-armsmaster and quartermaster Idle presentations, and trainer-panel contracts.
-Retain the
-original rigged Prowler across all three instances and verify Idle, Walk, Run,
-Attack, Hit, Death, terrain contact, target presentation, combat, tonic loot,
-hide, and respawn. Retain the accepted fixed player and
-selected-target status rows with saved ability art, names, live countdowns,
-beneficial/harmful colors, hover descriptions, duplicate refresh, and clearing
-on expiration, respawn, death, and target switch without neighboring HUD
-movement. Retain the data-driven eight-segment world aura that reads those same
-successful-effect snapshots without owning gameplay: orange-gold Attack Power,
-blue-white Armor, marsh-green Snare, ice-white cyan Root, harmful priority, and
-empty/dead hiding. Harmful auras now derive a bounded radius from transformed
-visual bounds and trace the support surface; clean PIE accepted the Prowler at
-`94.352` cm radius and `21` cm support clearance inside the unchanged outer cyan
-target circle. The latest clean PIE also
-proved Q autorun plus independent W and S
-cancellation, all four starter-class hotbar palettes, Warrior cooldown
-presentation, the icon-bearing reward popup, a real Recruit Pack bag-to-Back
-drag, and the centered paper doll beneath both empty and occupied slot states
-with fixed layout and noninteractive behavior. Retain Battle
-Shout and Nature's Focus at +8 Attack Power for 10 seconds, Ward at +10 Armor
-for 10 seconds, Snare at half movement for 6 seconds, Frost Root at zero
-movement for 4 seconds, and Meditate restoring 18 missing mana. Retain all
-sixteen fixed 32x32 ability illustrations, the unchanged 92x64 hotbar layout,
-data-driven tooltips, empty-slot stability, and F Interact. Retain the accepted
-item/slot art, compact Recruit Pack copy, reward popup,
-inventory/footer/hotbar bounds, and physically inspect the populated fantasy
-drag token while in motion. Physically verify Ctrl+M feedback. Recheck the
-accepted gate/fence/end-stone threshold, exact south-side foliage cleanup, the
-700px inventory and ten-slot paper doll, identity-preserving Sort,
-bag-to-equipment and equipment-to-bag drag/drop with gold/red feedback,
-click/keyboard fallbacks, item comparison and hover tooltips, full-bag failure
-feedback, Marsh Tonic enemy loot and Use behavior, cursor mode, native enemy
-nameplate, bounds-aware surface-traced cyan-blue target circle, quest/reward
-loop, enemy
-leash, respawn protection, chat clipping, atmospheric daylight and the
-38-expression moss/earth road, 53 grounded upright Fab actors, and all 24
-original-art placements including the vendor stall, closed west cottage,
-open-front training workshop, roadside notice board, south-commons communal
-well, four
-`NoCollision` reed clusters, the
-open-sided Fenwatch shelter at `(-1740, -700, 0)`, yaw `-64`, and the
-  grounded front-facing non-colliding rigged Mara keeper wrapper with its
-  3.6-second Idle, marker/name clear, and original Blueprint quest authority,
-  the
-non-colliding Fenwatch quartermaster at `(-1530, -1190, 0)`, yaw `100`, using
-the production skeletal lane of the reusable NPC presentation wrapper with an
-exact 4.0-second Idle, measured live playback, reviewed static fallback, and no
-service or interaction authority, plus its co-located art-free vendor service
-and saved stock asset. Exercise the normal `F` vendor loop: 40 starting copper,
-tonic at
-8/sell 3, one Recruit Pack at 30/sell 12, tonic purchase/sale/buyback at
-`40 -> 32 -> 35 -> 32`, pack purchase at `32 -> 2`, exact wallet/inventory/
-stock/buyback mutation, sold-out and insufficient-funds states, fixed result/
-footer copy, chat, and close/input restoration. Complete Mara's quest and prove
-its 20-copper reward pays exactly once. Re-run the six focused economy/vendor
-tests and fresh-process validator.
-Retain the accepted Fenwatch armsmaster and trainer separation: the grounded,
-non-colliding art-only rigged armsmaster and co-located art-free service sit at
-`(-1320, -920, 0)`, yaw `100`; the skeletal lane has nine authored Blender
-bones plus one imported Unreal Armature root, an exact 3.2-second Idle, measured
-live playback, and the reviewed static-mesh fallback. The saved offering list
-exposes repeatable level-1 Combat Drills for 10 copper and 25 XP plus repeatable
-level-2 Advanced Combat Drills for 20 copper and 50 XP. Exercise the normal `F`
-trainer loop and prove the visible level-1 lock, live level-2 unlock, exact
-advanced transaction, insufficient-funds rejection, current status copy,
-fixed-panel bounds, chat, and Inventory/Chronicle/close handoff. Preserve the
-2,824 Blender-source versus 2,800 post-import Unreal topology distinction.
-Retain the accepted practice dummy at `(-1120, -1120, 0)`, yaw `45`: grounded
-target face toward the armsmaster, five shared materials, 2,572 triangles,
-solid base/core, clear arms, and no generic crate.
-Retain the accepted version 3 persistence contract and live two-session proof:
-Chronicle captured stable Elf Wizard identity alongside durable progression; a
-fresh Lizardman Ranger session restored the exact saved Elf Wizard class stats,
-hotbar, and progression twice without duplication, repeated reward, or stat
-inflation. Version 1 remains loadable as current-rules Human Warrior without
-rewriting the old slot. Buyback, combat, cooldowns, temporary effects, and
-position remain intentionally session-only.
-Also retain
-the route-facing supply chest at `(-1740, -1180, 0)` with solid authored lid
-collision, at least 225 cm of saved spawn-corridor clearance, and a clear live
-player-height trace. Walk the
-normal route and prove each 525 cm Prowler pull stays solo while visual
-band geometry remains non-colliding. Inspect the shelter from PlayerStart and
-prove Mara's name/quest marker, keeper, open center, four supports, and straight
-autorun route remain readable. Retain the accepted player-facing Chronicle:
-plain `M`, exact slot summary, overwrite/load confirmations and cancel paths,
-empty/rejected feedback, mutually exclusive panel handoff, and console-command
-fallbacks over the same atomic contract. Retain both wrapper production
-skeletal/Idle lanes and the accepted vendor and trainer ownership contracts.
-Retain both accepted trainer Chronicle lanes: the baseline `30`-copper/`25`-XP
-state and the richer Elf Wizard Advanced state at level `2`, `175` XP, `40`
-copper, equipped Recruit Pack, completed quest, and untouched finite stock.
-Each fresh-world second load must remain exact without trainer-specific
-serialized state.
-Then retain grounded normal-camera keeper, armsmaster, and quartermaster
-motion, clear markers/routes, advancing animation clocks, and all three static
-fallbacks. Retain the accepted Mara proof: physical `F` opened and accepted the
-Blueprint-owned quest, real Prowler combat advanced it to `3/3`, and the same
-original interactable completed the return while the rigged wrapper remained
-art-only. Retain the fixed contextual greeting hidden outside 420 cm and its
-available, active, ready, and completed states inside range; it must remain a
-read-only observer with no interaction, dialogue, quest, marker, or reward
-authority. Recheck the vendor stall's customer-facing counter, solid supports,
-clear service approach and east bypass, and normal `F` vendor opening. Retain
-the accepted workshop at `(-690, -1030, 0)`, yaw `-100`, with its four solid
-purposeful surfaces, clear open bay, dummy approach, decorative clearance, and
-east bypass. Retain the accepted art-free practice target at the dummy's exact
-transform: stationary, non-colliding, normally targetable and damageable,
-three-second reset, and no AI, retaliation, loot, XP, quest credit, service, or
-persistence authority. Retain the accepted asset-agnostic floating combat-
-feedback presentation shared by Prowlers and the practice target: immutable committed
-results, exact applied amounts, fixed three-entry bounds, 1.25-second expiry,
-target/death/reset clearing, and durable chat/nameplate fallbacks. Retain the
-accepted presentation-only notice board, its three purposeful colliders, clear
-decorative geometry, and four protected routes. Retain the accepted fixed
-character-creation picker, all eight races/four classes, explicit disabled
-Dwarf Ranger and Bullywug Wizard paths, exact data-driven starter stats and
-hotbars, one-shot confirmation, and controller input/HUD handoff. Retain the
-accepted derived-level contract: thresholds `0/100/250/450/700`, level-5 cap,
-rules-owned race/class growth, candidate-level equipment validation, silent
-idempotent restore, and no serialized level. Retain the fixed XP/level-up
-presentation, the twelve-segment class-colored live world effect, and the two-
-offering level-gated trainer. Retain the accepted communal well at its exact
-south-commons transform, with only purposeful curb/upright collision and every
-protected route clear. Retain its separate art-free rest service and
-presentation observer, then retain Still Waters through its own separate
-art-free notice-board owner and committed-success router. The board/well art,
-rest service/VFX, and trainer must remain removable and quest-free. Retain the
-accepted fixed selected-quest detail, exact reward summary, and distinct
-quest-data-owned objective instructions in the fixed `260x68` tracker and
-unchanged detail region. Next, define one presentation-only quest-update
-observer over immutable post-commit acceptance, progress, ready, and completion
-results. Keep chat, tracker, greeting, and ledger as durable fallbacks; use
-fixed short-lived bounds, bounded rapid updates, teardown/death/load clearing,
-and no replay on silent restore. Preserve stable IDs, quest/reward authority,
-transient selection/focus, save version `3`, peer-panel lifecycle, and zero
-mutation. Do not add another quest, abandonment, sorting, map tracking, naming,
-appearance, autosave, profiles, deletion, or implicit migration in that slice.
-
-The project should remain classic high fantasy with early EverQuest/WoW tab-target controls and a Stylized Classic art direction. Keep gameplay systems asset-agnostic and do not commit raw Fab/Marketplace packs.
-
-Refresh the existing daily-embermere-rpg-build 8:00 AM heartbeat with the
-current commit, 88-test and 20-validator baseline, accepted Quest Ledger,
-selected-quest details, and quest-owned objective instructions,
-character creation,
-v3 identity/multi-quest persistence, derived-level progression, level-gated trainer,
-Advanced Chronicle proof, class-colored world VFX, and next bounded milestone
-before ending the run.
+Commit and push intentional verified work, update durable docs and TODO with
+exact results and open gates, and refresh the existing daily heartbeat without
+changing its 8 AM Eastern schedule or existing current-project task target.
 ```
 
 ## Handoff Principle

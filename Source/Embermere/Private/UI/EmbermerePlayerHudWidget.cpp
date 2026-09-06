@@ -84,6 +84,12 @@ namespace
 	constexpr float TrainerPanelHeight = 300.0f;
 	constexpr float ProgressionBarWidth = 260.0f;
 	constexpr float ProgressionBarHeight = 8.0f;
+	constexpr float DialoguePanelWidth = 620.0f;
+	constexpr float DialoguePanelHeight = 120.0f;
+	constexpr float DialogueContentWidth = 596.0f;
+	constexpr float DialogueSpeakerHeight = 28.0f;
+	constexpr float DialogueBodyHeight = 72.0f;
+	constexpr float DialogueBottomOffset = 116.0f;
 
 	const TCHAR* GetEquipmentSlotLabel(EEmbermereEquipmentSlot Slot)
 	{
@@ -3591,11 +3597,28 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	AddStackChild(BottomStack, HotbarRow, 0.0f);
 
 	DialoguePanel = MakePanel(WidgetTree, TEXT("DialoguePanel"), FLinearColor(0.025f, 0.02f, 0.018f, 0.88f));
-	DialogueTextBlock = MakeHudText(WidgetTree, TEXT("DialogueText"), FLinearColor(1.0f, 0.94f, 0.76f, 1.0f), 16.0f);
-	if (DialoguePanel && DialogueTextBlock)
+	DialogueSpeakerText = MakeHudText(WidgetTree, TEXT("DialogueSpeaker"), FLinearColor(1.0f, 0.94f, 0.76f, 1.0f), 16.0f);
+	DialogueTextBlock = MakeHudText(WidgetTree, TEXT("DialogueText"), FLinearColor(1.0f, 0.94f, 0.76f, 1.0f), 14.0f);
+	UCanvasPanel* DialogueContent = WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(), TEXT("DialogueContent"));
+	if (DialoguePanel && DialogueSpeakerText && DialogueTextBlock && DialogueContent)
 	{
+		DialoguePanel->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+		DialogueSpeakerText->SetAutoWrapText(false);
+		DialogueSpeakerText->SetClipping(EWidgetClipping::ClipToBoundsAlways);
 		DialogueTextBlock->SetAutoWrapText(true);
-		DialoguePanel->SetContent(DialogueTextBlock);
+		DialogueTextBlock->SetWrapTextAt(DialogueContentWidth);
+		DialogueTextBlock->SetClipping(EWidgetClipping::ClipToBoundsAlways);
+		if (UCanvasPanelSlot* SpeakerSlot = DialogueContent->AddChildToCanvas(DialogueSpeakerText))
+		{
+			SpeakerSlot->SetPosition(FVector2D::ZeroVector);
+			SpeakerSlot->SetSize(FVector2D(DialogueContentWidth, DialogueSpeakerHeight));
+		}
+		if (UCanvasPanelSlot* BodySlot = DialogueContent->AddChildToCanvas(DialogueTextBlock))
+		{
+			BodySlot->SetPosition(FVector2D(0.0f, DialogueSpeakerHeight));
+			BodySlot->SetSize(FVector2D(DialogueContentWidth, DialogueBodyHeight));
+		}
+		DialoguePanel->SetContent(DialogueContent);
 		DialoguePanel->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
@@ -3724,8 +3747,8 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		{
 			DialogueSlot->SetAnchors(FAnchors(0.5f, 1.0f, 0.5f, 1.0f));
 			DialogueSlot->SetAlignment(FVector2D(0.5f, 1.0f));
-			DialogueSlot->SetPosition(FVector2D(0.0f, -108.0f));
-			DialogueSlot->SetSize(FVector2D(620.0f, 72.0f));
+			DialogueSlot->SetPosition(FVector2D(0.0f, -DialogueBottomOffset));
+			DialogueSlot->SetSize(FVector2D(DialoguePanelWidth, DialoguePanelHeight));
 		}
 	}
 
@@ -5147,13 +5170,14 @@ void UEmbermerePlayerHudWidget::ShowLootPopupWithIcon(const FText& LootText, UTe
 
 void UEmbermerePlayerHudWidget::ShowDialogue_Implementation(const FText& SpeakerName, const FText& DialogueText)
 {
-	if (!DialoguePanel || !DialogueTextBlock)
+	if (!DialoguePanel || !DialogueSpeakerText || !DialogueTextBlock)
 	{
 		return;
 	}
 
-	DialogueTextBlock->SetText(FText::FromString(FString::Printf(TEXT("%s\n%s"), *SpeakerName.ToString(), *DialogueText.ToString())));
-	DialoguePanel->SetVisibility(ESlateVisibility::Visible);
+	DialogueSpeakerText->SetText(SpeakerName);
+	DialogueTextBlock->SetText(DialogueText);
+	DialoguePanel->SetVisibility(ESlateVisibility::HitTestInvisible);
 	if (const UWorld* World = GetWorld())
 	{
 		DialogueHideTimeSeconds = World->GetTimeSeconds() + 7.0f;

@@ -726,6 +726,9 @@ private:
 	TObjectPtr<UBorder> DialoguePanel;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> DialogueSpeakerText;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> DialogueTextBlock;
 
 	UPROPERTY(Transient)

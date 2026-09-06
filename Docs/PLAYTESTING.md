@@ -568,7 +568,7 @@ The full ownership and rollback contract is in
 ## Version 3 Multi-Quest And Still Waters
 
 1. Build with `-NoHotReloadFromIDE`, restart Unreal, force automation
-   rediscovery, and confirm exactly `93` Embermere tests are available.
+   rediscovery, and confirm exactly `94` Embermere tests are available.
 2. Run `Embermere.Quests.MultiQuestRuntime` and verify two valid quests coexist,
    exact objective progress affects only its quest, an unrelated giver cannot
    turn in Mara, a failed reward preflight preserves ready state, and each
@@ -696,10 +696,34 @@ not change that geometry. September 5 corrected the original diagnosis: the
 user's slot has no version tag, not a proven v3 contradiction. It remains
 byte-for-byte unchanged and cannot be restored without explicit-version recovery.
 
+## Bounded Dialogue
+
+- Run `Embermere.UI.DialoguePresentation` with all 94 tests. It checks the real
+  initialized widget tree, measured authored-text fit, fixed bounds, clipping,
+  hit-test invisibility, payload replacement, and unchanged serialized owners.
+- In fresh PIE confirm a character, close Inventory, approach Mara normally,
+  and press F. The speaker and full opening text should fit separate `596x28`
+  and `596x72` regions inside the bottom-centered `620x120` panel. The panel
+  bottom is 116 pixels above the viewport bottom, leaving a 16-pixel hotbar gap.
+  The 92x64 hotbar slots and 32x32 art must not move or resize.
+- Keep the original seven-second lifetime and latest-dialogue replacement.
+  Verify expiry without losing the chat fallback or changing quest progress.
+  Long words/newlines must never paint over neighboring controls.
+- September 6 clean Human Warrior PIE reached Mara via Q at
+  `(-1793.188459,-831.381985,90.150099)`, toggled Q off, and real F accepted
+  First Signs at 0/3. Slate showed exact speaker/body text and bounds, then
+  their absence after expiration. J -> M -> I -> I completed panel handoffs
+  with no save/load, ending cursor-hidden and move/look unsuppressed.
+- Final pixel approval at the user's normal HUD scale, held right-mouse,
+  independent physical W/S and Ctrl+M, full Prowler/Still Waters routes, and
+  vendor/trainer handoffs remain open. Earlier synthetic W left autorun true;
+  zero velocity at the existing table was not cancellation proof. Use only
+  allowed MCP, never desktop control or broad editor capture for these gates.
+
 ## Save Version Stamp Regression
 
 - Run `Embermere.Persistence.VersionStampRoundTrip` and
-  `Embermere.Persistence.MissingVersionRollback` with all 93 tests. The former
+  `Embermere.Persistence.MissingVersionRollback` with all 94 tests. The former
   writes actual stamped 1/2/3 archives and loads under a different CDO default;
   the latter reproduces historical tag omission and proves rejection rollback.
 - Keep the native default at Unrecorded (0), capture at Current (3), and all

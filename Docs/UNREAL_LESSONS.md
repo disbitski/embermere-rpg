@@ -2,6 +2,31 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Measure Text Before Locking Bounds
+
+On September 6 the inherited dialogue combined speaker and wrapped body in a
+620x72 un-clipped panel. A fixed canvas alone did not establish text fit: the
+first 60-pixel body proposal failed the actual Slate font prepass, which measured
+Mara's opening at 580x69. Keep the test and give the content enough room, rather
+than weakening the assertion or trusting nominal font size as line height.
+
+The final 620x120 panel uses independent 596x28 speaker and 596x72 body regions,
+explicit wrapping, clipping at each boundary, and hit-test invisibility. Exact
+FText payloads pass through without FString reconstruction. The hotbar retains
+its old geometry and gains a fixed 16-pixel gap. Tests also measure the speaker,
+bound extreme copy, replace repeated payloads, and compare durable state bytes.
+
+An initial new test also used the wrong existing hotbar widget name. Correct
+the fixture against the real widget tree before treating that failure as a
+product defect. Unreal can exit zero after failed automation; inspect the
+report's failed count. The final suite passed 94/94, not merely process exit 0.
+
+Real F plus Slate proved payload/geometry and later expiry, not full pixel or
+physical input acceptance. A Python probe of a private transient HUD property
+failed before the rebuild; use native widget tests and permitted Slate instead
+of assuming every C++ property is exposed to editor Python. Fresh final tests,
+package validators, and live trace/UI checks were free of LogPython errors.
+
 ## A Class Default Is Not A Save-File Version
 
 Unreal's `SaveGameToMemory` uses a tagged object archive that can elide values

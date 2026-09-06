@@ -420,8 +420,13 @@ without trainer-specific schema or drift.
 Autosave, deletion, multiple profiles, migrations, and position persistence
 remain later product decisions.
 
-The September 5 build passed 93 automation tests, 21 fresh-process package
-validators, and six initialized-world collision suites. Save versions are now
+The September 6 build passed 94 automation tests, 21 fresh-process package
+validators, and six initialized-world collision suites. Dialogue now uses
+separate fixed speaker/body regions, bounded wrapping and clipping, and a
+16-pixel gap above the unchanged hotbar; real Mara F interaction and expiration
+passed Slate checks. Final HUD pixel and held-input approval remain open. See
+[Docs/DIALOGUE_PRESENTATION_CONTRACT.md](Docs/DIALOGUE_PRESENTATION_CONTRACT.md).
+Save versions are now
 explicit archive stamps over a permanent invalid native default. Historical
 unstamped files reject read-only rather than inheriting a newer schema; the
 user's original journey remains unchanged pending explicit recovery. See

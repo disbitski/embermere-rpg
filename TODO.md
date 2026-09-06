@@ -6,6 +6,28 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 6 daily build: dialogue now has fixed `620x120` bounds, separate
+  `596x28` speaker and `596x72` body regions, bounded wrapping/clipping, and
+  hit-test-invisible presentation. It stays 16 pixels above the unchanged
+  hotbar. Exact FText payloads, seven-second lifetime, quest/service ownership,
+  and save version 3 remain unchanged. Read `Docs/DIALOGUE_PRESENTATION_CONTRACT.md`.
+  The no-hot-reload build, `94/94` isolated tests, `21` fresh package validators,
+  all six live collision suites, and fresh GUI discovery of 94 tests passed.
+  Clean Human Warrior PIE used Enter/I/Q, then real F at Mara accepted 0/3 and
+  showed the exact separated text in Slate; both regions later disappeared
+  while chat persisted. J -> M -> I -> I handed off Ledger, read-only Chronicle,
+  Inventory, and cursor-hidden unsuppressed game input. Q toggled autorun off;
+  today's earlier synthetic W did not prove cancellation. No objective fixture,
+  save/load, art movement, or desktop control was used. The original save hash
+  remains unchanged. Unreal is left out of PIE with the fresh module on 8123.
+  The 8 AM Eastern heartbeat still targets this exact project task. Blender is
+  configured but was not queried today because no original art was planned.
+  Next: user pixel review of Mara's dialogue plus physical W/S, right-mouse and
+  Ctrl+M; continue real Prowler/Still Waters routes with MCP where possible.
+  Do not equate Slate geometry with pixel approval or tool success with input.
+  Inspect the long Still Waters compact tracker next only if actual play shows
+  clipping; its full ledger detail remains the fallback. Do not add a new system
+  or infer/rewrite the user's old save to bypass the remaining gates.
 - September 5 daily build: the no-hot-reload module now uses a permanent invalid
   save-version default (`0`) and explicitly writes supported versions. Unreal's
   default-value archive elision had omitted the user's old version stamp; a
@@ -51,7 +73,8 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
   honestly. Do not guess a legacy version or rewrite that slot.
   Check the inherited long Still Waters tracker instruction for clipping;
   the full ledger detail remains the readable fallback. No map art moved.
-- Confirm Unreal is running the 2026-09-05 explicit save-version-stamp fix over
+- Confirm Unreal is running the 2026-09-06 bounded-dialogue module over the
+  2026-09-05 explicit save-version-stamp fix over
   the 2026-09-04 no-hot-reload quest-update observer
   and saved `T_FenwatchJournalEmblem` texture over the quest-objective
   presentation module and both saved quest packages over the 2026-09-03
@@ -75,12 +98,13 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates the September 5 explicit save-version-stamp fix or test discovery
-  exposes fewer than 93 Embermere tests.
+  predates the September 6 bounded-dialogue module or test discovery
+  exposes fewer than 94 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 93 tests, especially
+- Discover and run all 94 tests, especially
+  `Embermere.UI.DialoguePresentation`,
   `Embermere.Persistence.VersionStampRoundTrip`,
   `Embermere.Persistence.MissingVersionRollback`,
   `Embermere.Quests.LiveUpdateContract`,

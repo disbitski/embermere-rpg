@@ -3105,6 +3105,44 @@ Evidence: `/tmp/embermere-sep5-tests/index.json`,
 editor log. The daily 8 AM Eastern heartbeat keeps this exact task/project and
 now starts from the September 5 handoff instead of stale September 3 work.
 
+## 2026-09-06 - Dialogue Got Room Without Taking Authority
+
+The daily run stayed in the existing project task with desktop control disabled.
+Unreal MCP served the correct map and discovered the prior 93 tests; Blender
+was not needed for this code-only slice. Clean Human Warrior play reached Mara
+and real F accepted First Signs at 0/3. Synthetic W did not reliably cancel
+autorun, so zero velocity against the known village table was not presented as
+physical acceptance and no world art moved.
+
+The inherited dialogue panel combined speaker and body in 620x72 bounds without
+clipping. We split it into a fixed 620x120 presentation with a 596x28 speaker,
+596x72 body, explicit wrapping, and clipping at each boundary. The entire panel
+is hit-test-invisible. Exact FText payloads, seven-second expiry, quest/service
+authority, and the hotbar stay intact, with a 16-pixel gap above the hotbar.
+
+The new regression test failed against the old layout. Iteration caught a wrong
+widget name in the test, then a real text-fit failure: Mara's opening measured
+69 pixels high, exceeding the initial 60-pixel body proposal. The final test
+checks measured speaker/body fit, extreme text containment, replacement, exact
+geometry, and unchanged serialized gameplay owners. The no-hot-reload build and
+all 94 tests passed, followed by all 21 fresh-package validators and six live
+collision suites. Map counts remain 53 Fab plus 24 original-art placements.
+
+Fresh-module PIE used real F again. Slate showed Mara's exact text in the new
+regions and its later disappearance while chat remained. Q toggled autorun off;
+Ledger -> Chronicle -> Inventory -> closed handoffs ended cursor-hidden with
+move/look unsuppressed. Chronicle stayed read-only with disabled Load for the
+unstamped original save. Its SHA256 remains
+`c29a887c6e9a307221b56da34e10e80cef0af30b777a12206469893cd5b2d778`.
+No objective injection, save/load, map save, or desktop control was used.
+
+Evidence: `/tmp/embermere-sep6-tests-green/index.json`,
+`/tmp/embermere-sep6-packages.log`, and the fresh editor's `SEP6_FINAL_*` logs.
+The final editor discovers 94 tests and remains open on MCP 8123, out of PIE.
+Full Prowler/Still Waters routes, physical W/S and right-mouse/Ctrl+M, and final
+HUD pixels remain explicit gates. Today's bounded layout fix does not claim
+those unfinished checks. The daily 8 AM Eastern job retains this task/folder.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
