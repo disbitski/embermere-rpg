@@ -568,7 +568,7 @@ The full ownership and rollback contract is in
 ## Version 3 Multi-Quest And Still Waters
 
 1. Build with `-NoHotReloadFromIDE`, restart Unreal, force automation
-   rediscovery, and confirm exactly `94` Embermere tests are available.
+   rediscovery, and confirm exactly `95` Embermere tests are available.
 2. Run `Embermere.Quests.MultiQuestRuntime` and verify two valid quests coexist,
    exact objective progress affects only its quest, an unrelated giver cannot
    turn in Mara, a failed reward preflight preserves ready state, and each
@@ -648,6 +648,12 @@ The full ownership and rollback contract is in
     owners. Confirm the focused compact tracker uses fixed `260x68` bounds and
     shows title, exact progress, and the authored instruction without moving
     neighboring HUD. Long copy must clip rather than resize the panel.
+    Run `Embermere.UI.QuestTrackerTextFit`: real saved Mara and Still Waters
+    copy must measure at most 260x68, with explicit 260-pixel wrapping, fixed
+    13-point text, no redundant heading, and a non-fill column slot. Select
+    the longer Fenwatch Practice Target and confirm the tracker itself stays
+    260 pixels wide even when the target column grows. Slate checks are not
+    final HUD pixel approval.
 22. Open the ledger, leave Still Waters focused, and use physical Up to select
     Mara. Confirm Mara's detail shows `Objective progress   0 / 3   |   Defeat
     3 Marsh Prowlers.` while the compact tracker remains on Still Waters. Then
@@ -656,6 +662,30 @@ The full ownership and rollback contract is in
 
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
+
+### September 7 Route Evidence
+
+Two separate fresh worlds exercised real owners without progress fixtures.
+The Human Warrior killed saved Prowler 02 with 28/40/28/4 hotbar damage,
+received one Marsh Tonic, and advanced Mara to 1/3 with 0 XP. Prowlers 01/03
+stayed untouched. Subsequent re-engagement caused death and village recovery
+at (-2400,-1200,90.150099), with 100 health, 50 mana, zero velocity, both quest
+records and the tonic retained, and all Prowlers respawned/home. Combat was
+measured at transient 0.1 time dilation, restored to 1.0 before teardown;
+normal-speed combat feel and full Mara 3/3/turn-in remain open.
+
+The fresh Human Wizard route ran at normal time: accept both quests, Spark
+Bolt the practice target for 32 damage and 10 mana, walk to the well near
+(-1105,-1485), F stationary rest, then return to the board near (-1604,-310).
+Rest restored 100 to 110 mana and advanced only Still Waters to 1/1. Board F
+committed 50 XP, 10 copper (40 to 50), no item, and completed Still Waters;
+repeated F paid nothing. Mara stayed 0/3. J showed both exact states; M opened
+read-only Chronicle with Load disabled for the original unstamped slot;
+I -> I returned cursor-hidden, unsuppressed move/look input. No save/load,
+teleport, health injection, map edit, or desktop control was used.
+
+Physical W/S, held right-mouse/Ctrl+M, final dialogue/tracker pixels, and the
+remaining full Mara replay are still user/live-route acceptance gates.
 
 ## Quest Update Observer
 

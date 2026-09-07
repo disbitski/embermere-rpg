@@ -6794,7 +6794,7 @@ bool FEmbermereQuestObjectiveDisplayPresentationTest::RunTest(const FString& Par
 		FString(TEXT("Objective details unavailable.")));
 	TestEqual(TEXT("Active compact tracker combines authoritative progress and authored copy"),
 		Hud->GetQuestTrackerDisplayText().ToString(),
-		FString(TEXT("Quest\nFirst Signs at the Ruin\n0/3   Defeat 3 Marsh Prowlers.")));
+		FString(TEXT("First Signs at the Ruin\n0/3   Defeat 3 Marsh Prowlers.")));
 
 	TestTrue(TEXT("Objective fixture opens the ledger"), Hud->ToggleQuestLedgerPanel());
 	TestEqual(TEXT("Focused Mara begins selected"), Hud->GetSelectedQuestLedgerIndex(), 0);
@@ -6827,7 +6827,7 @@ bool FEmbermereQuestObjectiveDisplayPresentationTest::RunTest(const FString& Par
 	TestTrue(TEXT("Explicit focus changes the compact tracker"), Hud->FocusSelectedQuest());
 	TestEqual(TEXT("Focused tracker now uses Still Waters exact copy"),
 		Hud->GetQuestTrackerDisplayText().ToString(),
-		FString(TEXT("Quest\nStill Waters\n0/1   Complete a rest at the communal well.")));
+		FString(TEXT("Still Waters\n0/1   Complete a rest at the communal well.")));
 
 	TestTrue(TEXT("Selecting legacy data exposes the stable fallback"),
 		Hud->SelectQuestLedgerRecord(2));

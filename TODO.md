@@ -6,6 +6,40 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 7 daily build: compact quest text now fits the unchanged 260x68
+  cell. Removed the redundant heading, retained exact quest-owned FText,
+  wrapped at 260 with fixed 13-point text, and left-aligned the cell so a wide
+  target name cannot stretch it. The real saved-asset regression first failed
+  at 266.5x69 (Mara) and 377.5x69 (Still Waters), then passed at 235.5x42 and
+  213x63. Final PIE showed the tracker at exactly 260x68 beside the 478-pixel
+  practice-target heading. Read `Docs/QUEST_OBJECTIVE_PRESENTATION_CONTRACT.md`.
+  Final no-hot-reload build, 95/95 isolated tests, all 21 fresh package
+  validators, six live collision suites, and fresh 95-test discovery passed.
+  No Python errors occurred in the final checks. Map counts remain 53 Fab and
+  24 original-art placements. No assets or gameplay rules changed.
+  A fresh Human Wizard completed the real Still Waters route at normal time:
+  accept both quests via F, spend 10 mana with Spark Bolt on the practice
+  target without quest credit, walk/rest at the well to restore 110 mana and
+  reach 1/1, return to the notice board, receive exactly 50 XP and 10 copper
+  (40 to 50), no item, then repeat F without another reward. Mara stayed 0/3.
+  J -> M -> I -> I retained both records and returned cursor-hidden,
+  unsuppressed game input. Chronicle inspected but never loaded/overwrote the
+  original unstamped slot; its preserved hash remains unchanged.
+  A separate Warrior world killed saved Prowler 02 with 28/40/28/4 damage,
+  gained one tonic and Mara 1/3, left neighbors untouched, then died on return
+  after re-engagement and recovered at village spawn with both quests/tonic
+  intact. Combat used temporary 0.1 time dilation, restored to 1.0, so do not
+  call that normal-speed combat approval or a full Mara replay. Bounded engine
+  key pairs and scripted headings are MCP input evidence, not physical input.
+  No progress, health, reward, or position fixture was injected. All temporary
+  input callbacks were clear before teardown; the editor is left out of PIE
+  on 8123. The 8 AM Eastern heartbeat targets this exact project task with
+  desktop control disabled. Blender was not queried because no art was planned.
+  Next: user dialogue/tracker pixel review plus physical W/S, held right-mouse
+  and Ctrl+M; finish the normal-speed Mara three-kill/return/reward route using
+  existing authority. Preserve the accepted Still Waters route. Only fix a
+  bounded issue actually exposed by play; do not add a broad system or infer
+  the original save's version to bypass acceptance gates.
 - September 6 daily build: dialogue now has fixed `620x120` bounds, separate
   `596x28` speaker and `596x72` body regions, bounded wrapping/clipping, and
   hit-test-invisible presentation. It stays 16 pixels above the unchanged
@@ -73,7 +107,8 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
   honestly. Do not guess a legacy version or rewrite that slot.
   Check the inherited long Still Waters tracker instruction for clipping;
   the full ledger detail remains the readable fallback. No map art moved.
-- Confirm Unreal is running the 2026-09-06 bounded-dialogue module over the
+- Confirm Unreal is running the 2026-09-07 bounded-quest-tracker module over the
+  2026-09-06 bounded-dialogue module over the
   2026-09-05 explicit save-version-stamp fix over
   the 2026-09-04 no-hot-reload quest-update observer
   and saved `T_FenwatchJournalEmblem` texture over the quest-objective
@@ -98,12 +133,13 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates the September 6 bounded-dialogue module or test discovery
-  exposes fewer than 94 Embermere tests.
+  predates the September 7 bounded-quest-tracker module or test discovery
+  exposes fewer than 95 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 94 tests, especially
+- Discover and run all 95 tests, especially
+  `Embermere.UI.QuestTrackerTextFit`,
   `Embermere.UI.DialoguePresentation`,
   `Embermere.Persistence.VersionStampRoundTrip`,
   `Embermere.Persistence.MissingVersionRollback`,

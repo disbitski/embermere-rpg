@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-05
+Last updated: 2026-09-07
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -124,7 +124,7 @@ The project currently includes:
   four classes, exposes disabled combinations, atomically applies data-driven
   starter stats/abilities once, restores the normal controller/HUD path, and
   feeds the confirmed identity into the version-3 persistence contract;
-- 94 passing Unreal automation tests plus fresh-process character-creation,
+- 95 passing Unreal automation tests plus fresh-process character-creation,
   derived-level progression, and
   character-identity and multi-quest persistence,
   combat-feedback,
@@ -1761,25 +1761,33 @@ free of interaction, recovery, reward, quest, or persistence authority.
 
 ## Immediate Next Work
 
-September 6 adds a bounded dialogue fix over the September 5 save-stamp module.
-Read `Docs/DIALOGUE_PRESENTATION_CONTRACT.md`: fixed 620x120 panel, 596x28
-speaker, 596x72 wrapped body, exact FText, clipping, no hit testing, unchanged
-seven-second lifetime, and 16-pixel hotbar gap. No gameplay or package changed.
-The final no-hot-reload build, 94/94 isolated tests, 21 package validators, six
-live collision suites, and fresh 94-test discovery passed. Clean Human Warrior
-PIE reached Mara via Q, toggled Q off, accepted 0/3 via real F, and showed exact
-separated text and subsequent expiry in Slate. J -> M -> I -> I completed
-Ledger/Chronicle/Inventory handoffs without save/load, ending cursor-hidden and
-move/look unsuppressed. The original save hash and 53 Fab/24 original-art
-baseline are unchanged. Unreal remains open on 8123, out of PIE.
+September 7 adds the measured compact-tracker correction. Read
+`Docs/QUEST_OBJECTIVE_PRESENTATION_CONTRACT.md`: fixed 260x68, 13-point text,
+explicit wrapping, exact FText, and non-fill column alignment. Final Slate
+proved 260x68 beside the practice target's wider 478-pixel heading. The real
+saved-asset regression failed before the fix and now measures Mara at 235.5x42
+and Still Waters at 213x63. Final build, 95/95 tests, 21 package validators,
+six live trace suites, and fresh 95-test discovery passed. No gameplay or
+package changed. Preserve the September 6 dialogue and September 5 save fix.
 
-Next: user pixel approval of the dialogue and physical W/S, held right-mouse,
-and Ctrl+M; real Prowler/Still Waters routes through MCP where possible. Earlier
-synthetic W left autorun true today, so stopped velocity at the village table
-is not cancellation proof. Do not mark full routes or pixels accepted, inject
-objective progress, or replace MCP with desktop tools. Inspect the long Still
-Waters tracker only if normal play exposes clipping; full ledger detail remains
-the fallback. No new broad system or implicit original-slot recovery.
+A fresh Human Wizard completed Still Waters through real F acceptance, Spark
+Bolt mana spend on the practice target, traversal, stationary well rest, and
+notice-board turn-in. Exact result: 50 XP, 50 copper from 40, no item, completed
+1/1; repeated F paid nothing and Mara stayed 0/3. J -> M -> I -> I preserved
+state and restored cursor-hidden unsuppressed input. The original save was
+only inspected read-only and remains byte-identical. A separate Warrior run
+killed saved Prowler 02, looted one tonic, advanced Mara to 1/3, and later
+recovered at village spawn after death with that state intact. Combat used
+temporary 0.1 time dilation, so normal-speed feel and full Mara completion
+remain open. All callbacks cleared and time returned to 1.0 before teardown.
+
+Next: user dialogue/tracker pixel approval and physical W/S, held right-mouse,
+and Ctrl+M; finish the normal-speed Mara three-kill/return/reward route through
+MCP where possible. Keep the accepted Still Waters loop. Scripted headings
+and paired engine keys are not physical input proof; no progress/reward/health
+or position injection was used. Do not mark partial routes or Slate geometry
+as full acceptance, replace MCP with desktop tools, or infer the old save's
+version. Only take a bounded correction exposed by actual play.
 
 September 5 security/save rules still apply. The daily
 heartbeat is active at 8 AM America/New_York and targets the task rooted at
@@ -1828,7 +1836,8 @@ The long Still Waters compact-tracker instruction can clip; its full ledger
 detail remains the fallback. Map counts and placements are unchanged.
 
 Start from the `Start Here` section of `TODO.md`. Confirm Unreal has the
-2026-09-06 bounded-dialogue module over the 2026-09-05 explicit save-version-stamp fix over the
+2026-09-07 bounded-quest-tracker module over the 2026-09-06 bounded-dialogue
+module over the 2026-09-05 explicit save-version-stamp fix over the
 2026-09-04 no-hot-reload quest-update and quest-objective modules, saved journal
 texture, and quest
 packages, the 2026-09-03 selected-quest detail module, the 2026-09-02 native
@@ -1855,7 +1864,8 @@ First fresh-session checks:
    `L_Embermere_Prototype`; restart only when stale.
 2. Start MCP on port `8123` and wait briefly for tool discovery. Prefer the
    dedicated startup flags documented above for unattended launches.
-3. Run/discover all 94 tests, including `Embermere.UI.DialoguePresentation`,
+3. Run/discover all 95 tests, including `Embermere.UI.QuestTrackerTextFit`,
+   `Embermere.UI.DialoguePresentation`,
    `Embermere.Persistence.VersionStampRoundTrip`,
    `Embermere.Persistence.MissingVersionRollback`,
    `Embermere.Quests.LiveUpdateContract`,

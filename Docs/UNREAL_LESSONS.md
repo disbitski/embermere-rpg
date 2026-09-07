@@ -2,6 +2,46 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Test Fit And Allotted Width Separately
+
+September 7 reproduced compact-tracker clipping with the actual saved quest
+assets. The old 14-point, unwrapped layout measured Mara at 266.5x69 and Still
+Waters at 377.5x69 inside a declared 260x68 region. Removing the redundant
+heading, explicitly wrapping at 260, and using fixed 13-point text measured
+235.5x42 and 213x63 respectively. Keep exact quest-owned copy and the full
+Ledger fallback; never rewrite instructions to manufacture a passing fit.
+
+PIE then exposed a second issue: a wider practice-target name stretched the
+left column and the tracker's allocated cell despite its SizeBox overrides.
+Desired size is not allotted size. Left-align the tracker SizeBox's own column
+slot so it retains its width while the existing target column stays untouched.
+The regression checks font layout, fixed bounds, non-fill alignment, exact
+payloads, and unchanged serialized gameplay owners.
+
+## Bounded Engine Input Is Not Physical Input
+
+September 7 used only Unreal MCP Slate and engine-owned Input.+Key/Input.-Key
+pairs, with a temporary Slate-tick release callback, bounded durations, world
+identity checks, and cleanup. Refresh and click the current viewport before
+each measured key. A release callback's immediate snapshot can precede the
+controller's next poll: verify committed state on a later tick. Very short
+holds can disappear entirely when editor ticks are slow. Do not infer a
+movement bug from a successful tool call with no transform change.
+
+Scripted control rotation is a heading aid, not physical mouse proof. The
+Prowler combat measurement used transient 0.1 time dilation between calls;
+this proved real damage/loot/quest ownership, not normal-speed combat feel.
+The separate Wizard Still Waters route ran at normal time with real mana
+spending, stationary rest, return, and duplicate-safe turn-in. Neither route
+used position, health, objective, or reward injection. Restore time dilation
+and release callbacks before teardown. Do not commit temporary probe scripts.
+
+The permitted CaptureViewport path showed a scene/editor view with an axis
+indicator, without HUD. Do not label that image the possessed PIE camera or
+HUD pixel acceptance. Native text prepasses and Slate text/geometry are useful
+evidence, but physical held-input and final pixels remain user review gates.
+Never substitute broad editor captures or desktop control to close those gates.
+
 ## Measure Text Before Locking Bounds
 
 On September 6 the inherited dialogue combined speaker and wrapped body in a

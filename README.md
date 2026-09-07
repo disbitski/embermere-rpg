@@ -420,8 +420,13 @@ without trainer-specific schema or drift.
 Autosave, deletion, multiple profiles, migrations, and position persistence
 remain later product decisions.
 
-The September 6 build passed 94 automation tests, 21 fresh-process package
-validators, and six initialized-world collision suites. Dialogue now uses
+The September 7 build passed 95 automation tests, 21 fresh-process package
+validators, and six initialized-world collision suites. Exact starter-quest
+text now fits a non-stretching 260x68 tracker; the real Still Waters
+accept/mana-spend/rest/return loop paid exactly once without affecting Mara.
+The full Mara replay and final physical-input/pixel gates remain open. See
+[Docs/QUEST_OBJECTIVE_PRESENTATION_CONTRACT.md](Docs/QUEST_OBJECTIVE_PRESENTATION_CONTRACT.md).
+Dialogue uses
 separate fixed speaker/body regions, bounded wrapping and clipping, and a
 16-pixel gap above the unchanged hotbar; real Mara F interaction and expiration
 passed Slate checks. Final HUD pixel and held-input approval remain open. See

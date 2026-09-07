@@ -3143,6 +3143,48 @@ Full Prowler/Still Waters routes, physical W/S and right-mouse/Ctrl+M, and final
 HUD pixels remain explicit gates. Today's bounded layout fix does not claim
 those unfinished checks. The daily 8 AM Eastern job retains this task/folder.
 
+## 2026-09-07 - The Tracker Had To Fit Its Real Words
+
+The MCP-only daily run made new progress on the actual quest routes. In one
+fresh Warrior world, a saved Prowler took 28/40/28/4 authoritative hotbar damage,
+dropped a Marsh Tonic, and advanced Mara to 1/3 without awarding XP. The other
+two enemies were untouched. Tool latency let the respawned enemy re-engage
+during the return; death recovery restored the village spawn and full resources
+while preserving both quests and the tonic. Combat measurement used temporary
+0.1 time dilation, so this is not a normal-speed feel approval or a full Mara
+completion. Time returned to 1.0 and the input callback was clear before PIE ended.
+
+A separate fresh Human Wizard completed Still Waters at normal simulation
+speed. F accepted Mara and the notice-board quest; Spark Bolt spent ten mana
+on the practice target with no quest credit. Walking to the well and resting
+restored exactly that mana and made Still Waters ready. Walking back and
+turning in granted 50 XP, ten copper, and no item. Repeated F paid nothing.
+Mara remained 0/3. Ledger, read-only Chronicle, and Inventory handoffs preserved
+the resulting state and returned unsuppressed, cursor-hidden game input.
+
+The long compact instruction exposed a measurable UI bug. The old layout
+needed 377.5 pixels for Still Waters, not its declared 260, and both starter
+trackers needed 69 pixels of height inside 68. A real saved-asset regression
+failed before the fix. Removing the redundant Quest heading, wrapping at 260,
+and using 13-point text retained exact titles and instructions while measuring
+Mara at 235.5x42 and Still Waters at 213x63. The wider practice-target column
+then exposed a distinct allocation issue: SizeBox overrides describe desired
+size, not a promise that a fill slot cannot stretch. The tracker now owns a
+left-aligned fixed cell. No gameplay, art, package, or save schema changed.
+
+The project automation remains the existing 8 AM Eastern heartbeat rooted in
+this project task. Desktop controls stay disabled. The original unstamped
+journey remains byte-identical and was neither loaded nor overwritten. Blender
+was not queried because no original art was planned. Physical held-input and
+HUD pixel review remain honest open gates, alongside the full Mara replay.
+
+Final verification passed: no-hot-reload build, 95/95 isolated tests with no
+warnings, all 21 fresh-package validators with explicit markers and no Python
+errors, all six initialized-world collision suites, and fresh GUI discovery
+of 95 tests. The last fresh PIE showed the tracker at exactly 260x68 beside
+the 478-pixel practice-target heading. Unreal is left open on MCP 8123, out of
+PIE, with the protected 53 Fab/24 original-art baseline and original save intact.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

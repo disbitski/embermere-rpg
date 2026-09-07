@@ -1035,12 +1035,12 @@ FText UEmbermerePlayerHudWidget::GetQuestTrackerDisplayText() const
 	}
 
 	const FEmbermereQuestState& QuestState = QuestLog->ActiveQuest;
-	return FText::FromString(FString::Printf(
-		TEXT("Quest\n%s\n%d/%d   %s"),
-		*QuestState.Quest->Title.ToString(),
-		QuestState.CurrentObjectiveCount,
-		QuestState.Quest->RequiredObjectiveCount,
-		*GetQuestObjectiveDisplayText(QuestState.Quest).ToString()));
+	return FText::Format(
+		NSLOCTEXT("Embermere", "CompactQuestObjective", "{0}\n{1}/{2}   {3}"),
+		QuestState.Quest->Title,
+		FText::AsNumber(QuestState.CurrentObjectiveCount),
+		FText::AsNumber(QuestState.Quest->RequiredObjectiveCount),
+		GetQuestObjectiveDisplayText(QuestState.Quest));
 }
 
 FVector2D UEmbermerePlayerHudWidget::GetQuestTrackerDimensions() const
@@ -2141,21 +2141,21 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 
 	QuestPanel = MakePanel(WidgetTree, TEXT("QuestPanel"), FLinearColor(0.025f, 0.055f, 0.07f, 0.78f));
 	UVerticalBox* QuestStack = MakePanelStack(WidgetTree, QuestPanel, TEXT("QuestStack"));
-	QuestText = MakeHudText(WidgetTree, TEXT("QuestText"), FLinearColor(0.72f, 0.9f, 1.0f, 1.0f), 14.0f);
+	QuestText = MakeHudText(WidgetTree, TEXT("QuestText"), FLinearColor(0.72f, 0.9f, 1.0f, 1.0f), 13.0f);
 	if (QuestText)
 	{
 		QuestText->SetAutoWrapText(false);
+		QuestText->SetWrapTextAt(QuestTrackerWidth);
 		QuestText->SetClipping(EWidgetClipping::ClipToBoundsAlways);
 	}
-	AddStackChild(
-		QuestStack,
-		MakeSizedWidget(
-			WidgetTree,
-			QuestText,
-			TEXT("QuestTrackerSize"),
-			QuestTrackerWidth,
-			QuestTrackerHeight),
-		0.0f);
+	USizeBox* QuestTrackerSize = MakeSizedWidget(
+		WidgetTree, QuestText, TEXT("QuestTrackerSize"), QuestTrackerWidth, QuestTrackerHeight);
+	AddStackChild(QuestStack, QuestTrackerSize, 0.0f);
+	if (UVerticalBoxSlot* TrackerSlot = QuestTrackerSize ? Cast<UVerticalBoxSlot>(QuestTrackerSize->Slot) : nullptr)
+	{
+		// A wider target name must not stretch this fixed text region.
+		TrackerSlot->SetHorizontalAlignment(HAlign_Left);
+	}
 
 	InventoryPanel = MakePanel(WidgetTree, TEXT("InventoryPanel"), FLinearColor(0.025f, 0.028f, 0.024f, 0.94f));
 	UVerticalBox* InventoryStack = MakePanelStack(WidgetTree, InventoryPanel, TEXT("InventoryStack"));
