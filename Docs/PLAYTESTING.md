@@ -663,6 +663,22 @@ The full ownership and rollback contract is in
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
 
+### September 8 Route Evidence
+
+The normal-time Human Warrior replay completed Mara through three natural
+lives of saved Prowler 01, with three tonic drops and no early XP/copper.
+Real F at Mara committed 125 XP, 20 copper (40 -> 60), one Recruit Pack, and
+completed 3/3; repeated F changed nothing. Level 2 kept 30 missing health at
+80/110, with 53/53 mana. This is not an all-three-enemy sweep. Earlier approaches
+caused real deaths/recovery; do not call the entire run a clean solo-pull proof.
+
+Ledger showed COMPLETED; read-only Chronicle showed current Human Warrior
+Level 2 separately from the rejected unstamped original save. Inventory and
+vendor/trainer handoffs returned cursor-hidden, unsuppressed input, and both
+trainer offerings read READY. No shop/trainer mutation or save/load was used.
+See `Docs/DAILY_BUILD_2026-09-08.md` for exact evidence and probe limitations.
+Physical held input and final HUD pixels remain user gates.
+
 ### September 7 Route Evidence
 
 Two separate fresh worlds exercised real owners without progress fixtures.

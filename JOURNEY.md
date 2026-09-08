@@ -3185,6 +3185,42 @@ of 95 tests. The last fresh PIE showed the tracker at exactly 260x68 beside
 the 478-pixel practice-target heading. Unreal is left open on MCP 8123, out of
 PIE, with the protected 53 Fab/24 original-art baseline and original save intact.
 
+## 2026-09-08 - One Press Was Not One Press
+
+Today's MCP-only run finished Mara's normal-time objective/return/reward loop.
+Three natural lives of saved Prowler 01 produced three tonic drops and 3/3
+progress without early XP or copper. The original Mara interaction then paid
+exactly 125 XP, 20 copper, and one Recruit Pack; a second F paid nothing.
+Derived level 2 retained the 30 missing health from the final fight at 80/110,
+with 53/53 mana. Ledger, read-only Chronicle, and vendor/trainer panel checks
+kept the resulting state and restored game input. The original save stayed
+byte-identical. No game rules, packages, art, or save schema changed.
+
+The useful discovery was in the tool input path. Unreal's Input.+Key injects
+IE_Pressed on every frame, rather than a conventional one-time press and held
+state. Timed Tab could cycle several times; changing editor frame rate made
+the result less predictable. The final temporary probe released discrete
+actions after one engine tick and checked committed state later, while keeping
+bounded holds for movement and controller-polled panels. Each key still got a
+fresh Unreal-owned viewport snapshot/click. No desktop control was used.
+
+Earlier approaches and tool-call pauses caused real deaths, followed by village
+recovery with progress and loot intact. These limitations are part of the
+record: this was a normal-time exactly-once quest proof, not a clean all-three
+enemy sweep, physical held-input approval, or final HUD pixel review. The
+remaining gates are explicit in `Docs/DAILY_BUILD_2026-09-08.md`. The existing
+8 AM Eastern heartbeat resolves to this exact project task. Blender's local
+configuration is present; no live art bridge was needed today.
+
+Final verification passed: no-hot-reload build, 95/95 isolated tests with zero
+test warnings, all 21 fresh-package validators, six live collision suites,
+fresh 95-test discovery, and fresh Human Warrior creation/Inventory-close smoke.
+The validator runs had no Python errors; exploratory API probes and a mistaken
+editor-world query during PIE did, and are recorded separately rather than
+hidden. The post-PIE map query succeeded with zero dirty packages. Unreal is
+left out of PIE on the correct map, its real editor serving MCP 8123. The
+original save's protected hash is unchanged.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

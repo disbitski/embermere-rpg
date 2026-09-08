@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-07
+Last updated: 2026-09-08
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -1760,6 +1760,25 @@ free of interaction, recovery, reward, quest, or persistence authority.
   and 53 Fab plus 24 original-art baseline remained intact.
 
 ## Immediate Next Work
+
+September 8 completed the normal-time Mara 3/3/return/reward route with no
+gameplay, art, or schema changes. Read `Docs/DAILY_BUILD_2026-09-08.md` first for
+today's evidence: three natural lives of saved Prowler 01, three tonics, exact
+125 XP/20 copper/one Recruit Pack once, preserved missing health at level 2,
+completed Ledger, read-only Chronicle, and vendor/trainer panel handoffs.
+Earlier failed approaches/deaths do not invalidate the committed reward proof,
+but an all-three-Prowler sweep and physical combat feel remain separate gates.
+Input.+Key repeats IE_Pressed each frame: use single-frame discrete actions,
+later state proof, and bounded cleanup instead of interpreting repeated Tab as
+a targeting defect. Final build, 95/95 isolated tests, 21 package validators,
+six initialized-world trace suites, fresh 95-test discovery, and a fresh
+creation/Inventory-close smoke passed. Validator runs had no Python errors;
+separate API/world probe errors are recorded in the daily report. Unreal is
+left out of PIE on the correct map with MCP 8123 and zero dirty packages.
+Original save, unrelated edits, and desktop restrictions remain
+unchanged. Next: user pixel/physical-input review, then only a bounded concrete
+play defect. The historical September 7 partial Mara gate below is superseded
+by today's qualified completion, not by an all-three-enemy acceptance claim.
 
 September 7 adds the measured compact-tracker correction. Read
 `Docs/QUEST_OBJECTIVE_PRESENTATION_CONTRACT.md`: fixed 260x68, 13-point text,

@@ -6,6 +6,31 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 8 daily build: completed Mara's real normal-time three-kill,
+  return, reward, and duplicate-turn-in route. Read
+  `Docs/DAILY_BUILD_2026-09-08.md` for exact evidence and qualifications.
+  The credited kills were three natural lives of saved Prowler 01, not an
+  all-three-enemy sweep. Mara advanced 0/3 -> 3/3 and three tonics dropped with
+  no premature XP/copper. Original F committed exactly 125 XP, 20 copper
+  (40 -> 60), and one Recruit Pack; repeat F changed nothing. Derived level 2
+  preserved 30 missing health at 80/110 and restored full 53 mana. Earlier
+  failed approaches/deaths retained quest progress and loot through recovery.
+  J -> M -> I -> I plus real vendor/trainer visits preserved state and returned
+  cursor-hidden, unsuppressed input. Chronicle only inspected the original
+  unstamped slot; its protected hash remains unchanged. No gameplay or art
+  change was warranted. Build, 95/95 isolated tests with zero test warnings,
+  all 21 fresh package validators, six live trace suites, and fresh 95-test
+  discovery passed. Validator runs had no Python errors; separate exploratory
+  API/world probes did, as recorded in the daily report. Fresh Human Warrior
+  creation/Inventory-close smoke passed. Unreal is left out of PIE on the
+  correct map with zero dirty packages and its real editor listening on 8123.
+  The active 8 AM Eastern heartbeat targets this exact project task;
+  desktop control remains disabled. Blender's configured executable exists,
+  but its live bridge was not queried because no art was planned.
+  New lesson: Input.+Key injects IE_Pressed every frame, so duration-based Tab
+  can cycle repeatedly. Use a bounded single-frame discrete action and later
+  state proof; do not misdiagnose this as a game targeting bug. Physical input,
+  final HUD pixels, and an all-three-Prowler feel sweep remain open gates.
 - September 7 daily build: compact quest text now fits the unchanged 260x68
   cell. Removed the redundant heading, retained exact quest-owned FText,
   wrapped at 260 with fixed 13-point text, and left-aligned the cell so a wide

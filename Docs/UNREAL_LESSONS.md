@@ -2,6 +2,31 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Forced Keys Repeat Press Events
+
+September 8's normal-time replay exposed an input-probe trap rather than a
+targeting-rule defect. UE 5.8 Enhanced Input's `Input.+Key` forces a key every
+frame. `TickForcedInput` calls `InjectKey` with `IE_Pressed`; it is not one
+press followed by a conventional held state. A timed Tab can cycle multiple
+times and end where it began. Do not infer correctness from a successful tool
+call or make game changes to compensate for the probe.
+
+Release discrete action injection on the next engine tick and verify its
+result on a later tick. Movement and controller-polled panel keys have different
+timing needs. Every measured key still needs a fresh viewport snapshot/click,
+bounded release, world checks, and cleanup. Timer-based travel changes with
+frame rate; prove coordinates, not expected distance alone. The final Mara
+route used time dilation 1.0 and exact existing owners, but scripted headings
+and input remain distinct from physical mouse/key acceptance.
+
+The native `SlateInspectorToolset` exists in editor Python, but AICallable-only
+methods may lack ordinary Python glue. The CDO's reflected `call_method` can
+invoke the same inspected Unreal Slate methods. `Snapshot` with source locations
+forces a fresh tree. This is not permission to capture broad editor/desktop
+windows: only allowed Unreal-owned inspection/input/viewport operations apply.
+See `Docs/DAILY_BUILD_2026-09-08.md` for route results, early probe errors, and
+remaining user gates. Keep temporary input probes out of production commits.
+
 ## Test Fit And Allotted Width Separately
 
 September 7 reproduced compact-tracker clipping with the actual saved quest
