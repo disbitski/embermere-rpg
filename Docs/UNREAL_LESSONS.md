@@ -2,6 +2,28 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Trace The Actual Moving Shape
+
+September 9's Prowler return stalled against the gate footing while the center
+ray to home was clear. The actual 34-radius/88-half-height capsule hit after
+0.71 cm. Use the moving shape when diagnosing blocked routes; do not move valid
+art based on a misleading point trace. Return-only movement now uses Unreal's
+safe swept move plus collision sliding. This does not replace pathfinding.
+
+The regression loads the actual gate and Blueprint into an isolated physics
+world. Explicitly start the world's actors and assert BeginPlay/home capture;
+a world without a game mode may not have dispatched actor BeginPlay yet.
+Only accept a failure that reproduces the correct contact and owner state.
+Use public Actor TickActor and UMovementComponent interfaces, and genuine
+world teardown rather than manually ending unstarted components.
+
+Also distinguish Blueprint defaults, placed actor properties, and rendered
+component state. Today's CDO had all six Prowler animation roles while all
+three placed actors reported empty native references despite valid component
+mesh/default Idle. Existing checks missed that distinction. The gap remains
+tomorrow's first acceptance task, not a repaired animation claim. See
+`Docs/DAILY_BUILD_2026-09-09.md`.
+
 ## Forced Keys Repeat Press Events
 
 September 8's normal-time replay exposed an input-probe trap rather than a

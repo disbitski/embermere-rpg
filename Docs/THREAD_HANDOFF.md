@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-08
+Last updated: 2026-09-09
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -1760,6 +1760,25 @@ free of interaction, recovery, reward, quest, or persistence authority.
   and 53 Fab plus 24 original-art baseline remained intact.
 
 ## Immediate Next Work
+
+September 9 supersedes the all-three-kill gate with a qualified distinct-actor
+proof and adds the return-only gate collision-slide fix. Read
+`Docs/DAILY_BUILD_2026-09-09.md`. Prowlers 02/01/03 each yielded one tonic and
+one Mara objective credit; original F paid exactly 125 XP, 20 copper, and one
+Recruit Pack once. A two-enemy pull/death occurred, so physical solo-pull feel
+is not approved. The exact-contact gate regression failed before and passes
+after the fix. Final build, 96/96 tests, 21 package validators, six live traces,
+fresh discovery, and normal-route return/panel checks passed. Original save
+and unrelated changes remain untouched; editor is ready on MCP 8123.
+
+First next task: verify and correct the observed placed-Prowler animation gap.
+Fresh PIE and editor instances report empty native VisualSkeletalMesh and
+animation references while the Blueprint CDO is complete. Component mesh/Idle
+validation alone missed this. Use a fresh package check, a regression covering
+placed instances, and live six-role routing proof; do not call it repaired
+or compensate with art movement or gameplay changes. Physical HUD/input review
+remains separate. Preserve the existing 8 AM Eastern project heartbeat and
+all desktop-control restrictions.
 
 September 8 completed the normal-time Mara 3/3/return/reward route with no
 gameplay, art, or schema changes. Read `Docs/DAILY_BUILD_2026-09-08.md` first for

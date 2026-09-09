@@ -6,6 +6,31 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 9 daily build: all three distinct saved Prowlers (02, 01, 03)
+  were defeated through normal-time hotbar combat, yielding exactly three
+  tonics and Mara 3/3. Original F paid 125 XP, 20 copper (40 -> 60), and one
+  Recruit Pack once; repeat F paid nothing. The 01 approach pulled 02 too,
+  caused a later death, and preserved progress/loot through recovery. This is
+  not a clean solo-pull or physical-feel approval. Read
+  `Docs/DAILY_BUILD_2026-09-09.md` for qualifications and exact evidence.
+  The run exposed a real return-home stall against the gate footing: a clear
+  center ray missed a blocking capsule contact. Return-only movement now uses
+  Unreal collision sliding without moving art or changing chase/combat rules.
+  New `Embermere.Enemy.ReturnPastGate` reproduces the exact saved gate contact,
+  fails before the fix, and reaches home afterward; fresh normal-route PIE also
+  returned Prowler 02 home with no reward/state mutation. Final build, 96/96
+  isolated tests with zero warnings, 21 package validators, six live trace
+  suites, and fresh 96-test discovery passed. Original save is unchanged;
+  Unreal is out of PIE with zero dirty packages on MCP 8123. The existing
+  8 AM Eastern heartbeat targets this project task; desktop control stays off.
+  **Next priority:** all three placed enemy instances reported empty native
+  visual mesh/animation references in fresh PIE and the editor, while their
+  Blueprint CDO is complete. Current validators check component mesh/Idle and
+  CDO roles, not placed six-role references. Verify those properties in a fresh
+  commandlet, add a failing placed-instance check, repair verified drift only,
+  then prove six-role animation routing in PIE. Do not claim this is fixed.
+  Physical input, final HUD pixels, and normal-camera animation review remain
+  user gates. No art or save schema changed; unrelated files remain excluded.
 - September 8 daily build: completed Mara's real normal-time three-kill,
   return, reward, and duplicate-turn-in route. Read
   `Docs/DAILY_BUILD_2026-09-08.md` for exact evidence and qualifications.
@@ -132,7 +157,8 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
   honestly. Do not guess a legacy version or rewrite that slot.
   Check the inherited long Still Waters tracker instruction for clipping;
   the full ledger detail remains the readable fallback. No map art moved.
-- Confirm Unreal is running the 2026-09-07 bounded-quest-tracker module over the
+- Confirm Unreal is running the 2026-09-09 return-home collision-slide module over the
+  2026-09-07 bounded-quest-tracker module over the
   2026-09-06 bounded-dialogue module over the
   2026-09-05 explicit save-version-stamp fix over
   the 2026-09-04 no-hot-reload quest-update observer
@@ -158,12 +184,13 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
   the Fenwatch vendor-stall, first closed cottage, and training-workshop/map
   packages, the saved native Fenwatch practice target, quest-owned Mara
   greeting copy, and saved read-only greeting observer. Restart if the editor
-  predates the September 7 bounded-quest-tracker module or test discovery
-  exposes fewer than 95 Embermere tests.
+  predates the September 9 return-home correction or test discovery
+  exposes fewer than 96 Embermere tests.
   Start MCP with `-ModelContextProtocolStartServer
   -ModelContextProtocolPort=8123`; on macOS pass the full `.uproject` after
   `open ... --args`. Confirm Blender only when original-art work is selected.
-- Discover and run all 95 tests, especially
+- Discover and run all 96 tests, especially
+  `Embermere.Enemy.ReturnPastGate`,
   `Embermere.UI.QuestTrackerTextFit`,
   `Embermere.UI.DialoguePresentation`,
   `Embermere.Persistence.VersionStampRoundTrip`,

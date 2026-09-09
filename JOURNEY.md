@@ -3221,6 +3221,32 @@ hidden. The post-PIE map query succeeded with zero dirty packages. Unreal is
 left out of PIE on the correct map, its real editor serving MCP 8123. The
 original save's protected hash is unchanged.
 
+## 2026-09-09 - A Clear Ray Was Not A Clear Route
+
+Today's MCP-only normal-time run defeated all three distinct saved Prowlers,
+advanced Mara exactly three times, and returned for the original exactly-once
+reward. A two-enemy pull caused a death between kills, with loot and progress
+preserved through village recovery. The result is a qualified real quest proof,
+not a clean solo-pull or physical-feel claim.
+
+Prowler 02 then exposed a genuine gate return stall. Its center ray was clear,
+but the full capsule caught the footing almost immediately. A small return-only
+change uses Unreal's safe swept movement and collision sliding; the isolated
+saved-gate regression failed before the fix and reached exact home afterward.
+Fresh normal-route PIE also returned the enemy home. No gate, combat rule,
+reward owner, or save schema moved.
+
+Verification passed: no-hot-reload build, 96/96 tests without test warnings,
+21 fresh-package checks, six live trace suites, fresh discovery, and panel/input
+handoffs. The original save remains byte-identical, and the editor is ready on
+MCP 8123. The daily job still targets this project task at 8 AM Eastern.
+
+One important new gap stays explicit: the Blueprint defaults contain the six
+Prowler animation roles, but the three placed actors report empty native role
+references even though their component mesh and default Idle validate. Tomorrow
+starts with a placed-instance regression and fresh-package investigation, not
+another feature. Details and limits are in `Docs/DAILY_BUILD_2026-09-09.md`.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

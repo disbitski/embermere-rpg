@@ -663,6 +663,26 @@ The full ownership and rollback contract is in
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
 
+### September 9 Route Evidence
+
+The normal-time Human Warrior defeated distinct saved Prowlers 02, 01, and 03,
+received three tonics and Mara 3/3, and returned for exactly 125 XP, 20 copper,
+and one Recruit Pack once. Repeat F did not mutate state. A two-enemy pull and
+death happened between kills; recovery retained progress and loot. This is not
+a clean solo-pull or physical camera approval.
+
+Run `Embermere.Enemy.ReturnPastGate` for the reproduced capsule/footing stall.
+The return-only collision slide passed the exact-contact regression and a fresh
+normal-route pull/retreat returned 02 home, leaving neighbors and progression
+untouched. J -> M -> I -> I restored cursor-hidden unsuppressed input. Final
+96/96 tests, 21 package checks, six live traces, and fresh discovery passed.
+
+New open gate: verify all six animation references on the three placed enemy
+instances, not just the Blueprint CDO or skeletal component's default Idle.
+Fresh PIE/editor instances currently report empty native references. Physical
+input and final HUD/animation pixels remain user checks. Full qualifications
+are in `Docs/DAILY_BUILD_2026-09-09.md`; the original save is unchanged.
+
 ### September 8 Route Evidence
 
 The normal-time Human Warrior replay completed Mara through three natural

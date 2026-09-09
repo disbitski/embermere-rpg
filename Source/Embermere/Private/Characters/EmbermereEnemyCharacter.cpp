@@ -11,6 +11,7 @@
 #include "Engine/Engine.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -787,8 +788,20 @@ void AEmbermereEnemyCharacter::UpdateReturnHome(float DeltaSeconds)
 		FMath::Max(0.0f, ReturnHomeSpeedCmPerSecond) *
 		(Stats ? Stats->GetMovementSpeedMultiplier() : 1.0f);
 	const float StepDistance = FMath::Min(DistanceToHome, ReturnSpeed * DeltaSeconds);
-	SetActorLocation(GetActorLocation() + Direction * StepDistance, true);
-	bMovedThisFrame = true;
+	const FVector BeforeMove = GetActorLocation();
+	const FVector Delta = Direction * StepDistance;
+	if (StepDistance > 0.0f)
+	{
+		UMovementComponent* Movement = GetCharacterMovement();
+		FHitResult Hit;
+		Movement->SafeMoveUpdatedComponent(Delta, GetActorQuat(), true, Hit);
+		if (Hit.IsValidBlockingHit())
+		{
+			// A capsule can catch a gate footing even when the center-to-home ray is clear.
+			Movement->SlideAlongSurface(Delta, 1.0f - Hit.Time, Hit.Normal, Hit, false);
+		}
+	}
+	bMovedThisFrame = !GetActorLocation().Equals(BeforeMove, 0.01f);
 }
 
 float AEmbermereEnemyCharacter::GetEffectiveMoveSpeedCmPerSecond() const
