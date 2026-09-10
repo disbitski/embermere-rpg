@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-09
+Last updated: 2026-09-10
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -1761,6 +1761,23 @@ free of interaction, recovery, reward, quest, or persistence authority.
 
 ## Immediate Next Work
 
+September 10 supersedes the placed-Prowler animation gap below. Read
+`Docs/DAILY_BUILD_2026-09-10.md`: a failing fresh-package check established
+empty native mesh/six-role references on all three saved actors. A guarded
+map-only repair and updated setup script restored canonical references, with
+no gameplay, art, collision, transform, or save changes. All six roles have
+advancing live clocks on each actor through actual combat and return. Distinct
+kills, real well recovery, Mara's exact one-time reward, and J/M/I/I handoffs
+passed with documented route-probe limitations. Final build, 96/96 isolated
+tests, 22 package validators, six live traces, and fresh discovery passed.
+Original save unchanged; real UnrealEditor/MCP ready out of PIE, no dirty
+packages. Physical HUD/animation/input approval remains the user's gate.
+Next bounded investigation, absent concrete play feedback: inspect saved
+SkeletalMesh usage flags for the project-owned Fenwatch materials named in
+startup warnings, with fresh-package evidence before any intentional repair.
+Do not bulk resave or touch vendor packs. Preserve 8 AM Eastern in this exact
+project task and the desktop-control prohibition.
+
 September 9 supersedes the all-three-kill gate with a qualified distinct-actor
 proof and adds the return-only gate collision-slide fix. Read
 `Docs/DAILY_BUILD_2026-09-09.md`. Prowlers 02/01/03 each yielded one tonic and
@@ -1771,14 +1788,10 @@ after the fix. Final build, 96/96 tests, 21 package validators, six live traces,
 fresh discovery, and normal-route return/panel checks passed. Original save
 and unrelated changes remain untouched; editor is ready on MCP 8123.
 
-First next task: verify and correct the observed placed-Prowler animation gap.
-Fresh PIE and editor instances report empty native VisualSkeletalMesh and
-animation references while the Blueprint CDO is complete. Component mesh/Idle
-validation alone missed this. Use a fresh package check, a regression covering
-placed instances, and live six-role routing proof; do not call it repaired
-or compensate with art movement or gameplay changes. Physical HUD/input review
-remains separate. Preserve the existing 8 AM Eastern project heartbeat and
-all desktop-control restrictions.
+September 9's next task was the native-reference gap, now resolved by the
+September 10 work above. Component mesh/Idle validation alone missed it;
+keep the new placed-instance regression. Physical HUD/input review remains
+separate, with all desktop-control restrictions unchanged.
 
 September 8 completed the normal-time Mara 3/3/return/reward route with no
 gameplay, art, or schema changes. Read `Docs/DAILY_BUILD_2026-09-08.md` first for

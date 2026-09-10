@@ -13,6 +13,18 @@ The user-provided concept reference currently lives at:
 Use it for silhouette and mood, not as an exact copy. The finished creature
 should belong specifically to Embermere.
 
+## Saved-Instance Correction 2026-09-10
+
+The original acceptance below did not guard every saved native role reference.
+Fresh commandlet inspection found that all three placed actors retained their
+component mesh/default Idle but had empty native mesh and six-animation soft
+references. The Blueprint CDO was complete. The setup script now assigns and
+verifies both native owner and component state; a guarded map-only repair
+restored the seven reviewed references on each placed actor without changing
+art, collision, transforms, or gameplay. A new placed-instance validator joins
+the 22-package aggregate. Read `Docs/DAILY_BUILD_2026-09-10.md` for exact live
+animation evidence; physical animation/pose quality remains a separate gate.
+
 ## Implemented 2026-07-27
 
 The bounded vertical slice is complete and accepted as Embermere's first

@@ -6,6 +6,32 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 10 daily build: repaired the verified placed-Prowler native
+  animation-reference gap. Read `Docs/DAILY_BUILD_2026-09-10.md`. A fresh
+  commandlet first failed on all three placed actors' seven empty soft
+  references despite complete CDO/component defaults. The setup script now
+  validates both layers; its guarded map-only mode restored only the canonical
+  mesh and six role references. No C++ gameplay, collision, art, transforms,
+  or save schema changed. New placed-instance validation expands the package
+  aggregate to 22. Build, 96/96 isolated tests with zero test warnings, all 22
+  fresh package checks, six live trace suites, and fresh discovery passed.
+  Normal-time PIE proved advancing Idle/Walk/Run/Attack/Hit/Death on each saved
+  Prowler, including return-home, defeat/hide/full-health respawn and 48
+  non-colliding ring segments. Distinct kills 02/03/01 yielded three tonics and
+  Mara 3/3; real well recovery restored 28 -> 100 health between fights.
+  Original Mara F paid exactly 125 XP, 20 copper (40 -> 60), and one Recruit
+  Pack once; repeat F paid nothing. J/M/I/I preserved state and restored
+  cursor-hidden unsuppressed input. Failed short gate approaches and an
+  insufficient retreat remain documented; do not claim physical route/pose
+  approval. The original save hash is unchanged and Chronicle rejected its
+  unstamped version read-only. Unreal is out of PIE with zero dirty packages
+  on real MCP 8123. The ACTIVE 8 AM Eastern heartbeat targets this exact project;
+  desktop control remains off and Blender was not queried because no art was
+  planned. **Next:** user normal-camera animation/HUD and held-input review.
+  Continue unaffected MCP work: inspect saved SkeletalMesh usage flags and
+  actual rig dependencies behind project-owned Fenwatch material startup
+  warnings before any deliberate package repair. No bulk or vendor resaves.
+  Keep the placed-instance regression and all existing authority boundaries.
 - September 9 daily build: all three distinct saved Prowlers (02, 01, 03)
   were defeated through normal-time hotbar combat, yielding exactly three
   tonics and Mara 3/3. Original F paid 125 XP, 20 copper (40 -> 60), and one

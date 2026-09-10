@@ -2,6 +2,32 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Validate Placed Animation Owners
+
+September 10's fresh commandlet confirmed all three Prowlers had seven empty
+native soft references (mesh plus six roles), while their Blueprint defaults
+and rendered component mesh/default Idle were correct. The original setup
+script populated native references only on the CDO, then configured only the
+skeletal components of placed actors. A complete CDO is not a placed-instance
+or runtime-routing guarantee.
+
+The setup now verifies and assigns both layers. Its map-only repair mode
+preflights exact actor class/labels/map, canonical CDO references, and existing
+component transforms before restoring empty references. It rejects unexpected
+authored references instead of copying arbitrary defaults. MCP serializes a
+loaded soft reference as a refPath object and an unloaded one as a path string;
+normalize that representation before comparison.
+
+`validate_marsh_prowler_instances_unreal.py` checks the actual saved instances,
+all six same-skeleton sequences, and matched native/component transforms in a
+fresh process. Preserve the existing CharacterMesh/QueryOnly profile rather
+than imposing a new NoCollision assumption on the skeletal component. The
+capsule and all gameplay rules remain unchanged. Commandlet exit zero also
+occurred on a Python import error and failed validation: require the explicit
+success marker and absence of LogPython errors, not just the process status.
+Runtime proof must sample the active sequence and advancing playback position
+through actual combat and return, not read default animation_data alone.
+
 ## Trace The Actual Moving Shape
 
 September 9's Prowler return stalled against the gate footing while the center
@@ -20,9 +46,9 @@ world teardown rather than manually ending unstarted components.
 Also distinguish Blueprint defaults, placed actor properties, and rendered
 component state. Today's CDO had all six Prowler animation roles while all
 three placed actors reported empty native references despite valid component
-mesh/default Idle. Existing checks missed that distinction. The gap remains
-tomorrow's first acceptance task, not a repaired animation claim. See
-`Docs/DAILY_BUILD_2026-09-09.md`.
+mesh/default Idle. Existing checks missed that distinction. September 10's
+placed-instance repair above supersedes that open data gap; see both daily
+reports for runtime evidence and remaining physical-review limits.
 
 ## Forced Keys Repeat Press Events
 

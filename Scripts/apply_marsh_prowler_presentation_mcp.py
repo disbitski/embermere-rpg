@@ -79,10 +79,11 @@ def presentation_values():
 
 
 def set_properties(instance, values):
-    return objects("set_properties", {
+    if not objects("set_properties", {
         "instance": instance,
         "values": json.dumps(values),
-    })
+    }):
+        raise RuntimeError("Property assignment failed: " + instance["refPath"])
 
 
 def get_properties(instance):
@@ -91,6 +92,7 @@ def get_properties(instance):
         "properties": [
             "skeletalMeshAsset",
             "relativeLocation",
+            "relativeRotation",
             "relativeScale3D",
             "animationMode",
             "animationData",
@@ -104,39 +106,60 @@ def verify_component(component_ref, owner_label):
     mesh_ref = values.get("skeletalMeshAsset", {}).get("refPath", "")
     idle_ref = values.get("animationData", {}).get("animToPlay", {}).get("refPath", "")
     location = values.get("relativeLocation", {})
+    rotation = values.get("relativeRotation", {})
     scale = values.get("relativeScale3D", {})
 
     if mesh_ref != MESH_PATH:
         raise RuntimeError(owner_label + " does not resolve the Marsh Prowler mesh")
     if idle_ref != IDLE_PATH:
         raise RuntimeError(owner_label + " does not resolve the Marsh Prowler idle animation")
-    if abs(float(location.get("z", 0.0)) + 95.0) > 0.01:
+    if any(abs(float(location.get(axis, 999.0)) - target) > 0.01
+           for axis, target in (("x", 0.0), ("y", 0.0), ("z", -95.0))):
         raise RuntimeError(owner_label + " has the wrong mesh-to-capsule offset")
+    if any(abs(float(rotation.get(axis, 999.0))) > 0.01 for axis in ("pitch", "yaw", "roll")):
+        raise RuntimeError(owner_label + " has the wrong mesh rotation")
     if any(abs(float(scale.get(axis, 0.0)) - 0.65) > 0.001 for axis in ("x", "y", "z")):
         raise RuntimeError(owner_label + " has the wrong Marsh Prowler scale")
     if values.get("animationMode") != "AnimationSingleNode":
         raise RuntimeError(owner_label + " is not using single-node runtime animation")
 
 
-def run():
-    blueprint_ref = {"refPath": BLUEPRINT_PATH}
-    cdo_ref = blueprints("get_default_object", {"blueprint": blueprint_ref})
-    cdo_animation_values = {
+def native_values():
+    values = {
         property_name: {"refPath": asset_path}
         for property_name, asset_path in ANIMATION_PATHS.items()
     }
-    cdo_animation_values.update({
+    values.update({
         "visualSkeletalMesh": {"refPath": MESH_PATH},
         "visualMeshRelativeLocation": {"x": 0.0, "y": 0.0, "z": -95.0},
         "visualMeshRelativeRotation": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
         "visualMeshRelativeScale": {"x": 0.65, "y": 0.65, "z": 0.65},
     })
-    set_properties(cdo_ref, cdo_animation_values)
-    set_properties(skeletal_mesh_component(cdo_ref), presentation_values())
-    blueprints("compile_blueprint", {
-        "blueprint": blueprint_ref,
-        "warnings_as_errors": True,
-    })
+    return values
+
+
+def verify_native(owner, label, allow_empty_references=False):
+    expected = native_values()
+    values = json.loads(objects("get_properties", {
+        "instance": owner, "properties": list(expected),
+    }))
+    for prop, target in expected.items():
+        actual = values.get(prop)
+        if "refPath" in target:
+            if allow_empty_references and actual in (None, "None", "", {"refPath": ""}):
+                continue
+            path = actual.get("refPath") if isinstance(actual, dict) else actual
+            if path != target["refPath"]:
+                raise RuntimeError(label + " has unexpected " + prop + ": " + repr(actual))
+        elif not isinstance(actual, dict) or any(
+                abs(float(actual.get(axis, 999)) - value) > 0.001
+                for axis, value in target.items()):
+            raise RuntimeError(label + " has unexpected " + prop)
+
+
+def run(repair_instances_only=False):
+    blueprint_ref = {"refPath": BLUEPRINT_PATH}
+    cdo_ref = blueprints("get_default_object", {"blueprint": blueprint_ref})
 
     configured = []
     level_actors = scene("find_actors", {
@@ -144,23 +167,56 @@ def run():
         "tag": "",
         "collision_channels": [],
     })
+    owners = []
     for actor_ref in level_actors:
         label = actor("get_label", {"actor": actor_ref})
+        if not actor_ref["refPath"].startswith(MAP_PATH + ".L_Embermere_Prototype:PersistentLevel."):
+            raise RuntimeError("Expected an actor in the saved prototype map")
+        if objects("get_class", {"instance": actor_ref})["refPath"] != BLUEPRINT_PATH + "_C":
+            raise RuntimeError("Unexpected starter-enemy class: " + label)
         component_ref = skeletal_mesh_component(actor_ref)
-        set_properties(component_ref, presentation_values())
-        verify_component(component_ref, label)
+        owners.append((label, actor_ref, component_ref))
         configured.append(label)
 
     configured.sort()
     if configured != ["Starter_Enemy_01", "Starter_Enemy_02", "Starter_Enemy_03"]:
         raise RuntimeError("Unexpected saved starter-enemy set: " + repr(configured))
 
+    if repair_instances_only:
+        # Reject unrelated authored drift before changing any placed actor.
+        verify_native(cdo_ref, "Blueprint defaults")
+        verify_component(skeletal_mesh_component(cdo_ref), "Blueprint defaults")
+        for label, owner, component in owners:
+            verify_native(owner, label, allow_empty_references=True)
+            verify_component(component, label)
+    else:
+        set_properties(cdo_ref, native_values())
+        set_properties(skeletal_mesh_component(cdo_ref), presentation_values())
+        blueprints("compile_blueprint", {
+            "blueprint": blueprint_ref, "warnings_as_errors": True,
+        })
+        cdo_ref = blueprints("get_default_object", {"blueprint": blueprint_ref})
+        verify_native(cdo_ref, "Blueprint defaults")
+        verify_component(skeletal_mesh_component(cdo_ref), "Blueprint defaults")
+
+    for label, owner, component in owners:
+        if not repair_instances_only:
+            component = skeletal_mesh_component(owner)
+        values = native_values()
+        if repair_instances_only:
+            values = {key: value for key, value in values.items() if "refPath" in value}
+        set_properties(owner, values)
+        if not repair_instances_only:
+            set_properties(component, presentation_values())
+        verify_native(owner, label)
+        verify_component(component, label)
+
     saved = assets("save_assets", {
-        "asset_paths": [
-            "/Game/Blueprints/BP_StarterEnemy",
-            MAP_PATH,
-        ],
+        "asset_paths": [MAP_PATH] if repair_instances_only else [
+            "/Game/Blueprints/BP_StarterEnemy", MAP_PATH],
     })
+    if not saved:
+        raise RuntimeError("Prowler package save failed")
     return {
         "configured": configured,
         "mesh": MESH_PATH,

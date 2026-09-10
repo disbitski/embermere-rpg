@@ -3247,6 +3247,27 @@ references even though their component mesh and default Idle validate. Tomorrow
 starts with a placed-instance regression and fresh-package investigation, not
 another feature. Details and limits are in `Docs/DAILY_BUILD_2026-09-09.md`.
 
+## September 10: The Placed Actor Is Its Own Contract
+
+The fresh saved-map regression reproduced yesterday's animation gap: complete
+Blueprint defaults and a correct displayed mesh/Idle did not mean the placed
+actors had the native references that drive state changes. We repaired only
+the seven reviewed references on each of the three Prowlers and taught the
+setup script and package validator to check both layers.
+
+Normal-time PIE then measured advancing clocks for all six roles on all three
+saved actors. Real combat, returns, deaths, hide and respawn retained ownership;
+three distinct kills produced three tonics/Mara 3/3, the well restored health,
+and original Mara F paid 125 XP, 20 copper, and one Recruit Pack once. Some
+probe approaches were blocked or retreated too little; those are documented,
+not evidence for moving valid art or declaring physical feel approved.
+
+Build, 96/96 isolated tests, 22 fresh-package validators, six live trace suites,
+fresh discovery, and panel/input handoffs passed. The original save is unchanged.
+Unreal is left out of PIE on MCP 8123 with zero dirty packages. The daily job
+still targets this project at 8 AM Eastern, with desktop control disabled.
+Read `Docs/DAILY_BUILD_2026-09-10.md` for clock samples, caveats, and next work.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

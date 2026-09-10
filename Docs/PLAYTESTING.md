@@ -663,6 +663,25 @@ The full ownership and rollback contract is in
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
 
+### September 10 Animation Evidence
+
+Run the new `validate_marsh_prowler_instances_unreal.py` in a fresh commandlet,
+or the expanded 22-module saved-package aggregate. It must prove exact native
+mesh/six-role references on all three placed actors as well as CDO/component
+state. The prior validator gap is repaired, not just hidden by default Idle.
+Normal-time PIE sampled advancing Idle/Walk/Run/Attack/Hit/Death on every saved
+Prowler through actual combat, return, defeat/hide, and full-health respawn.
+Three distinct kills yielded three tonics and Mara 3/3; original F paid exactly
+125 XP/20 copper/one Recruit Pack once. Real well recovery and read-only
+Chronicle/panel handoffs passed. Build, 96/96 tests, all 22 package checks,
+and six live trace suites passed. Full evidence and failed probe approaches
+are in `Docs/DAILY_BUILD_2026-09-10.md`.
+
+The user should still review normal-camera gait, pose transitions, paw contact,
+nameplate/ring clearance, final HUD pixels, and physical held input. Dedicated
+MCP telemetry is not a substitute for those checks. Keep the original save
+untouched; Chronicle should reject its absent version stamp with Load disabled.
+
 ### September 9 Route Evidence
 
 The normal-time Human Warrior defeated distinct saved Prowlers 02, 01, and 03,
@@ -677,9 +696,8 @@ normal-route pull/retreat returned 02 home, leaving neighbors and progression
 untouched. J -> M -> I -> I restored cursor-hidden unsuppressed input. Final
 96/96 tests, 21 package checks, six live traces, and fresh discovery passed.
 
-New open gate: verify all six animation references on the three placed enemy
-instances, not just the Blueprint CDO or skeletal component's default Idle.
-Fresh PIE/editor instances currently report empty native references. Physical
+That run exposed empty native animation references despite valid CDO/component
+defaults; September 10's correction above resolves this data gap. Physical
 input and final HUD/animation pixels remain user checks. Full qualifications
 are in `Docs/DAILY_BUILD_2026-09-09.md`; the original save is unchanged.
 
