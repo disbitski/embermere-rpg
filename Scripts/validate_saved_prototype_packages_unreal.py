@@ -9,6 +9,7 @@ import unreal
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 VALIDATOR_MODULES = (
+    "validate_fenwatch_skeletal_materials_unreal",
     "validate_embermere_ui_icons_unreal",
     "validate_fenwatch_armsmaster_rig_unreal",
     "validate_fenwatch_communal_well_unreal",

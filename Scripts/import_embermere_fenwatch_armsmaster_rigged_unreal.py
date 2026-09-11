@@ -11,6 +11,9 @@ import sys
 
 import unreal
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from fenwatch_skeletal_materials_unreal import prepare_skeletal_materials
+
 
 PROJECT_ROOT = Path("/Users/wizard/Documents/Unreal Game")
 SOURCE_ROOT = (
@@ -304,6 +307,7 @@ def configure_saved_presentation(static_mesh, skeletal_mesh, idle):
 
 
 def main():
+    prepare_skeletal_materials(SHARED_MATERIALS.values())
     static_mesh = unreal.EditorAssetLibrary.load_asset(STATIC_ASSET_PATH)
     if not static_mesh or not isinstance(static_mesh, unreal.StaticMesh):
         fail("accepted static fallback is missing")

@@ -663,6 +663,30 @@ The full ownership and rollback contract is in
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
 
+### September 11 Material Evidence
+
+Run `validate_fenwatch_skeletal_materials_unreal.py` in a fresh NullRHI
+process, or run the expanded 23-package aggregate. Require its explicit
+`EMBERMERE_FENWATCH_SKELETAL_MATERIAL_VALIDATION_SUCCESS` marker and no Python
+errors. Do not use rendering-editor flags as proof of saved usage: that path
+can automatically repair flags without saving. Retain the exact eight
+materials/eighteen slots and the iron instance's untouched engine parent.
+
+All three NPC Idles changed playback position and retained NoCollision in PIE.
+Viewport-only captures resolved their materials; those captures omit the HUD
+and may render the editor world even during PIE. They are not a substitute for
+physical normal-camera/HUD inspection or a cooked build. The targeted startup
+warnings were absent after restart. Build, 96 tests, 23 package validators,
+and six live trace suites passed; see `DAILY_BUILD_2026-09-11.md`.
+
+Mara F accepted her quest. Normal F opened trainer and vendor panels after a
+diagonal walking exit from a crate/lamp contact. Their Buy/Train Slate clicks
+returned true without currency/XP/item changes. Treat that as unverified input
+delivery, not a successful transaction or established gameplay bug. Inspect
+Unreal-owned hit testing/focus and ask for physical clicks if needed. No
+desktop-control workaround is permitted. Original save and unrelated local
+keeper material bytes remain untouched.
+
 ### September 10 Animation Evidence
 
 Run the new `validate_marsh_prowler_instances_unreal.py` in a fresh commandlet,

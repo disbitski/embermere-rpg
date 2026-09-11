@@ -7,6 +7,24 @@ characters while retaining Fab assets for broad coverage and specialist art.
 
 ## Decision
 
+### Skeletal Material Preparation
+
+The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process
+and prepare their project-owned material usage flags before loading meshes.
+An editor viewport can auto-enable SkeletalMesh usage without persisting it.
+Saving the skeletal mesh does not save its material dependencies.
+
+For a material-only repair, run
+`Scripts/prepare_fenwatch_skeletal_materials_unreal.py` with
+`-run=pythonscript -script=<absolute-script-path> -NullRHI`; it does not reimport
+FBX or save meshes, Skeletons, animation, map, or vendor parents. Follow with a
+fresh run of `Scripts/validate_fenwatch_skeletal_materials_unreal.py` and require
+`EMBERMERE_FENWATCH_SKELETAL_MATERIAL_VALIDATION_SUCCESS`, with no Python error.
+That validator covers eight effective material usages and the exact eighteen
+slots across all three Fenwatch rigs. It also leads the package aggregate.
+
+### Asset Strategy
+
 Adopt a Blender-to-Unreal pipeline with a local community MCP bridge.
 
 - Start with static props and modular environment pieces.

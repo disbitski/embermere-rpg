@@ -3268,6 +3268,26 @@ Unreal is left out of PIE on MCP 8123 with zero dirty packages. The daily job
 still targets this project at 8 AM Eastern, with desktop control disabled.
 Read `Docs/DAILY_BUILD_2026-09-10.md` for clock samples, caveats, and next work.
 
+## September 11: Persisting What The Editor Hid
+
+The NPC materials looked correct in the editor, but fresh package inspection
+showed missing skeletal usage flags. Unreal was auto-repairing them in memory
+without saving. We repaired only those seven project-owned base materials and
+added materials-first validation plus explicit preparation to the rig import
+lane. The iron instance's engine parent stayed untouched. Mara's pre-existing
+local resave stayed byte-for-byte intact while a HEAD-derived correction was
+prepared separately for the repository.
+
+Build, 96/96 isolated tests, 23 package validators, six live trace suites and
+fresh discovery passed. The targeted startup warnings disappeared; NPC Idles
+and material assignments remained intact. Mara and both service panels worked
+through F, but Buy/Train Slate clicks did not commit transactions, so those
+clicks remain an input diagnostic for the next run. A crate/lamp contact needed
+a diagonal walking exit, not a scenery move. The original save is untouched;
+Unreal is left ready out of PIE on MCP 8123. The existing 8 AM Eastern task
+still runs here with desktop control disabled. Full evidence and caveats live
+in `Docs/DAILY_BUILD_2026-09-11.md`.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

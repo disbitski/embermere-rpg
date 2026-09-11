@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-10
+Last updated: 2026-09-11
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -1760,6 +1760,28 @@ free of interaction, recovery, reward, quest, or persistence authority.
   and 53 Fab plus 24 original-art baseline remained intact.
 
 ## Immediate Next Work
+
+September 11 resolves the saved Fenwatch material-usage investigation below.
+Read `Docs/DAILY_BUILD_2026-09-11.md`: seven project-owned base-material flags
+were missing from committed packages despite editor auto-repair. Explicit
+NullRHI preparation now precedes all three rig imports; a new materials-first
+regression expands the aggregate to 23. Iron's material-instance parent remains
+untouched. The keeper correction was prepared from HEAD in an isolated project
+and staged separately, leaving the existing working resave unchanged. Build,
+96/96 tests with zero test warnings, 23 fresh validators, six live traces,
+fresh discovery, NPC clock/material proof and input handoff passed. Targeted
+startup warnings disappeared; this is not a full cooked-build proof.
+
+Next, inspect why Unreal MCP Slate Buy/Train clicks reported success without
+wallet/XP/item mutation while normal F opened both service panels. Compare
+Unreal-owned hit testing, geometry, focus, and authoritative state; do not
+assume the gameplay transaction code failed. Physical clicking/HUD/camera
+approval remains the user's gate, never a reason for desktop control. Short
+probe paths contacted FabPass_Village_Crate_B and Embermere_EmberLamp_Mara_01;
+a diagonal exit and service approach worked without changing art. Do not move
+these props based on the failed probes alone. Original save hash and local
+keeper bytes remain protected. Unreal is out of PIE on the correct map, no
+dirty packages, real MCP 8123, and the same ACTIVE 8 AM Eastern project task.
 
 September 10 supersedes the placed-Prowler animation gap below. Read
 `Docs/DAILY_BUILD_2026-09-10.md`: a failing fresh-package check established

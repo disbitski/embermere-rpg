@@ -6,6 +6,41 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 11 daily build: persisted the verified missing SkeletalMesh usage
+  flags on seven project-owned Fenwatch base materials. Read
+  `Docs/DAILY_BUILD_2026-09-11.md`. A fresh NullRHI regression failed before
+  repair even though the rendering editor showed flags enabled and no dirty
+  packages. The new scoped preparation helper is used before mesh work by all
+  three rig import entry points; it never edits instance parents or resaves
+  already-compatible materials. The iron instance/engine parent remain intact.
+  Six working-tree packages were repaired; the seventh keeper correction was
+  generated from HEAD in an isolated project and staged without changing the
+  existing local keeper resave. Preserve that working file and its hash.
+  Build, 96/96 isolated tests with zero test warnings, all 23 fresh package
+  validators, six initialized-world trace suites, fresh discovery, and material
+  preparation rejection/idempotence checks passed. Startup no longer reports
+  the targeted skeletal-usage warnings. All three NPC Idles advanced with exact
+  material assignments and NoCollision; viewport-only renders showed resolved
+  materials, not final possessed-camera/HUD approval. Fresh Human Warrior
+  walked to Mara, accepted the original quest via F, and reached trainer/vendor
+  panels. Short paths hit the crate/lamp near Mara; a measured diagonal exit
+  succeeded without moving art. Buy/Train Slate clicks returned true but did
+  not mutate wallet/XP/inventory, so transactions are NOT newly accepted today.
+  Inventory handoff restored cursor-hidden unsuppressed input and cleared all
+  temporary keys/callbacks. All three Prowlers retain complete native roles and
+  active Idle; September 10's full combat proof remains the accepted baseline.
+  Original save unchanged. Unreal is out of PIE on the correct map, zero dirty
+  packages, real MCP 8123. The existing ACTIVE 8 AM Eastern heartbeat targets
+  this exact project; desktop control stays disabled. Blender's executable is
+  configured and exists, but its bridge was not queried because no art was
+  planned. **Next:** retain the new saved-material regression first in the
+  aggregate. Diagnose the MCP service-button click mismatch with Unreal-owned
+  Slate/hit-test/focus evidence and authoritative before/after state; do not
+  infer a gameplay regression or use desktop control. Keep physical click,
+  held-input, normal-camera animation and HUD review as user gates. If actual
+  protected-route play reproduces the crate/lamp contact, inspect real capsule
+  sweeps before considering any scoped change. No bulk/vendor resaves, cooked
+  build claim, or save recovery is authorized.
 - September 10 daily build: repaired the verified placed-Prowler native
   animation-reference gap. Read `Docs/DAILY_BUILD_2026-09-10.md`. A fresh
   commandlet first failed on all three placed actors' seven empty soft

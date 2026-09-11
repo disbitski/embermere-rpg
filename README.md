@@ -311,11 +311,13 @@ why human taste becomes more important as building gets easier.
 
 ## Status
 
-September 10 verification repaired the placed Prowlers' native animation
-references and proved all six roles with live clocks on each saved actor.
-The no-hot-reload build, 96 tests, 22 package validators, and six live collision
-suites pass. See [the daily report](Docs/DAILY_BUILD_2026-09-10.md) for evidence
-and the separate physical HUD/input/animation review gates.
+September 11 verification persisted missing skeletal-material usage flags for
+the three Fenwatch NPC rigs, preserving the placed-Prowler animation repair.
+The no-hot-reload build, 96 tests, 23 package validators, and six live collision
+suites pass. See [the daily report](Docs/DAILY_BUILD_2026-09-11.md) for evidence,
+the separate physical HUD/input/animation gates, and an unverified MCP
+service-button click check. The daily task targets this project at 8 AM Eastern
+with desktop control disabled.
 
 Early playable Unreal prototype scaffold with Unreal and Blender MCP connected,
 a fixed player-facing race/class picker that initializes data-driven starter

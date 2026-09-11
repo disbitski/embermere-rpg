@@ -2,6 +2,40 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Saved Material Usage Is Not Editor Readiness
+
+September 11 reproduced missing SkeletalMesh usage on six local Fenwatch base
+materials and on the committed keeper skin. All seven looked enabled in the
+rendering editor; it reported no dirty packages. Engine `UMaterial::SetMaterialUsage`
+can set a flag and compile in memory while package loading prevents dirtying
+the package. That does not persist the flag for a non-editor render path.
+
+Audit with a fresh `-run=pythonscript -script=... -NullRHI` process, reading
+materials before meshes. `MaterialEditingLibrary.has_material_usage` is a
+read-only `GetUsageByFlag` query. Do not use render-time CheckMaterialUsage as
+the regression assertion. The aggregate also requires NullRHI and checks
+materials first. A rendering GUI is explicitly rejected by the new validator.
+
+`prepare_fenwatch_skeletal_materials_unreal.py` preflights the exact rig material
+set, enables only missing project-owned base flags with `set_base_material_usage`,
+and explicitly saves only those packages. The three rig import entry points
+prepare materials before loading/importing meshes. An already-compatible
+material is not resaved. `M_EmberLampIron` is a material instance, not a base
+material; its engine/plugin parent already supplies skeletal usage and remains
+untouched. Do not blindly read base-only properties from material instances.
+
+Unreal's standalone Python runner does not add the script directory to
+`sys.path`. Entry scripts that import neighboring helpers must do so explicitly.
+Initial September 11 regression/preparation attempts failed at imports and
+changed nothing; only the corrected missing-flag failure is regression proof.
+
+When a relevant binary already has unrelated local changes, preserve its bytes.
+For the keeper, inspect HEAD through a temporary package copy, prepare the
+HEAD-derived package at its original virtual path in an isolated temporary
+project, and verify it after a fresh load. Stage only that generated baseline
+correction, not the user's existing resave. Never replace the working file to
+make a commit easier.
+
 ## Validate Placed Animation Owners
 
 September 10's fresh commandlet confirmed all three Prowlers had seven empty
