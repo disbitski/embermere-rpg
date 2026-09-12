@@ -311,13 +311,14 @@ why human taste becomes more important as building gets easier.
 
 ## Status
 
-September 11 verification persisted missing skeletal-material usage flags for
-the three Fenwatch NPC rigs, preserving the placed-Prowler animation repair.
-The no-hot-reload build, 96 tests, 23 package validators, and six live collision
-suites pass. See [the daily report](Docs/DAILY_BUILD_2026-09-11.md) for evidence,
-the separate physical HUD/input/animation gates, and an unverified MCP
-service-button click check. The daily task targets this project at 8 AM Eastern
-with desktop control disabled.
+September 12 verified the no-hot-reload build, 96 tests, 23 package validators,
+six live collision suites, and this project's 8 AM Eastern daily task setup.
+Native focused-keyboard input completed trainer and vendor transactions;
+MCP pointer clicks still did not deliver button events, including after restart.
+No gameplay change was justified. See [the daily report](Docs/DAILY_BUILD_2026-09-12.md)
+for exact evidence and physical input/HUD gates. The material and Prowler
+repairs remain intact, the original save is preserved, and desktop control
+stays disabled.
 
 Early playable Unreal prototype scaffold with Unreal and Blender MCP connected,
 a fixed player-facing race/class picker that initializes data-driven starter

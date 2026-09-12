@@ -6,6 +6,34 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 12 daily build: diagnosed the service click mismatch without
+  changing gameplay. Read `Docs/DAILY_BUILD_2026-09-12.md`. Enabled native
+  Train/Buy buttons received no observed events from MCP pointer Click despite
+  true returns. Explicit in-engine focus plus Slate SpaceBar emitted actual
+  pressed/released/clicked events: Train 40 -> 30 copper / 0 -> 25 XP; tonic
+  buy/sell/buyback 30 -> 22 -> 25 -> 22 copper with exact bag removal/restore
+  and chat. No transaction method or delegate was directly invoked. Fresh
+  restart reproduced Train's pointer failure and keyboard success. Mixed
+  snapshot coordinate units are not a proven root cause; do not patch engine
+  or game input on that assumption. Creation Enter also needed explicit
+  in-engine focus. Vendor rows are intentionally non-focusable; a stock-row
+  focus attempt did not select Recruit Pack. The trainer has no T binding;
+  its X is a close button. Do not claim complete keyboard navigation or
+  physical click approval. Normal-time W/F reached both services without
+  moving art; I/I cleanup left no callback, held key, or observer binding and
+  restored cursor-hidden unsuppressed input. Build, 96/96 isolated tests with
+  zero test warnings, all 23 fresh package validators, six live trace suites,
+  and fresh discovery passed. No production code/assets/schema changed.
+  Original save and existing keeper hashes remain unchanged. Unreal is out
+  of PIE on the correct map, zero dirty packages, real MCP 8123. App inspection
+  confirms this heartbeat's task cwd is this exact folder; the ACTIVE daily
+  schedule remains 8 AM Eastern. Local setup checks pass; Blender executable
+  exists but its bridge was not queried because no art was planned. Desktop
+  control remains disabled. **Next:** user physical Train/Buy check; continue
+  unaffected MCP work. Review a bounded vendor/trainer keyboard-navigation
+  contract, especially stock selection, before adding test-backed input
+  behavior. Preserve existing transaction authority and all material/Prowler
+  regressions. Do not repeat unbounded pointer probes or overwrite the save.
 - September 11 daily build: persisted the verified missing SkeletalMesh usage
   flags on seven project-owned Fenwatch base materials. Read
   `Docs/DAILY_BUILD_2026-09-11.md`. A fresh NullRHI regression failed before

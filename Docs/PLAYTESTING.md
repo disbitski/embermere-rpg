@@ -663,6 +663,28 @@ The full ownership and rollback contract is in
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
 
+### September 12 Service Input Evidence
+
+Build, 96/96 tests with zero test warnings, all 23 fresh package validators,
+six initialized-world collision suites, and fresh discovery passed. The
+local setup checker and app thread inspection confirm the correct project,
+toolchain, plugins, and ACTIVE 8 AM Eastern task. Blender was not queried.
+
+Native button-event observers saw no Train/Buy events from MCP Click, despite
+true returns. Explicit Unreal button focus plus Slate SpaceBar produced real
+events and exact Train 40 -> 30 copper / 0 -> 25 XP, then tonic buy/sell/buyback
+30 -> 22 -> 25 -> 22 with matching bag/chat state. Fresh editor restart
+reproduced Train's pointer failure and focused-keyboard success. This does not
+prove physical clicking, complete keyboard navigation, or a layout defect.
+Stock rows are intentionally non-focusable; trainer T is not a binding and
+X denotes its close button. Read `DAILY_BUILD_2026-09-12.md` for qualifications.
+
+User gate: in a fresh Warrior world, physically click Train once for 30 copper
+and 25 XP, then physically buy a tonic for 22 copper and one tonic. Do not save
+or load the protected journey for this check. Keep the existing HUD, held-mouse,
+drag/drop and camera checks separate. Never use desktop automation to fill
+these gaps. Temporary callbacks/delegates/keys must be cleared before StopPIE.
+
 ### September 11 Material Evidence
 
 Run `validate_fenwatch_skeletal_materials_unreal.py` in a fresh NullRHI

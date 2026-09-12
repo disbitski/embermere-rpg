@@ -3288,6 +3288,22 @@ Unreal is left ready out of PIE on MCP 8123. The existing 8 AM Eastern task
 still runs here with desktop control disabled. Full evidence and caveats live
 in `Docs/DAILY_BUILD_2026-09-11.md`.
 
+## September 12: A Sent Click Is Not A Purchase
+
+Today's work separated input delivery from transaction correctness. Unreal
+MCP pointer clicks returned success without reaching Train or Buy. Native
+button-event logging showed no events; explicitly focusing those buttons in
+Unreal and pressing Space produced real events and exact training,
+buy/sell/buyback results. Restarting did not fix pointer delivery. We left
+working gameplay alone rather than adding a speculative repair.
+
+All 96 tests, 23 saved-package validators, six live collision suites and the
+no-hot-reload build passed. Project, Xcode, Metal, plugins and the existing
+8 AM Eastern task's exact folder were verified. Unreal is ready outside PIE
+on MCP 8123, with the user's save and keeper resave unchanged. Physical
+click/HUD review remains separate; desktop control stayed off. See
+`Docs/DAILY_BUILD_2026-09-12.md` for the comparison and its limits.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

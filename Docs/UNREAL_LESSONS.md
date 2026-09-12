@@ -2,6 +2,38 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Prove Button Delivery Before Repairing Transactions
+
+September 12's enabled Train/Buy buttons received no observed pressed,
+released, clicked, or hovered events from Unreal MCP pointer Click. Wallet,
+XP and bag state stayed unchanged. Explicit in-engine UButton keyboard focus
+plus Slate SpaceBar did produce pressed/released/clicked events and exact
+training and tonic buy/sell/buyback. No delegate or transaction method was
+directly invoked. The pointer failure persisted after restarting Unreal.
+
+`USlateInspectorToolset::SimulateClick` returns true after sending events,
+without asserting the intended widget handled them. Inspect that distinction
+before changing working gameplay. Snapshot positions are absolute but sizes
+are local; the tool itself uses transformed geometry for its center. Mixed
+units alone are not proof of a click bug. UButton geometry reported zero while
+Slate snapshot bounds were nonzero; do not turn that observation into a
+speculative project or engine patch. Physical clicks remain a separate gate.
+
+Native keyboard probes must also honor actual focusability. Vendor stock
+rows intentionally disable it; calling SetKeyboardFocus on one did not select
+the pack. The trainer's documented T action was not implemented, and X is a
+button label. Correct those claims instead of pretending an unbound key is a
+fallback. Focused Space action proof is not whole-panel Tab-navigation proof.
+
+For read-only delegate observers, Python callables must have exactly the
+signature expected by the delegate. Default closure parameters still count
+as parameters; use a factory returning a zero-argument callback for button
+events. Unbind every callback before PIE teardown. Refresh the Output Log
+Cmd subtree, keep commands bounded, and require their unique log markers.
+Slate Type appends characters, not replacement text: one incomplete command
+prefix contaminated the next submission. A true Type return was not proof
+of Python execution. Never solve these issues with desktop automation.
+
 ## Saved Material Usage Is Not Editor Readiness
 
 September 11 reproduced missing SkeletalMesh usage on six local Fenwatch base

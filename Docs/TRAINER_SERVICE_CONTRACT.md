@@ -75,7 +75,7 @@ The first native panel is fixed at `500x300` and contains:
 - level, cost, XP reward, repeatability, and description details;
 - a Train command and a fixed two-line current preflight/status cell, with
   exact transaction outcomes retained in bottom-left chat;
-- bracket-key selection, `T` action, and `X` close guidance;
+- bracket-key offering selection, a Train button, and an `X` close button;
 - cursor-aware game/UI input without covering chat or the hotbar.
 
 Unavailable rows remain visible and inspectable by mouse or bracket-key
@@ -88,6 +88,13 @@ lesson.
 Trainer, Vendor, Inventory, and Chronicle panels are mutually exclusive.
 Opening one closes the active peer before showing the new surface. Closing the
 last interactive panel restores the classic game-only mouse mode.
+
+September 12 source inspection confirmed there is no `T` action binding and
+the X label refers to the close button, not a verified X-key shortcut. Native
+Space activation of an explicitly focused Train button committed the exact
+40-to-30 copper / 0-to-25 XP transaction in PIE. MCP pointer clicks delivered
+no observed button events. That is qualified keyboard action evidence, not
+complete Tab-navigation or physical pointer acceptance. See the daily report.
 
 ## Fenwatch Armsmaster Presentation
 

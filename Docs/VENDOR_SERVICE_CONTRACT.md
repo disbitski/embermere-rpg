@@ -53,6 +53,14 @@ selected bag identity while the panel is open. Opening it hides Inventory to
 prevent overlapping interactive panels; closing restores the normal game-only
 input path.
 
+September 12's native focused-button Space probe completed tonic buy, sell,
+and buyback through real button events and the existing HUD/service handlers.
+MCP pointer clicks did not deliver observed button events. Vendor stock rows
+intentionally disable focus, so explicit focus/Space on a row did not select
+another stock item. Do not describe the action-button proof as full keyboard
+stock navigation, physical mouse acceptance, or finite-stock exhaustion.
+See `DAILY_BUILD_2026-09-12.md` before extending the input contract.
+
 Saved economy values currently define:
 
 - Marsh Tonic: `3` copper sell value;

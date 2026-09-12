@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-11
+Last updated: 2026-09-12
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -1760,6 +1760,28 @@ free of interaction, recovery, reward, quest, or persistence authority.
   and 53 Fab plus 24 original-art baseline remained intact.
 
 ## Immediate Next Work
+
+September 12 narrowed the service click mismatch to missing pointer delivery
+without proving a production gameplay defect. Read
+`Docs/DAILY_BUILD_2026-09-12.md`: no native button events or mutation from MCP
+Click, but explicit Unreal focus plus Slate Space produced real Train/Buy/
+Sell/Buyback events and exact owner changes. Restart repeated the same Train
+comparison. Do not patch input, geometry, or transactions speculatively. The
+trainer has no T binding; vendor stock rows intentionally disable focus, so
+whole-panel keyboard navigation is not accepted by the focused-button proof.
+
+Build, 96/96 tests with zero test warnings, 23 fresh validators, six live trace
+suites, fresh discovery and local setup checks passed. The app confirms the
+ACTIVE 8 AM Eastern heartbeat's thread cwd is this folder. Unreal is out of
+PIE on the correct map, no dirty packages, real MCP 8123. Original save and
+keeper hashes are unchanged; desktop control stays disabled. Blender's local
+executable exists, but no bridge query was needed for this non-art run.
+
+Next: user physical Train/Buy check, with no save operation. Continue unaffected
+MCP work by reviewing a bounded service keyboard selection/action contract,
+especially non-focusable stock rows, before any test-backed implementation.
+Do not mistake explicit focus/Space for physical pointer or full navigation
+approval. Retain the material and placed-Prowler regressions below.
 
 September 11 resolves the saved Fenwatch material-usage investigation below.
 Read `Docs/DAILY_BUILD_2026-09-11.md`: seven project-owned base-material flags
