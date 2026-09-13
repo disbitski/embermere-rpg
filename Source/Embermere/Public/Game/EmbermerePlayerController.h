@@ -125,6 +125,7 @@ protected:
 private:
 #if WITH_DEV_AUTOMATION_TESTS
 	friend class FEmbermereCharacterCreationControllerLifecycleTest;
+	friend struct FEmbermereServiceKeyboardFixture;
 #endif
 
 	bool bLeftMouseDown = false;

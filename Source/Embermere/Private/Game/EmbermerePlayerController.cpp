@@ -127,6 +127,46 @@ void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 			PlayerHudWidget->FocusSelectedQuest();
 		}
 	}
+	else if (PlayerHudWidget && PlayerHudWidget->IsVendorPanelVisible())
+	{
+		if (WasInputKeyJustPressed(EKeys::Escape))
+		{
+			PlayerHudWidget->CloseVendor();
+			RefreshInteractiveInputMode();
+		}
+		else if (WasInputKeyJustPressed(EKeys::Up))
+		{
+			PlayerHudWidget->SelectNextVendorStockItem(-1);
+		}
+		else if (WasInputKeyJustPressed(EKeys::Down))
+		{
+			PlayerHudWidget->SelectNextVendorStockItem(1);
+		}
+		else if (WasInputKeyJustPressed(EKeys::Enter))
+		{
+			PlayerHudWidget->PurchaseSelectedVendorItem();
+		}
+	}
+	else if (PlayerHudWidget && PlayerHudWidget->IsTrainerPanelVisible())
+	{
+		if (WasInputKeyJustPressed(EKeys::Escape))
+		{
+			PlayerHudWidget->CloseTrainer();
+			RefreshInteractiveInputMode();
+		}
+		else if (WasInputKeyJustPressed(EKeys::Up))
+		{
+			PlayerHudWidget->SelectNextTrainerOffering(-1);
+		}
+		else if (WasInputKeyJustPressed(EKeys::Down))
+		{
+			PlayerHudWidget->SelectNextTrainerOffering(1);
+		}
+		else if (WasInputKeyJustPressed(EKeys::Enter))
+		{
+			PlayerHudWidget->TrainSelectedOffering();
+		}
+	}
 	if (WasInputKeyJustPressed(EKeys::LeftBracket))
 	{
 		SelectPreviousInventoryItem();

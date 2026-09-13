@@ -1167,6 +1167,18 @@ bool UEmbermerePlayerHudWidget::SelectVendorStockItem(int32 StockIndex)
 	return true;
 }
 
+bool UEmbermerePlayerHudWidget::SelectNextVendorStockItem(int32 Direction)
+{
+	const int32 Count = ActiveVendor ? ActiveVendor->GetStockEntryCount() : 0;
+	if (Count < 2 || Direction == 0)
+	{
+		return false;
+	}
+
+	const int32 Step = Direction > 0 ? 1 : -1;
+	return SelectVendorStockItem((SelectedVendorStockIndex + Step + Count) % Count);
+}
+
 bool UEmbermerePlayerHudWidget::PurchaseSelectedVendorItem()
 {
 	if (!ActiveVendor || !Inventory || !Wallet)

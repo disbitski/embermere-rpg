@@ -202,6 +202,9 @@ public:
 	bool SelectVendorStockItem(int32 StockIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
+	bool SelectNextVendorStockItem(int32 Direction);
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
 	bool PurchaseSelectedVendorItem();
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")

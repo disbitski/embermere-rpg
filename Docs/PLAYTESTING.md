@@ -663,6 +663,28 @@ The full ownership and rollback contract is in
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
 
+### September 13 Service Keyboard Fallback
+
+Run `Embermere.UI.ServiceKeyboard.Vendor` and `.Trainer` with the full 98-test
+suite, 23 fresh package validators, and six initialized-world trace suites.
+Read `SERVICE_KEYBOARD_INPUT_CONTRACT.md` before changing focus or shortcuts.
+
+In a fresh Warrior, use F at the trainer. Down selects locked Advanced; Enter
+must reject without spending. Up/Enter on Combat Drills should produce 30
+copper and 25 XP. Escape closes. At the vendor, Down/Enter buys the finite
+pack for the remaining 30 copper; repeat rejects without duplication. In a
+separate fresh world, buy tonic then pack for 40 -> 32 -> 2. Brackets select
+bag identities while arrows select stock; I hands off cleanly to Inventory.
+Do not save or load the protected journey. Physical button focus, keys, mouse,
+held-input and HUD pixels remain user gates despite MCP/controller proof.
+
+For MCP probes, refresh and click the viewport before each measured key, but
+inspect where that click lands. At the current size its center overlaps a
+trainer row; left-click focus changed the measured selection. Qualified
+right-click focus plus one-tick discrete keys passed without calling owner
+methods or button delegates. This is not a pointer-hit-test fix. Clean up all
+forced keys/callbacks before StopPIE and preserve normal time dilation.
+
 ### September 12 Service Input Evidence
 
 Build, 96/96 tests with zero test warnings, all 23 fresh package validators,

@@ -96,6 +96,13 @@ Space activation of an explicitly focused Train button committed the exact
 no observed button events. That is qualified keyboard action evidence, not
 complete Tab-navigation or physical pointer acceptance. See the daily report.
 
+The September 13 explicit fallback adds Up/Down offering selection, Enter for
+the existing Train request, and Escape for close. Locked offerings remain
+inspectable and reject without owner mutation. Brackets and mouse buttons are
+unchanged; held-key repeat cannot train again. See
+[SERVICE_KEYBOARD_INPUT_CONTRACT.md](SERVICE_KEYBOARD_INPUT_CONTRACT.md).
+It is not a pointer-delivery repair or a full Tab-focus redesign.
+
 ## Fenwatch Armsmaster Presentation
 
 `Embermere_FenwatchArmsmaster_Trainer_01` is the art-only partner for

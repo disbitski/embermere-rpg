@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-12
+Last updated: 2026-09-13
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -1760,6 +1760,26 @@ free of interaction, recovery, reward, quest, or persistence authority.
   and 53 Fab plus 24 original-art baseline remained intact.
 
 ## Immediate Next Work
+
+September 13 implements the bounded keyboard fallback proposed below. Read
+`Docs/DAILY_BUILD_2026-09-13.md` and `Docs/SERVICE_KEYBOARD_INPUT_CONTRACT.md`:
+Up/Down stock or lessons, Enter existing Buy/Train, Escape close, unchanged
+vendor bag brackets. Two routed tests failed before and passed after. Build,
+98/98 tests with zero test warnings, 23 fresh package checks, six live trace
+suites, fresh discovery, setup and exact heartbeat cwd checks passed. Clean
+normal-time PIE proved locked training rejection, exact 40 -> 30 / 0 -> 25
+training, pack exhaustion, and fresh tonic/pack purchases 40 -> 32 -> 2, with
+bag/stock separation and Escape/I handoffs. Left-click viewport focus was a
+selection confound; right-click focus preserved the measured selection. Do
+not call this a fix for September 12's pointer issue or physical/HUD approval.
+
+Next: user physical keyboard/pointer review and a bounded native-focus
+coexistence check before extending accessibility claims. Continue unaffected
+real quest routes; repair only concrete reproduced issues. No asset, layout,
+service rule, focusability, or save schema changed. Protected save/keeper bytes
+are unchanged. Editor is outside PIE, correct map, zero dirty packages, MCP
+8123. The ACTIVE 8 AM Eastern task uses this exact folder, desktop control is
+disabled, and Blender's bridge was not queried for this non-art run.
 
 September 12 narrowed the service click mismatch to missing pointer delivery
 without proving a production gameplay defect. Read

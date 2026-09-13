@@ -6,6 +6,30 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 13 daily build: implemented the bounded controller-routed service
+  keyboard fallback. Read `Docs/DAILY_BUILD_2026-09-13.md` and
+  `Docs/SERVICE_KEYBOARD_INPUT_CONTRACT.md`. Up/Down selects stock/lessons,
+  Enter requests existing Buy/Train, Escape closes; brackets and mouse paths
+  remain unchanged. Two routed regressions failed before and passed after.
+  Final build, 98/98 isolated tests with zero test warnings, all 23 fresh
+  package validators, six live trace suites, and 98-test discovery passed.
+  Normal-time PIE proved locked Advanced rejection, Train 40 -> 30 copper /
+  0 -> 25 XP, pack purchase 30 -> 0 with stock exhaustion, rejection without
+  mutation, Escape and I/I. A fresh world bought tonic/pack 40 -> 32 -> 2,
+  retained exact bag identities, and separated bracket bag selection from
+  stock arrows. Initial left-click viewport focus changed selection during
+  a key probe; right-click focus preserved it. This is not September 12's
+  pointer fix or physical/HUD approval. No assets, layout, service rules,
+  engine code, focusability, or schema changed. Protected save/keeper hashes
+  unchanged; unrelated Config/keeper/FieldNotes remain excluded. Unreal is
+  outside PIE on the correct map, zero dirty packages, real MCP 8123. Setup
+  checks and app cwd confirm this exact folder and ACTIVE 8 AM Eastern task;
+  Blender executable exists but its bridge was not queried for this non-art
+  run. **Next:** user physical keyboard/pointer check; inspect native button
+  focus coexistence before claiming complete keyboard accessibility. Continue
+  unaffected Still Waters/Mara routes and repair only a concrete reproduced
+  issue. Do not repeat unbounded pointer probes, use desktop control, or
+  infer/load/overwrite the unstamped protected save.
 - September 12 daily build: diagnosed the service click mismatch without
   changing gameplay. Read `Docs/DAILY_BUILD_2026-09-12.md`. Enabled native
   Train/Buy buttons received no observed events from MCP pointer Click despite

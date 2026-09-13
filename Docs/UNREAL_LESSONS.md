@@ -2,6 +2,24 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## A Focus Click Can Change The Test Subject
+
+September 13's controller-routed service keys passed isolated InputKey ->
+PlayerInput -> PlayerTick tests. In PIE, a single Up probe selected lesson 0,
+but the following Enter probe ended on locked lesson 1 without spending.
+The required viewport-center focus click overlapped the lesson rows. Changing
+the probe's focus click to right-click preserved selection and produced exact
+training and stock transactions. Inspect state around the setup action as
+well as the measured key; a click on a parent viewport is not necessarily an
+empty-background click. Do not patch working transaction rules on this basis.
+
+The new tests failed before the keyboard dispatch existed and passed after,
+covering selection, real owner commits, rejection, repeat events, and panel
+handoff. They intentionally use a detached input owner and do not establish
+Slate focus or OS delivery. Live forced keys also do not prove every focused
+button's organic keyboard behavior. Keep physical review and the unresolved
+MCP pointer-button problem separate from this explicit controller fallback.
+
 ## Prove Button Delivery Before Repairing Transactions
 
 September 12's enabled Train/Buy buttons received no observed pressed,

@@ -311,14 +311,14 @@ why human taste becomes more important as building gets easier.
 
 ## Status
 
-September 12 verified the no-hot-reload build, 96 tests, 23 package validators,
-six live collision suites, and this project's 8 AM Eastern daily task setup.
-Native focused-keyboard input completed trainer and vendor transactions;
-MCP pointer clicks still did not deliver button events, including after restart.
-No gameplay change was justified. See [the daily report](Docs/DAILY_BUILD_2026-09-12.md)
-for exact evidence and physical input/HUD gates. The material and Prowler
-repairs remain intact, the original save is preserved, and desktop control
-stays disabled.
+September 13 added a controller-routed vendor/trainer keyboard fallback:
+Up/Down selection, Enter Buy/Train, Escape close, and unchanged bag brackets.
+The build, 98 tests, 23 fresh package validators, six live collision suites,
+and this project's 8 AM Eastern task setup passed. Clean PIE proved exact
+training, tonic/pack purchases, rejection, and input handoff. See
+[the daily report](Docs/DAILY_BUILD_2026-09-13.md) for evidence and remaining
+physical input/HUD gates. This is not a pointer-click repair or full Tab-focus
+redesign. The original save is preserved and desktop control stays disabled.
 
 Early playable Unreal prototype scaffold with Unreal and Blender MCP connected,
 a fixed player-facing race/class picker that initializes data-driven starter

@@ -3304,6 +3304,23 @@ on MCP 8123, with the user's save and keeper resave unchanged. Physical
 click/HUD review remains separate; desktop control stayed off. See
 `Docs/DAILY_BUILD_2026-09-12.md` for the comparison and its limits.
 
+## September 13: A Small Keyboard Route Through Existing Authority
+
+The vendor and trainer now share the Ledger's controller-polling convention:
+Up/Down selects stock or a lesson, Enter requests the existing primary action,
+and Escape closes. Bag brackets, mouse buttons, geometry, prices, stock,
+progression, and rollback remain owned where they were. Two genuine routed
+input regressions failed before the change and passed afterward.
+
+All 98 tests, 23 fresh package validators, six live trace suites and setup
+checks passed. Normal-time PIE proved training 40 -> 30 copper / 0 -> 25 XP,
+locked rejection, pack exhaustion, and a fresh tonic/pack chain 40 -> 32 -> 2.
+The compulsory viewport-focus click initially changed the selected lesson;
+right-click focus removed that probe confound. It was not a reason to patch
+transactions, claim a pointer fix, or reach for desktop control. Read
+`Docs/DAILY_BUILD_2026-09-13.md` for exact evidence and remaining physical gates.
+The original save, local keeper resave, art, and schema remain untouched.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

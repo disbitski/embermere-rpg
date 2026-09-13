@@ -61,6 +61,13 @@ another stock item. Do not describe the action-button proof as full keyboard
 stock navigation, physical mouse acceptance, or finite-stock exhaustion.
 See `DAILY_BUILD_2026-09-12.md` before extending the input contract.
 
+The September 13 explicit fallback uses Up/Down for stock, Enter for Buy,
+and Escape for close. Brackets continue to select bag identities. The controller
+only dispatches while this panel is visible, and repeat events cannot purchase
+again. All eligibility and rejection stay on the existing service. See
+[SERVICE_KEYBOARD_INPUT_CONTRACT.md](SERVICE_KEYBOARD_INPUT_CONTRACT.md).
+This is separate from the unresolved MCP pointer-delivery evidence above.
+
 Saved economy values currently define:
 
 - Marsh Tonic: `3` copper sell value;
