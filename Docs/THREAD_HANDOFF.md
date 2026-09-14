@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-13
+Last updated: 2026-09-14
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -1760,6 +1760,30 @@ free of interaction, recovery, reward, quest, or persistence authority.
   and 53 Fab plus 24 original-art baseline remained intact.
 
 ## Immediate Next Work
+
+September 14 repairs the focused-button navigation gap identified below. Read
+`Docs/DAILY_BUILD_2026-09-14.md` and `Docs/SERVICE_KEYBOARD_INPUT_CONTRACT.md`.
+The visible-service HUD previews only unmodified Up/Down/Escape, leaving native
+Enter/Space semantics intact. Two real Slate virtual-window regressions failed
+before and passed after. Build, 100 tests with zero test warnings, 23 fresh
+package validators, six live collision suites and discovery passed. Clean PIE
+proved native focused Train, Buy, Sell, Buyback, and Close with exact owners.
+Original F accepted both quests; real Prowler damage and well recovery advanced
+only Still Waters; board completion granted 50 XP/10 copper once. Final live
+state was 75 XP, 32 copper, one tonic, Still Waters completed, Mara active 0/3.
+J/M/I/I preserved it. Shortcuts contacted solid boundaries and the gate pause
+allowed extra retaliation; no art/collision changes followed those probes.
+
+Next: user physical service input/HUD review, without saving/loading the
+protected journey. Retain the 100-test baseline. Inspect the Ledger's focused
+native-control keyboard path only as a bounded evidence-led follow-up; add a
+failing routed regression before any repair, or continue normal quest/service
+play. Do not conflate focused navigation with the unresolved MCP pointer issue
+or claim complete Tab navigation. Correct project/toolchain and ACTIVE 8 AM
+Eastern task are verified; Unreal is outside PIE, correct map, no dirty
+packages, real MCP 8123. Desktop control remains off. Blender's executable
+exists but its live bridge was not queried. Protected save/keeper hashes and
+unrelated Config/FieldNotes remain untouched.
 
 September 13 implements the bounded keyboard fallback proposed below. Read
 `Docs/DAILY_BUILD_2026-09-13.md` and `Docs/SERVICE_KEYBOARD_INPUT_CONTRACT.md`:

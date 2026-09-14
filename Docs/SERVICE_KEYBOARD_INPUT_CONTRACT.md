@@ -29,6 +29,26 @@ This is an explicit stock/lesson selection and primary-action fallback, not a
 complete Tab-focus redesign or keyboard-only selling/buyback workflow. It does
 not need probe-only UButton focus or direct delegate/transaction invocation.
 
+## Focused Native Controls
+
+The HUD preview handles unmodified Up/Down/Escape while a service is visible,
+before a focused child can consume them as generic Slate navigation. It calls
+the existing selection/close methods and consumes repeats without acting.
+Handled keys do not also reach the controller fallback. Modified keys and
+other panels remain outside this narrow path.
+
+Enter and Space retain the focused native button's meaning: Buy, Train, Sell,
+Buyback, or Close. They are not globally redirected to Buy/Train. When those
+keys instead reach the game controller, the original primary-action fallback
+still applies. Brackets and I/J/M remain the existing controller routes; this
+does not certify every focus/modifier/physical-input combination.
+
+Focused-route regressions use a registered Slate virtual window, actual HUD
+buttons, keyboard focus, and ProcessKeyDownEvent/ProcessKeyUpEvent. No native
+OS window or desktop input is needed. They prove navigation, wrapping,
+repeat rejection, native action release semantics, exact owner results, and
+closing without stale transactions. Live/physical acceptance remains separate.
+
 ## Acceptance
 
 Routed automation must deliver InputKey events through PlayerInput/PlayerTick,

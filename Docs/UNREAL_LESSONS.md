@@ -2,6 +2,26 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Test The Focus Path, Not Just PlayerInput
+
+September 14 reproduced a service-navigation gap in clean PIE: a genuinely
+focused native Train button consumed Down without changing the selected
+lesson, while native Enter committed one correct transaction. September 13's
+detached PlayerInput tests could not expose this separate Slate route.
+
+Two new regressions register a test-only `SVirtualWindow`, attach the actual
+native HUD, focus its buttons, and route key-down/up through Slate. No OS
+window, desktop input, or direct transaction/delegate call is required. Both
+failed before the fix and passed afterward; the controller tests stayed green.
+Restore focus and unregister the virtual window before destroying the world.
+
+The scoped fix previews only unmodified Up/Down/Escape in a visible service,
+calls existing selection/close methods, consumes repeat navigation, and marks
+the event handled so PlayerInput cannot also act. Enter/Space remain native:
+Enter on Close must close, not buy or train. Do not globally redirect action
+keys or disable button focus just to make a primary-action fallback pass.
+This does not diagnose MCP pointer delivery or certify physical input.
+
 ## A Focus Click Can Change The Test Subject
 
 September 13's controller-routed service keys passed isolated InputKey ->

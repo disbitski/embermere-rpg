@@ -311,14 +311,16 @@ why human taste becomes more important as building gets easier.
 
 ## Status
 
-September 13 added a controller-routed vendor/trainer keyboard fallback:
-Up/Down selection, Enter Buy/Train, Escape close, and unchanged bag brackets.
-The build, 98 tests, 23 fresh package validators, six live collision suites,
-and this project's 8 AM Eastern task setup passed. Clean PIE proved exact
-training, tonic/pack purchases, rejection, and input handoff. See
-[the daily report](Docs/DAILY_BUILD_2026-09-13.md) for evidence and remaining
-physical input/HUD gates. This is not a pointer-click repair or full Tab-focus
-redesign. The original save is preserved and desktop control stays disabled.
+September 14 fixed vendor/trainer arrow navigation and Escape when a native
+button has focus, while preserving that button's Enter/Space action. The build,
+100 tests, 23 fresh package validators, six live collision suites, and this
+project's 8 AM Eastern task setup passed. Clean PIE proved focused service
+actions, real Prowler damage/well recovery, Still Waters' once-only reward, and
+panel handoff. See [the daily report](Docs/DAILY_BUILD_2026-09-14.md) for exact
+evidence and remaining physical input/HUD gates. This is not a pointer-click
+repair or full Tab-focus redesign. The original save is preserved and desktop
+control stays disabled. Blender is configured but was not live-tested for this
+non-art run.
 
 Early playable Unreal prototype scaffold with Unreal and Blender MCP connected,
 a fixed player-facing race/class picker that initializes data-driven starter

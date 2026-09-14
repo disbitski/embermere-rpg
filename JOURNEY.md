@@ -3321,6 +3321,29 @@ transactions, claim a pointer fix, or reach for desktop control. Read
 `Docs/DAILY_BUILD_2026-09-13.md` for exact evidence and remaining physical gates.
 The original save, local keeper resave, art, and schema remain untouched.
 
+## September 14: The Focused Button Was A Different Input Path
+
+Yesterday's controller fallback passed its tests, but a real focused Train
+button still consumed Down before PlayerInput saw it. Enter trained correctly.
+The missing coverage was not transaction authority: it was Slate focus routing.
+Two new virtual-window tests reproduced that distinction without any desktop
+control. The narrow HUD preview now handles only service arrows and Escape;
+Enter on Close still closes, and Sell/Buyback retain their native actions.
+
+All 100 tests, 23 fresh package validators, six live trace suites and the build
+passed. Live native focus proved exact Train/Buy/Sell/Buyback behavior. A fresh
+Warrior accepted Mara and Still Waters, took real Prowler-02 damage, recovered
+78 health at the well, and completed only Still Waters for 50 XP and 10 copper.
+Repeated F paid nothing. Some shortcut routes hit solid boundaries and a gate
+pause allowed extra retaliation; documenting that matters more than presenting
+the run as flawless. The working route used the actual gate opening, and no
+scenery or gameplay rules changed.
+
+The original save and local keeper resave remain byte-for-byte intact. The
+existing 8 AM Eastern task uses the correct project, and Unreal MCP is ready
+outside PIE. Physical clicking, camera feel and HUD approval remain separate
+user gates. See `Docs/DAILY_BUILD_2026-09-14.md` for evidence and next work.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

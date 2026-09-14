@@ -6,15 +6,18 @@
 #include "Components/EmbermereTrainerComponent.h"
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/EmbermereWalletComponent.h"
+#include "Components/Button.h"
 #include "Data/EmbermereItemData.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "Game/EmbermerePlayerController.h"
 #include "GameFramework/PlayerInput.h"
 #include "InputKeyEventArgs.h"
+#include "Framework/Application/SlateApplication.h"
 #include "Misc/AutomationTest.h"
 #include "UI/EmbermerePlayerHudWidget.h"
 #include "Widgets/SWidget.h"
+#include "Widgets/SVirtualWindow.h"
 
 struct FEmbermereServiceKeyboardFixture
 {
@@ -212,6 +215,121 @@ bool FEmbermereTrainerKeyboardInputTest::RunTest(const FString& Parameters)
 	F.Press(EKeys::Enter);
 	TestEqual(TEXT("Inventory cannot trigger stale lesson"), F.Character->Wallet->Copper, 40);
 	return !HasAnyErrors();
+}
+
+namespace
+{
+struct FFocusedServiceWindow
+{
+	TSharedPtr<SWidget> PreviousFocus = FSlateApplication::Get().GetKeyboardFocusedWidget();
+	TSharedRef<SVirtualWindow> Window = SNew(SVirtualWindow).Size(FVector2D(1280, 900));
+
+	explicit FFocusedServiceWindow(FEmbermereServiceKeyboardFixture& Fixture)
+	{
+		Window->SetContent(Fixture.SlateWidget.ToSharedRef());
+		Window->SlatePrepass();
+		FSlateApplication::Get().RegisterVirtualWindow(Window);
+	}
+
+	~FFocusedServiceWindow()
+	{
+		FSlateApplication::Get().ClearKeyboardFocus(EFocusCause::Cleared);
+		FSlateApplication::Get().UnregisterVirtualWindow(Window);
+		if (PreviousFocus.IsValid())
+		{
+			FSlateApplication::Get().SetKeyboardFocus(PreviousFocus);
+		}
+	}
+
+	static void Key(const FKey& Key, bool bRepeat = false, bool bRelease = true)
+	{
+		const FKeyEvent Event(Key, FModifierKeysState(), 0, bRepeat, 0, 0);
+		FSlateApplication::Get().ProcessKeyDownEvent(Event);
+		if (bRelease)
+		{
+			FSlateApplication::Get().ProcessKeyUpEvent(Event);
+		}
+	}
+};
+
+bool CheckFocusedService(FAutomationTestBase& Test, bool bVendor)
+{
+	FEmbermereServiceKeyboardFixture F;
+	UEmbermereVendorComponent* Vendor = NewObject<UEmbermereVendorComponent>(F.Character);
+	Vendor->SetStockData(LoadObject<UEmbermereVendorStockData>(nullptr,
+		TEXT("/Game/Data/Vendors/DA_FenwatchQuartermasterStock.DA_FenwatchQuartermasterStock")));
+	UEmbermereTrainerComponent* Trainer = NewObject<UEmbermereTrainerComponent>(F.Character);
+	Trainer->SetOfferingsData(LoadObject<UEmbermereTrainerOfferingsData>(nullptr,
+		TEXT("/Game/Data/Trainers/DA_FenwatchArmsmasterOfferings.DA_FenwatchArmsmasterOfferings")));
+	const auto Open = [&]() { return bVendor ? F.Hud->ShowVendor(Vendor) : F.Hud->ShowTrainer(Trainer); };
+	const auto Selected = [&]() { return bVendor ? F.Hud->GetSelectedVendorStockIndex() : F.Hud->GetSelectedTrainerOfferingIndex(); };
+	const auto Visible = [&]() { return bVendor ? F.Hud->IsVendorPanelVisible() : F.Hud->IsTrainerPanelVisible(); };
+	Test.TestTrue(TEXT("Service opens"), Open());
+	FFocusedServiceWindow Window(F);
+	UButton* Action = Cast<UButton>(F.Hud->GetWidgetFromName(bVendor ? TEXT("VendorBuyButton") : TEXT("TrainerActionButton")));
+	UButton* Close = Cast<UButton>(F.Hud->GetWidgetFromName(bVendor ? TEXT("VendorCloseButton") : TEXT("TrainerCloseButton")));
+	if (!Test.TestNotNull(TEXT("Native action exists"), Action) || !Test.TestNotNull(TEXT("Native close exists"), Close))
+	{
+		return false;
+	}
+	Test.TestTrue(TEXT("Real Slate focus path reaches action"), FSlateApplication::Get().SetKeyboardFocus(Action->TakeWidget()));
+	Test.TestTrue(TEXT("Action really has focus"), Action->HasKeyboardFocus());
+	FFocusedServiceWindow::Key(EKeys::Down);
+	Test.TestEqual(TEXT("Focused Down selects unavailable row"), Selected(), 1);
+	FFocusedServiceWindow::Key(EKeys::Up);
+	Test.TestEqual(TEXT("Focused Up restores first row"), Selected(), 0);
+	FFocusedServiceWindow::Key(EKeys::Up);
+	Test.TestEqual(TEXT("Focused Up wraps"), Selected(), 1);
+	FFocusedServiceWindow::Key(EKeys::Down);
+	Test.TestEqual(TEXT("Focused Down wraps"), Selected(), 0);
+	FFocusedServiceWindow::Key(EKeys::Down, true);
+	Test.TestEqual(TEXT("Repeated navigation is ignored"), Selected(), 0);
+	Test.TestEqual(TEXT("Navigation cannot spend"), F.Character->Wallet->Copper, 40);
+	Test.TestEqual(TEXT("Navigation cannot grant XP"), F.Character->Stats->CurrentExperience, 0);
+	Test.TestEqual(TEXT("Navigation cannot deliver items"), F.Character->Inventory->Stacks.Num(), 0);
+	FSlateApplication::Get().SetKeyboardFocus(Action->TakeWidget());
+	FFocusedServiceWindow::Key(EKeys::Enter, false, false);
+	FFocusedServiceWindow::Key(EKeys::Enter, true, false);
+	Test.TestEqual(TEXT("Native press waits for release"), F.Character->Wallet->Copper, 40);
+	FSlateApplication::Get().ProcessKeyUpEvent(FKeyEvent(EKeys::Enter, FModifierKeysState(), 0, false, 0, 0));
+	Test.TestEqual(TEXT("Native Enter commits once"), F.Character->Wallet->Copper, bVendor ? 32 : 30);
+	FFocusedServiceWindow::Key(EKeys::SpaceBar);
+	Test.TestEqual(TEXT("Native Space remains available"), F.Character->Wallet->Copper, bVendor ? 24 : 20);
+	Test.TestEqual(TEXT("Native action exact XP"), F.Character->Stats->CurrentExperience, bVendor ? 0 : 50);
+	if (bVendor)
+	{
+		Test.TestEqual(TEXT("Native actions deliver two tonics"), F.Character->Inventory->GetItemQuantity(Vendor->StockData->Entries[0].Item), 2);
+	}
+	FSlateApplication::Get().SetKeyboardFocus(Close->TakeWidget());
+	FFocusedServiceWindow::Key(EKeys::Down);
+	Test.TestEqual(TEXT("Arrows work from close button too"), Selected(), 1);
+	FFocusedServiceWindow::Key(EKeys::Enter);
+	Test.TestFalse(TEXT("Focused close keeps native Enter meaning"), Visible());
+	Test.TestEqual(TEXT("Close never becomes Buy or Train"), F.Character->Wallet->Copper, bVendor ? 24 : 20);
+	Open();
+	FSlateApplication::Get().SetKeyboardFocus(Action->TakeWidget());
+	FFocusedServiceWindow::Key(EKeys::Escape);
+	Test.TestFalse(TEXT("Focused Escape closes service"), Visible());
+	FFocusedServiceWindow::Key(EKeys::Enter);
+	Test.TestEqual(TEXT("Closed focus cannot repeat transaction"), F.Character->Wallet->Copper, bVendor ? 24 : 20);
+	return !Test.HasAnyErrors();
+}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereVendorFocusedKeyboardTest,
+	"Embermere.UI.ServiceKeyboard.VendorFocus",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FEmbermereVendorFocusedKeyboardTest::RunTest(const FString& Parameters)
+{
+	return CheckFocusedService(*this, true);
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereTrainerFocusedKeyboardTest,
+	"Embermere.UI.ServiceKeyboard.TrainerFocus",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FEmbermereTrainerFocusedKeyboardTest::RunTest(const FString& Parameters)
+{
+	return CheckFocusedService(*this, false);
 }
 
 #endif

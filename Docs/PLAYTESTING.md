@@ -663,6 +663,26 @@ The full ownership and rollback contract is in
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
 
+### September 14 Focused Service Navigation
+
+Run the full 100-test suite, including `Embermere.UI.ServiceKeyboard.VendorFocus`
+and `.TrainerFocus`, plus 23 fresh package and six initialized-world trace
+suites. Focus regressions use native HUD buttons in a virtual Slate window,
+not a detached PlayerInput-only simulation or direct transaction call.
+
+In clean PIE, focus Train or Buy, then press unmodified Down/Up. Selection must
+wrap through unavailable and available rows without spending. Escape must close
+and restore input. Enter/Space on a focused button retains that button's
+meaning: Train, Buy, Sell, Buyback, or Close. Enter on Close must never become
+a purchase. Held navigation must not repeat or grow the selection layout.
+Keep controller fallback, brackets, I/J/M and existing mouse paths intact.
+
+The September 14 engine-owned focus probe passed those navigation and native
+action checks on real F-opened services. It used explicit button focus after
+refreshing/right-clicking the current Unreal viewport. Physical focus traversal,
+clicks, held mouse, and final HUD pixels remain user checks. This does not solve
+the September 12 MCP pointer-delivery issue. Do not save/load the protected slot.
+
 ### September 13 Service Keyboard Fallback
 
 Run `Embermere.UI.ServiceKeyboard.Vendor` and `.Trainer` with the full 98-test

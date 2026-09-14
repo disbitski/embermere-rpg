@@ -478,6 +478,46 @@ void UEmbermerePlayerHudWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
+FReply UEmbermerePlayerHudWidget::NativeOnPreviewKeyDown(
+	const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+	const bool bVendor = IsVendorPanelVisible();
+	const bool bTrainer = IsTrainerPanelVisible();
+	const FKey Key = InKeyEvent.GetKey();
+	if ((!bVendor && !bTrainer) || InKeyEvent.IsControlDown() || InKeyEvent.IsAltDown() ||
+		InKeyEvent.IsCommandDown() || InKeyEvent.IsShiftDown() ||
+		(Key != EKeys::Up && Key != EKeys::Down && Key != EKeys::Escape))
+	{
+		return Super::NativeOnPreviewKeyDown(InGeometry, InKeyEvent);
+	}
+
+	// Focused buttons otherwise consume navigation before PlayerInput sees it.
+	// Leave Enter/Space native so Close, Sell and Buyback keep their own actions.
+	if (!InKeyEvent.IsRepeat())
+	{
+		if (Key == EKeys::Escape)
+		{
+			if (bVendor)
+			{
+				HandleVendorCloseClicked();
+			}
+			else
+			{
+				HandleTrainerCloseClicked();
+			}
+		}
+		else if (bVendor)
+		{
+			SelectNextVendorStockItem(Key == EKeys::Up ? -1 : 1);
+		}
+		else
+		{
+			SelectNextTrainerOffering(Key == EKeys::Up ? -1 : 1);
+		}
+	}
+	return FReply::Handled();
+}
+
 FReply UEmbermerePlayerHudWidget::NativeOnPreviewMouseButtonDown(
 	const FGeometry& InGeometry,
 	const FPointerEvent& InMouseEvent)

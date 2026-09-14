@@ -6,6 +6,34 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 14 daily build: repaired the reproduced native-button focus gap.
+  Read `Docs/DAILY_BUILD_2026-09-14.md` and
+  `Docs/SERVICE_KEYBOARD_INPUT_CONTRACT.md`. Visible vendor/trainer HUD preview
+  now handles unmodified Up/Down/Escape before focused children consume them;
+  repeats do not act. Enter/Space retain native Buy, Train, Sell, Buyback, or
+  Close meaning. Controller fallback, other panels, layout, data, art and save
+  version 3 are unchanged. Two real Slate virtual-window regressions failed
+  before and passed after; all 100 tests, 23 fresh package validators, six live
+  trace suites, build and discovery passed with zero test warnings. Clean PIE
+  proved focused lesson/stock navigation, Train 40 -> 30 copper / 0 -> 25 XP,
+  native tonic buy/sell/buyback 30 -> 22 -> 25 -> 22 and close/input restoration.
+  Original F accepted Mara and Still Waters independently. After a real solo
+  Prowler-02 encounter, well F restored 22 -> 100 health and advanced only Still
+  Waters. Board F granted 50 XP / 10 copper once: final 75 XP, 32 copper, one
+  tonic, completed Still Waters and active Mara 0/3. J/M/I/I preserved state.
+  Shortcuts contacted solid boundaries, and the gate pause allowed extra
+  retaliation; this is not a perfect-route or new full Mara/animation sweep.
+  No scenery changed. See the report's actual endpoints and qualified input
+  evidence. Protected save/keeper hashes unchanged; Config, keeper resave and
+  FieldNotes excluded. Correct project, ACTIVE 8 AM Eastern task, toolchain,
+  plugins and real MCP 8123 verified. Unreal is outside PIE, correct map, no
+  dirty packages. Blender executable exists; bridge not queried for non-art work.
+  **Next:** user physical service input/HUD review without touching the save;
+  retain the focused-navigation regressions. Inspect Ledger's existing keyboard
+  path with focused native controls only if useful, add a failing regression
+  before any scoped repair, or continue normal Mara/Still Waters play. Do not
+  conflate this with September 12's pointer-delivery issue, claim complete Tab
+  navigation, use desktop control, or infer/load/overwrite the protected save.
 - September 13 daily build: implemented the bounded controller-routed service
   keyboard fallback. Read `Docs/DAILY_BUILD_2026-09-13.md` and
   `Docs/SERVICE_KEYBOARD_INPUT_CONTRACT.md`. Up/Down selects stock/lessons,
