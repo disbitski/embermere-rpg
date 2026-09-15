@@ -1,5 +1,107 @@
 # September 15 Daily Run
 
+## Resume After User License Acceptance
+
+This section supersedes the initial-run readiness and final-state claims
+below. The user accepted the Xcode license; Apple Git now works. Metal then
+reported its component missing. The authorized
+`xcodebuild -downloadComponent MetalToolchain` downloaded 838.9 MB, version
+27A266a, and completed successfully. `xcrun --kill-cache` cleared a stale tool
+lookup; `xcrun metal -v` now executes Apple Metal 32023.921. No terms were
+accepted by the agent, and no security or global Xcode selection was changed.
+
+The no-hot-reload Development build was attempted but exited 6 **before C++
+compilation**: `Platform Mac is not a valid platform to build. SDK validation
+failed`, finding Xcode 27.0. Installed UE 5.8's `Apple_SDK.json` declares
+MinVersion 15.2.0, MaxVersion 26.9.0, and MainVersion 26.1.1. The diagnostic's
+printed minimum is not a recommendation to install the oldest version.
+[Epic recommends Xcode 26.1.1](https://dev.epicgames.com/documentation/en-us/unreal-engine/macos-development-requirements-for-unreal-engine).
+No compatible full Xcode was found in Applications or the checked download/
+shared locations. The user has been asked to download 26.1.1 for side-by-side
+use. Do not weaken the engine's SDK checks. `-checkFirstLaunchStatus` returned
+69 without explanation; `-runFirstLaunch` was not run because its help includes
+license acceptance. Exit codes alone remain insufficient diagnosis.
+
+### Verified Baseline, Not A New C++ Build
+
+After checking zero dirty packages and no PIE, the real editor was closed
+through Unreal's `CLOSE_SLATE_MAINFRAME`. Its shutdown completed at 12:39:58
+UTC; process checks found no UnrealEditor or Crash Reporter before commandlets.
+The following runs were sequential and used the existing compiled `15325ab`
+module, not the newly drafted tests:
+
+- Isolated automation: 100 Success, zero failed, test warnings, not-run or
+  in-process records. Queue completed 12:40:48 UTC. Evidence:
+  `/tmp/embermere-sep15-resume-tests/index.json` (UTF-8 BOM) and the adjacent
+  `/tmp/embermere-sep15-resume-tests.log`.
+- All 23 fresh package validators emitted their exact success markers and
+  the aggregate `validators=23` marker at 12:42:36 UTC. No `LogPython: Error`.
+  Evidence: `/tmp/embermere-sep15-resume-packages.log`. The four existing
+  vendor physics-resave warnings are not test warnings, new package failures,
+  permission to resave vendor content, or cooked-build acceptance.
+- The restarted real editor PID 7637, launched 08:47:36 Eastern with the full
+  project path and dedicated MCP flags, owns 127.0.0.1:8123. Forced discovery
+  returned 100 tests. No rebuild prompt or desktop-control workaround was
+  needed to reopen the unchanged module.
+- All six initialized-editor trace suites passed at 12:48:56 UTC, inside
+  `SEP15_RESUME_TRACES_BEGIN/SUCCESS`: well, notice board, workshop, cottage,
+  stall, and road. The baseline remains 53 Fab plus 24 original placements.
+
+### Fresh PIE After Restart
+
+Fresh Human Warrior confirmation and Inventory close restored cursor-hidden,
+unsuppressed input. Bounded, normal-time W/F again reached Mara near
+`(-2153,-976,90.15)` and the board near `(-1703,-233,90.15)`, accepting both
+quests through their original owners. No positions, health, mana, quest state,
+XP, inventory or rewards were injected.
+
+With real Focus Quest button focus confirmed, native Down left Ledger
+selection 1 immediately and at a later query. Controller Down selected row 0
+without changing the tracker; native Focus Quest Enter changed only tracker
+focus, and Close Enter closed. J/M/I/I handed off cleanly. Final live state:
+100 health, 50 mana, 0 XP, 40 copper, empty bag, both quests active at zero,
+all Prowlers home at full health, practice target 150. No Save/Load action.
+The callback and forced key were both None before `SEP15_RESUME_PIE_SUCCESS`
+at 12:53:13 UTC and StopPIE. This is an engine-input smoke, not a new full
+combat/reward sweep, physical keyboard/camera, pointer or HUD pixel acceptance.
+No Python errors occurred in the restarted editor's validation/PIE interval.
+
+Unreal is left outside PIE on `/Game/Maps/L_Embermere_Prototype`, zero dirty
+content/map packages, real MCP running. Save and keeper SHA256 values below
+were rechecked unchanged. Blender was not queried because no art was planned.
+Desktop control remains disabled throughout.
+
+### Intentional Changes And Next Step
+
+The new read-only `check_xcode_compatibility.sh` parses the selected Xcode
+plist and installed Unreal SDK JSON with plutil. It rejects missing/malformed
+versions, reversed ranges, and out-of-range Xcode, with the engine-preferred
+version in its diagnostic. The main setup script honors DEVELOPER_DIR and
+requires a full Contents/Developer tree, allowing a compatible side-by-side
+installation without changing global selection. All 21 setup tests pass;
+syntax checks pass. The real check correctly exits 1 for Xcode 27 even with
+Metal working. An in-range result explicitly still requires a fresh build.
+
+Two proposed Ledger keyboard tests were drafted before the SDK rejection.
+They are preserved only as
+`Docs/Pending/2026-09-15-ledger-keyboard-tests.patch`, with review instructions.
+`git apply --check` passes. They have **never compiled or executed**; there is
+no before/after C++ test claim and no production fix. Source remains unchanged
+so future launches are not presented with an unverified game-code candidate.
+
+Next: use the compatible Xcode's Contents/Developer through DEVELOPER_DIR for
+both setup and Build.sh, then prove actual UBT compilation. Review and compile
+the pending tests, obtain a genuinely failing focused Ledger regression, and
+only then make the scoped preview repair and complete all verification gates.
+If that toolchain is still unavailable, retain the runtime baseline and avoid
+claiming completion of the fresh-build or new-C++ milestone. The existing
+ACTIVE 8 AM Eastern heartbeat retains this exact project and these guardrails.
+
+## Initial Run Before License Acceptance
+
+The remaining sections record the earlier morning run and its then-current
+blocker. They are historical; use the Resume section above for the next start.
+
 ## Readiness And Blocking Condition
 
 The existing ACTIVE 8 AM America/New_York heartbeat still targets task

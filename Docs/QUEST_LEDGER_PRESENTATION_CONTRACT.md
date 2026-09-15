@@ -10,8 +10,11 @@ Focus Quest then changed only tracker focus; Enter on Close closed normally.
 All quest/reward state stayed unchanged. This is qualified in-engine focus
 evidence, not physical input or pointer-delivery approval.
 
-No C++ repair is accepted yet: the current Xcode license gate prevented a
-fresh build. Once resolved, add a native Slate routed failing regression
+No C++ repair is accepted yet: the license is now accepted, but installed
+Xcode 27.0 is outside UE 5.8's declared SDK range. Two proposed tests live only
+in `Docs/Pending/2026-09-15-ledger-keyboard-tests.patch`, uncompiled and
+unexecuted. The fresh accepted suite still contains 100 tests. After compiler
+recovery, review the draft and obtain a native Slate routed failing regression
 before considering a visible-Ledger Up/Down/Escape preview analogous to the
 accepted service preview. Preserve native Enter/Space, ignore repeat
 navigation, avoid double dispatch, and retain selection versus explicit

@@ -22,18 +22,13 @@ else
   echo "[warning] Epic Games Launcher not found; an existing Unreal installation can still be used"
 fi
 
-if [[ -d "/Applications/Xcode.app" ]]; then
-  echo "[ok] Found /Applications/Xcode.app"
+export DEVELOPER_DIR="${DEVELOPER_DIR:-$(xcode-select -p 2>/dev/null || true)}"
+if [[ "$DEVELOPER_DIR" == */Contents/Developer && -d "$DEVELOPER_DIR" &&
+      -f "${DEVELOPER_DIR%/Developer}/Info.plist" ]]; then
+  echo "[ok] Selected full Xcode: $DEVELOPER_DIR"
 else
-  echo "[missing] Full Xcode not found at /Applications/Xcode.app"
-  FAILED=1
-fi
-
-DEVELOPER_DIR="$(xcode-select -p 2>/dev/null || true)"
-if [[ "$DEVELOPER_DIR" == "/Applications/Xcode.app/Contents/Developer" ]]; then
-  echo "[ok] xcode-select points at full Xcode"
-else
-  echo "[missing] xcode-select is '$DEVELOPER_DIR' but Unreal expects /Applications/Xcode.app/Contents/Developer"
+  echo "[missing] '$DEVELOPER_DIR' is not a full Xcode Contents/Developer directory"
+  echo "          Set DEVELOPER_DIR for a side-by-side Xcode installation or select one in Xcode."
   FAILED=1
 fi
 
@@ -58,6 +53,11 @@ done
 
 if [[ -n "$FOUND_UE" ]]; then
   echo "[ok] Found Unreal Editor 5.8 candidate: $FOUND_UE"
+  ENGINE_DIR="${FOUND_UE%%/Binaries/Mac/*}"
+  if ! zsh "$ROOT_DIR/Scripts/check_xcode_compatibility.sh" \
+      "${DEVELOPER_DIR%/Developer}/Info.plist" "$ENGINE_DIR/Config/Apple/Apple_SDK.json"; then
+    FAILED=1
+  fi
 else
   echo "[missing] Unreal Editor 5.8 not found in common install locations"
   FAILED=1

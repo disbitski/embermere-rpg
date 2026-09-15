@@ -671,6 +671,16 @@ returns nonzero for required failures. Its independent regressions run with
 `python3 -B Scripts/test_unreal_setup.py -v` using a working Python runtime.
 Do not equate passing running-editor tests with fresh compiler/package checks.
 
+The resumed run resolved the license and missing Metal component but exposed
+Xcode 27.0 outside the installed engine's 15.2.0-26.9.0 range. Epic and the
+installed engine recommend 26.1.1. Do not edit engine SDK metadata to force
+acceptance. With that version available, pass its full Contents/Developer path
+as DEVELOPER_DIR consistently to setup and Build.sh; the checker respects
+this process-local override without changing global xcode-select. The 21
+setup tests use disposable fixtures. Fresh baseline automation (100 tests),
+all 23 package checks, and six restarted-editor trace suites passed despite
+the new compile gate; they do not validate uncompiled C++.
+
 In a clean world, original F can accept Mara and Still Waters independently.
 J opens two records. With the real Focus Quest button explicitly focused,
 Slate Down currently fails to change selection; controller Down changes the
@@ -678,7 +688,8 @@ selected detail without changing tracked focus. Native Focus Quest Enter and
 Close Enter retain their distinct correct actions. Wallet, XP, inventory,
 progress, completion and rewards must not change. Keep the original save
 untouched. After the Xcode blocker is resolved, add a failing routed regression
-before any navigation fix; cover Up/Down wrapping, repeat suppression, Escape,
+before any navigation fix; review the explicitly uncompiled draft under
+`Docs/Pending/`. Cover Up/Down wrapping, repeat suppression, Escape,
 native Enter/Space, selection/focus separation, and teardown. Today's probe
 does not certify physical input, HUD pixels, or organic Tab traversal.
 

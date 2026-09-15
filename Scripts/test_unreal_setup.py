@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+import plistlib
 import shutil
 import subprocess
 import tempfile
@@ -23,7 +24,7 @@ class UnrealSetupTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         scripts = self.root / "Scripts"
         scripts.mkdir()
-        for name in ("check_unreal_setup.sh", "check_metal_toolchain.sh"):
+        for name in ("check_unreal_setup.sh", "check_metal_toolchain.sh", "check_xcode_compatibility.sh"):
             shutil.copy2(SCRIPTS / name, scripts / name)
         shutil.copy2(SCRIPTS.parent / "Embermere.uproject", self.root)
         (self.root / ".codex").mkdir()
@@ -41,11 +42,13 @@ class UnrealSetupTests(unittest.TestCase):
         )
         xcrun.chmod(0o755)
 
-    def run_check(self, script, code=0, diagnostic="Apple metal version fixture"):
+    def run_check(self, script, code=0, diagnostic="Apple metal version fixture", developer=None):
         calls = self.root / "calls"
         env = dict(os.environ, PATH=f"{self.bin}:/usr/bin:/bin:/usr/sbin:/sbin",
                    EMBERMERE_TEST_CALLS=str(calls), EMBERMERE_TEST_STATUS=str(code),
                    EMBERMERE_TEST_OUTPUT=diagnostic)
+        if developer is not None:
+            env["DEVELOPER_DIR"] = str(developer)
         result = subprocess.run(
             ["/bin/zsh", str(self.root / "Scripts" / script)],
             cwd=self.root, env=env, text=True, capture_output=True, timeout=10,
@@ -89,6 +92,23 @@ class UnrealSetupTests(unittest.TestCase):
         self.assertNotEqual(code, 0)
         self.assertIn("Project does not request AllToolsets", output)
 
+    def test_side_by_side_xcode_override_is_respected(self):
+        developer = self.root / "Xcode 26.1.1.app/Contents/Developer"
+        developer.mkdir(parents=True)
+        (developer.parent / "Info.plist").write_bytes(plistlib.dumps({
+            "CFBundleShortVersionString": "26.1.1",
+        }))
+        _, output = self.run_check("check_unreal_setup.sh", developer=developer)
+        self.assertIn(f"[ok] Selected full Xcode: {developer}", output)
+        self.assertNotIn("not a full Xcode", output)
+
+    def test_command_line_tools_are_not_full_xcode(self):
+        developer = self.root / "CommandLineTools"
+        developer.mkdir()
+        code, output = self.run_check("check_unreal_setup.sh", developer=developer)
+        self.assertNotEqual(code, 0)
+        self.assertIn("not a full Xcode", output)
+
     def test_healthy_metal(self):
         code, output = self.run_check("check_metal_toolchain.sh")
         self.assertEqual(code, 0)
@@ -127,6 +147,68 @@ class UnrealSetupTests(unittest.TestCase):
         self.assertIn("exit 1", output)
         self.assertIn("SDK path is unavailable.", output)
         self.assertNotIn("downloadComponent", output)
+
+
+class XcodeCompatibilityTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="embermere xcode rules ")
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.plist = self.root / "Info.plist"
+        self.rules = self.root / "Apple_SDK.json"
+        self.rules.write_text(json.dumps({
+            "MainVersion": "26.1.1", "MinVersion": "15.2.0", "MaxVersion": "26.9.0",
+        }))
+
+    def check_version(self, version):
+        self.plist.write_bytes(plistlib.dumps({"CFBundleShortVersionString": version}))
+        result = subprocess.run(
+            ["/bin/zsh", str(SCRIPTS / "check_xcode_compatibility.sh"),
+             str(self.plist), str(self.rules)], text=True, capture_output=True, timeout=10,
+        )
+        return result.returncode, result.stdout + result.stderr
+
+    def test_engine_preferred_version(self):
+        code, output = self.check_version("26.1.1")
+        self.assertEqual(code, 0)
+        self.assertIn("successful fresh build is still required", output)
+
+    def test_inclusive_minimum(self):
+        self.assertEqual(self.check_version("15.2")[0], 0)
+
+    def test_inclusive_maximum(self):
+        self.assertEqual(self.check_version("26.9.0")[0], 0)
+
+    def test_current_xcode_27_is_rejected(self):
+        code, output = self.check_version("27.0")
+        self.assertNotEqual(code, 0)
+        self.assertIn("outside installed Unreal's declared range", output)
+        self.assertIn("Engine-preferred Xcode: 26.1.1", output)
+
+    def test_above_maximum_patch(self):
+        self.assertNotEqual(self.check_version("26.9.1")[0], 0)
+
+    def test_below_minimum(self):
+        self.assertNotEqual(self.check_version("15.1.9")[0], 0)
+
+    def test_malformed_version(self):
+        code, output = self.check_version("not-a-version")
+        self.assertNotEqual(code, 0)
+        self.assertIn("Malformed", output)
+
+    def test_missing_rules(self):
+        self.rules.unlink()
+        code, output = self.check_version("26.1.1")
+        self.assertNotEqual(code, 0)
+        self.assertIn("Cannot read", output)
+
+    def test_reversed_rules(self):
+        self.rules.write_text(json.dumps({
+            "MainVersion": "26.1.1", "MinVersion": "28.0", "MaxVersion": "26.9",
+        }))
+        code, output = self.check_version("26.1.1")
+        self.assertNotEqual(code, 0)
+        self.assertIn("range is reversed", output)
 
 
 if __name__ == "__main__":

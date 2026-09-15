@@ -2,6 +2,30 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## License, Metal, SDK Compatibility, And Runtime Are Separate Gates
+
+The September 15 resume cleared the user-owned license gate, then exposed a
+missing MetalToolchain. The authorized component download completed, but
+xcrun retained a stale lookup until `xcrun --kill-cache`. Metal then executed.
+Neither step proved that UnrealBuildTool accepted the installed Xcode:
+Xcode 27.0 exceeded the engine's 26.9.0 maximum, and UBT rejected Mac before
+compilation. Read the installed `Engine/Config/Apple/Apple_SDK.json` instead of
+inventing a supported version or editing its limits. Its preferred 26.1.1
+matches [Epic's Mac guidance](https://dev.epicgames.com/documentation/en-us/unreal-engine/macos-development-requirements-for-unreal-engine).
+A version-range match is still only preflight, not a successful build.
+
+The setup helper now parses plist/JSON with plutil, validates ordered version
+limits, and honors process-local DEVELOPER_DIR for side-by-side Xcode. All
+21 setup tests pass. Do not use `xcodebuild -runFirstLaunch` casually: its help
+explicitly includes license acceptance. Leave user-owned terms and global
+toolchain/security changes to a deliberate user decision.
+
+The existing compiled module can remain valid under an incompatible build
+toolchain: after closing the real GUI, 100 isolated tests and 23 fresh package
+checks passed, then Unreal reopened and passed six native collision suites.
+Label these as baseline runtime/package verification, never proof of newly
+drafted C++. Keep uncompiled proposals outside Source until they can be tested.
+
 ## A Running Editor Does Not Prove Toolchain Readiness
 
 September 15's healthy editor passed 100 tests while Apple's Git/xcrun refused

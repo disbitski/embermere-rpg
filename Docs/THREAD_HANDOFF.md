@@ -1761,24 +1761,30 @@ free of interaction, recovery, reward, quest, or persistence authority.
 
 ## Immediate Next Work
 
-September 15 is a partial daily run, not fresh-build acceptance. Read
-`Docs/DAILY_BUILD_2026-09-15.md`. Apple Git/xcrun now report an unaccepted Xcode
-license. The user must review/accept it; do not do so on their behalf. The
-corrected setup checker exits nonzero and preserves the real diagnostic;
-all 10 setup regressions pass. Independent Codex Git remains available.
-Current baseline `15325ab` passed all 100 running-editor tests and six live
-trace suites, but no fresh compile, isolated tests, or 23-package aggregate
-ran today. Preserve the healthy editor until build/relaunch is viable.
+September 15 resumed after user license acceptance. Read the Resume section
+of `Docs/DAILY_BUILD_2026-09-15.md`. Apple Git works and the authorized Metal
+download/cache refresh restored Metal. Installed Xcode 27.0 still fails UE
+5.8 SDK validation before C++ compilation; the maximum is 26.9.0 and preferred
+version is 26.1.1. The user has been asked to download compatible Xcode for
+side-by-side use. Do not edit engine SDK limits or accept terms. Setup now
+checks actual plist/SDK rules and honors DEVELOPER_DIR, with 21 passing tests.
+Existing compiled `15325ab` passed all 100 isolated tests with zero test
+warnings and all 23 fresh package validators after the real GUI/MCP stopped.
+The restarted editor passed discovery and six live trace suites. These verify
+the baseline, not a new C++ build. Four vendor cooking warnings remain.
 
 Clean PIE accepted both quests through original F and reproduced Ledger Down
 failing with native Focus Quest button focus. Controller Down selected Mara
 without changing the tracker; native Enter changed only focus, and Close
-Enter closed. No Ledger C++ fix was landed. Next, after toolchain recovery,
-add a real routed failing regression and only then repair scoped navigation
+Enter closed. The fresh restarted PIE repeated this same qualified proof.
+No Ledger C++ fix was landed. Two uncompiled/unexecuted tests live only in
+`Docs/Pending/2026-09-15-ledger-keyboard-tests.patch`; review its README.
+Next, after toolchain recovery, compile the draft, obtain a real routed
+failing regression and only then repair scoped navigation
 while preserving native button meaning, selection/focus separation, authority,
 and fixed geometry. Up/Escape failure is not yet proven. No save/load occurred.
 Both protected hashes and unrelated changes remain intact. Exact task cwd and
-ACTIVE 8 AM Eastern schedule are verified. Real editor PID 78532 is outside
+ACTIVE 8 AM Eastern schedule are verified. Real editor PID 7637 is outside
 PIE on the correct map with zero dirty packages and MCP 8123. Desktop control
 stays disabled; Blender's live bridge was not queried for this non-art run.
 

@@ -1,0 +1,182 @@
+diff --git a/Source/Embermere/Private/Tests/EmbermereServiceKeyboardInputTests.cpp b/Source/Embermere/Private/Tests/EmbermereServiceKeyboardInputTests.cpp
+index 93024ce..c516e6e 100644
+--- a/Source/Embermere/Private/Tests/EmbermereServiceKeyboardInputTests.cpp
++++ b/Source/Embermere/Private/Tests/EmbermereServiceKeyboardInputTests.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include "Characters/EmbermereCharacter.h"
+ #include "Components/EmbermereInventoryComponent.h"
++#include "Components/EmbermereQuestLogComponent.h"
+ #include "Components/EmbermereStatsComponent.h"
+ #include "Components/EmbermereTrainerComponent.h"
+ #include "Components/EmbermereVendorComponent.h"
+@@ -47,6 +48,7 @@ struct FEmbermereServiceKeyboardFixture
+ 		Controller->PlayerInput->FlushPressedKeys();
+ 		Hud->CloseVendor();
+ 		Hud->CloseTrainer();
++		Hud->CloseQuestLedgerPanel();
+ 		Hud->BindToCharacter(nullptr);
+ 		SlateWidget.Reset();
+ 		GEngine->DestroyWorldContext(World);
+@@ -332,4 +334,161 @@ bool FEmbermereTrainerFocusedKeyboardTest::RunTest(const FString& Parameters)
+ 	return CheckFocusedService(*this, false);
+ }
+ 
++namespace
++{
++bool AddKeyboardLedgerRecords(FEmbermereServiceKeyboardFixture& F, FAutomationTestBase& Test)
++{
++	UEmbermereQuestData* Active = NewObject<UEmbermereQuestData>(F.Character);
++	Active->QuestId = TEXT("KeyboardActive");
++	Active->ObjectiveId = TEXT("KeyboardActiveObjective");
++	Active->Title = FText::FromString(TEXT("Active keyboard quest"));
++	Active->RequiredObjectiveCount = 3;
++	UEmbermereQuestData* Completed = NewObject<UEmbermereQuestData>(F.Character);
++	Completed->QuestId = TEXT("KeyboardCompleted");
++	Completed->ObjectiveId = TEXT("KeyboardCompletedObjective");
++	Completed->Title = FText::FromString(TEXT("Completed keyboard quest"));
++	Completed->RequiredObjectiveCount = 1;
++	Completed->RewardExperience = 50;
++	Completed->RewardCopper = 10;
++	Test.TestTrue(TEXT("Accept active keyboard fixture"), F.Character->QuestLog->AcceptQuest(Active));
++	Test.TestTrue(TEXT("Accept completed keyboard fixture"), F.Character->QuestLog->AcceptQuest(Completed));
++	Test.TestTrue(TEXT("Active fixture advances once"), F.Character->QuestLog->AddObjectiveProgressForQuest(
++		Active->QuestId, Active->ObjectiveId, 1));
++	Test.TestTrue(TEXT("Completed fixture reaches requirement"), F.Character->QuestLog->AddObjectiveProgressForQuest(
++		Completed->QuestId, Completed->ObjectiveId, 1));
++	Test.TestTrue(TEXT("Fixture commits reward before input"), F.Character->QuestLog->TryCompleteQuest(Completed));
++	return !Test.HasAnyErrors();
++}
++
++void CheckKeyboardLedgerOwners(FEmbermereServiceKeyboardFixture& F, FAutomationTestBase& Test)
++{
++	Test.TestEqual(TEXT("Keyboard never duplicates rewards or spends copper"), F.Character->Wallet->Copper, 50);
++	Test.TestEqual(TEXT("Keyboard never duplicates XP"), F.Character->Stats->CurrentExperience, 50);
++	Test.TestEqual(TEXT("Keyboard never delivers items"), F.Character->Inventory->Stacks.Num(), 0);
++	Test.TestEqual(TEXT("Exactly two quest records remain"), F.Character->QuestLog->QuestStates.Num(), 2);
++	FEmbermereQuestState State;
++	Test.TestTrue(TEXT("Active record survives"), F.Character->QuestLog->GetQuestStateById(TEXT("KeyboardActive"), State));
++	Test.TestEqual(TEXT("Active progress unchanged"), State.CurrentObjectiveCount, 1);
++	Test.TestFalse(TEXT("Active record cannot be completed by keyboard presentation"), State.bCompleted);
++	Test.TestTrue(TEXT("Completed history survives"), F.Character->QuestLog->GetQuestStateById(TEXT("KeyboardCompleted"), State));
++	Test.TestEqual(TEXT("Completed progress unchanged"), State.CurrentObjectiveCount, 1);
++	Test.TestTrue(TEXT("Completed flag survives"), State.bCompleted);
++	Test.TestEqual(TEXT("Ledger geometry stays fixed"), F.Hud->GetQuestLedgerPanelDimensions(), FVector2D(620, 550));
++	Test.TestEqual(TEXT("Ledger row geometry stays fixed"), F.Hud->GetQuestLedgerRowDimensions(), FVector2D(596, 30));
++	Test.TestEqual(TEXT("Ledger detail geometry stays fixed"), F.Hud->GetQuestLedgerDetailDimensions(), FVector2D(596, 120));
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereLedgerControllerKeyboardTest,
++	"Embermere.UI.QuestLedgerKeyboard.Controller",
++	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++bool FEmbermereLedgerControllerKeyboardTest::RunTest(const FString& Parameters)
++{
++	FEmbermereServiceKeyboardFixture F;
++	F.Press(EKeys::J);
++	TestTrue(TEXT("J opens empty Ledger"), F.Hud->IsQuestLedgerPanelVisible());
++	F.Press(EKeys::Down);
++	F.Press(EKeys::Up);
++	F.Press(EKeys::Enter);
++	TestTrue(TEXT("Empty keyboard input cannot invent focus"), F.Character->QuestLog->FocusedQuestId.IsNone());
++	F.Press(EKeys::Escape);
++	TestFalse(TEXT("Empty Ledger closes"), F.Hud->IsQuestLedgerPanelVisible());
++	if (!AddKeyboardLedgerRecords(F, *this))
++	{
++		return false;
++	}
++	F.Press(EKeys::J);
++	TestEqual(TEXT("Ledger aligns to completed tracked record"), F.Hud->GetSelectedQuestLedgerIndex(), 1);
++	F.Press(EKeys::Down);
++	TestEqual(TEXT("Controller Down wraps to active record"), F.Hud->GetSelectedQuestLedgerIndex(), 0);
++	TestEqual(TEXT("Selection cannot change tracker"), F.Character->QuestLog->FocusedQuestId, FName(TEXT("KeyboardCompleted")));
++	F.Event(EKeys::Down, IE_Repeat);
++	TestEqual(TEXT("Controller repeat does not navigate"), F.Hud->GetSelectedQuestLedgerIndex(), 0);
++	F.Event(EKeys::Down, IE_Released);
++	F.Press(EKeys::Enter);
++	TestEqual(TEXT("Controller Enter explicitly focuses active record"), F.Character->QuestLog->FocusedQuestId, FName(TEXT("KeyboardActive")));
++	F.Press(EKeys::Up);
++	TestEqual(TEXT("Controller Up wraps to completed record"), F.Hud->GetSelectedQuestLedgerIndex(), 1);
++	F.Queue(EKeys::Enter, IE_Pressed);
++	F.Event(EKeys::Escape, IE_Pressed);
++	F.Event(EKeys::Enter, IE_Released);
++	F.Event(EKeys::Escape, IE_Released);
++	TestFalse(TEXT("Close wins over same-frame focus request"), F.Hud->IsQuestLedgerPanelVisible());
++	TestEqual(TEXT("Closing cannot focus selected completed record"), F.Character->QuestLog->FocusedQuestId, FName(TEXT("KeyboardActive")));
++	TestFalse(TEXT("Close restores cursor-hidden input"), F.Controller->bShowMouseCursor);
++	F.Press(EKeys::J);
++	F.Press(EKeys::Down);
++	F.Queue(EKeys::Enter, IE_Pressed);
++	F.Event(EKeys::I, IE_Pressed);
++	F.Event(EKeys::Enter, IE_Released);
++	F.Event(EKeys::I, IE_Released);
++	TestTrue(TEXT("Inventory takes over"), F.Hud->IsInventoryPanelVisible());
++	TestFalse(TEXT("Inventory closes Ledger before dispatch"), F.Hud->IsQuestLedgerPanelVisible());
++	F.Press(EKeys::Enter);
++	TestEqual(TEXT("Peer panel cannot focus stale selection"), F.Character->QuestLog->FocusedQuestId, FName(TEXT("KeyboardActive")));
++	CheckKeyboardLedgerOwners(F, *this);
++	return !HasAnyErrors();
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereLedgerFocusedKeyboardTest,
++	"Embermere.UI.QuestLedgerKeyboard.FocusedButtons",
++	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++bool FEmbermereLedgerFocusedKeyboardTest::RunTest(const FString& Parameters)
++{
++	FEmbermereServiceKeyboardFixture F;
++	if (!AddKeyboardLedgerRecords(F, *this))
++	{
++		return false;
++	}
++	TestTrue(TEXT("Ledger opens"), F.Hud->ToggleQuestLedgerPanel());
++	FFocusedServiceWindow Window(F);
++	UButton* Action = Cast<UButton>(F.Hud->GetWidgetFromName(TEXT("QuestLedgerFocusButton")));
++	UButton* Close = Cast<UButton>(F.Hud->GetWidgetFromName(TEXT("QuestLedgerCloseButton")));
++	if (!TestNotNull(TEXT("Native focus action exists"), Action) || !TestNotNull(TEXT("Native close exists"), Close))
++	{
++		return false;
++	}
++	FSlateApplication::Get().SetKeyboardFocus(Action->TakeWidget());
++	TestTrue(TEXT("Action really has native focus"), Action->HasKeyboardFocus());
++	FFocusedServiceWindow::Key(EKeys::Down);
++	TestEqual(TEXT("Focused Ledger Down wraps to active record"), F.Hud->GetSelectedQuestLedgerIndex(), 0);
++	TestTrue(TEXT("Selected detail follows arrows"), F.Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(TEXT("Active keyboard quest")));
++	TestEqual(TEXT("Focused arrows cannot change tracker"), F.Character->QuestLog->FocusedQuestId, FName(TEXT("KeyboardCompleted")));
++	FFocusedServiceWindow::Key(EKeys::Down, true);
++	TestEqual(TEXT("Focused repeated Down is ignored"), F.Hud->GetSelectedQuestLedgerIndex(), 0);
++	FFocusedServiceWindow::Key(EKeys::Up);
++	TestEqual(TEXT("Focused Ledger Up wraps"), F.Hud->GetSelectedQuestLedgerIndex(), 1);
++	FFocusedServiceWindow::Key(EKeys::Up);
++	TestEqual(TEXT("Focused Ledger Up selects active record"), F.Hud->GetSelectedQuestLedgerIndex(), 0);
++	FFocusedServiceWindow::Key(EKeys::Down);
++	TestEqual(TEXT("Focused Ledger Down selects history"), F.Hud->GetSelectedQuestLedgerIndex(), 1);
++	FSlateApplication::Get().SetKeyboardFocus(Close->TakeWidget());
++	TestTrue(TEXT("Close really has native focus"), Close->HasKeyboardFocus());
++	FFocusedServiceWindow::Key(EKeys::Down);
++	TestEqual(TEXT("Arrows work from Ledger Close"), F.Hud->GetSelectedQuestLedgerIndex(), 0);
++	FFocusedServiceWindow::Key(EKeys::Enter);
++	TestFalse(TEXT("Close Enter closes instead of focusing quest"), F.Hud->IsQuestLedgerPanelVisible());
++	TestEqual(TEXT("Close Enter leaves tracker unchanged"), F.Character->QuestLog->FocusedQuestId, FName(TEXT("KeyboardCompleted")));
++	F.Hud->ToggleQuestLedgerPanel();
++	FSlateApplication::Get().SetKeyboardFocus(Action->TakeWidget());
++	FFocusedServiceWindow::Key(EKeys::Down);
++	FFocusedServiceWindow::Key(EKeys::Enter, false, false);
++	FFocusedServiceWindow::Key(EKeys::Enter, true, false);
++	TestEqual(TEXT("Native focus waits for release"), F.Character->QuestLog->FocusedQuestId, FName(TEXT("KeyboardCompleted")));
++	FSlateApplication::Get().ProcessKeyUpEvent(FKeyEvent(EKeys::Enter, FModifierKeysState(), 0, false, 0, 0));
++	TestEqual(TEXT("Native Enter focuses selected active record"), F.Character->QuestLog->FocusedQuestId, FName(TEXT("KeyboardActive")));
++	FFocusedServiceWindow::Key(EKeys::SpaceBar);
++	TestEqual(TEXT("Duplicate native focus is idempotent"), F.Character->QuestLog->FocusedQuestId, FName(TEXT("KeyboardActive")));
++	FFocusedServiceWindow::Key(EKeys::Down);
++	FFocusedServiceWindow::Key(EKeys::SpaceBar);
++	TestEqual(TEXT("Native Space can focus completed history"), F.Character->QuestLog->FocusedQuestId, FName(TEXT("KeyboardCompleted")));
++	FFocusedServiceWindow::Key(EKeys::Escape);
++	TestFalse(TEXT("Focused Ledger Escape closes"), F.Hud->IsQuestLedgerPanelVisible());
++	TestFalse(TEXT("Focused close restores input"), F.Controller->bShowMouseCursor);
++	FFocusedServiceWindow::Key(EKeys::Enter);
++	TestEqual(TEXT("Closed Ledger cannot focus stale row"), F.Character->QuestLog->FocusedQuestId, FName(TEXT("KeyboardCompleted")));
++	CheckKeyboardLedgerOwners(F, *this);
++	return !HasAnyErrors();
++}
++
+ #endif

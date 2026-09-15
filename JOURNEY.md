@@ -3365,6 +3365,28 @@ Unreal is left outside PIE on MCP 8123. Fresh compile and isolated package
 validation remain explicit blockers, not implied by the healthy running
 module. See `Docs/DAILY_BUILD_2026-09-15.md` for exact evidence and next steps.
 
+### September 15 Resume: Four Different Readiness Checks
+
+After the user accepted the license, Apple's Git worked again. A missing Metal
+component was downloaded with authorization; its stale xcrun lookup needed a
+cache refresh. Metal then worked, but fresh compilation found a different
+blocker: the newly installed Xcode 27 exceeded UE 5.8's declared SDK range.
+We requested Epic's recommended 26.1.1 for side-by-side use instead of editing
+engine limits. The setup checker now distinguishes this fourth readiness gate
+and supports a process-local Xcode override; all 21 setup tests pass.
+
+Unreal's existing module remained useful. With the GUI truly closed, 100
+isolated tests and all 23 fresh package validators passed. Reopening with MCP
+worked; all six live collision suites and a fresh two-quest/Ledger input smoke
+passed their stated checks. The focused Down defect remains reproducible.
+Its two drafted tests are preserved explicitly outside Source as uncompiled
+work, not labeled a repair or added to the accepted suite.
+
+The protected save and local material resave remain unchanged. Unreal is ready
+for MCP outside PIE, but new C++ work still needs compatible Xcode. That
+distinction is now in tomorrow's handoff rather than hidden behind a green
+runtime test report. No desktop control or security changes were involved.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
