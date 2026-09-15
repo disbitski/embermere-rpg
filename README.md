@@ -311,6 +311,16 @@ why human taste becomes more important as building gets easier.
 
 ## Status
 
+September 15 verified the correct project and ACTIVE 8 AM Eastern task, all
+100 tests in the running editor, six live trace suites, and a bounded Ledger
+PIE probe. **Fresh build readiness is blocked by an unaccepted Xcode license.**
+The setup checker now reports that cause accurately and fails instead of
+returning a false success; its 10 regression tests pass. The Ledger's focused
+Down gap is reproduced but not yet repaired. Unreal/MCP remains open outside
+PIE; no fresh compile or isolated package validation was performed today.
+See [today's report](Docs/DAILY_BUILD_2026-09-15.md). The saved journey remains
+untouched and desktop control stays disabled.
+
 September 14 fixed vendor/trainer arrow navigation and Escape when a native
 button has focus, while preserving that button's Enter/Space action. The build,
 100 tests, 23 fresh package validators, six live collision suites, and this

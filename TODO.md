@@ -6,6 +6,33 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 15 daily run is partially verified, with a new **Xcode license
+  blocker**. Read `Docs/DAILY_BUILD_2026-09-15.md` first. Apple Git/xcrun return
+  exit 69 and explicitly require user license review/acceptance. Do not accept
+  terms, install Metal, change security, or shut down the healthy editor just
+  to retry blindly. Independent Codex Git works. The setup checker now reports
+  the real cause and exits 1 instead of falsely returning success; three
+  before-fix regressions failed and all 10 final setup tests pass. Running
+  baseline `15325ab` passed all 100 MCP tests with zero test warnings and six
+  initialized-world trace suites. **No fresh compile, isolated test run, or
+  23-package aggregate was performed today.** No C++ or assets changed.
+  Clean PIE accepted Mara and Still Waters through original F owners, then
+  reproduced focused Ledger Down leaving selection at 1 while controller
+  Down selected Mara at 0 without changing the tracker. Native Focus Quest
+  Enter changed only tracker focus; native Close Enter closed correctly.
+  Both quests stayed active at zero, health/mana 100/50, XP 0, copper 40, bag
+  empty. J/M/I/I restored input; no Save/Load occurred. Do not claim a Ledger
+  repair or failing Up/Escape without tests. Protected save/keeper hashes and
+  unrelated Config/FieldNotes are unchanged. The ACTIVE 8 AM Eastern heartbeat
+  targets this exact folder. Unreal PID 78532 remains outside PIE on the
+  correct map, no dirty packages, real MCP 8123. Blender executable exists but
+  live bridge was not queried; desktop control remains disabled.
+  **Next:** user reviews/accepts Xcode license, then rerun setup and fresh
+  no-hot-reload build/isolated validations. Add a native Slate routed Ledger
+  regression before a scoped Up/Down/Escape repair, preserving selection vs
+  tracker focus, Enter/Space meaning, authority, and geometry. If the license
+  remains blocked, continue unaffected MCP checks without claiming fresh-build
+  readiness, changing the protected save, or repeating unbounded probes.
 - September 14 daily build: repaired the reproduced native-button focus gap.
   Read `Docs/DAILY_BUILD_2026-09-14.md` and
   `Docs/SERVICE_KEYBOARD_INPUT_CONTRACT.md`. Visible vendor/trainer HUD preview

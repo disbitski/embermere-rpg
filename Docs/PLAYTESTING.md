@@ -663,6 +663,25 @@ The full ownership and rollback contract is in
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
 
+### September 15 Setup And Ledger Follow-Up
+
+First run `zsh Scripts/check_unreal_setup.sh`. A license diagnostic needs the
+user's review/acceptance, not an automatic Metal download. The checker now
+returns nonzero for required failures. Its independent regressions run with
+`python3 -B Scripts/test_unreal_setup.py -v` using a working Python runtime.
+Do not equate passing running-editor tests with fresh compiler/package checks.
+
+In a clean world, original F can accept Mara and Still Waters independently.
+J opens two records. With the real Focus Quest button explicitly focused,
+Slate Down currently fails to change selection; controller Down changes the
+selected detail without changing tracked focus. Native Focus Quest Enter and
+Close Enter retain their distinct correct actions. Wallet, XP, inventory,
+progress, completion and rewards must not change. Keep the original save
+untouched. After the Xcode blocker is resolved, add a failing routed regression
+before any navigation fix; cover Up/Down wrapping, repeat suppression, Escape,
+native Enter/Space, selection/focus separation, and teardown. Today's probe
+does not certify physical input, HUD pixels, or organic Tab traversal.
+
 ### September 14 Focused Service Navigation
 
 Run the full 100-test suite, including `Embermere.UI.ServiceKeyboard.VendorFocus`

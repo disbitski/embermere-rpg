@@ -1,5 +1,23 @@
 # Embermere Quest Ledger Presentation Contract
 
+## Current Focus-Path Gate
+
+September 15 clean PIE reproduced a narrow unresolved gap: with two active
+records and native `QuestLedgerFocusButton` focus confirmed, Slate Down left
+selection at 1 immediately and after later frames. Controller-routed Down
+selected row 0 while leaving the compact tracker unchanged. Native Enter on
+Focus Quest then changed only tracker focus; Enter on Close closed normally.
+All quest/reward state stayed unchanged. This is qualified in-engine focus
+evidence, not physical input or pointer-delivery approval.
+
+No C++ repair is accepted yet: the current Xcode license gate prevented a
+fresh build. Once resolved, add a native Slate routed failing regression
+before considering a visible-Ledger Up/Down/Escape preview analogous to the
+accepted service preview. Preserve native Enter/Space, ignore repeat
+navigation, avoid double dispatch, and retain selection versus explicit
+focus. Up/Escape failure has not yet been reproduced. See
+[the daily report](DAILY_BUILD_2026-09-15.md).
+
 ## Purpose
 
 The quest ledger gives the accepted version-3 quest collection a deliberate

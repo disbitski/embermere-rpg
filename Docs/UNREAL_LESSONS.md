@@ -2,6 +2,28 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## A Running Editor Does Not Prove Toolchain Readiness
+
+September 15's healthy editor passed 100 tests while Apple's Git/xcrun refused
+to run because the Xcode license had not been accepted. The old setup checker
+discarded stderr, prescribed a Metal download, and returned zero. Preserve the
+actual diagnostic and exit nonzero for required failures. Do not diagnose an
+unaccepted license from exit 69 alone or a missing component from every failed
+compiler probe. The user must review terms; an agent must not accept them.
+
+The corrected read-only Metal probe distinguishes explicit license, explicit
+component, and unknown failures. Ten tests use fake xcrun with no installation
+or license acceptance. Independent Git can keep repository work available,
+but does not establish compiler readiness. Keep the healthy editor for MCP
+work when fresh build/relaunch is blocked, and label deferred isolated tests
+and package validation honestly instead of rerunning them inside the GUI.
+
+The same run reproduced Ledger Down failing on a focused native Focus Quest
+button, despite controller selection working. This extends the evidence for
+focus-path coverage, not yesterday's fix: only vendor/trainer preview routing
+has been repaired. Preserve native Enter on Focus Quest and Close, and add a
+failing routed regression before expanding the scoped HUD preview.
+
 ## Test The Focus Path, Not Just PlayerInput
 
 September 14 reproduced a service-navigation gap in clean PIE: a genuinely

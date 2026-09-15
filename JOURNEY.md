@@ -3344,6 +3344,27 @@ existing 8 AM Eastern task uses the correct project, and Unreal MCP is ready
 outside PIE. Physical clicking, camera feel and HUD approval remain separate
 user gates. See `Docs/DAILY_BUILD_2026-09-14.md` for evidence and next work.
 
+## September 15: A Healthy Editor Is Not A Ready Compiler
+
+The existing editor passed all 100 tests and six live collision suites, but
+Apple's toolchain now rejected commands until the user reviews its Xcode
+license. The old setup check hid that diagnostic, suggested installing Metal,
+and returned success. Three failing regressions exposed the false green;
+the corrected check and its focused Metal diagnostic pass 10 tests. No terms
+were accepted or components installed by the agent.
+
+Unaffected Unreal MCP work still mattered: a fresh Warrior accepted both
+quests, and focused Ledger Down failed while the controller fallback worked.
+Native Enter correctly focused a quest or closed the panel according to its
+button. Quest/reward state and the original save were untouched. The narrow
+reproduction is ready for a failing C++ regression once compilation is viable;
+no unbuildable production patch was claimed as a repair today.
+
+The 8 AM Eastern task still runs from this project, with desktop control off.
+Unreal is left outside PIE on MCP 8123. Fresh compile and isolated package
+validation remain explicit blockers, not implied by the healthy running
+module. See `Docs/DAILY_BUILD_2026-09-15.md` for exact evidence and next steps.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
