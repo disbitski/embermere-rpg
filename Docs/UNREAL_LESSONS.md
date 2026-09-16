@@ -26,6 +26,44 @@ checks passed, then Unreal reopened and passed six native collision suites.
 Label these as baseline runtime/package verification, never proof of newly
 drafted C++. Keep uncompiled proposals outside Source until they can be tested.
 
+September 16 repeated the actual UBT command after the user accepted the
+license. The first sandboxed attempt failed while rotating UBT's log, which was
+an execution-permission issue; the host-permitted rerun reached platform
+validation and reproduced the SDK 27.0 rejection. Always preserve the deepest
+real diagnostic. A license fix, a working Metal compiler, a green setup suite,
+and permission to write UBT logs are four different facts from an accepted Mac
+SDK and compiled game module.
+
+## Keep Fresh-Only Package Validators Fresh
+
+The saved-package aggregate can be invoked from a loaded editor, but that does
+not make every validator authoritative there. Embermere's skeletal-material
+validator intentionally rejects a rendering editor because loading assets can
+auto-repair usage flags in memory. A live aggregate also initially lacked
+`__file__` in the Output Log namespace. Giving the aggregate a stable script
+directory fallback made its launcher reusable; it did not justify weakening
+the fresh-only assertion.
+
+Close the real editor, confirm MCP 8123 is down, and run the aggregate once in
+a fresh NullRHI process. Require every explicit marker, the final validator
+count, and no `LogPython: Error`. Use the initialized editor only for checks
+that need a live world, such as native collision traces. Reusability of a test
+harness is not permission to change the environment that gives the test its
+meaning.
+
+## A Village Prop Needs Both Solid And Empty-Space Contracts
+
+The Fenwatch handcart has four authored collision boxes because players should
+meet its load bed, axle/wheel zone, and two grounded rests. Its handles, grips,
+cargo, spokes, rims, and crest deliberately have no collision. Testing only the
+four positive hits would still allow invisible decoration to block a route;
+testing only route clearance would allow the cart itself to become ghost art.
+
+Pair focused positive and negative traces with protected circulation lines.
+For the cart, that means PlayerStart-to-Mara, the west-cottage bypass, and the
+village-to-road route. The combination lets the prop make the cottage edge feel
+inhabited without silently turning composition into a navigation regression.
+
 ## A Running Editor Does Not Prove Toolchain Readiness
 
 September 15's healthy editor passed 100 tests while Apple's Git/xcrun refused

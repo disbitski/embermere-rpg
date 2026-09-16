@@ -6,20 +6,34 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
-- September 16 checkpoint: the Xcode 27.0 compatibility blocker is unchanged;
-  no side-by-side Xcode or archive was found in the checked application,
-  Downloads, or Shared locations. Metal works and all 21 setup tests pass;
-  setup correctly rejects the SDK range. Read `Docs/DAILY_BUILD_2026-09-16.md`.
-  The unchanged editor on MCP 8123 rediscovered and passed all 100 tests with
-  zero test warnings, then passed all six initialized-world trace suites.
-  No restart, fresh build, isolated package run, new PIE session, or new C++
-  acceptance is claimed today. September 15 remains the last isolated
-  23-package and fresh PIE evidence. The Ledger draft remains unapplied and
-  uncompiled; its apply check still passes. Both protected hashes are intact.
-  Unreal stays outside PIE on the correct map with zero dirty packages.
-  **Next:** the compatible-Xcode and Ledger regression sequence below is
-  unchanged. Keep the known blocker quiet until availability changes; do not
-  retry a known-invalid compiler or manufacture daily implementation progress.
+- September 16 resumed daily build: added the original project-owned Fenwatch
+  provision handcart beside the west cottage. Read
+  `Docs/DAILY_BUILD_2026-09-16.md`. The deterministic Blender/classic-FBX lane
+  produced `SM_EmbermereFenwatchHandcart_01` at
+  `(-3040, -920, 0)`, yaw `38`: `430.578 x 178 x 194.5` cm, 5,436 triangles,
+  five shared Fenwatch materials, one UV channel, zero non-manifold edges, and
+  four authored bed/axle/rest UBX boxes. Handles, grips, supplies, wheel detail,
+  and crest remain decorative. Focused package and initialized-world trace
+  validation protect the solid loading surfaces plus clear PlayerStart-to-Mara,
+  west-cottage-bypass, and village-to-road routes. The accepted map baseline is
+  now **53 grounded Fab actors plus 25 original-art placements**.
+  The real editor was closed cleanly before commandlets. All **100/100 isolated
+  tests** passed with zero test warnings; all **24 fresh package validators**
+  emitted their aggregate marker with no `LogPython: Error`; the restarted
+  editor rediscovered all 100 tests and passed the handcart plus six retained
+  live trace suites and full-zone validation. The map and mesh are saved and
+  Unreal is outside PIE on the correct map with MCP 8123. Blender MCP is healthy.
+  The requested no-hot-reload UBT command was genuinely rerun after license
+  acceptance and still exits 6 before C++ because installed Xcode/SDK 27.0 is
+  above UE 5.8's declared 26.9 maximum. License and Metal are no longer the
+  blockers; do not weaken engine SDK limits or call runtime validation a build.
+  The Ledger draft remains unapplied/uncompiled. Protected save and keeper
+  hashes remain intact; Config, keeper, and FieldNotes changes stay excluded.
+  **Next:** install/select a compatible side-by-side Xcode (Epic prefers
+  26.1.1) through process-local `DEVELOPER_DIR`, prove UBT, then review and run
+  the pending Ledger focus regressions before any C++ repair. If the compiler
+  stays blocked, continue one bounded MCP/art or gameplay milestone without
+  replaying the same known-invalid build probe.
 - September 15 resumed after the user accepted the license. Read the **Resume**
   section of `Docs/DAILY_BUILD_2026-09-15.md`. Apple Git works; the authorized
   MetalToolchain download and xcrun cache refresh restored Metal. **Fresh C++

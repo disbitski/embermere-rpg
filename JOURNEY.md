@@ -3387,6 +3387,38 @@ for MCP outside PIE, but new C++ work still needs compatible Xcode. That
 distinction is now in tomorrow's handoff rather than hidden behind a green
 runtime test report. No desktop control or security changes were involved.
 
+## September 16: A Compiler Blocker Did Not Have To Block The Village
+
+Accepting the Xcode license removed one gate, not every gate. We ran the real
+no-hot-reload UnrealBuildTool command and found the next exact boundary: the
+installed Xcode exposes SDK 27.0, while UE 5.8 declares support only through
+26.9 and prefers 26.1.1. UBT stopped before C++ compilation. That evidence is
+more useful than either assuming the license fixed everything or presenting a
+healthy old module as a fresh build.
+
+The unaffected original-art lane still had room to move. A factory-clean
+Blender MCP build produced Embermere's first provision handcart: a chunky
+timber load bed, iron-spoked wheels, cargo, grounded rests, and a small ember
+crest using the existing Fenwatch materials. Classic FBX import placed it beside
+the west cottage at `(-3040, -920, 0)`, yaw `38`, without adding gameplay
+authority or narrowing the village routes.
+
+The accepted asset is `430.578 x 178 x 194.5` cm, 5,436 triangles, one UV
+channel, zero non-manifold edges, five shared materials, and four purposeful
+bed/axle/rest collision boxes. Handles, grips, supplies, wheel detail, and the
+crest remain decorative. Saved-package and initialized-world checks lock those
+choices plus the PlayerStart-to-Mara, cottage bypass, and village-road routes.
+The world baseline is now 53 grounded Fab actors plus 25 original-art
+placements.
+
+Then the editor was genuinely closed before verification. All 100 isolated
+tests and all 24 fresh package validators passed; the relaunched editor
+rediscovered 100 tests and passed seven live trace suites plus full-zone
+validation. No save/load action or desktop control was involved. The result is
+an honest mixed outcome: one new piece of the village is shipped and fully
+validated, while new C++ remains blocked until a compatible Xcode is selected.
+Read `Docs/DAILY_BUILD_2026-09-16.md` for the exact evidence.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

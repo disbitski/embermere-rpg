@@ -155,11 +155,12 @@ The repo currently contains the C++ gameplay scaffold for:
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved
   instances, and asset-agnostic runtime presentation
-- a corrected 53-actor local Fab/Epic art pass plus 24 placements from
+- a corrected 53-actor local Fab/Epic art pass plus 25 placements from
   Embermere's original Blender-built waystone, ember-lamp, road-signpost,
   road-gate, boundary-fence, rune-topped boundary-stone, supply-chest, and
   Fenwatch shelter, vendor stall, first closed cottage, open-front training
-  workshop, roadside notice board, and south-commons communal well; Mara's
+  workshop, roadside notice board, west-cottage provision handcart, and
+  south-commons communal well; Mara's
   rigged Fenwatch keeper; the
   rigged Fenwatch quartermaster and armsmaster; a practice dummy; and four
   visual-only marsh-reed clusters over the starter village, road, wilderness
@@ -311,16 +312,22 @@ why human taste becomes more important as building gets easier.
 
 ## Status
 
-September 15 resumed after user license acceptance. Metal now works, but
-**Xcode 27.0 is outside UE 5.8's supported SDK range**, so fresh C++ compilation
-is blocked pending side-by-side Xcode 26.1.1. Setup detects this and supports
-DEVELOPER_DIR; 21 regression tests pass. The existing compiled module passed
-100/100 isolated tests, all 23 fresh package validators, six live trace suites,
-and a fresh PIE quest/Ledger smoke after reopening. Focused Ledger Down remains
-unfixed; drafted tests are explicitly pending and uncompiled. Unreal/MCP is
-open outside PIE, the ACTIVE 8 AM Eastern task uses this project, the saved
-journey is untouched, and desktop control stays disabled. See
-[today's report](Docs/DAILY_BUILD_2026-09-15.md) for the remaining compiler gate.
+September 16 added the original project-owned Fenwatch provision handcart beside
+the west cottage through the deterministic Blender/classic-FBX lane. The map is
+now 53 grounded Fab actors plus 25 original-art placements. All 100 isolated
+tests, all 24 fresh package validators, seven initialized-world trace suites,
+fresh 100-test discovery, and full-zone validation passed. The handcart's exact
+geometry, materials, four purposeful colliders, art-only ownership, placement,
+and protected routes are now regression-checked. Unreal and Blender MCP are
+healthy, the saved journey is untouched, and desktop control remains disabled.
+
+The requested no-hot-reload build was genuinely rerun after license acceptance.
+Metal works, but **Xcode/SDK 27.0 is outside UE 5.8's supported 15.2-26.9
+range**, so UBT still exits before C++ compilation pending a compatible
+side-by-side Xcode; Epic's preferred version is 26.1.1. Runtime/package success
+is not mislabeled as a new C++ build. See
+[today's report](Docs/DAILY_BUILD_2026-09-16.md) for exact evidence and the next
+compiler/test-first handoff.
 
 September 14 fixed vendor/trainer arrow navigation and Escape when a native
 button has focus, while preserving that button's Enter/Space action. The build,
@@ -344,7 +351,8 @@ combines race/class stat growth, restores silently and idempotently, and exposes
 the result read-only through status and Chronicle,
 a daylight starter-zone loop mixing a local Fab pass with an original Embermere
 waystone/lamp/signpost/gate/fence/end-stone/chest/shelter/keeper/
-quartermaster/armsmaster/vendor-stall/cottage/workshop/notice-board/communal-well/reed family,
+quartermaster/armsmaster/vendor-stall/cottage/workshop/notice-board/handcart/
+communal-well/reed family,
 the first original rigged and animated Marsh
 Prowler, grounded moss/earth road presentation,
 collision-cleared solo-pull tab-target combat, a fully illustrated data-driven

@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 53
-EXPECTED_ORIGINAL_ART_COUNT = 24
+EXPECTED_ORIGINAL_ART_COUNT = 25
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -167,6 +167,14 @@ ORIGINAL_COMMUNAL_WELL_PATH = (
 )
 ORIGINAL_COMMUNAL_WELL_LOCATION = (-950.0, -1600.0, 0.0)
 ORIGINAL_COMMUNAL_WELL_YAW = -135.0
+ORIGINAL_HANDCART_LABEL = "Embermere_FenwatchHandcart_CottageWest_01"
+ORIGINAL_HANDCART_PATH = (
+    "/Game/Art/Embermere/Environment/PrototypeVillage/"
+    "SM_EmbermereFenwatchHandcart_01."
+    "SM_EmbermereFenwatchHandcart_01"
+)
+ORIGINAL_HANDCART_LOCATION = (-3040.0, -920.0, 0.0)
+ORIGINAL_HANDCART_YAW = 38.0
 FENWATCH_REST_SERVICE_LABEL = (
     "Embermere_FenwatchCommunalWell_RestService_01"
 )
@@ -309,6 +317,7 @@ REQUIRED_LABELS = {
     ORIGINAL_TRAINING_WORKSHOP_LABEL,
     ORIGINAL_NOTICE_BOARD_LABEL,
     ORIGINAL_COMMUNAL_WELL_LABEL,
+    ORIGINAL_HANDCART_LABEL,
     FENWATCH_REST_SERVICE_LABEL,
     FENWATCH_REST_PRESENTATION_LABEL,
     FENWATCH_STILL_WATERS_SERVICE_LABEL,
@@ -2238,6 +2247,143 @@ def main():
             notice_board_armsmaster_distance,
         ))
 
+    handcart_mesh = unreal.EditorAssetLibrary.load_asset(ORIGINAL_HANDCART_PATH)
+    if not handcart_mesh or not isinstance(handcart_mesh, unreal.StaticMesh):
+        fail("missing original Fenwatch handcart {}".format(
+            ORIGINAL_HANDCART_PATH,
+        ))
+    handcart_import_data = handcart_mesh.get_editor_property("asset_import_data")
+    handcart_import_class = (
+        handcart_import_data.get_class().get_name()
+        if handcart_import_data
+        else "None"
+    )
+    if handcart_import_class != "FbxStaticMeshImportData":
+        fail("Fenwatch handcart must retain classic FBX import data, found {}".format(
+            handcart_import_class,
+        ))
+    handcart_body_setup = handcart_mesh.get_editor_property("body_setup")
+    handcart_aggregate = (
+        handcart_body_setup.get_editor_property("agg_geom")
+        if handcart_body_setup
+        else None
+    )
+    handcart_collision_count = sum(
+        len(handcart_aggregate.get_editor_property(property_name))
+        for property_name in ("box_elems", "sphere_elems", "sphyl_elems", "convex_elems")
+    ) if handcart_aggregate else 0
+    handcart_box_count = (
+        len(handcart_aggregate.get_editor_property("box_elems"))
+        if handcart_aggregate
+        else 0
+    )
+    if handcart_collision_count != 4 or handcart_box_count != 4:
+        fail("Fenwatch handcart must retain exactly four authored box colliders, found {} total / {} boxes".format(
+            handcart_collision_count,
+            handcart_box_count,
+        ))
+    handcart_bounds = handcart_mesh.get_bounds()
+    if not all((
+        nearly_equal(handcart_bounds.box_extent.x, 215.289, 1.0),
+        nearly_equal(handcart_bounds.box_extent.y, 89.0, 1.0),
+        nearly_equal(handcart_bounds.origin.z, 97.25, 1.0),
+        nearly_equal(handcart_bounds.box_extent.z, 97.25, 1.0),
+    )):
+        fail("Fenwatch handcart bounds drifted: origin={}, extent={}".format(
+            handcart_bounds.origin,
+            handcart_bounds.box_extent,
+        ))
+    if handcart_mesh.get_num_triangles(0) != 5436:
+        fail("Fenwatch handcart triangle count drifted: {}".format(
+            handcart_mesh.get_num_triangles(0),
+        ))
+    handcart_material_paths = set()
+    for static_material in list(handcart_mesh.get_editor_property("static_materials")):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            handcart_material_paths.add(material.get_path_name())
+    if handcart_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("Fenwatch handcart material set drifted: {}".format(
+            sorted(handcart_material_paths),
+        ))
+
+    handcart = actors_by_label[ORIGINAL_HANDCART_LABEL]
+    if handcart.get_class().get_name() != "StaticMeshActor":
+        fail("{} must remain presentation-only StaticMeshActor art".format(
+            ORIGINAL_HANDCART_LABEL,
+        ))
+    handcart_component = handcart.get_component_by_class(unreal.StaticMeshComponent)
+    placed_handcart_mesh = (
+        handcart_component.get_editor_property("static_mesh")
+        if handcart_component
+        else None
+    )
+    placed_handcart_path = (
+        placed_handcart_mesh.get_path_name()
+        if placed_handcart_mesh
+        else "None"
+    )
+    if placed_handcart_path != ORIGINAL_HANDCART_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_HANDCART_LABEL,
+            ORIGINAL_HANDCART_PATH,
+            placed_handcart_path,
+        ))
+    handcart_location = handcart.get_actor_location()
+    handcart_rotation = handcart.get_actor_rotation()
+    handcart_scale = handcart.get_actor_scale3d()
+    if not all((
+        nearly_equal(handcart_location.x, ORIGINAL_HANDCART_LOCATION[0], 1.0),
+        nearly_equal(handcart_location.y, ORIGINAL_HANDCART_LOCATION[1], 1.0),
+        nearly_equal(handcart_location.z, ORIGINAL_HANDCART_LOCATION[2], 1.0),
+        nearly_equal(handcart_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(handcart_rotation.yaw, ORIGINAL_HANDCART_YAW, 0.1),
+        nearly_equal(handcart_rotation.roll, 0.0, 0.1),
+        nearly_equal(handcart_scale.x, 1.0, 0.001),
+        nearly_equal(handcart_scale.y, 1.0, 0.001),
+        nearly_equal(handcart_scale.z, 1.0, 0.001),
+    )):
+        fail("{} transform drifted: location={}, rotation={}, scale={}".format(
+            ORIGINAL_HANDCART_LABEL,
+            handcart_location,
+            handcart_rotation,
+            handcart_scale,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(handcart.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_HANDCART_LABEL,
+        ))
+    if str(handcart_component.get_collision_profile_name()) != "BlockAll":
+        fail("{} collision profile drifted: {}".format(
+            ORIGINAL_HANDCART_LABEL,
+            handcart_component.get_collision_profile_name(),
+        ))
+    handcart_spacing_contract = {
+        ORIGINAL_FENWATCH_COTTAGE_LABEL: 800.0,
+        FENWATCH_KEEPER_LABEL: 950.0,
+        "PlayerStart_Embermere_Village": 650.0,
+    }
+    for context_label, minimum_distance in handcart_spacing_contract.items():
+        context_location = actors_by_label[context_label].get_actor_location()
+        actual_distance = math.hypot(
+            handcart_location.x - context_location.x,
+            handcart_location.y - context_location.y,
+        )
+        if actual_distance < minimum_distance:
+            fail("Fenwatch handcart moved too close to {}: {:.1f} cm".format(
+                context_label,
+                actual_distance,
+            ))
+    handcart_route_clearance = distance_to_segment_2d(
+        (handcart_location.x, handcart_location.y),
+        SPAWN_AUTORUN_ROUTE_START,
+        SPAWN_AUTORUN_ROUTE_END,
+    )
+    if handcart_route_clearance < 650.0:
+        fail("Fenwatch handcart encroaches on the spawn autorun route: {:.1f} cm".format(
+            handcart_route_clearance,
+        ))
+
     communal_well_mesh = unreal.EditorAssetLibrary.load_asset(
         ORIGINAL_COMMUNAL_WELL_PATH
     )
@@ -2905,7 +3051,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision Fenwatch cottage, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision Fenwatch cottage, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

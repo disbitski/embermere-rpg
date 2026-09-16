@@ -19,7 +19,8 @@ recorded in the asset's brief.
 
 The current original roadside family includes the waystone, two placed ember
 lamps, timber road signpost, traversable gate, two low fences, and two
-rune-topped end stones. The village lane now also includes one placed supply
-chest and the open-sided Fenwatch shelter behind Mara. See
+rune-topped end stones. The village lane also includes the supply chest,
+open-sided Fenwatch shelter, service architecture, cottage, civic props, and
+the west-cottage provision handcart. See
 `Docs/BLENDER_ASSET_PIPELINE.md` for setup, security settings, naming, import
 provenance, and validation.

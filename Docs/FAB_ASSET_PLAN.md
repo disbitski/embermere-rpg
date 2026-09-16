@@ -23,15 +23,17 @@ Embermere does not have final high-fantasy art assets installed yet. The current
   project-owned notice board now adds a civic roadside silhouette without
   acquiring quest or interaction authority. A project-owned communal well now
   anchors the southern commons with purposeful curb/support collision while
-  remaining presentation-only. A separate colocated art-free rest service now
-  owns one explicit stay-still Health/Mana recovery action without putting
+  remaining presentation-only. A project-owned provision handcart now gives the
+  west cottage a lived-in supply silhouette while preserving the protected
+  routes and remaining presentation-only. A separate colocated art-free rest
+  service now owns one explicit stay-still Health/Mana recovery action without putting
   interaction, timing, cooldown, combat checks, or mutation on the mesh. A
   third colocated presentation actor observes resolved rest outcomes and owns
   only transient non-colliding channel/completion geometry; it is gameplay
   presentation, not an original-art placement. A separate colocated native
   practice-target actor supplies repeatable combat without moving
   targeting, damage, reset, or reward policy into the dummy mesh. Service and
-  gameplay actors do not change the 24-piece art baseline.
+  gameplay actors do not change the 25-piece art baseline.
   We still do
   not have a cohesive production-ready fantasy building kit, player/race art,
   weapons, audio, or final UI skinning.
@@ -67,14 +69,15 @@ First local placement pass:
   `FabPass_Village_Fence_02`; the workshop pass replaces
   `FabPass_Village_Fence_03`, leaving 53 tagged `EmbermereFabPass` actors in
   `04_Fab_Zone_Pass` outliner folders. A separate project-owned layer contains
-  seventeen solid waystone/lamp/signpost/gate/fence/boundary-stone/supply-chest/
-  shelter/vendor-stall/practice-dummy/cottage/workshop/notice-board/communal-well placements, Mara's non-colliding
+  eighteen solid waystone/lamp/signpost/gate/fence/boundary-stone/supply-chest/
+  shelter/vendor-stall/practice-dummy/cottage/workshop/notice-board/handcart/
+  communal-well placements, Mara's non-colliding
   Fenwatch keeper, the non-colliding Fenwatch quartermaster and armsmaster,
-  plus four visual-only marsh-reed clusters, for 24 original-art placements.
+  plus four visual-only marsh-reed clusters, for 25 original-art placements.
 - The script keeps Mara, PlayerStart, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring intact. Starter-enemy home points are deliberately authored in the setup script so collision-safe encounter tuning is reproducible.
 - The Unreal Python helper assigns rotation fields by name. Do not use positional `unreal.Rotator(...)` arguments here; the first pass mapped intended yaw into pitch and tilted the environment.
 - Validation rejects any `FabPass_` actor with meaningful pitch or roll and
-  requires all 24 original placements, their exact meshes/tags/transforms, the
+  requires all 25 original placements, their exact meshes/tags/transforms, the
   expected solid-prop colliders, and explicit `NoCollision` on the four reeds.
   It also verifies the keeper's exact static mesh, local offset/facing, unit
   scale, and `NoCollision` state on both the saved Blueprint SCS template and
@@ -98,8 +101,8 @@ First local placement pass:
   locks the colocated native gameplay actor, `150` health, three-second reset,
   zero gravity, `MOVE_None`, no art/collision/AI/loot/defeat credit, 48 target-
   ring segments, and separation from both the visible dummy and trainer
-  service. Because that actor is gameplay rather than art, the accepted map
-  remains at 53 Fab actors plus 24 original-art placements.
+  service. Because that actor is gameplay rather than art, it does not change
+  the accepted original-art count.
   `Scripts/validate_fenwatch_vendor_stall_unreal.py` locks the project-owned
   stall's dimensions, topology, five shared materials, five authored support/
   counter collision boxes, exact transform and tag, and replacement of the
@@ -136,6 +139,12 @@ First local placement pass:
   initialized-world trace validator proves all four curb sections and both
   uprights solid, decorative and open-shaft geometry clear, and six village or
   service circulation paths unobstructed.
+  `Scripts/validate_fenwatch_handcart_unreal.py` locks the cottage-side cart's
+  `430.578 x 178 x 194.5` cm bounds, 5,436 triangles, five shared materials,
+  four authored bed/axle/rest boxes, exact transform, project-owned tag, and
+  presentation-only ownership. Its initialized-world trace validator proves
+  those purposeful surfaces solid, decoration clear, and the
+  PlayerStart-to-Mara, west-cottage-bypass, and village-to-road routes open.
   The full-zone validator also locks the two foliage transforms that reveal the accepted south-fence
   silhouette and rejects restoration of the replaced crate and unsupported
   accents. `Scripts/validate_road_boundary_traces_unreal.py` separately proves

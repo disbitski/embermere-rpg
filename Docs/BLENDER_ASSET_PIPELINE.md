@@ -1171,6 +1171,44 @@ Lesson: choose civic architecture from measured world space, not an apparently
 empty screenshot. Lock the neighbors and routes first, then let the asset earn
 its place through both positive collision and negative traversal evidence.
 
+## Fenwatch Provision Handcart
+
+`SM_EmbermereFenwatchHandcart_01` adds a small lived-in supply silhouette beside
+the west cottage without turning scenery into inventory, vendor, or quest
+authority. The chunky timber loading bed, iron-spoked wheels, two cargo crates,
+moss-green sack, grounded stone rests, and rear ember crest reuse the established
+Fenwatch language at a scale that reads from the normal village route.
+
+The reviewed deterministic source is
+`Scripts/blender/build_embermere_fenwatch_handcart.py`; editable source, FBX,
+preview, and metrics live under
+`ArtSource/Blender/Environment/FenwatchHandcart`. A factory-clean Blender MCP
+process produced the accepted contract:
+
+- grounded `430.578 x 178 x 194.5` cm bounds with applied unit scale;
+- 5,436 triangles, one UV channel, and zero non-manifold edges;
+- five shared Fenwatch timber, iron, stone, moss, and ember materials;
+- four UBX boxes for the loading bed, axle/wheel zone, and two grounded rests;
+- visual-only handles, grips, cargo, wheel spokes/rims, and ember crest.
+
+`Scripts/import_embermere_fenwatch_handcart_unreal.py` uses classic
+`FbxFactory`, rejects collider/material drift, explicitly saves the mesh and
+level, and places `Embermere_FenwatchHandcart_CottageWest_01` at
+`(-3040, -920, 0)`, yaw `38`. The actor is tagged project-owned art and owns no
+quest, interaction, service, reward, vendor, trainer, or persistence behavior.
+
+The focused saved-package validator locks import provenance, geometry,
+materials, colliders, tag, transform, spacing, and ownership. Initialized-world
+traces prove each purposeful surface solid while keeping decoration clear and
+protecting PlayerStart-to-Mara, the west-cottage bypass, and the
+village-to-road route. Clean viewport inspection accepted its grounded cottage-
+edge composition. The map now contains 53 Fab actors and 25 original-art
+placements.
+
+Lesson: a cart is mostly empty space. Author collision for the mass a player
+expects to meet, then prove the handles, cargo detail, wheels, and neighboring
+routes did not acquire invisible volume during import.
+
 ## Fenwatch Journal UI Emblem
 
 The September 4 Astra evaluation exercised a small UI-art lane, not another
