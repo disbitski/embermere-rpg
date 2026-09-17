@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 53
-EXPECTED_ORIGINAL_ART_COUNT = 25
+EXPECTED_ORIGINAL_ART_COUNT = 26
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -175,6 +175,16 @@ ORIGINAL_HANDCART_PATH = (
 )
 ORIGINAL_HANDCART_LOCATION = (-3040.0, -920.0, 0.0)
 ORIGINAL_HANDCART_YAW = 38.0
+ORIGINAL_FIREWOOD_RACK_LABEL = (
+    "Embermere_FenwatchFirewoodRack_CottageWest_01"
+)
+ORIGINAL_FIREWOOD_RACK_PATH = (
+    "/Game/Art/Embermere/Environment/PrototypeVillage/"
+    "SM_EmbermereFenwatchFirewoodRack_01."
+    "SM_EmbermereFenwatchFirewoodRack_01"
+)
+ORIGINAL_FIREWOOD_RACK_LOCATION = (-3050.0, -120.0, 0.0)
+ORIGINAL_FIREWOOD_RACK_YAW = 38.0
 FENWATCH_REST_SERVICE_LABEL = (
     "Embermere_FenwatchCommunalWell_RestService_01"
 )
@@ -318,6 +328,7 @@ REQUIRED_LABELS = {
     ORIGINAL_NOTICE_BOARD_LABEL,
     ORIGINAL_COMMUNAL_WELL_LABEL,
     ORIGINAL_HANDCART_LABEL,
+    ORIGINAL_FIREWOOD_RACK_LABEL,
     FENWATCH_REST_SERVICE_LABEL,
     FENWATCH_REST_PRESENTATION_LABEL,
     FENWATCH_STILL_WATERS_SERVICE_LABEL,
@@ -2384,6 +2395,185 @@ def main():
             handcart_route_clearance,
         ))
 
+    firewood_rack_mesh = unreal.EditorAssetLibrary.load_asset(
+        ORIGINAL_FIREWOOD_RACK_PATH
+    )
+    if not firewood_rack_mesh or not isinstance(
+        firewood_rack_mesh,
+        unreal.StaticMesh,
+    ):
+        fail("missing original Fenwatch firewood rack {}".format(
+            ORIGINAL_FIREWOOD_RACK_PATH,
+        ))
+    firewood_rack_import_data = firewood_rack_mesh.get_editor_property(
+        "asset_import_data"
+    )
+    firewood_rack_import_class = (
+        firewood_rack_import_data.get_class().get_name()
+        if firewood_rack_import_data
+        else "None"
+    )
+    if firewood_rack_import_class != "FbxStaticMeshImportData":
+        fail(
+            "Fenwatch firewood rack must retain classic FBX import data, "
+            "found {}".format(firewood_rack_import_class)
+        )
+    firewood_rack_body_setup = firewood_rack_mesh.get_editor_property(
+        "body_setup"
+    )
+    firewood_rack_aggregate = (
+        firewood_rack_body_setup.get_editor_property("agg_geom")
+        if firewood_rack_body_setup
+        else None
+    )
+    firewood_rack_collision_count = sum(
+        len(firewood_rack_aggregate.get_editor_property(property_name))
+        for property_name in (
+            "box_elems",
+            "sphere_elems",
+            "sphyl_elems",
+            "convex_elems",
+        )
+    ) if firewood_rack_aggregate else 0
+    firewood_rack_box_count = (
+        len(firewood_rack_aggregate.get_editor_property("box_elems"))
+        if firewood_rack_aggregate
+        else 0
+    )
+    if firewood_rack_collision_count != 4 or firewood_rack_box_count != 4:
+        fail(
+            "Fenwatch firewood rack must retain exactly four authored box "
+            "colliders, found {} total / {} boxes".format(
+                firewood_rack_collision_count,
+                firewood_rack_box_count,
+            )
+        )
+    firewood_rack_bounds = firewood_rack_mesh.get_bounds()
+    if not all((
+        nearly_equal(firewood_rack_bounds.box_extent.x, 196.4685, 1.0),
+        nearly_equal(firewood_rack_bounds.box_extent.y, 78.8965, 1.0),
+        nearly_equal(firewood_rack_bounds.origin.z, 119.0, 1.0),
+        nearly_equal(firewood_rack_bounds.box_extent.z, 119.0, 1.0),
+    )):
+        fail("Fenwatch firewood-rack bounds drifted: origin={}, extent={}".format(
+            firewood_rack_bounds.origin,
+            firewood_rack_bounds.box_extent,
+        ))
+    if firewood_rack_mesh.get_num_triangles(0) != 3644:
+        fail("Fenwatch firewood-rack triangle count drifted: {}".format(
+            firewood_rack_mesh.get_num_triangles(0),
+        ))
+    firewood_rack_material_paths = set()
+    for static_material in list(
+        firewood_rack_mesh.get_editor_property("static_materials")
+    ):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            firewood_rack_material_paths.add(material.get_path_name())
+    if firewood_rack_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("Fenwatch firewood-rack material set drifted: {}".format(
+            sorted(firewood_rack_material_paths),
+        ))
+
+    firewood_rack = actors_by_label[ORIGINAL_FIREWOOD_RACK_LABEL]
+    if firewood_rack.get_class().get_name() != "StaticMeshActor":
+        fail("{} must remain presentation-only StaticMeshActor art".format(
+            ORIGINAL_FIREWOOD_RACK_LABEL,
+        ))
+    firewood_rack_component = firewood_rack.get_component_by_class(
+        unreal.StaticMeshComponent
+    )
+    placed_firewood_rack_mesh = (
+        firewood_rack_component.get_editor_property("static_mesh")
+        if firewood_rack_component
+        else None
+    )
+    placed_firewood_rack_path = (
+        placed_firewood_rack_mesh.get_path_name()
+        if placed_firewood_rack_mesh
+        else "None"
+    )
+    if placed_firewood_rack_path != ORIGINAL_FIREWOOD_RACK_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_FIREWOOD_RACK_LABEL,
+            ORIGINAL_FIREWOOD_RACK_PATH,
+            placed_firewood_rack_path,
+        ))
+    firewood_rack_location = firewood_rack.get_actor_location()
+    firewood_rack_rotation = firewood_rack.get_actor_rotation()
+    firewood_rack_scale = firewood_rack.get_actor_scale3d()
+    if not all((
+        nearly_equal(
+            firewood_rack_location.x,
+            ORIGINAL_FIREWOOD_RACK_LOCATION[0],
+            1.0,
+        ),
+        nearly_equal(
+            firewood_rack_location.y,
+            ORIGINAL_FIREWOOD_RACK_LOCATION[1],
+            1.0,
+        ),
+        nearly_equal(
+            firewood_rack_location.z,
+            ORIGINAL_FIREWOOD_RACK_LOCATION[2],
+            1.0,
+        ),
+        nearly_equal(firewood_rack_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(
+            firewood_rack_rotation.yaw,
+            ORIGINAL_FIREWOOD_RACK_YAW,
+            0.1,
+        ),
+        nearly_equal(firewood_rack_rotation.roll, 0.0, 0.1),
+        nearly_equal(firewood_rack_scale.x, 1.0, 0.001),
+        nearly_equal(firewood_rack_scale.y, 1.0, 0.001),
+        nearly_equal(firewood_rack_scale.z, 1.0, 0.001),
+    )):
+        fail("{} transform drifted: location={}, rotation={}, scale={}".format(
+            ORIGINAL_FIREWOOD_RACK_LABEL,
+            firewood_rack_location,
+            firewood_rack_rotation,
+            firewood_rack_scale,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(firewood_rack.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_FIREWOOD_RACK_LABEL,
+        ))
+    if str(firewood_rack_component.get_collision_profile_name()) != "BlockAll":
+        fail("{} collision profile drifted: {}".format(
+            ORIGINAL_FIREWOOD_RACK_LABEL,
+            firewood_rack_component.get_collision_profile_name(),
+        ))
+    firewood_rack_spacing_contract = {
+        ORIGINAL_FENWATCH_COTTAGE_LABEL: 560.0,
+        ORIGINAL_HANDCART_LABEL: 750.0,
+        FENWATCH_KEEPER_LABEL: 1100.0,
+        "PlayerStart_Embermere_Village": 1000.0,
+    }
+    for context_label, minimum_distance in (
+        firewood_rack_spacing_contract.items()
+    ):
+        context_location = actors_by_label[context_label].get_actor_location()
+        actual_distance = math.hypot(
+            firewood_rack_location.x - context_location.x,
+            firewood_rack_location.y - context_location.y,
+        )
+        if actual_distance < minimum_distance:
+            fail("Fenwatch firewood rack moved too close to {}: {:.1f} cm".format(
+                context_label,
+                actual_distance,
+            ))
+    firewood_rack_route_clearance = distance_to_segment_2d(
+        (firewood_rack_location.x, firewood_rack_location.y),
+        SPAWN_AUTORUN_ROUTE_START,
+        SPAWN_AUTORUN_ROUTE_END,
+    )
+    if firewood_rack_route_clearance < 850.0:
+        fail(
+            "Fenwatch firewood rack encroaches on the spawn autorun route: "
+            "{:.1f} cm".format(firewood_rack_route_clearance)
+        )
+
     communal_well_mesh = unreal.EditorAssetLibrary.load_asset(
         ORIGINAL_COMMUNAL_WELL_PATH
     )
@@ -3051,7 +3241,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision Fenwatch cottage, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision Fenwatch cottage, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the cottage-side Fenwatch firewood rack with purposeful stack/support/block collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

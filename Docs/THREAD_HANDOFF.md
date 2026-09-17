@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-16
+Last updated: 2026-09-17
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -40,23 +40,24 @@ this snapshot. A new task should read files in this order:
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
 
-## Current September 16 Handoff
+## Current September 17 Handoff
 
-The latest intentional world milestone is the project-owned Fenwatch provision
-handcart beside the west cottage. Its deterministic Blender source, FBX,
-preview, metrics, Unreal mesh, placement, focused package validator, and native
-trace validator are tracked. The saved transform is `(-3040, -920, 0)`, yaw
-`38`; accepted bounds are `430.578 x 178 x 194.5` cm with 5,436 triangles,
-five shared materials, one UV channel, zero non-manifold edges, and four
-purposeful bed/axle/rest boxes. It is presentation-only. The map baseline is
-now **53 grounded Fab actors plus 25 original-art placements**.
+The latest intentional world milestone is the project-owned Fenwatch firewood
+rack beside the west cottage. Its deterministic Blender source, FBX, preview,
+metrics, Unreal mesh, placement, focused package validator, and native trace
+validator are tracked. The saved transform is `(-3050, -120, 0)`, yaw `38`;
+accepted bounds are `392.937 x 157.793 x 238` cm with 3,644 triangles, five
+shared materials, one UV channel, zero non-manifold edges, and four purposeful
+stack/side/block boxes. Individual logs, roof, axe, trim, and crest are
+decorative. It is presentation-only. The map baseline is now **53 grounded Fab
+actors plus 26 original-art placements**.
 
-The real editor was closed before the current verification cycle. All 100
-isolated tests and all 24 fresh package validators passed; the relaunched editor
-rediscovered 100 tests and passed seven initialized-world trace suites plus
-full-zone validation. Unreal is outside PIE on the correct map with MCP 8123;
-Blender MCP is healthy. Preserve the original save and the unrelated Config,
-keeper-material, and FieldNotes working changes.
+The real editor was closed before isolated verification. All 100 isolated tests,
+all 25 fresh package validators, all eight initialized-world collision/route
+suites, clean PIE smoke, fresh
+100-test discovery, and full-zone validation passed. Blender MCP is healthy.
+Preserve the original save and the unrelated Config, keeper-material, and
+FieldNotes working changes.
 
 The user accepted the Xcode license and Metal works. The actual no-hot-reload
 UBT command was rerun and still exits 6 before C++ because Xcode/SDK 27.0 is
@@ -95,10 +96,10 @@ The project currently includes:
   Ledger with transient compact-tracker focus, quest-data-owned objective
   instructions in its selected detail and fixed compact tracker, and no quest
   mutation authority;
-- a grounded local Fab/Epic art pass with 53 upright environment actors and 25
+- a grounded local Fab/Epic art pass with 53 upright environment actors and 26
   project-owned placements from an original Blender-built Embermere
   waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
-  quartermaster/armsmaster/practice-dummy/handcart/reed family, a 38-expression moss/
+  quartermaster/armsmaster/practice-dummy/handcart/firewood-rack/reed family, a 38-expression moss/
   earth road material, and a Mac-friendly daylight baseline;
 - a reusable art-only NPC wrapper with static and skeletal lanes, shared
   transforms, soft references, Anim Blueprint precedence, a
@@ -149,8 +150,8 @@ The project currently includes:
   four classes, exposes disabled combinations, atomically applies data-driven
   starter stats/abilities once, restores the normal controller/HUD path, and
   feeds the confirmed identity into the version-3 persistence contract;
-- 100 passing Unreal automation tests plus 24 fresh-process package validators,
-  including the handcart and exact full-zone baseline; fresh-process character-creation,
+- 100 passing Unreal automation tests plus 25 fresh-process package validators,
+  including the handcart, firewood rack, and exact full-zone baseline; fresh-process character-creation,
   derived-level progression, and
   character-identity and multi-quest persistence,
   combat-feedback,
@@ -2208,10 +2209,10 @@ First fresh-session checks:
    - the vendor stall at `(-1530, -1430, 0)`, yaw `180`, with a customer-facing
      counter, four solid supports, clear service approach and east bypass, and
      unchanged normal-`F` Fenwatch Supplies ownership on the art-free service;
-   - 53 grounded upright Fab actors plus 25 original placements from the
+   - 53 grounded upright Fab actors plus 26 original placements from the
      waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
      quartermaster/armsmaster/vendor-stall/practice-dummy/cottage/workshop/
-     notice-board/handcart/communal-well/reed family;
+     notice-board/handcart/firewood-rack/communal-well/reed family;
      inspect the route-facing chest at `(-1740, -1180, 0)`, its solid lid, the
      Fenwatch shelter behind Mara at `(-1740, -700, 0)`, its four solid supports
      and clear center, Mara's grounded front-facing non-colliding Fenwatch

@@ -2,6 +2,24 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Complex World Probes And Authored Collision Tests Answer Different Questions
+
+The first live firewood-rack probe used Unreal MCP's generic `trace_world`.
+Its rays correctly found the four intended solid regions and kept the protected
+routes clear, but rays through the visible axe and crest also reported hits.
+That did not prove imported UBX collision had swallowed the decoration: the
+generic probe can intersect complex visible geometry.
+
+The project contract is specifically about authored simple collision, so the
+authoritative negative assertions use native `line_trace_single` with
+`trace_complex=False`. That exact initialized-world validator passed through
+the roof, individual detail, axe, trim, and crest while retaining hits on the
+stack, two sides, and chopping block. Keep both layers when useful: generic MCP
+traces are excellent spatial diagnostics, while a deliberately configured
+native trace proves the collision mode the gameplay contract actually names.
+Do not move good art or weaken a collider because two trace APIs answered
+different questions.
+
 ## License, Metal, SDK Compatibility, And Runtime Are Separate Gates
 
 The September 15 resume cleared the user-owned license gate, then exposed a

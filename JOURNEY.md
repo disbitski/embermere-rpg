@@ -3419,6 +3419,29 @@ an honest mixed outcome: one new piece of the village is shipped and fully
 validated, while new C++ remains blocked until a compatible Xcode is selected.
 Read `Docs/DAILY_BUILD_2026-09-16.md` for the exact evidence.
 
+## September 17: A Cottage Edge Became A Working Place
+
+The west cottage already had a provision handcart, but its open side still read
+as unused space. A factory-clean Blender MCP build added a compact Fenwatch
+firewood rack with a moss roof, layered logs, chopping block, planted axe, and
+restrained ember crest. Classic FBX placed it at `(-3050, -120, 0)`, yaw `38`,
+where normal-route and opposite-side viewport checks kept both the dwelling and
+handcart readable without closing the work lane.
+
+The accepted asset is `392.937 x 157.793 x 238` cm, 3,644 triangles, one UV
+channel, zero non-manifold edges, five shared materials, and four purposeful
+collision boxes. The broad stack, structural sides, and block are solid;
+individual logs, roof, axe, trim, and crest stay decorative. Native non-complex
+traces also protect PlayerStart-to-Mara, the west bypass, the handcart work
+lane, and the village-road route. The map now holds 53 grounded Fab actors plus
+26 original-art placements.
+
+All 100 tests and all 25 fresh package validators passed. The real
+no-hot-reload build was rerun after license acceptance, but Xcode/SDK 27.0 still
+falls outside UE 5.8's declared 26.9 maximum, so UBT stopped before C++ rather
+than producing a new module. That distinction did not prevent a fully verified
+art milestone, and it remains explicit in `Docs/DAILY_BUILD_2026-09-17.md`.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -6,6 +6,32 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 17 daily build: added the original project-owned Fenwatch firewood
+  rack beside the west cottage. Read `Docs/DAILY_BUILD_2026-09-17.md`. The
+  deterministic Blender/classic-FBX lane produced
+  `SM_EmbermereFenwatchFirewoodRack_01` at `(-3050, -120, 0)`, yaw `38`:
+  `392.937 x 157.793 x 238` cm, 3,644 triangles, one UV channel, zero
+  non-manifold edges, five shared Fenwatch materials, and four authored boxes
+  for the broad stack, two structural sides, and chopping block. Individual
+  logs, moss roof, axe, trim, and crest remain decorative. Normal-route
+  viewport inspection accepted its grounded cottage-edge composition and open
+  handcart work lane. The exact native trace contract passed all solid,
+  decorative-clear, PlayerStart-to-Mara, west-cottage-bypass,
+  cottage-to-handcart, and village-to-road assertions. All **eight
+  initialized-world trace suites**, all **100/100 isolated tests**, and all
+  **25 fresh package validators** passed with zero test warnings or
+  `LogPython: Error`; the current baseline is **53 grounded Fab actors plus 26
+  original-art placements**. A clean relaunch rediscovered exactly 100 tests,
+  started/stopped PIE, and found the map and rack saved. The full no-hot-reload UBT command was also
+  genuinely rerun after license acceptance, but installed Xcode/SDK 27.0 still
+  fails UE 5.8 platform validation above its 26.9 maximum before C++ compile.
+  Do not weaken engine limits or mislabel runtime/package validation as a new
+  module build. Protected save/keeper hashes remain intact; Config, keeper, and
+  Field Notes changes stay excluded. **Next:** use a compatible side-by-side
+  Xcode through process-local `DEVELOPER_DIR` and prove UBT, then review and
+  compile the pending Ledger focus regressions before production repair. If
+  compatibility remains blocked, continue one bounded MCP-backed milestone
+  without replaying the known SDK probe.
 - September 16 resumed daily build: added the original project-owned Fenwatch
   provision handcart beside the west cottage. Read
   `Docs/DAILY_BUILD_2026-09-16.md`. The deterministic Blender/classic-FBX lane

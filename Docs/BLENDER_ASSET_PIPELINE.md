@@ -1209,6 +1209,46 @@ Lesson: a cart is mostly empty space. Author collision for the mass a player
 expects to meet, then prove the handles, cargo detail, wheels, and neighboring
 routes did not acquire invisible volume during import.
 
+## Fenwatch Firewood Rack
+
+`SM_EmbermereFenwatchFirewoodRack_01` extends the west-cottage utility cluster
+without adding a new service or interaction. Its moss-roofed timber frame,
+layered logs, chopping block, planted axe, stone feet, iron trim, and ember
+crest reuse the established Fenwatch materials beside the provision handcart.
+
+The reviewed deterministic source is
+`Scripts/blender/build_embermere_fenwatch_firewood_rack.py`; editable source,
+classic FBX, preview, and metrics live under
+`ArtSource/Blender/Environment/FenwatchFirewoodRack`. A factory-clean Blender
+MCP process produced the accepted contract:
+
+- grounded `392.937 x 157.793 x 238` cm bounds with applied unit scale;
+- 3,644 triangles, one UV channel, and zero non-manifold edges;
+- five shared Fenwatch stone, moss, timber, iron, and ember materials;
+- four UBX boxes for the broad log stack, two structural sides, and chopping
+  block;
+- visual-only individual logs, moss roof, axe, trim, and ember crest.
+
+`Scripts/import_embermere_fenwatch_firewood_rack_unreal.py` uses classic
+`FbxFactory`, rejects collider/material drift, explicitly saves the mesh and
+level, and places `Embermere_FenwatchFirewoodRack_CottageWest_01` at
+`(-3050, -120, 0)`, yaw `38`. The actor is tagged project-owned art and owns no
+quest, interaction, service, recovery, reward, vendor, trainer, or persistence
+behavior.
+
+The focused saved-package validator locks import provenance, geometry,
+materials, colliders, tag, transform, spacing, and ownership. Its native
+`trace_complex=False` initialized-world validator proves each purposeful
+surface solid while keeping decoration out of authored collision and
+protecting PlayerStart-to-Mara, the west-cottage bypass, the
+cottage-to-handcart work lane, and the village-to-road route. Normal-route and
+opposite-side viewport inspection accepted its grounded composition. The map
+now contains 53 Fab actors and 26 original-art placements.
+
+Lesson: a generic world trace may intentionally hit visible complex geometry.
+Use that for spatial probing, but use an explicitly non-complex native trace
+when the contract is specifically about authored UBX collision.
+
 ## Fenwatch Journal UI Emblem
 
 The September 4 Astra evaluation exercised a small UI-art lane, not another
