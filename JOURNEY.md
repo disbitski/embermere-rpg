@@ -3442,6 +3442,37 @@ falls outside UE 5.8's declared 26.9 maximum, so UBT stopped before C++ rather
 than producing a new module. That distinction did not prevent a fully verified
 art milestone, and it remains explicit in `Docs/DAILY_BUILD_2026-09-17.md`.
 
+## September 18: Fenwatch Grew A Second Home
+
+The village service core had become intentionally dense, while viewport review
+showed a real empty northwest edge beyond the first cottage. Instead of adding
+another counter or service prop, we used that space for a second dwelling with
+a different domestic silhouette: a smaller masonry home under a broad moss
+gable, with a covered porch, offset entry, glowing window, hanging herbs,
+chimney, and restrained ember crest.
+
+The factory-clean Blender MCP build produced
+`SM_EmbermereFenwatchNorthCottage_01` at `550 x 497.403 x 472` cm, 7,132
+triangles, one UV channel, zero non-manifold edges, and the same five shared
+Fenwatch materials. Six authored boxes make only the closed body, porch deck,
+two steps, and two posts solid. Roof, chimney, herbs, trim, windows, and crest
+remain decorative. Classic FBX import placed it at `(-2500, 680, 0)`, yaw `28`,
+without removing a Fab actor or acquiring gameplay authority.
+
+Normal-route, porch, rear, and cottage-pair captures accepted the grounded
+composition and kept the first cottage visibly distinct. Fresh package checks
+measured 1,594.8 cm PlayerStart/Mara-route and Mara clearance, 940.2 cm between
+cottage centers, and 1,688.7 cm from the handcart. Native non-complex traces
+proved all six purposeful surfaces, excluded the roof, and kept the main,
+cottage-pair, and village-road lanes open. All nine route suites, all 26 package
+validators, and all 100 isolated tests passed. Fenwatch now contains 53
+grounded Fab actors and 27 original-art placements.
+
+The compiler prerequisite did not change: the only installed Xcode still
+exposes SDK 27.0, beyond UE 5.8's 26.9 maximum. We checked once, did not replay
+the known-invalid build, and kept the day's claim scoped to the fully verified
+art/map milestone.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -1249,6 +1249,40 @@ Lesson: a generic world trace may intentionally hit visible complex geometry.
 Use that for spatial probing, but use an explicitly non-complex native trace
 when the contract is specifically about authored UBX collision.
 
+## Fenwatch Covered-Porch North Cottage
+
+The September 18 pass used viewport evidence rather than another service-core
+prop: the village's northwest edge had room for a second dwelling while the
+vendor, trainer, Mara, and main road were already compositionally dense.
+`Scripts/blender/build_embermere_fenwatch_north_cottage.py` therefore creates a
+smaller closed home with a covered porch, offset door, broad warm window,
+hanging herb bundles, lower moss gable, chimney, and restrained ember crest.
+It shares the established stone, moss, timber, iron, and ember materials but
+does not clone the first cottage's proportions or facade.
+
+A factory-clean Blender MCP run writes editable `.blend`, classic FBX,
+transparent-free preview, and deterministic metrics under
+`ArtSource/Blender/Environment/FenwatchNorthCottage`. The accepted source is
+`550 x 497.403 x 472` cm, 7,132 triangles, one UV channel, zero non-manifold
+edges, applied unit scale, and a ground-level origin. Exactly six UBX boxes
+cover the closed body, porch deck, two steps, and two structural posts. Roof,
+chimney, hanging herbs, trim, windows, braces, and crest remain visual-only.
+
+`Scripts/import_embermere_fenwatch_north_cottage_unreal.py` uses classic
+`FbxFactory`, explicitly reuses the five shared materials, saves the mesh and
+map, and places `Embermere_FenwatchCottage_North_01` at `(-2500, 680, 0)`, yaw
+`28`. It removes no Fab actor and remains a presentation-only
+`StaticMeshActor`. The focused package validator locks provenance, exact mesh
+metrics, collision, transform, tag, 1,594.8 cm PlayerStart/Mara-route and Mara
+clearance, 940.2 cm cottage-center separation, and 1,688.7 cm handcart
+separation.
+
+The native non-complex trace suite proves all six purposeful surfaces solid,
+the roof excluded from authored collision, and the PlayerStart-to-Mara,
+cottage-pair, and village-road lanes clear. Normal-route, porch, rear, and
+cottage-pair viewport captures accepted terrain contact and silhouette. The
+map now contains 53 Fab actors and 27 original-art placements.
+
 ## Fenwatch Journal UI Emblem
 
 The September 4 Astra evaluation exercised a small UI-art lane, not another

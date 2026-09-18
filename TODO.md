@@ -6,6 +6,29 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 18 daily build: added a distinct project-owned covered-porch
+  cottage on Fenwatch's open northwest edge. Read
+  `Docs/DAILY_BUILD_2026-09-18.md`. The deterministic Blender/classic-FBX lane
+  produced `SM_EmbermereFenwatchNorthCottage_01` at `(-2500, 680, 0)`, yaw
+  `28`: `550 x 497.403 x 472` cm, 7,132 triangles, one UV channel, zero
+  non-manifold edges, five shared Fenwatch materials, and six authored boxes
+  for the closed body, porch deck, two steps, and two structural posts. Roof,
+  chimney, hanging herbs, trim, windows, and ember crest remain decorative.
+  Normal-route, porch, rear, and cottage-pair viewport inspection accepted its
+  grounded composition and open lane. All **nine initialized-world trace
+  suites**, all **100/100 isolated tests**, and all **26 fresh package
+  validators** passed with zero test warnings or `LogPython: Error`; the map is
+  now **53 grounded Fab actors plus 27 original-art placements**. The final
+  clean relaunch forced discovery of exactly 100 tests, started/stopped PIE,
+  and found the map and new mesh clean with the real editor owning MCP 8123.
+  Xcode was checked once: only `/Applications/Xcode.app` is present and exposes SDK
+  27.0, above UE 5.8's 26.9 maximum, so the known-invalid C++ build was not
+  replayed. Protected save/keeper hashes remain intact; unrelated Config,
+  keeper, and Field Notes changes stay excluded. **Next:** if a compatible
+  side-by-side Xcode appears, use process-local `DEVELOPER_DIR`, prove UBT, then
+  review and compile the pending Ledger focus regressions. Otherwise choose one
+  different bounded MCP-backed milestone from the current TODO after fresh
+  viewport evidence; do not manufacture progress by repeating readiness probes.
 - September 17 daily build: added the original project-owned Fenwatch firewood
   rack beside the west cottage. Read `Docs/DAILY_BUILD_2026-09-17.md`. The
   deterministic Blender/classic-FBX lane produced

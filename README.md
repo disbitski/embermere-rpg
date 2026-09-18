@@ -155,12 +155,12 @@ The repo currently contains the C++ gameplay scaffold for:
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved
   instances, and asset-agnostic runtime presentation
-- a corrected 53-actor local Fab/Epic art pass plus 26 placements from
+- a corrected 53-actor local Fab/Epic art pass plus 27 placements from
   Embermere's original Blender-built waystone, ember-lamp, road-signpost,
   road-gate, boundary-fence, rune-topped boundary-stone, supply-chest, and
-  Fenwatch shelter, vendor stall, first closed cottage, open-front training
-  workshop, roadside notice board, west-cottage provision handcart and
-  firewood rack, and
+  Fenwatch shelter, vendor stall, first closed cottage, covered-porch north
+  cottage, open-front training workshop, roadside notice board, west-cottage
+  provision handcart and firewood rack, and
   south-commons communal well; Mara's
   rigged Fenwatch keeper; the
   rigged Fenwatch quartermaster and armsmaster; a practice dummy; and four
@@ -207,7 +207,8 @@ lamps, a timber road signpost, a traversable road gate, low boundary fences,
 rune-topped end stones, a route-facing village supply chest, an open-sided
 Fenwatch shelter, Mara's grounded rigged Stylized Classic Fenwatch keeper,
 the rigged Fenwatch quartermaster and armsmaster, a matching vendor stall,
-practice dummy, closed Fenwatch cottage, open-front training workshop,
+practice dummy, closed Fenwatch cottage, covered-porch north cottage,
+open-front training workshop,
 roadside notice board, west-cottage provision handcart and firewood rack,
 roofed communal well, visual-only marsh reeds, and the fully rigged Marsh
 Prowler, each built from reviewed scripts,
@@ -314,23 +315,23 @@ why human taste becomes more important as building gets easier.
 
 ## Status
 
-September 17 added the original project-owned Fenwatch firewood rack beside the
-west cottage through the deterministic Blender/classic-FBX lane. The map is now
-53 grounded Fab actors plus 26 original-art placements. All 100 isolated tests,
-all 25 fresh package validators, all eight initialized-world collision/route
-suites, clean PIE smoke, fresh
-100-test discovery, and full-zone validation passed. The rack's exact geometry, five shared
-materials, four purposeful colliders, decorative exclusions, art-only
-ownership, placement, and protected routes are regression-checked. Unreal and
-Blender MCP are healthy, the saved journey is untouched, and desktop control
-remains disabled.
+September 18 added a distinct project-owned covered-porch cottage on
+Fenwatch's northwest edge through the deterministic Blender/classic-FBX lane.
+The map is now 53 grounded Fab actors plus 27 original-art placements. All 100
+isolated tests, all 26 fresh package validators, all nine initialized-world
+collision/route suites, clean PIE smoke, fresh 100-test discovery, and
+full-zone validation passed. The cottage's exact geometry, five shared
+materials, six purposeful body/porch/step/post colliders, decorative
+exclusions, art-only ownership, placement, and protected routes are
+regression-checked. Unreal and Blender MCP are healthy, the saved journey is
+untouched, and desktop control remains disabled.
 
 The requested no-hot-reload build was genuinely rerun after license acceptance.
 Metal works, but **Xcode/SDK 27.0 is outside UE 5.8's supported 15.2-26.9
 range**, so UBT still exits before C++ compilation pending a compatible
 side-by-side Xcode; Epic's preferred version is 26.1.1. Runtime/package success
 is not mislabeled as a new C++ build. See
-[today's report](Docs/DAILY_BUILD_2026-09-17.md) for exact evidence and the next
+[today's report](Docs/DAILY_BUILD_2026-09-18.md) for exact evidence and the next
 compiler/test-first handoff.
 
 September 14 fixed vendor/trainer arrow navigation and Escape when a native
@@ -355,7 +356,7 @@ combines race/class stat growth, restores silently and idempotently, and exposes
 the result read-only through status and Chronicle,
 a daylight starter-zone loop mixing a local Fab pass with an original Embermere
 waystone/lamp/signpost/gate/fence/end-stone/chest/shelter/keeper/
-quartermaster/armsmaster/vendor-stall/cottage/workshop/notice-board/handcart/firewood-rack/
+quartermaster/armsmaster/vendor-stall/cottage/north-cottage/workshop/notice-board/handcart/firewood-rack/
 communal-well/reed family,
 the first original rigged and animated Marsh
 Prowler, grounded moss/earth road presentation,

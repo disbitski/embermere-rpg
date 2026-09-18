@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 53
-EXPECTED_ORIGINAL_ART_COUNT = 26
+EXPECTED_ORIGINAL_ART_COUNT = 27
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -139,6 +139,14 @@ ORIGINAL_FENWATCH_COTTAGE_LABEL = "Embermere_FenwatchCottage_West_01"
 ORIGINAL_FENWATCH_COTTAGE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereFenwatchCottage_01.SM_EmbermereFenwatchCottage_01"
 ORIGINAL_FENWATCH_COTTAGE_LOCATION = (-2480.0, -260.0, 0.0)
 ORIGINAL_FENWATCH_COTTAGE_YAW = 38.0
+ORIGINAL_NORTH_COTTAGE_LABEL = "Embermere_FenwatchCottage_North_01"
+ORIGINAL_NORTH_COTTAGE_PATH = (
+    "/Game/Art/Embermere/Environment/PrototypeVillage/"
+    "SM_EmbermereFenwatchNorthCottage_01."
+    "SM_EmbermereFenwatchNorthCottage_01"
+)
+ORIGINAL_NORTH_COTTAGE_LOCATION = (-2500.0, 680.0, 0.0)
+ORIGINAL_NORTH_COTTAGE_YAW = 28.0
 ORIGINAL_TRAINING_WORKSHOP_LABEL = (
     "Embermere_FenwatchTrainingWorkshop_Armsmaster_01"
 )
@@ -324,6 +332,7 @@ REQUIRED_LABELS = {
     PRACTICE_TARGET_GAMEPLAY_LABEL,
     ORIGINAL_VENDOR_STALL_LABEL,
     ORIGINAL_FENWATCH_COTTAGE_LABEL,
+    ORIGINAL_NORTH_COTTAGE_LABEL,
     ORIGINAL_TRAINING_WORKSHOP_LABEL,
     ORIGINAL_NOTICE_BOARD_LABEL,
     ORIGINAL_COMMUNAL_WELL_LABEL,
@@ -2001,6 +2010,171 @@ def main():
             cottage_mara_distance,
         ))
 
+    north_cottage_mesh = unreal.EditorAssetLibrary.load_asset(
+        ORIGINAL_NORTH_COTTAGE_PATH
+    )
+    if not north_cottage_mesh or not isinstance(
+        north_cottage_mesh,
+        unreal.StaticMesh,
+    ):
+        fail("missing original Fenwatch north cottage {}".format(
+            ORIGINAL_NORTH_COTTAGE_PATH,
+        ))
+    north_cottage_import_data = north_cottage_mesh.get_editor_property(
+        "asset_import_data"
+    )
+    north_cottage_import_class = (
+        north_cottage_import_data.get_class().get_name()
+        if north_cottage_import_data
+        else "None"
+    )
+    if north_cottage_import_class != "FbxStaticMeshImportData":
+        fail(
+            "Fenwatch north cottage must retain classic FBX import data, "
+            "found {}".format(north_cottage_import_class)
+        )
+    north_cottage_body_setup = north_cottage_mesh.get_editor_property(
+        "body_setup"
+    )
+    north_cottage_aggregate = (
+        north_cottage_body_setup.get_editor_property("agg_geom")
+        if north_cottage_body_setup
+        else None
+    )
+    north_cottage_box_count = (
+        len(north_cottage_aggregate.get_editor_property("box_elems"))
+        if north_cottage_aggregate
+        else 0
+    )
+    if north_cottage_box_count != 6:
+        fail(
+            "Fenwatch north cottage must retain 6 authored body/porch/step/"
+            "post box colliders, found {}".format(north_cottage_box_count)
+        )
+    north_cottage_bounds = north_cottage_mesh.get_bounds()
+    if not all((
+        nearly_equal(north_cottage_bounds.box_extent.x, 275.0, 1.0),
+        nearly_equal(north_cottage_bounds.box_extent.y, 248.7015, 1.0),
+        nearly_equal(north_cottage_bounds.origin.z, 236.0, 1.0),
+        nearly_equal(north_cottage_bounds.box_extent.z, 236.0, 1.0),
+    )):
+        fail("Fenwatch north-cottage bounds drifted: origin={}, extent={}".format(
+            north_cottage_bounds.origin,
+            north_cottage_bounds.box_extent,
+        ))
+    if north_cottage_mesh.get_num_triangles(0) != 7132:
+        fail("Fenwatch north-cottage triangle count drifted: {}".format(
+            north_cottage_mesh.get_num_triangles(0),
+        ))
+    north_cottage_material_paths = set()
+    for static_material in list(
+        north_cottage_mesh.get_editor_property("static_materials")
+    ):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            north_cottage_material_paths.add(material.get_path_name())
+    if north_cottage_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("Fenwatch north-cottage material set drifted: {}".format(
+            sorted(north_cottage_material_paths),
+        ))
+
+    north_cottage = actors_by_label[ORIGINAL_NORTH_COTTAGE_LABEL]
+    if north_cottage.get_class().get_name() != "StaticMeshActor":
+        fail("{} must remain presentation-only StaticMeshActor art".format(
+            ORIGINAL_NORTH_COTTAGE_LABEL,
+        ))
+    north_cottage_component = north_cottage.get_component_by_class(
+        unreal.StaticMeshComponent
+    )
+    placed_north_cottage_mesh = (
+        north_cottage_component.get_editor_property("static_mesh")
+        if north_cottage_component
+        else None
+    )
+    placed_north_cottage_path = (
+        placed_north_cottage_mesh.get_path_name()
+        if placed_north_cottage_mesh
+        else "None"
+    )
+    if placed_north_cottage_path != ORIGINAL_NORTH_COTTAGE_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_NORTH_COTTAGE_LABEL,
+            ORIGINAL_NORTH_COTTAGE_PATH,
+            placed_north_cottage_path,
+        ))
+    north_cottage_location = north_cottage.get_actor_location()
+    north_cottage_rotation = north_cottage.get_actor_rotation()
+    north_cottage_scale = north_cottage.get_actor_scale3d()
+    if not all((
+        nearly_equal(
+            north_cottage_location.x,
+            ORIGINAL_NORTH_COTTAGE_LOCATION[0],
+            1.0,
+        ),
+        nearly_equal(
+            north_cottage_location.y,
+            ORIGINAL_NORTH_COTTAGE_LOCATION[1],
+            1.0,
+        ),
+        nearly_equal(
+            north_cottage_location.z,
+            ORIGINAL_NORTH_COTTAGE_LOCATION[2],
+            1.0,
+        ),
+        nearly_equal(north_cottage_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(
+            north_cottage_rotation.yaw,
+            ORIGINAL_NORTH_COTTAGE_YAW,
+            0.1,
+        ),
+        nearly_equal(north_cottage_rotation.roll, 0.0, 0.1),
+        nearly_equal(north_cottage_scale.x, 1.0, 0.001),
+        nearly_equal(north_cottage_scale.y, 1.0, 0.001),
+        nearly_equal(north_cottage_scale.z, 1.0, 0.001),
+    )):
+        fail("{} transform drifted: location={}, rotation={}, scale={}".format(
+            ORIGINAL_NORTH_COTTAGE_LABEL,
+            north_cottage_location,
+            north_cottage_rotation,
+            north_cottage_scale,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(north_cottage.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_NORTH_COTTAGE_LABEL,
+        ))
+    if str(north_cottage_component.get_collision_profile_name()) != "BlockAll":
+        fail("{} collision profile drifted: {}".format(
+            ORIGINAL_NORTH_COTTAGE_LABEL,
+            north_cottage_component.get_collision_profile_name(),
+        ))
+    north_cottage_route_clearance = distance_to_segment_2d(
+        (north_cottage_location.x, north_cottage_location.y),
+        (player_start_location.x, player_start_location.y),
+        (mara_location.x, mara_location.y),
+    )
+    if north_cottage_route_clearance < 1000.0:
+        fail(
+            "Fenwatch north cottage encroaches on the PlayerStart-to-Mara "
+            "route: {:.1f} cm".format(north_cottage_route_clearance)
+        )
+    north_cottage_mara_distance = math.hypot(
+        north_cottage_location.x - mara_location.x,
+        north_cottage_location.y - mara_location.y,
+    )
+    if north_cottage_mara_distance < 1400.0:
+        fail(
+            "Fenwatch north cottage moved too close to Mara's marker/"
+            "greeting lane: {:.1f} cm".format(north_cottage_mara_distance)
+        )
+    cottage_pair_separation = math.hypot(
+        north_cottage_location.x - cottage_location.x,
+        north_cottage_location.y - cottage_location.y,
+    )
+    if cottage_pair_separation < 900.0:
+        fail("Fenwatch cottage pair became too crowded: {:.1f} cm".format(
+            cottage_pair_separation,
+        ))
+
     training_workshop_mesh = unreal.EditorAssetLibrary.load_asset(
         ORIGINAL_TRAINING_WORKSHOP_PATH
     )
@@ -3241,7 +3415,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision Fenwatch cottage, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the cottage-side Fenwatch firewood rack with purposeful stack/support/block collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision west cottage, the covered-porch north cottage with purposeful body/deck/step/post collision, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the cottage-side Fenwatch firewood rack with purposeful stack/support/block collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

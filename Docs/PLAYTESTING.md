@@ -8,10 +8,11 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
 3. Confirm the map shows a blue atmospheric sky, readable ambient light, the
    varied moss/earth road surface, 53 grounded upright `FabPass_` actors plus
-   26 original-art placements from the waystone, ember-lamp, road-signpost,
+   27 original-art placements from the waystone, ember-lamp, road-signpost,
    road-gate, boundary-fence, boundary-stone, supply-chest, Fenwatch shelter,
    Mara's keeper, the Fenwatch quartermaster and armsmaster, the vendor stall,
-   practice dummy, first closed cottage, open-front training workshop,
+   practice dummy, first closed cottage, covered-porch north cottage,
+   open-front training workshop,
    roadside notice board, west-cottage provision handcart and firewood rack, south-commons
    communal well, and four marsh-reed clusters, a
    navigable PlayerStart/Mara
@@ -106,7 +107,17 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     chimney details do not create invisible collision, the foundation is
     grounded, and both the direct PlayerStart-to-Mara route and west bypass
     remain clear. `FabPass_Village_Fence_02` must remain absent.
-18. Inspect `Embermere_FenwatchHandcart_CottageWest_01` at
+18. Inspect `Embermere_FenwatchCottage_North_01` at `(-2500, 680, 0)`, yaw
+    `28`. Its smaller closed masonry body, sheltered porch, offset door, warm
+    broad window, hanging herbs, moss gable, chimney, and ember crest should
+    read as a second home rather than a duplicate of the west cottage. Confirm
+    the body, porch deck, two steps, and two posts are solid; roof, chimney,
+    herbs, trim, windows, and crest remain clear; the foundation and lower step
+    are grounded; and the PlayerStart-to-Mara, cottage-pair, and village-road
+    lanes remain open. It must stay a presentation-only `StaticMeshActor` with
+    no quest, interaction, service, recovery, reward, vendor, trainer, or
+    persistence authority.
+19. Inspect `Embermere_FenwatchHandcart_CottageWest_01` at
     `(-3040, -920, 0)`, yaw `38`. The timber loading bed, iron-spoked wheels,
     cargo crates and sack, grounded stone/moss rests, and rear ember crest
     should read as one compact provision cart beside the west cottage. Confirm
@@ -115,7 +126,7 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     west-cottage-bypass, and village-to-road routes remain open. The handcart
     is presentation-only and must own no quest, interaction, service, reward,
     vendor, trainer, or persistence behavior.
-19. Inspect `Embermere_FenwatchFirewoodRack_CottageWest_01` at
+20. Inspect `Embermere_FenwatchFirewoodRack_CottageWest_01` at
     `(-3050, -120, 0)`, yaw `38`. The moss-roofed timber frame, layered logs,
     stone feet, chopping block, planted axe, and ember crest should read as a
     compact working edge beside the west cottage. Confirm the broad stack, two
@@ -125,7 +136,7 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     routes remain open. The rack is presentation-only and must own no quest,
     interaction, service, reward, vendor, trainer, recovery, or persistence
     behavior.
-20. Inspect `Embermere_FenwatchNoticeBoard_Road_01` at
+21. Inspect `Embermere_FenwatchNoticeBoard_Road_01` at
     `(-1560, -260, 0)`, yaw `-35`. Its grounded stone-footed timber frame,
     moss roof, iron trim, pinned notices, and ember crest should read from the
     normal village-road approach. Confirm both supports and the central panel
@@ -133,7 +144,7 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     PlayerStart-to-Mara, village-to-road, quartermaster, and armsmaster routes
     remain open. The board must stay presentation-only with no quest marker,
     dialogue, interaction, reward, vendor, trainer, or persistence authority.
-21. Inspect `Embermere_FenwatchCommunalWell_SouthCommons_01` at
+22. Inspect `Embermere_FenwatchCommunalWell_SouthCommons_01` at
     `(-950, -1600, 0)`, yaw `-135`. Its open stone-and-moss curb, timber
     uprights, pale roof, iron axle/crank, hanging rope and bucket, and ember
     crest should read as one grounded Fenwatch silhouette from the southern
@@ -144,15 +155,15 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     remain open. The static well mesh must stay presentation-only with no
     quest, marker, dialogue, interaction, recovery, reward, vendor, trainer,
     or persistence authority.
-22. Confirm the separate art-free
+23. Confirm the separate art-free
     `Embermere_FenwatchCommunalWell_RestService_01` remains colocated with the
     well. Its marker and prompt may identify the service, but it must add no
     mesh, collision, navigation, quest, reward, vendor, trainer, or durable
     save state.
-23. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
+24. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
     should blend into the ground, reeds should add scale without hiding the
     route, and the whole cluster must remain `NoCollision`.
-24. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
+25. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
     marker meshes have not returned. Foliage should use readable
     project-owned overrides rather than white/default rendering.
 

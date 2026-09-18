@@ -18,6 +18,7 @@ VALIDATOR_MODULES = (
     "validate_fenwatch_armsmaster_rig_unreal",
     "validate_fenwatch_communal_well_unreal",
     "validate_fenwatch_cottage_unreal",
+    "validate_fenwatch_north_cottage_unreal",
     "validate_fenwatch_firewood_rack_unreal",
     "validate_fenwatch_handcart_unreal",
     "validate_fenwatch_keeper_greeting_unreal",
