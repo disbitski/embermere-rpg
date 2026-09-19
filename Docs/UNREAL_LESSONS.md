@@ -1049,6 +1049,31 @@ Split the contract deliberately:
 - treat a headless physics miss as a diagnostic to investigate, never as proof
   that saved collision is absent or present.
 
+## Keep Fresh Import And Live Placement As Separate Lanes
+
+A September 19 NullRHI commandlet successfully imported and saved the Fenwatch
+hitching trough through classic `FbxFactory`, then crashed inside
+`UPlacementSubsystem::FindAssetFactoryFromAssetData` when
+`spawn_actor_from_object` tried to place that new asset. The durable package
+was good; the commandlet-only placement path was not.
+
+The reliable repair was a responsibility split, not an engine-limit patch or
+an asset downgrade:
+
+- the fresh commandlet imports, remaps shared materials, checks exact bounds,
+  triangles, classic-FBX provenance and authored boxes, then saves the mesh;
+- the initialized real editor uses first-class Scene, Actor, Object and Asset
+  MCP tools to place, label, tag, organize, inspect and save the map actor;
+- a second fresh commandlet proves the saved map and asset contract;
+- initialized-world traces prove the actual collision contacts and protected
+  routes.
+
+This preserves determinism without asking one process mode to prove something
+it does poorly. If a commandlet crashes after an explicit asset-save marker,
+first determine which phase failed. Do not discard a valid package, keep
+retrying a fragile placement call, or claim that exit status alone describes
+the state of every completed phase.
+
 ## A Prop's Front Is Part Of Its Placement Contract
 
 Asset thumbnails and isolated Blender previews cannot establish how a prop

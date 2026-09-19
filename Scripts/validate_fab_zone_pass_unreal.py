@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 53
-EXPECTED_ORIGINAL_ART_COUNT = 27
+EXPECTED_ORIGINAL_ART_COUNT = 28
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -193,6 +193,16 @@ ORIGINAL_FIREWOOD_RACK_PATH = (
 )
 ORIGINAL_FIREWOOD_RACK_LOCATION = (-3050.0, -120.0, 0.0)
 ORIGINAL_FIREWOOD_RACK_YAW = 38.0
+ORIGINAL_HITCHING_TROUGH_LABEL = (
+    "Embermere_FenwatchHitchingTrough_CottageWest_01"
+)
+ORIGINAL_HITCHING_TROUGH_PATH = (
+    "/Game/Art/Embermere/Environment/PrototypeVillage/"
+    "SM_EmbermereFenwatchHitchingTrough_01."
+    "SM_EmbermereFenwatchHitchingTrough_01"
+)
+ORIGINAL_HITCHING_TROUGH_LOCATION = (-3550.0, -520.0, 0.0)
+ORIGINAL_HITCHING_TROUGH_YAW = 38.0
 FENWATCH_REST_SERVICE_LABEL = (
     "Embermere_FenwatchCommunalWell_RestService_01"
 )
@@ -338,6 +348,7 @@ REQUIRED_LABELS = {
     ORIGINAL_COMMUNAL_WELL_LABEL,
     ORIGINAL_HANDCART_LABEL,
     ORIGINAL_FIREWOOD_RACK_LABEL,
+    ORIGINAL_HITCHING_TROUGH_LABEL,
     FENWATCH_REST_SERVICE_LABEL,
     FENWATCH_REST_PRESENTATION_LABEL,
     FENWATCH_STILL_WATERS_SERVICE_LABEL,
@@ -2748,6 +2759,186 @@ def main():
             "{:.1f} cm".format(firewood_rack_route_clearance)
         )
 
+    hitching_trough_mesh = unreal.EditorAssetLibrary.load_asset(
+        ORIGINAL_HITCHING_TROUGH_PATH
+    )
+    if not hitching_trough_mesh or not isinstance(
+        hitching_trough_mesh,
+        unreal.StaticMesh,
+    ):
+        fail("missing original Fenwatch hitching trough {}".format(
+            ORIGINAL_HITCHING_TROUGH_PATH,
+        ))
+    hitching_trough_import_data = hitching_trough_mesh.get_editor_property(
+        "asset_import_data"
+    )
+    hitching_trough_import_class = (
+        hitching_trough_import_data.get_class().get_name()
+        if hitching_trough_import_data
+        else "None"
+    )
+    if hitching_trough_import_class != "FbxStaticMeshImportData":
+        fail(
+            "Fenwatch hitching trough must retain classic FBX import data, "
+            "found {}".format(hitching_trough_import_class)
+        )
+    hitching_trough_body_setup = hitching_trough_mesh.get_editor_property(
+        "body_setup"
+    )
+    hitching_trough_aggregate = (
+        hitching_trough_body_setup.get_editor_property("agg_geom")
+        if hitching_trough_body_setup
+        else None
+    )
+    hitching_trough_collision_count = sum(
+        len(hitching_trough_aggregate.get_editor_property(property_name))
+        for property_name in (
+            "box_elems",
+            "sphere_elems",
+            "sphyl_elems",
+            "convex_elems",
+        )
+    ) if hitching_trough_aggregate else 0
+    hitching_trough_box_count = (
+        len(hitching_trough_aggregate.get_editor_property("box_elems"))
+        if hitching_trough_aggregate
+        else 0
+    )
+    if hitching_trough_collision_count != 2 or hitching_trough_box_count != 2:
+        fail(
+            "Fenwatch hitching trough must retain exactly two authored box "
+            "colliders, found {} total / {} boxes".format(
+                hitching_trough_collision_count,
+                hitching_trough_box_count,
+            )
+        )
+    hitching_trough_bounds = hitching_trough_mesh.get_bounds()
+    if not all((
+        nearly_equal(hitching_trough_bounds.box_extent.x, 183.575, 1.0),
+        nearly_equal(hitching_trough_bounds.box_extent.y, 66.9515, 1.0),
+        nearly_equal(hitching_trough_bounds.origin.z, 94.5, 1.0),
+        nearly_equal(hitching_trough_bounds.box_extent.z, 94.5, 1.0),
+    )):
+        fail("Fenwatch hitching-trough bounds drifted: origin={}, extent={}".format(
+            hitching_trough_bounds.origin,
+            hitching_trough_bounds.box_extent,
+        ))
+    if hitching_trough_mesh.get_num_triangles(0) != 3876:
+        fail("Fenwatch hitching-trough triangle count drifted: {}".format(
+            hitching_trough_mesh.get_num_triangles(0),
+        ))
+    hitching_trough_material_paths = set()
+    for static_material in list(
+        hitching_trough_mesh.get_editor_property("static_materials")
+    ):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            hitching_trough_material_paths.add(material.get_path_name())
+    if hitching_trough_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("Fenwatch hitching-trough material set drifted: {}".format(
+            sorted(hitching_trough_material_paths),
+        ))
+
+    hitching_trough = actors_by_label[ORIGINAL_HITCHING_TROUGH_LABEL]
+    if hitching_trough.get_class().get_name() != "StaticMeshActor":
+        fail("{} must remain presentation-only StaticMeshActor art".format(
+            ORIGINAL_HITCHING_TROUGH_LABEL,
+        ))
+    hitching_trough_component = hitching_trough.get_component_by_class(
+        unreal.StaticMeshComponent
+    )
+    placed_hitching_trough_mesh = (
+        hitching_trough_component.get_editor_property("static_mesh")
+        if hitching_trough_component
+        else None
+    )
+    placed_hitching_trough_path = (
+        placed_hitching_trough_mesh.get_path_name()
+        if placed_hitching_trough_mesh
+        else "None"
+    )
+    if placed_hitching_trough_path != ORIGINAL_HITCHING_TROUGH_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_HITCHING_TROUGH_LABEL,
+            ORIGINAL_HITCHING_TROUGH_PATH,
+            placed_hitching_trough_path,
+        ))
+    hitching_trough_location = hitching_trough.get_actor_location()
+    hitching_trough_rotation = hitching_trough.get_actor_rotation()
+    hitching_trough_scale = hitching_trough.get_actor_scale3d()
+    if not all((
+        nearly_equal(
+            hitching_trough_location.x,
+            ORIGINAL_HITCHING_TROUGH_LOCATION[0],
+            1.0,
+        ),
+        nearly_equal(
+            hitching_trough_location.y,
+            ORIGINAL_HITCHING_TROUGH_LOCATION[1],
+            1.0,
+        ),
+        nearly_equal(
+            hitching_trough_location.z,
+            ORIGINAL_HITCHING_TROUGH_LOCATION[2],
+            1.0,
+        ),
+        nearly_equal(hitching_trough_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(
+            hitching_trough_rotation.yaw,
+            ORIGINAL_HITCHING_TROUGH_YAW,
+            0.1,
+        ),
+        nearly_equal(hitching_trough_rotation.roll, 0.0, 0.1),
+        nearly_equal(hitching_trough_scale.x, 1.0, 0.001),
+        nearly_equal(hitching_trough_scale.y, 1.0, 0.001),
+        nearly_equal(hitching_trough_scale.z, 1.0, 0.001),
+    )):
+        fail("{} transform drifted: location={}, rotation={}, scale={}".format(
+            ORIGINAL_HITCHING_TROUGH_LABEL,
+            hitching_trough_location,
+            hitching_trough_rotation,
+            hitching_trough_scale,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(hitching_trough.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_HITCHING_TROUGH_LABEL,
+        ))
+    if str(hitching_trough_component.get_collision_profile_name()) != "BlockAll":
+        fail("{} collision profile drifted: {}".format(
+            ORIGINAL_HITCHING_TROUGH_LABEL,
+            hitching_trough_component.get_collision_profile_name(),
+        ))
+    hitching_trough_spacing_contract = {
+        ORIGINAL_FENWATCH_COTTAGE_LABEL: 1000.0,
+        ORIGINAL_HANDCART_LABEL: 600.0,
+        ORIGINAL_FIREWOOD_RACK_LABEL: 600.0,
+        FENWATCH_KEEPER_LABEL: 1450.0,
+        "PlayerStart_Embermere_Village": 1250.0,
+    }
+    for context_label, minimum_distance in (
+        hitching_trough_spacing_contract.items()
+    ):
+        context_location = actors_by_label[context_label].get_actor_location()
+        actual_distance = math.hypot(
+            hitching_trough_location.x - context_location.x,
+            hitching_trough_location.y - context_location.y,
+        )
+        if actual_distance < minimum_distance:
+            fail("Fenwatch hitching trough moved too close to {}: {:.1f} cm".format(
+                context_label,
+                actual_distance,
+            ))
+    hitching_trough_route_clearance = distance_to_segment_2d(
+        (hitching_trough_location.x, hitching_trough_location.y),
+        SPAWN_AUTORUN_ROUTE_START,
+        SPAWN_AUTORUN_ROUTE_END,
+    )
+    if hitching_trough_route_clearance < 1250.0:
+        fail(
+            "Fenwatch hitching trough encroaches on the spawn route: "
+            "{:.1f} cm".format(hitching_trough_route_clearance)
+        )
+
     communal_well_mesh = unreal.EditorAssetLibrary.load_asset(
         ORIGINAL_COMMUNAL_WELL_PATH
     )
@@ -3415,7 +3606,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision west cottage, the covered-porch north cottage with purposeful body/deck/step/post collision, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the cottage-side Fenwatch firewood rack with purposeful stack/support/block collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision west cottage, the covered-porch north cottage with purposeful body/deck/step/post collision, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the cottage-side Fenwatch firewood rack with purposeful stack/support/block collision, the cottage-side Fenwatch hitching trough with purposeful body/rail collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

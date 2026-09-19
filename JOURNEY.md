@@ -3473,6 +3473,39 @@ exposes SDK 27.0, beyond UE 5.8's 26.9 maximum. We checked once, did not replay
 the known-invalid build, and kept the day's claim scoped to the fully verified
 art/map milestone.
 
+## September 19: The Cottage Edge Became A Working Yard
+
+Fresh viewport review moved away from the now-filled northwest cottage lane and
+found a different gap beyond the west handcart and firewood rack. A
+factory-clean Blender MCP build turned it into a long feed trough with stone
+feet, iron bands, an elevated hitch rail, three rings, and a restrained ember
+crest. The result makes the three props read as one working yard without
+adding a stable, vendor, quest, or interaction system.
+
+The accepted `SM_EmbermereFenwatchHitchingTrough_01` is
+`367.15 x 133.903 x 189` cm, 3,876 triangles, one UV channel, zero
+non-manifold edges, and five shared materials. Two authored boxes make only the
+broad trough body and hitching rail solid. Feed, feet, bands, rings, caps,
+braces, trim, and crest stay decorative. First-class Unreal MCP placed the
+presentation-only actor at `(-3550, -520, 0)`, yaw `38`, where captured views
+kept the cottage, cart, rack, and surrounding grass lanes readable.
+
+The tool boundary mattered as much as the prop. A NullRHI commandlet imported
+and saved the asset, then crashed inside Unreal's placement subsystem while
+trying to spawn it. We did not weaken the asset or keep retrying the same
+fragile path. The final lane leaves classic FBX import and package validation
+in the fresh commandlet, then uses the initialized editor and Unreal MCP for
+placement and map save. The same separation explains why authored-box counts
+are checked headlessly while native contacts are proven in the registered live
+world.
+
+All ten live trace suites, all 27 fresh package validators, and all 100 tests
+passed with zero test warnings or Python errors. Clean PIE passed, discovery
+remained exactly 100, and Fenwatch now contains 53 grounded Fab actors plus 28
+original-art placements. Xcode 27 remains outside UE 5.8's supported SDK
+range, so no known-invalid build was replayed and no runtime result was called
+a fresh C++ compile.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

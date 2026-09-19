@@ -8,12 +8,13 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
 3. Confirm the map shows a blue atmospheric sky, readable ambient light, the
    varied moss/earth road surface, 53 grounded upright `FabPass_` actors plus
-   27 original-art placements from the waystone, ember-lamp, road-signpost,
+   28 original-art placements from the waystone, ember-lamp, road-signpost,
    road-gate, boundary-fence, boundary-stone, supply-chest, Fenwatch shelter,
    Mara's keeper, the Fenwatch quartermaster and armsmaster, the vendor stall,
    practice dummy, first closed cottage, covered-porch north cottage,
    open-front training workshop,
-   roadside notice board, west-cottage provision handcart and firewood rack, south-commons
+   roadside notice board, west-cottage provision handcart, firewood rack, and
+   hitching/feed trough, south-commons
    communal well, and four marsh-reed clusters, a
    navigable PlayerStart/Mara
    route, the dressed road, wilderness pocket, upgraded ruin, quest giver, and three original
@@ -136,7 +137,17 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     routes remain open. The rack is presentation-only and must own no quest,
     interaction, service, reward, vendor, trainer, recovery, or persistence
     behavior.
-21. Inspect `Embermere_FenwatchNoticeBoard_Road_01` at
+21. Inspect `Embermere_FenwatchHitchingTrough_CottageWest_01` at
+    `(-3550, -520, 0)`, yaw `38`. Its long timber trough, moss feed bed, stone
+    feet, iron bands, elevated hitch rail, three rings, and ember crest should
+    complete one readable working-yard cluster with the handcart and firewood
+    rack. Confirm the broad trough body and hitching rail are solid; feed,
+    feet, bands, rings, caps, braces, trim, and crest remain clear; and the
+    PlayerStart-to-Mara, west-cottage-bypass, cottage-to-handcart,
+    west-utility, and village-to-road lanes remain open. The trough is
+    presentation-only and must own no quest, interaction, service, recovery,
+    reward, vendor, trainer, or persistence behavior.
+22. Inspect `Embermere_FenwatchNoticeBoard_Road_01` at
     `(-1560, -260, 0)`, yaw `-35`. Its grounded stone-footed timber frame,
     moss roof, iron trim, pinned notices, and ember crest should read from the
     normal village-road approach. Confirm both supports and the central panel
@@ -144,7 +155,7 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     PlayerStart-to-Mara, village-to-road, quartermaster, and armsmaster routes
     remain open. The board must stay presentation-only with no quest marker,
     dialogue, interaction, reward, vendor, trainer, or persistence authority.
-22. Inspect `Embermere_FenwatchCommunalWell_SouthCommons_01` at
+23. Inspect `Embermere_FenwatchCommunalWell_SouthCommons_01` at
     `(-950, -1600, 0)`, yaw `-135`. Its open stone-and-moss curb, timber
     uprights, pale roof, iron axle/crank, hanging rope and bucket, and ember
     crest should read as one grounded Fenwatch silhouette from the southern
@@ -155,15 +166,15 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     remain open. The static well mesh must stay presentation-only with no
     quest, marker, dialogue, interaction, recovery, reward, vendor, trainer,
     or persistence authority.
-23. Confirm the separate art-free
+24. Confirm the separate art-free
     `Embermere_FenwatchCommunalWell_RestService_01` remains colocated with the
     well. Its marker and prompt may identify the service, but it must add no
     mesh, collision, navigation, quest, reward, vendor, trainer, or durable
     save state.
-24. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
+25. Inspect each marsh-reed cluster from the gameplay camera. Its low footprint
     should blend into the ground, reeds should add scale without hiding the
     route, and the whole cluster must remain `NoCollision`.
-25. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
+26. Confirm the suspended SoulCave canopy/pillar accents and three old enemy
     marker meshes have not returned. Foliage should use readable
     project-owned overrides rather than white/default rendering.
 

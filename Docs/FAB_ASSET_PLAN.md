@@ -28,6 +28,9 @@ Embermere does not have final high-fantasy art assets installed yet. The current
   routes and remaining presentation-only. A matching project-owned firewood
   rack adds a solid stack, structural sides, and chopping block while keeping
   its logs, roof, axe, trim, and crest decorative and all cottage routes open.
+  A matching hitching and feed trough now completes that working-yard cluster
+  with a solid broad body and rail while keeping feed, feet, bands, rings,
+  caps, braces, trim, and crest decorative and every surrounding lane open.
   A second project-owned covered-porch cottage now gives the open northwest
   edge another readable home while preserving the lane between dwellings and
   all main/service routes.
@@ -39,7 +42,7 @@ Embermere does not have final high-fantasy art assets installed yet. The current
   presentation, not an original-art placement. A separate colocated native
   practice-target actor supplies repeatable combat without moving
   targeting, damage, reset, or reward policy into the dummy mesh. Service and
-  gameplay actors do not change the 27-piece art baseline.
+  gameplay actors do not change the 28-piece art baseline.
   We still do
   not have a cohesive production-ready fantasy building kit, player/race art,
   weapons, audio, or final UI skinning.
@@ -76,14 +79,14 @@ First local placement pass:
   `FabPass_Village_Fence_03`, leaving 53 tagged `EmbermereFabPass` actors in
   `04_Fab_Zone_Pass` outliner folders. A separate project-owned layer contains
   twenty solid waystone/lamp/signpost/gate/fence/boundary-stone/supply-chest/
-  shelter/vendor-stall/practice-dummy/cottage/north-cottage/workshop/notice-board/handcart/firewood-rack/
+  shelter/vendor-stall/practice-dummy/cottage/north-cottage/workshop/notice-board/handcart/firewood-rack/hitching-trough/
   communal-well placements, Mara's non-colliding
   Fenwatch keeper, the non-colliding Fenwatch quartermaster and armsmaster,
-  plus four visual-only marsh-reed clusters, for 27 original-art placements.
+  plus four visual-only marsh-reed clusters, for 28 original-art placements.
 - The script keeps Mara, PlayerStart, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring intact. Starter-enemy home points are deliberately authored in the setup script so collision-safe encounter tuning is reproducible.
 - The Unreal Python helper assigns rotation fields by name. Do not use positional `unreal.Rotator(...)` arguments here; the first pass mapped intended yaw into pitch and tilted the environment.
 - Validation rejects any `FabPass_` actor with meaningful pitch or roll and
-  requires all 27 original placements, their exact meshes/tags/transforms, the
+  requires all 28 original placements, their exact meshes/tags/transforms, the
   expected solid-prop colliders, and explicit `NoCollision` on the four reeds.
   It also verifies the keeper's exact static mesh, local offset/facing, unit
   scale, and `NoCollision` state on both the saved Blueprint SCS template and
@@ -166,6 +169,14 @@ First local placement pass:
   logs, roof, axe, trim, and crest out of simple collision, and preserves the
   PlayerStart-to-Mara, west-cottage-bypass, cottage-to-handcart, and
   village-to-road routes.
+  `Scripts/validate_fenwatch_hitching_trough_unreal.py` locks the working-yard
+  trough's `367.15 x 133.903 x 189` cm bounds, 3,876 triangles, five shared
+  materials, two authored body/rail boxes, exact transform, project-owned tag,
+  neighbor spacing, and presentation-only ownership. Its initialized-world
+  trace validator proves those two purposeful surfaces solid, keeps feed,
+  feet, bands, rings, caps, braces, trim, and crest out of simple collision,
+  and preserves the PlayerStart-to-Mara, west-cottage-bypass,
+  cottage-to-handcart, west-utility, and village-to-road routes.
   The full-zone validator also locks the two foliage transforms that reveal the accepted south-fence
   silhouette and rejects restoration of the replaced crate and unsupported
   accents. `Scripts/validate_road_boundary_traces_unreal.py` separately proves

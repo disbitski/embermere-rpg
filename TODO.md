@@ -6,6 +6,32 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 19 daily build: added a distinct project-owned Fenwatch hitching
+  and feed trough to complete the west-cottage working-yard cluster. Read
+  `Docs/DAILY_BUILD_2026-09-19.md`. The deterministic Blender/classic-FBX lane
+  produced `SM_EmbermereFenwatchHitchingTrough_01` at
+  `(-3550, -520, 0)`, yaw `38`: `367.15 x 133.903 x 189` cm, 3,876 triangles,
+  one UV channel, zero non-manifold edges, five shared Fenwatch materials, and
+  two authored boxes for the broad trough body and hitching rail. Feed, feet,
+  bands, rings, caps, braces, trim, and crest remain decorative. Fresh viewport
+  inspection accepted its grounded handcart/firewood/cottage composition and
+  open lanes. All **ten initialized-world trace suites**, all **100/100
+  isolated tests**, and all **27 fresh package validators** passed with zero
+  test warnings or `LogPython: Error`; the map is now **53 grounded Fab actors
+  plus 28 original-art placements**. Clean PIE started/stopped, fresh MCP
+  discovery returned exactly 100 tests, and the map plus new mesh are saved
+  clean. The final pipeline deliberately keeps classic FBX import/package save
+  in a fresh commandlet and map placement in the initialized editor through
+  first-class MCP after a NullRHI placement-subsystem crash exposed that
+  boundary. Xcode was checked once: only `/Applications/Xcode.app` is present
+  with SDK 27.0, above UE 5.8's 26.9 maximum, so the known-invalid build was
+  not replayed. Protected save/keeper hashes remain intact; unrelated Config,
+  keeper, and Field Notes changes stay excluded. **Next:** if a compatible
+  side-by-side Xcode appears, use process-local `DEVELOPER_DIR`, prove UBT,
+  then review and compile the pending Ledger focus regressions. Otherwise use
+  fresh viewport evidence for one distinct MCP-backed milestone outside the
+  completed west-cottage utility cluster, or strengthen a visible-value
+  package/live-world regression without repeating readiness probes.
 - September 18 daily build: added a distinct project-owned covered-porch
   cottage on Fenwatch's open northwest edge. Read
   `Docs/DAILY_BUILD_2026-09-18.md`. The deterministic Blender/classic-FBX lane

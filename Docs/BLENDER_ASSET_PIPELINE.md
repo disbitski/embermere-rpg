@@ -1283,6 +1283,54 @@ cottage-pair, and village-road lanes clear. Normal-route, porch, rear, and
 cottage-pair viewport captures accepted terrain contact and silhouette. The
 map now contains 53 Fab actors and 27 original-art placements.
 
+## Fenwatch Hitching And Feed Trough
+
+The September 19 pass followed fresh viewport evidence into the west-cottage
+utility gap instead of repeating the northwest dwelling lane.
+`Scripts/blender/build_embermere_fenwatch_hitching_trough.py` creates a long
+timber feed trough on stone feet with iron bands, moss feed, an elevated hitch
+rail, three rings, and an ember crest. It completes the handcart/firewood
+working-yard read while remaining ordinary removable scenery.
+
+A factory-clean Blender MCP run writes editable `.blend`, classic FBX,
+preview, and deterministic metrics under
+`ArtSource/Blender/Environment/FenwatchHitchingTrough`. The accepted source is:
+
+- grounded `367.15 x 133.903 x 189` cm bounds with applied unit scale;
+- 3,876 triangles, one UV channel, and zero non-manifold edges;
+- five shared Fenwatch stone, moss, timber, iron, and ember materials;
+- two UBX boxes for the broad trough body and hitching rail;
+- visual-only feed, feet, bands, rings, caps, braces, trim, and crest.
+
+`Scripts/import_embermere_fenwatch_hitching_trough_unreal.py` deliberately owns
+only classic `FbxFactory` import, shared-material remapping, exact mesh and
+collision checks, and explicit package saving. First-class Unreal MCP places
+`Embermere_FenwatchHitchingTrough_CottageWest_01` at
+`(-3550, -520, 0)`, yaw `38`, assigns its project-owned tag and outliner folder,
+retains `BlockAll`, and saves the map. The actor owns no quest, interaction,
+service, recovery, reward, vendor, trainer, or persistence behavior.
+
+This split is intentional. The first NullRHI attempt finished the import and
+save, then entered a placement-subsystem SIGSEGV while spawning from the new
+asset. Retrying that mixed lane would make a commandlet accident part of the
+content contract. Fresh commandlets remain authoritative for the static-mesh
+and saved-map packages; the initialized editor owns placement and registered
+world-physics checks.
+
+The focused package validator locks provenance, dimensions, triangles,
+materials, both boxes, transform, tag, collision profile, ownership, and
+spacing from the cottage, handcart, firewood rack, Mara, and PlayerStart. The
+initialized-world trace suite proves the body and rail solid, keeps the thin
+decoration clear, and preserves PlayerStart-to-Mara, west-cottage bypass,
+cottage-to-handcart, west-utility, and village-road travel. Opposite-side and
+normal-yard captures accepted the composition. The map now contains 53 Fab
+actors and 28 original-art placements.
+
+Lesson: import and placement do not need to share a process to be one
+deterministic pipeline. Give the commandlet the package work it proves well,
+give first-class editor MCP the live scene work it proves well, and keep native
+collision acceptance in a world whose physics bodies are actually registered.
+
 ## Fenwatch Journal UI Emblem
 
 The September 4 Astra evaluation exercised a small UI-art lane, not another

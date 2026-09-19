@@ -155,12 +155,12 @@ The repo currently contains the C++ gameplay scaffold for:
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved
   instances, and asset-agnostic runtime presentation
-- a corrected 53-actor local Fab/Epic art pass plus 27 placements from
+- a corrected 53-actor local Fab/Epic art pass plus 28 placements from
   Embermere's original Blender-built waystone, ember-lamp, road-signpost,
   road-gate, boundary-fence, rune-topped boundary-stone, supply-chest, and
   Fenwatch shelter, vendor stall, first closed cottage, covered-porch north
   cottage, open-front training workshop, roadside notice board, west-cottage
-  provision handcart and firewood rack, and
+  provision handcart, firewood rack, and hitching/feed trough, and
   south-commons communal well; Mara's
   rigged Fenwatch keeper; the
   rigged Fenwatch quartermaster and armsmaster; a practice dummy; and four
@@ -209,7 +209,8 @@ Fenwatch shelter, Mara's grounded rigged Stylized Classic Fenwatch keeper,
 the rigged Fenwatch quartermaster and armsmaster, a matching vendor stall,
 practice dummy, closed Fenwatch cottage, covered-porch north cottage,
 open-front training workshop,
-roadside notice board, west-cottage provision handcart and firewood rack,
+roadside notice board, west-cottage provision handcart, firewood rack, and
+hitching/feed trough,
 roofed communal well, visual-only marsh reeds, and the fully rigged Marsh
 Prowler, each built from reviewed scripts,
 validated in Blender, imported through an explicit Unreal contract, and placed
@@ -315,23 +316,23 @@ why human taste becomes more important as building gets easier.
 
 ## Status
 
-September 18 added a distinct project-owned covered-porch cottage on
-Fenwatch's northwest edge through the deterministic Blender/classic-FBX lane.
-The map is now 53 grounded Fab actors plus 27 original-art placements. All 100
-isolated tests, all 26 fresh package validators, all nine initialized-world
+September 19 added a distinct project-owned hitching and feed trough to the
+west-cottage working yard through the deterministic Blender/classic-FBX lane.
+The map is now 53 grounded Fab actors plus 28 original-art placements. All 100
+isolated tests, all 27 fresh package validators, all ten initialized-world
 collision/route suites, clean PIE smoke, fresh 100-test discovery, and
-full-zone validation passed. The cottage's exact geometry, five shared
-materials, six purposeful body/porch/step/post colliders, decorative
-exclusions, art-only ownership, placement, and protected routes are
-regression-checked. Unreal and Blender MCP are healthy, the saved journey is
-untouched, and desktop control remains disabled.
+full-zone validation passed. The trough's exact geometry, five shared
+materials, purposeful body/rail collision, decorative exclusions, art-only
+ownership, placement, and protected routes are regression-checked. Unreal and
+Blender MCP are healthy, the saved journey is untouched, and desktop control
+remains disabled.
 
 The requested no-hot-reload build was genuinely rerun after license acceptance.
 Metal works, but **Xcode/SDK 27.0 is outside UE 5.8's supported 15.2-26.9
 range**, so UBT still exits before C++ compilation pending a compatible
 side-by-side Xcode; Epic's preferred version is 26.1.1. Runtime/package success
 is not mislabeled as a new C++ build. See
-[today's report](Docs/DAILY_BUILD_2026-09-18.md) for exact evidence and the next
+[today's report](Docs/DAILY_BUILD_2026-09-19.md) for exact evidence and the next
 compiler/test-first handoff.
 
 September 14 fixed vendor/trainer arrow navigation and Escape when a native
