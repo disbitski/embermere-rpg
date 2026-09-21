@@ -6,6 +6,33 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 20/21 daily build: accepted a distinct project-owned Fenwatch
+  gatewatch post after fresh east-road viewport evidence led outside the
+  completed west-cottage utility cluster. Read
+  `Docs/DAILY_BUILD_2026-09-20.md`. The deterministic Blender/classic-FBX lane
+  produced
+  `SM_EmbermereFenwatchGatewatchPost_01`; the saved editor placement is
+  `Embermere_FenwatchGatewatchPost_EastRoad_01` at `(220, -650, 0)`, yaw `20`.
+  Current metrics are `482 x 327 x 414` cm, 5,488 triangles, one UV channel,
+  zero non-manifold edges, five shared Fenwatch materials, and seven authored
+  boxes for its platform, entry step, rear wall, and four posts. Roof, bell,
+  railings, map, horn, spears, trim, and crest are decorative. The actor is a
+  removable presentation-only `StaticMeshActor` with no gameplay authority.
+  The fresh import commandlet and authoritative sequential **28-package**
+  aggregate passed with every exact marker, including **53 grounded Fab actors
+  plus 29 original-art placements**, exit zero, and no `LogPython: Error`.
+  All **eleven** initialized-world collision/route suites passed again after a
+  clean relaunch; fresh discovery returned exactly 100 tests, all **100/100**
+  had passed without warnings, and clean PIE started/stopped. The map and mesh
+  are saved clean outside PIE with the real editor owning MCP 8123. Four known
+  vendor physics-resave warnings remain confined to raw vendor packages and
+  were not repaired by resaving them. Protected save/keeper hashes remain
+  exact and unrelated Config, keeper, and Field Notes changes remain excluded.
+  **Next:** if a compatible side-by-side Xcode appears, use process-local
+  `DEVELOPER_DIR`, prove UBT, then review and compile the pending Ledger focus
+  regressions. Otherwise use fresh viewport evidence for one different bounded
+  MCP-backed milestone or strengthen a visible-value regression without
+  repeating readiness probes.
 - September 19 daily build: added a distinct project-owned Fenwatch hitching
   and feed trough to complete the west-cottage working-yard cluster. Read
   `Docs/DAILY_BUILD_2026-09-19.md`. The deterministic Blender/classic-FBX lane

@@ -3506,6 +3506,37 @@ original-art placements. Xcode 27 remains outside UE 5.8's supported SDK
 range, so no known-invalid build was replayed and no runtime result was called
 a fresh C++ compile.
 
+## September 20/21: The East Road Gained A Watch
+
+Fresh viewport review deliberately moved away from the completed west-cottage
+working yard. The east-road edge needed a stronger village threshold, so a
+factory-clean Blender MCP build produced a compact Fenwatch gatewatch post with
+a raised platform, small entry step, rear wall, four timber supports, moss
+roof, bell, side railings, route map, horn, spears, and restrained ember crest.
+The first placement moved 110 cm farther south after normal-route inspection
+showed the signpost and player lane needed more breathing room.
+
+The accepted `SM_EmbermereFenwatchGatewatchPost_01` is
+`482 x 327 x 414` cm, 5,488 triangles, one UV channel, zero non-manifold edges,
+and five shared Fenwatch materials. Seven authored boxes make only the
+platform, entry step, rear wall, and four posts solid. Roof, bell, railings,
+map, horn, spears, trim, and crest remain decorative. First-class Unreal MCP
+placed the presentation-only actor at `(220, -650, 0)`, yaw `20`, where it
+stays 870.5 cm from the protected east-road centerline and owns no gameplay
+authority.
+
+The final verification preserved the hard boundary between packages and live
+world physics. With the editor genuinely down, all 28 fresh package validators
+passed sequentially with the exact 53-Fab/29-original marker and no Python
+error. After a clean relaunch, all eleven initialized-world trace suites passed
+again, discovery returned exactly 100 tests, clean PIE started/stopped, and the
+map plus mesh stayed clean. Four known vendor physics-resave warnings remain
+honestly isolated instead of being hidden by editing raw vendor content.
+
+The compiler story remained equally explicit: Xcode/SDK 27.0 is still above UE
+5.8's declared 26.9 maximum, so no known-invalid build was replayed and no
+runtime or package result was mislabeled as a fresh C++ compile.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

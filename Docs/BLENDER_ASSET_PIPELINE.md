@@ -1331,6 +1331,44 @@ deterministic pipeline. Give the commandlet the package work it proves well,
 give first-class editor MCP the live scene work it proves well, and keep native
 collision acceptance in a world whose physics bodies are actually registered.
 
+## Fenwatch East-Road Gatewatch Post
+
+The September 20 pass used fresh viewport evidence outside the completed
+west-cottage utility cluster. `Scripts/blender/build_embermere_fenwatch_gatewatch_post.py`
+creates a compact watch shelter with a raised platform, entry step, rear wall,
+four posts, moss roof, bell, railings, route map, horn, spears, trim, and ember
+crest. A second normal-route review moved the placement 110 cm south so the
+signpost and player lane retained clear visual space.
+
+A factory-clean Blender MCP run writes editable `.blend`, classic FBX,
+preview, and deterministic metrics under
+`ArtSource/Blender/Environment/FenwatchGatewatchPost`. The accepted source is:
+
+- grounded `482 x 327 x 414` cm bounds with applied unit scale;
+- 5,488 triangles, one UV channel, and zero non-manifold edges;
+- five shared Fenwatch stone, moss, timber, iron, and ember materials;
+- seven UBX boxes for the platform, entry step, rear wall, and four posts;
+- visual-only roof, bell, railings, map, horn, spears, trim, and crest.
+
+`Scripts/import_embermere_fenwatch_gatewatch_post_unreal.py` owns classic
+`FbxFactory` import, shared-material remapping, exact mesh/collision checks,
+and explicit package saving. First-class Unreal MCP placed
+`Embermere_FenwatchGatewatchPost_EastRoad_01` at `(220, -650, 0)`, yaw `20`,
+assigned its project-owned tag and folder, retained `BlockAll`, and saved the
+map. The actor is presentation-only and owns no gameplay authority.
+
+The focused package validator locks import provenance, exact metrics, seven
+boxes, transform, tag, profile, ownership, neighbor spacing, and 870.5 cm
+east-road centerline clearance. The initialized-world suite proves every
+purposeful surface solid, keeps decoration clear, and preserves the
+PlayerStart-to-Mara, village-to-road, east-road, and outer-bypass lanes. The
+authoritative 28-package aggregate and all eleven live suites passed in fresh
+processes. The map now contains 53 Fab actors and 29 original-art placements.
+
+Lesson: a strong silhouette can still crowd a route before it blocks physics.
+Use viewport composition to choose the final transform, then use package and
+native trace evidence to lock the exact geometry and traversal contract.
+
 ## Fenwatch Journal UI Emblem
 
 The September 4 Astra evaluation exercised a small UI-art lane, not another

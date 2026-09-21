@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 53
-EXPECTED_ORIGINAL_ART_COUNT = 28
+EXPECTED_ORIGINAL_ART_COUNT = 29
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -203,6 +203,16 @@ ORIGINAL_HITCHING_TROUGH_PATH = (
 )
 ORIGINAL_HITCHING_TROUGH_LOCATION = (-3550.0, -520.0, 0.0)
 ORIGINAL_HITCHING_TROUGH_YAW = 38.0
+ORIGINAL_GATEWATCH_POST_LABEL = (
+    "Embermere_FenwatchGatewatchPost_EastRoad_01"
+)
+ORIGINAL_GATEWATCH_POST_PATH = (
+    "/Game/Art/Embermere/Environment/PrototypeVillage/"
+    "SM_EmbermereFenwatchGatewatchPost_01."
+    "SM_EmbermereFenwatchGatewatchPost_01"
+)
+ORIGINAL_GATEWATCH_POST_LOCATION = (220.0, -650.0, 0.0)
+ORIGINAL_GATEWATCH_POST_YAW = 20.0
 FENWATCH_REST_SERVICE_LABEL = (
     "Embermere_FenwatchCommunalWell_RestService_01"
 )
@@ -349,6 +359,7 @@ REQUIRED_LABELS = {
     ORIGINAL_HANDCART_LABEL,
     ORIGINAL_FIREWOOD_RACK_LABEL,
     ORIGINAL_HITCHING_TROUGH_LABEL,
+    ORIGINAL_GATEWATCH_POST_LABEL,
     FENWATCH_REST_SERVICE_LABEL,
     FENWATCH_REST_PRESENTATION_LABEL,
     FENWATCH_STILL_WATERS_SERVICE_LABEL,
@@ -2939,6 +2950,187 @@ def main():
             "{:.1f} cm".format(hitching_trough_route_clearance)
         )
 
+    gatewatch_post_mesh = unreal.EditorAssetLibrary.load_asset(
+        ORIGINAL_GATEWATCH_POST_PATH
+    )
+    if not gatewatch_post_mesh or not isinstance(
+        gatewatch_post_mesh,
+        unreal.StaticMesh,
+    ):
+        fail("missing original Fenwatch gatewatch post {}".format(
+            ORIGINAL_GATEWATCH_POST_PATH,
+        ))
+    gatewatch_post_import_data = gatewatch_post_mesh.get_editor_property(
+        "asset_import_data"
+    )
+    gatewatch_post_import_class = (
+        gatewatch_post_import_data.get_class().get_name()
+        if gatewatch_post_import_data
+        else "None"
+    )
+    if gatewatch_post_import_class != "FbxStaticMeshImportData":
+        fail(
+            "Fenwatch gatewatch post must retain classic FBX import data, "
+            "found {}".format(gatewatch_post_import_class)
+        )
+    gatewatch_post_body_setup = gatewatch_post_mesh.get_editor_property(
+        "body_setup"
+    )
+    gatewatch_post_aggregate = (
+        gatewatch_post_body_setup.get_editor_property("agg_geom")
+        if gatewatch_post_body_setup
+        else None
+    )
+    gatewatch_post_collision_count = sum(
+        len(gatewatch_post_aggregate.get_editor_property(property_name))
+        for property_name in (
+            "box_elems",
+            "sphere_elems",
+            "sphyl_elems",
+            "convex_elems",
+        )
+    ) if gatewatch_post_aggregate else 0
+    gatewatch_post_box_count = (
+        len(gatewatch_post_aggregate.get_editor_property("box_elems"))
+        if gatewatch_post_aggregate
+        else 0
+    )
+    if gatewatch_post_collision_count != 7 or gatewatch_post_box_count != 7:
+        fail(
+            "Fenwatch gatewatch post must retain exactly seven authored box "
+            "colliders, found {} total / {} boxes".format(
+                gatewatch_post_collision_count,
+                gatewatch_post_box_count,
+            )
+        )
+    gatewatch_post_bounds = gatewatch_post_mesh.get_bounds()
+    if not all((
+        nearly_equal(gatewatch_post_bounds.box_extent.x, 241.0, 1.0),
+        nearly_equal(gatewatch_post_bounds.box_extent.y, 163.5, 1.0),
+        nearly_equal(gatewatch_post_bounds.origin.z, 207.0, 1.0),
+        nearly_equal(gatewatch_post_bounds.box_extent.z, 207.0, 1.0),
+    )):
+        fail("Fenwatch gatewatch-post bounds drifted: origin={}, extent={}".format(
+            gatewatch_post_bounds.origin,
+            gatewatch_post_bounds.box_extent,
+        ))
+    if gatewatch_post_mesh.get_num_triangles(0) != 5488:
+        fail("Fenwatch gatewatch-post triangle count drifted: {}".format(
+            gatewatch_post_mesh.get_num_triangles(0),
+        ))
+    gatewatch_post_material_paths = set()
+    for static_material in list(
+        gatewatch_post_mesh.get_editor_property("static_materials")
+    ):
+        material = static_material.get_editor_property("material_interface")
+        if material:
+            gatewatch_post_material_paths.add(material.get_path_name())
+    if gatewatch_post_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("Fenwatch gatewatch-post material set drifted: {}".format(
+            sorted(gatewatch_post_material_paths),
+        ))
+
+    gatewatch_post = actors_by_label[ORIGINAL_GATEWATCH_POST_LABEL]
+    if gatewatch_post.get_class().get_name() != "StaticMeshActor":
+        fail("{} must remain presentation-only StaticMeshActor art".format(
+            ORIGINAL_GATEWATCH_POST_LABEL,
+        ))
+    gatewatch_post_component = gatewatch_post.get_component_by_class(
+        unreal.StaticMeshComponent
+    )
+    placed_gatewatch_post_mesh = (
+        gatewatch_post_component.get_editor_property("static_mesh")
+        if gatewatch_post_component
+        else None
+    )
+    placed_gatewatch_post_path = (
+        placed_gatewatch_post_mesh.get_path_name()
+        if placed_gatewatch_post_mesh
+        else "None"
+    )
+    if placed_gatewatch_post_path != ORIGINAL_GATEWATCH_POST_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_GATEWATCH_POST_LABEL,
+            ORIGINAL_GATEWATCH_POST_PATH,
+            placed_gatewatch_post_path,
+        ))
+    gatewatch_post_location = gatewatch_post.get_actor_location()
+    gatewatch_post_rotation = gatewatch_post.get_actor_rotation()
+    gatewatch_post_scale = gatewatch_post.get_actor_scale3d()
+    if not all((
+        nearly_equal(
+            gatewatch_post_location.x,
+            ORIGINAL_GATEWATCH_POST_LOCATION[0],
+            1.0,
+        ),
+        nearly_equal(
+            gatewatch_post_location.y,
+            ORIGINAL_GATEWATCH_POST_LOCATION[1],
+            1.0,
+        ),
+        nearly_equal(
+            gatewatch_post_location.z,
+            ORIGINAL_GATEWATCH_POST_LOCATION[2],
+            1.0,
+        ),
+        nearly_equal(gatewatch_post_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(
+            gatewatch_post_rotation.yaw,
+            ORIGINAL_GATEWATCH_POST_YAW,
+            0.1,
+        ),
+        nearly_equal(gatewatch_post_rotation.roll, 0.0, 0.1),
+        nearly_equal(gatewatch_post_scale.x, 1.0, 0.001),
+        nearly_equal(gatewatch_post_scale.y, 1.0, 0.001),
+        nearly_equal(gatewatch_post_scale.z, 1.0, 0.001),
+    )):
+        fail("{} transform drifted: location={}, rotation={}, scale={}".format(
+            ORIGINAL_GATEWATCH_POST_LABEL,
+            gatewatch_post_location,
+            gatewatch_post_rotation,
+            gatewatch_post_scale,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(gatewatch_post.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_GATEWATCH_POST_LABEL,
+        ))
+    if str(gatewatch_post_component.get_collision_profile_name()) != "BlockAll":
+        fail("{} collision profile drifted: {}".format(
+            ORIGINAL_GATEWATCH_POST_LABEL,
+            gatewatch_post_component.get_collision_profile_name(),
+        ))
+    gatewatch_post_spacing_contract = {
+        ORIGINAL_SIGNPOST_LABEL: 500.0,
+        ORIGINAL_WAYSTONE_LABEL: 1050.0,
+        ORIGINAL_GATE_LABEL: 1400.0,
+        ORIGINAL_TRAINING_WORKSHOP_LABEL: 950.0,
+        FENWATCH_KEEPER_LABEL: 2200.0,
+        "PlayerStart_Embermere_Village": 2600.0,
+    }
+    for context_label, minimum_distance in (
+        gatewatch_post_spacing_contract.items()
+    ):
+        context_location = actors_by_label[context_label].get_actor_location()
+        actual_distance = math.hypot(
+            gatewatch_post_location.x - context_location.x,
+            gatewatch_post_location.y - context_location.y,
+        )
+        if actual_distance < minimum_distance:
+            fail("Fenwatch gatewatch post moved too close to {}: {:.1f} cm".format(
+                context_label,
+                actual_distance,
+            ))
+    gatewatch_post_road_clearance = distance_to_segment_2d(
+        (gatewatch_post_location.x, gatewatch_post_location.y),
+        (-900.0, -95.0),
+        (1080.0, 540.0),
+    )
+    if gatewatch_post_road_clearance < 850.0:
+        fail(
+            "Fenwatch gatewatch post encroaches on the east-road centerline: "
+            "{:.1f} cm".format(gatewatch_post_road_clearance)
+        )
+
     communal_well_mesh = unreal.EditorAssetLibrary.load_asset(
         ORIGINAL_COMMUNAL_WELL_PATH
     )
@@ -3606,7 +3798,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision west cottage, the covered-porch north cottage with purposeful body/deck/step/post collision, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the cottage-side Fenwatch firewood rack with purposeful stack/support/block collision, the cottage-side Fenwatch hitching trough with purposeful body/rail collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision west cottage, the covered-porch north cottage with purposeful body/deck/step/post collision, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the cottage-side Fenwatch firewood rack with purposeful stack/support/block collision, the cottage-side Fenwatch hitching trough with purposeful body/rail collision, the east-road Fenwatch gatewatch post with purposeful platform/step/wall/post collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))
