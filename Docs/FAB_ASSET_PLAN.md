@@ -38,6 +38,10 @@ Embermere does not have final high-fantasy art assets installed yet. The current
   threshold with purposeful platform, step, wall, and post collision while
   keeping its roof, bell, railings, map, horn, spears, trim, and crest
   decorative and all protected road lanes open.
+  A project-owned north-commons herb garden now gives the covered-cottage edge
+  a cultivated low silhouette with solid raised beds and trellis posts while
+  keeping its aisle, herbs, beam, leaves, signs, pail, trim, and crest
+  decorative and every protected commons/road lane open.
   A separate colocated art-free rest
   service now owns one explicit stay-still Health/Mana recovery action without putting
   interaction, timing, cooldown, combat checks, or mutation on the mesh. A
@@ -46,7 +50,7 @@ Embermere does not have final high-fantasy art assets installed yet. The current
   presentation, not an original-art placement. A separate colocated native
   practice-target actor supplies repeatable combat without moving
   targeting, damage, reset, or reward policy into the dummy mesh. Service and
-  gameplay actors do not change the 29-piece art baseline.
+  gameplay actors do not change the 30-piece art baseline.
   We still do
   not have a cohesive production-ready fantasy building kit, player/race art,
   weapons, audio, or final UI skinning.
@@ -84,13 +88,13 @@ First local placement pass:
   `04_Fab_Zone_Pass` outliner folders. A separate project-owned layer contains
   a project-owned waystone/lamp/signpost/gate/fence/boundary-stone/supply-chest/
   shelter/vendor-stall/practice-dummy/cottage/north-cottage/workshop/notice-board/handcart/firewood-rack/hitching-trough/
-  communal-well/gatewatch-post family, Mara's non-colliding
+  communal-well/gatewatch-post/herb-garden family, Mara's non-colliding
   Fenwatch keeper, the non-colliding Fenwatch quartermaster and armsmaster,
-  plus four visual-only marsh-reed clusters, for 29 original-art placements.
+  plus four visual-only marsh-reed clusters, for 30 original-art placements.
 - The script keeps Mara, PlayerStart, quest data, combat, HUD, hotbar, inventory, nameplates, and target ring intact. Starter-enemy home points are deliberately authored in the setup script so collision-safe encounter tuning is reproducible.
 - The Unreal Python helper assigns rotation fields by name. Do not use positional `unreal.Rotator(...)` arguments here; the first pass mapped intended yaw into pitch and tilted the environment.
 - Validation rejects any `FabPass_` actor with meaningful pitch or roll and
-  requires all 29 original placements, their exact meshes/tags/transforms, the
+  requires all 30 original placements, their exact meshes/tags/transforms, the
   expected solid-prop colliders, and explicit `NoCollision` on the four reeds.
   It also verifies the keeper's exact static mesh, local offset/facing, unit
   scale, and `NoCollision` state on both the saved Blueprint SCS template and

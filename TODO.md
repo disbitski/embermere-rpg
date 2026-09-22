@@ -6,6 +6,30 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 22 daily build: accepted a project-owned Fenwatch herb garden in
+  the open north commons after fresh overhead and normal-route viewport
+  evidence identified a real composition gap outside the completed west-yard
+  and east-road lanes. Read `Docs/DAILY_BUILD_2026-09-22.md`. The deterministic
+  Blender/classic-FBX lane produced `SM_EmbermereFenwatchHerbGarden_01`; the
+  saved presentation-only placement is
+  `Embermere_FenwatchHerbGarden_NorthCommons_01` at `(-1500, 1400, 0)`, yaw
+  `-15`. It is `356 x 212 x 195` cm, 4,312 triangles, one UV channel, zero
+  non-manifold edges, and uses the five shared Fenwatch materials. Exactly four
+  authored boxes make the two raised beds and two trellis posts solid; the
+  central aisle, plants, trellis beam/leaves, signs, pail, trim, and ember crest
+  remain decorative. The focused package validator, full-zone validator, all
+  **twelve** initialized-world collision/route suites, all **100/100** native
+  tests, clean PIE, and the authoritative sequential **29-package** aggregate
+  passed. The current map baseline is **53 grounded Fab actors plus 30
+  original-art placements**. The map and garden mesh are saved clean outside
+  PIE with real MCP 8123. Only Xcode/SDK 27.0 remains installed, above UE
+  5.8's 26.9 maximum, so the known-invalid build was not replayed. Protected
+  save/keeper hashes remain exact and unrelated Config, keeper, and Field Notes
+  changes remain excluded. **Next:** if a compatible side-by-side Xcode
+  appears, use process-local `DEVELOPER_DIR`, prove UBT, and take the pending
+  test-first Ledger focus milestone. Otherwise use fresh viewport evidence for
+  one distinct bounded MCP-backed milestone or strengthen a visible-value
+  regression without repeating the north-commons art lane.
 - September 20/21 daily build: accepted a distinct project-owned Fenwatch
   gatewatch post after fresh east-road viewport evidence led outside the
   completed west-cottage utility cluster. Read

@@ -3537,6 +3537,34 @@ The compiler story remained equally explicit: Xcode/SDK 27.0 is still above UE
 5.8's declared 26.9 maximum, so no known-invalid build was replayed and no
 runtime or package result was mislabeled as a fresh C++ compile.
 
+## September 22: The North Commons Started Growing
+
+Fresh viewport inspection moved away from both the completed west-cottage yard
+and east-road gatewatch lane. The open north commons beyond the covered cottage
+was technically clear but visually empty, so a factory-clean Blender MCP build
+gave it a low, readable herb garden instead of another large structure.
+
+The accepted `SM_EmbermereFenwatchHerbGarden_01` is `356 x 212 x 195` cm,
+4,312 triangles, one UV channel, zero non-manifold edges, and uses the five
+shared Fenwatch materials. Four authored boxes make only the two raised beds
+and two trellis posts solid. The central aisle, planted herbs, trellis beam and
+leaves, signs, pail, trim, and ember crest remain decorative. First-class
+Unreal MCP placed the presentation-only actor at `(-1500, 1400, 0)`, yaw `-15`,
+where overhead, village-approach, and east-side captures accepted its grounded
+composition without obscuring the cottages or road.
+
+The first trace draft began a protected cottage route inside the cottage's own
+collider. We corrected the assertion instead of moving valid world art, then
+proved both beds and trellis posts solid, the aisle and decoration clear, and
+the north-commons perimeter, cottage approach, and village-road routes open.
+All twelve initialized-world suites, all 29 package validators, and all 100
+native tests passed; clean PIE and fresh discovery passed after relaunch. The
+map now contains 53 grounded Fab actors plus 30 original-art placements.
+
+Only Xcode/SDK 27.0 remains installed, beyond UE 5.8's 26.9 maximum. The known
+invalid build was not replayed, and the day's acceptance stays honestly scoped
+to art, packages, the saved map, native tests, and initialized-world physics.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

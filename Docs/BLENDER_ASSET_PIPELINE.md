@@ -1369,6 +1369,42 @@ Lesson: a strong silhouette can still crowd a route before it blocks physics.
 Use viewport composition to choose the final transform, then use package and
 native trace evidence to lock the exact geometry and traversal contract.
 
+## Fenwatch Herb Garden
+
+The September 22 north-commons pass deliberately moved outside the completed
+west-yard and east-road lanes. Fresh viewport evidence found an open but empty
+commons beside the covered north cottage, where a low cultivated feature could
+improve depth without introducing another service or blocking a sightline.
+
+`Scripts/blender/build_embermere_fenwatch_herb_garden.py` creates the scene in
+a factory-clean Blender process and writes editable `.blend`, classic FBX,
+preview, and deterministic metrics under
+`ArtSource/Blender/Environment/FenwatchHerbGarden`. The accepted source is:
+
+- grounded `356 x 212 x 195` cm bounds with applied unit scale;
+- 4,312 triangles, one UV channel, and zero non-manifold edges;
+- five shared Fenwatch stone, moss, timber, iron, and ember materials;
+- four UBX boxes for the two raised beds and two trellis posts;
+- visual-only central aisle, herbs, trellis beam/leaves, signs, pail, trim, and
+  ember crest.
+
+`Scripts/import_embermere_fenwatch_herb_garden_unreal.py` owns classic
+`FbxFactory` import, shared-material remapping, exact mesh/collision checks, and
+explicit package saving. First-class Unreal MCP placed
+`Embermere_FenwatchHerbGarden_NorthCommons_01` at `(-1500, 1400, 0)`, yaw
+`-15`, assigned its project-owned tag and folder, retained `BlockAll`, and
+saved the map. The actor is presentation-only and owns no gameplay authority.
+
+The focused package validator locks source provenance, exact metrics, four
+boxes, transform, tag, profile, ownership, and protected spacing. The
+initialized-world suite proves the beds/posts solid, central aisle and
+decoration clear, and north-commons perimeter, cottage-approach, and
+village-road lanes open. Its first route assertion began inside the existing
+north-cottage collider; the assertion was corrected instead of moving valid
+art. The authoritative 29-package aggregate and all twelve live suites passed
+in fresh processes. The map now contains 53 Fab actors and 30 original-art
+placements.
+
 ## Fenwatch Journal UI Emblem
 
 The September 4 Astra evaluation exercised a small UI-art lane, not another

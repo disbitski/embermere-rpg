@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 53
-EXPECTED_ORIGINAL_ART_COUNT = 29
+EXPECTED_ORIGINAL_ART_COUNT = 30
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -213,6 +213,16 @@ ORIGINAL_GATEWATCH_POST_PATH = (
 )
 ORIGINAL_GATEWATCH_POST_LOCATION = (220.0, -650.0, 0.0)
 ORIGINAL_GATEWATCH_POST_YAW = 20.0
+ORIGINAL_HERB_GARDEN_LABEL = (
+    "Embermere_FenwatchHerbGarden_NorthCommons_01"
+)
+ORIGINAL_HERB_GARDEN_PATH = (
+    "/Game/Art/Embermere/Environment/PrototypeVillage/"
+    "SM_EmbermereFenwatchHerbGarden_01."
+    "SM_EmbermereFenwatchHerbGarden_01"
+)
+ORIGINAL_HERB_GARDEN_LOCATION = (-1500.0, 1400.0, 0.0)
+ORIGINAL_HERB_GARDEN_YAW = -15.0
 FENWATCH_REST_SERVICE_LABEL = (
     "Embermere_FenwatchCommunalWell_RestService_01"
 )
@@ -360,6 +370,7 @@ REQUIRED_LABELS = {
     ORIGINAL_FIREWOOD_RACK_LABEL,
     ORIGINAL_HITCHING_TROUGH_LABEL,
     ORIGINAL_GATEWATCH_POST_LABEL,
+    ORIGINAL_HERB_GARDEN_LABEL,
     FENWATCH_REST_SERVICE_LABEL,
     FENWATCH_REST_PRESENTATION_LABEL,
     FENWATCH_STILL_WATERS_SERVICE_LABEL,
@@ -3131,6 +3142,155 @@ def main():
             "{:.1f} cm".format(gatewatch_post_road_clearance)
         )
 
+    herb_garden_mesh = unreal.EditorAssetLibrary.load_asset(
+        ORIGINAL_HERB_GARDEN_PATH
+    )
+    if not herb_garden_mesh or not isinstance(herb_garden_mesh, unreal.StaticMesh):
+        fail("missing original Fenwatch herb garden {}".format(
+            ORIGINAL_HERB_GARDEN_PATH,
+        ))
+    herb_garden_import_data = herb_garden_mesh.get_editor_property(
+        "asset_import_data"
+    )
+    herb_garden_import_class = (
+        herb_garden_import_data.get_class().get_name()
+        if herb_garden_import_data
+        else "None"
+    )
+    if herb_garden_import_class != "FbxStaticMeshImportData":
+        fail(
+            "Fenwatch herb garden must retain classic FBX import data, found "
+            "{}".format(herb_garden_import_class)
+        )
+    herb_garden_body_setup = herb_garden_mesh.get_editor_property("body_setup")
+    herb_garden_aggregate = (
+        herb_garden_body_setup.get_editor_property("agg_geom")
+        if herb_garden_body_setup
+        else None
+    )
+    herb_garden_collision_count = sum(
+        len(herb_garden_aggregate.get_editor_property(property_name))
+        for property_name in (
+            "box_elems",
+            "sphere_elems",
+            "sphyl_elems",
+            "convex_elems",
+        )
+    ) if herb_garden_aggregate else 0
+    herb_garden_box_count = (
+        len(herb_garden_aggregate.get_editor_property("box_elems"))
+        if herb_garden_aggregate
+        else 0
+    )
+    if herb_garden_collision_count != 4 or herb_garden_box_count != 4:
+        fail(
+            "Fenwatch herb garden must retain exactly four authored box "
+            "colliders, found {} total / {} boxes".format(
+                herb_garden_collision_count,
+                herb_garden_box_count,
+            )
+        )
+    herb_garden_bounds = herb_garden_mesh.get_bounds()
+    if not all((
+        nearly_equal(herb_garden_bounds.box_extent.x, 178.0, 1.0),
+        nearly_equal(herb_garden_bounds.box_extent.y, 106.0, 1.0),
+        nearly_equal(herb_garden_bounds.origin.z, 97.5, 1.0),
+        nearly_equal(herb_garden_bounds.box_extent.z, 97.5, 1.0),
+    )):
+        fail("Fenwatch herb-garden bounds drifted: origin={}, extent={}".format(
+            herb_garden_bounds.origin,
+            herb_garden_bounds.box_extent,
+        ))
+    if herb_garden_mesh.get_num_triangles(0) != 4312:
+        fail("Fenwatch herb-garden triangle count drifted: {}".format(
+            herb_garden_mesh.get_num_triangles(0),
+        ))
+    herb_garden_material_paths = set()
+    for static_material in list(
+        herb_garden_mesh.get_editor_property("static_materials")
+    ):
+        assigned_material = static_material.get_editor_property(
+            "material_interface"
+        )
+        if assigned_material:
+            herb_garden_material_paths.add(assigned_material.get_path_name())
+    if herb_garden_material_paths != ORIGINAL_ROAD_FAMILY_MATERIAL_PATHS:
+        fail("Fenwatch herb-garden material set drifted: {}".format(
+            sorted(herb_garden_material_paths),
+        ))
+
+    herb_garden = actors_by_label[ORIGINAL_HERB_GARDEN_LABEL]
+    if herb_garden.get_class().get_name() != "StaticMeshActor":
+        fail("{} must remain presentation-only StaticMeshActor art".format(
+            ORIGINAL_HERB_GARDEN_LABEL,
+        ))
+    herb_garden_component = herb_garden.get_component_by_class(
+        unreal.StaticMeshComponent
+    )
+    placed_herb_garden_mesh = (
+        herb_garden_component.get_editor_property("static_mesh")
+        if herb_garden_component
+        else None
+    )
+    placed_herb_garden_path = (
+        placed_herb_garden_mesh.get_path_name()
+        if placed_herb_garden_mesh
+        else "None"
+    )
+    if placed_herb_garden_path != ORIGINAL_HERB_GARDEN_PATH:
+        fail("{} must use {}, found {}".format(
+            ORIGINAL_HERB_GARDEN_LABEL,
+            ORIGINAL_HERB_GARDEN_PATH,
+            placed_herb_garden_path,
+        ))
+    herb_garden_location = herb_garden.get_actor_location()
+    herb_garden_rotation = herb_garden.get_actor_rotation()
+    herb_garden_scale = herb_garden.get_actor_scale3d()
+    if not all((
+        nearly_equal(herb_garden_location.x, ORIGINAL_HERB_GARDEN_LOCATION[0], 1.0),
+        nearly_equal(herb_garden_location.y, ORIGINAL_HERB_GARDEN_LOCATION[1], 1.0),
+        nearly_equal(herb_garden_location.z, ORIGINAL_HERB_GARDEN_LOCATION[2], 1.0),
+        nearly_equal(herb_garden_rotation.pitch, 0.0, 0.1),
+        angle_nearly_equal(herb_garden_rotation.yaw, ORIGINAL_HERB_GARDEN_YAW, 0.1),
+        nearly_equal(herb_garden_rotation.roll, 0.0, 0.1),
+        nearly_equal(herb_garden_scale.x, 1.0, 0.001),
+        nearly_equal(herb_garden_scale.y, 1.0, 0.001),
+        nearly_equal(herb_garden_scale.z, 1.0, 0.001),
+    )):
+        fail("{} transform drifted: location={}, rotation={}, scale={}".format(
+            ORIGINAL_HERB_GARDEN_LABEL,
+            herb_garden_location,
+            herb_garden_rotation,
+            herb_garden_scale,
+        ))
+    if unreal.Name("EmbermereOriginalArt") not in list(herb_garden.tags):
+        fail("{} must retain the EmbermereOriginalArt tag".format(
+            ORIGINAL_HERB_GARDEN_LABEL,
+        ))
+    if str(herb_garden_component.get_collision_profile_name()) != "BlockAll":
+        fail("{} collision profile drifted: {}".format(
+            ORIGINAL_HERB_GARDEN_LABEL,
+            herb_garden_component.get_collision_profile_name(),
+        ))
+    herb_garden_spacing_contract = {
+        ORIGINAL_NORTH_COTTAGE_LABEL: 1200.0,
+        FENWATCH_KEEPER_LABEL: 2250.0,
+        "PlayerStart_Embermere_Village": 2700.0,
+        ORIGINAL_NOTICE_BOARD_LABEL: 1600.0,
+        ORIGINAL_GATEWATCH_POST_LABEL: 2600.0,
+    }
+    for context_label, minimum_distance in herb_garden_spacing_contract.items():
+        context_location = actors_by_label[context_label].get_actor_location()
+        actual_distance = math.hypot(
+            herb_garden_location.x - context_location.x,
+            herb_garden_location.y - context_location.y,
+        )
+        if actual_distance < minimum_distance:
+            fail("Fenwatch herb garden moved too close to {}: {:.1f} cm".format(
+                context_label,
+                actual_distance,
+            ))
+
     communal_well_mesh = unreal.EditorAssetLibrary.load_asset(
         ORIGINAL_COMMUNAL_WELL_PATH
     )
@@ -3798,7 +3958,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision west cottage, the covered-porch north cottage with purposeful body/deck/step/post collision, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the cottage-side Fenwatch firewood rack with purposeful stack/support/block collision, the cottage-side Fenwatch hitching trough with purposeful body/rail collision, the east-road Fenwatch gatewatch post with purposeful platform/step/wall/post collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision west cottage, the covered-porch north cottage with purposeful body/deck/step/post collision, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the cottage-side Fenwatch firewood rack with purposeful stack/support/block collision, the cottage-side Fenwatch hitching trough with purposeful body/rail collision, the east-road Fenwatch gatewatch post with purposeful platform/step/wall/post collision, the north-commons Fenwatch herb garden with purposeful bed/post collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

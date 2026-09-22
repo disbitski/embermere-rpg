@@ -40,28 +40,28 @@ this snapshot. A new task should read files in this order:
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
 
-## Current September 20/21 Handoff
+## Current September 22 Handoff
 
-The latest intentional world milestone is the project-owned Fenwatch east-road
-gatewatch post. Its deterministic Blender source, FBX, preview, metrics, Unreal
-mesh, placement, focused package validator, and native trace validator are
-tracked. The saved transform is `(220, -650, 0)`, yaw `20`; accepted bounds are
-`482 x 327 x 414` cm with 5,488 triangles, five shared materials, one UV
-channel, zero non-manifold edges, and seven purposeful platform/step/wall/post
-boxes. Roof, bell, railings, map, horn, spears, trim, and crest are decorative.
-It is presentation-only. The map baseline is now **53 grounded Fab actors plus
-29 original-art placements**.
+The latest intentional world milestone is the project-owned Fenwatch
+north-commons herb garden. Its deterministic Blender source, FBX, preview,
+metrics, Unreal mesh, placement, focused package validator, and native trace
+validator are tracked. The saved transform is `(-1500, 1400, 0)`, yaw `-15`;
+accepted bounds are `356 x 212 x 195` cm with 4,312 triangles, five shared
+materials, one UV channel, zero non-manifold edges, and four purposeful
+raised-bed/trellis-post boxes. The aisle, herbs, trellis beam/leaves, signs,
+pail, trim, and crest are decorative. It is presentation-only. The map
+baseline is now **53 grounded Fab actors plus 30 original-art placements**.
 
 The final import lane intentionally stops after classic-FBX mesh validation and
 package save; first-class Unreal MCP places, tags, organizes, inspects, and
 saves the actor in the initialized editor. This avoids a reproduced NullRHI
 placement-subsystem crash without weakening package or world acceptance. The
 real editor was closed before fresh package verification. All 100 isolated
-tests, all 28 fresh package validators, all eleven initialized-world
+tests, all 29 fresh package validators, all twelve initialized-world
 collision/route suites, clean PIE smoke, fresh 100-test discovery, and
 full-zone validation passed. Blender MCP is healthy.
 Unreal is left on `/Game/Maps/L_Embermere_Prototype`, outside PIE, with the
-real editor owning localhost MCP 8123 and the map plus gatewatch mesh clean.
+real editor owning localhost MCP 8123 and the map plus herb-garden mesh clean.
 Preserve the original save and the unrelated Config, keeper-material, and
 FieldNotes working changes.
 
@@ -102,10 +102,10 @@ The project currently includes:
   Ledger with transient compact-tracker focus, quest-data-owned objective
   instructions in its selected detail and fixed compact tracker, and no quest
   mutation authority;
-- a grounded local Fab/Epic art pass with 53 upright environment actors and 29
+- a grounded local Fab/Epic art pass with 53 upright environment actors and 30
   project-owned placements from an original Blender-built Embermere
   waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
-  quartermaster/armsmaster/practice-dummy/cottage/north-cottage/handcart/firewood-rack/hitching-trough/gatewatch-post/reed family, a 38-expression moss/
+  quartermaster/armsmaster/practice-dummy/cottage/north-cottage/handcart/firewood-rack/hitching-trough/gatewatch-post/herb-garden/reed family, a 38-expression moss/
   earth road material, and a Mac-friendly daylight baseline;
 - a reusable art-only NPC wrapper with static and skeletal lanes, shared
   transforms, soft references, Anim Blueprint precedence, a
@@ -2217,10 +2217,10 @@ First fresh-session checks:
    - the vendor stall at `(-1530, -1430, 0)`, yaw `180`, with a customer-facing
      counter, four solid supports, clear service approach and east bypass, and
      unchanged normal-`F` Fenwatch Supplies ownership on the art-free service;
-   - 53 grounded upright Fab actors plus 29 original placements from the
+   - 53 grounded upright Fab actors plus 30 original placements from the
      waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
      quartermaster/armsmaster/vendor-stall/practice-dummy/cottage/north-cottage/workshop/
-     notice-board/handcart/firewood-rack/hitching-trough/communal-well/gatewatch-post/reed family;
+     notice-board/handcart/firewood-rack/hitching-trough/communal-well/gatewatch-post/herb-garden/reed family;
      inspect the route-facing chest at `(-1740, -1180, 0)`, its solid lid, the
      Fenwatch shelter behind Mara at `(-1740, -700, 0)`, its four solid supports
      and clear center, Mara's grounded front-facing non-colliding Fenwatch
