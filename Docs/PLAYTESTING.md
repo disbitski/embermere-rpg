@@ -8,13 +8,14 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
 3. Confirm the map shows a blue atmospheric sky, readable ambient light, the
    varied moss/earth road surface, 53 grounded upright `FabPass_` actors plus
-   30 original-art placements from the waystone, ember-lamp, road-signpost,
+   31 original-art placements from the waystone, ember-lamp, road-signpost,
    road-gate, boundary-fence, boundary-stone, supply-chest, Fenwatch shelter,
    Mara's keeper, the Fenwatch quartermaster and armsmaster, the vendor stall,
    practice dummy, first closed cottage, covered-porch north cottage,
    open-front training workshop,
    roadside notice board, west-cottage provision handcart, firewood rack, and
    hitching/feed trough, east-road gatewatch post, north-commons herb garden,
+   north-road marshward shrine,
    south-commons
    communal well, and four marsh-reed clusters, a
    navigable PlayerStart/Mara
@@ -168,6 +169,14 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     routes remain open. The garden is presentation-only and must own no quest,
     interaction, service, recovery, reward, vendor, trainer, or persistence
     behavior.
+    Also inspect `Embermere_FenwatchMarshwardShrine_NorthRoad_01` at
+    `(300, 1450, 0)`, yaw `-90`, from the road-gate approach. Its hanging ward,
+    offering bowl, paired posts, and low stone plinth should face the road and
+    remain clear of the centerline. Confirm the plinth, backstone, and two posts
+    are solid while roof, ward, bowl, talismans, trim, and crest are clear.
+    The north-road centerline, west shoulder, and north-commons routes should
+    remain open. The shrine is presentation-only and owns no interaction,
+    quest, service, reward, vendor, trainer, or persistence behavior.
 24. Inspect `Embermere_FenwatchNoticeBoard_Road_01` at
     `(-1560, -260, 0)`, yaw `-35`. Its grounded stone-footed timber frame,
     moss roof, iron trim, pinned notices, and ember crest should read from the

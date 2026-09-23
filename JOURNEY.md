@@ -3565,6 +3565,27 @@ Only Xcode/SDK 27.0 remains installed, beyond UE 5.8's 26.9 maximum. The known
 invalid build was not replayed, and the day's acceptance stays honestly scoped
 to art, packages, the saved map, native tests, and initialized-world physics.
 
+## September 23: A Ward at the Marsh Edge
+
+The village-to-wilderness road still had a broad empty shoulder beyond the
+gate. Fresh overhead and normal-route viewport captures showed a good place
+for a compact wayfinding landmark, so the deterministic Blender lane produced
+a Fenwatch marshward shrine. The saved actor at `(300, 1450, 0)`, yaw `-90`,
+faces its hanging ember ward and offering bowl toward the road. The yaw also
+accounts for the classic FBX local-Y mirror exposed in the first live view.
+
+The shrine is `250 x 183.238 x 258` cm, 2,648 triangles, one UV channel,
+zero non-manifold edges, and reuses five Fenwatch materials. Its plinth,
+backstone, and two posts are the only four solid authored boxes; roof, ward,
+bowl, talismans, trim, and crest remain decorative. It owns no gameplay
+authority. The first route trace started inside the existing north gate fence
+and was corrected to begin beyond it. All 13 final initialized-world suites,
+all 30 fresh package validators, and all 100 native tests passed. Clean PIE
+and fresh discovery passed after relaunch; the map now contains 53 Fab actors
+and 31 original-art placements. Xcode/SDK 27.0 still exceeds UE 5.8's 26.9
+maximum, so this work is accepted as art, package, map, and physics evidence,
+not a new C++ compile.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

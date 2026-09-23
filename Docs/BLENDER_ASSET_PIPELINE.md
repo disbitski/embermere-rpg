@@ -1405,6 +1405,29 @@ art. The authoritative 29-package aggregate and all twelve live suites passed
 in fresh processes. The map now contains 53 Fab actors and 30 original-art
 placements.
 
+## Fenwatch Marshward Shrine
+
+Fresh September 23 viewport inspection identified an empty shoulder between
+the village road gate and the Marsh Prowler pocket.
+`Scripts/blender/build_embermere_fenwatch_marshward_shrine.py` creates the
+scene in a factory-clean Blender process and writes editable `.blend`, classic
+FBX, preview, and metrics under
+`ArtSource/Blender/Environment/FenwatchMarshwardShrine`. The accepted source
+is grounded at `250 x 183.238 x 258` cm with applied unit scale, 2,648
+triangles, one UV channel, zero non-manifold edges, and five shared Fenwatch
+materials. Four UBX boxes cover only the plinth, backstone, and two posts.
+
+`Scripts/import_embermere_fenwatch_marshward_shrine_unreal.py` owns classic
+`FbxFactory` import, material remapping, exact metrics, collision checks, and
+package save. First-class Unreal MCP placed the tagged presentation-only
+actor at `(300, 1450, 0)`, yaw `-90`. The initial yaw faced the mesh away from
+the road because classic FBX mirrored local Y; live viewport inspection fixed
+that before acceptance. The focused saved-package validator and
+initialized-world trace suite prove four solid surfaces, clear decorative
+geometry, and open north-road routes. The fresh 30-package aggregate and all
+13 live trace suites passed. The map contains 53 Fab actors and 31 original
+art placements.
+
 ## Fenwatch Journal UI Emblem
 
 The September 4 Astra evaluation exercised a small UI-art lane, not another

@@ -317,22 +317,22 @@ why human taste becomes more important as building gets easier.
 
 ## Status
 
-September 22 added a project-owned herb garden to Fenwatch's open north commons
+September 23 added a project-owned marshward shrine to the north-road shoulder
 through the deterministic Blender/classic-FBX lane. The map is now 53 grounded
-Fab actors plus 30 original-art placements. All 100 isolated tests, all 29
-fresh package validators, all twelve initialized-world collision/route suites,
+Fab actors plus 31 original-art placements. All 100 isolated tests, all 30
+fresh package validators, all 13 initialized-world collision/route suites,
 clean PIE smoke, fresh 100-test discovery, and full-zone validation passed. The
-garden's exact geometry, five shared materials, four purposeful bed/post
-colliders, decorative exclusions, art-only ownership, placement, and protected
-routes are regression-checked. Unreal and Blender MCP are healthy, the saved
-journey is untouched, and desktop control remains disabled.
+shrine's exact geometry, five shared materials, four purposeful colliders,
+decorative exclusions, art-only ownership, placement, and protected routes are
+regression-checked. Unreal and Blender MCP are healthy, the saved journey is
+untouched, and desktop control remains disabled.
 
 The requested no-hot-reload build was genuinely rerun after license acceptance.
 Metal works, but **Xcode/SDK 27.0 is outside UE 5.8's supported 15.2-26.9
 range**, so UBT still exits before C++ compilation pending a compatible
 side-by-side Xcode; Epic's preferred version is 26.1.1. Runtime/package success
 is not mislabeled as a new C++ build. See
-[today's report](Docs/DAILY_BUILD_2026-09-22.md) for exact evidence and the next
+[today's report](Docs/DAILY_BUILD_2026-09-23.md) for exact evidence and the next
 compiler/test-first handoff.
 
 September 14 fixed vendor/trainer arrow navigation and Escape when a native

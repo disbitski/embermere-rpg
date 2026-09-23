@@ -22,6 +22,7 @@ VALIDATOR_MODULES = (
     "validate_fenwatch_firewood_rack_unreal",
     "validate_fenwatch_gatewatch_post_unreal",
     "validate_fenwatch_herb_garden_unreal",
+    "validate_fenwatch_marshward_shrine_unreal",
     "validate_fenwatch_handcart_unreal",
     "validate_fenwatch_hitching_trough_unreal",
     "validate_fenwatch_keeper_greeting_unreal",

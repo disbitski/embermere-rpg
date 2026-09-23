@@ -6,7 +6,7 @@ import unreal
 
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 EXPECTED_FABPASS_COUNT = 53
-EXPECTED_ORIGINAL_ART_COUNT = 30
+EXPECTED_ORIGINAL_ART_COUNT = 31
 ORIGINAL_WAYSTONE_LABEL = "Embermere_Waystone_Road_01"
 ORIGINAL_WAYSTONE_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereWaystone_01.SM_EmbermereWaystone_01"
 ORIGINAL_EMBER_LAMP_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/SM_EmbermereEmberLamp_01.SM_EmbermereEmberLamp_01"
@@ -223,6 +223,9 @@ ORIGINAL_HERB_GARDEN_PATH = (
 )
 ORIGINAL_HERB_GARDEN_LOCATION = (-1500.0, 1400.0, 0.0)
 ORIGINAL_HERB_GARDEN_YAW = -15.0
+ORIGINAL_MARSHWARD_SHRINE_LABEL = (
+    "Embermere_FenwatchMarshwardShrine_NorthRoad_01"
+)
 FENWATCH_REST_SERVICE_LABEL = (
     "Embermere_FenwatchCommunalWell_RestService_01"
 )
@@ -371,6 +374,7 @@ REQUIRED_LABELS = {
     ORIGINAL_HITCHING_TROUGH_LABEL,
     ORIGINAL_GATEWATCH_POST_LABEL,
     ORIGINAL_HERB_GARDEN_LABEL,
+    ORIGINAL_MARSHWARD_SHRINE_LABEL,
     FENWATCH_REST_SERVICE_LABEL,
     FENWATCH_REST_PRESENTATION_LABEL,
     FENWATCH_STILL_WATERS_SERVICE_LABEL,
@@ -3958,7 +3962,7 @@ def main():
     if fog_component.get_editor_property("enable_volumetric_fog"):
         fail("volumetric fog must stay disabled for the Mac-friendly prototype baseline")
 
-    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision west cottage, the covered-porch north cottage with purposeful body/deck/step/post collision, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the cottage-side Fenwatch firewood rack with purposeful stack/support/block collision, the cottage-side Fenwatch hitching trough with purposeful body/rail collision, the east-road Fenwatch gatewatch post with purposeful platform/step/wall/post collision, the north-commons Fenwatch herb garden with purposeful bed/post collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
+    unreal.log("Embermere zone validation passed: {} grounded upright FabPass actors, {} grounded original-art placements including Mara's separate rigged art-only Fenwatch keeper, the presentation-only Fenwatch quartermaster and armsmaster, the solid-core Fenwatch practice dummy, the support/counter-collision Fenwatch vendor stall, the closed body/step-collision west cottage, the covered-porch north cottage with purposeful body/deck/step/post collision, the open-front Fenwatch training workshop with purposeful support/wall/bench collision, the presentation-only Fenwatch notice board with purposeful support/panel collision, the cottage-side Fenwatch handcart with purposeful bed/axle/rest collision, the cottage-side Fenwatch firewood rack with purposeful stack/support/block collision, the cottage-side Fenwatch hitching trough with purposeful body/rail collision, the east-road Fenwatch gatewatch post with purposeful platform/step/wall/post collision, the north-commons Fenwatch herb garden with purposeful bed/post collision, the north-road Fenwatch marshward shrine with purposeful plinth/backstone/post collision, the south-commons Fenwatch communal well with purposeful curb/upright collision, and four visual-only marsh reed clusters, three saved Marsh Prowler presentations, separated starter pulls, restored foliage materials, gameplay anchors, 38-node moss-and-earth ground, and daylight baseline intact".format(
         len(fabpass_labels),
         EXPECTED_ORIGINAL_ART_COUNT,
     ))

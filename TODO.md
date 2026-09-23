@@ -6,6 +6,29 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 23 daily build: accepted the project-owned Fenwatch marshward
+  shrine after fresh viewport evidence identified an empty west shoulder
+  between the road gate and Marsh Prowler pocket. Read
+  `Docs/DAILY_BUILD_2026-09-23.md`. The deterministic Blender/classic-FBX
+  lane produced `SM_EmbermereFenwatchMarshwardShrine_01`; first-class Unreal
+  MCP saved the presentation-only actor
+  `Embermere_FenwatchMarshwardShrine_NorthRoad_01` at `(300, 1450, 0)`, yaw
+  `-90`. It is `250 x 183.238 x 258` cm, 2,648 triangles, one UV channel,
+  zero non-manifold edges, and five shared Fenwatch materials. Four authored
+  boxes make only the plinth, backstone, and two posts solid. The roof,
+  hanging ward, bowl, talismans, trim, and crest remain decorative. The
+  focused package validator, full-zone validator, all **13** initialized-world
+  collision/route suites, all **100/100** tests, clean PIE, and the fresh
+  sequential **30-package** aggregate passed. The map baseline is **53
+  grounded Fab actors plus 31 original-art placements**. Unreal remains on
+  the correct map outside PIE with real MCP 8123 and clean map/mesh packages.
+  Protected hashes remain exact; unrelated Config, keeper, and Field Notes
+  changes remain excluded. Only Xcode/SDK 27.0 is installed, above UE 5.8's
+  26.9 maximum. **Next:** if a compatible side-by-side Xcode appears, use
+  process-local `DEVELOPER_DIR`, prove UBT, and take the pending test-first
+  Ledger focus milestone. Otherwise use fresh viewport evidence for one
+  distinct MCP-backed milestone or strengthen a saved-package/live-world
+  regression without repeating this road-shoulder art lane.
 - September 22 daily build: accepted a project-owned Fenwatch herb garden in
   the open north commons after fresh overhead and normal-route viewport
   evidence identified a real composition gap outside the completed west-yard

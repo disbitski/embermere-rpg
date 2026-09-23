@@ -40,28 +40,28 @@ this snapshot. A new task should read files in this order:
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
 
-## Current September 22 Handoff
+## Current September 23 Handoff
 
 The latest intentional world milestone is the project-owned Fenwatch
-north-commons herb garden. Its deterministic Blender source, FBX, preview,
+north-road marshward shrine. Its deterministic Blender source, FBX, preview,
 metrics, Unreal mesh, placement, focused package validator, and native trace
-validator are tracked. The saved transform is `(-1500, 1400, 0)`, yaw `-15`;
-accepted bounds are `356 x 212 x 195` cm with 4,312 triangles, five shared
-materials, one UV channel, zero non-manifold edges, and four purposeful
-raised-bed/trellis-post boxes. The aisle, herbs, trellis beam/leaves, signs,
-pail, trim, and crest are decorative. It is presentation-only. The map
-baseline is now **53 grounded Fab actors plus 30 original-art placements**.
+validator are tracked. The saved transform is `(300, 1450, 0)`, yaw `-90`;
+accepted bounds are `250 x 183.238 x 258` cm with 2,648 triangles, five
+shared materials, one UV channel, zero non-manifold edges, and four purposeful
+plinth/backstone/post boxes. The roof, hanging ward, bowl, talismans, trim,
+and crest are decorative. It is presentation-only. The map baseline is now
+**53 grounded Fab actors plus 31 original-art placements**.
 
 The final import lane intentionally stops after classic-FBX mesh validation and
 package save; first-class Unreal MCP places, tags, organizes, inspects, and
 saves the actor in the initialized editor. This avoids a reproduced NullRHI
 placement-subsystem crash without weakening package or world acceptance. The
 real editor was closed before fresh package verification. All 100 isolated
-tests, all 29 fresh package validators, all twelve initialized-world
+tests, all 30 fresh package validators, all 13 initialized-world
 collision/route suites, clean PIE smoke, fresh 100-test discovery, and
 full-zone validation passed. Blender MCP is healthy.
 Unreal is left on `/Game/Maps/L_Embermere_Prototype`, outside PIE, with the
-real editor owning localhost MCP 8123 and the map plus herb-garden mesh clean.
+real editor owning localhost MCP 8123 and the map plus shrine mesh clean.
 Preserve the original save and the unrelated Config, keeper-material, and
 FieldNotes working changes.
 
