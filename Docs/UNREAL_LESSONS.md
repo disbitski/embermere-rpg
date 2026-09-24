@@ -2309,3 +2309,20 @@ stable bound to `260x68` and tightening the font preserved deterministic layout
 while making title, progress, and instruction readable. Test source retention
 and clipping mechanically, then inspect the rendered result at normal camera
 distance.
+
+## Validate Live Routes With Native Traces And Honest Endpoints
+
+An editor preview trace returned clear for a proposed Marsh Prowler staging
+segment, but `SystemLibrary.line_trace_single` correctly reported that its
+start was already inside a saved rock collider. Nearby alternatives intersected
+the south gate stone or fence. Probe candidate endpoints with the same native
+query used by the final validator; a bad start point is not a reason to move
+valid world art or ignore collision. Use offset rays at player width and more
+than one body height so a center-only line cannot certify a narrow passage.
+
+The north Prowler's support ray first hits the existing roots overlay. A
+second support-only ray ignoring that exact actor proves the underlying zone
+ground, while every movement and sightline ray retains normal collision.
+Keep a separate positive hit on known solid geometry so an uninitialized
+physics scene cannot make all clearances pass vacuously. Call these geometric
+solo-pull bounds, not proof of live AI aggro or physical player control.

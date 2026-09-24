@@ -472,6 +472,18 @@ Warrior fallback without rewriting the old file.
     with walking restored, zero residual velocity, and three seconds of damage
     protection.
 
+### Automated Solo-Pull Clearance
+
+In an initialized editor world on `L_Embermere_Prototype`, run
+`Scripts/validate_marsh_prowler_pull_lanes_unreal.py` or the sequential
+`Scripts/validate_initialized_world_traces_unreal.py` aggregate. The focused
+suite protects each saved Prowler's home and 525 cm aggro radius, one local
+solo stance per enemy, underlying ground support, full player-width staging
+and pull sightlines at 95 and 155 cm, and a positive solid-collision control.
+Its success marker is `EMBERMERE_MARSH_PROWLER_PULL_LANES_SUCCESS`.
+These traces do not prove live AI pursuit, retaliation, leash, or physical
+camera handling; keep step 34's normal PIE check for those behaviors.
+
 ## Fenwatch Communal-Well Rest Loop
 
 1. Start clean PIE, confirm a legal character, hide Inventory with `I`, and

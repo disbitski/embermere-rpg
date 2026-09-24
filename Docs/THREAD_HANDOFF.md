@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-21
+Last updated: 2026-09-24
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -40,7 +40,29 @@ this snapshot. A new task should read files in this order:
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
 
-## Current September 23 Handoff
+## Current September 24 Handoff
+
+September 24 added `Scripts/validate_marsh_prowler_pull_lanes_unreal.py` to
+the initialized-world aggregate. The three saved Prowlers retain exact homes
+and 525 cm aggro radii. Deliberate solo stances are 509.3, 485.4, and 500.0
+cm from their respective homes while remaining at least 600 cm from either
+neighbor. Native world traces check terrain support and six player-width
+staging/pull rays per segment at 95 and 155 cm, plus a positive gate-fence
+collision control. The northern stance rests over the existing decorative
+roots mesh; the support ray ignores that actor only on a second pass to prove
+the underlying zone ground. Clearance rays ignore nothing. This is an
+automated route/collision contract, not a fresh physical aggro playtest.
+
+All 100 native tests passed without warnings. The fresh sequential 30-package
+aggregate passed with the 53-Fab/31-original map markers, exit zero, and no
+`LogPython: Error`. All 14 initialized-world suites passed in a clean
+post-relaunch editor session, clean PIE started/stopped, and fresh discovery
+returned 100 tests. Unreal remains on the correct map outside PIE with real
+MCP 8123; map and shrine packages are clean. The original save and unrelated
+keeper/Config/FieldNotes changes are preserved. Only Xcode/SDK 27.0 is
+installed, above UE 5.8's declared 26.9 maximum, so no C++ build was claimed.
+
+## September 23 World-Art Baseline
 
 The latest intentional world milestone is the project-owned Fenwatch
 north-road marshward shrine. Its deterministic Blender source, FBX, preview,

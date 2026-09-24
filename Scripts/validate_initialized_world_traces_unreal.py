@@ -22,6 +22,7 @@ TRACE_MODULES = (
     "validate_fenwatch_gatewatch_post_traces_unreal",
     "validate_fenwatch_herb_garden_traces_unreal",
     "validate_fenwatch_marshward_shrine_traces_unreal",
+    "validate_marsh_prowler_pull_lanes_unreal",
 )
 
 

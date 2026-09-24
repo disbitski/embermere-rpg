@@ -6,6 +6,27 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 24 daily build: added a native initialized-world solo-pull lane
+  regression for all three saved Marsh Prowlers. Read
+  `Docs/DAILY_BUILD_2026-09-24.md`. Each stance is inside its own 525 cm aggro
+  radius but at least 600 cm from the other homes; the exact target distances
+  are 509.3, 485.4, and 500.0 cm. The new suite checks terrain beneath each
+  stance, player-width staging and pull sightlines at 95 and 155 cm, and a
+  positive solid-fence control. It is the **14th** initialized-world suite;
+  it does not alter any saved asset or gameplay rule. All **100/100** native
+  tests passed without warnings; the fresh sequential **30-package**
+  aggregate passed with **53 grounded Fab / 31 original-art** markers, exit
+  zero, and no `LogPython: Error`; all **14** live suites passed again in a
+  clean post-relaunch editor. Clean PIE started/stopped, fresh discovery
+  returned 100, map/shrine packages are clean outside PIE with real MCP 8123,
+  and protected save/keeper hashes are exact. Physical aggro behavior was not
+  replayed because desktop control remains revoked. Only Xcode/SDK 27.0 is
+  installed, above UE 5.8's 26.9 maximum; no known-invalid build was
+  repeated. **Next:** use a compatible side-by-side Xcode via process-local
+  `DEVELOPER_DIR` if one appears, prove UBT, then take the pending test-first
+  Ledger focus milestone. Otherwise use fresh viewport evidence for one
+  distinct MCP-backed milestone or strengthen another visible-value
+  regression without repeating readiness probes.
 - September 23 daily build: accepted the project-owned Fenwatch marshward
   shrine after fresh viewport evidence identified an empty west shoulder
   between the road gate and Marsh Prowler pocket. Read
