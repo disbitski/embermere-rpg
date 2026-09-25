@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-24
+Last updated: 2026-09-25
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -40,7 +40,31 @@ this snapshot. A new task should read files in this order:
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
 
-## Current September 24 Handoff
+## Current September 25 Handoff
+
+September 25 added `Scripts/validate_fenwatch_interaction_approaches_unreal.py`
+as the 15th initialized-world suite. It protects the five exact F owners:
+Mara, quartermaster, armsmaster, Still Waters notice-board service, and
+communal-well rest service. It reads the controller's 350 cm radius and the
+well data asset's 300 cm radius, then proves each reachable stance selects the
+intended nearest owner with at least 50 cm separation. Ten vertical support
+traces reach zone ground; 30 player-width native rays clear the five local
+approaches at 95 and 155 cm; one known south-gate fence must still block.
+The first probe found a cottage-embedded Mara route and a supply-chest vendor
+stance, so the accepted endpoints use clear terrain. This is a geometric and
+nearest-owner contract, not physical `F` activation or panel acceptance.
+
+All 100 native tests passed without warnings. The fresh sequential 30-package
+aggregate passed with 53-Fab/31-original markers, exit zero, and no
+`LogPython: Error`. All 15 live suites passed in a clean post-relaunch editor
+session with no Python errors. Clean PIE started/stopped, fresh discovery
+returned 100, and the real editor remains on the correct map outside PIE with
+MCP 8123 and clean map/shrine packages. The user's journey save, unrelated
+keeper material, Config, and FieldNotes changes remain untouched. Only
+Xcode/SDK 27.0 is installed, above UE 5.8's 26.9 maximum, so no C++ build
+was claimed. See `Docs/DAILY_BUILD_2026-09-25.md` for the exact evidence.
+
+## September 24 Pull-Lane Baseline
 
 September 24 added `Scripts/validate_marsh_prowler_pull_lanes_unreal.py` to
 the initialized-world aggregate. The three saved Prowlers retain exact homes

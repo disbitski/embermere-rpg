@@ -6,6 +6,26 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 25 daily build: added a read-only initialized-world Fenwatch
+  interaction-approach regression; see `Docs/DAILY_BUILD_2026-09-25.md`. The
+  new 15th live suite verifies the **five exact F owners**, controller-owned
+  350 cm and well-data-owned 300 cm ranges, nearest-owner selection at five
+  player-height stances, terrain at both ends of each approach, 30 native
+  player-width clearance rays, and a positive solid-fence control. A first
+  probe caught an approach starting inside the west cottage and another
+  standing on the supply chest; the accepted points use real clear terrain.
+  No gameplay or saved content changed. All **100/100** tests passed without
+  warnings, the fresh sequential **30-package** aggregate passed with **53
+  Fab / 31 original-art** markers and no `LogPython: Error`, all **15** live
+  suites passed again after a clean relaunch, and clean PIE started/stopped.
+  Fresh discovery returned 100; the map and shrine remain clean outside PIE
+  with real MCP 8123. Protected save/keeper hashes are unchanged. The trace
+  proves approach geometry and nearest-owner resolution, not physical `F`
+  activation or panel behavior. Only Xcode/SDK 27.0 remains installed above
+  UE 5.8's 26.9 maximum. **Next:** if a compatible side-by-side Xcode appears,
+  use process-local `DEVELOPER_DIR`, prove UBT, then take the pending
+  test-first Ledger focus milestone. Otherwise use fresh evidence for one
+  different bounded MCP-backed improvement; do not repeat these route probes.
 - September 24 daily build: added a native initialized-world solo-pull lane
   regression for all three saved Marsh Prowlers. Read
   `Docs/DAILY_BUILD_2026-09-24.md`. Each stance is inside its own 525 cm aggro

@@ -2326,3 +2326,21 @@ ground, while every movement and sightline ray retains normal collision.
 Keep a separate positive hit on known solid geometry so an uninitialized
 physics scene cannot make all clearances pass vacuously. Call these geometric
 solo-pull bounds, not proof of live AI aggro or physical player control.
+
+## An F Prompt Needs Reachable Terrain And Unambiguous Ownership
+
+The controller selects the nearest interactable inside its 350 cm 3D radius;
+the communal well then applies its own 300 cm data-owned rule. An apparently
+nearby quest giver or service is not enough: a player must be able to stand on
+terrain, walk a capsule-width approach, and have that owner win the nearest
+comparison over its neighbors. Keep those checks outside art so replacing a
+mesh cannot change who owns the interaction.
+
+The first Fenwatch approach probe placed a Mara path inside the west cottage
+and a vendor stance on top of the supply chest. A later vendor staging point
+had clear player-height rays but its downward support ray hit a village table.
+Native support and offset traces exposed all three bad assertions; the final
+terrain-backed approaches preserve comfortable nearest-owner margins. A
+positive solid hit prevents a dead collision scene from making every route
+look open. This is a spatial contract, not evidence that a physical `F` press
+opened the correct panel or committed a transaction.

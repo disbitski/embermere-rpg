@@ -208,6 +208,18 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     marker meshes have not returned. Foliage should use readable
     project-owned overrides rather than white/default rendering.
 
+### Automated Fenwatch Interaction Approaches
+
+On the initialized editor map, run
+`Scripts/validate_fenwatch_interaction_approaches_unreal.py` or its sequential
+`Scripts/validate_initialized_world_traces_unreal.py` aggregate. The focused
+suite protects the five actual `F` owners, controller and well-data ranges,
+nearest-owner choice, terrain-supported standing points, and player-width
+clear approaches. Require
+`EMBERMERE_FENWATCH_INTERACTION_APPROACHES_SUCCESS`. This does not prove the
+physical `F` key, dialogue, panels, quest mutation, training, commerce, or
+rest completion; retain the manual PIE steps for those behaviors.
+
 ## Finding Mara
 
 Mara is the quest giver actor named `Quest_Giver_Mara_Fenwatch`.
