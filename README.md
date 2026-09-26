@@ -326,13 +326,15 @@ initialized-world trace suites, full-zone validation, clean PIE smoke, and
 fresh discovery passed. Unreal MCP is healthy, the saved journey is untouched,
 and desktop control remains disabled.
 
-The requested no-hot-reload build was genuinely rerun after license acceptance.
-Metal works, but **Xcode/SDK 27.0 is outside UE 5.8's supported 15.2-26.9
-range**, so UBT still exits before C++ compilation pending a compatible
-side-by-side Xcode; Epic's preferred version is 26.1.1. Runtime/package success
-is not mislabeled as a new C++ build. See
-[today's report](Docs/DAILY_BUILD_2026-09-26.md) for exact evidence and the next
-compiler/test-first handoff.
+Later on September 26, the user installed Xcode 26.1.1 alongside the unchanged
+system-default Xcode 27. With process-local `DEVELOPER_DIR`, the real
+`EmbermereEditor Mac Development -NoHotReloadFromIDE` build succeeded against
+macOS SDK 26.1. The relaunched editor found 100 tests, passed all 100 without
+warnings, and completed clean PIE start/stop with MCP 8123. Future builds must
+keep using that local selection; the default Xcode 27 still exceeds this UE
+installation's 26.9 ceiling. See
+[today's report](Docs/DAILY_BUILD_2026-09-26.md) for the exact gate and next
+test-first Ledger handoff.
 
 September 14 fixed vendor/trainer arrow navigation and Escape when a native
 button has focus, while preserving that button's Enter/Space action. The build,

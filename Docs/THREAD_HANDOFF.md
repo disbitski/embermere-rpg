@@ -59,9 +59,13 @@ and final markers, exit zero, and no `LogPython: Error`. All 16 live trace
 suites passed after a clean relaunch; clean PIE started/stopped, fresh
 discovery returned 100, and the real editor remains outside PIE on the correct
 map owning MCP 8123 with clean map/mesh. The user's journey save and unrelated
-keeper material hashes remain exact. Only Xcode/SDK 27.0 is installed, above
-UE 5.8's declared 26.9 maximum, so no new C++ compile was claimed. See
-`Docs/DAILY_BUILD_2026-09-26.md` for exact evidence and next work.
+keeper material hashes remain exact. Later the same day, the user installed
+Xcode 26.1.1 side by side. With process-local `DEVELOPER_DIR` and Metal's
+lookup cache refreshed, the real no-hot-reload editor build compiled and
+linked successfully against SDK 26.1. The cleanly relaunched editor passed
+100/100 tests without warnings and PIE start/stop. Xcode 27 remains the system
+default; use the compatible local selection for future builds and setup
+checks. See `Docs/DAILY_BUILD_2026-09-26.md` for exact evidence and next work.
 
 ## September 25 Interaction-Approach Baseline
 

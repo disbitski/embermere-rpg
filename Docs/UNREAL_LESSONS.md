@@ -32,6 +32,19 @@ inventing a supported version or editing its limits. Its preferred 26.1.1
 matches [Epic's Mac guidance](https://dev.epicgames.com/documentation/en-us/unreal-engine/macos-development-requirements-for-unreal-engine).
 A version-range match is still only preflight, not a successful build.
 
+September 26 closed that gate with a user-installed side-by-side
+`/Applications/Xcode_26.1.1.app`. `xcodebuild -showComponent MetalToolchain`
+reported the component installed, while `xcrun metal -v` still failed until
+`xcrun --kill-cache` refreshed its lookup. In a restricted shell, Xcode's
+component cache can itself be inaccessible, so a sandboxed "uninstalled"
+result was not authoritative; the host-permitted read-only probe showed the
+installed component. With process-local `DEVELOPER_DIR` pointing at 26.1.1,
+the setup check, 21 setup regressions, and real `-NoHotReloadFromIDE` UBT
+compile/link passed against Mac SDK 26.1. The editor then relaunched with MCP,
+passed 100 native tests and a clean PIE start/stop. System `xcode-select`
+still points at Xcode 27. Never broaden the engine's SDK range or silently
+switch the user's global toolchain to repair a local build.
+
 The setup helper now parses plist/JSON with plutil, validates ordered version
 limits, and honors process-local DEVELOPER_DIR for side-by-side Xcode. All
 21 setup tests pass. Do not use `xcodebuild -runFirstLaunch` casually: its help

@@ -6,6 +6,21 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 26 toolchain recovery: the user installed
+  `/Applications/Xcode_26.1.1.app` alongside the unchanged default Xcode 27.
+  Process-local `DEVELOPER_DIR=/Applications/Xcode_26.1.1.app/Contents/Developer`
+  selects Apple's macOS SDK 26.1, exactly UE 5.8's preferred Xcode version.
+  The separately installed Metal Toolchain required `xcrun --kill-cache` before
+  its compiler was discoverable. The setup check and all 21 setup regressions
+  passed. With the editor closed, the real `EmbermereEditor Mac Development`
+  `-NoHotReloadFromIDE` UBT build compiled and linked successfully. After a
+  clean editor relaunch, MCP 8123, the saved map, 100/100 warning-free native
+  tests, and PIE start/stop all passed. Xcode 27 remains the system default;
+  never change global `xcode-select` or engine SDK limits. Use the same
+  process-local Xcode 26.1.1 for future builds and setup checks. Protected
+  save and keeper-material hashes remain exact. Next: review the pending
+  test-first Ledger focus patch, obtain genuine failing Slate regressions,
+  then implement and verify the repair.
 - September 26 daily build: accepted a small project-owned carved ruin relief
   on the previously blank west face of `FabPass_Ruin_Wall_A`; see
   `Docs/DAILY_BUILD_2026-09-26.md` and `Docs/RUIN_RELIEF_CONTRACT.md`.

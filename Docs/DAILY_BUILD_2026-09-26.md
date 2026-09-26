@@ -75,3 +75,35 @@ side-by-side Xcode exists, use only process-local `DEVELOPER_DIR`, prove a
 regressions. If it is still absent, the next useful MCP-only gate is the
 existing quest-update observer's normal-PIE readability and lifecycle, not
 another filler world prop.
+
+## Later Toolchain Recovery
+
+The user installed `/Applications/Xcode_26.1.1.app` next to the unchanged
+default `/Applications/Xcode.app` (27.0). Process-local `DEVELOPER_DIR` reports
+Xcode 26.1.1, macOS SDK 26.1, and passes the installed UE 5.8 version gate.
+Its Metal component was installed but `xcrun` retained a stale lookup;
+`xcrun --kill-cache` made `xcrun metal -v` resolve the real compiler. A
+restricted-shell component status probe also lacked Apple's cache access, so
+the host-permitted read-only status was needed to distinguish permission from
+installation. The full setup check and all 21 setup regressions then passed.
+
+With the real editor down and MCP 8123 free, this exact process-local command
+completed with `Result: Succeeded`, compiling three Embermere module units,
+linking `libUnrealEditor-Embermere.dylib`, and writing target metadata:
+
+```sh
+env DEVELOPER_DIR=/Applications/Xcode_26.1.1.app/Contents/Developer \
+  '/Users/Shared/Epic Games/UE_5.8/Engine/Build/BatchFiles/Mac/Build.sh' \
+  EmbermereEditor Mac Development \
+  '-Project=/Users/wizard/Documents/Unreal Game/Embermere.uproject' \
+  -NoHotReloadFromIDE
+```
+
+UBT selected Mac SDK 26.1 and Clang 19.1.5; the compile/link took 23.24
+seconds. The editor relaunched on the correct map outside PIE with real MCP
+8123, and fresh discovery returned exactly 100 tests. All 100 passed with
+zero failures, skips, warnings, or errors. Clean PIE started and stopped;
+the saved map remained clean. The original save and unrelated keeper material
+retained their exact hashes. System `xcode-select -p` still points to
+`/Applications/Xcode.app/Contents/Developer`, and default `xcodebuild -version`
+remains 27.0. No engine SDK limits or macOS security settings changed.
