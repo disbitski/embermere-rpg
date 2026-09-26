@@ -24,6 +24,7 @@ TRACE_MODULES = (
     "validate_fenwatch_marshward_shrine_traces_unreal",
     "validate_marsh_prowler_pull_lanes_unreal",
     "validate_fenwatch_interaction_approaches_unreal",
+    "validate_ancient_ruin_relief_traces_unreal",
 )
 
 

@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-25
+Last updated: 2026-09-26
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -40,7 +40,30 @@ this snapshot. A new task should read files in this order:
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
 
-## Current September 25 Handoff
+## Current September 26 Handoff
+
+The accepted new world piece is `SM_EmbermereAncientRuinRelief_01`, a
+project-owned decorative stone/moss seal on the west face of
+`FabPass_Ruin_Wall_A`. Its separate tagged actor is at `(2302,350,0)`, yaw
+`90`, in `04_Ruins/EmbermereOriginalArt`; the vendor wall was neither edited
+nor resaved. The deterministic source and classic FBX produce `206 x 55.805 x
+216` cm, 2,900 triangles, one UV channel, four shared materials, zero
+non-manifold edges, and no authored collision. The placed component is
+`NoCollision`; three native rays clear it and three controls hit the original
+wall. Normal-road and first-Prowler viewport review kept the enemy and ruin
+readable. The map baseline is **53 Fab plus 32 original-art placements**.
+
+All 100 tests passed without warnings. The fresh sequential 31-package
+aggregate passed with exact skeletal-material, relief, 53-Fab/32-original,
+and final markers, exit zero, and no `LogPython: Error`. All 16 live trace
+suites passed after a clean relaunch; clean PIE started/stopped, fresh
+discovery returned 100, and the real editor remains outside PIE on the correct
+map owning MCP 8123 with clean map/mesh. The user's journey save and unrelated
+keeper material hashes remain exact. Only Xcode/SDK 27.0 is installed, above
+UE 5.8's declared 26.9 maximum, so no new C++ compile was claimed. See
+`Docs/DAILY_BUILD_2026-09-26.md` for exact evidence and next work.
+
+## September 25 Interaction-Approach Baseline
 
 September 25 added `Scripts/validate_fenwatch_interaction_approaches_unreal.py`
 as the 15th initialized-world suite. It protects the five exact F owners:
@@ -148,7 +171,7 @@ The project currently includes:
   Ledger with transient compact-tracker focus, quest-data-owned objective
   instructions in its selected detail and fixed compact tracker, and no quest
   mutation authority;
-- a grounded local Fab/Epic art pass with 53 upright environment actors and 30
+- a grounded local Fab/Epic art pass with 53 upright environment actors and 32
   project-owned placements from an original Blender-built Embermere
   waystone/lamp/signpost/gate/fence/boundary-stone/chest/shelter/keeper/
   quartermaster/armsmaster/practice-dummy/cottage/north-cottage/handcart/firewood-rack/hitching-trough/gatewatch-post/herb-garden/reed family, a 38-expression moss/

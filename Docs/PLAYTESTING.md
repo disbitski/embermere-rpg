@@ -8,14 +8,14 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 2. If Codex has just changed C++ while the editor is open, restart Unreal so the editor loads the newest module.
 3. Confirm the map shows a blue atmospheric sky, readable ambient light, the
    varied moss/earth road surface, 53 grounded upright `FabPass_` actors plus
-   31 original-art placements from the waystone, ember-lamp, road-signpost,
+   32 original-art placements from the waystone, ember-lamp, road-signpost,
    road-gate, boundary-fence, boundary-stone, supply-chest, Fenwatch shelter,
    Mara's keeper, the Fenwatch quartermaster and armsmaster, the vendor stall,
    practice dummy, first closed cottage, covered-porch north cottage,
    open-front training workshop,
    roadside notice board, west-cottage provision handcart, firewood rack, and
    hitching/feed trough, east-road gatewatch post, north-commons herb garden,
-   north-road marshward shrine,
+   north-road marshward shrine, ancient ruin relief,
    south-commons
    communal well, and four marsh-reed clusters, a
    navigable PlayerStart/Mara
@@ -177,6 +177,12 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
     The north-road centerline, west shoulder, and north-commons routes should
     remain open. The shrine is presentation-only and owns no interaction,
     quest, service, reward, vendor, trainer, or persistence behavior.
+    At the eastern ruin, also inspect
+    `Embermere_AncientRuinRelief_WallA_01` behind the first Marsh Prowler.
+    Its carved stone/moss seal must read from the road without hiding the
+    creature, nameplate, cyan target circle, or ruin silhouette. The relief
+    remains `NoCollision`, while the original wall stays solid and all three
+    solo-pull lanes remain clear.
 24. Inspect `Embermere_FenwatchNoticeBoard_Road_01` at
     `(-1560, -260, 0)`, yaw `-35`. Its grounded stone-footed timber frame,
     moss roof, iron trim, pinned notices, and ember crest should read from the

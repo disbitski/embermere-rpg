@@ -155,14 +155,15 @@ The repo currently contains the C++ gameplay scaffold for:
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved
   instances, and asset-agnostic runtime presentation
-- a corrected 53-actor local Fab/Epic art pass plus 30 placements from
+- a corrected 53-actor local Fab/Epic art pass plus 32 placements from
   Embermere's original Blender-built waystone, ember-lamp, road-signpost,
   road-gate, boundary-fence, rune-topped boundary-stone, supply-chest, and
   Fenwatch shelter, vendor stall, first closed cottage, covered-porch north
   cottage, open-front training workshop, roadside notice board, west-cottage
   provision handcart, firewood rack, and hitching/feed trough, and
-  south-commons communal well, an east-road gatewatch post, and a north-commons
-  herb garden; Mara's
+  south-commons communal well, an east-road gatewatch post, a north-commons
+  herb garden, a north-road marshward shrine, and a decorative ancient ruin
+  relief; Mara's
   rigged Fenwatch keeper; the
   rigged Fenwatch quartermaster and armsmaster; a practice dummy; and four
   visual-only marsh-reed clusters over the starter village, road, wilderness
@@ -317,22 +318,20 @@ why human taste becomes more important as building gets easier.
 
 ## Status
 
-September 23 added a project-owned marshward shrine to the north-road shoulder
-through the deterministic Blender/classic-FBX lane. The map is now 53 grounded
-Fab actors plus 31 original-art placements. All 100 isolated tests, all 30
-fresh package validators, all 13 initialized-world collision/route suites,
-clean PIE smoke, fresh 100-test discovery, and full-zone validation passed. The
-shrine's exact geometry, five shared materials, four purposeful colliders,
-decorative exclusions, art-only ownership, placement, and protected routes are
-regression-checked. Unreal and Blender MCP are healthy, the saved journey is
-untouched, and desktop control remains disabled.
+September 26 added a project-owned ancient seal to the blank west-facing ruin
+wall behind the first Prowler. The original vendor wall stays solid; the
+separate relief is no-collision art. The map is now 53 grounded Fab actors plus
+32 original-art placements. All 100 tests, 31 fresh package validators, 16
+initialized-world trace suites, full-zone validation, clean PIE smoke, and
+fresh discovery passed. Unreal MCP is healthy, the saved journey is untouched,
+and desktop control remains disabled.
 
 The requested no-hot-reload build was genuinely rerun after license acceptance.
 Metal works, but **Xcode/SDK 27.0 is outside UE 5.8's supported 15.2-26.9
 range**, so UBT still exits before C++ compilation pending a compatible
 side-by-side Xcode; Epic's preferred version is 26.1.1. Runtime/package success
 is not mislabeled as a new C++ build. See
-[today's report](Docs/DAILY_BUILD_2026-09-23.md) for exact evidence and the next
+[today's report](Docs/DAILY_BUILD_2026-09-26.md) for exact evidence and the next
 compiler/test-first handoff.
 
 September 14 fixed vendor/trainer arrow navigation and Escape when a native

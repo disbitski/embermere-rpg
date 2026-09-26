@@ -6,6 +6,28 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 26 daily build: accepted a small project-owned carved ruin relief
+  on the previously blank west face of `FabPass_Ruin_Wall_A`; see
+  `Docs/DAILY_BUILD_2026-09-26.md` and `Docs/RUIN_RELIEF_CONTRACT.md`.
+  `SM_EmbermereAncientRuinRelief_01` is **206 x 55.805 x 216 cm**, 2,900
+  triangles, one UV channel, zero non-manifold edges, four shared materials,
+  and **zero authored collision**. Its separate tagged art-only actor sits at
+  `(2302,350,0)`, yaw `90`; the existing vendor wall remains the solid owner.
+  The accepted map baseline is **53 Fab / 32 original-art**. A normal road and
+  first-Prowler view kept the creature and ruin silhouette readable; three
+  native rays clear the relief and three hit the original wall. All **100/100**
+  tests passed without warnings, the fresh sequential **31-package** aggregate
+  passed with explicit markers and no `LogPython: Error`, all **16** live
+  trace suites passed after clean relaunch, and clean PIE started/stopped.
+  Fresh discovery returned 100; map and mesh are clean outside PIE with real
+  MCP 8123. Protected save/keeper hashes remain exact. Physical combat and
+  `F` input remain unverified under the desktop-control restriction. Only
+  Xcode/SDK 27.0 is installed above UE 5.8's 26.9 maximum; no invalid UBT
+  build was replayed. **Next:** if compatible Xcode appears, use local
+  `DEVELOPER_DIR`, prove UBT, and take the pending test-first Ledger focus
+  milestone. Otherwise use MCP/Slate to accept the existing quest-update
+  observer in normal PIE and improve a concrete issue only if one appears;
+  do not add another ruin/village prop merely to fill space.
 - September 25 daily build: added a read-only initialized-world Fenwatch
   interaction-approach regression; see `Docs/DAILY_BUILD_2026-09-25.md`. The
   new 15th live suite verifies the **five exact F owners**, controller-owned

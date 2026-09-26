@@ -3586,6 +3586,30 @@ and 31 original-art placements. Xcode/SDK 27.0 still exceeds UE 5.8's 26.9
 maximum, so this work is accepted as art, package, map, and physics evidence,
 not a new C++ compile.
 
+## September 26: An Ancient Seal in the Ruin
+
+Fresh road-distance viewport review found a broad blank west face on the
+existing ruin wall behind the first Marsh Prowler. A deterministic,
+factory-clean Blender build gave that surface a small carved stone-and-moss
+seal with a restrained ember shard. The first version read too much like a
+fitted metal panel, so normal-camera feedback led to softer moss-carved
+markings before acceptance.
+
+`SM_EmbermereAncientRuinRelief_01` is `206 x 55.805 x 216` cm, 2,900
+triangles, one UV channel, zero non-manifold edges, four shared project-owned
+materials, and no authored simple collision. Classic FBX imported and saved it;
+first-class Unreal MCP mounted its separate presentation-only actor at
+`(2302, 350, 0)`, yaw `90`. The original vendor wall remains structurally
+solid. Three native rays clear the relief while three positive controls hit
+the wall. All sixteen initialized-world suites, all 31 fresh package
+validators, all 100 native tests, full-zone validation, and clean PIE smoke
+passed. The map now contains 53 Fab actors plus 32 original-art placements.
+
+Only Xcode/SDK 27.0 remains installed, above UE 5.8's 26.9 maximum; no
+known-invalid C++ build was rerun. We accepted this as art, saved content, and
+world-collision evidence, not a newly compiled module or a physical combat
+playtest.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

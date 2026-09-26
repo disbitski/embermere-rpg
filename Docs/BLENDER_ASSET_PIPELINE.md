@@ -1428,6 +1428,33 @@ geometry, and open north-road routes. The fresh 30-package aggregate and all
 13 live trace suites passed. The map contains 53 Fab actors and 31 original
 art placements.
 
+## Ancient Ruin Relief
+
+September 26 road-camera inspection found a blank west-facing surface on the
+existing first-Prowler ruin wall, not another village grass gap. The reviewed
+`Scripts/blender/build_embermere_ancient_ruin_relief.py` runs in a
+factory-clean headless Blender process and emits editable `.blend`, classic
+FBX, preview, and metrics under
+`ArtSource/Blender/Environment/AncientRuinRelief`.
+
+The accepted mesh is `206 x 55.805 x 216` cm, 2,900 triangles, one UV
+channel, zero non-manifold edges, and four shared project-owned
+stone/moss/iron/ember materials. It intentionally authors **zero** UBX or
+other simple collision. Its separate tagged and foldered actor is mounted at
+`(2302,350,0)`, yaw `90`, on `FabPass_Ruin_Wall_A`; the raw vendor wall remains
+untouched and solid. A first road-view iteration showed overly industrial dark
+bars, so the final source uses moss-carved marks instead.
+
+`Scripts/import_embermere_ancient_ruin_relief_unreal.py` performs explicit
+classic `FbxFactory` import, material remapping, metric checks, and package
+save in a fresh commandlet. First-class Unreal MCP placed the actor and set
+`NoCollision`; the initialized native trace suite then proved three rays
+through its visible volume clear while three controls still hit the wall.
+The focused package validator and 31-package aggregate check the saved mesh,
+zero authored collision, transform, profile, tag, folder, and source
+provenance. All sixteen live suites passed after a clean relaunch. The map
+contains 53 Fab actors and 32 original-art placements.
+
 ## Fenwatch Journal UI Emblem
 
 The September 4 Astra evaluation exercised a small UI-art lane, not another
