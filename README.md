@@ -479,3 +479,10 @@ Daily builds run from this project at 8 AM Eastern through the existing task.
 Desktop control is disabled; [AGENTS.md](AGENTS.md) permits dedicated Unreal and
 Blender MCP workflows, shell builds, commandlets, and Git only within their
 existing permissions.
+
+The September 27 Ledger keyboard pass added native focused-button coverage:
+Up/Down and Escape work with Slate focus, while Enter/Space retain the focused
+button's action and hidden panels cannot issue stale focus requests. The
+accepted suite is 102 tests; the no-hot-reload build, 31 fresh package
+validators, and 16 live route suites passed. See
+[Docs/DAILY_BUILD_2026-09-27.md](Docs/DAILY_BUILD_2026-09-27.md).

@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-26
+Last updated: 2026-09-27
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -40,7 +40,26 @@ this snapshot. A new task should read files in this order:
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
 
-## Current September 26 Handoff
+## Current September 27 Handoff
+
+The previously blocked Ledger keyboard-focus repair is accepted. The user
+installed `/Applications/Xcode_26.1.1.app` beside unchanged default Xcode 27;
+all project builds use only process-local `DEVELOPER_DIR`. The reviewed pending
+tests first reproduced native focused-button Up/Down/Escape failure while the
+controller path passed. A narrow HUD preview route now handles those keys for
+the visible Ledger without stealing native Enter/Space. A second red test
+caught post-close stale focus activation; hidden Ledger focus requests now
+reject. The pending patch was removed after acceptance. Fresh **102/102**
+tests, a successful no-hot-reload build, **31** sequential package validators,
+**16** initialized-world trace suites, and clean PIE passed. The map is clean
+outside PIE on real MCP 8123. Protected save and keeper hashes remain exact;
+unrelated Config and FieldNotes are untouched. See
+`Docs/DAILY_BUILD_2026-09-27.md` and
+`Docs/QUEST_LEDGER_PRESENTATION_CONTRACT.md`. Next: normal-PIE Ledger/peer
+handoff review with real quest records through Unreal-owned Slate; physical
+input remains a user check under the no-desktop-control rule.
+
+## September 26 Handoff
 
 The accepted new world piece is `SM_EmbermereAncientRuinRelief_01`, a
 project-owned decorative stone/moss seal on the west face of
@@ -1885,10 +1904,10 @@ Clean PIE accepted both quests through original F and reproduced Ledger Down
 failing with native Focus Quest button focus. Controller Down selected Mara
 without changing the tracker; native Enter changed only focus, and Close
 Enter closed. The fresh restarted PIE repeated this same qualified proof.
-No Ledger C++ fix was landed. Two uncompiled/unexecuted tests live only in
-`Docs/Pending/2026-09-15-ledger-keyboard-tests.patch`; review its README.
-Next, after toolchain recovery, compile the draft, obtain a real routed
-failing regression and only then repair scoped navigation
+No Ledger C++ fix had landed at that time. The two tests were then an
+uncompiled draft; they were compiled and accepted on September 27, and the
+pending patch was removed. The historical next step was to obtain a routed
+failure and repair scoped navigation
 while preserving native button meaning, selection/focus separation, authority,
 and fixed geometry. Up/Escape failure is not yet proven. No save/load occurred.
 Both protected hashes and unrelated changes remain intact. Exact task cwd and

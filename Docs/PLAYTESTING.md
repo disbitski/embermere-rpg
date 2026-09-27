@@ -765,7 +765,26 @@ The full ownership and rollback contract is in
 The complete contract is in
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
 
-### September 15 Setup And Ledger Follow-Up
+### September 27 Ledger Keyboard Focus
+
+Run `Embermere.UI.QuestLedgerKeyboard.Controller` and
+`Embermere.UI.QuestLedgerKeyboard.FocusedButtons` alongside the full 102-test
+suite. The controller test drives detached input; the other registers a
+virtual Slate window with real native focus on Focus Quest and Close. From
+either button, Up/Down must wrap the selected row and detail without changing
+the compact tracker. Held repeat must do nothing, Escape must close, and
+Enter/Space must retain the focused button's native action. After close or
+Inventory handoff, a stale focused action must not change tracker focus.
+Quest progress, rewards, wallet, XP, and inventory remain unchanged.
+
+The test-first run reproduced failed focused navigation and Escape; a second
+run exposed stale activation after close. Both are repaired. All 102 tests,
+31 fresh package validators, 16 initialized-world suites, and clean PIE
+start/stop passed. This proves editor-owned Slate behavior, not physical
+keyboard/pointer input or final HUD pixel approval. Keep the user's Chronicle
+slot untouched during follow-up playtests.
+
+### September 15 Setup And Ledger Follow-Up (Historical)
 
 First run `zsh Scripts/check_unreal_setup.sh`. A license diagnostic needs the
 user's review/acceptance, not an automatic Metal download. The checker now
@@ -783,17 +802,16 @@ setup tests use disposable fixtures. Fresh baseline automation (100 tests),
 all 23 package checks, and six restarted-editor trace suites passed despite
 the new compile gate; they do not validate uncompiled C++.
 
-In a clean world, original F can accept Mara and Still Waters independently.
-J opens two records. With the real Focus Quest button explicitly focused,
-Slate Down currently fails to change selection; controller Down changes the
-selected detail without changing tracked focus. Native Focus Quest Enter and
-Close Enter retain their distinct correct actions. Wallet, XP, inventory,
+In that clean world, original F accepted Mara and Still Waters independently.
+J opened two records. With the real Focus Quest button explicitly focused,
+Slate Down failed to change selection; controller Down changed the selected
+detail without changing tracked focus. Native Focus Quest Enter and Close
+Enter retained their distinct correct actions. Wallet, XP, inventory,
 progress, completion and rewards must not change. Keep the original save
-untouched. After the Xcode blocker is resolved, add a failing routed regression
-before any navigation fix; review the explicitly uncompiled draft under
-`Docs/Pending/`. Cover Up/Down wrapping, repeat suppression, Escape,
-native Enter/Space, selection/focus separation, and teardown. Today's probe
-does not certify physical input, HUD pixels, or organic Tab traversal.
+untouched. The later September 27 test-first repair covers Up/Down wrapping,
+repeat suppression, Escape, native Enter/Space, selection/focus separation,
+and teardown. The original probe did not certify physical input, HUD pixels,
+or organic Tab traversal.
 
 ### September 14 Focused Service Navigation
 

@@ -6,6 +6,24 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 27 Ledger focus repair: reviewed and compiled the pending
+  test-first draft, then reproduced a real focused-Slate failure: Down/Up
+  left the selected row unchanged while controller-routed keys passed. The
+  narrow HUD preview route now handles unmodified, non-repeating Up/Down and
+  Escape when Ledger buttons own native focus; Enter/Space retain their native
+  Focus Quest or Close meanings. A second regression exposed a stale focused
+  action after close, so closed Ledger panels now reject focus requests.
+  The accepted suite is **102/102** with zero failures, warnings, or skips.
+  A process-local Xcode 26.1.1 `-NoHotReloadFromIDE` build linked, the fresh
+  **31-package** aggregate passed with exact markers and no `LogPython:
+  Error`, all **16** initialized-world suites passed, and clean PIE
+  started/stopped. The map is clean outside PIE on MCP 8123. Protected save
+  and keeper-material hashes are exact. See
+  `Docs/DAILY_BUILD_2026-09-27.md`. Next: use the Unreal-owned Slate lane to
+  inspect the Ledger's normal-PIE focused-button read and peer-panel handoff
+  with real quest data; physical keyboard/pointer acceptance remains a user
+  check under the desktop-control restriction. Do not replay this fixed
+  regression or change quest/reward authority to address presentation.
 - September 26 toolchain recovery: the user installed
   `/Applications/Xcode_26.1.1.app` alongside the unchanged default Xcode 27.
   Process-local `DEVELOPER_DIR=/Applications/Xcode_26.1.1.app/Contents/Developer`

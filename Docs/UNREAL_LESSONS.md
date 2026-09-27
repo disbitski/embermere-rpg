@@ -112,10 +112,8 @@ work when fresh build/relaunch is blocked, and label deferred isolated tests
 and package validation honestly instead of rerunning them inside the GUI.
 
 The same run reproduced Ledger Down failing on a focused native Focus Quest
-button, despite controller selection working. This extends the evidence for
-focus-path coverage, not yesterday's fix: only vendor/trainer preview routing
-has been repaired. Preserve native Enter on Focus Quest and Close, and add a
-failing routed regression before expanding the scoped HUD preview.
+button, despite controller selection working. The later September 27 repair
+followed the same test-first discipline; see below.
 
 ## Test The Focus Path, Not Just PlayerInput
 
@@ -136,6 +134,17 @@ the event handled so PlayerInput cannot also act. Enter/Space remain native:
 Enter on Close must close, not buy or train. Do not globally redirect action
 keys or disable button focus just to make a primary-action fallback pass.
 This does not diagnose MCP pointer delivery or certify physical input.
+
+September 27 applied the same focused-path method to the Quest Ledger after
+the compatible Xcode build became available. The controller regression passed,
+but a registered virtual-window test failed on focused Up/Down and Escape.
+Routing only those unmodified keys through the visible Ledger's preview fixed
+navigation without stealing native Enter/Space. The next test run caught a
+second problem: a previously focused action could still request quest focus
+after the panel closed. A visibility guard on `FocusSelectedQuest` fixed that
+teardown path. The useful general rule is to test both focused-key delivery
+and stale activation after close or peer handoff; detached controller tests
+alone cover neither. Physical input remains unverified.
 
 ## A Focus Click Can Change The Test Subject
 

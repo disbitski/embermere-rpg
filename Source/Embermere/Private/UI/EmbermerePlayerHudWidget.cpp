@@ -481,10 +481,11 @@ void UEmbermerePlayerHudWidget::NativeDestruct()
 FReply UEmbermerePlayerHudWidget::NativeOnPreviewKeyDown(
 	const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
+	const bool bLedger = IsQuestLedgerPanelVisible();
 	const bool bVendor = IsVendorPanelVisible();
 	const bool bTrainer = IsTrainerPanelVisible();
 	const FKey Key = InKeyEvent.GetKey();
-	if ((!bVendor && !bTrainer) || InKeyEvent.IsControlDown() || InKeyEvent.IsAltDown() ||
+	if ((!bLedger && !bVendor && !bTrainer) || InKeyEvent.IsControlDown() || InKeyEvent.IsAltDown() ||
 		InKeyEvent.IsCommandDown() || InKeyEvent.IsShiftDown() ||
 		(Key != EKeys::Up && Key != EKeys::Down && Key != EKeys::Escape))
 	{
@@ -497,7 +498,11 @@ FReply UEmbermerePlayerHudWidget::NativeOnPreviewKeyDown(
 	{
 		if (Key == EKeys::Escape)
 		{
-			if (bVendor)
+			if (bLedger)
+			{
+				HandleQuestLedgerCloseClicked();
+			}
+			else if (bVendor)
 			{
 				HandleVendorCloseClicked();
 			}
@@ -505,6 +510,10 @@ FReply UEmbermerePlayerHudWidget::NativeOnPreviewKeyDown(
 			{
 				HandleTrainerCloseClicked();
 			}
+		}
+		else if (bLedger)
+		{
+			SelectNextQuestLedgerRecord(Key == EKeys::Up ? -1 : 1);
 		}
 		else if (bVendor)
 		{
@@ -932,7 +941,7 @@ bool UEmbermerePlayerHudWidget::SelectNextQuestLedgerRecord(int32 Direction)
 
 bool UEmbermerePlayerHudWidget::FocusSelectedQuest()
 {
-	if (!QuestLog || !QuestLog->QuestStates.IsValidIndex(SelectedQuestLedgerIndex))
+	if (!bQuestLedgerPanelVisible || !QuestLog || !QuestLog->QuestStates.IsValidIndex(SelectedQuestLedgerIndex))
 	{
 		return false;
 	}

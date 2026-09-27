@@ -3610,6 +3610,22 @@ known-invalid C++ build was rerun. We accepted this as art, saved content, and
 world-collision evidence, not a newly compiled module or a physical combat
 playtest.
 
+## September 27: The Ledger Kept Its Keyboard Focus
+
+Side-by-side Xcode 26.1.1 finally let us compile the pending Ledger focus
+tests. Controller-routed navigation passed, but the real focused-button Slate
+path failed: Up/Down left selection and detail still, and Escape did not
+close. The HUD now previews only those unmodified keys for the visible Ledger,
+leaving native Enter and Space with Focus Quest and Close. A second red test
+found that a stale button could focus a quest after the panel closed; a
+visibility guard stopped it without touching quest authority.
+
+Both focused regressions and all 102 native tests now pass. The 31 saved
+package validators, 16 initialized-world collision suites, and clean PIE
+start/stop passed too. No save, map, or quest data changed, and the user's
+original journey remains byte-for-byte untouched. Physical keyboard and
+pointer acceptance is still a user check under the no-desktop-control rule.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

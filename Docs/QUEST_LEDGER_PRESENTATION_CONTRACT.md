@@ -1,25 +1,23 @@
 # Embermere Quest Ledger Presentation Contract
 
-## Current Focus-Path Gate
+## Accepted Focus-Path Repair
 
-September 15 clean PIE reproduced a narrow unresolved gap: with two active
-records and native `QuestLedgerFocusButton` focus confirmed, Slate Down left
-selection at 1 immediately and after later frames. Controller-routed Down
-selected row 0 while leaving the compact tracker unchanged. Native Enter on
-Focus Quest then changed only tracker focus; Enter on Close closed normally.
-All quest/reward state stayed unchanged. This is qualified in-engine focus
-evidence, not physical input or pointer-delivery approval.
+September 27 used the installed side-by-side Xcode 26.1.1 to compile the
+reviewed pending draft. Its controller test passed, while its registered
+virtual-Slate-window test reproduced the real gap: native button focus left
+Down/Up selection unchanged and Escape open. The Ledger now shares the HUD's
+preview-key route for unmodified, non-repeating Up/Down and Escape. Enter and
+Space still reach the focused Focus Quest or Close button, rather than being
+reinterpreted by the preview route. A follow-up failing assertion caught a
+stale native button action after close; `FocusSelectedQuest` now rejects a
+request when the panel is hidden. Selection/detail stay separate from the
+transient tracked focus, and neither path mutates quest progress or rewards.
 
-No C++ repair is accepted yet: the license is now accepted, but installed
-Xcode 27.0 is outside UE 5.8's declared SDK range. Two proposed tests live only
-in `Docs/Pending/2026-09-15-ledger-keyboard-tests.patch`, uncompiled and
-unexecuted. The fresh accepted suite still contains 100 tests. After compiler
-recovery, review the draft and obtain a native Slate routed failing regression
-before considering a visible-Ledger Up/Down/Escape preview analogous to the
-accepted service preview. Preserve native Enter/Space, ignore repeat
-navigation, avoid double dispatch, and retain selection versus explicit
-focus. Up/Escape failure has not yet been reproduced. See
-[the daily report](DAILY_BUILD_2026-09-15.md).
+`Embermere.UI.QuestLedgerKeyboard.Controller` and
+`Embermere.UI.QuestLedgerKeyboard.FocusedButtons` pass alongside the existing
+100 tests. The fresh package and initialized-world gates pass. This proves
+the editor-owned Slate path and controller fallback, not physical input or
+organic pointer focus. See [the daily report](DAILY_BUILD_2026-09-27.md).
 
 ## Purpose
 
