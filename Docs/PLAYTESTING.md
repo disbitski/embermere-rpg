@@ -784,6 +784,16 @@ start/stop passed. This proves editor-owned Slate behavior, not physical
 keyboard/pointer input or final HUD pixel approval. Keep the user's Chronicle
 slot untouched during follow-up playtests.
 
+The September 28 saved-quest integration regression is
+`Embermere.UI.QuestLedgerKeyboard.SavedQuests`. It loads the actual Mara and
+Still Waters data assets in a disposable virtual-Slate world: completed
+Still Waters begins tracked, Up/Down selects saved objective detail without
+retargeting, Enter/Space explicitly change focus, and native Close rejects
+a stale action. It leaves both quest states, wallet, XP, and inventory exact.
+The accepted suite is now 103/103. Floating PIE exposed the empty Ledger,
+but F was not used merely to create quest records for inspection; real
+two-quest and physical-input acceptance still need a voluntary playtest.
+
 ### September 15 Setup And Ledger Follow-Up (Historical)
 
 First run `zsh Scripts/check_unreal_setup.sh`. A license diagnostic needs the

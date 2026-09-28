@@ -9,6 +9,7 @@
 #include "Components/EmbermereWalletComponent.h"
 #include "Components/Button.h"
 #include "Data/EmbermereItemData.h"
+#include "Data/EmbermereQuestData.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "Game/EmbermerePlayerController.h"
@@ -488,6 +489,86 @@ bool FEmbermereLedgerFocusedKeyboardTest::RunTest(const FString& Parameters)
 	FFocusedServiceWindow::Key(EKeys::Enter);
 	TestEqual(TEXT("Closed Ledger cannot focus stale row"), F.Character->QuestLog->FocusedQuestId, FName(TEXT("KeyboardCompleted")));
 	CheckKeyboardLedgerOwners(F, *this);
+	return !HasAnyErrors();
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereLedgerSavedQuestKeyboardTest,
+	"Embermere.UI.QuestLedgerKeyboard.SavedQuests",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FEmbermereLedgerSavedQuestKeyboardTest::RunTest(const FString& Parameters)
+{
+	UEmbermereQuestData* Mara = LoadObject<UEmbermereQuestData>(nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	UEmbermereQuestData* StillWaters = LoadObject<UEmbermereQuestData>(nullptr,
+		TEXT("/Game/Data/Quests/DQ_FenwatchStillWaters.DQ_FenwatchStillWaters"));
+	if (!TestNotNull(TEXT("Saved Mara quest resolves"), Mara) ||
+		!TestNotNull(TEXT("Saved Still Waters quest resolves"), StillWaters))
+	{
+		return false;
+	}
+
+	FEmbermereServiceKeyboardFixture F;
+	TestTrue(TEXT("Fixture accepts saved Mara quest"), F.Character->QuestLog->AcceptQuest(Mara));
+	TestTrue(TEXT("Fixture accepts saved Still Waters quest"), F.Character->QuestLog->AcceptQuest(StillWaters));
+	TestTrue(TEXT("Saved Still Waters reaches its exact objective"),
+		F.Character->QuestLog->AddObjectiveProgressForQuest(
+			StillWaters->QuestId, StillWaters->ObjectiveId, 1));
+	TestTrue(TEXT("Fixture completes Still Waters before keyboard inspection"),
+		F.Character->QuestLog->TryCompleteQuest(StillWaters));
+	const int32 Copper = F.Character->Wallet->Copper;
+	const int32 Experience = F.Character->Stats->CurrentExperience;
+	const int32 InventoryStacks = F.Character->Inventory->Stacks.Num();
+	TestEqual(TEXT("Only the fixture reward changed copper"), Copper, 50);
+	TestEqual(TEXT("Only the fixture reward changed XP"), Experience, 50);
+	TestTrue(TEXT("Saved-quest Ledger opens"), F.Hud->ToggleQuestLedgerPanel());
+	TestEqual(TEXT("Completed saved quest begins selected"), F.Hud->GetSelectedQuestLedgerIndex(), 1);
+	TestEqual(TEXT("Both saved records are visible"), F.Hud->GetQuestLedgerVisibleRecordCount(), 2);
+
+	FFocusedServiceWindow Window(F);
+	UButton* Action = Cast<UButton>(F.Hud->GetWidgetFromName(TEXT("QuestLedgerFocusButton")));
+	UButton* Close = Cast<UButton>(F.Hud->GetWidgetFromName(TEXT("QuestLedgerCloseButton")));
+	if (!TestNotNull(TEXT("Saved-quest focus button exists"), Action) ||
+		!TestNotNull(TEXT("Saved-quest close button exists"), Close))
+	{
+		return false;
+	}
+	TestTrue(TEXT("Native Slate focuses the action"), FSlateApplication::Get().SetKeyboardFocus(Action->TakeWidget()));
+	FFocusedServiceWindow::Key(EKeys::Down);
+	TestEqual(TEXT("Down wraps to saved Mara"), F.Hud->GetSelectedQuestLedgerIndex(), 0);
+	TestTrue(TEXT("Selected detail uses Mara's saved instruction"),
+		F.Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
+			Mara->ObjectiveInstructions.ToString()));
+	TestEqual(TEXT("Selection leaves tracker on completed Still Waters"),
+		F.Character->QuestLog->FocusedQuestId, StillWaters->QuestId);
+	FFocusedServiceWindow::Key(EKeys::Enter);
+	TestEqual(TEXT("Native Enter focuses saved Mara"), F.Character->QuestLog->FocusedQuestId, Mara->QuestId);
+	FFocusedServiceWindow::Key(EKeys::Up);
+	TestEqual(TEXT("Up wraps back to saved Still Waters"), F.Hud->GetSelectedQuestLedgerIndex(), 1);
+	TestTrue(TEXT("Selected detail uses Still Waters' saved instruction"),
+		F.Hud->GetQuestLedgerSelectedDetailDisplayText().ToString().Contains(
+			StillWaters->ObjectiveInstructions.ToString()));
+	TestEqual(TEXT("Selection alone leaves tracker on Mara"), F.Character->QuestLog->FocusedQuestId, Mara->QuestId);
+	FFocusedServiceWindow::Key(EKeys::SpaceBar);
+	TestEqual(TEXT("Native Space focuses saved Still Waters"),
+		F.Character->QuestLog->FocusedQuestId, StillWaters->QuestId);
+	FSlateApplication::Get().SetKeyboardFocus(Close->TakeWidget());
+	FFocusedServiceWindow::Key(EKeys::Enter);
+	TestFalse(TEXT("Native close ends the saved-quest Ledger"), F.Hud->IsQuestLedgerPanelVisible());
+	FFocusedServiceWindow::Key(EKeys::Enter);
+	TestEqual(TEXT("Closed button cannot refocus a stale row"),
+		F.Character->QuestLog->FocusedQuestId, StillWaters->QuestId);
+	TestEqual(TEXT("Keyboard inspection cannot spend copper"), F.Character->Wallet->Copper, Copper);
+	TestEqual(TEXT("Keyboard inspection cannot grant XP"), F.Character->Stats->CurrentExperience, Experience);
+	TestEqual(TEXT("Keyboard inspection cannot deliver items"), F.Character->Inventory->Stacks.Num(), InventoryStacks);
+	FEmbermereQuestState MaraState;
+	FEmbermereQuestState StillWatersState;
+	TestTrue(TEXT("Mara record remains present"), F.Character->QuestLog->GetQuestStateById(Mara->QuestId, MaraState));
+	TestEqual(TEXT("Mara objective stays at zero"), MaraState.CurrentObjectiveCount, 0);
+	TestFalse(TEXT("Mara completion cannot be triggered by Ledger keys"), MaraState.bCompleted);
+	TestTrue(TEXT("Still Waters record remains present"),
+		F.Character->QuestLog->GetQuestStateById(StillWaters->QuestId, StillWatersState));
+	TestEqual(TEXT("Still Waters objective remains complete"), StillWatersState.CurrentObjectiveCount, 1);
+	TestTrue(TEXT("Still Waters reward state remains complete"), StillWatersState.bCompleted);
 	return !HasAnyErrors();
 }
 

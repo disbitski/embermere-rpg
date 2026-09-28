@@ -200,3 +200,18 @@ isolated suite passed `88/88`; the focused validator and sequential 20-package
 aggregate passed without Python errors. Clean PIE accepted both quests through
 physical `F`, displayed both exact instructions, and selected Mara while Still
 Waters remained tracked.
+
+## September 27-28 Native Keyboard Integration
+
+The HUD now routes only unmodified, non-repeating Up/Down/Escape while a
+visible Ledger button has native Slate focus. Focus Quest and Close retain
+native Enter/Space activation. A hidden panel rejects stale focus requests.
+The synthetic focused-button regression first failed, then passed after the
+repair (`Embermere.UI.QuestLedgerKeyboard.FocusedButtons`).
+
+`Embermere.UI.QuestLedgerKeyboard.SavedQuests` additionally loads the real
+Mara and Still Waters data assets in a disposable virtual-Slate world. It
+proves selected saved objective detail and tracked focus stay independent,
+native Enter/Space change focus deliberately, Close rejects stale action,
+and quest state, copper, XP, and inventory do not drift. The accepted full
+suite is 103/103; this is not a physical-input or live two-quest playtest.

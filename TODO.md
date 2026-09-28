@@ -6,6 +6,24 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 28 saved-quest Ledger integration: added
+  `Embermere.UI.QuestLedgerKeyboard.SavedQuests` using the actual saved Mara
+  and Still Waters data assets in an isolated Slate fixture. Native focused
+  Up/Down changes selected detail without changing compact tracker focus;
+  Enter/Space explicitly changes focus; Close and a stale post-close Enter
+  cannot mutate quests or duplicate copper, XP, or items. The no-hot-reload
+  Xcode 26.1.1 build linked. Final fresh discovery and full automation passed
+  **103/103** with no warnings/errors/skips. All **31** saved-package
+  validators emitted explicit markers including **53 Fab / 32 original-art**,
+  and all **16** initialized-world suites passed. Clean PIE started/stopped;
+  the map remains clean outside PIE on real MCP 8123. A first complete test
+  run had one transient MCP `resources/templates/list` error in an unrelated
+  hotbar test; its focused rerun and the final complete run passed. Normal
+  floating PIE exposed the empty Ledger through Unreal-owned Slate, but an
+  F request near Mara was blocked because it could mutate quest state; no
+  quest was accepted to manufacture a two-record screenshot. Real two-quest
+  and physical-input acceptance remain open for the user. Protected save and
+  keeper hashes are exact. See `Docs/DAILY_BUILD_2026-09-28.md`.
 - September 27 Ledger focus repair: reviewed and compiled the pending
   test-first draft, then reproduced a real focused-Slate failure: Down/Up
   left the selected row unchanged while controller-routed keys passed. The
@@ -1714,32 +1732,17 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
-- Define and implement one restrained presentation-only quest update observer
-  over authoritative committed quest changes:
-  - define the event and authority boundary before UI work. Quest owners and
-    `QuestStates` must remain the only acceptance, progress, ready, completion,
-    reward, and focus authorities; the observer may consume immutable results
-    only after their mutation commits;
-  - cover accepted, exact progress, ready-to-turn-in, and completed outcomes
-    with stable quest-owned title/objective copy and exact counts. Keep chat,
-    the compact tracker, contextual greetings, and the Quest Ledger as durable
-    fallbacks;
-  - use one fixed short-lived native surface with deterministic bounds and
-    lifetime, a bounded rapid-update policy, hit-test-invisible behavior, and
-    no movement of HUD, hotbar, chat, target, Chronicle, or ledger geometry;
-  - clear safely on expiry, world teardown, death, and load. Silent restore
-    must never replay acceptance, progress, ready, completion, or reward
-    presentation;
-  - add focused automation for exact post-commit payloads, wrong-ID rejection,
-    duplicate/cap behavior, rapid updates, fixed geometry, expiry/teardown,
-    peer-panel coexistence, silent load, and zero wallet/XP/item/reward drift;
-  - in clean PIE, accept both quests, advance Mara once through real Prowler
-    combat, complete one real Still Waters rest/turn-in, and judge each update
-    at normal camera distance without obscuring existing world or HUD feedback.
-  Do not add abandonment, sorting, map tracking, reward claims, another quest,
-  audio, or persistence fields in this slice. If the runtime cannot expose one
-  trustworthy immutable post-commit result without broad mutation changes,
-  land the reviewed contract and smallest test-backed event seam first.
+- The quest-update observer was implemented and accepted on September 4;
+  do not implement it again. The saved-data Ledger keyboard path now has a
+  103rd native Slate regression. Next, obtain a voluntary normal-route
+  two-quest playtest through Mara and Still Waters: inspect selected detail
+  versus focused tracker, focused-button Enter/Space, wrap/repeat/Escape,
+  Inventory/Chronicle handoff, quest-update notice, and HUD geometry. Do not
+  load the protected Chronicle slot, force progress, or mutate quest/reward
+  state merely to manufacture this review. Physical keyboard and pointer
+  behavior remain a user check while desktop control is revoked. If the
+  route is unavailable, choose a distinct bounded player-visible issue
+  supported by fresh normal-camera evidence; do not repeat the Ledger fix.
 - Retain Mara's accepted contextual greeting contract in clean PIE:
   - outside `420` cm the observer must be hidden; inside range it must show the
     quest-owned available, active, ready, or completed copy;

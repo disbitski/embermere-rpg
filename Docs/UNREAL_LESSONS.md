@@ -1824,6 +1824,17 @@ sandbox that cannot update those files can fail before compilation begins.
 Run the build with normal host permissions instead of diagnosing trace-file
 access as a C++ error.
 
+September 28 exposed a second commandlet false green. Running a validator
+file with `-run=pythonscript -script=<path>` can return zero after loading the
+file while its `if __name__ == "__main__"` guard never calls `main()`.
+Redirected terminal output also omits the full `unreal.log` messages; on this
+Mac those land in `~/Library/Logs/Unreal Engine/EmbermereEditor/Embermere.log`.
+Use an explicit runner that invokes `main()`, or Unreal's
+`-ExecutePythonScript=<path>` startup path, and read a dedicated `-Abslog`
+or the complete editor log. Exit zero or `Python script executed successfully`
+is not acceptance without the exact validator markers and no
+`LogPython: Error`.
+
 ## Publish Committed Combat Outcomes, Not Ability Intent
 
 An ability-used notification is useful for cooldowns, but it is too early and

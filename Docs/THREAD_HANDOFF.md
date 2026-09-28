@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-27
+Last updated: 2026-09-28
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -40,7 +40,23 @@ this snapshot. A new task should read files in this order:
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
 
-## Current September 27 Handoff
+## Current September 28 Handoff
+
+The real saved Mara and Still Waters quest assets now have a dedicated native
+focused-Slate Ledger integration test. It proves selection/detail remains
+separate from compact tracker focus, native Enter/Space explicitly changes
+focus, Close rejects stale actions, and no quest/reward/currency/inventory
+owner drifts. The no-hot-reload build linked with process-local Xcode 26.1.1;
+the final full suite passed **103/103**. All **31** fresh package validators
+passed with the exact 53-Fab/32-original marker; all **16** initialized-world
+traces passed; clean PIE started/stopped; the map has no dirty packages and
+real MCP 8123 is ready. The protected save and local keeper hashes remain
+unchanged. The normal PIE two-quest interaction and physical keyboard/pointer
+gate remain open: F was not used merely to mutate quest state for inspection.
+See `Docs/DAILY_BUILD_2026-09-28.md`. `TODO.md` Next Work was corrected because
+the quest-update observer was already delivered September 4.
+
+## September 27 Handoff
 
 The previously blocked Ledger keyboard-focus repair is accepted. The user
 installed `/Applications/Xcode_26.1.1.app` beside unchanged default Xcode 27;
