@@ -7,6 +7,8 @@
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/Overlay.h"
 #include "Components/OverlaySlot.h"
+#include "Components/ScaleBox.h"
+#include "Components/ScaleBoxSlot.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "Components/UniformGridPanel.h"
@@ -343,10 +345,11 @@ void UEmbermereCharacterCreationWidget::BuildDefaultLayout()
 
 	UOverlay* Root = WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(), TEXT("CharacterCreationRoot"));
 	UBorder* Dimmer = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(), TEXT("CharacterCreationDimmer"));
+	UScaleBox* ResponsivePanel = WidgetTree->ConstructWidget<UScaleBox>(UScaleBox::StaticClass(), TEXT("CharacterCreationResponsivePanel"));
 	USizeBox* PanelSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("CharacterCreationPanelSize"));
 	UBorder* Panel = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(), TEXT("CharacterCreationPanel"));
 	UVerticalBox* MainStack = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("CharacterCreationMainStack"));
-	if (!Root || !Dimmer || !PanelSize || !Panel || !MainStack)
+	if (!Root || !Dimmer || !ResponsivePanel || !PanelSize || !Panel || !MainStack)
 	{
 		return;
 	}
@@ -362,13 +365,22 @@ void UEmbermereCharacterCreationWidget::BuildDefaultLayout()
 	PanelSize->SetWidthOverride(CharacterCreationPanelWidth);
 	PanelSize->SetHeightOverride(CharacterCreationPanelHeight);
 	PanelSize->SetContent(Panel);
+	ResponsivePanel->SetStretch(EStretch::ScaleToFit);
+	ResponsivePanel->SetStretchDirection(EStretchDirection::DownOnly);
+	ResponsivePanel->SetContent(PanelSize);
+	if (UScaleBoxSlot* ContentSlot = Cast<UScaleBoxSlot>(PanelSize->Slot))
+	{
+		ContentSlot->SetHorizontalAlignment(HAlign_Center);
+		ContentSlot->SetVerticalAlignment(VAlign_Center);
+	}
 	Panel->SetBrushColor(FLinearColor(0.018f, 0.032f, 0.027f, 1.0f));
 	Panel->SetPadding(FMargin(22.0f));
 	Panel->SetContent(MainStack);
-	if (UOverlaySlot* PanelSlot = Root->AddChildToOverlay(PanelSize))
+	if (UOverlaySlot* PanelSlot = Root->AddChildToOverlay(ResponsivePanel))
 	{
-		PanelSlot->SetHorizontalAlignment(HAlign_Center);
-		PanelSlot->SetVerticalAlignment(VAlign_Center);
+		PanelSlot->SetHorizontalAlignment(HAlign_Fill);
+		PanelSlot->SetVerticalAlignment(VAlign_Fill);
+		PanelSlot->SetPadding(FMargin(12.0f));
 	}
 
 	UTextBlock* Title = MakeCreationText(WidgetTree, TEXT("CharacterCreationTitle"), 27.0f, FLinearColor(1.0f, 0.78f, 0.28f, 1.0f), ETextJustify::Center);

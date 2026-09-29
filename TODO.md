@@ -6,6 +6,20 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 29 small-viewport character creation: clean 640x394 floating PIE
+  exposed the fixed 940x560 picker clipping its controls. A new native
+  `Embermere.UI.CharacterCreationSmallViewport` regression first failed for
+  the missing responsive parent. The widget now scales only downward inside
+  a centered 12-pixel margin while retaining the authored full-size panel.
+  Fresh floating PIE exposed all eight races, four classes, details, and
+  confirmation; Unreal-owned Slate selected and confirmed Dwarf Warrior and
+  handed off to the HUD. The Xcode 26.1.1 no-hot-reload build linked;
+  **104/104** native tests passed without warnings or failures. The fresh
+  **31-package** aggregate emitted the skeletal-material, **53 Fab / 32
+  original-art**, and `validators=31` markers with no `LogPython: Error`;
+  all **16** initialized-world suites passed. The map remained clean, and
+  protected hashes are exact. Physical input and the real two-quest route
+  remain open. See `Docs/DAILY_BUILD_2026-09-29.md`.
 - September 28 saved-quest Ledger integration: added
   `Embermere.UI.QuestLedgerKeyboard.SavedQuests` using the actual saved Mara
   and Still Waters data assets in an isolated Slate fixture. Native focused

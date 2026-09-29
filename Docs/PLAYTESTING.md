@@ -1279,3 +1279,12 @@ byte-for-byte unchanged and cannot be restored without explicit-version recovery
   clear Mara path passed the first editor inspection; retain that orientation
   when the village composition changes.
 - Raw Fab/Epic asset folders are local-only and ignored by Git, so missing local imports will make the art layer show missing references.
+## Small PIE Character Creation
+
+In a clean 640x394 floating PIE preview, the pre-play picker must keep all
+eight races, all four classes, the selected-path detail, and Enter Embermere
+reachable. It scales the authored 940x560 panel down rather than clipping
+choices or enlarging it on normal viewports. Check an invalid pair stays
+disabled, then confirm a valid pair and verify the regular HUD/input handoff.
+Unreal-owned Slate input proves the UI route, not physical keyboard or mouse
+behavior.

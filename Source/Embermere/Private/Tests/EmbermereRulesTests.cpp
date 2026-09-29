@@ -25,6 +25,8 @@
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/EmbermereWalletComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/ScaleBox.h"
+#include "Components/ScaleBoxSlot.h"
 #include "Components/SizeBox.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextBlock.h"
@@ -2414,6 +2416,42 @@ bool FEmbermereCharacterCreationInitialStateTest::RunTest(const FString& Paramet
 	TestTrue(TEXT("Summary exposes starter health and mana"), Summary.Contains(TEXT("Health 100")) && Summary.Contains(TEXT("Mana 50")));
 	TestTrue(TEXT("Summary exposes data-driven starter abilities"), Summary.Contains(TEXT("Strike")) && Summary.Contains(TEXT("Battle Shout")));
 
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereCharacterCreationSmallViewportTest,
+	"Embermere.UI.CharacterCreationSmallViewport",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereCharacterCreationSmallViewportTest::RunTest(const FString& Parameters)
+{
+	UEmbermereCharacterCreationWidget* Widget = NewObject<UEmbermereCharacterCreationWidget>();
+	if (!TestNotNull(TEXT("Character creation widget exists"), Widget))
+	{
+		return false;
+	}
+	Widget->TakeWidget();
+
+	UScaleBox* ResponsivePanel = Cast<UScaleBox>(Widget->GetWidgetFromName(TEXT("CharacterCreationResponsivePanel")));
+	if (!TestNotNull(TEXT("Fixed creation panel has a responsive parent"), ResponsivePanel))
+	{
+		return false;
+	}
+	TestEqual(TEXT("Small viewports scale the whole panel to fit"), ResponsivePanel->GetStretch(), EStretch::ScaleToFit);
+	TestEqual(TEXT("Large viewports keep the reviewed native dimensions"), ResponsivePanel->GetStretchDirection(), EStretchDirection::DownOnly);
+	const UScaleBoxSlot* ContentSlot = Cast<UScaleBoxSlot>(ResponsivePanel->GetContent()->Slot);
+	if (TestNotNull(TEXT("Panel is centered inside the scaled region"), ContentSlot))
+	{
+		TestEqual(TEXT("Horizontal centering"), ContentSlot->GetHorizontalAlignment(), HAlign_Center);
+		TestEqual(TEXT("Vertical centering"), ContentSlot->GetVerticalAlignment(), VAlign_Center);
+	}
+	const USizeBox* PanelSize = Cast<USizeBox>(ResponsivePanel->GetContent());
+	if (TestNotNull(TEXT("Original fixed panel remains the scaled content"), PanelSize))
+	{
+		TestEqual(TEXT("Authored panel width is unchanged"), PanelSize->GetWidthOverride(), 940.0f);
+		TestEqual(TEXT("Authored panel height is unchanged"), PanelSize->GetHeightOverride(), 560.0f);
+	}
 	return true;
 }
 

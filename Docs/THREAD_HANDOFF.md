@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-28
+Last updated: 2026-09-29
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -40,7 +40,22 @@ this snapshot. A new task should read files in this order:
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
 
-## Current September 28 Handoff
+## Current September 29 Handoff
+
+Clean 640x394 floating PIE exposed the fixed 940x560 character-creation modal
+clipping its choices and confirmation. A new native regression first failed
+for the missing responsive parent. The widget now places the unchanged authored
+panel inside a centered, down-only ScaleBox with 12-pixel edge clearance.
+Fresh floating PIE exposed all eight race and four class controls, details,
+and confirmation; synthetic Slate selected and confirmed Dwarf Warrior with
+the expected HUD handoff. The process-local Xcode 26.1.1 no-hot-reload build
+linked; all **104/104** tests passed. The fresh **31** package validators and
+all **16** initialized-world suites passed, with 53 Fab / 32 original-art
+unchanged. The protected save and keeper hashes remain exact. Physical input
+and the real two-quest playtest remain open. See
+`Docs/DAILY_BUILD_2026-09-29.md`.
+
+## September 28 Handoff
 
 The real saved Mara and Still Waters quest assets now have a dedicated native
 focused-Slate Ledger integration test. It proves selection/detail remains

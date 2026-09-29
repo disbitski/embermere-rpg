@@ -14,9 +14,9 @@ the character receives.
   definitions, allowed race/class matrix, class starting attributes, and
   starter ability IDs.
 - `UEmbermereCharacterCreationWidget` owns only pending selection and its
-  fixed presentation. It may show disabled classes and request one confirmed
-  choice, but it cannot silently replace an invalid choice or invent a
-  fallback combination.
+  fixed authored presentation, scaled down to fit small viewports. It may show
+  disabled classes and request one confirmed choice, but it cannot silently
+  replace an invalid choice or invent a fallback combination.
 - `AEmbermereCharacter` validates the requested pair against rules data and
   atomically applies identity, starting attributes, full starting vitals, and
   the first four hotbar abilities.
@@ -98,8 +98,10 @@ and idempotence requirements.
 
 ## Acceptance
 
-- The panel has stable fixed bounds and does not overlap the normal HUD because
-  the HUD is hidden during pre-play selection.
+- The panel keeps its authored `940x560` bounds at normal sizes. In a smaller
+  viewport, its centered ScaleBox shrinks the whole panel within a 12-pixel
+  edge margin; it never enlarges the panel above authored size. The normal HUD
+  is hidden during pre-play selection.
 - Eight race controls and four class controls are present.
 - Invalid classes remain visible and disabled.
 - Dwarf Ranger and Bullywug Wizard fail both UI and character-side validation.
