@@ -6,6 +6,24 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- September 30 small-viewport Inventory: clean floating PIE after the
+  character picker exposed a fixed `700x330` Inventory without a viewport-
+  constrained parent; its footer extended beyond the reported preview bounds.
+  `Embermere.UI.InventorySmallViewport` failed first for the missing wrapper.
+  Inventory now retains the authored panel inside a top-right `ScaleToFit`,
+  `DownOnly` ScaleBox with a 24-pixel viewport inset. The full-region wrapper
+  is self-hit-test-invisible so it cannot intercept world input. The
+  process-local Xcode 26.1.1 no-hot-reload build linked; final discovery and
+  automation passed **105/105** with no failures, warnings, or skips. The
+  fresh GUI-down **31-package** aggregate passed with exact skeletal-material,
+  **53 Fab / 32 original-art**, and `validators=31` markers and no
+  `LogPython: Error`; all **16** initialized-world suites passed in the final
+  editor session. Clean floating PIE showed the Inventory and read-only
+  Chronicle handoff, then stopped; the map is clean outside PIE on real MCP
+  8123. No quest state or saved journey was changed. The protected hashes are
+  exact. The Slate tree alone does not prove final painted small-window
+  clipping or physical pointer access; ask for a user visual/input check
+  before claiming those. See `Docs/DAILY_BUILD_2026-09-30.md`.
 - September 29 small-viewport character creation: clean 640x394 floating PIE
   exposed the fixed 940x560 picker clipping its controls. A new native
   `Embermere.UI.CharacterCreationSmallViewport` regression first failed for
@@ -1748,7 +1766,7 @@ targeting, rewards, AI, quests, or persistence.
 
 - The quest-update observer was implemented and accepted on September 4;
   do not implement it again. The saved-data Ledger keyboard path now has a
-  103rd native Slate regression. Next, obtain a voluntary normal-route
+  native Slate regression. Next, obtain a voluntary normal-route
   two-quest playtest through Mara and Still Waters: inspect selected detail
   versus focused tracker, focused-button Enter/Space, wrap/repeat/Escape,
   Inventory/Chronicle handoff, quest-update notice, and HUD geometry. Do not
@@ -1757,6 +1775,13 @@ targeting, rewards, AI, quests, or persistence.
   behavior remain a user check while desktop control is revoked. If the
   route is unavailable, choose a distinct bounded player-visible issue
   supported by fresh normal-camera evidence; do not repeat the Ledger fix.
+- Ask the user to check the small floating PIE Inventory visually at normal
+  camera scale, including its footer and equipment controls, and verify that
+  mouse input outside the panel still reaches the game. The new structural
+  test proves the responsive parent, inset, alignment, and hit-test policy,
+  but Unreal-owned Slate text bounds do not prove the final painted edge.
+  Chronicle's read-only panel was reachable and fit the observed window; do
+  not load or overwrite the protected versionless save to test it.
 - Retain Mara's accepted contextual greeting contract in clean PIE:
   - outside `420` cm the observer must be hidden; inside range it must show the
     quest-owned available, active, ready, or completed copy;

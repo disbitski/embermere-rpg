@@ -325,6 +325,24 @@ the saved identity, class stats, starter hotbar, equipment, and progression.
 Version `1` slots remain loadable through the documented current-rules Human
 Warrior fallback without rewriting the old file.
 
+## Small-Viewport HUD Gate
+
+1. In a small floating PIE window, confirm a legal character and inspect the
+   initially open Inventory. The full footer, list, details, and equipment
+   controls should remain visible inside the top-right panel. Its authored
+   `700x330` layout may scale down, but should never scale up on larger views.
+2. Click outside Inventory and verify the transparent viewport-sized layout
+   wrapper does not consume world input. Close with `I` and confirm normal
+   movement and look return.
+3. Open Chronicle with `M` or its bottom-right command. Read Current Journey
+   and Saved Journey separately; check Close, Save Current, and Load Saved fit
+   without covering summary text. Do **not** activate Save or Load against the
+   user's protected `EmbermerePrototype` slot for this layout check.
+4. Hand off between Chronicle and Inventory, then close both. Confirm the
+   cursor/input mode returns to gameplay. Unreal-owned Slate can inspect
+   widget structure and synthetic focus, but painted-edge and physical
+   pointer/keyboard acceptance require the user's direct check.
+
 ## Derived Level Progression
 
 1. Confirm Human Warrior and verify the authoritative status begins at level

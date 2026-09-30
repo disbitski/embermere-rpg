@@ -37,6 +37,8 @@
 #include "Components/Overlay.h"
 #include "Components/OverlaySlot.h"
 #include "Components/ProgressBar.h"
+#include "Components/ScaleBox.h"
+#include "Components/ScaleBoxSlot.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
@@ -3721,12 +3723,26 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 
 	if (InventoryPanel)
 	{
-		if (UCanvasPanelSlot* InventorySlot = RootCanvas->AddChildToCanvas(InventoryPanel))
+		UScaleBox* ResponsivePanel = WidgetTree->ConstructWidget<UScaleBox>(
+			UScaleBox::StaticClass(), TEXT("InventoryResponsivePanel"));
+		USizeBox* PanelSize = WidgetTree->ConstructWidget<USizeBox>(
+			USizeBox::StaticClass(), TEXT("InventoryPanelSize"));
+		PanelSize->SetWidthOverride(700.0f);
+		PanelSize->SetHeightOverride(330.0f);
+		PanelSize->SetContent(InventoryPanel);
+		ResponsivePanel->SetStretch(EStretch::ScaleToFit);
+		ResponsivePanel->SetStretchDirection(EStretchDirection::DownOnly);
+		ResponsivePanel->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		ResponsivePanel->SetContent(PanelSize);
+		if (UScaleBoxSlot* ContentSlot = Cast<UScaleBoxSlot>(PanelSize->Slot))
 		{
-			InventorySlot->SetAnchors(FAnchors(1.0f, 0.0f, 1.0f, 0.0f));
-			InventorySlot->SetAlignment(FVector2D(1.0f, 0.0f));
-			InventorySlot->SetPosition(FVector2D(-24.0f, 24.0f));
-			InventorySlot->SetSize(FVector2D(700.0f, 330.0f));
+			ContentSlot->SetHorizontalAlignment(HAlign_Right);
+			ContentSlot->SetVerticalAlignment(VAlign_Top);
+		}
+		if (UCanvasPanelSlot* InventorySlot = RootCanvas->AddChildToCanvas(ResponsivePanel))
+		{
+			InventorySlot->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
+			InventorySlot->SetOffsets(FMargin(24.0f));
 		}
 	}
 

@@ -25,6 +25,7 @@
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/EmbermereWalletComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/CanvasPanelSlot.h"
 #include "Components/ScaleBox.h"
 #include "Components/ScaleBoxSlot.h"
 #include "Components/SizeBox.h"
@@ -2440,13 +2441,18 @@ bool FEmbermereCharacterCreationSmallViewportTest::RunTest(const FString& Parame
 	}
 	TestEqual(TEXT("Small viewports scale the whole panel to fit"), ResponsivePanel->GetStretch(), EStretch::ScaleToFit);
 	TestEqual(TEXT("Large viewports keep the reviewed native dimensions"), ResponsivePanel->GetStretchDirection(), EStretchDirection::DownOnly);
-	const UScaleBoxSlot* ContentSlot = Cast<UScaleBoxSlot>(ResponsivePanel->GetContent()->Slot);
+	const UWidget* ScaledContent = ResponsivePanel->GetContent();
+	if (!TestNotNull(TEXT("Responsive inventory retains its content"), ScaledContent))
+	{
+		return false;
+	}
+	const UScaleBoxSlot* ContentSlot = Cast<UScaleBoxSlot>(ScaledContent->Slot);
 	if (TestNotNull(TEXT("Panel is centered inside the scaled region"), ContentSlot))
 	{
 		TestEqual(TEXT("Horizontal centering"), ContentSlot->GetHorizontalAlignment(), HAlign_Center);
 		TestEqual(TEXT("Vertical centering"), ContentSlot->GetVerticalAlignment(), VAlign_Center);
 	}
-	const USizeBox* PanelSize = Cast<USizeBox>(ResponsivePanel->GetContent());
+	const USizeBox* PanelSize = Cast<USizeBox>(ScaledContent);
 	if (TestNotNull(TEXT("Original fixed panel remains the scaled content"), PanelSize))
 	{
 		TestEqual(TEXT("Authored panel width is unchanged"), PanelSize->GetWidthOverride(), 940.0f);
@@ -3498,6 +3504,53 @@ bool FEmbermereInventoryHudToggleTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Returned item can be selected"), HudWidget->SelectInventoryItem(1));
 	TestEqual(TEXT("Unequipped item action returns to Equip"), HudWidget->GetSelectedInventoryActionLabel().ToString(), FString(TEXT("Equip")));
 
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereInventorySmallViewportTest,
+	"Embermere.UI.InventorySmallViewport",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereInventorySmallViewportTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	if (!TestNotNull(TEXT("Native HUD exists"), Hud))
+	{
+		return false;
+	}
+	Hud->TakeWidget();
+
+	UScaleBox* ResponsivePanel = Cast<UScaleBox>(Hud->GetWidgetFromName(TEXT("InventoryResponsivePanel")));
+	if (!TestNotNull(TEXT("Inventory has a viewport-constrained responsive parent"), ResponsivePanel))
+	{
+		return false;
+	}
+	TestEqual(TEXT("Small viewports scale the whole inventory"), ResponsivePanel->GetStretch(), EStretch::ScaleToFit);
+	TestEqual(TEXT("Large viewports retain the native inventory size"), ResponsivePanel->GetStretchDirection(), EStretchDirection::DownOnly);
+	TestEqual(TEXT("Viewport-filling wrapper does not intercept world input"), ResponsivePanel->GetVisibility(), ESlateVisibility::SelfHitTestInvisible);
+	const UScaleBoxSlot* ContentSlot = Cast<UScaleBoxSlot>(ResponsivePanel->GetContent()->Slot);
+	if (TestNotNull(TEXT("Inventory remains at the top-right of its inset region"), ContentSlot))
+	{
+		TestEqual(TEXT("Right alignment"), ContentSlot->GetHorizontalAlignment(), HAlign_Right);
+		TestEqual(TEXT("Top alignment"), ContentSlot->GetVerticalAlignment(), VAlign_Top);
+	}
+	const UCanvasPanelSlot* ViewportSlot = Cast<UCanvasPanelSlot>(ResponsivePanel->Slot);
+	if (TestNotNull(TEXT("Responsive inventory fills the inset viewport region"), ViewportSlot))
+	{
+		TestEqual(TEXT("Responsive left anchor"), static_cast<float>(ViewportSlot->GetAnchors().Minimum.X), 0.0f);
+		TestEqual(TEXT("Responsive top anchor"), static_cast<float>(ViewportSlot->GetAnchors().Minimum.Y), 0.0f);
+		TestEqual(TEXT("Responsive right anchor"), static_cast<float>(ViewportSlot->GetAnchors().Maximum.X), 1.0f);
+		TestEqual(TEXT("Responsive bottom anchor"), static_cast<float>(ViewportSlot->GetAnchors().Maximum.Y), 1.0f);
+		TestEqual(TEXT("Left viewport margin"), ViewportSlot->GetOffsets().Left, 24.0f);
+		TestEqual(TEXT("Right viewport margin"), ViewportSlot->GetOffsets().Right, 24.0f);
+	}
+	const USizeBox* PanelSize = Cast<USizeBox>(ResponsivePanel->GetContent());
+	if (TestNotNull(TEXT("Authored inventory is the scaled content"), PanelSize))
+	{
+		TestEqual(TEXT("Inventory width is unchanged"), PanelSize->GetWidthOverride(), 700.0f);
+		TestEqual(TEXT("Inventory height is unchanged"), PanelSize->GetHeightOverride(), 330.0f);
+	}
 	return true;
 }
 
