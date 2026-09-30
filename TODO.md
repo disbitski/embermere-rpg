@@ -8,7 +8,9 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 - September 30 small-viewport Inventory: clean floating PIE after the
   character picker exposed a fixed `700x330` Inventory without a viewport-
-  constrained parent; its footer extended beyond the reported preview bounds.
+  constrained parent. Slate reported footer text bounds beyond the preview,
+  but Unreal's `1280x730` render viewport and `0.675` UI scale make those
+  coordinates incomparable; painted clipping was **not** established.
   `Embermere.UI.InventorySmallViewport` failed first for the missing wrapper.
   Inventory now retains the authored panel inside a top-right `ScaleToFit`,
   `DownOnly` ScaleBox with a 24-pixel viewport inset. The full-region wrapper

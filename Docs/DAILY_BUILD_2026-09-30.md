@@ -4,7 +4,10 @@
 
 Clean floating PIE after a transient Human Warrior confirmation exposed the
 native Inventory's fixed `700x330` panel with no responsive parent. The Slate
-tree reported its footer beyond the preview's right edge. The new
+tree reported its footer beyond the preview's right edge, but Unreal reported
+a `1280x730` render viewport at UI scale `0.675`. Slate's text width and
+window position are not directly comparable at that scale, so this did **not**
+prove painted clipping in the current window. The new
 `Embermere.UI.InventorySmallViewport` native test first failed because
 `InventoryResponsivePanel` was absent. The narrow production change keeps
 the same authored panel and inventory behavior inside a top-right `ScaleToFit`,
@@ -17,8 +20,9 @@ The read-only Chronicle panel was opened in floating PIE without loading or
 saving. Current Human Warrior identity, the existing versionless-slot warning,
 disabled Load, Close, and Save Current were present within its fixed panel.
 The native HUD handoff and Inventory controls were present after the change.
-Slate's reported text geometry still extended beyond the preview window and
-does not establish final painted clipping. A user visual and physical-pointer
+Slate's reported text geometry still extended beyond the preview window but
+does not establish final painted clipping. An attempted PIE-only `r.SetRes`
+did not change the floating viewport size. A user visual and physical-pointer
 check remains open; synthetic Slate was not described as physical input.
 
 ## Verification
