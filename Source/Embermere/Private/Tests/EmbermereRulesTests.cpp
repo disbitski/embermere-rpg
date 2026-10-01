@@ -4545,12 +4545,66 @@ bool FEmbermereHudChatLogTest::RunTest(const FString& Parameters)
 	HudWidget->AddChatMessage(FText::FromString(TEXT("Marsh Prowler hits you for 4")), FLinearColor::Red);
 	TestEqual(TEXT("Chat log stores a posted combat line"), HudWidget->GetChatMessageCount(), 1);
 
-	for (int32 Index = 0; Index < 10; ++Index)
+	for (int32 Index = 0; Index < 40; ++Index)
 	{
 		HudWidget->AddChatMessage(FText::FromString(FString::Printf(TEXT("Message %d"), Index)), FLinearColor::White);
 	}
 	TestEqual(TEXT("Chat log keeps the configured number of recent messages"), HudWidget->GetChatMessageCount(), HudWidget->GetChatMessageLimit());
 
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereHudChatHistoryTest,
+	"Embermere.UI.ChatHistoryNavigation",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereHudChatHistoryTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	if (!TestNotNull(TEXT("Chat history HUD can be created"), Hud))
+	{
+		return false;
+	}
+	Hud->TakeWidget();
+	for (int32 Index = 0; Index < 35; ++Index)
+	{
+		Hud->AddChatMessage(FText::FromString(FString::Printf(TEXT("Event %d"), Index)), FLinearColor::White);
+	}
+
+	TestEqual(TEXT("Chat retains thirty recent events"), Hud->GetChatMessageCount(), 30);
+	TestEqual(TEXT("Chat keeps six fixed visible rows"), Hud->GetChatVisibleRowCount(), 6);
+	UTextBlock* FirstRow = Cast<UTextBlock>(Hud->GetWidgetFromName(TEXT("ChatMessageText_0")));
+	UTextBlock* LastRow = Cast<UTextBlock>(Hud->GetWidgetFromName(TEXT("ChatMessageText_5")));
+	if (!TestNotNull(TEXT("First visible chat row exists"), FirstRow) ||
+		!TestNotNull(TEXT("Sixth visible chat row exists"), LastRow))
+	{
+		return false;
+	}
+	TestEqual(TEXT("Newest page starts at event 29"), FirstRow->GetText().ToString(), FString(TEXT("Event 29")));
+	TestEqual(TEXT("Newest page ends at event 34"), LastRow->GetText().ToString(), FString(TEXT("Event 34")));
+	Hud->ScrollChatHistory(6);
+	TestEqual(TEXT("PageUp moves one page into retained history"), Hud->GetChatScrollOffset(), 6);
+	TestEqual(TEXT("Older page starts at event 23"), FirstRow->GetText().ToString(), FString(TEXT("Event 23")));
+	TestEqual(TEXT("Older page ends at event 28"), LastRow->GetText().ToString(), FString(TEXT("Event 28")));
+	Hud->ScrollChatHistory(100);
+	TestEqual(TEXT("PageUp clamps at oldest retained page"), Hud->GetChatScrollOffset(), 24);
+	TestEqual(TEXT("Oldest retained page starts at event 5"), FirstRow->GetText().ToString(), FString(TEXT("Event 5")));
+	Hud->ScrollChatHistory(-18);
+	TestEqual(TEXT("PageDown moves toward newest events"), Hud->GetChatScrollOffset(), 6);
+	TestEqual(TEXT("Mid-history page starts at event 23"), FirstRow->GetText().ToString(), FString(TEXT("Event 23")));
+	Hud->AddChatMessage(FText::FromString(TEXT("Event 35")), FLinearColor::Yellow);
+	TestEqual(TEXT("A new message preserves the older reading window"), FirstRow->GetText().ToString(), FString(TEXT("Event 23")));
+	TestEqual(TEXT("Incoming messages advance the history offset"), Hud->GetChatScrollOffset(), 7);
+	Hud->ScrollChatHistory(-100);
+	TestEqual(TEXT("PageDown clamps at newest page"), Hud->GetChatScrollOffset(), 0);
+	TestEqual(TEXT("Newest page includes the incoming event"), LastRow->GetText().ToString(), FString(TEXT("Event 35")));
+	Hud->ScrollChatHistory(MAX_int32);
+	TestEqual(TEXT("Large positive scroll clamps without overflow"), Hud->GetChatScrollOffset(), 24);
+	Hud->ScrollChatHistory(MIN_int32);
+	TestEqual(TEXT("Large negative scroll clamps without overflow"), Hud->GetChatScrollOffset(), 0);
+	Hud->AddChatMessage(FText::GetEmpty(), FLinearColor::White);
+	TestEqual(TEXT("Empty events do not enter history"), Hud->GetChatMessageCount(), 30);
 	return true;
 }
 

@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-09-29
+Last updated: 2026-10-01
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -40,7 +40,35 @@ this snapshot. A new task should read files in this order:
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
 
-## Current September 29 Handoff
+## October 1 Handoff
+
+The bottom-left chat now retains 30 transient messages behind the unchanged
+six-row clipped panel. PageUp/PageDown browse six rows at a time. A new message
+keeps the current older reading window anchored rather than jumping to live;
+both ends clamp safely, including extreme requests. The focused native test
+first failed on the old six-line retention and then passed. The process-local
+Xcode 26.1.1 no-hot-reload build linked; fresh discovery/full automation passed
+**106/106** with zero warnings, failures, or skips. The GUI-down **31**
+saved-package aggregate passed with exact skeletal-material and **53 Fab / 32
+original-art** markers and no `LogPython: Error`. The user's save and keeper
+material remain untouched. A fresh final editor session passed all **16**
+initialized-world suites without `LogPython: Error`, clean floating PIE
+started/stopped, and the map remained clean outside PIE on real MCP 8123.
+Physical keys/final painted readability, the small Inventory pointer review,
+and the voluntary two-quest Ledger route remain user checks. See
+`Docs/DAILY_BUILD_2026-10-01.md` and current `TODO.md`.
+
+## September 30 Handoff
+
+The authored `700x330` Inventory now has a top-right down-only responsive
+wrapper with a 24-pixel inset and self-hit-test-invisible empty region. The
+test failed first for the missing parent, then **105/105** passed; all **31**
+saved-package and **16** live-world suites passed. A floating PIE smoke exposed
+Inventory and read-only Chronicle without changing the protected slot. Slate
+text bounds at Unreal's UI scale did not establish a painted clipping defect.
+See `Docs/DAILY_BUILD_2026-09-30.md`.
+
+## September 29 Handoff
 
 Clean 640x394 floating PIE exposed the fixed 940x560 character-creation modal
 clipping its choices and confirmation. A new native regression first failed

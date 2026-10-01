@@ -3626,6 +3626,21 @@ start/stop passed too. No save, map, or quest data changed, and the user's
 original journey remains byte-for-byte untouched. Physical keyboard and
 pointer acceptance is still a user check under the no-desktop-control rule.
 
+## October 1: Chat History Without Moving the HUD
+
+The bottom-left combat log had a fixed six-line buffer, so a short fight could
+erase its own opening context. We kept the same six clipped visual rows and
+expanded only the transient presentation history to 30 messages. PageUp and
+PageDown browse in six-row steps; incoming results preserve an older reading
+window rather than snapping the player back to the newest line. Combat, quest,
+inventory, and Chronicle owners did not move.
+
+The new native test first failed at six retained messages. After the scoped
+change, process-local Xcode 26.1.1 compiled the editor, all 106 tests passed,
+and the fresh 31-package aggregate retained the exact 53 Fab / 32 original-art
+world baseline. Physical key and final pixel acceptance remain user checks
+under the no-desktop-control rule.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

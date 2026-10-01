@@ -48,7 +48,8 @@
 
 namespace
 {
-	constexpr int32 ChatMessageLimit = 6;
+	constexpr int32 ChatMessageLimit = 30;
+	constexpr int32 ChatVisibleRowCount = 6;
 	constexpr int32 InventoryVisibleRowCount = 8;
 	constexpr int32 VendorVisibleRowCount = 4;
 	constexpr int32 TrainerVisibleRowCount = 3;
@@ -2044,10 +2045,15 @@ void UEmbermerePlayerHudWidget::AddChatMessage(const FText& Message, FLinearColo
 	}
 
 	ChatMessages.Add(TPair<FText, FLinearColor>(Message, MessageColor));
+	if (ChatScrollOffset > 0)
+	{
+		++ChatScrollOffset;
+	}
 	while (ChatMessages.Num() > ChatMessageLimit)
 	{
 		ChatMessages.RemoveAt(0);
 	}
+	ChatScrollOffset = FMath::Clamp(ChatScrollOffset, 0, FMath::Max(0, ChatMessages.Num() - ChatVisibleRowCount));
 	RefreshChatMessages();
 }
 
@@ -2059,6 +2065,28 @@ int32 UEmbermerePlayerHudWidget::GetChatMessageCount() const
 int32 UEmbermerePlayerHudWidget::GetChatMessageLimit() const
 {
 	return ChatMessageLimit;
+}
+
+int32 UEmbermerePlayerHudWidget::GetChatVisibleRowCount() const
+{
+	return ChatVisibleRowCount;
+}
+
+int32 UEmbermerePlayerHudWidget::GetChatScrollOffset() const
+{
+	return ChatScrollOffset;
+}
+
+void UEmbermerePlayerHudWidget::ScrollChatHistory(int32 DeltaRows)
+{
+	const int32 MaxOffset = FMath::Max(0, ChatMessages.Num() - ChatVisibleRowCount);
+	const int32 NewOffset = static_cast<int32>(FMath::Clamp<int64>(
+		static_cast<int64>(ChatScrollOffset) + DeltaRows, 0, MaxOffset));
+	if (NewOffset != ChatScrollOffset)
+	{
+		ChatScrollOffset = NewOffset;
+		RefreshChatMessages();
+	}
 }
 
 void UEmbermerePlayerHudWidget::BuildDefaultLayout()
@@ -3580,7 +3608,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		ChatMessageStack->SetClipping(EWidgetClipping::ClipToBoundsAlways);
 	}
 	ChatMessageTexts.Reset();
-	for (int32 MessageIndex = 0; MessageIndex < ChatMessageLimit; ++MessageIndex)
+	for (int32 MessageIndex = 0; MessageIndex < ChatVisibleRowCount; ++MessageIndex)
 	{
 		UTextBlock* MessageText = MakeHudText(
 			WidgetTree,
@@ -5202,6 +5230,7 @@ void UEmbermerePlayerHudWidget::RefreshChatMessages()
 		ChatPanel->SetVisibility(ChatMessages.Num() > 0 ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
 	}
 
+	const int32 FirstVisibleIndex = FMath::Max(0, ChatMessages.Num() - ChatVisibleRowCount - ChatScrollOffset);
 	for (int32 MessageIndex = 0; MessageIndex < ChatMessageTexts.Num(); ++MessageIndex)
 	{
 		UTextBlock* MessageText = ChatMessageTexts[MessageIndex];
@@ -5210,14 +5239,15 @@ void UEmbermerePlayerHudWidget::RefreshChatMessages()
 			continue;
 		}
 
-		if (!ChatMessages.IsValidIndex(MessageIndex))
+		const int32 HistoryIndex = FirstVisibleIndex + MessageIndex;
+		if (!ChatMessages.IsValidIndex(HistoryIndex))
 		{
 			MessageText->SetText(FText::GetEmpty());
 			MessageText->SetVisibility(ESlateVisibility::Collapsed);
 			continue;
 		}
 
-		const TPair<FText, FLinearColor>& Message = ChatMessages[MessageIndex];
+		const TPair<FText, FLinearColor>& Message = ChatMessages[HistoryIndex];
 		MessageText->SetText(Message.Key);
 		MessageText->SetColorAndOpacity(FSlateColor(Message.Value));
 		MessageText->SetVisibility(ESlateVisibility::HitTestInvisible);

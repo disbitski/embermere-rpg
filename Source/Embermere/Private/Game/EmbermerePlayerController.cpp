@@ -107,6 +107,14 @@ void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 	{
 		ToggleInventoryPanel();
 	}
+	if (PlayerHudWidget && WasInputKeyJustPressed(EKeys::PageUp))
+	{
+		PlayerHudWidget->ScrollChatHistory(PlayerHudWidget->GetChatVisibleRowCount());
+	}
+	if (PlayerHudWidget && WasInputKeyJustPressed(EKeys::PageDown))
+	{
+		PlayerHudWidget->ScrollChatHistory(-PlayerHudWidget->GetChatVisibleRowCount());
+	}
 	if (PlayerHudWidget && PlayerHudWidget->IsQuestLedgerPanelVisible())
 	{
 		if (WasInputKeyJustPressed(EKeys::Escape))

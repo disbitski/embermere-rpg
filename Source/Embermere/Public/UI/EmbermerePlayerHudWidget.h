@@ -102,6 +102,15 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	int32 GetChatMessageLimit() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	int32 GetChatVisibleRowCount() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
+	int32 GetChatScrollOffset() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
+	void ScrollChatHistory(int32 DeltaRows);
+
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	bool ToggleInventoryPanel();
 
@@ -765,6 +774,7 @@ private:
 	int32 SelectedQuestLedgerIndex = 0;
 	int32 FirstDisplayedInventoryStackIndex = 0;
 	TArray<TPair<FText, FLinearColor>> ChatMessages;
+	int32 ChatScrollOffset = 0;
 	TObjectPtr<UEmbermereItemData> PendingDragItem;
 	EEmbermereItemDragSource PendingDragSource = EEmbermereItemDragSource::None;
 	EEmbermereEquipmentSlot PendingDragEquipmentSlot = EEmbermereEquipmentSlot::None;

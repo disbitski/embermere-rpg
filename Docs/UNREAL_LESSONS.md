@@ -1582,6 +1582,15 @@ This preserves the localhost MCP and native Slate boundary, avoids OS-level UI
 injection, and works for initialized-world validators that cannot be accepted
 from a null-render commandlet alone.
 
+For an existing validator file, the Cmd-mode form `py /absolute/script.py`
+also executes its guarded `__main__` entrypoint. It is shorter than typing
+`py import runpy; ...` character by character through Slate. On October 1,
+the longer form picked up a stale `imp` prefix from the console's completion
+state and produced `imppy import...` syntax errors before a later clean run.
+If that occurs, do not count the session as error-free: use the direct file
+form, relaunch, and require the success marker without any `LogPython: Error`
+in the final editor session.
+
 ## Separate Skeletal Cleanup, Creation, And Validation Lifecycles
 
 Deleting a SkeletalMesh and its Skeleton immediately before rebuilding both in

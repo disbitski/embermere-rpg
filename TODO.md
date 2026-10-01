@@ -6,6 +6,21 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 1 chat history: `Embermere.UI.ChatHistoryNavigation` first failed
+  because the HUD retained only six lines. The bottom-left panel still renders
+  exactly six fixed, clipped rows, but now keeps the latest 30 transient
+  messages. PageUp/PageDown browse one six-row page and clamp at either end;
+  new messages preserve the older reading window until the player returns to
+  the latest page. No combat, quest, inventory, input-mode, or save owner moved.
+  The process-local Xcode 26.1.1 no-hot-reload build linked; final discovery
+  and automation passed **106/106** without failures, warnings, or skips. The
+  fresh GUI-down **31-package** aggregate passed with exact skeletal-material,
+  **53 Fab / 32 original-art**, and `validators=31` markers and no
+  `LogPython: Error`. A clean final editor session passed all **16**
+  initialized-world suites without Python errors, started/stopped floating
+  PIE, and left the map clean outside PIE on real MCP 8123. Physical
+  PageUp/PageDown and painted chat readability remain a user check under the
+  desktop-control restriction. See `Docs/DAILY_BUILD_2026-10-01.md`.
 - September 30 small-viewport Inventory: clean floating PIE after the
   character picker exposed a fixed `700x330` Inventory without a viewport-
   constrained parent. Slate reported footer text bounds beyond the preview,
@@ -1784,6 +1799,10 @@ targeting, rewards, AI, quests, or persistence.
   but Unreal-owned Slate text bounds do not prove the final painted edge.
   Chronicle's read-only panel was reachable and fit the observed window; do
   not load or overwrite the protected versionless save to test it.
+- Ask the user to check PageUp/PageDown chat browsing during real combat and
+  quest feedback. Native tests protect the 30-message retention, six-row
+  window, page boundaries, and incoming-message anchor; synthetic editor
+  input is not a physical keyboard acceptance.
 - Retain Mara's accepted contextual greeting contract in clean PIE:
   - outside `420` cm the observer must be hidden; inside range it must show the
     quest-owned available, active, ready, or completed copy;
@@ -1910,7 +1929,9 @@ targeting, rewards, AI, quests, or persistence.
     Niagara or class-specific effects are warranted.
 - Clean up WIP HUD layout issues:
   - manually verify the 2026-07-04 chat clipping fix in PIE after a clean editor restart;
-  - continue tuning chat panel height/line count against the hotbar and common desktop viewport sizes.
+  - retain the accepted six-row/30-message PageUp/PageDown scrollback without
+    shifting the hotbar; tune panel height or fantasy styling only from
+    normal-camera evidence at common desktop viewport sizes.
 - Manually review the first Fab/Epic environment pass in PIE:
   - verify the atmospheric sky, ambient fill, and fog balance on the Mac viewport;
   - confirm the removal of the oversized sci-fi shells leaves Mara and PlayerStart readable;

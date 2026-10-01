@@ -108,7 +108,7 @@ The repo currently contains the C++ gameplay scaffold for:
   [the observer contract](Docs/QUEST_UPDATE_PRESENTATION_CONTRACT.md)
 - a fixed quest-owned four-state Mara greeting below her world marker that is
   range-gated, hit-test-invisible, non-colliding, and presentation-only
-- bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback
+- bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback, with a fixed six-row view over 30 transient messages and PageUp/PageDown history browsing
 - first hotbar cooldown enforcement and ready-time feedback
 - starter enemy aggro, leash, return-home, attack, death, and respawn behavior
 - player respawn with short damage protection plus a finite-world recovery

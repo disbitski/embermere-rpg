@@ -1180,6 +1180,12 @@ byte-for-byte unchanged and cannot be restored without explicit-version recovery
   and a restrained cyan-blue emissive ground circle around the target's
   footprint.
 - Ability use posts a bottom-left hit message clipped inside the shaded chat panel.
+- After more than six chat/combat messages, PageUp should show the preceding
+  six-row page and PageDown should return toward the latest events. New
+  messages should not dislodge an older page while reading it. The panel must
+  remain six rows tall, clipped, and clear of the hotbar; history is transient
+  and must not change quest, combat, inventory, or Chronicle state. Physical
+  keys and final painted readability still need user acceptance.
 - Successful damage also publishes one immutable post-commit result to a
   hit-test-invisible, fixed three-entry floating observer. Exact damage appears
   briefly beside the selected target nameplate, never replaces chat or target
@@ -1277,7 +1283,9 @@ byte-for-byte unchanged and cannot be restored without explicit-version recovery
   bounds sizing and a downward surface trace keep it clear of both paws and
   raised ground; a future texture treatment can add restrained runes or softer
   edges without changing targeting rules.
-- The bottom-left chat/combat log is clipped inside its shaded panel and currently uses single-line rows; final chat history, scrolling, and fantasy styling still need a proper UI pass.
+- The bottom-left chat/combat log is clipped inside its shaded panel, keeps
+  30 transient messages, and shows six single-line rows with PageUp/PageDown
+  scrollback. Fantasy styling and physical-key acceptance remain open.
 - If Codex changed C++ during the same editor session, restart Unreal before validating interface-heavy tests or new target-presentation behavior.
 - The first local Fab/Epic environment pass is grounded and spawn-safe after
   removing three oversized sci-fi shells, unsupported ruin accents, and
