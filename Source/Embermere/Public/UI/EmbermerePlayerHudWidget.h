@@ -10,6 +10,7 @@
 
 class AActor;
 class AEmbermereCharacter;
+class AEmbermerePlayerController;
 class UEmbermereCombatComponent;
 class UEmbermereCombatFeedbackWidget;
 class UEmbermereEquipmentComponent;
@@ -83,6 +84,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	void BindToCharacter(AEmbermereCharacter* Character);
+	void RefreshAutorunStatus(const AEmbermerePlayerController* Controller);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Embermere|HUD")
 	void OnTargetChanged(AActor* NewTarget);
@@ -407,6 +409,9 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UProgressBar> ExperienceBar;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> AutorunStatusText;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UEmbermereLevelUpWidget> LevelUpOverlay;

@@ -391,6 +391,17 @@ void UEmbermerePlayerHudWidget::BindToCharacter(AEmbermereCharacter* Character)
 	RefreshHudText();
 }
 
+void UEmbermerePlayerHudWidget::RefreshAutorunStatus(const AEmbermerePlayerController* Controller)
+{
+	if (AutorunStatusText)
+	{
+		AutorunStatusText->SetVisibility(
+			Controller && Controller->bAutorunEnabled
+				? ESlateVisibility::HitTestInvisible
+				: ESlateVisibility::Hidden);
+	}
+}
+
 TSharedRef<SWidget> UEmbermerePlayerHudWidget::RebuildWidget()
 {
 	BuildDefaultLayout();
@@ -2196,6 +2207,14 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	HealthBar = MakeBar(WidgetTree, TEXT("HealthBar"), FLinearColor(0.72f, 0.08f, 0.06f, 1.0f));
 	ManaBar = MakeBar(WidgetTree, TEXT("ManaBar"), FLinearColor(0.08f, 0.24f, 0.8f, 1.0f));
 	ExperienceBar = MakeBar(WidgetTree, TEXT("ExperienceBar"), FLinearColor(0.92f, 0.62f, 0.14f, 1.0f));
+	AutorunStatusText = MakeHudText(
+		WidgetTree,
+		TEXT("AutorunStatusText"),
+		FLinearColor(0.92f, 0.72f, 0.34f, 1.0f),
+		12.0f);
+	AutorunStatusText->SetText(FText::FromString(TEXT("Q  AUTORUN")));
+	AutorunStatusText->SetJustification(ETextJustify::Right);
+	AutorunStatusText->SetVisibility(ESlateVisibility::Hidden);
 	USizeBox* PlayerStatusEffectRow = MakeStatusEffectRow(
 		TEXT("PlayerStatusEffect"),
 		PlayerStatusEffectPanels,
@@ -2213,6 +2232,10 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			ProgressionBarWidth,
 			ProgressionBarHeight),
 		5.0f);
+	AddStackChild(
+		StatusStack,
+		MakeSizedWidget(WidgetTree, AutorunStatusText, TEXT("AutorunStatusSize"), 260.0f, 18.0f),
+		0.0f);
 	AddStackChild(StatusStack, PlayerStatusEffectRow, 0.0f);
 
 	TargetPanel = MakePanel(WidgetTree, TEXT("TargetPanel"), FLinearColor(0.075f, 0.04f, 0.025f, 0.78f));
@@ -3948,6 +3971,7 @@ void UEmbermerePlayerHudWidget::RefreshStatusEffectRow(
 
 void UEmbermerePlayerHudWidget::RefreshHudText()
 {
+	RefreshAutorunStatus(Cast<AEmbermerePlayerController>(GetOwningPlayer()));
 	if (QuestUpdateOverlay)
 	{
 		QuestUpdateOverlay->SetSuppressed(bInventoryPanelVisible || bVendorPanelVisible ||

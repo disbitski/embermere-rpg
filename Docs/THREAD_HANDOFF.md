@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-01
+Last updated: 2026-10-02
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,22 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 2 Handoff
+
+Test-first `Embermere.UI.AutorunStatusCue` failed on the missing cue, then
+passed after adding a fixed `260x18` status row. Its amber `Q  AUTORUN` label
+reads `AEmbermerePlayerController::bAutorunEnabled`; `Hidden` retains the slot
+when off, so toggling cannot reflow neighboring HUD elements. No movement,
+input mode, quest, combat, or save authority moved. Process-local Xcode 26.1.1
+linked the no-hot-reload build. Fresh automation passed **107/107** without
+warnings or skips; the GUI-down 31-package aggregate retained exact
+skeletal-material, **53 Fab / 32 original-art**, and `validators=31` markers
+with no Python error; all 16 initialized-world suites passed in a clean final
+editor session. Floating PIE via Unreal-owned Slate showed Q on/off; one-shot
+synthetic W cannot prove held-axis cancellation. Physical W/S and painted
+readability remain user checks. Map clean outside PIE, real MCP 8123. See
+`Docs/DAILY_BUILD_2026-10-02.md`.
 
 ## October 1 Handoff
 

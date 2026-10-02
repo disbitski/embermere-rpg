@@ -399,8 +399,10 @@ Warrior fallback without rewriting the old file.
 4. Hold left mouse to rotate the camera only.
 5. Hold both mouse buttons to move forward.
 6. Mouse Y starts inverted by default; press `Ctrl+M` to toggle normal/inverted.
-7. Press `Q` to toggle autorun.
-8. Press `W` or `S` while autorunning to stop autorun.
+7. Press `Q` to toggle autorun. The fixed amber `Q  AUTORUN` cue beneath player
+   vitals should appear when enabled and disappear when Q turns it off.
+8. Press and hold `W` or `S` while autorunning to stop autorun; the cue should
+   disappear without shifting the status, target, chat, or hotbar layout.
 9. Confirm the visible inventory opens in cursor-aware game/UI mode, then press
    `I` to hide/show it. Closing the inventory must hide the cursor, restore
    classic game-only mouse control, and allow the first right-mouse press to

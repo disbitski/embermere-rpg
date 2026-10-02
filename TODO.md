@@ -6,6 +6,22 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 2 autorun cue: clean floating PIE showed that `Q` toggled movement
+  without a persistent HUD state. The new `Embermere.UI.AutorunStatusCue`
+  regression first failed for the missing fixed cue. The native status panel
+  now reserves a fixed `260x18` row and shows the non-interactive amber
+  `Q  AUTORUN` label only while the existing controller's autorun flag is on.
+  Manual movement, death, and out-of-bounds recovery keep their existing
+  authority; the cue owns no movement or save state. Synthetic Unreal Slate
+  turned the cue on and off with Q in clean PIE. A one-shot synthetic W key
+  does not reproduce a held movement axis, so physical W/S and final painted
+  readability remain user checks. The process-local Xcode 26.1.1 no-hot-reload
+  build linked, full automation passed **107/107** without warnings or skips,
+  the fresh **31-package** aggregate retained exact skeletal-material,
+  **53 Fab / 32 original-art**, and `validators=31` markers without
+  `LogPython: Error`, and a clean final editor session passed all **16** live
+  suites. Unreal remains on the clean map outside PIE with MCP 8123. See
+  `Docs/DAILY_BUILD_2026-10-02.md`.
 - October 1 chat history: `Embermere.UI.ChatHistoryNavigation` first failed
   because the HUD retained only six lines. The bottom-left panel still renders
   exactly six fixed, clipped rows, but now keeps the latest 30 transient

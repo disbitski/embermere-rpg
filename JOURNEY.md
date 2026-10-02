@@ -3641,6 +3641,17 @@ and the fresh 31-package aggregate retained the exact 53 Fab / 32 original-art
 world baseline. Physical key and final pixel acceptance remain user checks
 under the no-desktop-control rule.
 
+## October 2: A Small Autorun State Cue
+
+Normal-route PIE exposed a quiet control gap: Q changed autorun but left no
+persistent sign of whether it was still active. We added a fixed, read-only
+amber cue below player vitals, visible only while the existing controller flag
+is on. The new native regression first failed for the missing cue; after the
+change, all 107 tests, 31 fresh package validators, and 16 live-world suites
+passed. Synthetic Unreal Slate showed Q toggle the label on and off. Held
+physical W/S cancellation and final painted readability remain user checks;
+the controller's movement and recovery rules were not changed.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

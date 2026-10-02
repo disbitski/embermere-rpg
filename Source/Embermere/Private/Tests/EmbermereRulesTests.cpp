@@ -1898,6 +1898,46 @@ bool FEmbermereAutorunCancellationTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereAutorunStatusCueTest,
+	"Embermere.UI.AutorunStatusCue",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereAutorunStatusCueTest::RunTest(const FString& Parameters)
+{
+	AEmbermerePlayerController* Controller = NewObject<AEmbermerePlayerController>();
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	if (!TestNotNull(TEXT("Controller exists"), Controller) || !TestNotNull(TEXT("HUD exists"), Hud))
+	{
+		return false;
+	}
+	Hud->TakeWidget();
+	USizeBox* CueBounds = Cast<USizeBox>(Hud->GetWidgetFromName(TEXT("AutorunStatusSize")));
+	UTextBlock* Cue = Cast<UTextBlock>(Hud->GetWidgetFromName(TEXT("AutorunStatusText")));
+	if (!TestNotNull(TEXT("Autorun reserves a fixed HUD slot"), CueBounds) ||
+		!TestNotNull(TEXT("Autorun has a read-only status cue"), Cue))
+	{
+		return false;
+	}
+	TestEqual(TEXT("Cue width is fixed"), CueBounds->GetWidthOverride(), 260.0f);
+	TestEqual(TEXT("Cue height is fixed"), CueBounds->GetHeightOverride(), 18.0f);
+	TestEqual(TEXT("Cue copy names the active control"), Cue->GetText().ToString(), FString(TEXT("Q  AUTORUN")));
+
+	Hud->RefreshAutorunStatus(Controller);
+	TestEqual(TEXT("Inactive cue is hidden without collapsing its slot"), Cue->GetVisibility(), ESlateVisibility::Hidden);
+	Controller->bAutorunEnabled = true;
+	Hud->RefreshAutorunStatus(Controller);
+	TestEqual(TEXT("Enabled controller makes the cue visible"), Cue->GetVisibility(), ESlateVisibility::HitTestInvisible);
+	Controller->NotifyManualMoveForwardInput(1.0f);
+	Hud->RefreshAutorunStatus(Controller);
+	TestEqual(TEXT("Manual forward movement clears the cue"), Cue->GetVisibility(), ESlateVisibility::Hidden);
+	Controller->bAutorunEnabled = true;
+	Controller->NotifyManualMoveForwardInput(-1.0f);
+	Hud->RefreshAutorunStatus(Controller);
+	TestEqual(TEXT("Manual backward movement clears the cue"), Cue->GetVisibility(), ESlateVisibility::Hidden);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereOutOfBoundsRecoveryTest,
 	"Embermere.Player.OutOfBoundsRecovery",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
