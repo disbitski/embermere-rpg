@@ -251,6 +251,7 @@ void AEmbermerePlayerController::HandleControlledCharacterDied()
 
 void AEmbermerePlayerController::RespawnControlledCharacter()
 {
+	bAutorunEnabled = false;
 	AEmbermereCharacter* Character = GetEmbermereCharacter();
 	if (!Character || !Character->Stats)
 	{
@@ -306,6 +307,13 @@ void AEmbermerePlayerController::OnRightMouseReleased()
 
 void AEmbermerePlayerController::ToggleAutorun()
 {
+	AEmbermereCharacter* Character = GetEmbermereCharacter();
+	if (!Character || !Character->Stats || Character->Stats->IsDead())
+	{
+		bAutorunEnabled = false;
+		return;
+	}
+
 	bAutorunEnabled = !bAutorunEnabled;
 }
 

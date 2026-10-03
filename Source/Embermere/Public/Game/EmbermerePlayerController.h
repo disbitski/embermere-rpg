@@ -125,6 +125,7 @@ protected:
 private:
 #if WITH_DEV_AUTOMATION_TESTS
 	friend class FEmbermereCharacterCreationControllerLifecycleTest;
+	friend class FEmbermereDeadAutorunTest;
 	friend struct FEmbermereServiceKeyboardFixture;
 #endif
 

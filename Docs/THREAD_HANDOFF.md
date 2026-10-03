@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-02
+Last updated: 2026-10-03
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,22 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 3 Handoff
+
+Normal-route PIE showed the practice-target nameplate and hotbar cooldown
+without a concrete presentation issue. Review found `ToggleAutorun()` could
+set the flag while no living pawn existed, potentially carrying Q movement
+through death into respawn. `Embermere.Input.DeadAutorunSafety` failed on the
+old behavior; the controller now rejects and clears such requests and clears
+stale autorun at respawn entry. Process-local Xcode 26.1.1 linked the
+no-hot-reload build. Fresh automation passed **108/108** without failures,
+warnings, or skips; the GUI-down 31-package aggregate passed exact
+skeletal-material, **53 Fab / 32 original-art**, and `validators=31` markers
+without `LogPython: Error`; all 16 initialized-world suites passed in a
+clean editor session. Floating PIE started/stopped, the map stayed clean,
+and protected hashes remain exact. Physical Q-during-death and held W/S
+remain user gates. See `Docs/DAILY_BUILD_2026-10-03.md`.
 
 ## October 2 Handoff
 

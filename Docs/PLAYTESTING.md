@@ -506,9 +506,10 @@ Warrior fallback without rewriting the old file.
 44. For a bounded finite-world recovery check, move below the prototype
     foundation or use a PIE-only transform below `Z=-1000` while autorun is
     active. Confirm `You have fallen` appears, autorun stops, movement freezes,
-    and the player returns to the village after five seconds at full health
-    with walking restored, zero residual velocity, and three seconds of damage
-    protection.
+    and pressing `Q` during the death hold does not reactivate autorun.
+    Confirm the player returns to the village after five seconds at full
+    health with walking restored, zero residual velocity, and three seconds
+    of damage protection. No movement should begin until a fresh input.
 
 ### Automated Solo-Pull Clearance
 

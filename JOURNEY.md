@@ -3652,6 +3652,18 @@ passed. Synthetic Unreal Slate showed Q toggle the label on and off. Held
 physical W/S cancellation and final painted readability remain user checks;
 the controller's movement and recovery rules were not changed.
 
+## October 3: Autorun Stays Off Through Death
+
+Normal-route PIE left the practice-target nameplate and hotbar cooldown
+presentation readable, so we kept them as accepted. A controller review
+found a different safety gap: Q could turn the autorun flag back on while
+the character was dead, leaving movement queued for respawn. A new native
+test reproduced the unpossessed and dead-state cases before the fix.
+Toggle now requires a living possessed character, and respawn begins by
+clearing any stale flag. The process-local Xcode 26.1.1 build linked;
+all 108 native tests, 31 fresh package validators, and 16 initialized-world
+suites passed. Physical Q during death remains a user playtest check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

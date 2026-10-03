@@ -1898,6 +1898,48 @@ bool FEmbermereAutorunCancellationTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereDeadAutorunTest,
+	"Embermere.Input.DeadAutorunSafety",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereDeadAutorunTest::RunTest(const FString& Parameters)
+{
+	AEmbermerePlayerController* Controller = NewObject<AEmbermerePlayerController>();
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	if (!TestNotNull(TEXT("Controller exists"), Controller) ||
+		!TestNotNull(TEXT("Character and stats exist"), Character) ||
+		!TestNotNull(TEXT("Stats exist"), Character ? Character->Stats.Get() : nullptr))
+	{
+		return false;
+	}
+
+	Controller->ToggleAutorun();
+	TestFalse(TEXT("Autorun cannot start without a possessed character"), Controller->bAutorunEnabled);
+
+	Controller->SetPawn(Character);
+	Character->Stats->InitializeVitals();
+	Controller->ToggleAutorun();
+	TestTrue(TEXT("Living character can start autorun"), Controller->bAutorunEnabled);
+	Controller->ToggleAutorun();
+	TestFalse(TEXT("Living character can stop autorun"), Controller->bAutorunEnabled);
+
+	Character->Stats->ForceDeath();
+	Controller->ToggleAutorun();
+	TestFalse(TEXT("Dead character cannot re-enable autorun"), Controller->bAutorunEnabled);
+	Controller->bAutorunEnabled = true;
+	Controller->ToggleAutorun();
+	TestFalse(TEXT("Dead-state request clears any stale autorun flag"), Controller->bAutorunEnabled);
+
+	Character->Stats->InitializeVitals();
+	TestFalse(TEXT("Recovering vitals does not resume autorun"), Controller->bAutorunEnabled);
+	Controller->SetPawn(nullptr);
+	Controller->bAutorunEnabled = true;
+	Controller->RespawnControlledCharacter();
+	TestFalse(TEXT("Respawn clears stale autorun without a pawn"), Controller->bAutorunEnabled);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereAutorunStatusCueTest,
 	"Embermere.UI.AutorunStatusCue",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

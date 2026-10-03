@@ -110,7 +110,9 @@ The repo currently contains the C++ gameplay scaffold for:
   range-gated, hit-test-invisible, non-colliding, and presentation-only
 - bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback, with a fixed six-row view over 30 transient messages and PageUp/PageDown history browsing
 - a fixed read-only autorun cue beneath the player vitals that follows the
-  controller's existing Q state without owning movement or persistence
+  controller's Q state without owning movement or persistence; Q cannot
+  enable autorun without a living possessed character, and respawn clears
+  any stale autorun state
 - first hotbar cooldown enforcement and ready-time feedback
 - starter enemy aggro, leash, return-home, attack, death, and respawn behavior
 - player respawn with short damage protection plus a finite-world recovery

@@ -6,6 +6,21 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 3 dead-state autorun safety: normal-route PIE showed the saved
+  practice-target nameplate and hotbar cooldown/readiness clearly, so no
+  presentation retune was justified. Code review exposed that Q could
+  re-enable autorun during death hold and leave it set for respawn.
+  `Embermere.Input.DeadAutorunSafety` failed first on the unpossessed and
+  dead-state paths. The controller now rejects and clears autorun without a
+  living possessed character, and clears any stale flag at respawn entry.
+  A process-local Xcode 26.1.1 no-hot-reload build linked; focused and full
+  automation passed **108/108** without failures, warnings, or skips. The
+  fresh GUI-down **31-package** aggregate retained exact skeletal-material,
+  **53 Fab / 32 original-art**, and `validators=31` markers with no
+  `LogPython: Error`; all **16** initialized-world suites passed in a clean
+  editor session. Floating PIE started/stopped, the map remained clean, and
+  both protected hashes stayed exact. Physical Q-during-death and held W/S
+  remain user checks. See `Docs/DAILY_BUILD_2026-10-03.md`.
 - October 2 autorun cue: clean floating PIE showed that `Q` toggled movement
   without a persistent HUD state. The new `Embermere.UI.AutorunStatusCue`
   regression first failed for the missing fixed cue. The native status panel
@@ -1797,6 +1812,10 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- Ask the user to verify that Q during the death hold cannot restart autorun
+  or move the character on respawn. The native regression protects controller
+  state transitions, but synthetic Slate is not physical input. Also retain
+  the open held W/S cue and painted-readability check.
 - The quest-update observer was implemented and accepted on September 4;
   do not implement it again. The saved-data Ledger keyboard path now has a
   native Slate regression. Next, obtain a voluntary normal-route
