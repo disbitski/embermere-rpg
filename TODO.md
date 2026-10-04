@@ -6,6 +6,20 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 4 empty F-interaction feedback: clean floating PIE at the saved
+  PlayerStart reproduced a silent F press because no interactable owner was
+  within the 350 cm controller radius. `Embermere.Input.EmptyInteractionFeedback`
+  failed first for the missing chat line. The controller now posts exact
+  `No one close enough to interact with.` copy for the no-candidate path,
+  throttled to one line per second; it never selects an owner or mutates
+  quests, wallet, XP, or inventory. The process-local Xcode 26.1.1
+  no-hot-reload build linked. Fresh discovery and full automation passed
+  **109/109** without failures, warnings, or skips. The fresh GUI-down
+  **31-package** aggregate retained exact skeletal-material, **53 Fab / 32
+  original-art**, and `validators=31` markers without `LogPython: Error`;
+  all **16** initialized-world suites passed. Clean PIE showed the new line
+  at spawn, stopped, and left the map clean outside PIE on MCP 8123. Both
+  protected hashes stayed exact. See `Docs/DAILY_BUILD_2026-10-04.md`.
 - October 3 dead-state autorun safety: normal-route PIE showed the saved
   practice-target nameplate and hotbar cooldown/readiness clearly, so no
   presentation retune was justified. Code review exposed that Q could

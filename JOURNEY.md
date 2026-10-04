@@ -3664,6 +3664,17 @@ clearing any stale flag. The process-local Xcode 26.1.1 build linked;
 all 108 native tests, 31 fresh package validators, and 16 initialized-world
 suites passed. Physical Q during death remains a user playtest check.
 
+## October 4: F Gives A Clear Answer At Spawn
+
+At the saved PlayerStart, a normal F press had no eligible interaction owner
+within the controller's 350 cm radius and produced no feedback. A new native
+test reproduced the silence before the controller gained a short, throttled
+chat response: `No one close enough to interact with.` The empty path still
+returns without dialogue, quest, currency, XP, or inventory mutation.
+Xcode 26.1.1 linked the no-hot-reload build; all 109 native tests, 31 fresh
+package validators, and 16 live-world suites passed. Clean PIE showed the
+message from spawn without touching Mara's quest or the saved journey.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

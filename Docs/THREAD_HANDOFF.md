@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-03
+Last updated: 2026-10-04
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,22 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 4 Handoff
+
+Clean normal-route PIE at PlayerStart reproduced a silent F press while no
+interactable owner was inside the controller's 350 cm radius. The test-first
+`Embermere.Input.EmptyInteractionFeedback` regression failed for the missing
+line; the controller now emits exact `No one close enough to interact with.`
+copy only on the empty-candidate path and throttles it to one per second.
+Quest, service, wallet, XP, inventory, and save owners did not move. The
+process-local Xcode 26.1.1 no-hot-reload build linked. Fresh automation
+passed **109/109** without failures, warnings, or skips; the GUI-down
+31-package aggregate passed exact skeletal-material, **53 Fab / 32
+original-art**, and `validators=31` markers without `LogPython: Error`;
+all 16 initialized-world suites passed in a clean editor session. Floating
+PIE showed the line and stopped, the map stayed clean outside PIE, and both
+protected hashes stayed exact. See `Docs/DAILY_BUILD_2026-10-04.md`.
 
 ## October 3 Handoff
 

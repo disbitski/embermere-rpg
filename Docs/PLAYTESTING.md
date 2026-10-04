@@ -394,6 +394,11 @@ Warrior fallback without rewriting the old file.
 ## Current Play Loop
 
 1. Press Play.
+   From the saved PlayerStart before approaching any NPC or service, press
+   `F` once. Chat should say `No one close enough to interact with.` without
+   opening dialogue or changing quest, wallet, XP, or inventory. Rapid extra
+   presses should not flood chat. Within a real service range, F should still
+   use that owner normally.
 2. Use `WASD` to move.
 3. Hold right mouse to rotate the camera and character facing together.
 4. Hold left mouse to rotate the camera only.

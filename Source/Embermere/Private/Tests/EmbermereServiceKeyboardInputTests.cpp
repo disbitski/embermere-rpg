@@ -8,6 +8,7 @@
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/EmbermereWalletComponent.h"
 #include "Components/Button.h"
+#include "Components/TextBlock.h"
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
 #include "Engine/Engine.h"
@@ -18,6 +19,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Misc/AutomationTest.h"
 #include "UI/EmbermerePlayerHudWidget.h"
+#include "Blueprint/WidgetTree.h"
 #include "Widgets/SWidget.h"
 #include "Widgets/SVirtualWindow.h"
 
@@ -73,7 +75,50 @@ struct FEmbermereServiceKeyboardFixture
 		Event(Key, IE_Pressed);
 		Event(Key, IE_Released);
 	}
+
+	bool Interact()
+	{
+		return Controller->InteractWithNearestActor();
+	}
+
+	void ResetEmptyInteractionFeedback()
+	{
+		Controller->LastEmptyInteractionFeedbackTimeSeconds = -1.0;
+	}
 };
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereEmptyInteractionFeedbackTest,
+	"Embermere.Input.EmptyInteractionFeedback",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereEmptyInteractionFeedbackTest::RunTest(const FString& Parameters)
+{
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->SetPawn(F.Character);
+	const int32 ChatBefore = F.Hud->GetChatMessageCount();
+	const int32 CopperBefore = F.Character->Wallet->Copper;
+	const int32 ExperienceBefore = F.Character->Stats->CurrentExperience;
+
+	TestFalse(TEXT("No nearby owner is not interacted with"), F.Interact());
+	TestEqual(TEXT("Empty interaction explains the range failure"), F.Hud->GetChatMessageCount(), ChatBefore + 1);
+	UTextBlock* FeedbackText = F.Hud->WidgetTree->FindWidget<UTextBlock>(TEXT("ChatMessageText_0"));
+	if (TestNotNull(TEXT("Feedback is rendered in chat"), FeedbackText))
+	{
+		TestEqual(TEXT("Feedback gives a useful next step"), FeedbackText->GetText().ToString(),
+			FString(TEXT("No one close enough to interact with.")));
+	}
+
+	TestFalse(TEXT("A repeated empty request still has no owner"), F.Interact());
+	TestEqual(TEXT("Repeated key presses do not flood chat"), F.Hud->GetChatMessageCount(), ChatBefore + 1);
+	F.ResetEmptyInteractionFeedback();
+	TestFalse(TEXT("An empty request remains rejected after cooldown"), F.Interact());
+	TestEqual(TEXT("Feedback can return after cooldown"), F.Hud->GetChatMessageCount(), ChatBefore + 2);
+	TestEqual(TEXT("Empty interaction leaves copper unchanged"), F.Character->Wallet->Copper, CopperBefore);
+	TestEqual(TEXT("Empty interaction leaves XP unchanged"), F.Character->Stats->CurrentExperience, ExperienceBefore);
+	TestEqual(TEXT("Empty interaction does not deliver an item"), F.Character->Inventory->Stacks.Num(), 0);
+	F.Controller->SetPawn(nullptr);
+	return true;
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereVendorKeyboardInputTest,
 	"Embermere.UI.ServiceKeyboard.Vendor",

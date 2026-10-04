@@ -559,6 +559,18 @@ bool AEmbermerePlayerController::InteractWithNearestActor()
 
 	if (!BestInteractable)
 	{
+		if (const UWorld* World = GetWorld())
+		{
+			const double Now = World->GetTimeSeconds();
+			if (LastEmptyInteractionFeedbackTimeSeconds < 0.0 ||
+				Now - LastEmptyInteractionFeedbackTimeSeconds >= 1.0)
+			{
+				LastEmptyInteractionFeedbackTimeSeconds = Now;
+				AddHudMessage(
+					FText::FromString(TEXT("No one close enough to interact with.")),
+					FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
+			}
+		}
 		return false;
 	}
 

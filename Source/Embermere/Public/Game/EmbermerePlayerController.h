@@ -132,6 +132,7 @@ private:
 	bool bLeftMouseDown = false;
 	bool bRightMouseDown = false;
 	bool bCharacterCreationInputSuppressed = false;
+	double LastEmptyInteractionFeedbackTimeSeconds = -1.0;
 	FTransform ControlledSpawnTransform;
 	FTimerHandle PlayerRespawnTimerHandle;
 	TObjectPtr<UEmbermerePlayerHudWidget> PlayerHudWidget;
