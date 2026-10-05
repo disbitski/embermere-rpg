@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-04
+Last updated: 2026-10-05
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,23 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 5 Handoff
+
+Fresh viewport-only inspection found `FabPass_Road_Flowers_02` visually
+filling the road-gate opening despite clear collision rays. The existing Fab
+actor moved from `(1010,570,0)` to the grounded south shoulder `(500,0,0)`,
+retaining yaw `-20` and scale `1.2`; only its placed component became
+`NoCollision`. A live route regression failed first on location, then on
+inherited vendor collision. The first fresh commandlet caught a partial
+MCP transform reset of yaw/scale even though it exited zero; that run was
+rejected. The explicit editor script restored and saved all axes/profile.
+The final GUI-down **31-package** aggregate passed exact skeletal-material,
+**53 Fab / 32 original-art**, and `validators=31` markers without
+`LogPython: Error`; all **16** live suites and **109/109** native tests passed.
+Clean PIE started/stopped, the map was All Saved outside PIE with real MCP
+8123, and both protected hashes were exact. See
+`Docs/DAILY_BUILD_2026-10-05.md`. The raw Kite foliage mesh was not resaved.
 
 ## October 4 Handoff
 

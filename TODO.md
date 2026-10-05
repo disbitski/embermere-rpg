@@ -6,6 +6,22 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 5 gate-approach readability: a fresh viewport from the normal road
+  approach showed `FabPass_Road_Flowers_02` planted in the gate's central
+  opening at `(1010,570,0)`. The initialized-world road regression failed
+  first. The same existing Fab actor is now grounded on the south shoulder at
+  `(500,0,0)`, yaw `-20`, scale `1.2`, with a placed-component `NoCollision`
+  profile; the raw vendor mesh is unchanged. A second test-first failure
+  caught default vendor collision, and the first fresh commandlet caught a
+  partial-transform reset of yaw/scale despite exit zero. An explicit
+  idempotent editor script restored all transform axes and saved the map.
+  The final fresh **31-package** aggregate passed exact skeletal-material,
+  **53 Fab / 32 original-art**, and `validators=31` markers with no
+  `LogPython: Error`; all **16** initialized-world suites and **109/109**
+  native tests passed. Clean PIE started/stopped and the map was All Saved
+  outside PIE on real MCP 8123. Both protected hashes stayed exact. The
+  normal gate view now exposes the road and first Prowler beyond it. See
+  `Docs/DAILY_BUILD_2026-10-05.md`.
 - October 4 empty F-interaction feedback: clean floating PIE at the saved
   PlayerStart reproduced a silent F press because no interactable owner was
   within the 350 cm controller radius. `Embermere.Input.EmptyInteractionFeedback`
@@ -1826,6 +1842,12 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- Retain the gate approach's south-shoulder decorative flowers, authored
+  yaw/scale, and `NoCollision` placed-component profile. Do not resave the
+  raw Kite foliage mesh. The visual gate opening, 53 Fab / 32 original-art
+  baseline, three gate lanes, solo Prowler pulls, and all accepted routes
+  passed today. Next choose a different bounded gameplay/content milestone
+  from fresh normal-route evidence; do not repeat this placement fix.
 - Ask the user to verify that Q during the death hold cannot restart autorun
   or move the character on respawn. The native regression protects controller
   state transitions, but synthetic Slate is not physical input. Also retain

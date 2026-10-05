@@ -250,7 +250,7 @@ PLACEMENTS = [
     {"name": FAB_PREFIX + "Road_Fern_01", "asset": KITE_FERN, "x": -980, "y": -310, "z": 0, "yaw": 14, "scale": 1.2, "folder": "04_Fab_Zone_Pass/02_Road"},
     {"name": FAB_PREFIX + "Road_Fern_02", "asset": KITE_FERN, "x": 620, "y": 250, "z": 0, "yaw": -54, "scale": 1.2, "folder": "04_Fab_Zone_Pass/02_Road"},
     {"name": FAB_PREFIX + "Road_Flowers_01", "asset": KITE_FLOWERS, "x": -1450, "y": -540, "z": 0, "yaw": 10, "scale": 1.2, "folder": "04_Fab_Zone_Pass/02_Road"},
-    {"name": FAB_PREFIX + "Road_Flowers_02", "asset": KITE_FLOWERS, "x": 1010, "y": 570, "z": 0, "yaw": -20, "scale": 1.2, "folder": "04_Fab_Zone_Pass/02_Road"},
+    {"name": FAB_PREFIX + "Road_Flowers_02", "asset": KITE_FLOWERS, "x": 500, "y": 0, "z": 0, "yaw": -20, "scale": 1.2, "folder": "04_Fab_Zone_Pass/02_Road"},
     {"name": FAB_PREFIX + "Road_Grass_01", "asset": KITE_GRASS, "x": -375, "y": 80, "z": 0, "yaw": 0, "scale": 2.0, "folder": "04_Fab_Zone_Pass/02_Road"},
     {"name": FAB_PREFIX + "Road_Grass_02", "asset": KITE_GRASS, "x": 1190, "y": 865, "z": 0, "yaw": 0, "scale": 2.0, "folder": "04_Fab_Zone_Pass/02_Road"},
 

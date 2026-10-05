@@ -2,6 +2,23 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## A Clear Trace Is Not A Clear Gate View
+
+The October 5 road-gate rays passed through all three center lanes while a
+decorative flower clump still filled the normal approach view. The actor was
+visually in the opening, inherited vendor collision, and had no gameplay
+reason to be there. A viewport-only capture identified the problem; a
+separate exact saved-map assertion and initialized-world test now protect
+the grounded south-shoulder location and placed-component `NoCollision`.
+Do not resave the raw vendor foliage to make one placed instance decorative.
+
+An MCP partial transform update moved this actor but silently reset its yaw
+and scale to identity. The first fresh commandlet exited zero while its full
+log contained `LogPython: Error` from the exact transform assertion. Treat
+that as a failed run. For composition edits, set all transform axes explicitly,
+save, reload, and require the Python success markers in a fresh commandlet;
+then inspect the initialized world and normal view separately.
+
 ## Complex World Probes And Authored Collision Tests Answer Different Questions
 
 The first live firewood-rack probe used Unreal MCP's generic `trace_world`.

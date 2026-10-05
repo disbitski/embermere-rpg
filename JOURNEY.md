@@ -3675,6 +3675,20 @@ Xcode 26.1.1 linked the no-hot-reload build; all 109 native tests, 31 fresh
 package validators, and 16 live-world suites passed. Clean PIE showed the
 message from spawn without touching Mara's quest or the saved journey.
 
+## October 5: The Gate Showed Its Road Again
+
+A normal approach capture showed a pale decorative flower clump almost in the
+road gate's center. Collision traces passed, but the player's view through
+the threshold was cluttered. We moved the existing Fab actor to the south
+shoulder, kept its authored yaw and scale, and made only its placed component
+NoCollision. A test-first live route assertion caught the old position and
+default collision. The first fresh commandlet then caught a partial-transform
+reset that the viewport alone missed: exit zero still contained a Python
+error. After explicitly restoring all transform axes, the 31-package gate,
+all 16 live suites, and all 109 native tests passed. The map remained clean,
+the vendor asset and protected save were untouched, and the gate once again
+frames the road and first Prowler.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

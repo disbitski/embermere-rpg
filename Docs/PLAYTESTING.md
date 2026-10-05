@@ -28,6 +28,10 @@ This is the current smoke test for the Embermere prototype inside Unreal Editor.
 6. Inspect `Embermere_RoadGate_01`: stone/moss footings, timber span, iron
    bands, ember crest, terrain contact, clear road framing, four solid support
    boxes, and an unobstructed 250 cm center opening beneath the overhead beam.
+   From the village approach, the road and first Prowler should read through
+   the opening. `FabPass_Road_Flowers_02` belongs on the south shoulder at
+   `(500,0,0)`, yaw `-20`, scale `1.2`, with placed-component `NoCollision`,
+   not in the gate lane or over the raw vendor asset's collision defaults.
 7. Inspect `Embermere_BoundaryFence_GateSouth_01` and
    `Embermere_BoundaryFence_GateNorth_01`: low stone/moss supports, crossed
    timber rails, iron bands, ember diamonds, terrain contact, solid boundary

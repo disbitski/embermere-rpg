@@ -259,6 +259,7 @@ ORIGINAL_MARSH_REEDS = {
 }
 COMPOSITION_FOLIAGE = {
     "FabPass_Road_Pine_05": ((600.0, -500.0, 0.0), -35.0, 0.48),
+    "FabPass_Road_Flowers_02": ((500.0, 0.0, 0.0), -20.0, 1.2),
     "FabPass_Wild_Tree_South_01": ((1600.0, -400.0, 0.0), 15.0, 0.5),
 }
 MOSS_MATERIAL_PATH = "/Game/Art/Embermere/Environment/PrototypeVillage/M_WaystoneMoss.M_WaystoneMoss"
@@ -3730,6 +3731,10 @@ def main():
                 rotation,
                 scale,
             ))
+        if label == "FabPass_Road_Flowers_02":
+            component = foliage.get_component_by_class(unreal.StaticMeshComponent)
+            if not component or component.get_collision_enabled() != unreal.CollisionEnabled.NO_COLLISION:
+                fail("gate approach flowers must remain decorative NoCollision")
 
     expected_tree_materials = [
         TIMBER_MATERIAL_PATH,

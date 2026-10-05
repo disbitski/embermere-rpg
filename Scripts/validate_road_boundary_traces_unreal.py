@@ -9,6 +9,8 @@ import unreal
 LEVEL_PATH = "/Game/Maps/L_Embermere_Prototype"
 GATE_CENTER = (1080.0, 540.0)
 GATE_YAW = 20.0
+GATE_APPROACH_FLOWERS_LABEL = "FabPass_Road_Flowers_02"
+GATE_APPROACH_FLOWERS_SHOULDER = (500.0, 0.0, 0.0)
 FENCE_CENTERS = {
     "Embermere_BoundaryFence_GateSouth_01": (1206.55, 192.35),
     "Embermere_BoundaryFence_GateNorth_01": (953.45, 887.65),
@@ -194,6 +196,29 @@ def main():
     if not world:
         fail("could not resolve the editor world")
 
+    flowers = next(
+        (
+            actor
+            for actor in unreal.EditorLevelLibrary.get_all_level_actors()
+            if actor_label(actor) == GATE_APPROACH_FLOWERS_LABEL
+        ),
+        None,
+    )
+    if not flowers:
+        fail("gate approach flowers are missing")
+    flower_location = flowers.get_actor_location()
+    flower_error = math.dist(
+        (flower_location.x, flower_location.y, flower_location.z),
+        GATE_APPROACH_FLOWERS_SHOULDER,
+    )
+    if flower_error > 2.0:
+        fail("gate approach flowers should stay on the south shoulder; found {}".format(
+            flower_location
+        ))
+    flower_component = flowers.get_component_by_class(unreal.StaticMeshComponent)
+    if not flower_component or flower_component.get_collision_enabled() != unreal.CollisionEnabled.NO_COLLISION:
+        fail("gate approach flowers must remain decorative NoCollision")
+
     for local_y in (-100.0, 0.0, 100.0):
         require_clear(
             world,
@@ -310,7 +335,7 @@ def main():
         )
 
     unreal.log(
-        "Embermere road boundary traces passed: clear spawn autorun corridor, clear Fenwatch shelter center, 4 solid shelter supports, 3 clear gate lanes, 1 solid gate support, 2 solid fence centers, 2 solid boundary stones, 1 solid supply chest, and a solid-core Fenwatch practice dummy with 2 clear arms"
+        "Embermere road boundary traces passed: grounded south-shoulder gate flowers, clear spawn autorun corridor, clear Fenwatch shelter center, 4 solid shelter supports, 3 clear gate lanes, 1 solid gate support, 2 solid fence centers, 2 solid boundary stones, 1 solid supply chest, and a solid-core Fenwatch practice dummy with 2 clear arms"
     )
 
 
