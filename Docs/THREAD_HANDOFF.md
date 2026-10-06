@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-05
+Last updated: 2026-10-06
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,23 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 6 Handoff
+
+The first-combat hotbar path now explains failed actions without changing
+combat authority. `UEmbermereCombatComponent::GetAbilityRejection` is a
+read-only mirror of its ordered preflight; the controller renders exact
+no-target, out-of-range, and insufficient-mana chat copy rather than the old
+generic line. The focused native controller/HUD regression failed on the old
+copy and passed after the change, including zero rejected mutation, one valid
+Strike, and cooldown safety. Xcode 26.1.1 no-hot-reload compilation linked;
+fresh discovery and full automation passed **110/110** with zero failures,
+warnings, or skips. The final GUI-down 31-package aggregate passed exact
+skeletal-material, **53 Fab / 32 original-art**, and `validators=31` markers
+without `LogPython: Error`; all 16 initialized-world suites passed. Floating
+PIE started/stopped, and the map remains All Saved outside PIE on real MCP
+8123. Both protected hashes remain exact. See `Docs/DAILY_BUILD_2026-10-06.md`.
+Physical hotbar-key and painted chat acceptance remain user gates.
 
 ## October 5 Handoff
 

@@ -61,3 +61,13 @@ durable readability fallbacks.
 
 The rule is simple: combat decides what happened once; presentation may only
 show that fact briefly.
+
+## Rejected Ability Requests
+
+Preflight rejection is not a committed combat outcome and must not create a
+floating damage or `MISS` result. `UEmbermereCombatComponent` exposes a
+read-only reason for the same ordered target, range, life, and mana checks
+used by ability execution. The player controller presents that reason in the
+existing clipped chat panel after a failed hotbar action. Cooldown remains a
+hotbar/controller concern and keeps its existing ready-time line. Rejection
+copy owns no targeting, health, mana, cooldown, quest, loot, or save mutation.

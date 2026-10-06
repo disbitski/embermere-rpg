@@ -6,6 +6,21 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 6 first-combat feedback: a clean floating PIE Human Warrior start
+  showed the normal hotbar, while code review found every rejected hotbar
+  action collapsed into `Unable to use`. The new read-only combat preflight
+  reason lets the controller name no target, out of range, and insufficient
+  mana in chat without moving ability, cooldown, quest, loot, or persistence
+  authority. The focused controller/HUD test failed on the old generic copy
+  and then passed, including zero rejected mutation, valid Strike, and
+  cooldown safety. Process-local Xcode 26.1.1 no-hot-reload compilation
+  linked; full automation passed **110/110** with zero failures/warnings/skips.
+  The final fresh **31-package** aggregate passed skeletal-material,
+  **53 Fab / 32 original-art**, and `validators=31` markers without
+  `LogPython: Error`; all **16** live suites passed. Floating PIE started and
+  stopped; the map is All Saved outside PIE on real MCP 8123. Both protected
+  hashes remain exact. Physical hotbar-key and painted chat checks remain
+  user gates. See `Docs/DAILY_BUILD_2026-10-06.md`.
 - October 5 gate-approach readability: a fresh viewport from the normal road
   approach showed `FabPass_Road_Flowers_02` planted in the gate's central
   opening at `(1010,570,0)`. The initialized-world road regression failed
@@ -1842,12 +1857,13 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
-- Retain the gate approach's south-shoulder decorative flowers, authored
-  yaw/scale, and `NoCollision` placed-component profile. Do not resave the
-  raw Kite foliage mesh. The visual gate opening, 53 Fab / 32 original-art
-  baseline, three gate lanes, solo Prowler pulls, and all accepted routes
-  passed today. Next choose a different bounded gameplay/content milestone
-  from fresh normal-route evidence; do not repeat this placement fix.
+- Retain the specific no-target, out-of-range, and low-mana hotbar rejection
+  lines from the combat-owned read-only preflight, without publishing combat
+  results or changing cooldown, health, mana, quests, loot, or saves. Ask the
+  user for physical `1` and painted chat acceptance. The next distinct
+  milestone should begin by inspecting a real first Prowler defeat and Marsh
+  Tonic pickup from the normal route; change only a concrete issue found
+  there. Do not repeat the hotbar feedback or gate-flower fixes.
 - Ask the user to verify that Q during the death hold cannot restart autorun
   or move the character on respawn. The native regression protects controller
   state transitions, but synthetic Slate is not physical input. Also retain

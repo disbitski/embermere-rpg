@@ -456,7 +456,13 @@ Warrior fallback without rewriting the old file.
     mana, meter-based range or Self, and cooldown. Repeat after selecting each
     starter class so all sixteen project-owned illustrations receive a viewport
     check.
-24. Press `1` to use the first starter ability.
+24. Before selecting a target, press `1` and confirm chat says `Select a target
+    for Strike.` without spending mana or starting a cooldown. With a living
+    target selected but beyond Strike's range, it should say `Strike is out of
+    range.`; if mana is naturally exhausted at a valid range, it should say
+    `Not enough mana for Strike.` These are rejection explanations, not combat
+    results or `MISS` events. Then approach a valid target and press `1` to
+    use the first starter ability normally.
 25. Press `1` again before the cooldown finishes and confirm the bottom-left log reports the ability ready time.
 26. Confirm the cooling hotbar icon and text dim together while the live countdown remains in the fixed two-line label area.
 27. As Warrior, press `4` for Battle Shout and confirm chat reports `+8 Attack

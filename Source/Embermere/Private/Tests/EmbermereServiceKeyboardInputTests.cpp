@@ -1,6 +1,9 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
 #include "Characters/EmbermereCharacter.h"
+#include "Characters/EmbermerePracticeTargetActor.h"
+#include "Components/EmbermereCombatComponent.h"
+#include "Components/EmbermereHotbarComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
@@ -81,6 +84,11 @@ struct FEmbermereServiceKeyboardFixture
 		return Controller->InteractWithNearestActor();
 	}
 
+	void ActivateAbilitySlot(int32 SlotIndex)
+	{
+		Controller->ActivateHotbarSlot(SlotIndex);
+	}
+
 	void ResetEmptyInteractionFeedback()
 	{
 		Controller->LastEmptyInteractionFeedbackTimeSeconds = -1.0;
@@ -116,6 +124,74 @@ bool FEmbermereEmptyInteractionFeedbackTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Empty interaction leaves copper unchanged"), F.Character->Wallet->Copper, CopperBefore);
 	TestEqual(TEXT("Empty interaction leaves XP unchanged"), F.Character->Stats->CurrentExperience, ExperienceBefore);
 	TestEqual(TEXT("Empty interaction does not deliver an item"), F.Character->Inventory->Stacks.Num(), 0);
+	F.Controller->SetPawn(nullptr);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereHotbarRejectionFeedbackTest,
+	"Embermere.Input.HotbarRejectionFeedback",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereHotbarRejectionFeedbackTest::RunTest(const FString& Parameters)
+{
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->SetPawn(F.Character);
+	FEmbermereAbilityDefinition Strike;
+	Strike.AbilityId = TEXT("TestStrike");
+	Strike.DisplayName = FText::FromString(TEXT("Strike"));
+	Strike.TargetKind = EEmbermereAbilityTargetKind::Enemy;
+	Strike.EffectType = EEmbermereAbilityEffectType::Damage;
+	Strike.Range = 250.0f;
+	Strike.ManaCost = 10.0f;
+	F.Character->Hotbar->SetAbilityInSlot(0, Strike);
+	auto ChatLine = [&F](int32 RowIndex)
+	{
+		const UTextBlock* Row = F.Hud->WidgetTree->FindWidget<UTextBlock>(
+			*FString::Printf(TEXT("ChatMessageText_%d"), RowIndex));
+		return Row ? Row->GetText().ToString() : FString();
+	};
+
+	const int32 InitialMessages = F.Hud->GetChatMessageCount();
+	const int32 InitialQuestRecords = F.Character->QuestLog->QuestStates.Num();
+	const float InitialMana = F.Character->Stats->CurrentMana;
+	F.ActivateAbilitySlot(0);
+	TestEqual(TEXT("Missing target produces one explanation"), F.Hud->GetChatMessageCount(), InitialMessages + 1);
+	TestEqual(TEXT("Missing target copy"), ChatLine(0), FString(TEXT("Select a target for Strike.")));
+	TestEqual(TEXT("Missing target spends no mana"), F.Character->Stats->CurrentMana, InitialMana);
+
+	AEmbermerePracticeTargetActor* Target = F.World->SpawnActor<AEmbermerePracticeTargetActor>();
+	if (!TestNotNull(TEXT("Practice target exists"), Target))
+	{
+		return false;
+	}
+	Target->SetActorLocation(FVector(1000.0f, 0.0f, 0.0f));
+	F.Character->Combat->SetTarget(Target);
+	const float TargetHealth = Target->Stats->CurrentHealth;
+	F.ActivateAbilitySlot(0);
+	TestEqual(TEXT("Out-of-range request produces one explanation"), F.Hud->GetChatMessageCount(), InitialMessages + 2);
+	TestEqual(TEXT("Out-of-range copy"), ChatLine(1), FString(TEXT("Strike is out of range.")));
+	TestEqual(TEXT("Out-of-range request spends no mana"), F.Character->Stats->CurrentMana, InitialMana);
+	TestEqual(TEXT("Out-of-range request deals no damage"), Target->Stats->CurrentHealth, TargetHealth);
+
+	Target->SetActorLocation(FVector(100.0f, 0.0f, 0.0f));
+	F.Character->Stats->CurrentMana = 0.0f;
+	F.ActivateAbilitySlot(0);
+	TestEqual(TEXT("Low-mana request produces one explanation"), F.Hud->GetChatMessageCount(), InitialMessages + 3);
+	TestEqual(TEXT("Low-mana copy"), ChatLine(2), FString(TEXT("Not enough mana for Strike.")));
+	TestEqual(TEXT("Low-mana request spends no mana"), F.Character->Stats->CurrentMana, 0.0f);
+	TestEqual(TEXT("Low-mana request deals no damage"), Target->Stats->CurrentHealth, TargetHealth);
+	TestEqual(TEXT("No rejection changes quest records"), F.Character->QuestLog->QuestStates.Num(), InitialQuestRecords);
+	TestEqual(TEXT("No rejection delivers loot"), F.Character->Inventory->Stacks.Num(), 0);
+
+	F.Character->Stats->CurrentMana = InitialMana;
+	F.ActivateAbilitySlot(0);
+	TestTrue(TEXT("Valid strike still applies damage"), Target->Stats->CurrentHealth < TargetHealth);
+	TestEqual(TEXT("Valid strike spends its exact mana cost"), F.Character->Stats->CurrentMana, InitialMana - 10.0f);
+	const float HealthAfterStrike = Target->Stats->CurrentHealth;
+	const float ManaAfterStrike = F.Character->Stats->CurrentMana;
+	F.ActivateAbilitySlot(0);
+	TestEqual(TEXT("Cooldown still blocks a second hit"), Target->Stats->CurrentHealth, HealthAfterStrike);
+	TestEqual(TEXT("Cooldown still blocks a second mana charge"), F.Character->Stats->CurrentMana, ManaAfterStrike);
 	F.Controller->SetPawn(nullptr);
 	return true;
 }

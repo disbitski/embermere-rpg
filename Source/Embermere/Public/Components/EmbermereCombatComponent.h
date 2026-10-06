@@ -8,6 +8,18 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEmbermereTargetChangedSignature, AActor*, NewTarget, AActor*, OldTarget);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FEmbermereAbilityUsedSignature, FName, AbilityId, AActor*, Target, float, EffectAmount);
 
+enum class EEmbermereAbilityRejection : uint8
+{
+	None,
+	MissingOwner,
+	MissingStats,
+	CasterDead,
+	NoTarget,
+	OutOfRange,
+	DefeatedTarget,
+	InsufficientMana
+};
+
 UENUM(BlueprintType)
 enum class EEmbermereCombatResultKind : uint8
 {
@@ -70,6 +82,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Combat")
 	bool ExecuteAbility(const FEmbermereAbilityDefinition& Ability);
+
+	EEmbermereAbilityRejection GetAbilityRejection(const FEmbermereAbilityDefinition& Ability) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|Combat")
 	bool IsTargetInRange(float Range) const;

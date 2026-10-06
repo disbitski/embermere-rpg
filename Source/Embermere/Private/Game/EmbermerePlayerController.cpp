@@ -499,8 +499,35 @@ void AEmbermerePlayerController::ActivateHotbarSlot(int32 SlotIndex)
 			}
 			else if (!bActivatedAbility && Character->Hotbar->Slots.IsValidIndex(SlotIndex) && !Character->Hotbar->Slots[SlotIndex].AbilityId.IsNone())
 			{
+				const FEmbermereAbilityDefinition& Ability = Character->Hotbar->Slots[SlotIndex];
+				const FString AbilityName = Ability.DisplayName.ToString();
+				const EEmbermereAbilityRejection Rejection = Character->Combat
+					? Character->Combat->GetAbilityRejection(Ability)
+					: EEmbermereAbilityRejection::MissingOwner;
+				FString Message;
+				switch (Rejection)
+				{
+				case EEmbermereAbilityRejection::NoTarget:
+					Message = FString::Printf(TEXT("Select a target for %s."), *AbilityName);
+					break;
+				case EEmbermereAbilityRejection::OutOfRange:
+					Message = FString::Printf(TEXT("%s is out of range."), *AbilityName);
+					break;
+				case EEmbermereAbilityRejection::DefeatedTarget:
+					Message = TEXT("Target is already defeated.");
+					break;
+				case EEmbermereAbilityRejection::InsufficientMana:
+					Message = FString::Printf(TEXT("Not enough mana for %s."), *AbilityName);
+					break;
+				case EEmbermereAbilityRejection::CasterDead:
+					Message = FString::Printf(TEXT("Cannot use %s while dead."), *AbilityName);
+					break;
+				default:
+					Message = FString::Printf(TEXT("Unable to use %s"), *AbilityName);
+					break;
+				}
 				AddHudMessage(
-					FText::FromString(FString::Printf(TEXT("Unable to use %s"), *Character->Hotbar->Slots[SlotIndex].DisplayName.ToString())),
+					FText::FromString(Message),
 					FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
 			}
 		}

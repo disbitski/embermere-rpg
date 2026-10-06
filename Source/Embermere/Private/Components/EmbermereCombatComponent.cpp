@@ -52,42 +52,59 @@ void UEmbermereCombatComponent::SetTarget(AActor* NewTarget)
 	OnTargetChanged.Broadcast(CurrentTarget, OldTarget);
 }
 
-bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition& Ability)
+EEmbermereAbilityRejection UEmbermereCombatComponent::GetAbilityRejection(const FEmbermereAbilityDefinition& Ability) const
 {
 	AActor* Owner = GetOwner();
 	if (!Owner)
 	{
-		return false;
+		return EEmbermereAbilityRejection::MissingOwner;
 	}
 
 	UEmbermereStatsComponent* OwnerStats = Owner->FindComponentByClass<UEmbermereStatsComponent>();
 	if (!OwnerStats)
 	{
-		return false;
+		return EEmbermereAbilityRejection::MissingStats;
 	}
 	if (OwnerStats->IsDead())
 	{
-		return false;
+		return EEmbermereAbilityRejection::CasterDead;
 	}
 
 	AActor* TargetActor = Ability.TargetKind == EEmbermereAbilityTargetKind::Self ? Owner : CurrentTarget.Get();
 	if (!TargetActor)
 	{
-		return false;
+		return EEmbermereAbilityRejection::NoTarget;
 	}
 
 	if (Ability.TargetKind != EEmbermereAbilityTargetKind::Self)
 	{
 		if (!IsTargetInRange(Ability.Range))
 		{
-			return false;
+			return EEmbermereAbilityRejection::OutOfRange;
 		}
 
 		if (!IsTargetAlive(TargetActor))
 		{
-			return false;
+			return EEmbermereAbilityRejection::DefeatedTarget;
 		}
 	}
+	if (Ability.ManaCost > 0.0f && OwnerStats->CurrentMana < Ability.ManaCost)
+	{
+		return EEmbermereAbilityRejection::InsufficientMana;
+	}
+	return EEmbermereAbilityRejection::None;
+}
+
+bool UEmbermereCombatComponent::ExecuteAbility(const FEmbermereAbilityDefinition& Ability)
+{
+	if (GetAbilityRejection(Ability) != EEmbermereAbilityRejection::None)
+	{
+		return false;
+	}
+
+	AActor* Owner = GetOwner();
+	UEmbermereStatsComponent* OwnerStats = Owner->FindComponentByClass<UEmbermereStatsComponent>();
+	AActor* TargetActor = Ability.TargetKind == EEmbermereAbilityTargetKind::Self ? Owner : CurrentTarget.Get();
 
 	if (!OwnerStats->SpendMana(Ability.ManaCost))
 	{

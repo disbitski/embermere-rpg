@@ -3689,6 +3689,18 @@ all 16 live suites, and all 109 native tests passed. The map remained clean,
 the vendor asset and protected save were untouched, and the gate once again
 frames the road and first Prowler.
 
+## October 6: The First Failed Strike Explained Itself
+
+At the start of a clean Human Warrior run, the hotbar was ready but combat
+rejections all collapsed into `Unable to use`. We added a read-only combat
+preflight reason and let the controller name the actual problem in chat: pick
+a target, move into range, or recover mana. The focused test first reproduced
+the generic copy, then passed for all three reasons while proving no rejected
+resource or target mutation. A valid Strike and cooldown still worked. Xcode
+26.1.1 linked the no-hot-reload build; all 110 native tests, 31 fresh package
+validators, and 16 initialized-world suites passed. No saved journey or map
+content changed.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
