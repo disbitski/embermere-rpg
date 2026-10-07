@@ -6,6 +6,20 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 7 saved Prowler loot protection: the first-kill/tonic loop could not
+  be completed through reliable normal-route MCP input, so it remains a
+  physical playtest gate. First-class editor inspection did confirm all three
+  placed Prowlers and Blueprint defaults carry a guaranteed one-item Marsh
+  Tonic drop. The existing placed-Prowler package validator now also checks
+  that contract, defeat credit, and the referenced tonic's identity, five-item
+  stack cap, and exact 25 HP / 10 mana recovery. No gameplay or content was
+  changed. Fresh discovery and full automation passed **110/110** without
+  failures/warnings/skips; the GUI-down **31-package** aggregate passed exact
+  skeletal-material, Prowler loot, **53 Fab / 32 original-art**, and
+  `validators=31` markers without `LogPython: Error`. All **16** live suites
+  passed; clean floating PIE started/stopped. The map is All Saved outside PIE
+  with real UnrealEditor on MCP 8123. Both protected hashes stayed exact. See
+  `Docs/DAILY_BUILD_2026-10-07.md`.
 - October 6 first-combat feedback: a clean floating PIE Human Warrior start
   showed the normal hotbar, while code review found every rejected hotbar
   action collapsed into `Unable to use`. The new read-only combat preflight
@@ -1860,10 +1874,12 @@ targeting, rewards, AI, quests, or persistence.
 - Retain the specific no-target, out-of-range, and low-mana hotbar rejection
   lines from the combat-owned read-only preflight, without publishing combat
   results or changing cooldown, health, mana, quests, loot, or saves. Ask the
-  user for physical `1` and painted chat acceptance. The next distinct
-  milestone should begin by inspecting a real first Prowler defeat and Marsh
-  Tonic pickup from the normal route; change only a concrete issue found
-  there. Do not repeat the hotbar feedback or gate-flower fixes.
+  user for physical `1` and painted chat acceptance. The saved-data side of
+  the Prowler drop is now guarded by the placed-instance validator; a real
+  first defeat, tonic pickup and use at normal camera distance remain open.
+  Do not repeat that validator or the hotbar/gate-flower fixes. Select the
+  next distinct bounded gameplay/content milestone from fresh player-visible
+  evidence without manufacturing combat or quest progress.
 - Ask the user to verify that Q during the death hold cannot restart autorun
   or move the character on respawn. The native regression protects controller
   state transitions, but synthetic Slate is not physical input. Also retain

@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-06
+Last updated: 2026-10-07
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,24 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 7 Handoff
+
+The placed-Prowler package validator now protects the player-facing first
+loot/recovery chain without moving gameplay authority: Blueprint defaults and
+all three saved actors must grant defeat credit and a guaranteed one-item
+Marsh Tonic drop, while the referenced item must retain its stable identity,
+five-item stack cap, and exact 25 HP / 10 mana recovery. First-class editor
+inspection found those values intact. Synthetic Slate did not provide a
+reliable normal-route kill, so physical first-defeat, pickup, and tonic-use
+acceptance remains open; do not describe this package check as that proof.
+No C++ or saved content changed. Fresh full automation passed **110/110**
+without failures/warnings/skips, the GUI-down 31-package aggregate passed
+exact skeletal-material, Prowler loot, **53 Fab / 32 original-art**, and
+`validators=31` markers without `LogPython: Error`, and all **16** initialized-
+world suites passed. Clean PIE started/stopped, the map remained All Saved
+outside PIE with real MCP 8123, and the protected hashes stayed exact. See
+`Docs/DAILY_BUILD_2026-10-07.md`.
 
 ## October 6 Handoff
 

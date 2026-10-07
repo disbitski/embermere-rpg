@@ -11,6 +11,7 @@ from apply_marsh_prowler_presentation_mcp import ANIMATION_PATHS, MESH_PATH
 
 MAP_PATH = "/Game/Maps/L_Embermere_Prototype"
 BLUEPRINT_CLASS = "/Game/Blueprints/BP_StarterEnemy.BP_StarterEnemy_C"
+TONIC_PATH = "/Game/Data/Items/DI_MarshTonic"
 LABELS = {"Starter_Enemy_01", "Starter_Enemy_02", "Starter_Enemy_03"}
 ROLES = ("idle", "walk", "run", "attack", "hit", "death")
 
@@ -30,6 +31,20 @@ def main():
             raise RuntimeError("Invalid {} animation skeleton/duration".format(role))
         expected[role + "_animation"] = animation
 
+    tonic = unreal.load_asset(TONIC_PATH)
+    if not isinstance(tonic, unreal.EmbermereItemData):
+        raise RuntimeError("Missing reviewed Marsh Tonic item")
+    effects = tonic.get_editor_property("consumable_effects")
+    if not all((
+        str(tonic.get_editor_property("item_id")) == "MarshTonic",
+        str(tonic.get_editor_property("display_name")) == "Marsh Tonic",
+        tonic.get_editor_property("category") == unreal.EmbermereItemCategory.CONSUMABLE,
+        tonic.get_editor_property("max_stack") == 5,
+        effects.get_editor_property("heal_health") == 25.0,
+        effects.get_editor_property("restore_mana") == 10.0,
+    )):
+        errors.append("Marsh Tonic identity, stack, or recovery contract drifted")
+
     if not unreal.EditorLevelLibrary.load_level(MAP_PATH):
         raise RuntimeError("Could not load saved prototype map")
     actors = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
@@ -40,6 +55,14 @@ def main():
     owners = [("Blueprint defaults", unreal.get_default_object(enemies[0].get_class()))]
     owners += [(a.get_actor_label(), a) for a in enemies]
     for label, owner in owners:
+        if not all((
+            owner.get_editor_property("loot_enabled"),
+            owner.get_editor_property("loot_item") == tonic,
+            owner.get_editor_property("loot_quantity") == 1,
+            owner.get_editor_property("loot_drop_chance") == 1.0,
+            owner.get_editor_property("grants_defeat_credit"),
+        )):
+            errors.append(label + " guaranteed one-tonic loot or defeat-credit contract drifted")
         for prop, asset in expected.items():
             actual = owner.get_editor_property(prop)
             if actual != asset:
@@ -71,7 +94,7 @@ def main():
     if errors:
         unreal.log_error("Embermere placed Prowler validation failed:\n" + "\n".join(errors))
         sys.exit(1)
-    unreal.log("EMBERMERE_PLACED_PROWLER_VALIDATION_SUCCESS: actors=3 roles=6 skeleton=shared native_component_transforms=matched")
+    unreal.log("EMBERMERE_PLACED_PROWLER_VALIDATION_SUCCESS: actors=3 roles=6 skeleton=shared native_component_transforms=matched loot=one_guaranteed_marsh_tonic")
 
 
 if __name__ == "__main__":

@@ -25,6 +25,12 @@ art, collision, transforms, or gameplay. A new placed-instance validator joins
 the 22-package aggregate. Read `Docs/DAILY_BUILD_2026-09-10.md` for exact live
 animation evidence; physical animation/pose quality remains a separate gate.
 
+The October 7 placed-instance validator also guards the guaranteed one-item
+Marsh Tonic drop and defeat-credit policy on the Blueprint defaults and all
+three saved actors, plus the referenced tonic's identity, stack cap, and
+25 HP / 10 mana effect. This is persisted-package evidence, not a substitute
+for a normal-route kill and pickup playtest.
+
 ## Implemented 2026-07-27
 
 The bounded vertical slice is complete and accepted as Embermere's first

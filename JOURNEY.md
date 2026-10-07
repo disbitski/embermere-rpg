@@ -3701,6 +3701,18 @@ resource or target mutation. A valid Strike and cooldown still worked. Xcode
 validators, and 16 initialized-world suites passed. No saved journey or map
 content changed.
 
+## October 7: Guarding The First Prowler Drop
+
+The first Marsh Prowler defeat remains a direct playtest gate because synthetic
+Slate input has not reliably driven the normal-route fight. Saved-actor
+inspection did reveal a coverage gap: the placed-Prowler validator checked
+rig and animations, but not the tonic drop that makes early recovery possible.
+It now checks Blueprint defaults and all three saved Prowlers for one
+guaranteed Marsh Tonic and defeat credit, then checks the item's five-stack,
+25 HP, and 10 mana contract. No gameplay or assets changed. Fresh validation
+passed 31 packages, 16 live-world suites, and all 110 native tests. The user
+still owns final physical kill, pickup, and painted-feedback acceptance.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
