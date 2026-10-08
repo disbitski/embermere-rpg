@@ -6,6 +6,23 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 8 full-bag loot feedback: code review found that a guaranteed
+  Prowler drop silently disappeared when the recipient inventory could not
+  accept it. `GrantLootTo` now posts exact `No room for Marsh Tonic x1.`
+  chat copy on a genuine capacity rejection, while preserving the inventory
+  transaction and existing success messages. Invalid item data, disabled
+  loot, and zero quantity do not claim a full bag. The new
+  `Embermere.Enemy.LootCapacityFeedback` regression first failed on silence,
+  then passed for rejection, stack-cap edge, successful delivery, and zero
+  wallet/XP/quest drift. Process-local Xcode 26.1.1 no-hot-reload build linked;
+  fresh automation passed **111/111** without warnings/failures/skips. The
+  GUI-down **31-package** aggregate passed exact skeletal-material,
+  placed-Prowler loot, **53 Fab / 32 original-art**, and `validators=31`
+  markers with no `LogPython: Error`. All **16** live suites passed; clean
+  floating PIE started/stopped on the normal Human Warrior HUD. The map is
+  All Saved outside PIE with real MCP 8123; both protected hashes stayed
+  exact. Physical first defeat, pickup, full-bag painted chat, and tonic use
+  remain user checks. See `Docs/DAILY_BUILD_2026-10-08.md`.
 - October 7 saved Prowler loot protection: the first-kill/tonic loop could not
   be completed through reliable normal-route MCP input, so it remains a
   physical playtest gate. First-class editor inspection did confirm all three
@@ -1871,6 +1888,13 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- Ask the user to accept the first real Prowler defeat and tonic pickup/use.
+  With a deliberately full bag, confirm exact `No room for Marsh Tonic x1.`
+  painted chat and no tonic delivery; after freeing a slot, confirm normal
+  `Received`/`Looted` feedback and recovery. Do not force combat or load the
+  protected Chronicle slot to manufacture this gate. The native capacity
+  transaction and saved drop data are covered; this physical route is not.
+  Choose a different bounded milestone if the playtest state is unavailable.
 - Retain the specific no-target, out-of-range, and low-mana hotbar rejection
   lines from the combat-owned read-only preflight, without publishing combat
   results or changing cooldown, health, mana, quests, loot, or saves. Ask the

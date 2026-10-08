@@ -1233,6 +1233,12 @@ byte-for-byte unchanged and cannot be restored without explicit-version recovery
   damage-protection message.
 - Defeating starter enemies advances `StarterEnemyDefeated`.
 - Defeating a Marsh Prowler grants one stackable Marsh Tonic and reports it in chat.
+- With every bag slot full and no room in an existing tonic stack, a real
+  Prowler defeat must show `No room for Marsh Tonic x1.` in chat without
+  granting a tonic or changing wallet, XP, or quest progress beyond the
+  separately owned defeat credit. Free a slot and defeat another Prowler;
+  normal `Received` and `Looted` feedback and tonic use must still work.
+  Native automation proves the capacity transaction, not this physical route.
 - Defeated enemies hide and respawn after a short prototype delay.
 - Completing the quest shows bottom-left completion/XP and `20` copper reward
   messages, a temporary loot/reward popup with fixed item art, and the reward

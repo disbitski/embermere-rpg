@@ -3713,6 +3713,18 @@ guaranteed Marsh Tonic and defeat credit, then checks the item's five-stack,
 passed 31 packages, 16 live-world suites, and all 110 native tests. The user
 still owns final physical kill, pickup, and painted-feedback acceptance.
 
+## October 8: When the Bag Is Full, Say So
+
+The saved Prowler tonic drop was guaranteed, but an automatic inventory add
+could fail quietly when the bag was full. We kept inventory capacity and
+mutation where they already belonged and added a small chat result at the
+enemy's loot handoff. A focused test failed first on the missing line, then
+covered a full slot, an exact five-tonic stack, successful delivery, invalid
+loot data, and untouched wallet, XP, and quest records. The Xcode 26.1.1
+build linked; all 111 tests, 31 package validators, and 16 live-world suites
+passed. Clean PIE reached the normal Human Warrior HUD, but a physical first
+Prowler kill and tonic pickup still await player acceptance.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

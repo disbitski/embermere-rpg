@@ -1,6 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
 #include "Characters/EmbermereCharacter.h"
+#include "Characters/EmbermereEnemyCharacter.h"
 #include "Characters/EmbermerePracticeTargetActor.h"
 #include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereHotbarComponent.h"
@@ -94,6 +95,78 @@ struct FEmbermereServiceKeyboardFixture
 		Controller->LastEmptyInteractionFeedbackTimeSeconds = -1.0;
 	}
 };
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereLootCapacityFeedbackTest,
+	"Embermere.Enemy.LootCapacityFeedback",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereLootCapacityFeedbackTest::RunTest(const FString& Parameters)
+{
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->SetPawn(F.Character);
+	F.World->AddController(F.Controller);
+	TestTrue(TEXT("Loot messages have a world player controller"), F.World->GetFirstPlayerController() == F.Controller);
+	AEmbermereEnemyCharacter* Enemy = F.World->SpawnActor<AEmbermereEnemyCharacter>();
+	UEmbermereItemData* Tonic = NewObject<UEmbermereItemData>();
+	UEmbermereItemData* Filler = NewObject<UEmbermereItemData>();
+	if (!TestNotNull(TEXT("Loot feedback enemy exists"), Enemy) || !Tonic || !Filler)
+	{
+		return false;
+	}
+	Tonic->DisplayName = FText::FromString(TEXT("Marsh Tonic"));
+	Tonic->MaxStack = 5;
+	Filler->DisplayName = FText::FromString(TEXT("Filler"));
+	Filler->MaxStack = 1;
+	Enemy->LootItem = Tonic;
+	Enemy->LootQuantity = 1;
+	F.Character->Inventory->MaxSlots = 1;
+	TestTrue(TEXT("Only bag slot is filled"), F.Character->Inventory->AddItem(Filler, 1, false));
+	const int32 ChatBefore = F.Hud->GetChatMessageCount();
+	const int32 CopperBefore = F.Character->Wallet->Copper;
+	const int32 ExperienceBefore = F.Character->Stats->CurrentExperience;
+
+	TestFalse(TEXT("Full bag rejects automatic loot"), Enemy->GrantLootTo(F.Character));
+	TestEqual(TEXT("Rejected loot adds one readable chat line"), F.Hud->GetChatMessageCount(), ChatBefore + 1);
+	UTextBlock* Feedback = F.Hud->WidgetTree->FindWidget<UTextBlock>(TEXT("ChatMessageText_0"));
+	if (TestNotNull(TEXT("Rejected loot feedback renders in chat"), Feedback))
+	{
+		TestEqual(TEXT("Full-bag feedback names the missed item"), Feedback->GetText().ToString(),
+			FString(TEXT("No room for Marsh Tonic x1.")));
+	}
+	TestEqual(TEXT("Rejected loot leaves the filler untouched"), F.Character->Inventory->GetItemQuantity(Filler), 1);
+	TestEqual(TEXT("Rejected loot grants no tonic"), F.Character->Inventory->GetItemQuantity(Tonic), 0);
+	TestEqual(TEXT("Rejected loot leaves copper unchanged"), F.Character->Wallet->Copper, CopperBefore);
+	TestEqual(TEXT("Rejected loot leaves XP unchanged"), F.Character->Stats->CurrentExperience, ExperienceBefore);
+	TestEqual(TEXT("Rejected loot changes no quest record"), F.Character->QuestLog->QuestStates.Num(), 0);
+
+	TestTrue(TEXT("Bag slot can be freed"), F.Character->Inventory->RemoveItem(Filler, 1));
+	TestTrue(TEXT("Nearly full tonic stack enters the bag"), F.Character->Inventory->AddItem(Tonic, 4, false));
+	TestTrue(TEXT("Loot fits into the existing stack"), Enemy->GrantLootTo(F.Character));
+	TestEqual(TEXT("Exact stack cap is reached"), F.Character->Inventory->GetItemQuantity(Tonic), 5);
+	TestEqual(TEXT("Successful loot retains received and looted feedback"), F.Hud->GetChatMessageCount(), ChatBefore + 3);
+	UTextBlock* Looted = F.Hud->WidgetTree->FindWidget<UTextBlock>(TEXT("ChatMessageText_2"));
+	if (TestNotNull(TEXT("Successful loot message renders in chat"), Looted))
+	{
+		TestEqual(TEXT("Successful loot keeps its existing copy"), Looted->GetText().ToString(),
+			FString(TEXT("Looted Marsh Tonic x1")));
+	}
+	TestFalse(TEXT("Full tonic stack rejects another drop"), Enemy->GrantLootTo(F.Character));
+	TestEqual(TEXT("Repeated rejection does not overfill the stack"), F.Character->Inventory->GetItemQuantity(Tonic), 5);
+	TestEqual(TEXT("Repeated rejection adds one chat line"), F.Hud->GetChatMessageCount(), ChatBefore + 4);
+	Enemy->LootQuantity = 0;
+	TestFalse(TEXT("Zero-quantity loot stays disabled"), Enemy->GrantLootTo(F.Character));
+	Enemy->LootQuantity = 1;
+	Enemy->bLootEnabled = false;
+	TestFalse(TEXT("Disabled loot stays disabled"), Enemy->GrantLootTo(F.Character));
+	TestEqual(TEXT("No-drop paths do not claim a full bag"), F.Hud->GetChatMessageCount(), ChatBefore + 4);
+	Enemy->bLootEnabled = true;
+	Tonic->MaxStack = 0;
+	TestFalse(TEXT("Malformed loot data is rejected"), Enemy->GrantLootTo(F.Character));
+	TestEqual(TEXT("Malformed loot does not claim a capacity failure"), F.Hud->GetChatMessageCount(), ChatBefore + 4);
+	F.Controller->SetPawn(nullptr);
+	F.World->RemoveController(F.Controller);
+	return true;
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereEmptyInteractionFeedbackTest,
 	"Embermere.Input.EmptyInteractionFeedback",

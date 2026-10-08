@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-07
+Last updated: 2026-10-08
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,26 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 8 Handoff
+
+An automatic Prowler drop with no inventory capacity previously returned
+silently. The enemy now posts `No room for Marsh Tonic x1.` through the
+existing chat channel only when a valid loot add fails; the inventory remains
+the atomic capacity authority. Malformed item data and disabled/zero-quantity
+loot stay silent, and successful `Received`/`Looted` messages are unchanged.
+The new `Embermere.Enemy.LootCapacityFeedback` regression failed first on
+the missing line, then passed full-bag, exact stack-cap, successful-delivery,
+and no wallet/XP/quest-mutation cases. The process-local Xcode 26.1.1
+no-hot-reload build linked. Fresh automation passed **111/111** with no
+failures/warnings/skips; the GUI-down 31-package aggregate passed exact
+skeletal-material, placed-Prowler loot, **53 Fab / 32 original-art**, and
+`validators=31` markers without `LogPython: Error`. All **16** live suites
+passed, clean floating PIE started/stopped, and the map was All Saved outside
+PIE with real MCP 8123. Protected hashes remained exact. No saved content or
+user journey changed. The real first kill, tonic pickup/use, and full-bag
+painted chat still need physical player acceptance. See
+`Docs/DAILY_BUILD_2026-10-08.md`.
 
 ## October 7 Handoff
 

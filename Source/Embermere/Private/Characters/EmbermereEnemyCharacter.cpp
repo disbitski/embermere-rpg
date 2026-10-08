@@ -445,8 +445,16 @@ bool AEmbermereEnemyCharacter::GrantLootTo(AActor* Recipient)
 
 	UEmbermereItemData* Item = LootItem.LoadSynchronous();
 	UEmbermereInventoryComponent* RecipientInventory = Recipient->FindComponentByClass<UEmbermereInventoryComponent>();
-	if (!Item || !RecipientInventory || !RecipientInventory->AddItem(Item, LootQuantity))
+	if (!Item || !RecipientInventory || Item->MaxStack <= 0)
 	{
+		return false;
+	}
+	if (!RecipientInventory->AddItem(Item, LootQuantity))
+	{
+		UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+			Recipient,
+			FText::FromString(FString::Printf(TEXT("No room for %s x%d."), *Item->DisplayName.ToString(), LootQuantity)),
+			FLinearColor(1.0f, 0.52f, 0.36f, 1.0f));
 		return false;
 	}
 

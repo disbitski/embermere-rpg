@@ -787,6 +787,14 @@ A Use action should not remove an item before proving that an effect occurred. E
 
 A first playable loot loop is easiest to validate when its default drop is deterministic, but the enemy should not hard-code inventory behavior around one specific item. Embermere exposes an enemy loot item, quantity, and drop chance, then routes a successful roll through the recipient's inventory component. Marsh Prowlers currently default to a guaranteed Marsh Tonic so every combat test can reach the recovery action. Automation separately covers the roll boundary, stack delivery, and no-drop path, leaving later tuning free to lower the chance or swap loot without rewriting death handling.
 
+An automatic drop that fails capacity should not silently disappear. Let the
+inventory's atomic add remain authoritative, then report the valid rejected
+item and quantity through ordinary chat. Keep malformed data and no-drop
+paths distinct from a full bag; preserve the existing acquisition messages
+on success. Test both a full slot and a full existing stack, plus zero wallet,
+XP, and quest drift on rejection. Saved loot data is not a substitute for a
+real player defeat and painted chat acceptance.
+
 ## Inventory And Equipment Transfers Must Be Atomic
 
 Returning `false` after partially changing a bag is worse than rejecting an operation up front: callers believe nothing happened while quantities, loot, or equipment have already moved. This is especially risky for same-slot gear replacement, where the incoming item leaves the bag before the old item can be returned.
