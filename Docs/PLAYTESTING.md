@@ -437,6 +437,10 @@ Warrior fallback without rewriting the old file.
 17. Watch for the temporary quest/dialogue message.
 18. Move toward the ruin and enemy pocket, passing cleanly through the road gate between the two matching boundary fences and their rune-topped end stones.
 19. Press `Tab` to target a nearby hostile.
+    If it is the only eligible target, press `Tab` again: it should remain
+    selected without repeating the same targeting chat line. With two
+    eligible targets, subsequent Tabs should advance and wrap. Turning away
+    so the forward cone is empty should still clear the target and report it.
 20. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP
     bar, complete cyan-blue emissive ground circle, and the HUD target panel
     range state. The 48-segment circle should size from the target's visual

@@ -3725,6 +3725,18 @@ build linked; all 111 tests, 31 package validators, and 16 live-world suites
 passed. Clean PIE reached the normal Human Warrior HUD, but a physical first
 Prowler kill and tonic pickup still await player acceptance.
 
+## October 9: One Target, One Announcement
+
+A clean Human Warrior start revealed a tiny chat annoyance: Tab selected the
+practice target, then another Tab with no other candidate repeated the same
+line. The target component had already recognized the unchanged selection;
+the controller's chat call had not. A new test failed on the duplicate and
+then protected the one-target no-op, a second target, wraparound, and an empty
+cone. We changed only feedback for unchanged non-null targets. Xcode 26.1.1
+linked the module, all 112 native tests, 31 package validators, and 16 live
+world suites passed, and a clean PIE replay kept one chat line after two
+Tabs. Physical keyboard feel remains a player check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

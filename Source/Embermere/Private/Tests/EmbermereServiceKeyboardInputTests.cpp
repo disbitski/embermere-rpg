@@ -8,6 +8,7 @@
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
+#include "Components/EmbermereTargetingComponent.h"
 #include "Components/EmbermereTrainerComponent.h"
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/EmbermereWalletComponent.h"
@@ -90,11 +91,64 @@ struct FEmbermereServiceKeyboardFixture
 		Controller->ActivateHotbarSlot(SlotIndex);
 	}
 
+	void CycleTarget()
+	{
+		Controller->CycleTarget();
+	}
+
 	void ResetEmptyInteractionFeedback()
 	{
 		Controller->LastEmptyInteractionFeedbackTimeSeconds = -1.0;
 	}
 };
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereTargetCycleNoOpFeedbackTest,
+	"Embermere.Input.TargetCycleNoOpFeedback",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereTargetCycleNoOpFeedbackTest::RunTest(const FString& Parameters)
+{
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->SetPawn(F.Character);
+	F.World->AddController(F.Controller);
+	F.Character->SetActorLocation(FVector::ZeroVector);
+	F.Character->SetActorRotation(FRotator::ZeroRotator);
+	AEmbermerePracticeTargetActor* First = F.World->SpawnActor<AEmbermerePracticeTargetActor>();
+	if (!TestNotNull(TEXT("Practice target exists"), First) ||
+		!TestNotNull(TEXT("Targeting component exists"), F.Character->Targeting.Get()))
+	{
+		return false;
+	}
+	First->SetActorLocation(FVector(250.0f, 0.0f, 0.0f));
+	const int32 ChatBefore = F.Hud->GetChatMessageCount();
+	F.CycleTarget();
+	TestTrue(TEXT("First Tab selects the practice target"), F.Character->Combat->CurrentTarget == First);
+	TestEqual(TEXT("First selection is announced"), F.Hud->GetChatMessageCount(), ChatBefore + 1);
+	F.CycleTarget();
+	TestTrue(TEXT("Single candidate stays selected"), F.Character->Combat->CurrentTarget == First);
+	TestEqual(TEXT("Unchanged selection does not bury chat"), F.Hud->GetChatMessageCount(), ChatBefore + 1);
+
+	AEmbermereEnemyCharacter* Second = F.World->SpawnActor<AEmbermereEnemyCharacter>();
+	if (!TestNotNull(TEXT("Second target exists"), Second))
+	{
+		return false;
+	}
+	Second->SetActorLocation(FVector(400.0f, 80.0f, 0.0f));
+	F.CycleTarget();
+	TestTrue(TEXT("Tab still advances to another target"), F.Character->Combat->CurrentTarget == Second);
+	TestEqual(TEXT("Changed selection is announced"), F.Hud->GetChatMessageCount(), ChatBefore + 2);
+	F.CycleTarget();
+	TestTrue(TEXT("Tab wraps to first target"), F.Character->Combat->CurrentTarget == First);
+	TestEqual(TEXT("Wrapped selection is announced"), F.Hud->GetChatMessageCount(), ChatBefore + 3);
+
+	F.Character->SetActorRotation(FRotator(0.0f, 180.0f, 0.0f));
+	F.CycleTarget();
+	TestNull(TEXT("Empty cone clears the target"), F.Character->Combat->CurrentTarget.Get());
+	TestEqual(TEXT("Empty cone retains its feedback"), F.Hud->GetChatMessageCount(), ChatBefore + 4);
+	F.Controller->SetPawn(nullptr);
+	F.World->RemoveController(F.Controller);
+	return true;
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereLootCapacityFeedbackTest,
 	"Embermere.Enemy.LootCapacityFeedback",

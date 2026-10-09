@@ -1805,6 +1805,15 @@ Treat targetability, hostility, defeat credit, loot, and AI as separate
 capabilities. A world object can support the combat UI and ability pipeline
 without implicitly inheriting every enemy outcome.
 
+## Announce Target Changes, Not No-Op Cycles
+
+The target component may return the current actor when it is the only
+eligible candidate. Combat already treats `SetTarget` on that actor as a
+no-op, so the controller should not append another identical chat line.
+Compare the previous and returned target only at the feedback boundary:
+real advances and wraparound still announce, and an empty cone still reports
+no target. This keeps target selection authoritative and chat readable.
+
 ## Dispatch Native And Blueprint Interfaces Deliberately
 
 The targetable interface originally relied on reflected `Execute_*` calls.

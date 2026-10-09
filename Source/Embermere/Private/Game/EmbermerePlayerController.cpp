@@ -450,7 +450,12 @@ void AEmbermerePlayerController::CycleTarget()
 	{
 		if (Character->Targeting)
 		{
-			ShowTargetFeedback(Character->Targeting->CycleTarget());
+			AActor* PreviousTarget = Character->Combat ? Character->Combat->CurrentTarget.Get() : nullptr;
+			AActor* NewTarget = Character->Targeting->CycleTarget();
+			if (!NewTarget || NewTarget != PreviousTarget)
+			{
+				ShowTargetFeedback(NewTarget);
+			}
 		}
 	}
 }

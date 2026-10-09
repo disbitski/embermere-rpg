@@ -6,6 +6,23 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 9 no-op Tab feedback: clean normal-route Human Warrior PIE selected
+  the practice target from PlayerStart, then a second Tab with no other
+  candidate repeated the same targeting chat line. The new
+  `Embermere.Input.TargetCycleNoOpFeedback` regression failed on that duplicate.
+  The controller now announces only a changed non-null target or the existing
+  empty-target response; the targeting component, target order, cyan ring,
+  combat, quests, and saves are unchanged. The focused regression passed
+  single-candidate no-op, second-target advance, wrap, and empty-cone clear.
+  Process-local Xcode 26.1.1 no-hot-reload build linked. Fresh discovery/full
+  automation passed **112/112** without warnings, failures, or skips. The
+  GUI-down **31-package** aggregate passed exact skeletal-material,
+  placed-Prowler loot, **53 Fab / 32 original-art**, and `validators=31`
+  markers with no `LogPython: Error`; all **16** live suites passed. Clean
+  floating PIE replayed two Tabs and kept one line; the map is All Saved
+  outside PIE with real MCP 8123. Both protected hashes stayed exact.
+  Synthetic Slate is not physical keyboard acceptance. See
+  `Docs/DAILY_BUILD_2026-10-09.md`.
 - October 8 full-bag loot feedback: code review found that a guaranteed
   Prowler drop silently disappeared when the recipient inventory could not
   accept it. `GrantLootTo` now posts exact `No room for Marsh Tonic x1.`
@@ -1888,6 +1905,12 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- Retain one-target Tab behavior without repeated chat: when only one valid
+  candidate remains, pressing Tab again must keep its nameplate/cyan ring and
+  avoid another announcement. When another candidate appears, Tab must still
+  advance and wrap; an empty cone must still clear and report no target. Ask
+  the user for a physical-key/painted-chat check, but do not block other work
+  or repeat this completed controller fix.
 - Ask the user to accept the first real Prowler defeat and tonic pickup/use.
   With a deliberately full bag, confirm exact `No room for Marsh Tonic x1.`
   painted chat and no tonic delivery; after freeing a slot, confirm normal

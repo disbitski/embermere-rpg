@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-08
+Last updated: 2026-10-09
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,27 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 9 Handoff
+
+Clean normal-route PIE exposed a no-op Tab announcement: from PlayerStart,
+the practice target was the only eligible candidate, yet a second Tab added
+the same target line again. `UEmbermereCombatComponent::SetTarget` already
+ignored unchanged selection; only the controller's feedback repeated. The
+new `Embermere.Input.TargetCycleNoOpFeedback` regression failed on that
+duplicate, then passed for a single candidate, advancing to a second,
+wrapping, and clearing an empty cone. The controller now skips only unchanged
+non-null feedback; targeting order, ring, combat, and empty-target response
+retain their owners. The process-local Xcode 26.1.1 no-hot-reload build
+linked. Fresh automation passed **112/112** with no warnings/failures/skips;
+the GUI-down 31-package aggregate passed exact skeletal-material,
+placed-Prowler loot, **53 Fab / 32 original-art**, and `validators=31`
+markers without `LogPython: Error`. All **16** initialized-world suites
+passed. Clean floating PIE replayed two Tabs with one chat line, then
+stopped; the map is All Saved outside PIE with real MCP 8123. Protected
+hashes stayed exact. Physical Tab and painted chat acceptance remain a user
+check; the Prowler kill/tonic gate also remains open. See
+`Docs/DAILY_BUILD_2026-10-09.md`.
 
 ## October 8 Handoff
 
