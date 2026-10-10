@@ -229,6 +229,10 @@ void AEmbermerePlayerController::HandleControlledCharacterDied()
 
 	if (AEmbermereCharacter* Character = GetEmbermereCharacter())
 	{
+		if (Character->Combat)
+		{
+			Character->Combat->SetTarget(nullptr);
+		}
 		if (UCharacterMovementComponent* Movement = Character->GetCharacterMovement())
 		{
 			Movement->StopMovementImmediately();

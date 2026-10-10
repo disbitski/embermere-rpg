@@ -3737,6 +3737,18 @@ linked the module, all 112 native tests, 31 package validators, and 16 live
 world suites passed, and a clean PIE replay kept one chat line after two
 Tabs. Physical keyboard feel remains a player check.
 
+## October 10: Death Clears The Old Target
+
+The village recovery path stopped autorun but left a selected enemy and its
+cyan ring active through the player's death and respawn. A spawned-world
+controller regression first failed against the old handler, then passed when
+death cleared selection through the combat component's existing target-change
+API. Enemy health, XP, and copper stayed untouched. Xcode 26.1.1 linked the
+no-hot-reload build; all 113 native tests, 31 fresh package validators, and
+16 live-world suites passed. Clean PIE reached the normal Human Warrior HUD
+and practice-target selection. A real selected-Prowler death remains a direct
+player acceptance check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

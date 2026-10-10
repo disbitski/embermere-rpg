@@ -2,6 +2,18 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## An Isolated Death Fixture Must Actually Enter The Handler
+
+The October 10 target-cleanup test initially bound a dynamic `OnDied` callback
+on a controller in an unbegun test world. The binding reported present, but
+the callback did not run; a false failure survived the production fix. A
+controller-side autorun assertion exposed that fixture gap. The final test
+enters the dead state, explicitly invokes the controller handler, and
+checks target state, cyan ring, respawn, and non-target resource invariants.
+Run the final fixture against the old handler to prove the intended red result
+before accepting green. Keep real PIE/physical death acceptance separate from
+that unit-level proof.
+
 ## A Clear Trace Is Not A Clear Gate View
 
 The October 5 road-gate rays passed through all three center lanes while a

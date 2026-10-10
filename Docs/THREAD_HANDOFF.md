@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-09
+Last updated: 2026-10-10
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,27 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 10 Handoff
+
+The controlled-character death handler now clears combat selection through
+`SetTarget(nullptr)` before village recovery. This uses the existing target
+change event to hide the old cyan ring and target HUD rather than giving death
+or presentation a second target owner. The isolated spawned-world regression
+`Embermere.Combat.PlayerDeathTargetCleanup` ran red against the old handler for
+the stale selection/ring through respawn, then green after the fix; enemy HP,
+XP, and copper were unchanged. The test invokes the death handler explicitly
+after entering dead state because the isolated unbegun world did not dispatch
+the dynamic controller callback, so it is not a physical death-loop proof.
+Process-local Xcode 26.1.1 no-hot-reload compilation linked. Fresh discovery
+and full automation passed **113/113** with no failures/warnings/skips; the
+GUI-down 31-package aggregate passed skeletal-material, placed-Prowler loot,
+**53 Fab / 32 original-art**, and `validators=31` markers without
+`LogPython: Error`. All **16** initialized-world suites passed. Clean floating
+PIE reached Human Warrior, closed Inventory, selected the practice target,
+and stopped; the map was All Saved outside PIE on real MCP 8123. Physical
+selected-target death and respawn acceptance remains open. See
+`Docs/DAILY_BUILD_2026-10-10.md`.
 
 ## October 9 Handoff
 

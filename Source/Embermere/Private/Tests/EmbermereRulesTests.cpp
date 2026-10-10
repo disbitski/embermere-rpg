@@ -46,6 +46,7 @@
 #include "Engine/SimpleConstructionScript.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/Texture2D.h"
+#include "Engine/World.h"
 #include "Game/EmbermerePlayerController.h"
 #include "GameFramework/SaveGame.h"
 #include "GameFramework/Actor.h"
@@ -57,6 +58,7 @@
 #include "PhysicsEngine/BodySetup.h"
 #include "Save/EmbermerePersistenceLibrary.h"
 #include "Save/EmbermereSaveGame.h"
+#include "TimerManager.h"
 #include "UI/EmbermereCombatFeedbackWidget.h"
 #include "UI/EmbermereCharacterCreationWidget.h"
 #include "UI/EmbermereEnemyNameplateWidget.h"
@@ -1936,6 +1938,66 @@ bool FEmbermereDeadAutorunTest::RunTest(const FString& Parameters)
 	Controller->bAutorunEnabled = true;
 	Controller->RespawnControlledCharacter();
 	TestFalse(TEXT("Respawn clears stale autorun without a pawn"), Controller->bAutorunEnabled);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermerePlayerDeathTargetTest,
+	"Embermere.Combat.PlayerDeathTargetCleanup",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermerePlayerDeathTargetTest::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("Isolated world exists"), World))
+	{
+		return false;
+	}
+	GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
+	AEmbermerePlayerController* Controller = World->SpawnActor<AEmbermerePlayerController>();
+	AEmbermereCharacter* Character = World->SpawnActor<AEmbermereCharacter>();
+	AEmbermereEnemyCharacter* Enemy = World->SpawnActor<AEmbermereEnemyCharacter>();
+	if (!TestNotNull(TEXT("Controller exists"), Controller) ||
+		!TestNotNull(TEXT("Character and combat exist"), Character ? Character->Combat.Get() : nullptr) ||
+		!TestNotNull(TEXT("Character stats exist"), Character ? Character->Stats.Get() : nullptr) ||
+		!TestNotNull(TEXT("Enemy and stats exist"), Enemy ? Enemy->Stats.Get() : nullptr))
+	{
+		GEngine->DestroyWorldContext(World);
+		World->DestroyWorld(false);
+		return false;
+	}
+
+	Controller->SetPawn(Character);
+	TestTrue(TEXT("Controller fixture owns the character pawn"), Controller->GetPawn() == Character);
+	Character->Stats->InitializeVitals();
+	TestFalse(TEXT("Character starts alive"), Character->Stats->IsDead());
+	Enemy->Stats->InitializeVitals();
+	Character->Combat->SetTarget(Enemy);
+	TestTrue(TEXT("Living player can select the enemy"), Character->Combat->CurrentTarget == Enemy);
+	TestTrue(TEXT("Selected enemy shows its target ring"), Enemy->IsTargetRingVisible());
+
+	const float EnemyHealth = Enemy->Stats->CurrentHealth;
+	const int32 Experience = Character->Stats->CurrentExperience;
+	const int32 Copper = Character->Wallet->Copper;
+	Controller->bAutorunEnabled = true;
+	Character->Stats->ForceDeath();
+	TestTrue(TEXT("Player entered the dead state"), Character->Stats->IsDead());
+	Controller->HandleControlledCharacterDied();
+	TestFalse(TEXT("Controller death callback stops autorun"), Controller->bAutorunEnabled);
+	TestTrue(TEXT("Death callback retains the possessed pawn"), Controller->GetPawn() == Character);
+	TestNull(TEXT("Death clears the selected target"), Character->Combat->CurrentTarget.Get());
+	TestFalse(TEXT("Death clears the enemy target ring"), Enemy->IsTargetRingVisible());
+	TestEqual(TEXT("Death cleanup does not damage the enemy"), Enemy->Stats->CurrentHealth, EnemyHealth);
+	TestEqual(TEXT("Death cleanup does not grant XP"), Character->Stats->CurrentExperience, Experience);
+	TestEqual(TEXT("Death cleanup does not change copper"), Character->Wallet->Copper, Copper);
+
+	Controller->RespawnControlledCharacter();
+	TestFalse(TEXT("Respawn restores living vitals"), Character->Stats->IsDead());
+	TestNull(TEXT("Respawn does not restore the old target"), Character->Combat->CurrentTarget.Get());
+	TestFalse(TEXT("Respawn leaves the old ring hidden"), Enemy->IsTargetRingVisible());
+	World->GetTimerManager().ClearAllTimersForObject(Controller);
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
 	return true;
 }
 

@@ -528,7 +528,11 @@ Warrior fallback without rewriting the old file.
     and pressing `Q` during the death hold does not reactivate autorun.
     Confirm the player returns to the village after five seconds at full
     health with walking restored, zero residual velocity, and three seconds
-    of damage protection. No movement should begin until a fresh input.
+    of damage protection. No movement should begin until a fresh input. In a
+    separate real Prowler encounter, keep a live enemy selected as the player
+    dies: its target frame and cyan ring must clear during the death hold and
+    stay clear at village respawn until a fresh Tab selection. The native
+    regression covers controller state, not this physical combat presentation.
 
 ### Automated Solo-Pull Clearance
 

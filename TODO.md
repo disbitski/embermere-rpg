@@ -6,6 +6,21 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 10 player-death target cleanup: code review found that death stopped
+  autorun and scheduled village recovery but left `Combat->CurrentTarget` and
+  its cyan ring selected. The new `Embermere.Combat.PlayerDeathTargetCleanup`
+  regression was red against the old handler, then green after the controller
+  cleared selection through `SetTarget(nullptr)` on death. It covers ring
+  hiding, respawn not retargeting, and unchanged enemy health, XP, and copper.
+  The process-local Xcode 26.1.1 no-hot-reload build linked; fresh discovery
+  and full automation passed **113/113** without warnings, failures, or skips.
+  The GUI-down **31-package** aggregate retained exact skeletal-material,
+  placed-Prowler loot, **53 Fab / 32 original-art**, and `validators=31`
+  markers with no `LogPython: Error`; all **16** initialized-world suites
+  passed. Clean floating PIE confirmed Human Warrior, Inventory handoff, and
+  practice-target selection, then stopped. The map remained All Saved outside
+  PIE on real MCP 8123. The actual death-and-respawn visual/input feel remains
+  a physical user check. See `Docs/DAILY_BUILD_2026-10-10.md`.
 - October 9 no-op Tab feedback: clean normal-route Human Warrior PIE selected
   the practice target from PlayerStart, then a second Tab with no other
   candidate repeated the same targeting chat line. The new
@@ -1905,6 +1920,12 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary real Prowler encounter, keep a live enemy selected through
+  player death. Confirm the selected target frame and cyan ring clear during
+  the death hold and do not reappear at village respawn; a fresh Tab should
+  be required. The native death-handler regression protects state and ring
+  ownership, but synthetic Slate is not physical combat acceptance. Do not
+  force a quest or load the protected Chronicle slot to manufacture this gate.
 - Retain one-target Tab behavior without repeated chat: when only one valid
   candidate remains, pressing Tab again must keep its nameplate/cyan ring and
   avoid another announcement. When another candidate appears, Tab must still
