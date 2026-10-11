@@ -6,6 +6,26 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 11 death-panel/input handoff: a new native regression reproduced
+  Inventory retaining cursor/UI click routing through death and recovery, and
+  a stale vendor panel accepting Enter after respawn to spend 8 copper and
+  deliver an item. The HUD now has one read-only-to-gameplay panel teardown
+  path; the controller invokes it on death and at respawn entry, then restores
+  the appropriate input mode. Vendor/trainer references, pending Chronicle
+  confirmation, and Ledger selection clear through their existing close
+  methods. `Embermere.Input.DeathPanelHandoff` passed for Inventory opened
+  before and during death, vendor/trainer/Ledger closure, stale action safety,
+  and unchanged copper, XP, bag, and quest records. The no-hot-reload Xcode
+  26.1.1 build linked; final discovery/full automation passed **114/114** with
+  no failures, warnings, or skips. A GUI-down **31-package** aggregate passed
+  exact skeletal-material, placed-Prowler loot, **53 Fab / 32 original-art**,
+  and `validators=31` markers without `LogPython: Error`; all **16** live suites
+  passed in a clean final editor session. Floating PIE reached the normal
+  Human Warrior HUD and stopped. The map is All Saved outside PIE with real
+  MCP 8123, and both protected hashes stayed exact. The test explicitly
+  invokes the death handler in an isolated world; actual death-panel visuals
+  and physical cursor handoff remain user checks. See
+  `Docs/DAILY_BUILD_2026-10-11.md`.
 - October 10 player-death target cleanup: code review found that death stopped
   autorun and scheduled village recovery but left `Combat->CurrentTarget` and
   its cyan ring selected. The new `Embermere.Combat.PlayerDeathTargetCleanup`
@@ -1920,6 +1940,14 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary real death/recovery loop, leave Inventory open before
+  death and confirm it closes, the cursor/UI click routing clears, and the
+  recovered character gets immediate normal camera/game input. If a vendor or
+  trainer panel was open when danger reached the player, it must also close;
+  Enter after respawn must not act on the old service. The native regression
+  proves the controller callback and stale-action exclusion, not physical
+  input or painted UI. Do not force a quest or load the protected Chronicle
+  slot merely to manufacture this gate.
 - During a voluntary real Prowler encounter, keep a live enemy selected through
   player death. Confirm the selected target frame and cyan ring clear during
   the death hold and do not reappear at village respawn; a fresh Tab should

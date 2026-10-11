@@ -118,6 +118,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Embermere|HUD")
 	bool IsInventoryPanelVisible() const;
+	void CloseInteractivePanels();
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD|Vendor")
 	bool ShowVendor(UEmbermereVendorComponent* Vendor);

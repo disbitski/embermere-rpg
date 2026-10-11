@@ -100,7 +100,98 @@ struct FEmbermereServiceKeyboardFixture
 	{
 		Controller->LastEmptyInteractionFeedbackTimeSeconds = -1.0;
 	}
+
+	void HandleDeath()
+	{
+		Controller->HandleControlledCharacterDied();
+	}
+
+	void Respawn()
+	{
+		Controller->RespawnControlledCharacter();
+	}
+
+	void RefreshInputMode()
+	{
+		Controller->RefreshInteractiveInputMode();
+	}
 };
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereDeathPanelHandoffTest,
+	"Embermere.Input.DeathPanelHandoff",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereDeathPanelHandoffTest::RunTest(const FString& Parameters)
+{
+	UEmbermereVendorStockData* Stock = LoadObject<UEmbermereVendorStockData>(nullptr,
+		TEXT("/Game/Data/Vendors/DA_FenwatchQuartermasterStock.DA_FenwatchQuartermasterStock"));
+	UEmbermereTrainerOfferingsData* Offerings = LoadObject<UEmbermereTrainerOfferingsData>(nullptr,
+		TEXT("/Game/Data/Trainers/DA_FenwatchArmsmasterOfferings.DA_FenwatchArmsmasterOfferings"));
+	if (!TestNotNull(TEXT("Saved vendor stock exists"), Stock) ||
+		!TestNotNull(TEXT("Saved trainer offerings exist"), Offerings))
+	{
+		return false;
+	}
+
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->SetPawn(F.Character);
+	F.World->AddController(F.Controller);
+	F.Character->Stats->InitializeVitals();
+	F.RefreshInputMode();
+	TestTrue(TEXT("Inventory starts visible"), F.Hud->IsInventoryPanelVisible());
+	TestTrue(TEXT("Open inventory owns the cursor"), F.Controller->bShowMouseCursor);
+
+	const int32 Copper = F.Character->Wallet->Copper;
+	const int32 Experience = F.Character->Stats->CurrentExperience;
+	const int32 QuestRecords = F.Character->QuestLog->QuestStates.Num();
+	F.Character->Stats->ForceDeath();
+	F.HandleDeath();
+	TestFalse(TEXT("Death closes inventory"), F.Hud->IsInventoryPanelVisible());
+	TestFalse(TEXT("Death releases the cursor"), F.Controller->bShowMouseCursor);
+	TestFalse(TEXT("Death releases UI click routing"), F.Controller->bEnableClickEvents);
+
+	F.Hud->ToggleInventoryPanel();
+	F.RefreshInputMode();
+	TestTrue(TEXT("A panel opened during the death hold is visible"), F.Hud->IsInventoryPanelVisible());
+	F.Respawn();
+	TestFalse(TEXT("Respawn closes a death-hold panel"), F.Hud->IsInventoryPanelVisible());
+	TestFalse(TEXT("Respawn restores cursor-hidden play"), F.Controller->bShowMouseCursor);
+
+	UEmbermereVendorComponent* Vendor = NewObject<UEmbermereVendorComponent>(F.Character);
+	Vendor->SetStockData(Stock);
+	TestTrue(TEXT("Vendor opens after recovery"), F.Hud->ShowVendor(Vendor));
+	F.RefreshInputMode();
+	TestTrue(TEXT("Vendor owns UI input"), F.Controller->bShowMouseCursor);
+	F.Character->Stats->ForceDeath();
+	F.HandleDeath();
+	TestFalse(TEXT("Death closes the remote vendor panel"), F.Hud->IsVendorPanelVisible());
+	TestFalse(TEXT("Death releases vendor cursor capture"), F.Controller->bShowMouseCursor);
+	F.Respawn();
+	F.Press(EKeys::Enter);
+	TestEqual(TEXT("Stale vendor action cannot spend copper"), F.Character->Wallet->Copper, Copper);
+
+	UEmbermereTrainerComponent* Trainer = NewObject<UEmbermereTrainerComponent>(F.Character);
+	Trainer->SetOfferingsData(Offerings);
+	TestTrue(TEXT("Trainer opens after recovery"), F.Hud->ShowTrainer(Trainer));
+	F.RefreshInputMode();
+	F.Character->Stats->ForceDeath();
+	F.HandleDeath();
+	TestFalse(TEXT("Death closes the remote trainer panel"), F.Hud->IsTrainerPanelVisible());
+	F.Respawn();
+	F.Press(EKeys::Enter);
+	TestEqual(TEXT("Stale trainer action cannot spend copper"), F.Character->Wallet->Copper, Copper);
+
+	TestTrue(TEXT("Ledger opens after recovery"), F.Hud->ToggleQuestLedgerPanel());
+	F.RefreshInputMode();
+	F.Character->Stats->ForceDeath();
+	F.HandleDeath();
+	TestFalse(TEXT("Death closes the Ledger without changing quest state"), F.Hud->IsQuestLedgerPanelVisible());
+	F.Respawn();
+	TestEqual(TEXT("Death and recovery cannot grant XP"), F.Character->Stats->CurrentExperience, Experience);
+	TestEqual(TEXT("Death and recovery cannot deliver inventory"), F.Character->Inventory->Stacks.Num(), 0);
+	TestEqual(TEXT("Death and recovery cannot change quests"), F.Character->QuestLog->QuestStates.Num(), QuestRecords);
+	return !HasAnyErrors();
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereTargetCycleNoOpFeedbackTest,
 	"Embermere.Input.TargetCycleNoOpFeedback",

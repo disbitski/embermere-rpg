@@ -763,6 +763,16 @@ bool UEmbermerePlayerHudWidget::IsInventoryPanelVisible() const
 	return bInventoryPanelVisible;
 }
 
+void UEmbermerePlayerHudWidget::CloseInteractivePanels()
+{
+	bInventoryPanelVisible = false;
+	CloseVendor();
+	CloseTrainer();
+	CloseSaveLoadPanel();
+	CloseQuestLedgerPanel();
+	UpdateInventoryPanelVisibility();
+}
+
 bool UEmbermerePlayerHudWidget::ShowVendor(UEmbermereVendorComponent* Vendor)
 {
 	if (!Vendor || !Vendor->StockData)

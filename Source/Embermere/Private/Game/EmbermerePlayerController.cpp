@@ -226,6 +226,11 @@ void AEmbermerePlayerController::HandleControlledCharacterDied()
 {
 	bAutorunEnabled = false;
 	SetIgnoreMoveInput(true);
+	if (PlayerHudWidget)
+	{
+		PlayerHudWidget->CloseInteractivePanels();
+		RefreshInteractiveInputMode();
+	}
 
 	if (AEmbermereCharacter* Character = GetEmbermereCharacter())
 	{
@@ -256,6 +261,11 @@ void AEmbermerePlayerController::HandleControlledCharacterDied()
 void AEmbermerePlayerController::RespawnControlledCharacter()
 {
 	bAutorunEnabled = false;
+	if (PlayerHudWidget)
+	{
+		PlayerHudWidget->CloseInteractivePanels();
+		RefreshInteractiveInputMode();
+	}
 	AEmbermereCharacter* Character = GetEmbermereCharacter();
 	if (!Character || !Character->Stats)
 	{

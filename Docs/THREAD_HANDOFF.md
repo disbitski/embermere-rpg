@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-10
+Last updated: 2026-10-11
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,28 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 11 Handoff
+
+The death handler already stopped movement and cleared combat target, but
+left interactive HUD panels and GameAndUI cursor/click routing alive. The new
+`Embermere.Input.DeathPanelHandoff` regression failed against that code:
+Inventory remained open, and an old vendor panel accepted Enter after
+respawn, spending 8 copper and delivering an item. A native HUD teardown now
+closes Inventory, vendor, trainer, Chronicle, and Ledger through existing
+close paths; the controller calls it at death and respawn entry and refreshes
+input mode. The green regression also covers a panel opened during the death
+hold, stale trainer action, and no wallet/XP/bag/quest drift. It explicitly
+invokes the callback in an isolated world, not a physical death event.
+Process-local Xcode 26.1.1 `-NoHotReloadFromIDE` linked. Fresh final
+discovery/full automation passed **114/114** without failures/warnings/skips;
+the GUI-down 31-package aggregate passed exact skeletal-material,
+placed-Prowler loot, **53 Fab / 32 original-art**, and `validators=31`
+markers without `LogPython: Error`; all **16** initialized-world suites passed
+in a clean final editor session. Clean floating PIE reached the Human Warrior
+HUD and stopped; the saved map is All Saved outside PIE on real MCP 8123.
+Both protected hashes stayed exact. Physical death-panel/input feel remains a
+user gate. See `Docs/DAILY_BUILD_2026-10-11.md`.
 
 ## October 10 Handoff
 

@@ -3749,6 +3749,19 @@ no-hot-reload build; all 113 native tests, 31 fresh package validators, and
 and practice-target selection. A real selected-Prowler death remains a direct
 player acceptance check.
 
+## October 11: Death Closes The Old Window
+
+The death loop had a second stale-state edge. Inventory could keep the UI
+cursor through recovery, and an open vendor panel could still buy an item
+with Enter after the player respawned back in the village. A new isolated
+controller/HUD test caught that exact 8-copper purchase before the repair.
+The controller now asks the HUD to close its interactive panels at death and
+respawn, using their existing cleanup paths and restoring game input without
+moving service or save authority. The no-hot-reload Xcode 26.1.1 build
+linked; all 114 native tests, 31 fresh package validators, and 16 live-world
+suites passed. Clean PIE reached the Human Warrior HUD, but the physical
+death-and-cursor handoff still needs a player check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

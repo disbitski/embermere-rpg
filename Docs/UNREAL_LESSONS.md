@@ -2,6 +2,28 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Death Must Retire Service UI And Its Input Mode
+
+The October 11 regression began with an open Inventory during player death.
+The old controller left both the panel and GameAndUI cursor/click routing
+active. More importantly, an old vendor panel survived respawn and a later
+Enter spent copper and delivered an item from the village spawn. Close all
+interactive HUD panels through their existing close methods at death and
+again at respawn entry, then refresh the input mode; do not change vendor or
+trainer transaction authority just to paper over a stale UI route. A spawned
+unbegun world does not prove a dynamic `OnDied` dispatch, so the fixture
+explicitly invokes the controller callback and leaves physical feel to PIE.
+
+The final live trace gate also exposed an Output Log input trap: character-by-
+character Slate typing in `Cmd` mode autocomplete-prefixed `py`, making an
+otherwise valid command `py py ...`. An exit-less syntax error contaminated
+that editor session. Switch the Unreal-owned Cmd selector to `Python`, clear
+the textbox, and execute the validator with `runpy.run_path(path,
+run_name='__main__')`; require the exact suite marker. Relaunch before final
+acceptance if any `LogPython: Error` occurred, then rerun the suites in a
+clean editor session. Do not treat a successful marker in an earlier dirty
+session as a clean final gate.
+
 ## An Isolated Death Fixture Must Actually Enter The Handler
 
 The October 10 target-cleanup test initially bound a dynamic `OnDied` callback

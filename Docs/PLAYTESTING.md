@@ -533,6 +533,13 @@ Warrior fallback without rewriting the old file.
     dies: its target frame and cyan ring must clear during the death hold and
     stay clear at village respawn until a fresh Tab selection. The native
     regression covers controller state, not this physical combat presentation.
+45. During a voluntary death/recovery loop, keep Inventory open as death
+    occurs. It should close during the death hold, release the cursor and UI
+    click routing, and return to immediate normal camera/game input on village
+    recovery. If a vendor or trainer panel was open instead, it should close
+    and Enter after respawn must not buy or train remotely. The isolated native
+    regression covers the controller callbacks and stale actions, not the
+    physical cursor or painted death transition.
 
 ### Automated Solo-Pull Clearance
 
