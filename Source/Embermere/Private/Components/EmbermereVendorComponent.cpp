@@ -2,6 +2,8 @@
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereWalletComponent.h"
 #include "Data/EmbermereItemData.h"
+#include "Game/EmbermerePlayerController.h"
+#include "GameFramework/Pawn.h"
 
 UEmbermereVendorComponent::UEmbermereVendorComponent()
 {
@@ -56,6 +58,31 @@ int32 UEmbermereVendorComponent::GetRemainingQuantity(int32 StockIndex) const
 	return RemainingQuantities.IsValidIndex(StockIndex) ? RemainingQuantities[StockIndex] : 0;
 }
 
+bool UEmbermereVendorComponent::IsCustomerWithinInteractionRadius(
+	const UEmbermereInventoryComponent* Inventory,
+	const UEmbermereWalletComponent* Wallet) const
+{
+	const AActor* ServiceActor = GetOwner();
+	const AActor* CustomerActor = Inventory ? Inventory->GetOwner() : nullptr;
+	// Standalone rule fixtures have no separate world service actor.
+	if (!ServiceActor || ServiceActor == CustomerActor)
+	{
+		return true;
+	}
+
+	if (!CustomerActor || !Wallet || Wallet->GetOwner() != CustomerActor)
+	{
+		return false;
+	}
+
+	const APawn* CustomerPawn = Cast<APawn>(CustomerActor);
+	const AEmbermerePlayerController* Controller = CustomerPawn
+		? Cast<AEmbermerePlayerController>(CustomerPawn->GetController()) : nullptr;
+	const float Radius = Controller ? Controller->InteractionRadius : 0.0f;
+	return FMath::IsFinite(Radius) && Radius > 0.0f &&
+		FVector::DistSquared(ServiceActor->GetActorLocation(), CustomerActor->GetActorLocation()) <= FMath::Square(Radius);
+}
+
 EEmbermereVendorPurchaseResult UEmbermereVendorComponent::CanPurchase(
 	int32 StockIndex,
 	int32 Quantity,
@@ -66,6 +93,10 @@ EEmbermereVendorPurchaseResult UEmbermereVendorComponent::CanPurchase(
 	if (Quantity <= 0 || !Inventory || !Wallet || !GetStockEntry(StockIndex, Entry) || !Entry.IsValid())
 	{
 		return EEmbermereVendorPurchaseResult::InvalidRequest;
+	}
+	if (!IsCustomerWithinInteractionRadius(Inventory, Wallet))
+	{
+		return EEmbermereVendorPurchaseResult::OutOfRange;
 	}
 
 	const int32 Remaining = GetRemainingQuantity(StockIndex);
@@ -146,6 +177,8 @@ FText UEmbermereVendorComponent::GetPurchaseResultText(
 		return FText::FromString(TEXT("You do not have enough copper."));
 	case EEmbermereVendorPurchaseResult::InventoryFull:
 		return FText::FromString(TEXT("Your inventory cannot hold that purchase."));
+	case EEmbermereVendorPurchaseResult::OutOfRange:
+		return FText::FromString(TEXT("Move closer to the vendor."));
 	default:
 		return FText::FromString(TEXT("That purchase is unavailable."));
 	}
@@ -160,6 +193,10 @@ EEmbermereVendorSellResult UEmbermereVendorComponent::CanSell(
 	if (!Item || Quantity <= 0 || !Inventory || !Wallet)
 	{
 		return EEmbermereVendorSellResult::InvalidRequest;
+	}
+	if (!IsCustomerWithinInteractionRadius(Inventory, Wallet))
+	{
+		return EEmbermereVendorSellResult::OutOfRange;
 	}
 
 	if (Item->Category == EEmbermereItemCategory::Quest || Item->SellValueCopper <= 0)
@@ -243,6 +280,8 @@ FText UEmbermereVendorComponent::GetSellResultText(
 		return FText::FromString(FString::Printf(TEXT("%s cannot be sold."), *ItemName));
 	case EEmbermereVendorSellResult::WalletFull:
 		return FText::FromString(TEXT("Your purse cannot hold more copper."));
+	case EEmbermereVendorSellResult::OutOfRange:
+		return FText::FromString(TEXT("Move closer to the vendor."));
 	default:
 		return FText::FromString(TEXT("That sale is unavailable."));
 	}
@@ -276,6 +315,10 @@ EEmbermereVendorBuybackResult UEmbermereVendorComponent::CanBuyback(
 	if (Quantity <= 0 || !Inventory || !Wallet || !GetBuybackEntry(BuybackIndex, Entry))
 	{
 		return EEmbermereVendorBuybackResult::InvalidRequest;
+	}
+	if (!IsCustomerWithinInteractionRadius(Inventory, Wallet))
+	{
+		return EEmbermereVendorBuybackResult::OutOfRange;
 	}
 
 	if (Entry.Quantity < Quantity)
@@ -351,6 +394,8 @@ FText UEmbermereVendorComponent::GetBuybackResultText(
 		return FText::FromString(TEXT("You do not have enough copper to buy that item back."));
 	case EEmbermereVendorBuybackResult::InventoryFull:
 		return FText::FromString(TEXT("Your inventory cannot hold that buyback."));
+	case EEmbermereVendorBuybackResult::OutOfRange:
+		return FText::FromString(TEXT("Move closer to the vendor."));
 	default:
 		return FText::FromString(TEXT("That buyback is unavailable."));
 	}

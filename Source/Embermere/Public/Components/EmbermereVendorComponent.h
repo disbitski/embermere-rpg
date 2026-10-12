@@ -15,7 +15,8 @@ enum class EEmbermereVendorPurchaseResult : uint8
 	InvalidRequest,
 	OutOfStock,
 	InsufficientFunds,
-	InventoryFull
+	InventoryFull,
+	OutOfRange
 };
 
 UENUM(BlueprintType)
@@ -25,7 +26,8 @@ enum class EEmbermereVendorSellResult : uint8
 	InvalidRequest,
 	NotOwned,
 	Unsellable,
-	WalletFull
+	WalletFull,
+	OutOfRange
 };
 
 UENUM(BlueprintType)
@@ -35,7 +37,8 @@ enum class EEmbermereVendorBuybackResult : uint8
 	InvalidRequest,
 	OutOfStock,
 	InsufficientFunds,
-	InventoryFull
+	InventoryFull,
+	OutOfRange
 };
 
 USTRUCT(BlueprintType)
@@ -172,5 +175,8 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	bool IsCustomerWithinInteractionRadius(
+		const UEmbermereInventoryComponent* Inventory,
+		const UEmbermereWalletComponent* Wallet) const;
 	void RecordBuyback(UEmbermereItemData* Item, int32 Quantity, int32 UnitPriceCopper);
 };

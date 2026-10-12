@@ -56,8 +56,8 @@ The repo currently contains the C++ gameplay scaffold for:
   authority actor
 - a separate data-driven Fenwatch vendor service with player copper,
   finite/unlimited stock, complete buy/sell/buyback preflight, rollback-safe
-  transactions, native fixed stock UI, inventory/chat feedback, and no art
-  ownership
+  transactions, revalidated service range at transaction time, native fixed
+  stock UI, inventory/chat feedback, and no art ownership
 - a separate data-driven Fenwatch trainer service with stable lesson IDs,
   authored level gates and repeatability, complete level/currency/XP preflight,
   rollback-safe progression, two visible Combat Drills tiers in a fixed native

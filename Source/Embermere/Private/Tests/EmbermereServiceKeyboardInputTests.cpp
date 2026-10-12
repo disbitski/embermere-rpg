@@ -3,6 +3,7 @@
 #include "Characters/EmbermereCharacter.h"
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Characters/EmbermerePracticeTargetActor.h"
+#include "Characters/EmbermereVendorServiceActor.h"
 #include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereHotbarComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
@@ -116,6 +117,86 @@ struct FEmbermereServiceKeyboardFixture
 		Controller->RefreshInteractiveInputMode();
 	}
 };
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereVendorRangeTransactionsTest,
+	"Embermere.Vendor.RangeTransactions",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereVendorRangeTransactionsTest::RunTest(const FString& Parameters)
+{
+	UEmbermereVendorStockData* Stock = LoadObject<UEmbermereVendorStockData>(nullptr,
+		TEXT("/Game/Data/Vendors/DA_FenwatchQuartermasterStock.DA_FenwatchQuartermasterStock"));
+	if (!TestNotNull(TEXT("Saved vendor stock exists"), Stock) ||
+		!TestTrue(TEXT("Tonic stock row exists"), Stock && Stock->Entries.IsValidIndex(0)))
+	{
+		return false;
+	}
+
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->Possess(F.Character);
+	F.World->AddController(F.Controller);
+	F.Character->SetActorLocation(FVector::ZeroVector);
+	AEmbermereVendorServiceActor* Service = F.World->SpawnActor<AEmbermereVendorServiceActor>();
+	if (!TestNotNull(TEXT("Art-free vendor service exists"), Service) ||
+		!TestNotNull(TEXT("Vendor transaction owner exists"), Service ? Service->Vendor.Get() : nullptr))
+	{
+		return false;
+	}
+	Service->SetActorLocation(FVector(300.0f, 0.0f, 0.0f));
+	Service->Vendor->SetStockData(Stock);
+	UEmbermereVendorComponent* Vendor = Service->Vendor;
+	UEmbermereInventoryComponent* Inventory = F.Character->Inventory;
+	UEmbermereWalletComponent* Wallet = F.Character->Wallet;
+	UEmbermereItemData* Tonic = Stock->Entries[0].Item;
+	TestTrue(TEXT("Pawn is controlled for the range fixture"), F.Character->GetController() == F.Controller);
+	TestEqual(TEXT("Nearby purchase remains eligible"),
+		Vendor->CanPurchase(0, 1, Inventory, Wallet), EEmbermereVendorPurchaseResult::Success);
+	TestEqual(TEXT("Nearby purchase succeeds"),
+		Vendor->TryPurchase(0, 1, Inventory, Wallet), EEmbermereVendorPurchaseResult::Success);
+	TestEqual(TEXT("Nearby purchase costs exactly 8 copper"), Wallet->Copper, 32);
+	TestEqual(TEXT("Nearby purchase delivers one tonic"), Inventory->GetItemQuantity(Tonic), 1);
+
+	F.Character->SetActorLocation(FVector(1000.0f, 0.0f, 0.0f));
+	TestEqual(TEXT("Distant purchase preflight rejects for range"),
+		Vendor->CanPurchase(0, 1, Inventory, Wallet), EEmbermereVendorPurchaseResult::OutOfRange);
+	const EEmbermereVendorPurchaseResult DistantPurchase = Vendor->TryPurchase(0, 1, Inventory, Wallet);
+	TestEqual(TEXT("Distant purchase transaction rejects for range"),
+		DistantPurchase, EEmbermereVendorPurchaseResult::OutOfRange);
+	TestEqual(TEXT("Distant purchase gives a useful reason"),
+		Vendor->GetPurchaseResultText(DistantPurchase, 0, 1).ToString(), FString(TEXT("Move closer to the vendor.")));
+	TestEqual(TEXT("Distant purchase preserves copper"), Wallet->Copper, 32);
+	TestEqual(TEXT("Distant purchase preserves stock delivery"), Inventory->GetItemQuantity(Tonic), 1);
+	const EEmbermereVendorSellResult DistantSale = Vendor->TrySell(Tonic, 1, Inventory, Wallet);
+	TestEqual(TEXT("Distant sale rejects for range"), DistantSale, EEmbermereVendorSellResult::OutOfRange);
+	TestEqual(TEXT("Distant sale gives the same useful reason"),
+		Vendor->GetSellResultText(DistantSale, Tonic, 1).ToString(), FString(TEXT("Move closer to the vendor.")));
+	TestEqual(TEXT("Distant sale preserves copper"), Wallet->Copper, 32);
+	TestEqual(TEXT("Distant sale preserves tonic"), Inventory->GetItemQuantity(Tonic), 1);
+	TestEqual(TEXT("Distant sale creates no buyback"), Vendor->GetBuybackEntryCount(), 0);
+
+	F.Character->SetActorLocation(FVector::ZeroVector);
+	TestEqual(TEXT("Nearby sale still succeeds"),
+		Vendor->TrySell(Tonic, 1, Inventory, Wallet), EEmbermereVendorSellResult::Success);
+	TestEqual(TEXT("Nearby sale credits exact value"), Wallet->Copper, 35);
+	TestEqual(TEXT("Nearby sale records buyback"), Vendor->GetBuybackEntryCount(), 1);
+	F.Character->SetActorLocation(FVector(1000.0f, 0.0f, 0.0f));
+	const EEmbermereVendorBuybackResult DistantBuyback = Vendor->TryBuyback(0, 1, Inventory, Wallet);
+	TestEqual(TEXT("Distant buyback rejects for range"), DistantBuyback, EEmbermereVendorBuybackResult::OutOfRange);
+	TestEqual(TEXT("Distant buyback gives the same useful reason"),
+		Vendor->GetBuybackResultText(DistantBuyback, Tonic, 3, 1).ToString(),
+		FString(TEXT("Move closer to the vendor.")));
+	TestEqual(TEXT("Distant buyback preserves copper"), Wallet->Copper, 35);
+	TestEqual(TEXT("Distant buyback preserves entry"), Vendor->GetBuybackEntryCount(), 1);
+	TestEqual(TEXT("Distant buyback delivers no tonic"), Inventory->GetItemQuantity(Tonic), 0);
+	F.Character->SetActorLocation(FVector::ZeroVector);
+	TestEqual(TEXT("Returning nearby permits buyback"),
+		Vendor->TryBuyback(0, 1, Inventory, Wallet), EEmbermereVendorBuybackResult::Success);
+	TestEqual(TEXT("Buyback debits exact recorded price"), Wallet->Copper, 32);
+	TestEqual(TEXT("Buyback returns one tonic"), Inventory->GetItemQuantity(Tonic), 1);
+	TestEqual(TEXT("Range transactions cannot grant XP"), F.Character->Stats->CurrentExperience, 0);
+	TestEqual(TEXT("Range transactions cannot change quests"), F.Character->QuestLog->QuestStates.Num(), 0);
+	return !HasAnyErrors();
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereDeathPanelHandoffTest,
 	"Embermere.Input.DeathPanelHandoff",

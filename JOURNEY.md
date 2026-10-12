@@ -3762,6 +3762,19 @@ linked; all 114 native tests, 31 fresh package validators, and 16 live-world
 suites passed. Clean PIE reached the Human Warrior HUD, but the physical
 death-and-cursor handoff still needs a player check.
 
+## October 12: A Merchant Must Stay Nearby
+
+Opening Fenwatch Supplies required being near the quartermaster, but an
+already-open panel could still transact after the player moved away. A new
+spawned-service test caught remote buy, sell, and buyback before any wallet
+or item rule changed. The vendor service now rechecks the possessed
+customer's distance at each transaction, using the controller's existing F
+radius, and gives the same clear result for all three remote requests. Nearby
+commerce still follows the 40-to-32-to-35-to-32 copper loop. Xcode 26.1.1
+linked the no-hot-reload build; all 115 native tests, 31 package validators,
+and 16 live-world suites passed. The actual painted panel and physical
+walk-away path remain a player check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

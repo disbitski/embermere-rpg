@@ -19,7 +19,7 @@ vertical slice of that contract.
   owns copper reward value.
 - `UEmbermerePlayerHudWidget` presents stock, selected inventory, and buyback
   state and sends buy, sell, and buyback requests. It does not decide price,
-  stock, sellability, affordability, ownership, or capacity.
+  stock, sellability, affordability, ownership, capacity, or distance.
 
 Changing the quartermaster mesh cannot change prices. Changing stock cannot
 move the merchant. Replacing the HUD cannot bypass transaction rules.
@@ -79,9 +79,11 @@ Saved economy values currently define:
 Every purchase preflights the complete request before mutation:
 
 1. Valid vendor, stock row, item, quantity, and non-negative price.
-2. Available finite or unlimited stock.
-3. Exact player affordability.
-4. Inventory capacity for the complete quantity.
+2. For a separate world service actor, a possessed customer with matching
+   inventory/wallet owners inside the controller's existing 3D F radius.
+3. Available finite or unlimited stock.
+4. Exact player affordability.
+5. Inventory capacity for the complete quantity.
 
 Commit then spends copper, adds the complete item quantity, and decrements
 finite stock only after both mutations succeed. An unexpected inventory add
@@ -93,10 +95,11 @@ and inventory without partial state or duplication.
 Every sale preflights before mutation:
 
 1. Valid item, positive quantity, inventory, and wallet.
-2. A positive data-driven sell value and a non-quest item category.
-3. Exact ownership of the requested quantity.
-4. Safe total-value arithmetic and enough wallet headroom.
-5. Safe aggregation into the bounded buyback history.
+2. The same world-service/customer range and ownership check.
+3. A positive data-driven sell value and a non-quest item category.
+4. Exact ownership of the requested quantity.
+5. Safe total-value arithmetic and enough wallet headroom.
+6. Safe aggregation into the bounded buyback history.
 
 Commit credits the exact sale value, removes the exact item identity, then
 records buyback only after both mutations succeed. An unexpected remove failure
@@ -109,14 +112,21 @@ offers the newest entry first and records the item identity, quantity, and exact
 sale-unit price.
 
 1. Validate the entry and requested quantity.
-2. Preflight exact affordability and complete inventory capacity.
-3. Spend the exact recorded price.
-4. Restore the exact item identity without a fake loot notification.
-5. Decrement or remove the entry only after successful delivery.
+2. Recheck the same world-service/customer range and ownership.
+3. Preflight exact affordability and complete inventory capacity.
+4. Spend the exact recorded price.
+5. Restore the exact item identity without a fake loot notification.
+6. Decrement or remove the entry only after successful delivery.
 
 An unexpected add failure refunds the exact charge. Full inventory,
 insufficient funds, missing entries, and exhausted quantities preserve all
 owners unchanged.
+
+All three remote rejections return `OutOfRange` and exact service-owned
+`Move closer to the vendor.` copy. This is checked again at commit time via
+the existing `Can*` preflight, even if a panel opened legitimately earlier.
+The HUD may display the reason but cannot override it. Standalone rule tests
+without a separate world service keep their existing transaction behavior.
 
 ## Persistence And Validation
 
@@ -142,6 +152,7 @@ Focused automation:
 
 - `Embermere.Economy.FenwatchRewardsAndValues`
 - `Embermere.Vendor.TransactionRules`
+- `Embermere.Vendor.RangeTransactions`
 - `Embermere.Vendor.SellBuybackTransactions`
 - `Embermere.Vendor.ServiceContract`
 - `Embermere.Vendor.FenwatchStockData`
@@ -162,6 +173,13 @@ The fixed panel, bottom-left chat, inventory stack count, sold-out row, latest
 buyback row, and result copy all updated without footer or hotbar overlap. The
 subsequent persistence pass retained this sequence and brought the full suite
 to `40/40` automation tests.
+
+The October 12 isolated spawned-service regression first reproduced distant
+buy, sell, and buyback mutation. After the range preflight, nearby transactions
+still complete the original `40 -> 32 -> 35 -> 32` copper sequence, while
+distant requests preserve wallet, tonic quantity, and buyback history. This
+does not prove physical movement with the panel open; that direct input and
+painted-feedback check remains open.
 
 ## Current Limits
 

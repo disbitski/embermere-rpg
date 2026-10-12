@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-11
+Last updated: 2026-10-12
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,27 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 12 Handoff
+
+The quartermaster's initial F interaction used the controller's 350 cm
+radius, but an already-open panel could buy, sell, or buy back after the
+customer moved away. `Embermere.Vendor.RangeTransactions` first failed on
+all three distant mutations in an isolated spawned-service world. The
+art-free vendor component now rechecks distance and matching customer owners
+against the existing controller radius in each transaction preflight. It
+returns `OutOfRange` and `Move closer to the vendor.` without mutating wallet,
+inventory, stock, buyback, XP, or quests; nearby transactions retain the
+`40 -> 32 -> 35 -> 32` loop. No HUD, art, map, or save owner moved.
+Process-local Xcode 26.1.1 no-hot-reload compilation linked. Final fresh
+automation passed **115/115** without warnings/failures/skips; the isolated
+31-package aggregate passed skeletal-material, placed-Prowler loot,
+**53 Fab / 32 original-art**, and `validators=31` markers without
+`LogPython: Error`; all **16** live suites passed. Clean floating PIE
+started/stopped on the normal picker and the map is All Saved outside PIE on
+real MCP 8123. Protected hashes remain exact. The test moves a pawn in an
+isolated world, not through physical player input; painted walk-away behavior
+remains a direct user gate. See `Docs/DAILY_BUILD_2026-10-12.md`.
 
 ## October 11 Handoff
 

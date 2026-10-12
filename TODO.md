@@ -6,6 +6,22 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 12 vendor range preflight: an isolated spawned-service regression
+  reproduced buy, sell, and buyback succeeding after the player moved beyond
+  the controller's 350 cm F radius. The art-free vendor component now checks
+  its service-to-possessed-customer distance before each transaction and
+  returns `OutOfRange` / `Move closer to the vendor.` without mutation.
+  Returning in range retains the original 40 -> 32 -> 35 -> 32 copper loop.
+  The focused regression was red on the old service and green after repair.
+  Process-local Xcode 26.1.1 no-hot-reload compilation linked; final
+  discovery/full automation passed **115/115** without failures, warnings,
+  or skips. The fresh GUI-down **31-package** aggregate retained exact
+  skeletal-material, placed-Prowler loot, **53 Fab / 32 original-art**, and
+  `validators=31` markers with no `LogPython: Error`; all **16** initialized-
+  world suites passed in a clean final editor session. Floating PIE
+  started/stopped; the map is All Saved outside PIE on real MCP 8123. Both
+  protected hashes stayed exact. The fixture moves a pawn in an isolated
+  world, not through physical input. See `Docs/DAILY_BUILD_2026-10-12.md`.
 - October 11 death-panel/input handoff: a new native regression reproduced
   Inventory retaining cursor/UI click routing through death and recovery, and
   a stale vendor panel accepting Enter after respawn to spend 8 copper and
@@ -1940,6 +1956,13 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- On a voluntary quartermaster visit, open Fenwatch Supplies in range, then
+  leave the service radius while the panel remains open if normal input
+  permits. Buy, Sell, and Buyback must preserve copper/items/stock while
+  distant and report `Move closer to the vendor.`; returning nearby should
+  restore normal transactions. The isolated service test is not a physical
+  movement or painted-UI proof. Do not force saved-state changes merely to
+  manufacture the gate or repeat this completed range fix.
 - During a voluntary real death/recovery loop, leave Inventory open before
   death and confirm it closes, the cursor/UI click routing clears, and the
   recovered character gets immediate normal camera/game input. If a vendor or

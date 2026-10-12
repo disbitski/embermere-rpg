@@ -667,6 +667,12 @@ The outcome/presentation authority boundary is in
 10. Retain the visual/service split: the visible quartermaster is non-colliding
    art; the co-located interaction marker and stock come from the invisible
    service actor. Neither should obstruct Mara, the chest, or traversal.
+11. If normal input allows the panel to remain open while leaving the
+    quartermaster's 350 cm service radius, try Buy, Sell, and Buyback while
+    distant. Each must leave copper, items, stock, and buyback unchanged and
+    report `Move closer to the vendor.` Returning in range should permit the
+    original transaction. The native isolated-service test covers the rule,
+    not physical movement or final painted panel behavior.
 
 The full ownership and rollback contract is in
 [VENDOR_SERVICE_CONTRACT.md](VENDOR_SERVICE_CONTRACT.md).
