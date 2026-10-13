@@ -2,6 +2,19 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Recovery Eligibility Must Agree Across Health, Mana, And Item UI
+
+The October 13 consumable regression found that `Heal` returned zero for a
+dead character while `RestoreMana` still increased mana. A two-effect Marsh
+Tonic therefore counted as successful and left the bag during the death
+hold, even though health stayed at zero. Stats now rejects dead mana
+restoration and remains the owner of the shared `NeedsVitalRecovery` result.
+Both the inventory Use action and its enabled state consume that result;
+neither should independently infer eligibility from a single missing
+resource. Test direct resource APIs and the actual item action together,
+then verify the retained item still works after revival. Do not call the
+isolated fixture a physical death/tonic playtest.
+
 ## Death Must Retire Service UI And Its Input Mode
 
 The October 11 regression began with an open Inventory during player death.

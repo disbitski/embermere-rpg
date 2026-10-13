@@ -4588,6 +4588,48 @@ bool FEmbermereConsumableUseTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereDeadConsumableRecoveryTest,
+	"Embermere.Inventory.DeadConsumableRecovery",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereDeadConsumableRecoveryTest::RunTest(const FString& Parameters)
+{
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	UEmbermereInventoryComponent* Inventory = NewObject<UEmbermereInventoryComponent>();
+	UEmbermereStatsComponent* Stats = NewObject<UEmbermereStatsComponent>();
+	UEmbermereItemData* Tonic = NewObject<UEmbermereItemData>();
+	Tonic->ItemId = TEXT("MarshTonic");
+	Tonic->DisplayName = FText::FromString(TEXT("Marsh Tonic"));
+	Tonic->Category = EEmbermereItemCategory::Consumable;
+	Tonic->MaxStack = 5;
+	Tonic->ConsumableEffects.HealHealth = 25.0f;
+	Tonic->ConsumableEffects.RestoreMana = 10.0f;
+	Hud->Inventory = Inventory;
+	Hud->Stats = Stats;
+	Stats->InitializeVitals();
+	TestTrue(TEXT("Mana can be spent while alive"), Stats->SpendMana(20.0f));
+	TestTrue(TEXT("Tonic enters the bag"), Inventory->AddItem(Tonic, 1));
+	Stats->ForceDeath();
+	TestTrue(TEXT("Fixture has missing mana during death hold"), Stats->IsDead() && Stats->CurrentMana < Stats->MaxMana);
+
+	const float DeadMana = Stats->CurrentMana;
+	TestEqual(TEXT("Dead mana cannot be restored directly"), Stats->RestoreMana(10.0f), 0.0f);
+	TestEqual(TEXT("Direct rejected restore preserves mana"), Stats->CurrentMana, DeadMana);
+	TestFalse(TEXT("Dead character cannot use tonic"), Hud->ActivateSelectedInventoryItem());
+	TestEqual(TEXT("Dead tonic use preserves health"), Stats->CurrentHealth, 0.0f);
+	TestEqual(TEXT("Dead tonic use preserves mana"), Stats->CurrentMana, DeadMana);
+	TestEqual(TEXT("Dead tonic use preserves item"), Inventory->GetItemQuantity(Tonic), 1);
+	TestEqual(TEXT("Rejected use posts no success chat"), Hud->GetChatMessageCount(), 0);
+
+	Stats->InitializeVitals();
+	TestTrue(TEXT("Mana can be spent after revival"), Stats->SpendMana(20.0f));
+	TestTrue(TEXT("Living character can use retained tonic"), Hud->ActivateSelectedInventoryItem());
+	TestEqual(TEXT("Living tonic restores mana"), Stats->CurrentMana, Stats->MaxMana - 10.0f);
+	TestEqual(TEXT("Living tonic consumes one item"), Inventory->GetItemQuantity(Tonic), 0);
+	return !HasAnyErrors();
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereInventoryCapacityTransactionsTest,
 	"Embermere.Inventory.CapacityTransactions",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

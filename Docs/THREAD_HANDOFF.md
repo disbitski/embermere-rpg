@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-12
+Last updated: 2026-10-13
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,30 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 13 Handoff
+
+A normal Human Warrior start exposed no new visual issue, so a review of the
+first tonic-use path found a concrete dead-state rule gap: `Heal` rejected a
+dead character, but `RestoreMana` did not. With missing mana, a tonic could
+therefore be consumed during the death hold and post a false success line.
+`Embermere.Inventory.DeadConsumableRecovery` reproduced direct dead mana
+restoration and tonic depletion before repair. Stats now rejects dead mana
+restoration. The HUD's consumable Use preflight and enabled state read the
+existing Stats-owned `NeedsVitalRecovery` result, preserving health, mana,
+item quantity, and chat when dead; the retained tonic still works after
+revival. Inventory remains the stack authority, and no quest, loot, save,
+equipment, art, or map owner moved.
+
+Process-local Xcode 26.1.1 `-NoHotReloadFromIDE` compiled and linked. Final
+fresh automation passed **116/116** without failures/warnings/skips; the
+GUI-down 31-package aggregate passed exact skeletal-material,
+placed-Prowler loot, **53 Fab / 32 original-art**, and `validators=31`
+markers with no `LogPython: Error`; all **16** live suites passed cleanly.
+Floating PIE reached the default Human Warrior HUD and stopped; the map is
+All Saved outside PIE on real MCP 8123. Protected hashes stayed exact.
+Physical death-hold Use and painted disabled-button acceptance remain user
+checks. See `Docs/DAILY_BUILD_2026-10-13.md`.
 
 ## October 12 Handoff
 

@@ -540,6 +540,12 @@ Warrior fallback without rewriting the old file.
     and Enter after respawn must not buy or train remotely. The isolated native
     regression covers the controller callbacks and stale actions, not the
     physical cursor or painted death transition.
+46. With a Marsh Tonic in the bag and mana missing, reopen Inventory during a
+    voluntary death hold if normal input permits. `Use` should be disabled;
+    a direct action must not restore mana, consume the item, or claim success
+    in chat. After village recovery, spend mana and confirm the retained tonic
+    can be used normally. Native automation covers the state rule, not this
+    physical input or painted button acceptance.
 
 ### Automated Solo-Pull Clearance
 

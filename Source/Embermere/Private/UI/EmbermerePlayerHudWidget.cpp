@@ -1880,7 +1880,9 @@ bool UEmbermerePlayerHudWidget::ActivateInventoryItem(UEmbermereItemData* Item)
 
 	if (Item->IsConsumable())
 	{
-		if (!Stats)
+		if (!Stats || !Stats->NeedsVitalRecovery(
+			Item->ConsumableEffects.HealHealth > 0.0f,
+			Item->ConsumableEffects.RestoreMana > 0.0f))
 		{
 			return false;
 		}
@@ -4981,8 +4983,9 @@ void UEmbermerePlayerHudWidget::RefreshInventoryWindow()
 			const bool bCanEquip = SelectedStack.Item->IsEquippable() && Equipment &&
 				Equipment->CanEquip(SelectedStack.Item, Stats ? Stats->Level : 1);
 			const bool bCanConsume = SelectedStack.Item->IsConsumable() && Stats &&
-				((SelectedStack.Item->ConsumableEffects.HealHealth > 0.0f && Stats->CurrentHealth < Stats->MaxHealth) ||
-				 (SelectedStack.Item->ConsumableEffects.RestoreMana > 0.0f && Stats->CurrentMana < Stats->MaxMana));
+				Stats->NeedsVitalRecovery(
+					SelectedStack.Item->ConsumableEffects.HealHealth > 0.0f,
+					SelectedStack.Item->ConsumableEffects.RestoreMana > 0.0f);
 			const bool bSupportsAction = SelectedStack.Item->IsEquippable() || SelectedStack.Item->IsConsumable();
 			InventoryActionButton->SetVisibility(bSupportsAction ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 			InventoryActionButton->SetIsEnabled(bCanEquip || bCanConsume);

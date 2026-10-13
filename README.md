@@ -129,6 +129,9 @@ The repo currently contains the C++ gameplay scaffold for:
   shaft channel and a short mint bloom confirms committed recovery without
   owning eligibility, timing, mutation, chat, or persistence
 - structured inventory/equipment window with clickable and draggable item rows, a fixed project-owned icon-bearing fantasy drag token, ten clickable/drop-target paper-doll slots over a data-driven illustrated adventurer backdrop, gold/red drop feedback, equipment-to-bag return, aggregate bonuses, cursor-aware game/UI input, capacity, selected-item effects, icon-bearing reward feedback, empty/reward states, `[`/`]` inspection cycling, `I` show/hide behavior, transactional Equip/Unequip, and consumable Use actions
+- consumable recovery that uses Stats-owned eligibility for both its Use
+  action and button, preserving tonic stacks and mana during death hold while
+  allowing normal recovery after respawn
 - data-driven project-owned item and equipment-slot icons with explicit soft
   item references, category/missing-art fallbacks, fixed row/detail/slot sizes,
   deterministic source generation, and durable Unreal texture packages

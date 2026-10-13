@@ -183,7 +183,7 @@ bool UEmbermereStatsComponent::SpendMana(float ManaCost)
 
 float UEmbermereStatsComponent::RestoreMana(float ManaAmount)
 {
-	if (ManaAmount <= 0.0f)
+	if (ManaAmount <= 0.0f || IsDead())
 	{
 		return 0.0f;
 	}

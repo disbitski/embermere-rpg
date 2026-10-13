@@ -6,6 +6,23 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 13 dead-state consumable recovery: a new native regression proved
+  that `RestoreMana` could raise mana after death and a Marsh Tonic with
+  missing mana could be consumed during the death hold, despite `Heal`
+  rejecting dead health recovery. `UEmbermereStatsComponent` now rejects
+  dead mana restoration; the existing inventory Use action and button both
+  consult Stats-owned `NeedsVitalRecovery` before applying a consumable.
+  The focused test was red on the old path, then green for zero health/mana/
+  item/chat mutation while dead and normal tonic use after revival. The
+  process-local Xcode 26.1.1 no-hot-reload build linked; final full automation
+  passed **116/116** without failures, warnings, or skips. A fresh GUI-down
+  **31-package** aggregate retained skeletal-material, placed-Prowler loot,
+  **53 Fab / 32 original-art**, and `validators=31` markers without
+  `LogPython: Error`; all **16** live suites passed in a clean editor session.
+  Clean floating PIE reached the normal Human Warrior HUD and stopped. The
+  map is All Saved outside PIE with real MCP 8123; both protected hashes
+  stayed exact. The test does not prove physical death-hold tonic input or
+  painted button state. See `Docs/DAILY_BUILD_2026-10-13.md`.
 - October 12 vendor range preflight: an isolated spawned-service regression
   reproduced buy, sell, and buyback succeeding after the player moved beyond
   the controller's 350 cm F radius. The art-free vendor component now checks
@@ -1956,6 +1973,13 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary real death/recovery playtest with a Marsh Tonic and
+  missing mana, check that reopening Inventory during the death hold cannot
+  use or consume the tonic and that its Use control is disabled; after village
+  recovery the retained tonic should work normally. The native test proves
+  Stats and direct action behavior, not physical input or painted UI. Do not
+  force a quest, combat result, or protected save load to manufacture it, and
+  do not repeat this completed dead-recovery fix.
 - On a voluntary quartermaster visit, open Fenwatch Supplies in range, then
   leave the service radius while the panel remains open if normal input
   permits. Buy, Sell, and Buyback must preserve copper/items/stock while

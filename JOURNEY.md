@@ -3775,6 +3775,17 @@ linked the no-hot-reload build; all 115 native tests, 31 package validators,
 and 16 live-world suites passed. The actual painted panel and physical
 walk-away path remain a player check.
 
+## October 13: A Tonic Waits For The Living
+
+The early tonic loop revealed a small but real death-state mismatch: health
+recovery refused a fallen character, while mana recovery still worked. A
+tonic could disappear during the death hold just to refill mana. We made a
+test fail on both direct mana restoration and item consumption, then had the
+item action and its button read the Stats recovery rule. The tonic stays in
+the bag until the character can use it. Xcode 26.1.1 linked the no-hot-reload
+build, and all 116 native tests, 31 package validators, and 16 live-world
+suites passed. A physical death-hold check remains for the player.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

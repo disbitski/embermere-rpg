@@ -32,6 +32,10 @@ rules. Click, keyboard, and future controller interaction remain supported.
   `128x160` project-owned texture. It resolves through the same shared data
   asset and sits in a hit-test-invisible overlay beneath the unchanged slot
   grid.
+- Consumable Use and its enabled state now read the same Stats-owned
+  `NeedsVitalRecovery` preflight. A dead character cannot restore mana or
+  consume a tonic during the death hold; the item remains usable after
+  recovery. The inventory still owns item removal and stack capacity.
 
 ## Drag Payload
 
@@ -126,6 +130,8 @@ item against the live inventory when the drop occurs and reject stale payloads.
 - A stale payload is rejected after its item leaves the bag.
 - Tooltips and comparison text update after every successful transaction.
 - Click, keyboard inspection, and action-button behavior remain unchanged.
+- During death hold, a tonic with missing mana cannot be used or consumed;
+  after recovery, the retained tonic can restore missing resources normally.
 - Sorting orders equipment before consumables and quest/misc items, preserves
   alphabetical and equal-key stability, and keeps the inspected item selected.
 - The Sort control is unavailable while a bag press or drag is active.
