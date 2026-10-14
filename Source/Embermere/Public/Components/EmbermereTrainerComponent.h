@@ -16,7 +16,8 @@ enum class EEmbermereTrainingResult : uint8
 	LevelTooLow,
 	InsufficientFunds,
 	ProgressionCap,
-	AlreadyCompleted
+	AlreadyCompleted,
+	OutOfRange
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEmbermereTrainingCompletedSignature);
@@ -60,5 +61,9 @@ public:
 	FText GetTrainingResultText(EEmbermereTrainingResult Result, int32 OfferingIndex) const;
 
 private:
+	bool IsCustomerWithinInteractionRadius(
+		const UEmbermereStatsComponent* Stats,
+		const UEmbermereWalletComponent* Wallet) const;
+
 	TSet<FName> CompletedNonRepeatableOfferingIds;
 };

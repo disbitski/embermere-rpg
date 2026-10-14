@@ -1,6 +1,8 @@
 #include "Components/EmbermereTrainerComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/EmbermereWalletComponent.h"
+#include "Game/EmbermerePlayerController.h"
+#include "GameFramework/Pawn.h"
 
 UEmbermereTrainerComponent::UEmbermereTrainerComponent()
 {
@@ -34,6 +36,31 @@ bool UEmbermereTrainerComponent::GetOffering(
 	return true;
 }
 
+bool UEmbermereTrainerComponent::IsCustomerWithinInteractionRadius(
+	const UEmbermereStatsComponent* Stats,
+	const UEmbermereWalletComponent* Wallet) const
+{
+	const AActor* ServiceActor = GetOwner();
+	const AActor* CustomerActor = Stats ? Stats->GetOwner() : nullptr;
+	// Standalone rule fixtures have no separate world service actor.
+	if (!ServiceActor || ServiceActor == CustomerActor)
+	{
+		return true;
+	}
+
+	if (!CustomerActor || !Wallet || Wallet->GetOwner() != CustomerActor)
+	{
+		return false;
+	}
+
+	const APawn* CustomerPawn = Cast<APawn>(CustomerActor);
+	const AEmbermerePlayerController* Controller = CustomerPawn
+		? Cast<AEmbermerePlayerController>(CustomerPawn->GetController()) : nullptr;
+	const float Radius = Controller ? Controller->InteractionRadius : 0.0f;
+	return FMath::IsFinite(Radius) && Radius > 0.0f &&
+		FVector::DistSquared(ServiceActor->GetActorLocation(), CustomerActor->GetActorLocation()) <= FMath::Square(Radius);
+}
+
 EEmbermereTrainingResult UEmbermereTrainerComponent::CanTrain(
 	int32 OfferingIndex,
 	const UEmbermereStatsComponent* Stats,
@@ -44,6 +71,10 @@ EEmbermereTrainingResult UEmbermereTrainerComponent::CanTrain(
 		!GetOffering(OfferingIndex, Offering))
 	{
 		return EEmbermereTrainingResult::InvalidRequest;
+	}
+	if (!IsCustomerWithinInteractionRadius(Stats, Wallet))
+	{
+		return EEmbermereTrainingResult::OutOfRange;
 	}
 
 	if (!Offering.bRepeatable && CompletedNonRepeatableOfferingIds.Contains(Offering.OfferingId))
@@ -132,6 +163,8 @@ FText UEmbermereTrainerComponent::GetTrainingResultText(
 		return FText::FromString(FString::Printf(
 			TEXT("%s has already been completed."),
 			*OfferingName));
+	case EEmbermereTrainingResult::OutOfRange:
+		return FText::FromString(TEXT("Move closer to the trainer."));
 	default:
 		return FText::FromString(TEXT("That training is unavailable."));
 	}

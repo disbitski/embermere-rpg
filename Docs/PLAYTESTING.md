@@ -706,20 +706,25 @@ The full ownership and rollback contract is in
 6. Repeat a lesson according to its authored repeatability until the purse
    cannot cover the selected cost. Confirm the action disables, the panel
    reports insufficient copper, and no extra XP or negative currency appears.
-7. Press `I` while the trainer is open. Confirm the trainer closes and Inventory
+7. With a training panel opened nearby, leave the armsmaster's 350 cm service
+   radius if normal game input permits. A distant Train request must report
+   `Move closer to the trainer.` without changing copper or XP. Return nearby
+   and confirm the same Combat Drills transaction is allowed. The isolated
+   service regression covers the rule, not physical movement or painted UI.
+8. Press `I` while the trainer is open. Confirm the trainer closes and Inventory
    opens in its place. Reopen the trainer and click Chronicle; confirm the same
    exclusive handoff.
-8. Close the trainer with `X`. Confirm the panel disappears, game-only input
+9. Close the trainer with `X`. Confirm the panel disappears, game-only input
    returns, and movement/camera controls still work.
-9. Retain the visual/service split: the armsmaster remains non-colliding art;
+10. Retain the visual/service split: the armsmaster remains non-colliding art;
    the separate service actor owns the marker, `F` interaction, offering data,
    and transaction authority.
-10. For the baseline trainer persistence lane, begin again at `40` copper and `0` XP,
+11. For the baseline trainer persistence lane, begin again at `40` copper and `0` XP,
     train once to `30`/`25`, and save deliberately through Chronicle. Stop PIE,
     start a fresh world, confirm the normal `40`/`0` baseline, then load through
     Chronicle twice. Both loads must resolve to exactly `30`/`25` with no items,
     equipment, quest, vendor-stock, buyback, reward, or schema mutation.
-11. For the richer Advanced lane, confirm Elf Wizard, complete Mara's quest,
+12. For the richer Advanced lane, confirm Elf Wizard, complete Mara's quest,
     train once through Advanced, equip the quest Recruit Pack, and save through
     Chronicle at exact level `2`, `175` XP, and `40` copper. Stop PIE, confirm
     Dwarf Warrior in a fresh world at level `1`, `0` XP, and `40` copper, then

@@ -60,7 +60,8 @@ The repo currently contains the C++ gameplay scaffold for:
   stock UI, inventory/chat feedback, and no art ownership
 - a separate data-driven Fenwatch trainer service with stable lesson IDs,
   authored level gates and repeatability, complete level/currency/XP preflight,
-  rollback-safe progression, two visible Combat Drills tiers in a fixed native
+  possessed-customer range and Stats/Wallet ownership revalidation at transaction
+  time, rollback-safe progression, two visible Combat Drills tiers in a fixed native
   training panel, inventory/Chronicle handoff, and no art ownership
 - a separate art-free Fenwatch practice target that shares normal tab-target,
   hotbar, nameplate, and cyan-circle systems while remaining stationary,

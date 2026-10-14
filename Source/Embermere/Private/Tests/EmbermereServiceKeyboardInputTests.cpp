@@ -3,6 +3,7 @@
 #include "Characters/EmbermereCharacter.h"
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Characters/EmbermerePracticeTargetActor.h"
+#include "Characters/EmbermereTrainerServiceActor.h"
 #include "Characters/EmbermereVendorServiceActor.h"
 #include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereHotbarComponent.h"
@@ -195,6 +196,71 @@ bool FEmbermereVendorRangeTransactionsTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Buyback returns one tonic"), Inventory->GetItemQuantity(Tonic), 1);
 	TestEqual(TEXT("Range transactions cannot grant XP"), F.Character->Stats->CurrentExperience, 0);
 	TestEqual(TEXT("Range transactions cannot change quests"), F.Character->QuestLog->QuestStates.Num(), 0);
+	return !HasAnyErrors();
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereTrainerRangeTransactionsTest,
+	"Embermere.Trainer.RangeTransactions",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereTrainerRangeTransactionsTest::RunTest(const FString& Parameters)
+{
+	UEmbermereTrainerOfferingsData* Offerings = LoadObject<UEmbermereTrainerOfferingsData>(nullptr,
+		TEXT("/Game/Data/Trainers/DA_FenwatchArmsmasterOfferings.DA_FenwatchArmsmasterOfferings"));
+	if (!TestNotNull(TEXT("Saved trainer offerings exist"), Offerings))
+	{
+		return false;
+	}
+
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->Possess(F.Character);
+	F.World->AddController(F.Controller);
+	F.Character->SetActorLocation(FVector::ZeroVector);
+	AEmbermereTrainerServiceActor* Service = F.World->SpawnActor<AEmbermereTrainerServiceActor>();
+	if (!TestNotNull(TEXT("Art-free trainer service exists"), Service) ||
+		!TestNotNull(TEXT("Trainer transaction owner exists"), Service ? Service->Trainer.Get() : nullptr))
+	{
+		return false;
+	}
+	Service->SetActorLocation(FVector(300.0f, 0.0f, 0.0f));
+	Service->Trainer->SetOfferingsData(Offerings);
+	UEmbermereTrainerComponent* Trainer = Service->Trainer;
+	UEmbermereStatsComponent* Stats = F.Character->Stats;
+	UEmbermereWalletComponent* Wallet = F.Character->Wallet;
+	TestTrue(TEXT("Nearby trainer panel opens"), F.Hud->ShowTrainer(Trainer));
+	TestEqual(TEXT("Nearby lesson remains eligible"),
+		Trainer->CanTrain(0, Stats, Wallet), EEmbermereTrainingResult::Success);
+	TestTrue(TEXT("Nearby lesson succeeds through the HUD"), F.Hud->TrainSelectedOffering());
+	TestEqual(TEXT("Nearby lesson charges exact copper"), Wallet->Copper, 30);
+	TestEqual(TEXT("Nearby lesson grants exact XP"), Stats->CurrentExperience, 25);
+
+	F.Character->SetActorLocation(FVector(1000.0f, 0.0f, 0.0f));
+	TestTrue(TEXT("Trainer panel remains open after moving away"), F.Hud->IsTrainerPanelVisible());
+	TestEqual(TEXT("Distant lesson preflight rejects for range"),
+		Trainer->CanTrain(0, Stats, Wallet), EEmbermereTrainingResult::OutOfRange);
+	TestFalse(TEXT("Distant HUD action rejects"), F.Hud->TrainSelectedOffering());
+	TestEqual(TEXT("Distant lesson reports a useful reason"),
+		Trainer->GetTrainingResultText(EEmbermereTrainingResult::OutOfRange, 0).ToString(),
+		FString(TEXT("Move closer to the trainer.")));
+	TestEqual(TEXT("Distant lesson preserves copper"), Wallet->Copper, 30);
+	TestEqual(TEXT("Distant lesson preserves XP"), Stats->CurrentExperience, 25);
+	TestEqual(TEXT("Distant lesson preserves quest records"), F.Character->QuestLog->QuestStates.Num(), 0);
+	TestEqual(TEXT("Distant lesson preserves inventory"), F.Character->Inventory->Stacks.Num(), 0);
+
+	F.Character->SetActorLocation(FVector::ZeroVector);
+	AEmbermereCharacter* OtherCharacter = F.World->SpawnActor<AEmbermereCharacter>();
+	OtherCharacter->Wallet->SetCopperForPrototype(40);
+	TestEqual(TEXT("Another character's wallet cannot pay for this customer"),
+		Trainer->TryTrain(0, Stats, OtherCharacter->Wallet), EEmbermereTrainingResult::OutOfRange);
+	TestEqual(TEXT("Mismatched wallet remains unchanged"), OtherCharacter->Wallet->Copper, 40);
+	TestEqual(TEXT("Mismatched wallet cannot grant XP"), Stats->CurrentExperience, 25);
+	F.Controller->UnPossess();
+	TestEqual(TEXT("Unpossessed character cannot train"),
+		Trainer->TryTrain(0, Stats, Wallet), EEmbermereTrainingResult::OutOfRange);
+	F.Controller->Possess(F.Character);
+	TestTrue(TEXT("Returning nearby permits the same HUD action"), F.Hud->TrainSelectedOffering());
+	TestEqual(TEXT("Second nearby lesson charges exact copper"), Wallet->Copper, 20);
+	TestEqual(TEXT("Second nearby lesson grants exact XP"), Stats->CurrentExperience, 50);
 	return !HasAnyErrors();
 }
 

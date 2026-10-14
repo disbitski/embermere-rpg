@@ -6,6 +6,25 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 14 trainer transaction range: the armsmaster's initial `F` used the
+  controller's 350 cm interaction radius, but an open training panel could
+  still spend copper and grant XP after the customer moved away. The new
+  `Embermere.Trainer.RangeTransactions` spawned-service regression first
+  failed on a distant Combat Drills transaction (30 -> 20 copper, 25 -> 50
+  XP). The art-free trainer now rechecks possessed customer distance and
+  matching Stats/Wallet ownership in `CanTrain`, which also guards
+  `TryTrain`; distant requests return `OutOfRange` and exact `Move closer to
+  the trainer.` without mutation. Mismatched-wallet and unpossessed requests
+  reject; returning nearby permits the original lesson. Process-local Xcode
+  26.1.1 `-NoHotReloadFromIDE` compiled and linked. Fresh discovery/full
+  automation passed **117/117** with no failures, warnings, or skips. The
+  GUI-down **31-package** aggregate passed exact skeletal-material,
+  placed-Prowler loot, **53 Fab / 32 original-art**, and `validators=31`
+  markers without `LogPython: Error`; all **16** live suites passed in the
+  clean editor session. Floating PIE reached the normal Human Warrior HUD
+  and stopped. The map is All Saved outside PIE with real MCP 8123; both
+  protected hashes stayed exact. The fixture moves a pawn in an isolated
+  world, not through physical play. See `Docs/DAILY_BUILD_2026-10-14.md`.
 - October 13 dead-state consumable recovery: a new native regression proved
   that `RestoreMana` could raise mana after death and a Marsh Tonic with
   missing mana could be consumed during the death hold, despite `Heal`
@@ -1973,6 +1992,12 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- On a voluntary armsmaster visit, open Fenwatch Training in range, then
+  leave the service radius while the panel remains open if normal input
+  permits. Train must preserve copper and XP while distant and report
+  `Move closer to the trainer.`; returning nearby should restore normal
+  Combat Drills. The isolated native test does not prove physical movement
+  or painted panel behavior. Do not repeat this completed service fix.
 - During a voluntary real death/recovery playtest with a Marsh Tonic and
   missing mana, check that reopening Inventory during the death hold cannot
   use or consume the tonic and that its Use control is disabled; after village

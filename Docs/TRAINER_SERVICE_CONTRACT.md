@@ -51,20 +51,28 @@ state.
 1. Validate the complete offerings asset, including nonempty unique stable IDs,
    positive costs/rewards, and explicit repeatability.
 2. Resolve the authored offering by index.
-3. Reject a completed non-repeatable lesson before any mutation.
-4. Confirm the authoritative Stats-derived level meets the requirement.
-5. Confirm the wallet can spend the exact copper cost.
-6. Confirm the stats component can accept the XP without integer overflow.
-7. Spend copper.
-8. Commit XP.
-9. If the progression commit unexpectedly fails after the spend, refund the
+3. For a placed service, require the Stats and Wallet to belong to the same
+   possessed customer within that controller's existing 350 cm interaction
+   radius. An already-open panel does not extend the radius. Detached rule
+   fixtures without a separate service actor retain their data-only contract.
+4. Reject a completed non-repeatable lesson before any mutation.
+5. Confirm the authoritative Stats-derived level meets the requirement.
+6. Confirm the wallet can spend the exact copper cost.
+7. Confirm the stats component can accept the XP without integer overflow.
+8. Spend copper.
+9. Commit XP.
+10. If the progression commit unexpectedly fails after the spend, refund the
    exact copper amount before reporting rejection.
-10. Record non-repeatable runtime completion only after both owner commits.
+11. Record non-repeatable runtime completion only after both owner commits.
 
 Malformed data, low level, insufficient funds, missing owners, and XP overflow
 must leave both wallet and progression unchanged. The panel disables an
 ineligible action, but the service still rejects it authoritatively if called
 through another path.
+
+An out-of-range request returns `OutOfRange` and exact `Move closer to the
+trainer.` copy without copper, XP, bag, or quest mutation. The service owns
+this result; the HUD only displays it and remains free of distance rules.
 
 ## Player Surface
 
@@ -170,6 +178,15 @@ Advanced Combat Drills visible and locked at level 1 with exact rejection and
 zero mutation. After Stats derived level 2, the same open panel changed it to
 ready with no stale lock sentence. A real HUD request then changed `50` copper /
 `100` XP to exactly `30` / `150`, posted exact chat, and remained level 2.
+
+The 2026-10-14 transaction-range regression first proved an open panel could
+train after its customer moved away. The placed art-free service now checks
+the possessed customer, matching Stats/Wallet owners, and current distance
+on every `CanTrain`/`TryTrain` request. Distant, mismatched-wallet, and
+unpossessed requests reject without mutation; returning within range permits
+the same Combat Drills. The isolated native test passed with the full 117-test
+suite. Physical movement with the panel open and final painted feedback
+remain a user check.
 
 ## Training-Yard Presentation
 

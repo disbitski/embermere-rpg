@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-13
+Last updated: 2026-10-14
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,28 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 14 Handoff
+
+The armsmaster's initial `F` required the controller's 350 cm radius, but a
+training panel left open after the player moved away could still spend copper
+and grant XP. `Embermere.Trainer.RangeTransactions` first failed on the distant
+Combat Drills request: copper changed from 30 to 20 and XP from 25 to 50.
+The art-free trainer component now rechecks current service-to-possessed-
+customer distance and matching Stats/Wallet owners in `CanTrain`, so direct
+`TryTrain` and HUD requests share the same authority. Distant requests return
+`OutOfRange` / `Move closer to the trainer.` without mutation; mismatched
+wallets and unpossessed customers also reject. Returning nearby retains the
+repeatable lesson. No art, map, saved offering, or persistence authority moved.
+
+Process-local Xcode 26.1.1 `-NoHotReloadFromIDE` linked. Fresh automation
+passed **117/117** without failures/warnings/skips. The GUI-down 31-package
+aggregate passed skeletal-material, placed-Prowler loot, **53 Fab / 32
+original-art**, and `validators=31` markers with no `LogPython: Error`;
+all **16** live suites passed cleanly. Floating PIE reached the normal Human
+Warrior HUD and stopped; the map is All Saved outside PIE on real MCP 8123.
+Protected hashes stayed exact. Physical walk-away and final painted trainer
+feedback remain user checks. See `Docs/DAILY_BUILD_2026-10-14.md`.
 
 ## October 13 Handoff
 

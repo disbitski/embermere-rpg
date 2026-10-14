@@ -3786,6 +3786,18 @@ the bag until the character can use it. Xcode 26.1.1 linked the no-hot-reload
 build, and all 116 native tests, 31 package validators, and 16 live-world
 suites passed. A physical death-hold check remains for the player.
 
+## October 14: The Lesson Has A Place
+
+The armsmaster's F interaction had a range, but the training transaction did
+not. A panel left open after walking away could still take copper and award
+XP. A spawned-service test made the distant Combat Drills mutation fail first,
+then protected exact rejection, matching customer owners, and the original
+nearby loop. The art-free trainer now rechecks the possessed customer's
+distance at transaction time and reports a useful reason when too far away.
+Xcode 26.1.1 linked the no-hot-reload build; all 117 native tests, 31 fresh
+package validators, and 16 live-world suites passed. Physical walk-away feel
+remains a player check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

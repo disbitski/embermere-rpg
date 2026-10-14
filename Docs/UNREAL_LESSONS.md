@@ -2467,3 +2467,19 @@ terrain-backed approaches preserve comfortable nearest-owner margins. A
 positive solid hit prevents a dead collision scene from making every route
 look open. This is a spatial contract, not evidence that a physical `F` press
 opened the correct panel or committed a transaction.
+
+## Revalidate A Service When The Transaction Commits
+
+An F interaction radius proves only that a panel was opened nearby. A
+transient panel can remain open after the customer moves away, so the art-free
+service must recheck its own transaction preflight. Resolve one possessed
+customer, require that both mutable owners belong to that customer, and use
+the controller's existing interaction radius rather than inventing a HUD
+distance rule. This applies independently to vendor commerce and trainer XP
+lessons; neither art nor panel visibility grants authority to spend currency.
+
+An isolated spawned-service test should perform one nearby transaction,
+move the customer out of range, attempt the same action through the open HUD,
+and return nearby. Assert exact currency/progression and unrelated inventory/
+quest state at every rejection, plus mismatched-owner and unpossessed cases.
+That test proves the service boundary, not physical movement or painted UI.
