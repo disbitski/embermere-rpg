@@ -6,6 +6,22 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 15 dead-state F safety: clean floating PIE at PlayerStart retained
+  living `F` feedback, while code review found the controller's interaction
+  path guarded only a non-null pawn. `Embermere.Input.DeadInteractionSafety`
+  first failed because dead F posted the empty-range line and reopened a
+  nearby vendor panel/dialogue after death cleanup. The controller now
+  rejects F when the possessed character or Stats is missing or dead, before
+  candidate search; service, quest, and UI ownership did not move. The test
+  passed for no-candidate and nearby-service dead requests, zero wallet/XP/
+  bag/quest drift, and normal F again after respawn. Process-local Xcode
+  26.1.1 `-NoHotReloadFromIDE` linked; full automation passed **118/118**
+  without failures, warnings, or skips. The fresh GUI-down **31-package**
+  aggregate retained **53 Fab / 32 original-art** and exact markers without
+  `LogPython: Error`; all **16** initialized-world suites passed. Clean PIE
+  reached Human Warrior HUD and showed living PlayerStart F feedback, then
+  stopped. The isolated death callback is not physical death-hold proof.
+  See `Docs/DAILY_BUILD_2026-10-15.md`.
 - October 14 trainer transaction range: the armsmaster's initial `F` used the
   controller's 350 cm interaction radius, but an open training panel could
   still spend copper and grant XP after the customer moved away. The new
@@ -1992,6 +2008,11 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary physical death hold, press F both away from and near an
+  interaction owner. It must not post empty-range chat, reopen a panel, or
+  accept a quest/service action. After recovery, normal F must work again.
+  The isolated native regression is not a physical-input proof. Do not force
+  death or mutate the protected save just to manufacture this check.
 - On a voluntary armsmaster visit, open Fenwatch Training in range, then
   leave the service radius while the panel remains open if normal input
   permits. Train must preserve copper and XP while distant and report

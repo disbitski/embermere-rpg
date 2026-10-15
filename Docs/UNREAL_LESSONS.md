@@ -2468,6 +2468,15 @@ positive solid hit prevents a dead collision scene from making every route
 look open. This is a spatial contract, not evidence that a physical `F` press
 opened the correct panel or committed a transaction.
 
+## Guard New Input Even After Death Cleanup
+
+Closing interactive panels at death does not prevent the controller from
+opening a new one during the hold. Gate the F request before candidate search
+on the living possessed character, so even empty-range feedback stays silent
+while dead. Test both no candidate and a nearby owner, then prove normal F
+returns after respawn. An isolated callback test protects code paths; it is
+not physical death-event or painted UI proof.
+
 ## Revalidate A Service When The Transaction Commits
 
 An F interaction radius proves only that a panel was opened nearby. A

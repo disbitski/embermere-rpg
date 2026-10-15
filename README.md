@@ -111,7 +111,8 @@ The repo currently contains the C++ gameplay scaffold for:
   range-gated, hit-test-invisible, non-colliding, and presentation-only
 - bottom-left chat/combat log for targeting, combat, quest, XP, inventory, and death/recovery feedback, with a fixed six-row view over 30 transient messages and PageUp/PageDown history browsing
 - controller-owned F interaction feedback when no service or quest owner is
-  close enough, throttled so repeated empty requests cannot bury chat
+  close enough, throttled so repeated empty requests cannot bury chat;
+  dead or unpossessed characters cannot initiate F interaction
 - a fixed read-only autorun cue beneath the player vitals that follows the
   controller's Q state without owning movement or persistence; Q cannot
   enable autorun without a living possessed character, and respawn clears

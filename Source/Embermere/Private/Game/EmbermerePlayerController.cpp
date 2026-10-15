@@ -572,7 +572,7 @@ AEmbermereCharacter* AEmbermerePlayerController::GetEmbermereCharacter() const
 bool AEmbermerePlayerController::InteractWithNearestActor()
 {
 	AEmbermereCharacter* Character = GetEmbermereCharacter();
-	if (!Character)
+	if (!Character || !Character->Stats || Character->Stats->IsDead())
 	{
 		return false;
 	}

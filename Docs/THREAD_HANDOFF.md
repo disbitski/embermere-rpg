@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-14
+Last updated: 2026-10-15
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,19 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 15 Handoff
+
+The controller's F path checked for a pawn but not its dead Stats state.
+`Embermere.Input.DeadInteractionSafety` failed first: dead F posted empty-range
+chat or reopened a nearby vendor panel after death cleanup. The controller now
+rejects F before candidate search for an unpossessed or dead character. The
+isolated test passed no-candidate and nearby-service dead requests, unchanged
+wallet/XP/bag/quest state, and normal F after respawn. Xcode 26.1.1 process-
+local no-hot-reload compilation linked; **118/118** native tests, the fresh
+**31-package** aggregate, and all **16** initialized-world suites passed.
+Normal living F feedback at PlayerStart survived clean floating PIE. Physical
+death-hold F remains a user check. See `Docs/DAILY_BUILD_2026-10-15.md`.
 
 ## October 14 Handoff
 

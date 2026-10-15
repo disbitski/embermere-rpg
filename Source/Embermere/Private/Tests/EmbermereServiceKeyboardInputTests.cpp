@@ -493,6 +493,58 @@ bool FEmbermereEmptyInteractionFeedbackTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereDeadInteractionSafetyTest,
+	"Embermere.Input.DeadInteractionSafety",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereDeadInteractionSafetyTest::RunTest(const FString& Parameters)
+{
+	UEmbermereVendorStockData* Stock = LoadObject<UEmbermereVendorStockData>(nullptr,
+		TEXT("/Game/Data/Vendors/DA_FenwatchQuartermasterStock.DA_FenwatchQuartermasterStock"));
+	if (!TestNotNull(TEXT("Saved vendor stock exists"), Stock))
+	{
+		return false;
+	}
+
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->Possess(F.Character);
+	F.World->AddController(F.Controller);
+	F.Character->SetActorLocation(FVector::ZeroVector);
+	AEmbermereVendorServiceActor* Service = F.World->SpawnActor<AEmbermereVendorServiceActor>();
+	if (!TestNotNull(TEXT("Nearby art-free service exists"), Service))
+	{
+		return false;
+	}
+	Service->SetActorLocation(FVector(300.0f, 0.0f, 0.0f));
+	Service->Vendor->SetStockData(Stock);
+	TestTrue(TEXT("Living F opens the nearby service"), F.Interact());
+	TestTrue(TEXT("Living service panel is visible"), F.Hud->IsVendorPanelVisible());
+	F.Hud->CloseVendor();
+
+	const int32 CopperBefore = F.Character->Wallet->Copper;
+	const int32 ExperienceBefore = F.Character->Stats->CurrentExperience;
+	F.Character->Stats->ForceDeath();
+	F.HandleDeath();
+	const int32 DeathChatCount = F.Hud->GetChatMessageCount();
+	Service->SetActorLocation(FVector(1000.0f, 0.0f, 0.0f));
+	F.ResetEmptyInteractionFeedback();
+	TestFalse(TEXT("Dead F with no nearby owner is rejected"), F.Interact());
+	TestEqual(TEXT("Dead F does not post empty-range chat"), F.Hud->GetChatMessageCount(), DeathChatCount);
+	Service->SetActorLocation(FVector(300.0f, 0.0f, 0.0f));
+	TestFalse(TEXT("Dead F cannot interact with a nearby service"), F.Interact());
+	TestFalse(TEXT("Dead F cannot reopen the vendor panel"), F.Hud->IsVendorPanelVisible());
+	TestEqual(TEXT("Dead F does not post service dialogue"), F.Hud->GetChatMessageCount(), DeathChatCount);
+	TestEqual(TEXT("Dead F preserves copper"), F.Character->Wallet->Copper, CopperBefore);
+	TestEqual(TEXT("Dead F preserves XP"), F.Character->Stats->CurrentExperience, ExperienceBefore);
+	TestEqual(TEXT("Dead F preserves quest records"), F.Character->QuestLog->QuestStates.Num(), 0);
+	TestEqual(TEXT("Dead F preserves inventory"), F.Character->Inventory->Stacks.Num(), 0);
+
+	F.Respawn();
+	TestTrue(TEXT("Recovered character can use nearby F again"), F.Interact());
+	TestTrue(TEXT("Recovered service panel opens"), F.Hud->IsVendorPanelVisible());
+	return !HasAnyErrors();
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereHotbarRejectionFeedbackTest,
 	"Embermere.Input.HotbarRejectionFeedback",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

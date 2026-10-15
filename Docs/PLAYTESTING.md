@@ -546,6 +546,11 @@ Warrior fallback without rewriting the old file.
     in chat. After village recovery, spend mana and confirm the retained tonic
     can be used normally. Native automation covers the state rule, not this
     physical input or painted button acceptance.
+47. During a voluntary death hold, press `F` away from an interaction owner
+    and again near one if normal movement/state permits. Neither press should
+    post empty-range feedback, reopen a service/quest panel, or change wallet,
+    XP, items, or quests. After village recovery, `F` should work normally.
+    Native automation covers the controller gate, not physical death input.
 
 ### Automated Solo-Pull Clearance
 

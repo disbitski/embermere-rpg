@@ -3798,6 +3798,18 @@ Xcode 26.1.1 linked the no-hot-reload build; all 117 native tests, 31 fresh
 package validators, and 16 live-world suites passed. Physical walk-away feel
 remains a player check.
 
+## October 15: F Waits For Recovery
+
+Closing panels on death did not stop a fresh F press from reopening a nearby
+vendor or posting empty-range chat during the death hold. An isolated native
+test failed on both paths before the controller began checking its possessed
+character's Stats dead state at the start of F interaction. It then passed
+dead near/far requests and normal interaction after respawn without moving
+quest or service authority. Xcode 26.1.1 linked; 118 native tests, 31 fresh
+package validators, and 16 live-world suites passed. Clean PIE retained
+normal living F feedback. The physical death-hold press remains a player
+check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
