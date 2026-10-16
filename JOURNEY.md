@@ -3810,6 +3810,18 @@ package validators, and 16 live-world suites passed. Clean PIE retained
 normal living F feedback. The physical death-hold press remains a player
 check.
 
+## October 16: A Saved Drop Became A Death Event
+
+The map and Blueprint already promised a guaranteed Marsh Tonic, and a unit
+test could call the loot method directly. Neither proved a spawned Prowler's
+death event was still wired to the player bag. A new started-world regression
+now kills the saved class through Stats and checks one tonic, no duplicate on
+dead damage, and no direct copper or XP change. Its first failure was a test
+fixture creating a HUD for a non-local controller, not a game defect; a plain
+controller fixed that boundary. Xcode 26.1.1 linked the no-hot-reload build;
+119 native tests, 31 package validators, and 16 live-world suites passed.
+The physical first fight and painted loot feedback still need a player.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

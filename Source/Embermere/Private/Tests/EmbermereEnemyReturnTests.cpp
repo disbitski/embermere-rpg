@@ -1,15 +1,80 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
 #include "Characters/EmbermereEnemyCharacter.h"
+#include "Characters/EmbermereCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereStatsComponent.h"
+#include "Components/EmbermereWalletComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Data/EmbermereItemData.h"
 #include "Engine/Engine.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
 #include "GameFramework/WorldSettings.h"
 #include "Misc/AutomationTest.h"
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereSpawnedDefeatLootTest,
+	"Embermere.Enemy.SpawnedDefeatLoot",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereSpawnedDefeatLootTest::RunTest(const FString& Parameters)
+{
+	UClass* EnemyClass = LoadClass<AEmbermereEnemyCharacter>(nullptr,
+		TEXT("/Game/Blueprints/BP_StarterEnemy.BP_StarterEnemy_C"));
+	if (!TestNotNull(TEXT("Saved Prowler class exists"), EnemyClass))
+	{
+		return false;
+	}
+
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("Isolated world exists"), World))
+	{
+		return false;
+	}
+	GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
+	APlayerController* Controller = World->SpawnActor<APlayerController>();
+	AEmbermereCharacter* Player = World->SpawnActor<AEmbermereCharacter>(FVector::ZeroVector, FRotator::ZeroRotator);
+	AEmbermereEnemyCharacter* Enemy = World->SpawnActor<AEmbermereEnemyCharacter>(
+		EnemyClass, FVector(300.0f, 0.0f, 90.0f), FRotator::ZeroRotator);
+	if (Controller && Player && Enemy)
+	{
+		Controller->Possess(Player);
+		World->AddController(Controller);
+		World->InitializeActorsForPlay(FURL());
+		World->BeginPlay();
+		World->GetWorldSettings()->NotifyBeginPlay();
+		UEmbermereItemData* Tonic = Enemy->LootItem.LoadSynchronous();
+		if (TestTrue(TEXT("Saved Prowler entered a started world"), Enemy->HasActorBegunPlay()) &&
+			TestNotNull(TEXT("Saved drop resolves"), Tonic))
+		{
+			const int32 CopperBefore = Player->Wallet->Copper;
+			const int32 ExperienceBefore = Player->Stats->CurrentExperience;
+			TestEqual(TEXT("Saved drop identity is Marsh Tonic"), Tonic->ItemId, FName(TEXT("MarshTonic")));
+			TestEqual(TEXT("Bag starts without a tonic"), Player->Inventory->GetItemQuantity(Tonic), 0);
+			TestTrue(TEXT("Authoritative damage defeats the spawned Prowler"),
+				Enemy->Stats->ApplyDamage(100000.0f) > 0.0f && Enemy->Stats->IsDead());
+			TestEqual(TEXT("Death event grants the configured tonic once"),
+				Player->Inventory->GetItemQuantity(Tonic), 1);
+			TestEqual(TEXT("Repeated damage cannot grant a second drop"), Enemy->Stats->ApplyDamage(100000.0f), 0.0f);
+			TestEqual(TEXT("Drop remains single after repeated damage"), Player->Inventory->GetItemQuantity(Tonic), 1);
+			TestEqual(TEXT("Death loot does not grant copper directly"), Player->Wallet->Copper, CopperBefore);
+			TestEqual(TEXT("Death loot does not grant XP directly"), Player->Stats->CurrentExperience, ExperienceBefore);
+		}
+		World->EndPlay(EEndPlayReason::Quit);
+	}
+	else
+	{
+		AddError(TEXT("Could not spawn player and Prowler fixtures"));
+	}
+
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return !HasAnyErrors();
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereEnemyReturnPastGateTest,

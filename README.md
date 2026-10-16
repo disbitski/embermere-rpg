@@ -119,6 +119,9 @@ The repo currently contains the C++ gameplay scaffold for:
   any stale autorun state
 - first hotbar cooldown enforcement and ready-time feedback
 - starter enemy aggro, leash, return-home, attack, death, and respawn behavior
+- a started-world native regression over the saved Marsh Prowler class that
+  proves its death event delivers one guaranteed Marsh Tonic without duplicate
+  loot from repeated dead damage; physical first-kill acceptance remains open
 - player respawn with short damage protection plus a finite-world recovery
   plane that cancels autorun, freezes death movement, clears velocity, and
   restores walking at the village

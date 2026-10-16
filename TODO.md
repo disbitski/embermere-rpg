@@ -6,6 +6,23 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 16 spawned-Prowler death/loot bridge: the saved-package validator
+  already proved the three placed Prowlers and Blueprint defaults reference a
+  guaranteed one-item Marsh Tonic, but native loot tests called `GrantLootTo`
+  directly. New `Embermere.Enemy.SpawnedDefeatLoot` starts an isolated world
+  with the saved Prowler class and a possessed player, applies lethal Stats
+  damage, and proves the bound death event delivers exactly one tonic; repeated
+  dead damage delivers no second item and copper/XP remain unchanged by the
+  loot owner. The first fixture failed only because a non-local Embermere
+  controller attempted HUD creation; a plain player controller corrected
+  the fixture, without production changes. Process-local Xcode 26.1.1
+  `-NoHotReloadFromIDE` linked, fresh discovery/full automation passed
+  **119/119** without failures/warnings/skips, the fresh GUI-down **31-package**
+  aggregate retained **53 Fab / 32 original-art** with exact markers and no
+  `LogPython: Error`, and all **16** initialized-world suites passed. Clean
+  PIE reached the Human Warrior HUD and stopped. This is a runtime death
+  hook, not a physical hotbar defeat or painted loot acceptance. See
+  `Docs/DAILY_BUILD_2026-10-16.md`.
 - October 15 dead-state F safety: clean floating PIE at PlayerStart retained
   living `F` feedback, while code review found the controller's interaction
   path guarded only a non-null pawn. `Embermere.Input.DeadInteractionSafety`
@@ -2008,6 +2025,11 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- Ask the user for a voluntary first normal-route Marsh Prowler defeat,
+  guaranteed tonic pickup, and painted chat. The new started-world regression
+  proves death-event loot wiring, not real hotbar combat, camera handling,
+  quest credit, or physical pickup/use. Do not repeat the saved-data or
+  spawned-death test just to replace this physical gate.
 - During a voluntary physical death hold, press F both away from and near an
   interaction owner. It must not post empty-range chat, reopen a panel, or
   accept a quest/service action. After recovery, normal F must work again.

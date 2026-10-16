@@ -2468,6 +2468,16 @@ positive solid hit prevents a dead collision scene from making every route
 look open. This is a spatial contract, not evidence that a physical `F` press
 opened the correct panel or committed a transaction.
 
+## Test Death Hooks In A Started World
+
+Calling a loot method on detached objects proves the transaction, not the
+spawned actor's `OnDied` binding. For that integration, start an isolated
+world, possess a recipient pawn, spawn the saved enemy class, apply lethal
+Stats damage, then check delivery and duplicate-death exclusion. Use a plain
+player controller when the fixture does not own a local player; a project
+controller may create a HUD and fail before the death assertion. This still
+does not replace a physical hotbar fight or painted pickup check.
+
 ## Guard New Input Even After Death Cleanup
 
 Closing interactive panels at death does not prevent the controller from

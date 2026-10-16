@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-15
+Last updated: 2026-10-16
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,21 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 16 Handoff
+
+`Embermere.Enemy.SpawnedDefeatLoot` closes a test gap between saved Prowler
+drop data and the runtime death hook. In a started isolated world, the saved
+Blueprint Prowler receives lethal Stats damage, its bound death event gives
+the possessed player exactly one Marsh Tonic, repeated dead damage gives no
+second item, and the loot owner does not change copper or XP. The first
+fixture failed because a non-local Embermere controller created a HUD; using
+a plain player controller fixed the fixture. No gameplay/content code changed.
+Process-local Xcode 26.1.1 no-hot-reload build linked; **119/119** native tests,
+fresh **31-package** aggregate with **53 Fab / 32 original-art**, and all
+**16** live suites passed. Clean PIE reached the Human Warrior HUD and
+stopped. Physical first kill, chat, pickup, and tonic use remain user checks.
+See `Docs/DAILY_BUILD_2026-10-16.md`.
 
 ## October 15 Handoff
 
