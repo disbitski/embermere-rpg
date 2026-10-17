@@ -509,7 +509,7 @@ Warrior fallback without rewriting the old file.
     back toward its spawn instead of chasing indefinitely into the village.
 36. Confirm an enemy respawn clears any old Snare or Frost Root state instead
     of preserving reduced movement into its next life.
-37. Defeat a Marsh Prowler and confirm the chat reports one Marsh Tonic looted and inventory gains a stack. Repeated drops should increase the same stack up to its limit. Saved Blueprint/default and all three placed-actor drop data are package-validated; a started-world native test now also proves the saved class's death event delivers exactly one tonic without duplicate dead-damage loot. Actual normal-route hotbar kill, chat, pickup, and tonic use still need direct playtest acceptance.
+37. Defeat a Marsh Prowler and confirm the chat reports one Marsh Tonic looted and inventory gains a stack. Repeated drops should increase the same stack up to its limit. Saved Blueprint/default and all three placed-actor drop data are package-validated. Started-world native tests prove the death event delivers one tonic and a committed combat ability advances only Mara's exact defeat objective, not Still Waters; the practice dummy gives neither credit nor loot. Actual normal-route hotbar kill, painted chat/quest credit, pickup, and tonic use still need direct playtest acceptance.
 38. After taking damage, select Marsh Tonic and click `Use`; confirm it restores up to 25 health and 10 mana and consumes one tonic. At full health/mana, `Use` must be disabled and preserve the stack.
 39. Defeat three starter enemies.
 40. Return to Mara and press `F` to complete the quest. Confirm the temporary

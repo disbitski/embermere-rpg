@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-16
+Last updated: 2026-10-17
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,21 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 17 Handoff
+
+`Embermere.Quests.SpawnedCombatCredit` protects the distinct combat-to-quest
+boundary in a started isolated world. With both saved quest assets accepted,
+a lethal ability on the art-free practice target grants no Mara credit; the
+same ability on the saved Prowler class advances Mara exactly once to 1/3,
+leaves Still Waters at 0/1, and pays no early quest reward. Repeating the
+rejected attack does not duplicate credit. No production or saved-content
+change was needed. Xcode 26.1.1 process-local no-hot-reload build linked;
+**120/120** native tests, fresh **31-package** aggregate with **53 Fab / 32
+original-art**, and all **16** live suites passed. Clean PIE reached Human
+Warrior and stopped; editor is clean outside PIE on real MCP 8123. Physical
+first-fight/tonic and painted quest feedback remain user checks. See
+`Docs/DAILY_BUILD_2026-10-17.md`.
 
 ## October 16 Handoff
 

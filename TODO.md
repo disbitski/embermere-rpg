@@ -6,6 +6,20 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 17 combat-to-quest boundary: `Embermere.Quests.SpawnedCombatCredit`
+  starts an isolated world with the saved Marsh Prowler, real Mara and Still
+  Waters quest assets, and a separate practice target. A committed combat
+  ability defeats the dummy without Mara credit, then defeats the Prowler
+  and advances only Mara from 0/3 to 1/3. A rejected repeat cannot duplicate
+  credit, Still Waters stays 0/1, and neither quest reward pays early. No
+  production gameplay or saved content changed. Process-local Xcode 26.1.1
+  `-NoHotReloadFromIDE` linked; fresh discovery/full automation passed
+  **120/120**, the GUI-down **31-package** aggregate retained **53 Fab / 32
+  original-art** with exact markers and no `LogPython: Error`, all **16**
+  initialized-world suites passed, and clean floating PIE reached the Human
+  Warrior HUD before stopping. The map is All Saved outside PIE with real
+  MCP 8123. This is a native combat/quest ownership proof, not a physical
+  first fight or painted HUD check. See `Docs/DAILY_BUILD_2026-10-17.md`.
 - October 16 spawned-Prowler death/loot bridge: the saved-package validator
   already proved the three placed Prowlers and Blueprint defaults reference a
   guaranteed one-item Marsh Tonic, but native loot tests called `GrantLootTo`
@@ -2027,9 +2041,11 @@ targeting, rewards, AI, quests, or persistence.
 
 - Ask the user for a voluntary first normal-route Marsh Prowler defeat,
   guaranteed tonic pickup, and painted chat. The new started-world regression
-  proves death-event loot wiring, not real hotbar combat, camera handling,
-  quest credit, or physical pickup/use. Do not repeat the saved-data or
-  spawned-death test just to replace this physical gate.
+  proves death-event loot wiring, while the October 17 test proves a committed
+  combat ability gives one exact Mara objective credit and leaves Still Waters
+  alone. Neither proves physical hotbar combat, camera handling, final painted
+  quest/loot copy, or tonic pickup/use. Do not repeat those native tests just
+  to replace this physical gate.
 - During a voluntary physical death hold, press F both away from and near an
   interaction owner. It must not post empty-range chat, reopen a panel, or
   accept a quest/service action. After recovery, normal F must work again.

@@ -3822,6 +3822,18 @@ controller fixed that boundary. Xcode 26.1.1 linked the no-hot-reload build;
 119 native tests, 31 package validators, and 16 live-world suites passed.
 The physical first fight and painted loot feedback still need a player.
 
+## October 17: Combat Credit Finds The Right Ledger Entry
+
+Yesterday's started-world test proved a Prowler death could deliver its
+configured tonic; it did not exercise a player's committed ability or Mara's
+objective. A new test uses the saved Prowler and both real Fenwatch quest
+assets. Defeating the practice target gives no credit, while the Prowler
+advances only Mara once, with Still Waters and early rewards untouched.
+The process-local Xcode 26.1.1 build linked, and all 120 native tests, 31
+package validators, and 16 live-world suites passed. No gameplay rule or
+saved package changed. The first physical fight and painted feedback still
+belong to the player playtest.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -122,6 +122,10 @@ The repo currently contains the C++ gameplay scaffold for:
 - a started-world native regression over the saved Marsh Prowler class that
   proves its death event delivers one guaranteed Marsh Tonic without duplicate
   loot from repeated dead damage; physical first-kill acceptance remains open
+- a separate started-world combat/quest regression over the saved Prowler and
+  both saved quests: a real ability grants exactly one Mara defeat credit,
+  practice-target defeat grants none, and Still Waters plus early rewards stay
+  unchanged; physical combat and painted quest feedback remain open
 - player respawn with short damage protection plus a finite-world recovery
   plane that cancels autorun, freezes death movement, clears velocity, and
   restores walking at the village

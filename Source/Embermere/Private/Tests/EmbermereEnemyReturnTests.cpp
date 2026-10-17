@@ -2,12 +2,16 @@
 
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Characters/EmbermereCharacter.h"
+#include "Characters/EmbermerePracticeTargetActor.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
+#include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/EmbermereWalletComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Data/EmbermereItemData.h"
+#include "Data/EmbermereQuestData.h"
 #include "Engine/Engine.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
@@ -69,6 +73,97 @@ bool FEmbermereSpawnedDefeatLootTest::RunTest(const FString& Parameters)
 	else
 	{
 		AddError(TEXT("Could not spawn player and Prowler fixtures"));
+	}
+
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return !HasAnyErrors();
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereSpawnedCombatQuestCreditTest,
+	"Embermere.Quests.SpawnedCombatCredit",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereSpawnedCombatQuestCreditTest::RunTest(const FString& Parameters)
+{
+	UClass* EnemyClass = LoadClass<AEmbermereEnemyCharacter>(nullptr,
+		TEXT("/Game/Blueprints/BP_StarterEnemy.BP_StarterEnemy_C"));
+	UEmbermereQuestData* MaraQuest = LoadObject<UEmbermereQuestData>(nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	UEmbermereQuestData* StillWaters = LoadObject<UEmbermereQuestData>(nullptr,
+		TEXT("/Game/Data/Quests/DQ_FenwatchStillWaters.DQ_FenwatchStillWaters"));
+	if (!TestNotNull(TEXT("Saved Prowler class exists"), EnemyClass) ||
+		!TestNotNull(TEXT("Saved Mara quest exists"), MaraQuest) ||
+		!TestNotNull(TEXT("Saved Still Waters quest exists"), StillWaters))
+	{
+		return false;
+	}
+
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("Isolated world exists"), World))
+	{
+		return false;
+	}
+	GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
+	APlayerController* Controller = World->SpawnActor<APlayerController>();
+	AEmbermereCharacter* Player = World->SpawnActor<AEmbermereCharacter>(FVector::ZeroVector, FRotator::ZeroRotator);
+	AEmbermerePracticeTargetActor* Dummy = World->SpawnActor<AEmbermerePracticeTargetActor>(
+		FVector(150.0f, 0.0f, 90.0f), FRotator::ZeroRotator);
+	AEmbermereEnemyCharacter* Enemy = World->SpawnActor<AEmbermereEnemyCharacter>(
+		EnemyClass, FVector(300.0f, 0.0f, 90.0f), FRotator::ZeroRotator);
+	if (Controller && Player && Dummy && Enemy)
+	{
+		Controller->Possess(Player);
+		World->AddController(Controller);
+		World->InitializeActorsForPlay(FURL());
+		World->BeginPlay();
+		World->GetWorldSettings()->NotifyBeginPlay();
+		if (TestTrue(TEXT("Saved Prowler entered a started world"), Enemy->HasActorBegunPlay()) &&
+			TestTrue(TEXT("Player has combat and quest owners"), Player->Combat && Player->QuestLog) &&
+			TestTrue(TEXT("Mara quest enters the ledger"), Player->QuestLog->AcceptQuest(MaraQuest)) &&
+			TestTrue(TEXT("Still Waters enters the ledger"), Player->QuestLog->AcceptQuest(StillWaters)))
+		{
+			const int32 CopperBefore = Player->Wallet->Copper;
+			const int32 ExperienceBefore = Player->Stats->CurrentExperience;
+			FEmbermereAbilityDefinition Strike;
+			Strike.AbilityId = TEXT("QuestCreditStrike");
+			Strike.DisplayName = FText::FromString(TEXT("Quest Credit Strike"));
+			Strike.TargetKind = EEmbermereAbilityTargetKind::Enemy;
+			Strike.EffectType = EEmbermereAbilityEffectType::Damage;
+			Strike.Power = 200.0f;
+			Strike.Range = 400.0f;
+
+			Player->Combat->SetTarget(Dummy);
+			TestTrue(TEXT("Combat can defeat the practice target"), Player->Combat->ExecuteAbility(Strike));
+			FEmbermereQuestState MaraState;
+			TestTrue(TEXT("Mara remains tracked after training"),
+				Player->QuestLog->GetQuestStateById(MaraQuest->QuestId, MaraState));
+			TestEqual(TEXT("Practice defeat grants no Mara credit"), MaraState.CurrentObjectiveCount, 0);
+
+			Player->Combat->SetTarget(Enemy);
+			TestTrue(TEXT("Combat can defeat the saved Prowler"), Player->Combat->ExecuteAbility(Strike));
+			TestTrue(TEXT("Saved Prowler is dead after the committed ability"), Enemy->Stats->IsDead());
+			TestTrue(TEXT("Mara remains tracked after Prowler defeat"),
+				Player->QuestLog->GetQuestStateById(MaraQuest->QuestId, MaraState));
+			TestEqual(TEXT("One combat defeat grants exactly one Mara objective credit"),
+				MaraState.CurrentObjectiveCount, 1);
+			FEmbermereQuestState StillWatersState;
+			TestTrue(TEXT("Still Waters remains tracked"),
+				Player->QuestLog->GetQuestStateById(StillWaters->QuestId, StillWatersState));
+			TestEqual(TEXT("Combat cannot advance the rest objective"), StillWatersState.CurrentObjectiveCount, 0);
+			TestFalse(TEXT("Mara remains incomplete before three defeats"), MaraState.bCompleted);
+			TestFalse(TEXT("Rejected repeat cannot credit a defeated target"), Player->Combat->ExecuteAbility(Strike));
+			Player->QuestLog->GetQuestStateById(MaraQuest->QuestId, MaraState);
+			TestEqual(TEXT("Rejected repeat cannot duplicate quest credit"), MaraState.CurrentObjectiveCount, 1);
+			TestEqual(TEXT("Combat credit does not pay Mara rewards"), Player->Wallet->Copper, CopperBefore);
+			TestEqual(TEXT("Combat credit does not grant quest XP"), Player->Stats->CurrentExperience, ExperienceBefore);
+		}
+		World->EndPlay(EEndPlayReason::Quit);
+	}
+	else
+	{
+		AddError(TEXT("Could not spawn player, dummy, and Prowler fixtures"));
 	}
 
 	GEngine->DestroyWorldContext(World);
