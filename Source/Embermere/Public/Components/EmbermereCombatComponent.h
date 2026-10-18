@@ -17,7 +17,9 @@ enum class EEmbermereAbilityRejection : uint8
 	NoTarget,
 	OutOfRange,
 	DefeatedTarget,
-	InsufficientMana
+	InsufficientMana,
+	FullHealth,
+	FullMana
 };
 
 UENUM(BlueprintType)

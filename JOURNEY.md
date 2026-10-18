@@ -3834,6 +3834,18 @@ package validators, and 16 live-world suites passed. No gameplay rule or
 saved package changed. The first physical fight and painted feedback still
 belong to the player playtest.
 
+## October 18: Meditate Waits For Missing Mana
+
+The Wizard HUD starts at full mana, but a self-target recovery cast could
+consume its cooldown while restoring nothing. A new native regression first
+failed on full-mana Meditate and full-health self-heal, then passed after the
+combat owner rejected pure no-op recovery before cost, result, or cooldown.
+The controller now gives exact full-resource chat; valid recovery still works.
+Xcode 26.1.1 linked the no-hot-reload build, all 121 native tests and 31
+package validators passed, and 16 live-world suites passed. Clean PIE showed
+Human Wizard with slot-4 Meditate, though the physical press and painted chat
+remain a player check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

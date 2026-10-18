@@ -538,6 +538,12 @@ void AEmbermerePlayerController::ActivateHotbarSlot(int32 SlotIndex)
 				case EEmbermereAbilityRejection::InsufficientMana:
 					Message = FString::Printf(TEXT("Not enough mana for %s."), *AbilityName);
 					break;
+				case EEmbermereAbilityRejection::FullHealth:
+					Message = TEXT("Health is already full.");
+					break;
+				case EEmbermereAbilityRejection::FullMana:
+					Message = TEXT("Mana is already full.");
+					break;
 				case EEmbermereAbilityRejection::CasterDead:
 					Message = FString::Printf(TEXT("Cannot use %s while dead."), *AbilityName);
 					break;

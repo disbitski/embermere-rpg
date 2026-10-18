@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-17
+Last updated: 2026-10-18
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,18 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 18 Handoff
+
+`Embermere.Combat.FullResourceRecoveryRejection` was red against full-mana
+Meditate and full-health self-heal consuming a hotbar cooldown for no applied
+recovery. The combat preflight now rejects those pure no-ops before mana spend
+or result publication; the controller reports exact full-resource copy.
+Valid recovery remains unchanged. Process-local Xcode 26.1.1 no-hot-reload
+build linked; **121/121** tests, fresh **31-package** aggregate with **53 Fab /
+32 original-art**, and all **16** initialized-world suites passed. Clean PIE
+reached Human Wizard with slot-4 Meditate, then stopped. Physical hotbar input
+and painted copy remain a user check. See `Docs/DAILY_BUILD_2026-10-18.md`.
 
 ## October 17 Handoff
 

@@ -149,7 +149,8 @@ The repo currently contains the C++ gameplay scaffold for:
   cooldown dimming, and accessible ability-stat tooltips
 - functional data-driven starter utility effects: timed Attack Power and Armor
   buffs, six-second Snare, four-second Frost Root, Meditate mana recovery,
-  effective-stat combat consumption, and respawn-safe effect clearing
+  full-resource recovery rejection without wasted cooldown, effective-stat
+  combat consumption, and respawn-safe effect clearing
 - data-driven player and selected-target timed-status rows that reuse ability
   art, show live countdowns and hover descriptions, distinguish beneficial from
   harmful effects, refresh duplicate applications, and clear with the same

@@ -496,8 +496,10 @@ Warrior fallback without rewriting the old file.
     treatment with Frost Root data plus a lighter ice-white cyan inner aura,
     clearly distinct from the calmer outer target circle, and then releases the
     target.
-32. Spend mana, press Wizard `4` for Meditate, and confirm exactly 18 missing
-    mana is restored without exceeding maximum mana. Because it is
+32. As Wizard at full mana, press `4` for Meditate: expect `Mana is already
+    full.`, no mana change, and no cooldown. Then spend at least 18 mana,
+    press `4` again, and confirm exactly 18 missing mana is restored without
+    exceeding maximum mana and the normal cooldown begins. Because it is
     instantaneous, Meditate should not create a timed-status cell or world
     aura.
 33. Confirm combat, target, quest, XP, inventory, mouse, cooldown, utility

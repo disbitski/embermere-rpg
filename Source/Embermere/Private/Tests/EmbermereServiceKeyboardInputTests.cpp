@@ -18,6 +18,7 @@
 #include "Components/TextBlock.h"
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
+#include "Data/EmbermereRulesData.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "Game/EmbermerePlayerController.h"
@@ -609,6 +610,81 @@ bool FEmbermereHotbarRejectionFeedbackTest::RunTest(const FString& Parameters)
 	F.ActivateAbilitySlot(0);
 	TestEqual(TEXT("Cooldown still blocks a second hit"), Target->Stats->CurrentHealth, HealthAfterStrike);
 	TestEqual(TEXT("Cooldown still blocks a second mana charge"), F.Character->Stats->CurrentMana, ManaAfterStrike);
+	F.Controller->SetPawn(nullptr);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereFullResourceRecoveryAbilityTest,
+	"Embermere.Combat.FullResourceRecoveryRejection",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereFullResourceRecoveryAbilityTest::RunTest(const FString& Parameters)
+{
+	const UEmbermereRulesData* Rules = LoadObject<UEmbermereRulesData>(nullptr,
+		TEXT("/Game/Data/DA_EmbermereRules.DA_EmbermereRules"));
+	FEmbermereAbilityDefinition Meditate;
+	if (!TestNotNull(TEXT("Saved rules data exists"), Rules) ||
+		!TestTrue(TEXT("Saved Wizard Meditate resolves"), Rules->GetAbilityDefinition(TEXT("Meditate"), Meditate)))
+	{
+		return false;
+	}
+
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->SetPawn(F.Character);
+	F.Character->Hotbar->SetAbilityInSlot(3, Meditate);
+	const float FullMana = F.Character->Stats->CurrentMana;
+	const float FullHealth = F.Character->Stats->CurrentHealth;
+	const int32 InitialMessages = F.Hud->GetChatMessageCount();
+	int32 CommittedResults = 0;
+	const FDelegateHandle ResultHandle = F.Character->Combat->OnCombatResult.AddLambda(
+		[&CommittedResults](const FEmbermereCombatResult&) { ++CommittedResults; });
+	auto ChatLine = [&F](int32 RowIndex)
+	{
+		const UTextBlock* Row = F.Hud->WidgetTree->FindWidget<UTextBlock>(
+			*FString::Printf(TEXT("ChatMessageText_%d"), RowIndex));
+		return Row ? Row->GetText().ToString() : FString();
+	};
+
+	F.ActivateAbilitySlot(3);
+	TestEqual(TEXT("Full-mana Meditate gives one useful explanation"),
+		F.Hud->GetChatMessageCount(), InitialMessages + 1);
+	TestEqual(TEXT("Full-mana copy"), ChatLine(0), FString(TEXT("Mana is already full.")));
+	TestEqual(TEXT("Full-mana Meditate leaves mana unchanged"), F.Character->Stats->CurrentMana, FullMana);
+	TestEqual(TEXT("Full-mana Meditate starts no cooldown"), F.Character->Hotbar->GetSlotCooldownRemaining(3), 0.0f);
+	TestEqual(TEXT("Full-mana Meditate commits no result"), CommittedResults, 0);
+
+	TestTrue(TEXT("Mana can be spent before valid Meditate"), F.Character->Stats->SpendMana(20.0f));
+	F.ActivateAbilitySlot(3);
+	TestEqual(TEXT("Valid Meditate restores exact missing mana"), F.Character->Stats->CurrentMana, FullMana - 2.0f);
+	TestTrue(TEXT("Valid Meditate starts its normal cooldown"), F.Character->Hotbar->GetSlotCooldownRemaining(3) > 0.0f);
+	TestEqual(TEXT("Valid Meditate publishes one committed result"), CommittedResults, 1);
+
+	FEmbermereAbilityDefinition SelfHeal;
+	SelfHeal.AbilityId = TEXT("FullResourceHealCheck");
+	SelfHeal.DisplayName = FText::FromString(TEXT("Self Heal"));
+	SelfHeal.TargetKind = EEmbermereAbilityTargetKind::Self;
+	SelfHeal.EffectType = EEmbermereAbilityEffectType::Heal;
+	SelfHeal.Power = 15.0f;
+	SelfHeal.ManaCost = 5.0f;
+	SelfHeal.Cooldown = 3.0f;
+	F.Character->Hotbar->SetAbilityInSlot(4, SelfHeal);
+	const float ManaBeforeHeal = F.Character->Stats->CurrentMana;
+	const int32 MessagesBeforeHeal = F.Hud->GetChatMessageCount();
+	F.ActivateAbilitySlot(4);
+	TestEqual(TEXT("Full-health self-heal gives one useful explanation"),
+		F.Hud->GetChatMessageCount(), MessagesBeforeHeal + 1);
+	TestEqual(TEXT("Full-health copy"), ChatLine(MessagesBeforeHeal), FString(TEXT("Health is already full.")));
+	TestEqual(TEXT("Full-health self-heal spends no mana"), F.Character->Stats->CurrentMana, ManaBeforeHeal);
+	TestEqual(TEXT("Full-health self-heal starts no cooldown"), F.Character->Hotbar->GetSlotCooldownRemaining(4), 0.0f);
+	TestEqual(TEXT("Full-health self-heal commits no result"), CommittedResults, 1);
+
+	F.Character->Stats->ApplyDamage(10.0f);
+	F.ActivateAbilitySlot(4);
+	TestEqual(TEXT("Valid self-heal restores missing health"), F.Character->Stats->CurrentHealth, FullHealth);
+	TestEqual(TEXT("Valid self-heal spends exact mana"), F.Character->Stats->CurrentMana, ManaBeforeHeal - 5.0f);
+	TestTrue(TEXT("Valid self-heal starts its normal cooldown"), F.Character->Hotbar->GetSlotCooldownRemaining(4) > 0.0f);
+	TestEqual(TEXT("Valid self-heal publishes one more result"), CommittedResults, 2);
+	F.Character->Combat->OnCombatResult.Remove(ResultHandle);
 	F.Controller->SetPawn(nullptr);
 	return true;
 }

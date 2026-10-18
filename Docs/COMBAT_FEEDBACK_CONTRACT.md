@@ -71,3 +71,11 @@ used by ability execution. The player controller presents that reason in the
 existing clipped chat panel after a failed hotbar action. Cooldown remains a
 hotbar/controller concern and keeps its existing ready-time line. Rejection
 copy owns no targeting, health, mana, cooldown, quest, loot, or save mutation.
+
+Pure Heal at full health and pure RestoreMana at full projected mana are
+rejected before spending mana, starting cooldown, or publishing a result.
+For self-target mana recovery, preflight accounts for any cast cost before
+testing the target's capacity. A valid movement-control effect is not rejected
+merely because its paired recovery is full. The controller displays exact
+`Health is already full.` or `Mana is already full.`; the saved Wizard
+Meditate still restores 18 missing mana when recovery is possible.

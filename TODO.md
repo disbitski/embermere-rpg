@@ -6,6 +6,21 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 18 full-resource recovery preflight: clean Human Wizard PIE exposed
+  full `110/110` mana with Meditate in slot 4. Code review found a self-target
+  cast could return success and start cooldown even when restoration applied
+  nothing. `Embermere.Combat.FullResourceRecoveryRejection` failed first on
+  full-mana Meditate and full-health self-heal, then passed after the combat
+  component rejected pure no-op recovery before spending mana or publishing
+  a result. The controller now gives exact `Mana is already full.` / `Health
+  is already full.` chat copy. Valid Meditate still restores 18 missing mana;
+  valid self-heal still charges its cost and starts cooldown. Process-local
+  Xcode 26.1.1 `-NoHotReloadFromIDE` linked; fresh full automation passed
+  **121/121**, the GUI-down **31-package** aggregate retained **53 Fab / 32
+  original-art** with exact markers and no `LogPython: Error`, and all **16**
+  initialized-world suites passed. Clean floating PIE reached the Human
+  Wizard HUD and stopped. Physical slot-4 input and painted chat remain a
+  user check. See `Docs/DAILY_BUILD_2026-10-18.md`.
 - October 17 combat-to-quest boundary: `Embermere.Quests.SpawnedCombatCredit`
   starts an isolated world with the saved Marsh Prowler, real Mara and Still
   Waters quest assets, and a separate practice target. A committed combat
@@ -2039,6 +2054,11 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- In a voluntary Human Wizard playtest, press `4` at full mana. Confirm
+  `Mana is already full.`, no Meditate cooldown, and unchanged mana. Spend at
+  least 18 mana, press `4` again, and confirm exactly 18 restored with the
+  normal cooldown. Native automation proves the rule/controller path, but
+  synthetic Slate did not prove physical input or final painted chat.
 - Ask the user for a voluntary first normal-route Marsh Prowler defeat,
   guaranteed tonic pickup, and painted chat. The new started-world regression
   proves death-event loot wiring, while the October 17 test proves a committed

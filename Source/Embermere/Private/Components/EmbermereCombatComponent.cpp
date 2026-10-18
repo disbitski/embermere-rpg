@@ -88,6 +88,25 @@ EEmbermereAbilityRejection UEmbermereCombatComponent::GetAbilityRejection(const 
 			return EEmbermereAbilityRejection::DefeatedTarget;
 		}
 	}
+	const UEmbermereStatsComponent* TargetStats = TargetActor->FindComponentByClass<UEmbermereStatsComponent>();
+	const bool bCanApplyMovementEffect = Ability.Duration > 0.0f &&
+		Ability.MovementSpeedMultiplier >= 0.0f &&
+		Ability.MovementSpeedMultiplier < 1.0f - KINDA_SMALL_NUMBER;
+	if (TargetStats && !bCanApplyMovementEffect)
+	{
+		if (Ability.EffectType == EEmbermereAbilityEffectType::Heal &&
+			TargetStats->CurrentHealth >= TargetStats->MaxHealth - KINDA_SMALL_NUMBER)
+		{
+			return EEmbermereAbilityRejection::FullHealth;
+		}
+		const float ProjectedMana = TargetStats->CurrentMana -
+			(TargetStats == OwnerStats ? FMath::Max(0.0f, Ability.ManaCost) : 0.0f);
+		if (Ability.EffectType == EEmbermereAbilityEffectType::RestoreMana &&
+			ProjectedMana >= TargetStats->MaxMana - KINDA_SMALL_NUMBER)
+		{
+			return EEmbermereAbilityRejection::FullMana;
+		}
+	}
 	if (Ability.ManaCost > 0.0f && OwnerStats->CurrentMana < Ability.ManaCost)
 	{
 		return EEmbermereAbilityRejection::InsufficientMana;
