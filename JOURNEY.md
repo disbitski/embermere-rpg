@@ -3846,6 +3846,16 @@ package validators passed, and 16 live-world suites passed. Clean PIE showed
 Human Wizard with slot-4 Meditate, though the physical press and painted chat
 remain a player check.
 
+## October 19: The Ledger And Chronicle Get Their Own Space
+
+Fresh floating PIE exposed a 7-pixel overlap between two bottom-right
+commands even though their Canvas offsets looked separate. A minimum-gap
+regression failed first. Moving only the Ledger command upward left a
+measured 10-pixel gap and preserved both fixed button sizes and read-only
+panel handoff. Xcode 26.1.1 linked the no-hot-reload build; all 121 native
+tests, 31 package validators, and 16 initialized-world suites passed.
+Physical pointer acceptance is still for the player.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

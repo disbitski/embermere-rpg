@@ -74,6 +74,7 @@ The repo currently contains the C++ gameplay scaffold for:
 - a fixed native eight-row quest ledger that shows active, ready, and completed
   history, supports mouse plus keyboard selection, and requests only a
   transient compact-tracker focus without owning quest or reward mutation;
+  its bottom-right command remains separate from Chronicle at small PIE size;
   quest data also owns distinct short objective instructions consumed read-only
   by the fixed compact tracker and selected detail with a stable legacy fallback
 - data-driven item sell values plus an earned-currency loop: Mara's first quest

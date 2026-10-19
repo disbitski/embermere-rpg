@@ -58,6 +58,10 @@ schema or any quest mutation API.
   selected row; `Focus Quest`, Enter, or an explicit row action requests focus.
 - `J` toggles the ledger and Escape closes it. The command remains mouse
   accessible beside the existing bottom-right Chronicle command.
+- The fixed `140x38` Ledger command stays directly above the same-size
+  Chronicle command without overlap even at the accepted small floating PIE
+  scale. The tested `-96` Ledger offset leaves at least 8 rendered pixels
+  between their hit bounds; Chronicle retains its `-24` bottom-right offset.
 - Opening Inventory, Vendor, Trainer, or Chronicle closes the ledger; opening
   the ledger closes those peer panels. Controller-owned input mode and cursor
   state follow the same established lifecycle.

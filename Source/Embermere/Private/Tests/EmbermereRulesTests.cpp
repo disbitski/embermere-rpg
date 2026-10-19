@@ -6623,7 +6623,13 @@ bool FEmbermereQuestLedgerPresentationTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("Quest-ledger command keeps fixed dimensions"),
 		Hud->GetQuestLedgerButtonDimensions(), FVector2D(140.0f, 38.0f));
 	TestEqual(TEXT("Quest-ledger command sits above Chronicle with fixed offset"),
-		Hud->GetQuestLedgerButtonViewportOffset(), FVector2D(-24.0f, -70.0f));
+		Hud->GetQuestLedgerButtonViewportOffset(), FVector2D(-24.0f, -96.0f));
+	const float SmallViewportScale = 0.65f;
+	const float CommandSeparation =
+		(Hud->GetChronicleButtonViewportOffset().Y -
+			Hud->GetQuestLedgerButtonViewportOffset().Y) * SmallViewportScale;
+	TestTrue(TEXT("Bottom-right commands retain an eight-pixel gap at small UI scale"),
+		CommandSeparation >= Hud->GetQuestLedgerButtonDimensions().Y + 8.0f);
 	TestEqual(TEXT("Quest ledger keeps fixed panel dimensions"),
 		Hud->GetQuestLedgerPanelDimensions(), FVector2D(620.0f, 550.0f));
 	TestEqual(TEXT("Every quest row keeps fixed dimensions"),

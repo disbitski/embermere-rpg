@@ -80,7 +80,7 @@ namespace
 	constexpr float QuestLedgerButtonWidth = 140.0f;
 	constexpr float QuestLedgerButtonHeight = 38.0f;
 	constexpr float QuestLedgerButtonMargin = 24.0f;
-	constexpr float QuestLedgerButtonVerticalOffset = 70.0f;
+	constexpr float QuestLedgerButtonVerticalOffset = 96.0f;
 	constexpr float QuestTrackerWidth = 260.0f;
 	constexpr float QuestTrackerHeight = 68.0f;
 	constexpr float TrainerPanelWidth = 500.0f;

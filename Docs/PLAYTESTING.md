@@ -794,8 +794,10 @@ The full ownership and rollback contract is in
     handoff; teardown; nonserialized focus; and zero quest/reward mutation.
 15. In clean PIE, leave Mara active at `0/3` and complete Still Waters at
     `1/1`. Press `J` and confirm both records fit the fixed `620x550` panel in
-    `596x30` rows, with the separate `140x38` Quest Ledger command eight pixels
-    above Chronicle and clear of chat, hotbar, target, and the compact tracker.
+    `596x30` rows, with the separate `140x38` Quest Ledger command at least
+    eight painted pixels above Chronicle and clear of chat, hotbar, target,
+    and the compact tracker. Physically click both commands to confirm
+    distinct hit targets and panel handoff at the small floating PIE size.
 16. Use Up/Down to select each record and Enter to focus it. Confirm selection
     alone does not change the tracker; explicit focus switches the compact HUD
     between Mara and completed Still Waters; XP, copper, progress, completion,

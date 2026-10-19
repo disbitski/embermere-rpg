@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-18
+Last updated: 2026-10-19
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,19 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 19 Handoff
+
+Fresh normal-route floating PIE found the Quest Ledger command overlapping
+Chronicle by 7 Slate pixels. The existing `Embermere.UI.QuestLedgerPresentation`
+test gained a small-scale minimum-gap assertion and failed first. Moving only
+Ledger's bottom-right Canvas offset from `-70` to `-96` passed the test and
+left a measured 10-pixel gap in final `1280x754` PIE. Synthetic clicks opened
+both separate read-only panels without using the protected save. Xcode 26.1.1
+no-hot-reload build linked; **121/121** native tests, fresh **31-package**
+aggregate with **53 Fab / 32 original-art**, and **16** live-world suites
+passed. Physical pointer hit testing remains a user check. See
+`Docs/DAILY_BUILD_2026-10-19.md`.
 
 ## October 18 Handoff
 

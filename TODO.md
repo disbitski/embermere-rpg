@@ -6,6 +6,19 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 19 bottom-right command spacing: fresh floating PIE Slate showed
+  Quest Ledger at `y=940..978` and Chronicle at `y=971..1009`, a 7-pixel
+  overlap despite their authored Canvas offsets. A new small-scale gap
+  assertion in `Embermere.UI.QuestLedgerPresentation` failed on the old
+  placement. Moving only Ledger's bottom-right offset from `-70` to `-96`
+  passed the regression; final PIE showed Ledger `y=923..961` and Chronicle
+  `y=971..1009`, a 10-pixel gap. Synthetic clicks opened both distinct
+  read-only panels. Process-local Xcode 26.1.1 `-NoHotReloadFromIDE` linked;
+  fresh full automation passed **121/121**, the GUI-down **31-package**
+  aggregate retained **53 Fab / 32 original-art** with exact markers and no
+  `LogPython: Error`, and all **16** initialized-world suites passed. Physical
+  pointer hit-testing remains a user check. See
+  `Docs/DAILY_BUILD_2026-10-19.md`.
 - October 18 full-resource recovery preflight: clean Human Wizard PIE exposed
   full `110/110` mana with Meditate in slot 4. Code review found a self-target
   cast could return success and start cooldown even when restoration applied
@@ -2054,6 +2067,11 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- At the normal floating PIE size, physically click the separate bottom-right
+  Quest Ledger and Chronicle commands. Confirm the visible gap, distinct hit
+  targets, and clean panel handoff; Unreal-owned Slate proved layout and
+  synthetic clicks, not physical pointer feel. Do not repeat the completed
+  placement fix without a concrete new issue.
 - In a voluntary Human Wizard playtest, press `4` at full mana. Confirm
   `Mana is already full.`, no Meditate cooldown, and unchanged mana. Spend at
   least 18 mana, press `4` again, and confirm exactly 18 restored with the

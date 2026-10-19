@@ -2,6 +2,17 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Canvas Offsets And Slate Hit Bounds Can Scale Differently
+
+The October 19 normal-route PIE showed two `140x38` bottom-right commands
+overlap by 7 pixels even though their authored Canvas offsets suggested an
+8-unit gap. At the small floating viewport, the 46-unit anchor separation
+scaled to about 31 Slate pixels while the measured button heights remained
+38. Assert the rendered minimum gap at the smallest accepted UI scale, not
+only the stored offsets. A `-96` Ledger offset preserved a 10-pixel gap in
+final PIE; Chronicle stayed at `-24`. Unreal-owned Slate coordinates are
+evidence for layout, not a substitute for the user's physical pointer check.
+
 ## Recovery Eligibility Must Agree Across Health, Mana, And Item UI
 
 The October 13 consumable regression found that `Heal` returned zero for a
