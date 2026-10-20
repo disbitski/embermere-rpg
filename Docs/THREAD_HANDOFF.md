@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-19
+Last updated: 2026-10-20
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,20 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 20 Handoff
+
+The saved Mara turn-in could silently reject its Recruit Pack when the bag
+was full: quest state stayed ready but interaction gave only the greeting.
+`Embermere.Quests.RewardBagFeedback` first failed on the missing line, then
+passed after the quest log exposed a read-only completion preflight result and
+the existing interaction rendered its exact bag-full reason. Rejection leaves
+the quest, XP, copper, and bag unchanged; freeing a slot permits a one-time
+reward. Process-local Xcode 26.1.1 no-hot-reload build linked; **122/122**
+native tests, fresh **31-package** aggregate with **53 Fab / 32 original-art**,
+and all **16** live-world suites passed. Clean PIE started/stopped; the map is
+All Saved outside PIE. Physical ready-Mara F/chat acceptance is still open.
+See `Docs/DAILY_BUILD_2026-10-20.md`.
 
 ## October 19 Handoff
 

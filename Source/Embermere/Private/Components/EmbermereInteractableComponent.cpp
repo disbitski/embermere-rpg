@@ -43,7 +43,16 @@ void UEmbermereInteractableComponent::Interact(AActor* Interactor)
 				QuestLog->AcceptQuest(QuestToOffer);
 				break;
 			case EEmbermereQuestAcceptanceResult::AlreadyTracked:
-				QuestLog->TryCompleteQuest(QuestToOffer);
+				if (!QuestLog->TryCompleteQuest(QuestToOffer))
+				{
+					const FText Failure = QuestLog->GetQuestCompletionResultText(
+						QuestLog->EvaluateQuestCompletion(QuestToOffer));
+					if (!Failure.IsEmpty())
+					{
+						UEmbermereGameplayMessageLibrary::PostGameplayMessage(
+							this, Failure, FLinearColor(1.0f, 0.62f, 0.24f, 1.0f));
+					}
+				}
 				break;
 			case EEmbermereQuestAcceptanceResult::InvalidQuest:
 			case EEmbermereQuestAcceptanceResult::OccupiedByOtherQuest:

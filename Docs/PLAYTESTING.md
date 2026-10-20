@@ -257,6 +257,14 @@ record. Save and load twice, then confirm both histories remain independent and
 neither giver can replay rewards. See
 [MULTI_QUEST_CONTRACT.md](MULTI_QUEST_CONTRACT.md).
 
+For a voluntary ready-Mara turn-in, try the existing F interaction with every
+bag slot occupied. The ready greeting should be followed by `Make room in your
+bags for the quest reward.`; the quest must remain ready and grant no XP,
+copper, or Recruit Pack. Free one slot and return to Mara: the exact reward
+should arrive once. This is a physical/painted acceptance check; the native
+fixture does not substitute for it. Do not force quest progress or load the
+protected Chronicle slot merely to stage this case.
+
 ## NPC Skeletal Idle Acceptance
 
 Use this focused lane when accepting wrapper-based NPC art. The Fenwatch

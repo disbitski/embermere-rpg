@@ -173,10 +173,6 @@ bool UEmbermereQuestLogComponent::TryCompleteActiveQuest()
 
 bool UEmbermereQuestLogComponent::TryCompleteQuestById(FName QuestId)
 {
-	if (bMutationInProgress)
-	{
-		return false;
-	}
 	const int32 QuestIndex = FindQuestStateIndex(QuestId);
 	if (!QuestStates.IsValidIndex(QuestIndex))
 	{
@@ -184,8 +180,7 @@ bool UEmbermereQuestLogComponent::TryCompleteQuestById(FName QuestId)
 	}
 	FEmbermereQuestState& QuestState = QuestStates[QuestIndex];
 	UEmbermereQuestData* Quest = QuestState.Quest;
-	if (!Quest || QuestState.bCompleted ||
-		QuestState.CurrentObjectiveCount < Quest->RequiredObjectiveCount)
+	if (EvaluateQuestCompletion(Quest) != EEmbermereQuestCompletionResult::Ready)
 	{
 		return false;
 	}
@@ -201,14 +196,7 @@ bool UEmbermereQuestLogComponent::TryCompleteQuestById(FName QuestId)
 		? Owner->FindComponentByClass<UEmbermereInventoryComponent>()
 		: nullptr;
 	UEmbermereItemData* RewardItem = Quest->RewardItem.IsNull()
-		? nullptr
-		: Quest->RewardItem.LoadSynchronous();
-	if ((Quest->RewardExperience > 0 && (!Stats || !Stats->CanAddExperience(Quest->RewardExperience))) ||
-		(Quest->RewardCopper > 0 && (!Wallet || !Wallet->CanAddCopper(Quest->RewardCopper))) ||
-		(!Quest->RewardItem.IsNull() && (!RewardItem || !Inventory || !Inventory->CanAddItem(RewardItem, 1))))
-	{
-		return false;
-	}
+		? nullptr : Quest->RewardItem.LoadSynchronous();
 
 	// Mark completion before reward delegates fire so a reentrant turn-in cannot
 	// grant the same reward twice. All fallible reward operations were preflighted.
@@ -242,6 +230,62 @@ bool UEmbermereQuestLogComponent::TryCompleteQuestById(FName QuestId)
 		FText::FromString(FString::Printf(TEXT("Quest complete: %s"), *Quest->Title.ToString())),
 		FLinearColor(0.42f, 1.0f, 0.48f, 1.0f));
 	return true;
+}
+
+EEmbermereQuestCompletionResult UEmbermereQuestLogComponent::EvaluateQuestCompletion(
+	UEmbermereQuestData* Quest) const
+{
+	if (bMutationInProgress || !IsQuestDataValid(Quest))
+	{
+		return EEmbermereQuestCompletionResult::NotReady;
+	}
+	const int32 QuestIndex = FindQuestStateIndex(Quest->QuestId);
+	if (!QuestStates.IsValidIndex(QuestIndex) || QuestStates[QuestIndex].Quest != Quest ||
+		QuestStates[QuestIndex].bCompleted ||
+		QuestStates[QuestIndex].CurrentObjectiveCount < Quest->RequiredObjectiveCount)
+	{
+		return EEmbermereQuestCompletionResult::NotReady;
+	}
+
+	const AActor* Owner = GetOwner();
+	const UEmbermereStatsComponent* Stats = Owner
+		? Owner->FindComponentByClass<UEmbermereStatsComponent>() : nullptr;
+	const UEmbermereWalletComponent* Wallet = Owner
+		? Owner->FindComponentByClass<UEmbermereWalletComponent>() : nullptr;
+	const UEmbermereInventoryComponent* Inventory = Owner
+		? Owner->FindComponentByClass<UEmbermereInventoryComponent>() : nullptr;
+	if ((Quest->RewardExperience > 0 && (!Stats || !Stats->CanAddExperience(Quest->RewardExperience))) ||
+		(Quest->RewardCopper > 0 && (!Wallet || !Wallet->CanAddCopper(Quest->RewardCopper))))
+	{
+		return EEmbermereQuestCompletionResult::RewardUnavailable;
+	}
+	if (!Quest->RewardItem.IsNull())
+	{
+		const UEmbermereItemData* RewardItem = Quest->RewardItem.LoadSynchronous();
+		if (!RewardItem || RewardItem->MaxStack <= 0 || !Inventory)
+		{
+			return EEmbermereQuestCompletionResult::RewardUnavailable;
+		}
+		if (!Inventory->CanAddItem(RewardItem, 1))
+		{
+			return EEmbermereQuestCompletionResult::BagFull;
+		}
+	}
+	return EEmbermereQuestCompletionResult::Ready;
+}
+
+FText UEmbermereQuestLogComponent::GetQuestCompletionResultText(
+	EEmbermereQuestCompletionResult Result) const
+{
+	switch (Result)
+	{
+	case EEmbermereQuestCompletionResult::BagFull:
+		return FText::FromString(TEXT("Make room in your bags for the quest reward."));
+	case EEmbermereQuestCompletionResult::RewardUnavailable:
+		return FText::FromString(TEXT("Quest reward is unavailable."));
+	default:
+		return FText::GetEmpty();
+	}
 }
 
 bool UEmbermereQuestLogComponent::TryCompleteQuest(UEmbermereQuestData* Quest)

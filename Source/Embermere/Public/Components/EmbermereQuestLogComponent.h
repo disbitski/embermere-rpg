@@ -57,6 +57,14 @@ enum class EEmbermereQuestAcceptanceResult : uint8
 	LedgerFull
 };
 
+enum class EEmbermereQuestCompletionResult : uint8
+{
+	Ready,
+	NotReady,
+	RewardUnavailable,
+	BagFull
+};
+
 UCLASS(ClassGroup = (Embermere), meta = (BlueprintSpawnableComponent))
 class EMBERMERE_API UEmbermereQuestLogComponent : public UActorComponent
 {
@@ -117,6 +125,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Embermere|Quest")
 	bool TryCompleteQuestById(FName QuestId);
+
+	EEmbermereQuestCompletionResult EvaluateQuestCompletion(UEmbermereQuestData* Quest) const;
+	FText GetQuestCompletionResultText(EEmbermereQuestCompletionResult Result) const;
 
 	bool CanRestoreQuestStateForSaveGame(const FEmbermereQuestState& NewState) const;
 	void RestoreQuestStateForSaveGame(const FEmbermereQuestState& NewState);

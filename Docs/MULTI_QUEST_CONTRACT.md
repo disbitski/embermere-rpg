@@ -74,6 +74,18 @@ remain read-only consumers. Art,
 rest, trainer, vendor, combat, and persistence services must not acquire quest
 authority merely because a quest observes one of their committed outcomes.
 
+For a ready quest with an item reward, the quest log preflights XP, copper,
+reward-data validity, and inventory capacity before committing any reward.
+Its read-only completion result distinguishes a full bag from unavailable
+reward data. The matching quest interaction may display that result, but cannot
+complete the quest or grant a partial reward itself. A full bag leaves the
+record ready and posts `Make room in your bags for the quest reward.`; freeing
+a slot allows the same owner to grant the exact reward once. Unready or already
+completed interactions do not claim a capacity failure. This changes no save
+field or quest-data schema. `Embermere.Quests.RewardBagFeedback` covers the
+saved Mara quest and rollback/retry in an isolated native world; physical F
+and painted chat remain a playtest gate.
+
 `ActiveQuest` remains only a derived compatibility projection for established
 Blueprint and HUD readers. `FocusedQuestId` selects that projection, follows
 explicit focus or exact progress, and is transient. Save capture serializes the

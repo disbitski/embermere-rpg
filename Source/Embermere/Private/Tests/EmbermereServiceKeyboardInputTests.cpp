@@ -8,6 +8,7 @@
 #include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereHotbarComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
+#include "Components/EmbermereInteractableComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/EmbermereTargetingComponent.h"
@@ -119,6 +120,75 @@ struct FEmbermereServiceKeyboardFixture
 		Controller->RefreshInteractiveInputMode();
 	}
 };
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereQuestRewardBagFeedbackTest,
+	"Embermere.Quests.RewardBagFeedback",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereQuestRewardBagFeedbackTest::RunTest(const FString& Parameters)
+{
+	UEmbermereQuestData* Mara = LoadObject<UEmbermereQuestData>(nullptr,
+		TEXT("/Game/Data/Quests/DQ_FirstSignsAtTheRuin.DQ_FirstSignsAtTheRuin"));
+	if (!TestNotNull(TEXT("Saved Mara quest exists"), Mara) ||
+		!TestFalse(TEXT("Mara has an item reward"), Mara->RewardItem.IsNull()))
+	{
+		return false;
+	}
+
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->Possess(F.Character);
+	F.World->AddController(F.Controller);
+	AActor* Service = F.World->SpawnActor<AActor>();
+	UEmbermereInteractableComponent* Interaction = NewObject<UEmbermereInteractableComponent>(Service);
+	Interaction->bShowWorldMarker = false;
+	Interaction->DisplayName = FText::FromString(TEXT("Mara Fenwatch"));
+	Interaction->QuestToOffer = Mara;
+	Interaction->bUseQuestStateDialogue = true;
+	Interaction->RegisterComponent();
+	UEmbermereQuestLogComponent* Log = F.Character->QuestLog;
+	UEmbermereInventoryComponent* Bag = F.Character->Inventory;
+	TestTrue(TEXT("Quest is accepted"), Log->AcceptQuest(Mara));
+	TestTrue(TEXT("Three committed objectives make Mara ready"),
+		Log->AddObjectiveProgressForQuest(Mara->QuestId, Mara->ObjectiveId, 3));
+	UEmbermereItemData* Filler = NewObject<UEmbermereItemData>();
+	Filler->ItemId = TEXT("TurnInFiller");
+	Filler->MaxStack = 1;
+	Bag->MaxSlots = 1;
+	TestTrue(TEXT("Only bag slot is occupied"), Bag->AddItem(Filler, 1, false));
+	const int32 ChatBefore = F.Hud->GetChatMessageCount();
+	const int32 CopperBefore = F.Character->Wallet->Copper;
+	const int32 XpBefore = F.Character->Stats->CurrentExperience;
+	Interaction->Interact(F.Character);
+	FEmbermereQuestState State;
+	TestTrue(TEXT("Rejected turn-in remains ready and incomplete"),
+		Log->GetQuestStateById(Mara->QuestId, State) &&
+		State.CurrentObjectiveCount == Mara->RequiredObjectiveCount && !State.bCompleted);
+	TestEqual(TEXT("Rejected turn-in preserves copper"), F.Character->Wallet->Copper, CopperBefore);
+	TestEqual(TEXT("Rejected turn-in preserves XP"), F.Character->Stats->CurrentExperience, XpBefore);
+	TestEqual(TEXT("Rejected turn-in grants no reward item"), Bag->Stacks.Num(), 1);
+	TestEqual(TEXT("Ready greeting is followed by one useful bag reason"),
+		F.Hud->GetChatMessageCount(), ChatBefore + 2);
+	UTextBlock* Failure = F.Hud->WidgetTree->FindWidget<UTextBlock>(
+		*FString::Printf(TEXT("ChatMessageText_%d"), ChatBefore + 1));
+	if (TestNotNull(TEXT("Quest rejection is visible in chat"), Failure))
+	{
+		TestEqual(TEXT("Bag rejection copy is exact"), Failure->GetText().ToString(),
+			FString(TEXT("Make room in your bags for the quest reward.")));
+	}
+
+	TestTrue(TEXT("Filler can be removed"), Bag->RemoveItem(Filler, 1));
+	Interaction->Interact(F.Character);
+	TestTrue(TEXT("Retry completes Mara exactly once"),
+		Log->GetQuestStateById(Mara->QuestId, State) && State.bCompleted);
+	TestEqual(TEXT("Retry grants exact copper"), F.Character->Wallet->Copper,
+		CopperBefore + Mara->RewardCopper);
+	TestEqual(TEXT("Retry grants exact XP"), F.Character->Stats->CurrentExperience,
+		XpBefore + Mara->RewardExperience);
+	TestEqual(TEXT("Retry grants one item"), Bag->Stacks.Num(), 1);
+	F.Controller->SetPawn(nullptr);
+	F.World->RemoveController(F.Controller);
+	return !HasAnyErrors();
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereVendorRangeTransactionsTest,
 	"Embermere.Vendor.RangeTransactions",

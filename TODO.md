@@ -6,6 +6,19 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 20 ready-quest bag feedback: the saved Mara quest's ready greeting
+  previously hid a rejected item reward when the bag was full. New
+  `Embermere.Quests.RewardBagFeedback` failed first on the missing reason,
+  then passed after the quest log exposed one read-only completion preflight
+  result and the existing interaction posted exact `Make room in your bags for
+  the quest reward.` copy. A full bag leaves Mara ready, with copper, XP, and
+  items unchanged; freeing a slot permits the exact one-time reward. Xcode
+  26.1.1 `-NoHotReloadFromIDE` linked, fresh full automation passed **122/122**,
+  the GUI-down **31-package** aggregate retained **53 Fab / 32 original-art**
+  with exact markers and no `LogPython: Error`, and all **16** live-world suites
+  passed. Clean PIE started/stopped and the map was All Saved outside PIE.
+  Physical ready-Mara full-bag chat remains a user check. See
+  `Docs/DAILY_BUILD_2026-10-20.md`.
 - October 19 bottom-right command spacing: fresh floating PIE Slate showed
   Quest Ledger at `y=940..978` and Chronicle at `y=971..1009`, a 7-pixel
   overlap despite their authored Canvas offsets. A new small-scale gap
@@ -2067,6 +2080,12 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary ready-Mara turn-in with a full bag, confirm the ready
+  greeting is followed by `Make room in your bags for the quest reward.`;
+  Mara remains ready and no XP/copper/item is granted. Free one slot and
+  return to claim exactly once. The native fixture proves this owner and
+  rollback path, not physical F or final painted chat. Do not force quest
+  progress or load the protected Chronicle slot merely to make this check.
 - At the normal floating PIE size, physically click the separate bottom-right
   Quest Ledger and Chronicle commands. Confirm the visible gap, distinct hit
   targets, and clean panel handoff; Unreal-owned Slate proved layout and

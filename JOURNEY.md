@@ -3856,6 +3856,17 @@ panel handoff. Xcode 26.1.1 linked the no-hot-reload build; all 121 native
 tests, 31 package validators, and 16 initialized-world suites passed.
 Physical pointer acceptance is still for the player.
 
+## October 20: Mara Explains A Full Bag
+
+The ready quest already rejected an item reward when inventory capacity was
+gone, but Mara's F interaction only gave the greeting. A native test over the
+saved Mara quest failed on that missing explanation, then passed once the quest
+owner exposed a read-only preflight result and the interaction printed its
+bag-full reason. Nothing is paid or completed until a slot is freed; the retry
+grants the exact reward once. Xcode 26.1.1 linked, 122 native tests, 31 saved
+package validators, and 16 live-world suites passed. Physical F and painted
+chat remain a player check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
