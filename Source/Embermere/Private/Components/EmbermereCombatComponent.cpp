@@ -2,6 +2,7 @@
 #include "Components/EmbermereQuestLogComponent.h"
 #include "Components/EmbermereStatsComponent.h"
 #include "Engine/Engine.h"
+#include "Engine/World.h"
 #include "Interfaces/EmbermereTargetableDispatch.h"
 #include "UI/EmbermereGameplayMessageLibrary.h"
 
@@ -86,6 +87,20 @@ EEmbermereAbilityRejection UEmbermereCombatComponent::GetAbilityRejection(const 
 		if (!IsTargetAlive(TargetActor))
 		{
 			return EEmbermereAbilityRejection::DefeatedTarget;
+		}
+
+		if (UWorld* World = Owner->GetWorld())
+		{
+			FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EmbermereAbilitySightline), false);
+			QueryParams.AddIgnoredActor(Owner);
+			QueryParams.AddIgnoredActor(TargetActor);
+			FHitResult Hit;
+			const FVector EyeOffset(0.0f, 0.0f, 90.0f);
+			if (World->LineTraceSingleByChannel(Hit, Owner->GetActorLocation() + EyeOffset,
+				TargetActor->GetActorLocation() + EyeOffset, ECC_Visibility, QueryParams))
+			{
+				return EEmbermereAbilityRejection::Obstructed;
+			}
 		}
 	}
 	const UEmbermereStatsComponent* TargetStats = TargetActor->FindComponentByClass<UEmbermereStatsComponent>();

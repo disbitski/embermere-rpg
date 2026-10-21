@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-20
+Last updated: 2026-10-21
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,21 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 21 Handoff
+
+Combat now rejects an in-range targeted ability through solid `Visibility`
+collision before mana spend or effect publication; the controller renders
+exact `Target is out of sight.` A started-world solid-wall regression was red
+first on damage/mana, then green after the preflight. The hotbar regression
+also covers exact chat and zero cooldown/resource mutation. Process-local
+Xcode 26.1.1 `-NoHotReloadFromIDE` linked; **123/123** native tests, the fresh
+**31-package** aggregate with **53 Fab / 32 original-art**, and all **16**
+live-world suites passed without Python errors. Clean floating PIE reached
+Human Warrior HUD/target selection, stopped, and left the map All Saved on
+real MCP 8123. Physical wall-blocked casting and painted feedback remain
+unverified. See `Docs/COMBAT_SIGHTLINE_CONTRACT.md` and
+`Docs/DAILY_BUILD_2026-10-21.md`.
 
 ## October 20 Handoff
 

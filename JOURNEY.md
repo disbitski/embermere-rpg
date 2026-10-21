@@ -3867,6 +3867,18 @@ grants the exact reward once. Xcode 26.1.1 linked, 122 native tests, 31 saved
 package validators, and 16 live-world suites passed. Physical F and painted
 chat remain a player check.
 
+## October 21: Solid Cover Finally Counts
+
+Targeting an enemy was never meant to make walls transparent to a hotbar
+ability. A started-world test placed a solid box between the player and a
+practice target and caught the old path dealing damage and spending mana
+through it. Combat now owns a simple visibility preflight, and the HUD gives
+the exact `Target is out of sight.` reason without taking over geometry or
+damage authority. Move clear and the ability works normally. Xcode 26.1.1
+linked the no-hot-reload build; 123 native tests, 31 saved-package validators,
+and 16 live-world suites passed. Physical ruin-wall combat and painted chat
+are still a player check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

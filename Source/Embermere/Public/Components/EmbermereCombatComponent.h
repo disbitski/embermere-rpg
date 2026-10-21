@@ -17,6 +17,7 @@ enum class EEmbermereAbilityRejection : uint8
 	NoTarget,
 	OutOfRange,
 	DefeatedTarget,
+	Obstructed,
 	InsufficientMana,
 	FullHealth,
 	FullMana

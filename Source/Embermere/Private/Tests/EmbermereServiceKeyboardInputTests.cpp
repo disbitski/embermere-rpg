@@ -15,6 +15,7 @@
 #include "Components/EmbermereTrainerComponent.h"
 #include "Components/EmbermereVendorComponent.h"
 #include "Components/EmbermereWalletComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Data/EmbermereItemData.h"
@@ -672,6 +673,28 @@ bool FEmbermereHotbarRejectionFeedbackTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("No rejection delivers loot"), F.Character->Inventory->Stacks.Num(), 0);
 
 	F.Character->Stats->CurrentMana = InitialMana;
+	AActor* Wall = F.World->SpawnActor<AActor>();
+	UBoxComponent* WallBox = NewObject<UBoxComponent>(Wall);
+	Wall->SetRootComponent(WallBox);
+	WallBox->SetBoxExtent(FVector(10.0f, 100.0f, 150.0f));
+	WallBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	WallBox->SetCollisionProfileName(TEXT("BlockAll"));
+	WallBox->RegisterComponent();
+	Wall->SetActorLocation(FVector(50.0f, 0.0f, 0.0f));
+	FCollisionQueryParams SightlineParams(SCENE_QUERY_STAT(EmbermereHotbarSightlineTest), false);
+	SightlineParams.AddIgnoredActor(F.Character);
+	SightlineParams.AddIgnoredActor(Target);
+	FHitResult SightlineHit;
+	TestTrue(TEXT("Solid test wall blocks the hotbar sightline"),
+		F.World->LineTraceSingleByChannel(SightlineHit, FVector(0.0f, 0.0f, 90.0f),
+			FVector(100.0f, 0.0f, 90.0f), ECC_Visibility, SightlineParams));
+	F.ActivateAbilitySlot(0);
+	TestEqual(TEXT("Obstructed request produces one explanation"), F.Hud->GetChatMessageCount(), InitialMessages + 4);
+	TestEqual(TEXT("Obstructed copy"), ChatLine(3), FString(TEXT("Target is out of sight.")));
+	TestEqual(TEXT("Obstructed request spends no mana"), F.Character->Stats->CurrentMana, InitialMana);
+	TestEqual(TEXT("Obstructed request deals no damage"), Target->Stats->CurrentHealth, TargetHealth);
+	TestEqual(TEXT("Obstructed request starts no cooldown"), F.Character->Hotbar->GetSlotCooldownRemaining(0), 0.0f);
+	Wall->SetActorLocation(FVector(50.0f, 300.0f, 0.0f));
 	F.ActivateAbilitySlot(0);
 	TestTrue(TEXT("Valid strike still applies damage"), Target->Stats->CurrentHealth < TargetHealth);
 	TestEqual(TEXT("Valid strike spends its exact mana cost"), F.Character->Stats->CurrentMana, InitialMana - 10.0f);

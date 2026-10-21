@@ -535,6 +535,9 @@ void AEmbermerePlayerController::ActivateHotbarSlot(int32 SlotIndex)
 				case EEmbermereAbilityRejection::DefeatedTarget:
 					Message = TEXT("Target is already defeated.");
 					break;
+				case EEmbermereAbilityRejection::Obstructed:
+					Message = TEXT("Target is out of sight.");
+					break;
 				case EEmbermereAbilityRejection::InsufficientMana:
 					Message = FString::Printf(TEXT("Not enough mana for %s."), *AbilityName);
 					break;

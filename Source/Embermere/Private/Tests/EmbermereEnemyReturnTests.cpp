@@ -4,6 +4,7 @@
 #include "Characters/EmbermereCharacter.h"
 #include "Characters/EmbermerePracticeTargetActor.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/EmbermereCombatComponent.h"
 #include "Components/EmbermereInventoryComponent.h"
 #include "Components/EmbermereQuestLogComponent.h"
@@ -19,6 +20,95 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/WorldSettings.h"
 #include "Misc/AutomationTest.h"
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereObstructedAbilityTest,
+	"Embermere.Combat.ObstructedAbility",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereObstructedAbilityTest::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("Isolated combat world exists"), World))
+	{
+		return false;
+	}
+	GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
+	APlayerController* Controller = World->SpawnActor<APlayerController>();
+	AEmbermereCharacter* Player = World->SpawnActor<AEmbermereCharacter>(
+		FVector(0.0f, 0.0f, 90.0f), FRotator::ZeroRotator);
+	AEmbermerePracticeTargetActor* Target = World->SpawnActor<AEmbermerePracticeTargetActor>(
+		FVector(400.0f, 0.0f, 90.0f), FRotator::ZeroRotator);
+	AActor* Wall = World->SpawnActor<AActor>();
+	if (!Controller || !Player || !Target || !Wall)
+	{
+		AddError(TEXT("Could not spawn line-of-sight fixtures"));
+		GEngine->DestroyWorldContext(World);
+		World->DestroyWorld(false);
+		return false;
+	}
+	UBoxComponent* WallBox = NewObject<UBoxComponent>(Wall);
+	WallBox->SetBoxExtent(FVector(20.0f, 150.0f, 120.0f));
+	WallBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	WallBox->SetCollisionResponseToAllChannels(ECR_Block);
+	Wall->SetRootComponent(WallBox);
+	WallBox->RegisterComponent();
+	Wall->SetActorLocation(FVector(200.0f, 0.0f, 90.0f));
+	Controller->Possess(Player);
+	World->AddController(Controller);
+	World->InitializeActorsForPlay(FURL());
+	World->BeginPlay();
+	World->GetWorldSettings()->NotifyBeginPlay();
+
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EmbermereAbilityObstructionControl), false);
+	QueryParams.AddIgnoredActor(Player);
+	QueryParams.AddIgnoredActor(Target);
+	FHitResult Hit;
+	TestTrue(TEXT("Registered wall blocks the actual visibility channel"),
+		World->LineTraceSingleByChannel(Hit,
+			Player->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			Target->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			ECC_Visibility, QueryParams) && Hit.GetActor() == Wall);
+
+	FEmbermereAbilityDefinition Bolt;
+	Bolt.AbilityId = TEXT("BlockedBolt");
+	Bolt.DisplayName = FText::FromString(TEXT("Blocked Bolt"));
+	Bolt.TargetKind = EEmbermereAbilityTargetKind::Enemy;
+	Bolt.EffectType = EEmbermereAbilityEffectType::Damage;
+	Bolt.Power = 20.0f;
+	Bolt.ManaCost = 8.0f;
+	Bolt.Range = 600.0f;
+	Player->Combat->SetTarget(Target);
+	const float HealthBefore = Target->Stats->CurrentHealth;
+	const float ManaBefore = Player->Stats->CurrentMana;
+	const int32 CopperBefore = Player->Wallet->Copper;
+	const int32 ExperienceBefore = Player->Stats->CurrentExperience;
+	int32 CommittedResults = 0;
+	Player->Combat->OnCombatResult.AddLambda([&CommittedResults](const FEmbermereCombatResult&)
+	{
+		++CommittedResults;
+	});
+	TestFalse(TEXT("Solid wall rejects the targeted cast"), Player->Combat->ExecuteAbility(Bolt));
+	TestEqual(TEXT("Blocked cast leaves target health unchanged"), Target->Stats->CurrentHealth, HealthBefore);
+	TestEqual(TEXT("Blocked cast spends no mana"), Player->Stats->CurrentMana, ManaBefore);
+	TestEqual(TEXT("Blocked cast publishes no result"), CommittedResults, 0);
+	TestEqual(TEXT("Blocked cast gives no copper"), Player->Wallet->Copper, CopperBefore);
+	TestEqual(TEXT("Blocked cast gives no XP"), Player->Stats->CurrentExperience, ExperienceBefore);
+	TestEqual(TEXT("Blocked cast gives no quest progress"), Player->QuestLog->QuestStates.Num(), 0);
+
+	Wall->SetActorLocation(FVector(200.0f, 400.0f, 90.0f));
+	TestTrue(TEXT("Same in-range ability works after the wall clears"),
+		Player->Combat->ExecuteAbility(Bolt));
+	TestTrue(TEXT("Clear cast applies damage"), Target->Stats->CurrentHealth < HealthBefore);
+	TestEqual(TEXT("Clear cast spends its normal mana cost"), Player->Stats->CurrentMana,
+		ManaBefore - Bolt.ManaCost);
+	TestEqual(TEXT("Only the clear cast publishes a result"), CommittedResults, 1);
+
+	World->EndPlay(EEndPlayReason::Quit);
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return !HasAnyErrors();
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereSpawnedDefeatLootTest,

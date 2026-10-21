@@ -626,6 +626,11 @@ The full authority and rollback contracts are in
    and chat while retaining the ordinary cooldown contract. Root, Snare, and
    other class effects may be accepted for normal combat consistency, but they
    must not give the target AI or locomotion.
+   For targeted abilities, a solid world wall between the player and selected
+   target should instead post `Target is out of sight.` without spending mana,
+   starting a cooldown, changing target HP, or awarding credit. Step into a
+   clear line and retry. The native wall test does not prove physical aiming
+   or final painted feedback.
 5. Defeat it. Confirm selection, nameplate, and cyan circle clear immediately;
    the separate visible dummy remains in place; and no loot, XP, copper,
    inventory stack, Mara objective progress, or trainer/service state changes.

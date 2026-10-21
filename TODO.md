@@ -6,6 +6,22 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 21 targeted-ability sightline: a selected enemy behind the solid
+  ruin wall could still take ability damage and consume mana. The new
+  `Embermere.Combat.ObstructedAbility` started-world regression failed first
+  with 30 damage and 8 mana spent through a registered blocking box, then
+  passed after Combat added a simple `Visibility` preflight. The hotbar now
+  reports exact `Target is out of sight.` without health, mana, cooldown,
+  results, rewards, or quest mutation; clear casts retain normal behavior.
+  Process-local Xcode 26.1.1 `-NoHotReloadFromIDE` linked; fresh automation
+  passed **123/123** with zero failures/warnings/skips; the GUI-down
+  **31-package** aggregate retained **53 Fab / 32 original-art**, exact
+  markers and no `LogPython: Error`; all **16** initialized-world suites
+  passed. Clean floating PIE reached Human Warrior HUD/target selection and
+  stopped. The map is All Saved outside PIE with real MCP 8123. Physical
+  wall-blocked combat and painted copy remain a user check. See
+  `Docs/DAILY_BUILD_2026-10-21.md` and
+  `Docs/COMBAT_SIGHTLINE_CONTRACT.md`.
 - October 20 ready-quest bag feedback: the saved Mara quest's ready greeting
   previously hid a rejected item reward when the bag was full. New
   `Embermere.Quests.RewardBagFeedback` failed first on the missing reason,
@@ -2080,6 +2096,13 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary normal-route ruin encounter, keep a living Prowler
+  selected while a solid wall separates it from the player. A targeted
+  in-range hotbar cast should say `Target is out of sight.` without mana,
+  cooldown, damage, quest credit, or loot; moving into a clear line should
+  allow the same ability. The started-world regression and saved wall traces
+  prove the rule, not physical aim, camera feel, or painted chat. Do not force
+  combat or quest progress just to make this check.
 - During a voluntary ready-Mara turn-in with a full bag, confirm the ready
   greeting is followed by `Make room in your bags for the quest reward.`;
   Mara remains ready and no XP/copper/item is granted. Free one slot and
