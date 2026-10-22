@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-21
+Last updated: 2026-10-22
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,21 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 22 Handoff
+
+Enemy AI now rejects a melee hit through solid `Visibility` collision before
+attack animation, damage, or cooldown, without changing player ability
+preflight, aggro, movement, or leash. The started-world regression was red
+first at `100 -> 94` health through a wall; with the fix, the covered hit is
+blocked and the same engagement hits immediately after the wall moves clear.
+Process-local Xcode 26.1.1 `-NoHotReloadFromIDE` linked; **124/124** native
+tests, the GUI-down **31-package** aggregate with **53 Fab / 32 original-art**,
+and all **16** initialized-world suites passed. Clean floating PIE reached
+Human Warrior HUD and stopped; the Fenwatch map is All Saved outside PIE on
+real MCP 8123. Physical Prowler cover/camera/animation acceptance remains
+open. See `Docs/ENEMY_MELEE_COVER_CONTRACT.md` and
+`Docs/DAILY_BUILD_2026-10-22.md`.
 
 ## October 21 Handoff
 

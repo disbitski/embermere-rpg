@@ -895,6 +895,16 @@ void AEmbermereEnemyCharacter::TryAttackTarget(AActor* Target)
 	{
 		return;
 	}
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EmbermereEnemyMeleeCover), false);
+	QueryParams.AddIgnoredActor(this);
+	QueryParams.AddIgnoredActor(Target);
+	FHitResult CoverHit;
+	const FVector EyeOffset(0.0f, 0.0f, 90.0f);
+	if (World->LineTraceSingleByChannel(CoverHit, GetActorLocation() + EyeOffset,
+		Target->GetActorLocation() + EyeOffset, ECC_Visibility, QueryParams))
+	{
+		return;
+	}
 
 	PlayVisualAnimation(AttackAnimation, false, true);
 	const float AppliedDamage = TargetStats->ApplyDamage(AttackDamage);

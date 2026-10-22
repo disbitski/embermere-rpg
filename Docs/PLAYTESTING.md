@@ -644,6 +644,18 @@ The full authority and rollback contracts are in
 The authority and reset contract is in
 [PRACTICE_TARGET_CONTRACT.md](PRACTICE_TARGET_CONTRACT.md).
 
+## Prowler Melee Cover Check
+
+In a voluntary normal-route Prowler fight near the solid ruin wall, remain
+inside melee range with the wall between enemy and player. Confirm the enemy
+can stay engaged but does not hit through solid cover. Move into a clear line
+and confirm ordinary melee damage resumes without a cooldown from the blocked
+attempt. Inspect animation and camera feel at normal distance. The native
+started-world test covers the AI eligibility rule; it does not prove physical
+movement or the final visual read. No quest progress or protected save load
+is needed solely to stage this check. See
+[ENEMY_MELEE_COVER_CONTRACT.md](ENEMY_MELEE_COVER_CONTRACT.md).
+
 ## Floating Combat Feedback Loop
 
 1. In clean PIE, target the Fenwatch Practice Target and strike it from the

@@ -3879,6 +3879,18 @@ linked the no-hot-reload build; 123 native tests, 31 saved-package validators,
 and 16 live-world suites passed. Physical ruin-wall combat and painted chat
 are still a player check.
 
+## October 22: Cover Protects Both Sides
+
+After player abilities learned to respect ruin walls, an enemy in melee range
+could still strike through the same solid cover. A started-world test caught
+the old AI taking Human Warrior health from 100 to 94 behind a registered
+wall. The enemy now checks its own visibility line before committing an
+attack; moving the wall clear lets the same engagement hit immediately.
+Xcode 26.1.1 linked the no-hot-reload build; all 124 native tests, 31 saved
+package validators, and 16 live-world suites passed. Clean PIE reached the
+Human Warrior HUD and stopped. Real Prowler movement, animation, and camera
+feel around the ruin still need a player check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

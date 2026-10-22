@@ -22,6 +22,76 @@
 #include "Misc/AutomationTest.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereEnemyMeleeCoverSafetyTest,
+	"Embermere.Enemy.MeleeCoverSafety",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereEnemyMeleeCoverSafetyTest::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("Isolated enemy world exists"), World))
+	{
+		return false;
+	}
+	GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
+	APlayerController* Controller = World->SpawnActor<APlayerController>();
+	AEmbermereCharacter* Player = World->SpawnActor<AEmbermereCharacter>(
+		FVector(120.0f, 0.0f, 90.0f), FRotator::ZeroRotator);
+	AEmbermereEnemyCharacter* Enemy = World->SpawnActor<AEmbermereEnemyCharacter>(
+		FVector(0.0f, 0.0f, 90.0f), FRotator::ZeroRotator);
+	AActor* Wall = World->SpawnActor<AActor>();
+	if (!Controller || !Player || !Enemy || !Wall)
+	{
+		AddError(TEXT("Could not spawn enemy cover fixtures"));
+		GEngine->DestroyWorldContext(World);
+		World->DestroyWorld(false);
+		return false;
+	}
+	UBoxComponent* WallBox = NewObject<UBoxComponent>(Wall);
+	WallBox->SetBoxExtent(FVector(10.0f, 120.0f, 120.0f));
+	WallBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	WallBox->SetCollisionResponseToAllChannels(ECR_Block);
+	Wall->SetRootComponent(WallBox);
+	WallBox->RegisterComponent();
+	Wall->SetActorLocation(FVector(60.0f, 0.0f, 90.0f));
+	Controller->Possess(Player);
+	World->AddController(Controller);
+	World->InitializeActorsForPlay(FURL());
+	World->BeginPlay();
+	World->GetWorldSettings()->NotifyBeginPlay();
+
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EmbermereEnemyCoverControl), false);
+	QueryParams.AddIgnoredActor(Enemy);
+	QueryParams.AddIgnoredActor(Player);
+	FHitResult Hit;
+	TestTrue(TEXT("Solid wall blocks the actual melee visibility channel"),
+		World->LineTraceSingleByChannel(Hit,
+			Enemy->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			Player->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			ECC_Visibility, QueryParams) && Hit.GetActor() == Wall);
+	const float HealthBefore = Player->Stats->CurrentHealth;
+	static_cast<AActor*>(Enemy)->Tick(1.0f / 60.0f);
+	TestEqual(TEXT("In-range enemy cannot hit through solid cover"),
+		Player->Stats->CurrentHealth, HealthBefore);
+	const float HealthAfterBlockedAttempt = Player->Stats->CurrentHealth;
+
+	Wall->SetActorLocation(FVector(60.0f, 400.0f, 90.0f));
+	TestFalse(TEXT("Moved wall leaves the melee visibility channel clear"),
+		World->LineTraceSingleByChannel(Hit,
+			Enemy->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			Player->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			ECC_Visibility, QueryParams));
+	static_cast<AActor*>(Enemy)->Tick(1.0f / 60.0f);
+	TestTrue(TEXT("Enemy lands the normal hit immediately after cover clears"),
+		Player->Stats->CurrentHealth < HealthAfterBlockedAttempt);
+
+	World->EndPlay(EEndPlayReason::Quit);
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return !HasAnyErrors();
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereObstructedAbilityTest,
 	"Embermere.Combat.ObstructedAbility",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

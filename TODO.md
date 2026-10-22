@@ -6,6 +6,22 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 22 enemy melee cover safety: code review found a separate Prowler
+  AI gap after the player ability sightline fix: an in-range enemy could hit
+  through registered solid cover. New `Embermere.Enemy.MeleeCoverSafety`
+  failed first with player health `100 -> 94` behind a blocking box, then
+  passed after the enemy AI rejected a blocked `Visibility` ray before its
+  attack animation, damage, and cooldown. Moving the box clear permits the
+  same engagement's normal hit immediately. Process-local Xcode 26.1.1
+  `-NoHotReloadFromIDE` compiled and linked; fresh full automation passed
+  **124/124** with zero failures/warnings/skips. The GUI-down **31-package**
+  aggregate retained **53 Fab / 32 original-art**, exact markers and no
+  `LogPython: Error`; all **16** initialized-world suites passed. Clean
+  floating PIE reached Human Warrior HUD and stopped; the Fenwatch map is
+  All Saved outside PIE on real MCP 8123. A physical Prowler fight around
+  ruin cover and final animation/camera feel remain a user check. See
+  `Docs/DAILY_BUILD_2026-10-22.md` and
+  `Docs/ENEMY_MELEE_COVER_CONTRACT.md`.
 - October 21 targeted-ability sightline: a selected enemy behind the solid
   ruin wall could still take ability damage and consume mana. The new
   `Embermere.Combat.ObstructedAbility` started-world regression failed first
@@ -2096,6 +2112,12 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary real Prowler fight near solid ruin cover, remain within
+  melee range while the wall separates enemy and player. The Prowler should
+  keep its engagement but deal no melee damage through the wall; after the
+  line clears, normal melee should resume. The started-world regression
+  proves AI preflight and immediate retry, not physical movement, animation,
+  camera feel, or painted feedback. Do not force combat to manufacture this.
 - During a voluntary normal-route ruin encounter, keep a living Prowler
   selected while a solid wall separates it from the player. A targeted
   in-range hotbar cast should say `Target is out of sight.` without mana,
