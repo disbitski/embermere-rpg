@@ -71,6 +71,9 @@ The repo currently contains the C++ gameplay scaffold for:
   floating-feedback observer shared by Prowlers and the practice target; exact
   damage briefly rises beside the world nameplate while chat and target HP stay
   authoritative fallbacks, and presentation owns no hit resolution or rewards
+- a separate post-mitigation live-damage event that briefly brightens the
+  player's existing fixed health bar without changing damage authority or
+  replaying on save restore
 - a fixed native eight-row quest ledger that shows active, ready, and completed
   history, supports mouse plus keyboard selection, and requests only a
   transient compact-tracker focus without owning quest or reward mutation;

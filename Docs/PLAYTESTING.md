@@ -656,6 +656,17 @@ movement or the final visual read. No quest progress or protected save load
 is needed solely to stage this check. See
 [ENEMY_MELEE_COVER_CONTRACT.md](ENEMY_MELEE_COVER_CONTRACT.md).
 
+## Incoming Hit Cue Check
+
+In a voluntary normal-route Prowler fight, take one nonlethal hit and watch
+the existing top-left health bar brighten briefly, then return to its
+original red within 0.5 seconds. The HP number and chat line remain the
+durable result, and target, quest, Inventory, and hotbar geometry must not
+move. Another hit renews the cue. Healing, immunity, death/recovery, and a
+fresh load must not replay stale damage. The native regression proves
+event/expiry/teardown behavior, not physical contrast or camera feel. See
+[INCOMING_DAMAGE_CUE_CONTRACT.md](INCOMING_DAMAGE_CUE_CONTRACT.md).
+
 ## Floating Combat Feedback Loop
 
 1. In clean PIE, target the Fenwatch Practice Target and strike it from the

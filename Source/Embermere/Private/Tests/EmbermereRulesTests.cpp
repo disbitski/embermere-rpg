@@ -26,6 +26,7 @@
 #include "Components/EmbermereWalletComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/ProgressBar.h"
 #include "Components/ScaleBox.h"
 #include "Components/ScaleBoxSlot.h"
 #include "Components/SizeBox.h"
@@ -2039,6 +2040,95 @@ bool FEmbermereAutorunStatusCueTest::RunTest(const FString& Parameters)
 	Hud->RefreshAutorunStatus(Controller);
 	TestEqual(TEXT("Manual backward movement clears the cue"), Cue->GetVisibility(), ESlateVisibility::Hidden);
 	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereIncomingDamageCueTest,
+	"Embermere.UI.IncomingDamageCue",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereIncomingDamageCueTest::RunTest(const FString& Parameters)
+{
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	if (!TestNotNull(TEXT("Character exists"), Character) ||
+		!TestNotNull(TEXT("HUD exists"), Hud) ||
+		!TestNotNull(TEXT("Stats exist"), Character->Stats.Get()))
+	{
+		return false;
+	}
+
+	Hud->TakeWidget();
+	Hud->BindToCharacter(Character);
+	UProgressBar* HealthBar = Cast<UProgressBar>(Hud->GetWidgetFromName(TEXT("HealthBar")));
+	USizeBox* HealthBarSize = Cast<USizeBox>(Hud->GetWidgetFromName(TEXT("HealthBarSize")));
+	if (!TestNotNull(TEXT("Health bar exists"), HealthBar) ||
+		!TestNotNull(TEXT("Health bar has stable bounds"), HealthBarSize))
+	{
+		return false;
+	}
+	const FLinearColor RestingColor = HealthBar->GetFillColorAndOpacity();
+	TestEqual(TEXT("Health bar width stays fixed"), HealthBarSize->GetWidthOverride(), 260.0f);
+	TestEqual(TEXT("Health bar height stays fixed"), HealthBarSize->GetHeightOverride(), 14.0f);
+
+	Character->Stats->InitializeVitals();
+	TestTrue(TEXT("Initialization is silent"), HealthBar->GetFillColorAndOpacity().Equals(RestingColor));
+	TestEqual(TEXT("Committed hit removes six health"), Character->Stats->ApplyDamage(6.0f), 6.0f);
+	TestFalse(TEXT("Committed hit briefly brightens the existing health bar"),
+		HealthBar->GetFillColorAndOpacity().Equals(RestingColor));
+	const FLinearColor ImpactColor = HealthBar->GetFillColorAndOpacity();
+	Hud->AdvanceIncomingDamageCue(0.25f);
+	TestFalse(TEXT("Cue fades after a quarter second"),
+		HealthBar->GetFillColorAndOpacity().Equals(ImpactColor));
+	TestFalse(TEXT("Cue remains visible halfway through"),
+		HealthBar->GetFillColorAndOpacity().Equals(RestingColor));
+	TestEqual(TEXT("Another hit renews the cue"), Character->Stats->ApplyDamage(4.0f), 4.0f);
+	TestTrue(TEXT("Renewal restores the impact color"),
+		HealthBar->GetFillColorAndOpacity().Equals(ImpactColor));
+	Hud->AdvanceIncomingDamageCue(0.5f);
+	TestTrue(TEXT("Cue expires to the original health color"),
+		HealthBar->GetFillColorAndOpacity().Equals(RestingColor));
+
+	Character->Stats->GrantDamageImmunity(10.0f);
+	TestEqual(TEXT("Immune hit applies no health loss"), Character->Stats->ApplyDamage(6.0f), 0.0f);
+	TestTrue(TEXT("Immune hit does not flash"), HealthBar->GetFillColorAndOpacity().Equals(RestingColor));
+	Character->Stats->ClearDamageImmunity();
+	TestEqual(TEXT("Healing does not replay a hit cue"), Character->Stats->Heal(10.0f), 10.0f);
+	TestTrue(TEXT("Healing leaves original health color"),
+		HealthBar->GetFillColorAndOpacity().Equals(RestingColor));
+	Character->Stats->Armor = 100.0f;
+	TestEqual(TEXT("Armor mitigates the committed hit"), Character->Stats->ApplyDamage(10.0f), 5.0f);
+	TestTrue(TEXT("Mitigated damage still produces a cue"),
+		HealthBar->GetFillColorAndOpacity().Equals(ImpactColor));
+	Character->Stats->InitializeVitals();
+	TestTrue(TEXT("Stat rebuild clears a prior hit without replay"),
+		HealthBar->GetFillColorAndOpacity().Equals(RestingColor));
+	Character->Stats->ApplyDamage(2.0f);
+	Character->Stats->ForceDeath();
+	TestTrue(TEXT("Death clears the transient cue"),
+		HealthBar->GetFillColorAndOpacity().Equals(RestingColor));
+
+	AEmbermereCharacter* FreshCharacter = NewObject<AEmbermereCharacter>();
+	if (!TestNotNull(TEXT("Fresh character exists"), FreshCharacter) ||
+		!TestNotNull(TEXT("Fresh stats exist"), FreshCharacter->Stats.Get()))
+	{
+		return false;
+	}
+	FreshCharacter->Stats->InitializeVitals();
+	FreshCharacter->Stats->ApplyDamage(3.0f);
+	Hud->BindToCharacter(FreshCharacter);
+	TestTrue(TEXT("Binding an already-damaged character never replays a hit"),
+		HealthBar->GetFillColorAndOpacity().Equals(RestingColor));
+	FreshCharacter->Stats->ApplyDamage(2.0f);
+	TestTrue(TEXT("New live owner can show a fresh hit"),
+		HealthBar->GetFillColorAndOpacity().Equals(ImpactColor));
+	Hud->BindToCharacter(nullptr);
+	TestTrue(TEXT("Unbinding tears down the transient cue"),
+		HealthBar->GetFillColorAndOpacity().Equals(RestingColor));
+	FreshCharacter->Stats->ApplyDamage(2.0f);
+	TestTrue(TEXT("Old owner cannot flash an unbound HUD"),
+		HealthBar->GetFillColorAndOpacity().Equals(RestingColor));
+	return !HasAnyErrors();
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(

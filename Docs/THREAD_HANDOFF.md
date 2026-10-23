@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-22
+Last updated: 2026-10-23
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,21 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 23 Handoff
+
+Stats now emits a positive, post-mitigation live-damage event only after
+`ApplyDamage` commits. The HUD observes it to brighten the existing fixed
+health bar for 0.5 seconds, renewing on a later hit and clearing on health
+rebuild, death, unbind, or teardown. Invalid/immune hits, heal, and a fresh
+bind to already-damaged stats do not flash. The focused test was red first on
+the absent cue and green after repair. Xcode 26.1.1 `-NoHotReloadFromIDE`
+linked; **125/125** native tests, the GUI-down **31-package** aggregate with
+**53 Fab / 32 original-art**, and all **16** initialized-world suites passed.
+Clean PIE retained the top-left status bounds. Physical hit contrast and
+normal-camera combat remain a user check. See
+`Docs/INCOMING_DAMAGE_CUE_CONTRACT.md` and
+`Docs/DAILY_BUILD_2026-10-23.md`.
 
 ## October 22 Handoff
 

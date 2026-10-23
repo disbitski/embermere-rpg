@@ -85,6 +85,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Embermere|HUD")
 	void BindToCharacter(AEmbermereCharacter* Character);
 	void RefreshAutorunStatus(const AEmbermerePlayerController* Controller);
+	void AdvanceIncomingDamageCue(float DeltaSeconds);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Embermere|HUD")
 	void OnTargetChanged(AActor* NewTarget);
@@ -761,6 +762,7 @@ private:
 
 	float DialogueHideTimeSeconds = 0.0f;
 	float LootHideTimeSeconds = 0.0f;
+	float IncomingDamageCueRemainingSeconds = 0.0f;
 	bool bInventoryPanelVisible = true;
 	bool bVendorPanelVisible = false;
 	bool bTrainerPanelVisible = false;
@@ -800,6 +802,7 @@ private:
 		const TArray<TObjectPtr<UTextBlock>>& Texts);
 	void BindComponentEvents();
 	void UnbindComponentEvents();
+	void ResetIncomingDamageCue();
 	void UpdateInventoryPanelVisibility();
 	void RefreshInventoryWindow();
 	void UpdateVendorPanelVisibility();
@@ -833,6 +836,15 @@ private:
 	void HandleItemAdded(UEmbermereItemData* Item, int32 Quantity);
 
 	void HandleCombatResult(const FEmbermereCombatResult& Result);
+
+	UFUNCTION()
+	void HandleHealthChanged(float CurrentHealth, float MaxHealth);
+
+	UFUNCTION()
+	void HandleDamageApplied(float AppliedAmount);
+
+	UFUNCTION()
+	void HandleOwnerDied();
 
 	UFUNCTION()
 	void HandleCombatTargetChanged(AActor* NewTarget, AActor* OldTarget);

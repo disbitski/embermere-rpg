@@ -3891,6 +3891,17 @@ package validators, and 16 live-world suites passed. Clean PIE reached the
 Human Warrior HUD and stopped. Real Prowler movement, animation, and camera
 feel around the ruin still need a player check.
 
+## October 23: A Hit You Can See
+
+The health number and chat line were accurate, but a first Prowler hit gave
+the fixed health bar no immediate visual response. A native test first failed
+on that absence. Stats now publishes only committed live damage, and the HUD
+borrows the existing bar for a half-second brightening rather than adding a
+new panel or moving anything nearby. Immunity, healing, rebuild, death, and
+rebinding do not replay it. Xcode 26.1.1 linked; 125 native tests, 31 saved
+package validators, and 16 live-world suites passed. Physical contrast in a
+real Prowler fight still needs the player's eye.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

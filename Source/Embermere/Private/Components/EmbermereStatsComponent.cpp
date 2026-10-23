@@ -91,13 +91,18 @@ float UEmbermereStatsComponent::ApplyDamage(float DamageAmount)
 	const float PreviousHealth = CurrentHealth;
 	CurrentHealth = FMath::Clamp(CurrentHealth - EffectiveDamage, 0.0f, MaxHealth);
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+	const float AppliedAmount = PreviousHealth - CurrentHealth;
+	if (AppliedAmount > 0.0f)
+	{
+		OnDamageApplied.Broadcast(AppliedAmount);
+	}
 
 	if (CurrentHealth <= 0.0f && PreviousHealth > 0.0f)
 	{
 		OnDied.Broadcast();
 	}
 
-	return PreviousHealth - CurrentHealth;
+	return AppliedAmount;
 }
 
 void UEmbermereStatsComponent::ForceDeath()

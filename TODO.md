@@ -6,6 +6,22 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 23 incoming-hit readability: clean Human Warrior PIE retained a
+  fixed top-left health bar, but committed damage had no transient status cue
+  beyond the durable HP/chat update. `Embermere.UI.IncomingDamageCue` failed
+  first on an unchanged bar after six damage, then passed after Stats gained
+  a post-mitigation live-damage event and the HUD briefly brightened only
+  the existing bar. The 0.5-second tint renews on another hit, fades to the
+  original red, clears on health rebuild/death/unbind, and never replays from
+  a pre-damaged character. Immune hits and healing stay silent; status
+  geometry does not move. Process-local Xcode 26.1.1 `-NoHotReloadFromIDE`
+  linked; full automation passed **125/125** without failures/warnings/skips.
+  The GUI-down **31-package** aggregate retained **53 Fab / 32 original-art**
+  and no `LogPython: Error`; all **16** initialized-world suites passed.
+  Clean floating PIE retained Human Warrior HUD/health-bar bounds and stopped.
+  Physical hit contrast at normal camera distance remains a user check. See
+  `Docs/DAILY_BUILD_2026-10-23.md` and
+  `Docs/INCOMING_DAMAGE_CUE_CONTRACT.md`.
 - October 22 enemy melee cover safety: code review found a separate Prowler
   AI gap after the player ability sightline fix: an in-range enemy could hit
   through registered solid cover. New `Embermere.Enemy.MeleeCoverSafety`
@@ -2112,6 +2128,12 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary first Prowler fight, watch the existing top-left health
+  bar take a real nonlethal hit. It should briefly brighten, fade in half a
+  second, and retain the exact HP/chat fallback without moving target, quest,
+  Inventory, or hotbar elements. Another hit should renew it; healing, a
+  protected hit, and a fresh load should not replay it. The native test proves
+  event/geometry/lifetime ownership, not physical contrast or camera feel.
 - During a voluntary real Prowler fight near solid ruin cover, remain within
   melee range while the wall separates enemy and player. The Prowler should
   keep its engagement but deal no melee damage through the wall; after the

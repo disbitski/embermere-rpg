@@ -9,6 +9,7 @@
 class UTexture2D;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEmbermereHealthChangedSignature, float, CurrentHealth, float, MaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEmbermereDamageAppliedSignature, float, AppliedAmount);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEmbermereManaChangedSignature, float, CurrentMana, float, MaxMana);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEmbermereXpChangedSignature, int32, CurrentExperience);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
@@ -122,6 +123,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FEmbermereHealthChangedSignature OnHealthChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FEmbermereDamageAppliedSignature OnDamageApplied;
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FEmbermereManaChangedSignature OnManaChanged;

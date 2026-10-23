@@ -2,6 +2,17 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Health Changes Are Broader Than Live Damage
+
+The October 23 incoming-hit cue cannot infer damage from `OnHealthChanged`:
+initialization, healing, progression rebuild, and save restore also publish
+health changes. Stats now emits a separate positive post-mitigation event
+only after `ApplyDamage` commits. The HUD uses the broad health event to clear
+any old tint, then the damage event to start a fresh half-second flash. This
+ordering keeps a real hit visible but prevents rebuild/load replay. Bind and
+unbind both events with the same character lifecycle, and test immunity,
+expiry, death, and a fresh pre-damaged character separately.
+
 ## Canvas Offsets And Slate Hit Bounds Can Scale Differently
 
 The October 19 normal-route PIE showed two `140x38` bottom-right commands

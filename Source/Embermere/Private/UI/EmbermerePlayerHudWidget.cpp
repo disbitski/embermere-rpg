@@ -93,6 +93,9 @@ namespace
 	constexpr float DialogueSpeakerHeight = 28.0f;
 	constexpr float DialogueBodyHeight = 72.0f;
 	constexpr float DialogueBottomOffset = 116.0f;
+	constexpr float IncomingDamageCueLifetimeSeconds = 0.5f;
+	const FLinearColor RestingHealthColor(0.72f, 0.08f, 0.06f, 1.0f);
+	const FLinearColor ImpactHealthColor(1.0f, 0.48f, 0.32f, 1.0f);
 
 	const TCHAR* GetEquipmentSlotLabel(EEmbermereEquipmentSlot Slot)
 	{
@@ -402,6 +405,27 @@ void UEmbermerePlayerHudWidget::RefreshAutorunStatus(const AEmbermerePlayerContr
 	}
 }
 
+void UEmbermerePlayerHudWidget::AdvanceIncomingDamageCue(float DeltaSeconds)
+{
+	if (IncomingDamageCueRemainingSeconds <= 0.0f || DeltaSeconds <= 0.0f)
+	{
+		return;
+	}
+	const UWorld* World = GetWorld();
+	if (World && World->IsPaused())
+	{
+		return;
+	}
+	IncomingDamageCueRemainingSeconds = FMath::Max(0.0f, IncomingDamageCueRemainingSeconds - DeltaSeconds);
+	if (HealthBar)
+	{
+		HealthBar->SetFillColorAndOpacity(FMath::Lerp(
+			RestingHealthColor,
+			ImpactHealthColor,
+			IncomingDamageCueRemainingSeconds / IncomingDamageCueLifetimeSeconds));
+	}
+}
+
 TSharedRef<SWidget> UEmbermerePlayerHudWidget::RebuildWidget()
 {
 	BuildDefaultLayout();
@@ -450,6 +474,7 @@ void UEmbermerePlayerHudWidget::NativeConstruct()
 void UEmbermerePlayerHudWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+	AdvanceIncomingDamageCue(InDeltaTime);
 	RefreshHudText();
 
 	const UWorld* World = GetWorld();
@@ -2216,7 +2241,7 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	UBorder* StatusPanel = MakePanel(WidgetTree, TEXT("StatusPanel"), FLinearColor(0.02f, 0.025f, 0.03f, 0.78f));
 	UVerticalBox* StatusStack = MakePanelStack(WidgetTree, StatusPanel, TEXT("StatusStack"));
 	PlayerStatusText = MakeHudText(WidgetTree, TEXT("PlayerStatusText"), FLinearColor(0.95f, 0.92f, 0.82f, 1.0f), 17.0f);
-	HealthBar = MakeBar(WidgetTree, TEXT("HealthBar"), FLinearColor(0.72f, 0.08f, 0.06f, 1.0f));
+	HealthBar = MakeBar(WidgetTree, TEXT("HealthBar"), RestingHealthColor);
 	ManaBar = MakeBar(WidgetTree, TEXT("ManaBar"), FLinearColor(0.08f, 0.24f, 0.8f, 1.0f));
 	ExperienceBar = MakeBar(WidgetTree, TEXT("ExperienceBar"), FLinearColor(0.92f, 0.62f, 0.14f, 1.0f));
 	AutorunStatusText = MakeHudText(
@@ -5330,6 +5355,12 @@ void UEmbermerePlayerHudWidget::ShowDialogue_Implementation(const FText& Speaker
 
 void UEmbermerePlayerHudWidget::BindComponentEvents()
 {
+	if (Stats)
+	{
+		Stats->OnHealthChanged.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleHealthChanged);
+		Stats->OnDamageApplied.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleDamageApplied);
+		Stats->OnDied.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleOwnerDied);
+	}
 	if (QuestUpdateOverlay)
 	{
 		QuestUpdateOverlay->BindToQuestLog(QuestLog, Stats);
@@ -5352,6 +5383,13 @@ void UEmbermerePlayerHudWidget::BindComponentEvents()
 
 void UEmbermerePlayerHudWidget::UnbindComponentEvents()
 {
+	if (Stats)
+	{
+		Stats->OnHealthChanged.RemoveDynamic(this, &UEmbermerePlayerHudWidget::HandleHealthChanged);
+		Stats->OnDamageApplied.RemoveDynamic(this, &UEmbermerePlayerHudWidget::HandleDamageApplied);
+		Stats->OnDied.RemoveDynamic(this, &UEmbermerePlayerHudWidget::HandleOwnerDied);
+	}
+	ResetIncomingDamageCue();
 	if (QuestUpdateOverlay)
 	{
 		QuestUpdateOverlay->BindToQuestLog(nullptr, nullptr);
@@ -5369,6 +5407,40 @@ void UEmbermerePlayerHudWidget::UnbindComponentEvents()
 		Combat->OnCombatResult.RemoveAll(this);
 		Combat->OnTargetChanged.RemoveDynamic(this, &UEmbermerePlayerHudWidget::HandleCombatTargetChanged);
 	}
+}
+
+void UEmbermerePlayerHudWidget::ResetIncomingDamageCue()
+{
+	IncomingDamageCueRemainingSeconds = 0.0f;
+	if (HealthBar)
+	{
+		HealthBar->SetFillColorAndOpacity(RestingHealthColor);
+	}
+}
+
+void UEmbermerePlayerHudWidget::HandleHealthChanged(float, float)
+{
+	ResetIncomingDamageCue();
+}
+
+void UEmbermerePlayerHudWidget::HandleDamageApplied(float AppliedAmount)
+{
+	if (AppliedAmount <= 0.0f || !HealthBar)
+	{
+		return;
+	}
+	if (Stats && Stats->IsDead())
+	{
+		ResetIncomingDamageCue();
+		return;
+	}
+	IncomingDamageCueRemainingSeconds = IncomingDamageCueLifetimeSeconds;
+	HealthBar->SetFillColorAndOpacity(ImpactHealthColor);
+}
+
+void UEmbermerePlayerHudWidget::HandleOwnerDied()
+{
+	ResetIncomingDamageCue();
 }
 
 void UEmbermerePlayerHudWidget::HandleCombatResult(const FEmbermereCombatResult& Result)
