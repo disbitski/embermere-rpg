@@ -867,8 +867,9 @@ void AEmbermereEnemyCharacter::MoveTowardTarget(AActor* Target, float DeltaSecon
 	}
 
 	const FVector Step = Direction * EffectiveMoveSpeed * DeltaSeconds;
+	const FVector BeforeMove = GetActorLocation();
 	SetActorLocation(GetActorLocation() + Step, true);
-	bMovedThisFrame = true;
+	bMovedThisFrame = !GetActorLocation().Equals(BeforeMove, 0.1f);
 }
 
 void AEmbermereEnemyCharacter::TryAttackTarget(AActor* Target)

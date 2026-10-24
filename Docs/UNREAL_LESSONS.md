@@ -2,6 +2,18 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## A Swept Move Attempt Is Not Visual Movement
+
+The October 24 Prowler regression found that `SetActorLocation` with sweep
+could stop a capsule against solid collision while a subsequent unconditional
+movement flag selected Walk. Test the actual post-sweep location, allow the
+capsule to settle against the wall, and use a small displacement tolerance
+for animation selection. The started-world fixture should assert the saved
+Idle/Walk assets, a blocked stationary frame, and resumed Walk after the
+obstacle clears. Do not confuse this visual correction with changing AI
+aggro, collision, leash, or melee eligibility, and do not call it physical
+animation acceptance.
+
 ## Health Changes Are Broader Than Live Damage
 
 The October 23 incoming-hit cue cannot infer damage from `OnHealthChanged`:

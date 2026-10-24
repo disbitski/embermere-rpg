@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-23
+Last updated: 2026-10-24
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,22 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 24 Handoff
+
+The saved Prowler's chase no longer marks an attempted but blocked sweep as
+visual movement. `Embermere.Enemy.BlockedPursuitVisual` ran in a started
+world with the real Idle/Walk assets and a solid wall; after collision
+settled, it was red only for stale Walk, then green for Idle while blocked
+and Walk after clearance. AI aggro, movement sweep, leash, melee cover,
+attack, health, and rewards remain unchanged. Process-local Xcode 26.1.1
+`-NoHotReloadFromIDE` linked; **126/126** native tests, the fresh GUI-down
+**31-package** aggregate with **53 Fab / 32 original-art**, and all **16**
+initialized-world suites passed. Clean PIE reached Human Warrior HUD and
+stopped; map and content are clean outside PIE with real MCP 8123. Physical
+blocked-chase animation/camera acceptance remains open. See
+`Docs/ENEMY_BLOCKED_PURSUIT_VISUAL_CONTRACT.md` and
+`Docs/DAILY_BUILD_2026-10-24.md`.
 
 ## October 23 Handoff
 

@@ -656,6 +656,16 @@ movement or the final visual read. No quest progress or protected save load
 is needed solely to stage this check. See
 [ENEMY_MELEE_COVER_CONTRACT.md](ENEMY_MELEE_COVER_CONTRACT.md).
 
+## Blocked Prowler Pursuit Visual Check
+
+In a voluntary normal-route Prowler encounter, let solid ruin collision
+stop its approach without forcing quest or save state. Once the capsule
+settles, the visible Prowler should return to Idle instead of walking in
+place. Step into a clear lane and confirm the same pursuit resumes Walk.
+The started-world regression covers actual displacement and saved Idle/Walk
+selection, not physical pathing or final painted animation feel. See
+[ENEMY_BLOCKED_PURSUIT_VISUAL_CONTRACT.md](ENEMY_BLOCKED_PURSUIT_VISUAL_CONTRACT.md).
+
 ## Incoming Hit Cue Check
 
 In a voluntary normal-route Prowler fight, take one nonlethal hit and watch

@@ -74,6 +74,8 @@ The repo currently contains the C++ gameplay scaffold for:
 - a separate post-mitigation live-damage event that briefly brightens the
   player's existing fixed health bar without changing damage authority or
   replaying on save restore
+- Prowler pursuit animation selected from achieved swept movement, so a
+  solid wall no longer leaves a stationary enemy walking in place
 - a fixed native eight-row quest ledger that shows active, ready, and completed
   history, supports mouse plus keyboard selection, and requests only a
   transient compact-tracker focus without owning quest or reward mutation;

@@ -6,6 +6,22 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 24 blocked-pursuit visual safety: code review found that the saved
+  Prowler's swept chase marked every attempted step as movement, keeping
+  Walk active even after a solid wall stopped its capsule. The started-world
+  `Embermere.Enemy.BlockedPursuitVisual` regression was red only on stale
+  Walk after the fixture settled against a wall, then green after the AI
+  derived its visual movement flag from actual displacement. Moving the wall
+  clear restores movement and Walk; aggro, collision, leash, attack, and
+  rewards are unchanged. Process-local Xcode 26.1.1 `-NoHotReloadFromIDE`
+  linked; fresh full automation passed **126/126** without failures,
+  warnings, or skips. The GUI-down **31-package** aggregate retained **53
+  Fab / 32 original-art**, exact markers and no `LogPython: Error`; all
+  **16** initialized-world suites passed. Clean Human Warrior PIE stopped;
+  the Fenwatch map is All Saved outside PIE with real MCP 8123 and no dirty
+  packages. Physical blocked-chase animation and camera feel remain a user
+  check. See `Docs/DAILY_BUILD_2026-10-24.md` and
+  `Docs/ENEMY_BLOCKED_PURSUIT_VISUAL_CONTRACT.md`.
 - October 23 incoming-hit readability: clean Human Warrior PIE retained a
   fixed top-left health bar, but committed damage had no transient status cue
   beyond the durable HP/chat update. `Embermere.UI.IncomingDamageCue` failed
@@ -2128,6 +2144,13 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary Prowler encounter near solid ruin collision, watch a
+  pursuit blocked by a wall. The Prowler should settle into Idle while its
+  capsule cannot advance, then resume Walk after the path clears. The new
+  started-world test protects animation selection from achieved movement;
+  it does not prove physical pathing, final animation blend, or camera feel.
+  Do not force combat or repeat the completed movement-flag fix to replace
+  this user check.
 - During a voluntary first Prowler fight, watch the existing top-left health
   bar take a real nonlethal hit. It should briefly brighten, fade in half a
   second, and retain the exact HP/chat fallback without moving target, quest,

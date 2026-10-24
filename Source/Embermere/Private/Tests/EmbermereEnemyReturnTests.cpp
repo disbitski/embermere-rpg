@@ -1,5 +1,6 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
+#include "Animation/AnimSingleNodeInstance.h"
 #include "Characters/EmbermereEnemyCharacter.h"
 #include "Characters/EmbermereCharacter.h"
 #include "Characters/EmbermerePracticeTargetActor.h"
@@ -11,6 +12,7 @@
 #include "Components/EmbermereStatsComponent.h"
 #include "Components/EmbermereWalletComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
 #include "Engine/Engine.h"
@@ -20,6 +22,95 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/WorldSettings.h"
 #include "Misc/AutomationTest.h"
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereBlockedPursuitVisualTest,
+	"Embermere.Enemy.BlockedPursuitVisual",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereBlockedPursuitVisualTest::RunTest(const FString& Parameters)
+{
+	UClass* EnemyClass = LoadClass<AEmbermereEnemyCharacter>(nullptr,
+		TEXT("/Game/Blueprints/BP_StarterEnemy.BP_StarterEnemy_C"));
+	if (!TestNotNull(TEXT("Saved Prowler class exists"), EnemyClass))
+	{
+		return false;
+	}
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("Isolated pursuit world exists"), World))
+	{
+		return false;
+	}
+	GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
+	APlayerController* Controller = World->SpawnActor<APlayerController>();
+	AEmbermereCharacter* Player = World->SpawnActor<AEmbermereCharacter>(
+		FVector(350.0f, 0.0f, 90.0f), FRotator::ZeroRotator);
+	AEmbermereEnemyCharacter* Enemy = World->SpawnActor<AEmbermereEnemyCharacter>(
+		EnemyClass, FVector(0.0f, 0.0f, 90.0f), FRotator::ZeroRotator);
+	AActor* Wall = World->SpawnActor<AActor>();
+	if (!Controller || !Player || !Enemy || !Wall)
+	{
+		AddError(TEXT("Could not spawn pursuit fixtures"));
+		GEngine->DestroyWorldContext(World);
+		World->DestroyWorld(false);
+		return false;
+	}
+	UBoxComponent* WallBox = NewObject<UBoxComponent>(Wall);
+	WallBox->SetBoxExtent(FVector(20.0f, 150.0f, 150.0f));
+	WallBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	WallBox->SetCollisionResponseToAllChannels(ECR_Block);
+	Wall->SetRootComponent(WallBox);
+	WallBox->RegisterComponent();
+	Wall->SetActorLocation(FVector(75.0f, 0.0f, 90.0f));
+	Controller->Possess(Player);
+	World->AddController(Controller);
+	World->InitializeActorsForPlay(FURL());
+	World->BeginPlay();
+	World->GetWorldSettings()->NotifyBeginPlay();
+
+	UAnimSequence* Idle = Enemy->IdleAnimation.LoadSynchronous();
+	UAnimSequence* Walk = Enemy->WalkAnimation.LoadSynchronous();
+	USkeletalMeshComponent* Mesh = Enemy->GetMesh();
+	if (TestNotNull(TEXT("Saved Idle animation exists"), Idle) &&
+		TestNotNull(TEXT("Saved Walk animation exists"), Walk) &&
+		TestNotNull(TEXT("Prowler visual mesh exists"), Mesh))
+	{
+		TestTrue(TEXT("Saved Prowler gameplay collision remains enabled"), Enemy->bGameplayCollisionEnabled);
+		TestTrue(TEXT("Prowler capsule can collide with the wall"),
+			Enemy->GetCapsuleComponent()->GetCollisionEnabled() != ECollisionEnabled::NoCollision);
+		static_cast<AActor*>(Enemy)->Tick(1.0f);
+		for (int32 SettleFrame = 0; SettleFrame < 12; ++SettleFrame)
+		{
+			static_cast<AActor*>(Enemy)->Tick(1.0f / 60.0f);
+		}
+		const FVector FirstStop = Enemy->GetActorLocation();
+		static_cast<AActor*>(Enemy)->Tick(1.0f / 60.0f);
+		TestTrue(FString::Printf(TEXT("Solid wall halts settled pursuit (%.3f -> %.3f)"),
+			FirstStop.X, Enemy->GetActorLocation().X),
+			Enemy->GetActorLocation().Equals(FirstStop, 0.1f) && FirstStop.X < 50.0f);
+		UAnimSingleNodeInstance* Animation = Mesh->GetSingleNodeInstance();
+		if (TestNotNull(TEXT("Prowler single-node animation exists"), Animation))
+		{
+			TestEqual(TEXT("Blocked pursuit returns to Idle, not Walk"),
+				Animation->GetCurrentAsset(), static_cast<UAnimationAsset*>(Idle));
+		}
+		Wall->SetActorLocation(FVector(75.0f, 400.0f, 90.0f));
+		static_cast<AActor*>(Enemy)->Tick(1.0f / 60.0f);
+		TestTrue(TEXT("Prowler advances when the path clears"),
+			Enemy->GetActorLocation().X > FirstStop.X + 0.1f);
+		if (Animation)
+		{
+			TestEqual(TEXT("Clear pursuit resumes Walk"),
+				Animation->GetCurrentAsset(), static_cast<UAnimationAsset*>(Walk));
+		}
+		TestEqual(TEXT("Pursuit visual test does not damage the player"),
+			Player->Stats->CurrentHealth, Player->Stats->MaxHealth);
+	}
+	World->EndPlay(EEndPlayReason::Quit);
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return !HasAnyErrors();
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereEnemyMeleeCoverSafetyTest,

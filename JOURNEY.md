@@ -3902,6 +3902,16 @@ rebinding do not replay it. Xcode 26.1.1 linked; 125 native tests, 31 saved
 package validators, and 16 live-world suites passed. Physical contrast in a
 real Prowler fight still needs the player's eye.
 
+## October 24: A Stopped Prowler Stops Walking
+
+The Marsh Prowler's swept movement respected walls, but its visual flag
+still treated every attempted chase step as movement. A started-world test
+with the saved animation assets settled one against a solid wall and caught
+Walk continuing while the capsule stood still. The AI now chooses Idle from
+actual displacement and resumes Walk when the path opens. Xcode 26.1.1
+linked; 126 native tests, 31 package validators, and 16 live-world suites
+passed. Real-camera animation feel around the ruin remains a player check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
