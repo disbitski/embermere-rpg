@@ -6,6 +6,16 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 24 manual-reopen recovery: macOS launched Unreal against a stale
+  `xcrun` Metal lookup and showed a missing-toolchain dialog, although both
+  Xcode 26.1.1 and Xcode 27 reported the component installed. A cache
+  refresh made `xcrun metal -v` execute under both selections. The new
+  `Scripts/launch_unreal_editor.sh` chooses Xcode 26.1.1 only for Embermere's
+  editor process, checks Metal, starts MCP 8123, and refuses duplicate
+  editor sessions. The clean relaunch loaded Fenwatch, left PIE stopped and
+  the map All Saved, and freshly discovered **126** Embermere tests through
+  MCP. System `xcode-select`, security, licenses, and installed components
+  were not changed. See `Docs/UNREAL_SETUP.md`.
 - October 24 blocked-pursuit visual safety: code review found that the saved
   Prowler's swept chase marked every attempted step as movement, keeping
   Walk active even after a solid wall stopped its capsule. The started-world

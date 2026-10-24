@@ -2,6 +2,19 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## A Missing Metal Dialog Can Be A Stale Tool Lookup
+
+On October 24 a manual Unreal reopen failed at initialization with a
+missing Metal Toolchain message. Both installed Xcodes reported MetalToolchain
+`installed`, and the real compiler paths existed, but `xcrun --find metal`
+returned an Xcode stub that could not execute. `xcrun --kill-cache` refreshed
+the lookup; `xcrun metal -v` then worked under both system Xcode 27 and
+process-local Xcode 26.1.1. Do not download a second component, change
+`xcode-select`, or reboot merely because the first probe fails. For this
+Unreal 5.8 project, launch with `Scripts/launch_unreal_editor.sh` so the
+editor inherits compatible Xcode 26.1.1 and MCP 8123 without altering the
+system default.
+
 ## A Swept Move Attempt Is Not Visual Movement
 
 The October 24 Prowler regression found that `SetActorLocation` with sweep

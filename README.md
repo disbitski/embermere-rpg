@@ -281,8 +281,11 @@ daily starts, Unreal 5.8 can launch the listener with:
 -ModelContextProtocolStartServer -ModelContextProtocolPort=8123
 ```
 
-On macOS, pass the project path after `--args` when launching through `open`;
-see [Docs/UNREAL_SETUP.md](Docs/UNREAL_SETUP.md) for the exact command.
+On this Mac, quit any existing Unreal instance and run
+`zsh Scripts/launch_unreal_editor.sh` to select the compatible Xcode 26.1.1
+for the editor process and start MCP automatically. See
+[Docs/UNREAL_SETUP.md](Docs/UNREAL_SETUP.md) for the exact launch command and
+Metal-cache recovery.
 
 Then validate locally:
 

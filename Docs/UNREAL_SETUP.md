@@ -2,6 +2,29 @@
 
 This repo is ready for Unreal. The local machine needs Epic Games Launcher, Unreal Engine 5.8, full Xcode, and an Unreal-generated MCP client config before Codex can drive the editor.
 
+## Current Embermere Mac
+
+Use the project launcher after quitting any existing Unreal Editor instance:
+
+```bash
+zsh Scripts/launch_unreal_editor.sh
+```
+
+It selects `/Applications/Xcode_26.1.1.app` only for the new editor process,
+checks that Metal executes, refreshes a stale `xcrun` lookup once if needed,
+and starts the project's MCP listener on port `8123`. It refuses to launch
+over another editor process or an occupied MCP port. It does not change
+system-wide `xcode-select`, install components, or dismiss editor dialogs.
+The system default may remain Xcode 27; Unreal 5.8's declared Mac SDK range
+ends at 26.9, so use Xcode 26.1.1 for project builds as well.
+
+If a startup dialog says the Metal Toolchain is missing, do not immediately
+download it: `xcodebuild -showComponent MetalToolchain -json` may show it is
+already installed while `xcrun` still points to Xcode's stub. Quit Unreal,
+run `DEVELOPER_DIR=/Applications/Xcode_26.1.1.app/Contents/Developer xcrun
+--kill-cache`, then retry the launcher. Only investigate component
+installation if `xcrun metal -v` still fails after the refreshed lookup.
+
 Official MCP docs: https://dev.epicgames.com/documentation/unreal-engine/unreal-mcp-in-unreal-editor
 
 ## Install
@@ -21,14 +44,17 @@ Official MCP docs: https://dev.epicgames.com/documentation/unreal-engine/unreal-
    sudo xcodebuild -license accept
    ```
 
-8. Install Xcode's Metal Toolchain component from a normal macOS Terminal session:
+8. Check whether Xcode's Metal compiler runs from a normal macOS Terminal session:
 
    ```bash
-   xcodebuild -downloadComponent MetalToolchain
    xcrun metal -v
+   xcodebuild -showComponent MetalToolchain -json
    ```
 
-   Unreal may show `cannot execute tool 'metal' due to missing Metal Toolchain` until this component is installed. If `xcrun metal -v` still reports a missing Metal Toolchain after download, quit and reopen Xcode/Unreal, then rerun the command from Terminal rather than from inside Codex. If the downloaded toolchain is mounted under `/private/var/run/com.apple.security.cryptexd/mnt` and its direct `metal -v` binary works but `xcrun metal -v` still fails, reboot macOS so Xcode's wrapper refreshes its MobileAsset/cryptex state.
+   If the component reports `installed` but `xcrun` claims it is missing,
+   refresh the lookup with `xcrun --kill-cache` and retry before considering
+   an install or reboot. If it is genuinely uninstalled, review the Xcode
+   diagnostic and install only with the machine owner's approval.
 
 9. Install Unreal Engine 5.8 from the Launcher's Unreal Engine tab.
 10. Open `Embermere.uproject`.
@@ -83,10 +109,11 @@ Unreal 5.8 also supports command-line MCP autostart:
 -ModelContextProtocolStartServer -ModelContextProtocolPort=8123
 ```
 
-The reliable macOS launch form is:
+The reliable macOS launch form for this project is:
 
 ```bash
-open -a "/Users/Shared/Epic Games/UE_5.8/Engine/Binaries/Mac/UnrealEditor.app" \
+open -n --fresh --env DEVELOPER_DIR=/Applications/Xcode_26.1.1.app/Contents/Developer \
+  "/Users/Shared/Epic Games/UE_5.8/Engine/Binaries/Mac/UnrealEditor.app" \
   --args "/Users/wizard/Documents/Unreal Game/Embermere.uproject" \
   -ModelContextProtocolStartServer -ModelContextProtocolPort=8123
 ```
@@ -94,7 +121,9 @@ open -a "/Users/Shared/Epic Games/UE_5.8/Engine/Binaries/Mac/UnrealEditor.app" \
 The project path must come after `--args`. Putting it before `--args` caused
 `open` to launch the editor without forwarding the project. Generic
 `-ExecCmds=ModelContextProtocol.StartServer 8123` also fired too early during
-startup in testing; use the plugin's dedicated launch flags instead.
+startup in testing; use the plugin's dedicated launch flags instead. Prefer
+`Scripts/launch_unreal_editor.sh` because it checks Metal and avoids duplicate
+editor sessions before using this command.
 
 ## Validate
 
