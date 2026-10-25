@@ -2,6 +2,16 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Clearing Death State Is Not Enough If Input Can Reacquire It
+
+The October 25 controller test found that `HandleControlledCharacterDied`
+correctly cleared the target, but the still-bound Tab action could immediately
+select a nearby target and announce it during the death hold. Guard the
+controller's target-cycle entry with living possessed Stats, and test the
+negative hold path plus the positive post-respawn path. Keep the targeting
+component's normal candidate ordering and combat target ownership unchanged.
+An isolated explicit death callback is not proof of a physical death event.
+
 ## A Missing Metal Dialog Can Be A Stale Tool Lookup
 
 On October 24 a manual Unreal reopen failed at initialization with a

@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-24
+Last updated: 2026-10-25
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,20 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 25 Handoff
+
+After death cleared a selected target, the controller's Tab path could
+immediately reacquire a nearby practice target and post chat during the death
+hold. `Embermere.Input.DeadTargetCycleSafety` was red for both behaviors and
+green after a living-Stats guard at the controller input entry. Respawn still
+permits normal targeting. Process-local Xcode 26.1.1 `-NoHotReloadFromIDE`
+linked; **127/127** native tests, the fresh GUI-down **31-package** aggregate
+with **53 Fab / 32 original-art** and no Python errors, and all **16** live
+world suites passed. Clean Human Warrior PIE selected the practice target,
+then stopped on an All Saved Fenwatch map with real MCP 8123. Physical Tab
+during an organic death hold is not yet verified. See
+`Docs/DAILY_BUILD_2026-10-25.md`.
 
 ## October 24 Handoff
 

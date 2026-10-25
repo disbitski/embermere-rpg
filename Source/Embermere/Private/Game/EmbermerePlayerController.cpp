@@ -462,7 +462,7 @@ void AEmbermerePlayerController::CycleTarget()
 {
 	if (AEmbermereCharacter* Character = GetEmbermereCharacter())
 	{
-		if (Character->Targeting)
+		if (Character->Targeting && Character->Stats && !Character->Stats->IsDead())
 		{
 			AActor* PreviousTarget = Character->Combat ? Character->Combat->CurrentTarget.Get() : nullptr;
 			AActor* NewTarget = Character->Targeting->CycleTarget();

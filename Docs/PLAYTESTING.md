@@ -541,8 +541,11 @@ Warrior fallback without rewriting the old file.
     of damage protection. No movement should begin until a fresh input. In a
     separate real Prowler encounter, keep a live enemy selected as the player
     dies: its target frame and cyan ring must clear during the death hold and
-    stay clear at village respawn until a fresh Tab selection. The native
-    regression covers controller state, not this physical combat presentation.
+    stay clear at village respawn until a fresh Tab selection. During the
+    hold, press Tab again near a living target: it must not reacquire the
+    target or post targeting chat. After recovery, a fresh Tab may select it.
+    Native regressions cover controller state, not physical keyboard routing
+    or this combat presentation.
 45. During a voluntary death/recovery loop, keep Inventory open as death
     occurs. It should close during the death hold, release the cursor and UI
     click routing, and return to immediate normal camera/game input on village

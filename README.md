@@ -514,3 +514,9 @@ button's action and hidden panels cannot issue stale focus requests. The
 accepted suite is 102 tests; the no-hot-reload build, 31 fresh package
 validators, and 16 live route suites passed. See
 [Docs/DAILY_BUILD_2026-09-27.md](Docs/DAILY_BUILD_2026-09-27.md).
+
+The October 25 input pass keeps Tab from reacquiring a cleared target during
+the player death hold, without changing living target order or combat
+authority. The focused test failed first and the final no-hot-reload build,
+127 native tests, 31 package validators, and 16 initialized-world suites
+passed. See [Docs/DAILY_BUILD_2026-10-25.md](Docs/DAILY_BUILD_2026-10-25.md).

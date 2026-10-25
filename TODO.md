@@ -6,6 +6,20 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 25 dead-Tab target safety: a fresh normal-route PIE confirmed living
+  Tab still selects the Fenwatch practice target. Code review then found that
+  death cleared the target, but Tab could immediately select it again during
+  the death hold. New `Embermere.Input.DeadTargetCycleSafety` failed first on
+  both target reacquisition and extra chat, then passed after the controller
+  rejected target cycling without living Stats. Recovery restores normal Tab.
+  Process-local Xcode 26.1.1 `-NoHotReloadFromIDE` linked; fresh automation
+  passed **127/127** with no failures, warnings, or skips. The GUI-down
+  **31-package** aggregate retained **53 Fab / 32 original-art**, exact
+  markers, and no `LogPython: Error`; all **16** initialized-world suites
+  passed. Clean Human Warrior PIE selected the practice target and stopped;
+  Fenwatch is All Saved outside PIE with real MCP 8123. A physical Tab press
+  during an organic death hold remains a user check. See
+  `Docs/DAILY_BUILD_2026-10-25.md`.
 - October 24 manual-reopen recovery: macOS launched Unreal against a stale
   `xcrun` Metal lookup and showed a missing-toolchain dialog, although both
   Xcode 26.1.1 and Xcode 27 reported the component installed. A cache
@@ -2154,6 +2168,12 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary real death hold near a living target, press `Tab`.
+  The selected frame, cyan ring, and targeting chat must remain clear until
+  recovery; a fresh Tab after respawn may select again. The isolated native
+  test proves the controller gate and recovery path, not physical keyboard
+  routing or final painted state. Do not force death or repeat the completed
+  dead-Tab guard to replace this user check.
 - During a voluntary Prowler encounter near solid ruin collision, watch a
   pursuit blocked by a wall. The Prowler should settle into Idle while its
   capsule cannot advance, then resume Walk after the path clears. The new

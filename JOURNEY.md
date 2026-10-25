@@ -3912,6 +3912,16 @@ actual displacement and resumes Walk when the path opens. Xcode 26.1.1
 linked; 126 native tests, 31 package validators, and 16 live-world suites
 passed. Real-camera animation feel around the ruin remains a player check.
 
+## October 25: Tab Stays Quiet During the Death Hold
+
+Death already cleared the selected target, but Tab could immediately find it
+again before the player recovered. A new native test first reproduced both
+the reacquired target and extra chat. The controller now ignores target cycling
+without living Stats; after respawn, Tab works as before. The no-hot-reload
+Xcode 26.1.1 build linked, 127 native tests passed, and the 31 saved-package
+and 16 live-world suites stayed green. Clean PIE still selected the practice
+target while alive. A real death-hold keyboard check remains open.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

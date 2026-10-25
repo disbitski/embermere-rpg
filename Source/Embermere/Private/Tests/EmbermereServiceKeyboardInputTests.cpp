@@ -460,6 +460,40 @@ bool FEmbermereTargetCycleNoOpFeedbackTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereDeadTargetCycleSafetyTest,
+	"Embermere.Input.DeadTargetCycleSafety",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereDeadTargetCycleSafetyTest::RunTest(const FString& Parameters)
+{
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->Possess(F.Character);
+	F.World->AddController(F.Controller);
+	F.Character->SetActorLocation(FVector::ZeroVector);
+	F.Character->SetActorRotation(FRotator::ZeroRotator);
+	AEmbermerePracticeTargetActor* Target = F.World->SpawnActor<AEmbermerePracticeTargetActor>();
+	if (!TestNotNull(TEXT("Practice target exists"), Target))
+	{
+		return false;
+	}
+	Target->SetActorLocation(FVector(250.0f, 0.0f, 0.0f));
+	F.CycleTarget();
+	TestTrue(TEXT("Living Tab selects the target"), F.Character->Combat->CurrentTarget == Target);
+
+	F.Character->Stats->ForceDeath();
+	F.HandleDeath();
+	TestNull(TEXT("Death clears the selected target"), F.Character->Combat->CurrentTarget.Get());
+	const int32 DeathChatCount = F.Hud->GetChatMessageCount();
+	F.CycleTarget();
+	TestNull(TEXT("Tab cannot reacquire a target during death hold"), F.Character->Combat->CurrentTarget.Get());
+	TestEqual(TEXT("Dead Tab adds no target announcement"), F.Hud->GetChatMessageCount(), DeathChatCount);
+
+	F.Respawn();
+	F.CycleTarget();
+	TestTrue(TEXT("Recovered Tab selects the target again"), F.Character->Combat->CurrentTarget == Target);
+	return !HasAnyErrors();
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereLootCapacityFeedbackTest,
 	"Embermere.Enemy.LootCapacityFeedback",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
