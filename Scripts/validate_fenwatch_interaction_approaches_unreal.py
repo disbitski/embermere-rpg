@@ -106,6 +106,16 @@ def require_width_clear(world, description, start, end):
                 ))
 
 
+def require_interaction_sightline(world, description, stance, owner_location):
+    start = (stance[0], stance[1], PLAYER_CENTER_Z + 90.0)
+    end = (owner_location.x, owner_location.y, owner_location.z + 90.0)
+    hit = trace(world, start, end)
+    if hit:
+        fail("{} F sightline hit {}".format(
+            description, label(hit_actor(hit))
+        ))
+
+
 def main():
     world = unreal.EditorLevelLibrary.get_editor_world()
     expected_world = LEVEL_PATH + "." + LEVEL_PATH.rsplit("/", 1)[-1]
@@ -158,6 +168,7 @@ def main():
         require_ground(world, owner_label + " staging", staging)
         require_ground(world, owner_label + " stance", stance)
         require_width_clear(world, owner_label, staging, stance)
+        require_interaction_sightline(world, owner_label, stance, location)
 
     # A known solid hit ensures that clear approaches are not passing in an
     # uninitialized physics scene.
@@ -167,7 +178,7 @@ def main():
 
     unreal.log(
         "EMBERMERE_FENWATCH_INTERACTION_APPROACHES_SUCCESS: five exact F owners, "
-        "five unambiguous in-range stances, ten terrain supports, thirty "
+        "five unambiguous in-range stances and clear F sightlines, ten terrain supports, thirty "
         "player-width rays, and a live collision control"
     )
 

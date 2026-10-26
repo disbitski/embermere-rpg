@@ -2,6 +2,19 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Interaction Sightline Height And Started-World Fixtures Matter
+
+The October 26 F regression found that range-only selection could open a
+service through solid cover. Use the same `Visibility` channel for a short
+character-to-owner ray and ignore the two endpoint actors. A saved-map probe
+showed 90 cm above their origins clears all five intended Fenwatch approaches;
+150 cm falsely hits the notice board's own art. A test's alternate actor must
+have a registered root before `SetActorLocation` can place it. For a started
+world, retire an already-begun fixture through its shared cleanup path after
+HUD unbinding; calling `EndPlay` separately before fixture destruction caused
+an editor crash. These native traces protect authority selection, not physical
+F or final painted feedback.
+
 ## Clearing Death State Is Not Enough If Input Can Reacquire It
 
 The October 25 controller test found that `HandleControlledCharacterDied`

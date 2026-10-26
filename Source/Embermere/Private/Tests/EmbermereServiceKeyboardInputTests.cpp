@@ -17,6 +17,7 @@
 #include "Components/EmbermereWalletComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/Button.h"
+#include "Components/SceneComponent.h"
 #include "Components/TextBlock.h"
 #include "Data/EmbermereItemData.h"
 #include "Data/EmbermereQuestData.h"
@@ -25,6 +26,7 @@
 #include "Engine/World.h"
 #include "Game/EmbermerePlayerController.h"
 #include "GameFramework/PlayerInput.h"
+#include "GameFramework/WorldSettings.h"
 #include "InputKeyEventArgs.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Misc/AutomationTest.h"
@@ -64,6 +66,10 @@ struct FEmbermereServiceKeyboardFixture
 		Hud->CloseQuestLedgerPanel();
 		Hud->BindToCharacter(nullptr);
 		SlateWidget.Reset();
+		if (World->HasBegunPlay())
+		{
+			World->EndPlay(EEndPlayReason::Quit);
+		}
 		GEngine->DestroyWorldContext(World);
 		World->DestroyWorld(false);
 	}
@@ -648,6 +654,105 @@ bool FEmbermereDeadInteractionSafetyTest::RunTest(const FString& Parameters)
 	F.Respawn();
 	TestTrue(TEXT("Recovered character can use nearby F again"), F.Interact());
 	TestTrue(TEXT("Recovered service panel opens"), F.Hud->IsVendorPanelVisible());
+	return !HasAnyErrors();
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereBlockedInteractionTest,
+	"Embermere.Input.BlockedInteraction",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereBlockedInteractionTest::RunTest(const FString& Parameters)
+{
+	UEmbermereVendorStockData* Stock = LoadObject<UEmbermereVendorStockData>(nullptr,
+		TEXT("/Game/Data/Vendors/DA_FenwatchQuartermasterStock.DA_FenwatchQuartermasterStock"));
+	if (!TestNotNull(TEXT("Saved vendor stock exists"), Stock))
+	{
+		return false;
+	}
+
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->Possess(F.Character);
+	F.World->AddController(F.Controller);
+	F.Character->SetActorLocation(FVector(0.0f, 0.0f, 90.0f));
+	AEmbermereVendorServiceActor* Service = F.World->SpawnActor<AEmbermereVendorServiceActor>();
+	AActor* ClearService = F.World->SpawnActor<AActor>();
+	AActor* Wall = F.World->SpawnActor<AActor>();
+	if (!TestNotNull(TEXT("In-range service exists"), Service) ||
+		!TestNotNull(TEXT("Alternate service exists"), ClearService) ||
+		!TestNotNull(TEXT("Solid wall actor exists"), Wall))
+	{
+		return false;
+	}
+	Service->SetActorLocation(FVector(260.0f, 0.0f, 90.0f));
+	Service->Vendor->SetStockData(Stock);
+	USceneComponent* ClearRoot = NewObject<USceneComponent>(ClearService);
+	ClearService->SetRootComponent(ClearRoot);
+	ClearRoot->RegisterComponent();
+	UEmbermereInteractableComponent* ClearInteraction = NewObject<UEmbermereInteractableComponent>(ClearService);
+	ClearInteraction->bShowWorldMarker = false;
+	ClearInteraction->DisplayName = FText::FromString(TEXT("Side service"));
+	ClearInteraction->DialogueText = FText::FromString(TEXT("This route is clear."));
+	ClearInteraction->RegisterComponent();
+	ClearService->SetActorLocation(FVector(100.0f, 500.0f, 90.0f));
+	UBoxComponent* WallBox = NewObject<UBoxComponent>(Wall);
+	WallBox->SetBoxExtent(FVector(10.0f, 120.0f, 120.0f));
+	WallBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	WallBox->SetCollisionResponseToAllChannels(ECR_Block);
+	Wall->SetRootComponent(WallBox);
+	WallBox->RegisterComponent();
+	Wall->SetActorLocation(FVector(130.0f, 0.0f, 90.0f));
+	F.World->InitializeActorsForPlay(FURL());
+	F.World->BeginPlay();
+	F.World->GetWorldSettings()->NotifyBeginPlay();
+
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EmbermereInteractionCoverControl), false);
+	QueryParams.AddIgnoredActor(F.Character);
+	QueryParams.AddIgnoredActor(Service);
+	FHitResult Hit;
+	TestTrue(TEXT("Registered wall blocks the F visibility channel"),
+		F.World->LineTraceSingleByChannel(Hit,
+			F.Character->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			Service->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			ECC_Visibility, QueryParams) && Hit.GetActor() == Wall);
+	const int32 ChatBefore = F.Hud->GetChatMessageCount();
+	const int32 CopperBefore = F.Character->Wallet->Copper;
+	const int32 ExperienceBefore = F.Character->Stats->CurrentExperience;
+	TestFalse(TEXT("F cannot open a service through solid cover"), F.Interact());
+	TestFalse(TEXT("Blocked service panel remains closed"), F.Hud->IsVendorPanelVisible());
+	TestEqual(TEXT("Blocked F posts one explanation"), F.Hud->GetChatMessageCount(), ChatBefore + 1);
+	UTextBlock* Feedback = F.Hud->WidgetTree->FindWidget<UTextBlock>(TEXT("ChatMessageText_0"));
+	if (TestNotNull(TEXT("Blocked feedback row exists"), Feedback))
+	{
+		TestEqual(TEXT("Blocked F explains the obstacle"), Feedback->GetText().ToString(),
+			FString(TEXT("Move around the obstacle to interact.")));
+	}
+	TestFalse(TEXT("Repeated blocked F remains rejected"), F.Interact());
+	TestEqual(TEXT("Repeated blocked F does not flood chat"), F.Hud->GetChatMessageCount(), ChatBefore + 1);
+	TestEqual(TEXT("Blocked F preserves copper"), F.Character->Wallet->Copper, CopperBefore);
+	TestEqual(TEXT("Blocked F preserves XP"), F.Character->Stats->CurrentExperience, ExperienceBefore);
+	TestEqual(TEXT("Blocked F preserves inventory"), F.Character->Inventory->Stacks.Num(), 0);
+	TestEqual(TEXT("Blocked F preserves quest records"), F.Character->QuestLog->QuestStates.Num(), 0);
+	F.Hud->CloseVendor();
+
+	ClearService->SetActorLocation(FVector(100.0f, 280.0f, 90.0f));
+	TestTrue(TEXT("F can choose a clear alternate owner over a blocked nearer owner"), F.Interact());
+	TestFalse(TEXT("Blocked nearer vendor still stays closed"), F.Hud->IsVendorPanelVisible());
+	UTextBlock* Speaker = F.Hud->WidgetTree->FindWidget<UTextBlock>(TEXT("DialogueSpeaker"));
+	if (TestNotNull(TEXT("Alternate dialogue speaker exists"), Speaker))
+	{
+		TestEqual(TEXT("The clear alternate owner receives F"), Speaker->GetText().ToString(),
+			FString(TEXT("Side service")));
+	}
+	ClearService->SetActorLocation(FVector(100.0f, 500.0f, 90.0f));
+	Wall->SetActorLocation(FVector(130.0f, 400.0f, 90.0f));
+	TestFalse(TEXT("Moving wall clears the F visibility channel"),
+		F.World->LineTraceSingleByChannel(Hit,
+			F.Character->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			Service->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			ECC_Visibility, QueryParams));
+	TestTrue(TEXT("Clear in-range F opens the same service"), F.Interact());
+	TestTrue(TEXT("Clear service panel opens"), F.Hud->IsVendorPanelVisible());
+	TestEqual(TEXT("Opening the service still spends no copper"), F.Character->Wallet->Copper, CopperBefore);
 	return !HasAnyErrors();
 }
 

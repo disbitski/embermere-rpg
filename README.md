@@ -520,3 +520,9 @@ the player death hold, without changing living target order or combat
 authority. The focused test failed first and the final no-hot-reload build,
 127 native tests, 31 package validators, and 16 initialized-world suites
 passed. See [Docs/DAILY_BUILD_2026-10-25.md](Docs/DAILY_BUILD_2026-10-25.md).
+
+The October 26 interaction pass keeps F from opening an in-range service
+through solid cover, while preserving clear alternate selection and existing
+service authority. The test-first Xcode 26.1.1 build, 128 native tests, 31
+saved-package validators, and 16 initialized-world suites passed. See
+[Docs/DAILY_BUILD_2026-10-26.md](Docs/DAILY_BUILD_2026-10-26.md).

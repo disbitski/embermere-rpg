@@ -3922,6 +3922,16 @@ Xcode 26.1.1 build linked, 127 native tests passed, and the 31 saved-package
 and 16 live-world suites stayed green. Clean PIE still selected the practice
 target while alive. A real death-hold keyboard check remains open.
 
+## October 26: The Person Behind the Wall
+
+F could reach a service inside its 350 cm radius even through solid cover.
+A started-world test first opened the quartermaster behind a registered wall.
+The controller now picks only visible candidates and gives one clear obstacle
+line when all nearby owners are blocked. A clear alternate and the original
+service after the wall moves still work. Xcode 26.1.1 linked; 128 native
+tests, 31 saved-package validators, and 16 live-world suites passed. A
+physical F press and final chat read around real cover remain open.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

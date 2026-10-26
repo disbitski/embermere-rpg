@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-25
+Last updated: 2026-10-26
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,21 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 26 Handoff
+
+The controller's F candidate search now requires a clear 90 cm-offset
+`Visibility` line in addition to the existing range check. The focused
+started-world test was red when F opened a wall-blocked vendor, then green
+for blocked rejection and exact throttled feedback, a clear alternate, and
+the same vendor after cover moved. Service, quest, wallet, and save authority
+are unchanged. Xcode 26.1.1 `-NoHotReloadFromIDE` linked; **128/128** native
+tests, the fresh GUI-down **31-package** aggregate with **53 Fab / 32
+original-art** and no Python errors, and all **16** live-world suites passed.
+The five saved F approaches remain clear. Clean floating PIE reached Human
+Warrior HUD and stopped; Fenwatch is All Saved outside PIE on real MCP 8123.
+Physical blocked-F and painted-copy acceptance remain open. See
+`Docs/DAILY_BUILD_2026-10-26.md`.
 
 ## October 25 Handoff
 

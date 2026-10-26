@@ -6,6 +6,22 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 26 F-interaction cover safety: the controller previously chose an
+  in-range service by distance even when solid `Visibility` collision stood
+  between player and owner. `Embermere.Input.BlockedInteraction` failed first
+  when F opened a quartermaster through a registered wall. The controller now
+  skips blocked candidates, chooses a clear alternate when present, and
+  reports exact `Move around the obstacle to interact.` when all in-range
+  candidates are blocked. Clear F after moving the wall still works; quest,
+  service, inventory, wallet, and save authority did not move. Process-local
+  Xcode 26.1.1 `-NoHotReloadFromIDE` linked; fresh full automation passed
+  **128/128** without failures, warnings, or skips. The GUI-down **31-package**
+  aggregate retained **53 Fab / 32 original-art**, exact markers, and no
+  `LogPython: Error`; all **16** initialized-world suites passed, including
+  clear 90 cm F sightlines at five saved service stances. Clean floating PIE
+  reached the Human Warrior HUD and stopped; Fenwatch is All Saved outside
+  PIE on real MCP 8123. A physical blocked-F and final painted-chat check
+  remains open. See `Docs/DAILY_BUILD_2026-10-26.md`.
 - October 25 dead-Tab target safety: a fresh normal-route PIE confirmed living
   Tab still selects the Fenwatch practice target. Code review then found that
   death cleared the target, but Tab could immediately select it again during
@@ -2168,6 +2184,13 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary normal-route F interaction with a solid wall between
+  player and an otherwise in-range service, confirm the panel or dialogue
+  stays closed and chat says `Move around the obstacle to interact.` Move to
+  a clear approach and confirm the original F owner works. The native started-
+  world regression and five saved sightlines do not prove physical key input
+  or final painted feedback; do not move a service or force quest/commerce
+  merely to probe this gate.
 - During a voluntary real death hold near a living target, press `Tab`.
   The selected frame, cyan ring, and targeting chat must remain clear until
   recovery; a fresh Tab after respawn may select again. The isolated native

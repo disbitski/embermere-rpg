@@ -704,6 +704,13 @@ The outcome/presentation authority boundary is in
 
 ## Fenwatch Vendor Loop
 
+From a voluntary normal-route approach with a solid wall separating the
+player from an otherwise in-range F owner, pressing `F` should leave its
+panel/dialogue closed and report `Move around the obstacle to interact.`
+A clear approach to that owner should work as before. Do not move saved
+services, force commerce or quests, or infer physical input from the native
+wall fixture and saved-world sightline regression.
+
 1. Start a fresh PIE session, hide Inventory with `I`, approach the
    quartermaster beside the supply chest, and press `F`.
 2. Confirm `Fenwatch Supplies` opens with `Purse: 40 copper`, Marsh Tonic at

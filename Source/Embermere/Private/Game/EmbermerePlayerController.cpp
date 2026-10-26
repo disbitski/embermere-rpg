@@ -587,6 +587,7 @@ bool AEmbermerePlayerController::InteractWithNearestActor()
 	}
 
 	UEmbermereInteractableComponent* BestInteractable = nullptr;
+	bool bBlockedCandidateInRange = false;
 	float BestDistanceSquared = FMath::Square(InteractionRadius);
 	const FVector CharacterLocation = Character->GetActorLocation();
 
@@ -607,6 +608,18 @@ bool AEmbermerePlayerController::InteractWithNearestActor()
 		const float DistanceSquared = FVector::DistSquared(CharacterLocation, Candidate->GetActorLocation());
 		if (DistanceSquared <= BestDistanceSquared)
 		{
+			FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EmbermereInteractionSightline), false);
+			QueryParams.AddIgnoredActor(Character);
+			QueryParams.AddIgnoredActor(Candidate);
+			FHitResult Hit;
+			if (GetWorld()->LineTraceSingleByChannel(Hit,
+				CharacterLocation + FVector(0.0f, 0.0f, 90.0f),
+				Candidate->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+				ECC_Visibility, QueryParams))
+			{
+				bBlockedCandidateInRange = true;
+				continue;
+			}
 			BestDistanceSquared = DistanceSquared;
 			BestInteractable = Interactable;
 		}
@@ -622,7 +635,9 @@ bool AEmbermerePlayerController::InteractWithNearestActor()
 			{
 				LastEmptyInteractionFeedbackTimeSeconds = Now;
 				AddHudMessage(
-					FText::FromString(TEXT("No one close enough to interact with.")),
+					FText::FromString(bBlockedCandidateInRange
+						? TEXT("Move around the obstacle to interact.")
+						: TEXT("No one close enough to interact with.")),
 					FLinearColor(0.86f, 0.88f, 0.9f, 1.0f));
 			}
 		}
