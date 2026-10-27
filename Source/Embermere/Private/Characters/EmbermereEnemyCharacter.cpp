@@ -735,7 +735,16 @@ AActor* AEmbermereEnemyCharacter::FindAggroTarget() const
 	if (IsValidAggroTarget(PlayerPawn) &&
 		FVector::DistSquared(GetActorLocation(), PlayerPawn->GetActorLocation()) <= FMath::Square(AggroRadius))
 	{
-		return PlayerPawn;
+		FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EmbermereAggroSightline), false);
+		QueryParams.AddIgnoredActor(this);
+		QueryParams.AddIgnoredActor(PlayerPawn);
+		FHitResult Hit;
+		const FVector EyeOffset(0.0f, 0.0f, 90.0f);
+		if (!World->LineTraceSingleByChannel(Hit, GetActorLocation() + EyeOffset,
+			PlayerPawn->GetActorLocation() + EyeOffset, ECC_Visibility, QueryParams))
+		{
+			return PlayerPawn;
+		}
 	}
 
 	return nullptr;

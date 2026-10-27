@@ -24,6 +24,87 @@
 #include "Misc/AutomationTest.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereObstructedAggroAcquisitionTest,
+	"Embermere.Enemy.ObstructedAggroAcquisition",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereObstructedAggroAcquisitionTest::RunTest(const FString& Parameters)
+{
+	UClass* EnemyClass = LoadClass<AEmbermereEnemyCharacter>(nullptr,
+		TEXT("/Game/Blueprints/BP_StarterEnemy.BP_StarterEnemy_C"));
+	if (!TestNotNull(TEXT("Saved Prowler class exists"), EnemyClass))
+	{
+		return false;
+	}
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	if (!TestNotNull(TEXT("Isolated aggro world exists"), World))
+	{
+		return false;
+	}
+	GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
+	APlayerController* Controller = World->SpawnActor<APlayerController>();
+	AEmbermereCharacter* Player = World->SpawnActor<AEmbermereCharacter>(
+		FVector(350.0f, 0.0f, 90.0f), FRotator::ZeroRotator);
+	AEmbermereEnemyCharacter* Enemy = World->SpawnActor<AEmbermereEnemyCharacter>(
+		EnemyClass, FVector(0.0f, 0.0f, 90.0f), FRotator::ZeroRotator);
+	AActor* Wall = World->SpawnActor<AActor>();
+	if (!Controller || !Player || !Enemy || !Wall)
+	{
+		AddError(TEXT("Could not spawn aggro fixtures"));
+		GEngine->DestroyWorldContext(World);
+		World->DestroyWorld(false);
+		return false;
+	}
+	UBoxComponent* WallBox = NewObject<UBoxComponent>(Wall);
+	WallBox->SetBoxExtent(FVector(20.0f, 150.0f, 150.0f));
+	WallBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	WallBox->SetCollisionResponseToAllChannels(ECR_Block);
+	Wall->SetRootComponent(WallBox);
+	WallBox->RegisterComponent();
+	Wall->SetActorLocation(FVector(175.0f, 0.0f, 90.0f));
+	Controller->Possess(Player);
+	World->AddController(Controller);
+	World->InitializeActorsForPlay(FURL());
+	World->BeginPlay();
+	World->GetWorldSettings()->NotifyBeginPlay();
+
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EmbermereAggroCoverControl), false);
+	QueryParams.AddIgnoredActor(Enemy);
+	QueryParams.AddIgnoredActor(Player);
+	FHitResult Hit;
+	TestTrue(TEXT("Registered cover blocks initial aggro sight"),
+		World->LineTraceSingleByChannel(Hit,
+			Enemy->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			Player->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			ECC_Visibility, QueryParams) && Hit.GetActor() == Wall);
+	const FVector Home = Enemy->GetActorLocation();
+	const float HealthBefore = Player->Stats->CurrentHealth;
+	static_cast<AActor*>(Enemy)->Tick(1.0f / 60.0f);
+	TestFalse(TEXT("Prowler cannot acquire an unseen player"), Enemy->IsActivelyEngagedWith(Player));
+	TestTrue(TEXT("Unaware Prowler stays at its home"), Enemy->GetActorLocation().Equals(Home, 0.1f));
+	TestEqual(TEXT("Unaware Prowler deals no damage"), Player->Stats->CurrentHealth, HealthBefore);
+
+	Wall->SetActorLocation(FVector(175.0f, 400.0f, 90.0f));
+	TestFalse(TEXT("Moving cover clears the acquisition sightline"),
+		World->LineTraceSingleByChannel(Hit,
+			Enemy->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			Player->GetActorLocation() + FVector(0.0f, 0.0f, 90.0f),
+			ECC_Visibility, QueryParams));
+	static_cast<AActor*>(Enemy)->Tick(1.0f / 60.0f);
+	TestTrue(TEXT("Clear sight acquires the same player"), Enemy->IsActivelyEngagedWith(Player));
+	TestTrue(TEXT("Acquired Prowler starts its normal chase"), Enemy->GetActorLocation().X > Home.X);
+	Wall->SetActorLocation(FVector(175.0f, 0.0f, 90.0f));
+	static_cast<AActor*>(Enemy)->Tick(1.0f / 60.0f);
+	TestTrue(TEXT("New cover does not erase an established engagement"), Enemy->IsActivelyEngagedWith(Player));
+	TestEqual(TEXT("Acquisition never damages the player"), Player->Stats->CurrentHealth, HealthBefore);
+
+	World->EndPlay(EEndPlayReason::Quit);
+	GEngine->DestroyWorldContext(World);
+	World->DestroyWorld(false);
+	return !HasAnyErrors();
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereBlockedPursuitVisualTest,
 	"Embermere.Enemy.BlockedPursuitVisual",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

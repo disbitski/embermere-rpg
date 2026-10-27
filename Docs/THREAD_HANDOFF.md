@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-26
+Last updated: 2026-10-27
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,23 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 27 Handoff
+
+Initial Prowler aggro now requires a clear 90 cm-offset `Visibility` ray in
+addition to the saved 525 cm radius. A started-world regression was red when
+the saved Prowler acquired and moved toward a covered player, then green for
+blocked acquisition, clear-sight chase, and retained engagement after cover
+returned. The three accepted solo-pull sightlines stay clear, and a grounded
+in-range stance behind the saved ruin pillar is a positive cover control.
+The existing pursuit and melee-cover tests remain green. Process-local
+Xcode 26.1.1 `-NoHotReloadFromIDE` linked; **129/129** native tests, the
+fresh GUI-down **31-package** aggregate with **53 Fab / 32 original-art**
+and no Python errors, and all **16** initialized-world suites passed. Clean
+floating PIE reached Human Warrior HUD and stopped; Fenwatch is All Saved
+outside PIE on real MCP 8123. Physical first-sight and animation/camera
+acceptance remain open. See `Docs/ENEMY_AGGRO_SIGHTLINE_CONTRACT.md` and
+`Docs/DAILY_BUILD_2026-10-27.md`.
 
 ## October 26 Handoff
 

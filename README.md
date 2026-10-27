@@ -526,3 +526,9 @@ through solid cover, while preserving clear alternate selection and existing
 service authority. The test-first Xcode 26.1.1 build, 128 native tests, 31
 saved-package validators, and 16 initialized-world suites passed. See
 [Docs/DAILY_BUILD_2026-10-26.md](Docs/DAILY_BUILD_2026-10-26.md).
+
+The October 27 Prowler pass requires clear sight for initial aggro while
+preserving an already-acquired chase behind cover. Its test-first Xcode
+26.1.1 build, 129 native tests, 31 saved-package validators, and 16
+initialized-world suites passed. See
+[Docs/ENEMY_AGGRO_SIGHTLINE_CONTRACT.md](Docs/ENEMY_AGGRO_SIGHTLINE_CONTRACT.md).

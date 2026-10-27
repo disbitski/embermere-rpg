@@ -6,6 +6,24 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 27 Prowler aggro sightline: the saved first Prowler has a grounded
+  in-range stance at `(2300,500)` behind `FabPass_Ruin_Agora_Pillar`, yet AI
+  acquisition previously used radius alone. New
+  `Embermere.Enemy.ObstructedAggroAcquisition` failed first because the
+  Prowler acquired and moved toward a player behind registered cover. Initial
+  acquisition now requires a clear 90 cm-offset `Visibility` ray; an already
+  acquired target remains engaged behind new cover, with existing movement,
+  leash, melee, quest, and loot ownership unchanged. All three deliberate
+  solo-pull stances still have clear aggro sightlines, and the pillar-covered
+  stance is a positive live-world control. Process-local Xcode 26.1.1
+  `-NoHotReloadFromIDE` linked; fresh full automation passed **129/129**
+  without failures, warnings, or skips. The GUI-down **31-package** aggregate
+  retained **53 Fab / 32 original-art**, exact markers, and no
+  `LogPython: Error`; all **16** initialized-world suites passed. Clean
+  floating PIE reached the Human Warrior HUD and stopped; Fenwatch is All
+  Saved outside PIE on real MCP 8123. Physical first-sight/pillar-cover
+  combat feel remains a user check. See `Docs/DAILY_BUILD_2026-10-27.md`
+  and `Docs/ENEMY_AGGRO_SIGHTLINE_CONTRACT.md`.
 - October 26 F-interaction cover safety: the controller previously chose an
   in-range service by distance even when solid `Visibility` collision stood
   between player and owner. `Embermere.Input.BlockedInteraction` failed first
@@ -2184,6 +2202,14 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary normal-route Prowler approach, stay within the first
+  Prowler's 525 cm aggro radius with the solid ruin pillar between it and
+  the player. It should not start pursuit through the pillar. Move to a
+  clear sightline and confirm normal acquisition; once engaged, stepping
+  back behind cover should not instantly erase aggro, while melee still
+  cannot hit through it. The native started-world test and saved-map traces
+  protect these decisions, not physical movement, animation, or camera feel.
+  Do not force combat or quest progress just to replace this user check.
 - During a voluntary normal-route F interaction with a solid wall between
   player and an otherwise in-range service, confirm the panel or dialogue
   stays closed and chat says `Move around the obstacle to interact.` Move to

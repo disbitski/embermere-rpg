@@ -3932,6 +3932,17 @@ service after the wall moves still work. Xcode 26.1.1 linked; 128 native
 tests, 31 saved-package validators, and 16 live-world suites passed. A
 physical F press and final chat read around real cover remain open.
 
+## October 27: A Prowler Has to See You First
+
+The first Marsh Prowler could acquire a player behind a solid ruin pillar
+just because the player was inside its radius. A started-world test caught
+the unfair pull and went green when initial acquisition required clear
+Visibility. A Prowler that already saw the player still pursues through
+temporary cover, and the old melee/leash rules remain intact. The saved
+map now protects three clear pull sightlines and the covered pillar stance.
+Xcode 26.1.1 linked; 129 native tests, 31 package validators, and 16 live
+world suites passed. The real-camera combat read remains a player check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

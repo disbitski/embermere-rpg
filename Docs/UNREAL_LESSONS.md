@@ -2,6 +2,18 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Aggro Acquisition And Ongoing Pursuit Are Different Questions
+
+The October 27 saved map had an in-range grounded position behind a solid
+ruin pillar, but Prowler AI acquired by radius alone. A positive native
+`Visibility` ray must guard the first acquisition; once a player was seen,
+cover should not instantly erase the engagement. Keep that check inside
+`FindAggroTarget`, not the whole chase tick. The 90 cm origin offset matches
+existing melee and player ability cover checks, and saved clear pull lanes
+plus one pillar-blocked stance make both sides of the rule observable.
+Native started-world and editor collision proof still does not establish
+physical pursuit, animation, or camera feel.
+
 ## Interaction Sightline Height And Started-World Fixtures Matter
 
 The October 26 F regression found that range-only selection could open a

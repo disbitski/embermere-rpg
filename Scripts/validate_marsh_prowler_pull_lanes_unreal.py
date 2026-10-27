@@ -20,6 +20,9 @@ LANES = (
     ("Starter_Enemy_02", (1225.0, 1000.0), (1150.0, 700.0), (1640.0, 1090.0)),
     ("Starter_Enemy_03", (2500.0, 1800.0), (1900.0, 1700.0), (2500.0, 1370.0)),
 )
+COVERED_STANCE = (2300.0, 500.0)
+COVERED_ENEMY_LABEL = "Starter_Enemy_01"
+COVER_ACTOR_LABEL = "FabPass_Ruin_Agora_Pillar"
 
 
 def fail(message):
@@ -120,6 +123,32 @@ def main():
         require_supported_stance(world, enemy_label, stance)
         require_player_width_clear(world, enemy_label + " staging", staging, stance)
         require_player_width_clear(world, enemy_label + " pull sightline", stance, target_edge)
+        enemy = actors[enemy_label]
+        home = enemy.get_actor_location()
+        sight = trace(
+            world,
+            (home.x, home.y, home.z + 90.0),
+            (stance[0], stance[1], 185.0),
+            [enemy],
+        )
+        if sight:
+            fail("{} solo-pull aggro sightline hit {}".format(
+                enemy_label, label(trace_actor(sight))
+            ))
+
+    covered_enemy = actors[COVERED_ENEMY_LABEL]
+    home = covered_enemy.get_actor_location()
+    if math.dist(COVERED_STANCE, (home.x, home.y)) >= AGGRO_RADIUS_CM:
+        fail("pillar-covered stance left the Prowler aggro radius")
+    require_supported_stance(world, COVERED_ENEMY_LABEL + " pillar cover", COVERED_STANCE)
+    cover = trace(
+        world,
+        (home.x, home.y, home.z + 90.0),
+        (COVERED_STANCE[0], COVERED_STANCE[1], 185.0),
+        [covered_enemy],
+    )
+    if label(trace_actor(cover)) != COVER_ACTOR_LABEL:
+        fail("pillar-covered aggro control hit {}".format(label(trace_actor(cover))))
 
     # A positive control prevents an uninitialized physics scene from making
     # every clearance assertion pass vacuously.
@@ -127,7 +156,7 @@ def main():
     if not fence or label(trace_actor(fence)) != "Embermere_BoundaryFence_GateSouth_01":
         fail("positive fence control missed: {}".format(label(trace_actor(fence))))
 
-    unreal.log("EMBERMERE_MARSH_PROWLER_PULL_LANES_SUCCESS: three solo stances, six player-width lanes at two heights, grounded supports, and a live collision control")
+    unreal.log("EMBERMERE_MARSH_PROWLER_PULL_LANES_SUCCESS: three solo stances with clear aggro sightlines, one grounded pillar-covered in-range stance, six player-width lanes at two heights, and a live collision control")
 
 
 if __name__ == "__main__":

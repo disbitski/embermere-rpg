@@ -647,6 +647,18 @@ The full authority and rollback contracts are in
 The authority and reset contract is in
 [PRACTICE_TARGET_CONTRACT.md](PRACTICE_TARGET_CONTRACT.md).
 
+## Prowler Aggro Sightline Check
+
+During a voluntary normal-route approach to the first Marsh Prowler, remain
+inside its 525 cm aggro radius with the solid ruin pillar between you and
+the Prowler. It should not acquire or begin moving through unseen cover.
+Step into a clear sightline and confirm normal pursuit begins. Returning
+behind the pillar after acquisition should not erase the engagement, though
+the separate melee-cover rule still prevents a hit through solid geometry.
+The started-world test and saved-map traces protect these decisions, not a
+physical fight, animation blend, or camera feel. See
+[ENEMY_AGGRO_SIGHTLINE_CONTRACT.md](ENEMY_AGGRO_SIGHTLINE_CONTRACT.md).
+
 ## Prowler Melee Cover Check
 
 In a voluntary normal-route Prowler fight near the solid ruin wall, remain
