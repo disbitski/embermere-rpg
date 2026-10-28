@@ -532,3 +532,11 @@ preserving an already-acquired chase behind cover. Its test-first Xcode
 26.1.1 build, 129 native tests, 31 saved-package validators, and 16
 initialized-world suites passed. See
 [Docs/ENEMY_AGGRO_SIGHTLINE_CONTRACT.md](Docs/ENEMY_AGGRO_SIGHTLINE_CONTRACT.md).
+
+The October 28 input pass gives Inventory and Chronicle the same close-only
+Escape handoff as the other panels, including focused native Slate buttons.
+Its test-first Xcode 26.1.1 build, 130 native tests, 31 saved-package
+validators, and 16 initialized-world suites passed. An unfocused floating
+PIE Escape can invoke the editor's Stop Play shortcut; physical panel-key
+acceptance remains open. See
+[Docs/DAILY_BUILD_2026-10-28.md](Docs/DAILY_BUILD_2026-10-28.md).

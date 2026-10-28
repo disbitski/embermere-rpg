@@ -1181,6 +1181,70 @@ bool FEmbermereTrainerFocusedKeyboardTest::RunTest(const FString& Parameters)
 	return CheckFocusedService(*this, false);
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereInventoryChronicleEscapeTest,
+	"Embermere.UI.InventoryChronicleEscape",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FEmbermereInventoryChronicleEscapeTest::RunTest(const FString& Parameters)
+{
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->PrototypeSaveSlotName = TEXT("EmbermereInventoryChronicleEscapeTest");
+	F.Controller->Possess(F.Character);
+	TestTrue(TEXT("Inventory begins open"), F.Hud->IsInventoryPanelVisible());
+	F.Press(EKeys::Escape);
+	TestFalse(TEXT("Game-input Escape closes Inventory"), F.Hud->IsInventoryPanelVisible());
+
+	F.Hud->CloseInteractivePanels();
+	F.Press(EKeys::I);
+	TestTrue(TEXT("I reopens Inventory"), F.Hud->IsInventoryPanelVisible());
+	UEmbermereItemData* First = NewObject<UEmbermereItemData>();
+	First->ItemId = TEXT("EscapeFirst");
+	First->MaxStack = 1;
+	UEmbermereItemData* Second = NewObject<UEmbermereItemData>();
+	Second->ItemId = TEXT("EscapeSecond");
+	Second->MaxStack = 1;
+	TestTrue(TEXT("First transient item fits"), F.Character->Inventory->AddItem(First, 1, false));
+	TestTrue(TEXT("Second transient item fits"), F.Character->Inventory->AddItem(Second, 1, false));
+	UButton* InventorySort = Cast<UButton>(F.Hud->GetWidgetFromName(TEXT("InventorySortButton")));
+	if (!TestNotNull(TEXT("Inventory sort button exists"), InventorySort))
+	{
+		return false;
+	}
+	{
+		FFocusedServiceWindow Window(F);
+		TestTrue(TEXT("Focused Inventory button accepts native focus"),
+			FSlateApplication::Get().SetKeyboardFocus(InventorySort->TakeWidget()));
+		FFocusedServiceWindow::Key(EKeys::Escape);
+		TestFalse(TEXT("Focused Escape closes Inventory"), F.Hud->IsInventoryPanelVisible());
+	}
+	TestEqual(TEXT("Escape does not reorder or consume first item"),
+		F.Character->Inventory->Stacks[0].Item.Get(), First);
+	TestEqual(TEXT("Escape does not reorder or consume second item"),
+		F.Character->Inventory->Stacks[1].Item.Get(), Second);
+
+	F.Press(EKeys::M);
+	TestTrue(TEXT("M opens disposable-slot Chronicle"), F.Hud->IsSaveLoadPanelVisible());
+	F.Press(EKeys::Escape);
+	TestFalse(TEXT("Game-input Escape closes Chronicle"), F.Hud->IsSaveLoadPanelVisible());
+	F.Hud->CloseSaveLoadPanel();
+	F.Press(EKeys::M);
+	UButton* ChronicleClose = Cast<UButton>(F.Hud->GetWidgetFromName(TEXT("SaveLoadCloseButton")));
+	if (!TestNotNull(TEXT("Chronicle close button exists"), ChronicleClose))
+	{
+		return false;
+	}
+	{
+		FFocusedServiceWindow Window(F);
+		TestTrue(TEXT("Focused Chronicle button accepts native focus"),
+			FSlateApplication::Get().SetKeyboardFocus(ChronicleClose->TakeWidget()));
+		FFocusedServiceWindow::Key(EKeys::Escape);
+		TestFalse(TEXT("Focused Escape closes Chronicle"), F.Hud->IsSaveLoadPanelVisible());
+	}
+	TestFalse(TEXT("Escape never saves the disposable slot"), F.Controller->DoesPrototypeSaveExist());
+	TestEqual(TEXT("Escape never changes copper"), F.Character->Wallet->Copper, 40);
+	TestEqual(TEXT("Escape never grants XP"), F.Character->Stats->CurrentExperience, 0);
+	return !HasAnyErrors();
+}
+
 namespace
 {
 bool AddKeyboardLedgerRecords(FEmbermereServiceKeyboardFixture& F, FAutomationTestBase& Test)

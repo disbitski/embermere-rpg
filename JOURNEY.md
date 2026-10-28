@@ -3943,6 +3943,17 @@ map now protects three clear pull sightlines and the covered pillar stance.
 Xcode 26.1.1 linked; 129 native tests, 31 package validators, and 16 live
 world suites passed. The real-camera combat read remains a player check.
 
+## October 28: One Escape Path for the Remaining Panels
+
+Inventory and Chronicle were the last interactive panels without the
+Ledger/vendor/trainer Escape close behavior. A new native test first caught
+both ordinary controller input and focused button input leaving them open.
+Both paths now close the active panel without saving, loading, moving items,
+or changing copper or XP. Xcode 26.1.1 linked; 130 native tests, 31 package
+validators, and 16 live-world suites passed. Floating PIE's unfocused Escape
+still belongs to the editor's Stop Play shortcut, so a focused or standalone
+physical check remains open.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

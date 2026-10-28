@@ -6,6 +6,21 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 28 Inventory/Chronicle Escape handoff: fresh floating PIE reached
+  the initial Inventory, but an unfocused synthetic Escape stopped PIE through
+  the editor shortcut rather than closing it. Code review found the game's
+  Escape path covered Ledger/vendor/trainer only. New
+  `Embermere.UI.InventoryChronicleEscape` failed first for both controller
+  input and focused native Slate on Inventory and Chronicle, then passed after
+  close-only handling was added to those existing input/UI owners. Neither
+  panel action saves, loads, consumes items, awards XP, or spends copper.
+  Process-local Xcode 26.1.1 `-NoHotReloadFromIDE` linked; fresh automation
+  passed **130/130** with zero warnings/errors/skips, the GUI-down **31-package**
+  aggregate retained **53 Fab / 32 original-art** with no `LogPython: Error`,
+  and all **16** initialized-world suites passed. Clean Human Warrior PIE
+  started/stopped; Fenwatch is All Saved outside PIE with real MCP 8123.
+  Native Slate proves the game handlers, not a physical Escape from an
+  unfocused floating PIE viewport. See `Docs/DAILY_BUILD_2026-10-28.md`.
 - October 27 Prowler aggro sightline: the saved first Prowler has a grounded
   in-range stance at `(2300,500)` behind `FabPass_Ruin_Agora_Pillar`, yet AI
   acquisition previously used radius alone. New
@@ -2202,6 +2217,13 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary Inventory/Chronicle check, confirm Escape closes the
+  active panel and restores game input without saving/loading or changing
+  items. Floating PIE may reserve an unfocused Escape for Stop Play; test
+  with focus inside the panel or a standalone game session and report which
+  route was used. The native controller/focused-Slate regression is green,
+  but synthetic PIE Escape was intercepted by the editor and is not physical
+  acceptance. Keep the protected Chronicle slot untouched.
 - During a voluntary normal-route Prowler approach, stay within the first
   Prowler's 525 cm aggro radius with the solid ruin pillar between it and
   the player. It should not start pursuit through the pillar. Move to a

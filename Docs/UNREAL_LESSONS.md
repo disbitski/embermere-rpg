@@ -2,6 +2,17 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Floating PIE Escape Is Not Automatically Game Input
+
+On October 28 an unfocused synthetic Escape closed the floating PIE window,
+not the visible Inventory. Unreal Editor's Stop Play shortcut can intercept
+that key before the game controller or UMG sees it. Inspect the game paths
+separately: controller `PlayerTick` for ordinary input and HUD
+`NativeOnPreviewKeyDown` for a focused child button. A native test first
+failed both Inventory and Chronicle close paths, then passed after those
+owners handled Escape without save/item mutations. Do not call this a
+physical PIE acceptance; use focused panel input or a standalone game check.
+
 ## Aggro Acquisition And Ongoing Pursuit Are Different Questions
 
 The October 27 saved map had an in-range grounded position behind a solid

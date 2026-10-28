@@ -354,6 +354,12 @@ Warrior fallback without rewriting the old file.
    cursor/input mode returns to gameplay. Unreal-owned Slate can inspect
    widget structure and synthetic focus, but painted-edge and physical
    pointer/keyboard acceptance require the user's direct check.
+5. With Inventory or Chronicle active, press Escape while a button inside
+   the panel has keyboard focus. It should close only that panel and restore
+   gameplay input; it must not sort, use an item, save, or load. Unreal Editor
+   may claim Escape from an unfocused floating PIE viewport as Stop Play, so
+   record whether this check used focused PIE or a standalone game. Do not
+   use the protected Chronicle slot for Save/Load during this check.
 
 ## Derived Level Progression
 

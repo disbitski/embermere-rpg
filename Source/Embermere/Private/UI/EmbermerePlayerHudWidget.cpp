@@ -523,16 +523,19 @@ FReply UEmbermerePlayerHudWidget::NativeOnPreviewKeyDown(
 	const bool bLedger = IsQuestLedgerPanelVisible();
 	const bool bVendor = IsVendorPanelVisible();
 	const bool bTrainer = IsTrainerPanelVisible();
+	const bool bInventory = IsInventoryPanelVisible();
+	const bool bChronicle = IsSaveLoadPanelVisible();
+	const bool bNavigationPanel = bLedger || bVendor || bTrainer;
 	const FKey Key = InKeyEvent.GetKey();
-	if ((!bLedger && !bVendor && !bTrainer) || InKeyEvent.IsControlDown() || InKeyEvent.IsAltDown() ||
+	if ((!bNavigationPanel && !bInventory && !bChronicle) || InKeyEvent.IsControlDown() || InKeyEvent.IsAltDown() ||
 		InKeyEvent.IsCommandDown() || InKeyEvent.IsShiftDown() ||
-		(Key != EKeys::Up && Key != EKeys::Down && Key != EKeys::Escape))
+		(Key != EKeys::Escape && (!bNavigationPanel || (Key != EKeys::Up && Key != EKeys::Down))))
 	{
 		return Super::NativeOnPreviewKeyDown(InGeometry, InKeyEvent);
 	}
 
 	// Focused buttons otherwise consume navigation before PlayerInput sees it.
-	// Leave Enter/Space native so Close, Sell and Buyback keep their own actions.
+	// Leave Enter/Space native so panel buttons keep their own actions.
 	if (!InKeyEvent.IsRepeat())
 	{
 		if (Key == EKeys::Escape)
@@ -545,9 +548,21 @@ FReply UEmbermerePlayerHudWidget::NativeOnPreviewKeyDown(
 			{
 				HandleVendorCloseClicked();
 			}
-			else
+			else if (bTrainer)
 			{
 				HandleTrainerCloseClicked();
+			}
+			else if (bInventory)
+			{
+				ToggleInventoryPanel();
+				if (AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer()))
+				{
+					Controller->RefreshInteractiveInputMode();
+				}
+			}
+			else
+			{
+				HandleSaveLoadCloseClicked();
 			}
 		}
 		else if (bLedger)

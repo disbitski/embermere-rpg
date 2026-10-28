@@ -175,6 +175,22 @@ void AEmbermerePlayerController::PlayerTick(float DeltaTime)
 			PlayerHudWidget->TrainSelectedOffering();
 		}
 	}
+	else if (PlayerHudWidget && PlayerHudWidget->IsInventoryPanelVisible())
+	{
+		if (WasInputKeyJustPressed(EKeys::Escape))
+		{
+			PlayerHudWidget->ToggleInventoryPanel();
+			RefreshInteractiveInputMode();
+		}
+	}
+	else if (PlayerHudWidget && PlayerHudWidget->IsSaveLoadPanelVisible())
+	{
+		if (WasInputKeyJustPressed(EKeys::Escape))
+		{
+			PlayerHudWidget->CloseSaveLoadPanel();
+			RefreshInteractiveInputMode();
+		}
+	}
 	if (WasInputKeyJustPressed(EKeys::LeftBracket))
 	{
 		SelectPreviousInventoryItem();

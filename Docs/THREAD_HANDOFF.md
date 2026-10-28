@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-27
+Last updated: 2026-10-28
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,20 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 28 Handoff
+
+Inventory and Chronicle now close on Escape through both controller input
+and focused native Slate. `Embermere.UI.InventoryChronicleEscape` was red on
+all four old close paths, then green with no item, copper, XP, or save
+mutation; its Chronicle slot is disposable. Process-local Xcode 26.1.1
+`-NoHotReloadFromIDE` linked, **130/130** native tests passed, the GUI-down
+**31-package** aggregate retained **53 Fab / 32 original-art**, and all
+**16** live-world suites passed. Clean Human Warrior PIE stopped; Fenwatch is
+All Saved outside PIE with real MCP 8123. An unfocused synthetic Escape in
+floating PIE triggered the editor's Stop Play shortcut, so physical panel
+Escape remains a user/standalone check. The protected Chronicle slot and
+keeper material hashes remain exact. See `Docs/DAILY_BUILD_2026-10-28.md`.
 
 ## October 27 Handoff
 
