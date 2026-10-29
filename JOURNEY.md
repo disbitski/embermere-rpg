@@ -3954,6 +3954,16 @@ validators, and 16 live-world suites passed. Floating PIE's unfocused Escape
 still belongs to the editor's Stop Play shortcut, so a focused or standalone
 physical check remains open.
 
+## October 29: A Clear Way Out of Inventory
+
+The initial Inventory had I and Escape close paths but no visible X like
+the other panels. A new native test first failed on the missing button;
+the fixed-size header control now closes only Inventory. Focused Enter/Space
+and an Unreal-owned Slate click in normal Human Warrior PIE both closed it.
+Xcode 26.1.1 linked the no-hot-reload build; 131 native tests, 31 saved-
+package validators, and 16 live-world suites passed. Physical pointer and
+cursor feel remain a player check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

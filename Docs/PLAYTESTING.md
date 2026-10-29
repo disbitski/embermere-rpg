@@ -344,8 +344,11 @@ Warrior fallback without rewriting the old file.
    controls should remain visible inside the top-right panel. Its authored
    `700x330` layout may scale down, but should never scale up on larger views.
 2. Click outside Inventory and verify the transparent viewport-sized layout
-   wrapper does not consume world input. Close with `I` and confirm normal
-   movement and look return.
+   wrapper does not consume world input. Click the header X, distinct from
+   Sort, and confirm only Inventory closes, the cursor hides, and movement
+   and look return. Reopen with `I`, then close with `I` again. The October
+   29 native test and Unreal-owned Slate click do not prove physical pointer
+   feel or final painted alignment.
 3. Open Chronicle with `M` or its bottom-right command. Read Current Journey
    and Saved Journey separately; check Close, Save Current, and Load Saved fit
    without covering summary text. Do **not** activate Save or Load against the

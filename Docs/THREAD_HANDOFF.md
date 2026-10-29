@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-28
+Last updated: 2026-10-29
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,21 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 29 Handoff
+
+The initially open Inventory now has an explicit fixed-size X in its header.
+`Embermere.UI.InventoryCloseButton` failed first on the missing control and
+then passed native focused Enter/Space. A clean Human Warrior PIE click through
+Unreal-owned Slate hid only Inventory. The detached test HUD requires an
+explicit controller input-mode refresh for its cursor assertion; physical
+pointer/cursor acceptance remains open. Process-local Xcode 26.1.1
+`-NoHotReloadFromIDE` linked, **131/131** native tests and the fresh
+**31-package** aggregate passed with **53 Fab / 32 original-art** and no Python
+error, and all **16** initialized-world suites passed. A cold relaunch left
+Fenwatch All Saved outside PIE with real MCP 8123 and 131 discoverable tests.
+The protected save and keeper material hashes stayed exact. See
+`Docs/DAILY_BUILD_2026-10-29.md`.
 
 ## October 28 Handoff
 

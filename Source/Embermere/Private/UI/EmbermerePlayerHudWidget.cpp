@@ -2329,6 +2329,8 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 	InventoryCapacityText = MakeHudText(WidgetTree, TEXT("InventoryCapacityText"), FLinearColor(0.68f, 0.72f, 0.66f, 1.0f), 12.0f);
 	InventorySortButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("InventorySortButton"));
 	InventorySortText = MakeHudText(WidgetTree, TEXT("InventorySortText"), FLinearColor(0.98f, 0.86f, 0.52f, 1.0f), 12.0f);
+	InventoryCloseButton = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(), TEXT("InventoryCloseButton"));
+	InventoryCloseText = MakeHudText(WidgetTree, TEXT("InventoryCloseText"), FLinearColor(0.96f, 0.88f, 0.72f, 1.0f), 14.0f);
 	InventoryFooterText = MakeHudText(WidgetTree, TEXT("InventoryFooterText"), FLinearColor(0.72f, 0.75f, 0.68f, 1.0f), 11.0f);
 	if (InventoryText)
 	{
@@ -2346,6 +2348,15 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 		InventorySortText->SetText(FText::FromString(TEXT("Sort")));
 		InventorySortText->SetJustification(ETextJustify::Center);
 		InventorySortButton->AddChild(InventorySortText);
+	}
+	if (InventoryCloseButton && InventoryCloseText)
+	{
+		InventoryCloseButton->SetBackgroundColor(FLinearColor(0.16f, 0.07f, 0.04f, 0.9f));
+		InventoryCloseButton->SetToolTipText(FText::FromString(TEXT("Close Inventory")));
+		InventoryCloseButton->OnClicked.AddUniqueDynamic(this, &UEmbermerePlayerHudWidget::HandleInventoryCloseClicked);
+		InventoryCloseText->SetText(FText::FromString(TEXT("X")));
+		InventoryCloseText->SetJustification(ETextJustify::Center);
+		InventoryCloseButton->AddChild(InventoryCloseText);
 	}
 	if (InventoryFooterText)
 	{
@@ -2377,6 +2388,14 @@ void UEmbermerePlayerHudWidget::BuildDefaultLayout()
 			SortSize->SetHeightOverride(24.0f);
 			SortSize->AddChild(InventorySortButton);
 			InventoryHeader->AddChildToHorizontalBox(SortSize);
+		}
+		if (InventoryCloseButton)
+		{
+			USizeBox* CloseSize = MakeSizedWidget(WidgetTree, InventoryCloseButton, TEXT("InventoryCloseSize"), 28.0f, 24.0f);
+			if (UHorizontalBoxSlot* CloseSlot = InventoryHeader->AddChildToHorizontalBox(CloseSize))
+			{
+				CloseSlot->SetPadding(FMargin(8.0f, 0.0f, 0.0f, 0.0f));
+			}
 		}
 	}
 	AddStackChild(InventoryStack, InventoryHeader, 8.0f);
@@ -5047,6 +5066,21 @@ void UEmbermerePlayerHudWidget::HandleInventoryActionClicked()
 void UEmbermerePlayerHudWidget::HandleInventorySortClicked()
 {
 	SortInventory();
+}
+
+void UEmbermerePlayerHudWidget::HandleInventoryCloseClicked()
+{
+	if (!bInventoryPanelVisible)
+	{
+		return;
+	}
+
+	bInventoryPanelVisible = false;
+	UpdateInventoryPanelVisibility();
+	if (AEmbermerePlayerController* Controller = Cast<AEmbermerePlayerController>(GetOwningPlayer()))
+	{
+		Controller->RefreshInteractiveInputMode();
+	}
 }
 
 void UEmbermerePlayerHudWidget::HandleVendorStockClicked(int32 StockIndex)

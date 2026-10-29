@@ -2,6 +2,29 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Detached HUD Fixtures Do Not Own A Local Player
+
+The October 29 Inventory X test initially proved native Enter/Space closed
+the panel, but its cursor assertion stayed red. The isolated fixture creates
+`UEmbermerePlayerHudWidget` with `NewObject` in an unbegun world; it lacks the
+local player context that a live `CreateWidget` HUD has. Assigning the detached
+controller as an owner did not make that context real. Test the button's
+native focus and visibility effect in the fixture, then explicitly refresh
+the controller to test its cursor policy; inspect the actual button click in
+normal PIE separately. Do not add a production owner fallback merely to
+satisfy a detached fixture. Physical pointer acceptance still belongs to
+the user.
+
+## Mac Commandlet Console Teardown Can Hang After Success
+
+On October 29 a GUI-down `UnrealEditor -ExecutePythonScript` package run
+emitted all 31 exact success markers, then stayed in
+`FMacConsoleOutputDevice::DestroyConsole` after `QUIT_EDITOR`. Its exit was
+not accepted. The same process-local Xcode command without `-log`, still
+using dedicated `-Abslog`, exited zero with the markers and no Python error.
+Require both explicit success markers and a clean exit; do not count a
+marker-only run that remains alive.
+
 ## Floating PIE Escape Is Not Automatically Game Input
 
 On October 28 an unfocused synthetic Escape closed the floating PIE window,

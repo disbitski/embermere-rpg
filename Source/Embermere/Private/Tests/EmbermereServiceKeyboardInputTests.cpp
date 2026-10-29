@@ -1245,6 +1245,48 @@ bool FEmbermereInventoryChronicleEscapeTest::RunTest(const FString& Parameters)
 	return !HasAnyErrors();
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereInventoryCloseButtonTest,
+	"Embermere.UI.InventoryCloseButton",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FEmbermereInventoryCloseButtonTest::RunTest(const FString& Parameters)
+{
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->Possess(F.Character);
+	F.RefreshInputMode();
+	TestTrue(TEXT("Inventory begins open"), F.Hud->IsInventoryPanelVisible());
+	TestTrue(TEXT("Open Inventory shows the cursor"), F.Controller->bShowMouseCursor);
+	UButton* Close = Cast<UButton>(F.Hud->GetWidgetFromName(TEXT("InventoryCloseButton")));
+	if (!TestNotNull(TEXT("Inventory has a native close button"), Close))
+	{
+		return false;
+	}
+
+	{
+		FFocusedServiceWindow Window(F);
+		TestTrue(TEXT("Close button takes native focus"),
+			FSlateApplication::Get().SetKeyboardFocus(Close->TakeWidget()));
+		FFocusedServiceWindow::Key(EKeys::Enter);
+		TestFalse(TEXT("Native Enter closes Inventory"), F.Hud->IsInventoryPanelVisible());
+	}
+	F.RefreshInputMode();
+	TestFalse(TEXT("Controller restores game cursor policy"), F.Controller->bShowMouseCursor);
+	F.Press(EKeys::I);
+	TestTrue(TEXT("I still reopens Inventory"), F.Hud->IsInventoryPanelVisible());
+	{
+		FFocusedServiceWindow Window(F);
+		TestTrue(TEXT("Close button can take focus again"),
+			FSlateApplication::Get().SetKeyboardFocus(Close->TakeWidget()));
+		FFocusedServiceWindow::Key(EKeys::SpaceBar);
+		TestFalse(TEXT("Native Space closes Inventory"), F.Hud->IsInventoryPanelVisible());
+	}
+	F.RefreshInputMode();
+	TestFalse(TEXT("Closed Inventory leaves gameplay cursor hidden"), F.Controller->bShowMouseCursor);
+	TestEqual(TEXT("Close cannot spend copper"), F.Character->Wallet->Copper, 40);
+	TestEqual(TEXT("Close cannot grant XP"), F.Character->Stats->CurrentExperience, 0);
+	TestEqual(TEXT("Close cannot deliver items"), F.Character->Inventory->Stacks.Num(), 0);
+	return !HasAnyErrors();
+}
+
 namespace
 {
 bool AddKeyboardLedgerRecords(FEmbermereServiceKeyboardFixture& F, FAutomationTestBase& Test)

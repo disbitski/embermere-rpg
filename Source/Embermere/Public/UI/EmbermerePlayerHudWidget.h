@@ -530,6 +530,12 @@ private:
 	TObjectPtr<UTextBlock> InventorySortText;
 
 	UPROPERTY(Transient)
+	TObjectPtr<UButton> InventoryCloseButton;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> InventoryCloseText;
+
+	UPROPERTY(Transient)
 	TArray<TObjectPtr<UTextBlock>> InventoryRowTexts;
 
 	UPROPERTY(Transient)
@@ -857,6 +863,9 @@ private:
 
 	UFUNCTION()
 	void HandleInventorySortClicked();
+
+	UFUNCTION()
+	void HandleInventoryCloseClicked();
 
 	UFUNCTION()
 	void HandleVendorStockClicked(int32 StockIndex);

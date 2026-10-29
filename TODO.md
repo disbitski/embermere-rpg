@@ -6,6 +6,20 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 29 Inventory close control: fresh normal-route floating PIE showed
+  the initially open Inventory lacked an explicit X while the other panels
+  had one. `Embermere.UI.InventoryCloseButton` failed first on the missing
+  button, then passed focused native Enter/Space after a fixed 28x24 header
+  button was added. The close path hides only Inventory and asks the existing
+  controller to refresh input mode; no gameplay or save authority moved.
+  Process-local Xcode 26.1.1 `-NoHotReloadFromIDE` linked; final automation
+  passed **131/131** with zero failures/warnings/skips, the GUI-down
+  **31-package** aggregate retained **53 Fab / 32 original-art** with exact
+  markers and no `LogPython: Error`, and all **16** initialized-world suites
+  passed. Unreal-owned Slate clicked X in clean Human Warrior PIE and saw the
+  panel disappear. A cold relaunch left Fenwatch All Saved outside PIE with
+  real MCP 8123 and 131 fresh tests. Physical pointer/cursor acceptance
+  remains open. See `Docs/DAILY_BUILD_2026-10-29.md`.
 - October 28 Inventory/Chronicle Escape handoff: fresh floating PIE reached
   the initial Inventory, but an unfocused synthetic Escape stopped PIE through
   the editor shortcut rather than closing it. Code review found the game's
@@ -2217,6 +2231,11 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- In a voluntary small-window Inventory check, click the new header X and
+  confirm it is distinct from Sort, closes only Inventory, hides the cursor,
+  and returns movement/look input. Native focus and Unreal-owned Slate click
+  are green, but physical pointer feel and final painted alignment are not
+  proven. Do not use the protected Chronicle slot for this check.
 - During a voluntary Inventory/Chronicle check, confirm Escape closes the
   active panel and restores game input without saving/loading or changing
   items. Floating PIE may reserve an unfocused Escape for Stop Play; test

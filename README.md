@@ -540,3 +540,10 @@ validators, and 16 initialized-world suites passed. An unfocused floating
 PIE Escape can invoke the editor's Stop Play shortcut; physical panel-key
 acceptance remains open. See
 [Docs/DAILY_BUILD_2026-10-28.md](Docs/DAILY_BUILD_2026-10-28.md).
+
+The October 29 UI pass adds a fixed X to the initially open Inventory header.
+It closes only that panel and returns input-mode decisions to the controller;
+native focus and a normal PIE Unreal-owned Slate click passed. The no-hot-
+reload Xcode 26.1.1 build, 131 native tests, 31 saved-package validators, and
+16 live-world suites passed. Physical pointer/cursor acceptance remains a
+player check. See [Docs/DAILY_BUILD_2026-10-29.md](Docs/DAILY_BUILD_2026-10-29.md).
