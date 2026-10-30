@@ -3964,6 +3964,15 @@ Xcode 26.1.1 linked the no-hot-reload build; 131 native tests, 31 saved-
 package validators, and 16 live-world suites passed. Physical pointer and
 cursor feel remain a player check.
 
+## October 30: Buffs End When the Journey Pauses
+
+Battle Shout's temporary Attack Power and timed status lingered after lethal
+damage until respawn. A new native test failed on both lethal and forced
+death, then passed after Stats cleared effects before death observers ran.
+Xcode 26.1.1 linked; 132 native tests, 31 saved-package validators, and 16
+live-world suites passed. Normal Human Warrior PIE started and stopped, but
+physical death-hold aura timing is still for a player to check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

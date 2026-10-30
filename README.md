@@ -547,3 +547,10 @@ native focus and a normal PIE Unreal-owned Slate click passed. The no-hot-
 reload Xcode 26.1.1 build, 131 native tests, 31 saved-package validators, and
 16 live-world suites passed. Physical pointer/cursor acceptance remains a
 player check. See [Docs/DAILY_BUILD_2026-10-29.md](Docs/DAILY_BUILD_2026-10-29.md).
+
+The October 30 Stats pass clears timed combat effects when lethal or forced
+death commits, so Battle Shout no longer remains active through the death
+hold. Its test failed first on stale Stats/HUD status, then passed. The
+process-local Xcode 26.1.1 build, 132 native tests, 31 package validators,
+and 16 initialized-world suites passed; physical aura timing remains a
+player check. See [Docs/DAILY_BUILD_2026-10-30.md](Docs/DAILY_BUILD_2026-10-30.md).

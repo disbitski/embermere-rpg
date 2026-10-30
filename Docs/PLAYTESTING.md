@@ -493,7 +493,10 @@ Warrior fallback without rewriting the old file.
     refreshes instead of duplicating. After it expires, the cell should clear
     and damage should return to baseline. Eight restrained orange-gold world
     segments should appear around the player while the effect is active, then
-    hide with the same authoritative status state.
+    hide with the same authoritative status state. If death occurs while it
+    is active, the +8 Attack Power bonus, status cell, and aura should clear
+    during the death hold and stay clear after respawn. This physical timing
+    remains unverified; the native regression covers Stats/HUD state only.
 28. As Cleric, press `3` for Ward and confirm chat reports `+10 Armor` for 10
     seconds; incoming damage should be reduced during the ward and its
     beneficial status cell plus blue-white world segments should clear when the

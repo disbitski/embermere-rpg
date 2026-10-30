@@ -90,6 +90,11 @@ float UEmbermereStatsComponent::ApplyDamage(float DamageAmount)
 	const float EffectiveDamage = DamageAmount * (100.0f / (100.0f + GetEffectiveArmor()));
 	const float PreviousHealth = CurrentHealth;
 	CurrentHealth = FMath::Clamp(CurrentHealth - EffectiveDamage, 0.0f, MaxHealth);
+	const bool bLethal = CurrentHealth <= 0.0f && PreviousHealth > 0.0f;
+	if (bLethal)
+	{
+		ClearTemporaryEffects();
+	}
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
 	const float AppliedAmount = PreviousHealth - CurrentHealth;
 	if (AppliedAmount > 0.0f)
@@ -97,7 +102,7 @@ float UEmbermereStatsComponent::ApplyDamage(float DamageAmount)
 		OnDamageApplied.Broadcast(AppliedAmount);
 	}
 
-	if (CurrentHealth <= 0.0f && PreviousHealth > 0.0f)
+	if (bLethal)
 	{
 		OnDied.Broadcast();
 	}
@@ -113,6 +118,7 @@ void UEmbermereStatsComponent::ForceDeath()
 	}
 
 	ClearDamageImmunity();
+	ClearTemporaryEffects();
 	CurrentHealth = 0.0f;
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
 	OnDied.Broadcast();

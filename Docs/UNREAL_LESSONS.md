@@ -2,6 +2,16 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Death-State Tests Must Not Claim Detached Visuals
+
+On October 30 a detached Character/HUD fixture found that Battle Shout's
+Attack Power bonus and timed status survived both lethal and forced death.
+Clearing temporary effects before zero-health/death delegates lets the HUD
+observe the committed state, and the native test covers Stats/HUD cleanup.
+A `NewObject` Character without a started world cannot prove its painted
+world aura, even if a VFX segment count happens to be zero. Keep that
+physical death-hold visual check open rather than adding a vacuous assertion.
+
 ## Detached HUD Fixtures Do Not Own A Local Player
 
 The October 29 Inventory X test initially proved native Enter/Space closed

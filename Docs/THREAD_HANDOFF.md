@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-29
+Last updated: 2026-10-30
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,20 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 30 Handoff
+
+`Embermere.Stats.DeathClearsTemporaryEffects` first failed because a lethal
+Battle Shout left +8 Attack Power and one Stats/HUD timed status through the
+death hold; forced death did the same. Stats now clears temporary effects
+before zero-health/death delegates, while respawn's existing clear remains.
+Process-local Xcode 26.1.1 `-NoHotReloadFromIDE` linked; final fresh
+automation passed **132/132**, the GUI-down **31-package** aggregate retained
+**53 Fab / 32 original-art** with exact markers and no Python error, and all
+**16** live-world suites passed. Clean Human Warrior PIE stopped; Fenwatch is
+All Saved outside PIE with real MCP 8123. The protected hashes stayed exact.
+Physical death-hold status and world-aura timing remain unverified. See
+`Docs/DAILY_BUILD_2026-10-30.md`.
 
 ## October 29 Handoff
 

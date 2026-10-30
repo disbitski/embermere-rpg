@@ -6,6 +6,21 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 30 death-state timed-effect cleanup: normal Human Warrior PIE
+  showed Battle Shout in slot 4; review found Stats cleared temporary
+  effects on respawn but retained them through lethal and forced death.
+  `Embermere.Stats.DeathClearsTemporaryEffects` failed first on the +8
+  Attack Power bonus, timed status, and HUD status persisting at zero HP.
+  Both death commits now clear temporary effects before health/death
+  observers run; combat costs, quest, loot, and save authority did not move.
+  Process-local Xcode 26.1.1 `-NoHotReloadFromIDE` linked. Final automation
+  passed **132/132** with zero failures/warnings/skips; the GUI-down
+  **31-package** aggregate retained **53 Fab / 32 original-art**, exact
+  markers and no `LogPython: Error`; all **16** initialized-world suites
+  passed. Clean floating PIE reached the Human Warrior HUD and stopped;
+  Fenwatch is All Saved outside PIE on real MCP 8123. A voluntary physical
+  death-hold status/aura check remains open. See
+  `Docs/DAILY_BUILD_2026-10-30.md`.
 - October 29 Inventory close control: fresh normal-route floating PIE showed
   the initially open Inventory lacked an explicit X while the other panels
   had one. `Embermere.UI.InventoryCloseButton` failed first on the missing
@@ -2231,6 +2246,13 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary Warrior encounter, activate Battle Shout and observe
+  its status cell and world aura, then die while the 10-second effect is
+  still active. The +8 Attack Power effect and status cell should clear
+  during the death hold and must not replay after respawn. The native
+  regression proves Stats/HUD state at the death commit, not physical
+  timing, painted aura, or camera feel. Do not force death merely to
+  replace this user check.
 - In a voluntary small-window Inventory check, click the new header X and
   confirm it is distinct from Sort, closes only Inventory, hides the cursor,
   and returns movement/look input. Native focus and Unreal-owned Slate click

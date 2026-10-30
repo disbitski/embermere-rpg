@@ -3296,6 +3296,61 @@ bool FEmbermereStarterAbilityEffectsTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FEmbermereDeathClearsTemporaryEffectsTest,
+	"Embermere.Stats.DeathClearsTemporaryEffects",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereDeathClearsTemporaryEffectsTest::RunTest(const FString& Parameters)
+{
+	const UEmbermereRulesData* Rules = LoadObject<UEmbermereRulesData>(
+		nullptr,
+		TEXT("/Game/Data/DA_EmbermereRules.DA_EmbermereRules"));
+	AEmbermereCharacter* Character = NewObject<AEmbermereCharacter>();
+	UEmbermerePlayerHudWidget* Hud = NewObject<UEmbermerePlayerHudWidget>();
+	if (!TestNotNull(TEXT("Saved rules resolve"), Rules) ||
+		!TestNotNull(TEXT("Character exists"), Character) ||
+		!TestNotNull(TEXT("HUD exists"), Hud))
+	{
+		return false;
+	}
+
+	FEmbermereAbilityDefinition BattleShout;
+	if (!TestTrue(TEXT("Battle Shout resolves"), Rules->GetAbilityDefinition("BattleShout", BattleShout)))
+	{
+		return false;
+	}
+
+	Character->Stats->InitializeVitals();
+	Hud->BindToCharacter(Character);
+	TestTrue(TEXT("Battle Shout commits before lethal damage"), Character->Combat->ExecuteAbility(BattleShout));
+	TestEqual(TEXT("Buff is active before death"), Character->Stats->GetEffectiveAttackPower(), 18.0f);
+	TestEqual(TEXT("HUD shows the active buff"), Hud->GetPlayerStatusEffectCount(), 1);
+	const float ManaAfterShout = Character->Stats->CurrentMana;
+	Character->Stats->ApplyDamage(Character->Stats->MaxHealth + 100.0f);
+	TestTrue(TEXT("Lethal damage commits death"), Character->Stats->IsDead());
+	TestEqual(TEXT("Lethal death removes effective attack bonus"), Character->Stats->GetEffectiveAttackPower(), 10.0f);
+	TestEqual(TEXT("Lethal death clears timed status"), Character->Stats->GetActiveStatusEffects().Num(), 0);
+	TestEqual(TEXT("HUD no longer presents Battle Shout"), Hud->GetPlayerStatusEffectCount(), 0);
+	TestEqual(TEXT("Death does not restore spent mana early"), Character->Stats->CurrentMana, ManaAfterShout);
+
+	Character->Stats->InitializeVitals();
+	TestTrue(TEXT("Forced-death fixture can restore the attack buff"),
+		Character->Stats->GrantTemporaryAttackPower(8.0f, 10.0f));
+	TestTrue(TEXT("Forced-death fixture can restore its status"),
+		Character->Stats->RegisterTimedStatusEffect(BattleShout, true));
+	TestEqual(TEXT("Forced-death fixture begins buffed"), Character->Stats->GetEffectiveAttackPower(), 18.0f);
+	Character->Stats->ForceDeath();
+	TestTrue(TEXT("Forced death commits"), Character->Stats->IsDead());
+	TestEqual(TEXT("Forced death removes effective attack bonus"), Character->Stats->GetEffectiveAttackPower(), 10.0f);
+	TestEqual(TEXT("Forced death clears timed status"), Character->Stats->GetActiveStatusEffects().Num(), 0);
+	TestEqual(TEXT("HUD stays clear after forced death"), Hud->GetPlayerStatusEffectCount(), 0);
+	Character->Stats->InitializeVitals();
+	TestEqual(TEXT("Respawn does not replay the old status"), Hud->GetPlayerStatusEffectCount(), 0);
+	TestEqual(TEXT("Death cannot grant XP"), Character->Stats->CurrentExperience, 0);
+	return !HasAnyErrors();
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FEmbermereTimedStatusPresentationTest,
 	"Embermere.UI.TimedStatusPresentation",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
