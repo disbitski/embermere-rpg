@@ -458,6 +458,9 @@ Warrior fallback without rewriting the old file.
     selected without repeating the same targeting chat line. With two
     eligible targets, subsequent Tabs should advance and wrap. Turning away
     so the forward cone is empty should still clear the target and report it.
+    Near solid ruin cover, Tab should skip a hidden hostile for a visible
+    alternate; moving to a clear line should restore the hidden hostile to
+    normal cycling. This physical key and target-ring check remains open.
 20. Watch for the selected enemy's UMG nameplate, selected marker, HP text, HP
     bar, complete cyan-blue emissive ground circle, and the HUD target panel
     range state. The 48-segment circle should size from the target's visual

@@ -3973,6 +3973,16 @@ Xcode 26.1.1 linked; 132 native tests, 31 saved-package validators, and 16
 live-world suites passed. Normal Human Warrior PIE started and stopped, but
 physical death-hold aura timing is still for a player to check.
 
+## October 31: A Target You Can Actually See
+
+Tab could select a nearer hostile through solid ruin cover even though the
+hotbar could not hit it. A started-world test with a registered wall and a
+clear alternate failed on that mismatch, then passed after candidate
+selection gained a 90 cm-offset Visibility check. Moving the wall away
+restores normal cycling. Xcode 26.1.1 linked; 133 native tests, 31 saved-
+package validators, and 16 live-world suites passed. Physical pillar-side
+Tab and target-ring feel remain for a player to check.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

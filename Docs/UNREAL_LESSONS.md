@@ -2,6 +2,17 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Target Acquisition Needs A Registered Cover Control
+
+On October 31 a started-world Tab fixture exposed that nearest-first target
+selection ignored solid cover. The first draft accidentally grazed the wall
+with its supposedly clear alternate ray; that was a fixture failure, not
+proof of the production bug. Move the alternate far enough sideways, prove
+one native Visibility ray blocked and the other clear, then accept a red
+selection result. Apply the sightline in candidate filtering before the
+existing distance sort so clear-target order remains stable. Synthetic Tab
+and isolated geometry do not prove physical camera or target-ring feel.
+
 ## Death-State Tests Must Not Claim Detached Visuals
 
 On October 30 a detached Character/HUD fixture found that Battle Shout's

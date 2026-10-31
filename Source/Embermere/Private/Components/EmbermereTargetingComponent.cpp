@@ -1,5 +1,6 @@
 #include "Components/EmbermereTargetingComponent.h"
 #include "Components/EmbermereCombatComponent.h"
+#include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/Pawn.h"
 #include "Interfaces/EmbermereTargetableDispatch.h"
@@ -45,6 +46,20 @@ AActor* UEmbermereTargetingComponent::CycleTarget()
 		if (FVector::DotProduct(OwnerForward, ToCandidate.GetSafeNormal()) < MinDot)
 		{
 			continue;
+		}
+
+		if (UWorld* World = GetWorld())
+		{
+			FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EmbermereTargetCycleSightline), false);
+			QueryParams.AddIgnoredActor(Owner);
+			QueryParams.AddIgnoredActor(Candidate);
+			FHitResult Hit;
+			const FVector EyeOffset(0.0f, 0.0f, 90.0f);
+			if (World->LineTraceSingleByChannel(Hit, OwnerLocation + EyeOffset,
+				Candidate->GetActorLocation() + EyeOffset, ECC_Visibility, QueryParams))
+			{
+				continue;
+			}
 		}
 
 		Candidates.Add(Candidate);

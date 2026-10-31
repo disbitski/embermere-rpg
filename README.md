@@ -554,3 +554,11 @@ hold. Its test failed first on stale Stats/HUD status, then passed. The
 process-local Xcode 26.1.1 build, 132 native tests, 31 package validators,
 and 16 initialized-world suites passed; physical aura timing remains a
 player check. See [Docs/DAILY_BUILD_2026-10-30.md](Docs/DAILY_BUILD_2026-10-30.md).
+
+The October 31 input pass makes Tab skip hostiles hidden by solid cover while
+retaining clear-target cycle order. Its started-world test failed first on a
+covered nearer target, then passed after the same Visibility preflight used
+by combat and F interaction. Xcode 26.1.1 linked; 133 native tests, 31
+saved-package validators, and 16 initialized-world suites passed. Physical
+ruin-pillar targeting remains a player check. See
+[Docs/DAILY_BUILD_2026-10-31.md](Docs/DAILY_BUILD_2026-10-31.md).

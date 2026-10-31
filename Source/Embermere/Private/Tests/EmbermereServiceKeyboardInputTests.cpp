@@ -466,6 +466,66 @@ bool FEmbermereTargetCycleNoOpFeedbackTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereCoveredTargetCycleTest,
+	"Embermere.Input.CoveredTargetCycle",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FEmbermereCoveredTargetCycleTest::RunTest(const FString& Parameters)
+{
+	FEmbermereServiceKeyboardFixture F;
+	F.Controller->Possess(F.Character);
+	F.World->AddController(F.Controller);
+	F.Character->SetActorLocation(FVector(0.0f, 0.0f, 90.0f));
+	F.Character->SetActorRotation(FRotator::ZeroRotator);
+	AEmbermerePracticeTargetActor* Covered = F.World->SpawnActor<AEmbermerePracticeTargetActor>();
+	AEmbermereEnemyCharacter* Clear = F.World->SpawnActor<AEmbermereEnemyCharacter>();
+	AActor* Wall = F.World->SpawnActor<AActor>();
+	if (!TestNotNull(TEXT("Covered target exists"), Covered) ||
+		!TestNotNull(TEXT("Clear target exists"), Clear) ||
+		!TestNotNull(TEXT("Solid wall exists"), Wall))
+	{
+		return false;
+	}
+	Covered->SetActorLocation(FVector(250.0f, 0.0f, 90.0f));
+	Clear->SetActorLocation(FVector(350.0f, 240.0f, 90.0f));
+	UBoxComponent* WallBox = NewObject<UBoxComponent>(Wall);
+	WallBox->SetBoxExtent(FVector(10.0f, 60.0f, 120.0f));
+	WallBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	WallBox->SetCollisionResponseToAllChannels(ECR_Block);
+	Wall->SetRootComponent(WallBox);
+	WallBox->RegisterComponent();
+	Wall->SetActorLocation(FVector(130.0f, 0.0f, 90.0f));
+	F.World->InitializeActorsForPlay(FURL());
+	F.World->BeginPlay();
+	F.World->GetWorldSettings()->NotifyBeginPlay();
+
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EmbermereTargetCycleCoverControl), false);
+	QueryParams.AddIgnoredActor(F.Character);
+	QueryParams.AddIgnoredActor(Covered);
+	QueryParams.AddIgnoredActor(Clear);
+	FHitResult Hit;
+	const FVector EyeOffset(0.0f, 0.0f, 90.0f);
+	TestTrue(TEXT("Wall blocks the nearer hostile"),
+		F.World->LineTraceSingleByChannel(Hit, F.Character->GetActorLocation() + EyeOffset,
+			Covered->GetActorLocation() + EyeOffset, ECC_Visibility, QueryParams) && Hit.GetActor() == Wall);
+	TestFalse(TEXT("Farther hostile has a clear sightline"),
+		F.World->LineTraceSingleByChannel(Hit, F.Character->GetActorLocation() + EyeOffset,
+			Clear->GetActorLocation() + EyeOffset, ECC_Visibility, QueryParams));
+	const int32 CopperBefore = F.Character->Wallet->Copper;
+	const int32 ExperienceBefore = F.Character->Stats->CurrentExperience;
+	F.CycleTarget();
+	TestTrue(TEXT("Tab selects the clear hostile instead of the covered nearer one"),
+		F.Character->Combat->CurrentTarget == Clear);
+	Wall->SetActorLocation(FVector(130.0f, 400.0f, 90.0f));
+	F.CycleTarget();
+	TestTrue(TEXT("Moving the wall clear restores the nearer hostile to cycling"),
+		F.Character->Combat->CurrentTarget == Covered);
+	TestEqual(TEXT("Target cycling preserves copper"), F.Character->Wallet->Copper, CopperBefore);
+	TestEqual(TEXT("Target cycling preserves XP"), F.Character->Stats->CurrentExperience, ExperienceBefore);
+	TestEqual(TEXT("Target cycling changes no quest state"), F.Character->QuestLog->QuestStates.Num(), 0);
+	return !HasAnyErrors();
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEmbermereDeadTargetCycleSafetyTest,
 	"Embermere.Input.DeadTargetCycleSafety",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

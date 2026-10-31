@@ -6,6 +6,20 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- October 31 covered Tab targeting: `Embermere.Input.CoveredTargetCycle`
+  first failed because Tab selected a nearer hostile through a registered
+  solid wall instead of a clear hostile. The corrected started-world fixture
+  proved the near line blocked and alternate line clear. Target candidate
+  filtering now uses the same 90 cm-offset Visibility sightline as abilities
+  and F; moving the wall restores the nearer target to the cycle. Target
+  order, no-op feedback, combat, quests, and saves remain unchanged.
+  Process-local Xcode 26.1.1 `-NoHotReloadFromIDE` linked; **133/133** native
+  tests passed with zero failures/warnings/skips, the GUI-down **31-package**
+  aggregate retained **53 Fab / 32 original-art** with exact markers and no
+  `LogPython: Error`, and all **16** initialized-world suites passed. Clean
+  Human Warrior PIE started/stopped; Fenwatch is All Saved outside PIE on
+  real MCP 8123. Physical pillar-cover targeting remains a user check. See
+  `Docs/DAILY_BUILD_2026-10-31.md`.
 - October 30 death-state timed-effect cleanup: normal Human Warrior PIE
   showed Battle Shout in slot 4; review found Stats cleared temporary
   effects on respawn but retained them through lethal and forced death.
@@ -2246,6 +2260,13 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- During a voluntary ruin-pillar approach, keep a hostile within Tab's
+  forward cone but behind solid cover. Tab should skip that hostile and
+  select a clear alternate when one exists; after moving to a clear line,
+  the original target should return to the normal cycle. The started-world
+  native regression proves registered collision and selection ordering,
+  not physical key input, normal-camera readability, or final target-ring
+  behavior. Do not force combat or quest progress just to inspect it.
 - During a voluntary Warrior encounter, activate Battle Shout and observe
   its status cell and world aura, then die while the 10-second effect is
   still active. The +8 Attack Power effect and status cell should clear

@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-30
+Last updated: 2026-10-31
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -39,6 +39,20 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## October 31 Handoff
+
+Tab candidate selection now shares the 90 cm-offset Visibility cover rule
+used by combat and interaction. `Embermere.Input.CoveredTargetCycle` failed
+first when a registered wall hid the nearer hostile but Tab still chose it;
+the corrected fixture had a clear alternate ray. The green test selects the
+clear hostile, then cycles to the original after the wall moves, without
+wallet, XP, or quest drift. Xcode 26.1.1 `-NoHotReloadFromIDE` linked;
+**133/133** native tests, the GUI-down **31-package** aggregate with **53 Fab
+and 32 original-art** placements, and all **16** live-world suites passed. Clean Human
+Warrior PIE stopped and Fenwatch is All Saved outside PIE on MCP 8123.
+Protected hashes stayed exact. Physical ruin-pillar Tab/target-ring feel
+remains unverified. See `Docs/DAILY_BUILD_2026-10-31.md`.
 
 ## October 30 Handoff
 
