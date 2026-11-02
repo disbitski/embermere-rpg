@@ -176,6 +176,10 @@ The repo currently contains the C++ gameplay scaffold for:
 - a tracked level-1 Back-slot Recruit Pack quest reward for the first equipment action
 - stackable Marsh Tonic recovery items dropped by Marsh Prowlers, connecting combat loot to the inventory `Use` action
 - the saved starter-zone map `L_Embermere_Prototype`
+- the separate `L_MarshwardCauseway_Greybox` traversal study, with an original
+  Blender span/ramp/waymarker kit, a raised crossing and a lower return loop;
+  no connected travel or new quest/save behavior yet (see
+  [the greybox brief](Docs/MARSHWARD_CAUSEWAY_GREYBOX.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved

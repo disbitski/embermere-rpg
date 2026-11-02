@@ -2,6 +2,16 @@
 
 This is the current smoke test for the Embermere prototype inside Unreal Editor.
 
+## Marshward Causeway Greybox
+
+The standalone second-level study is `/Game/Maps/L_MarshwardCauseway_Greybox`.
+Open it explicitly; the startup map remains Fenwatch. Its exact route,
+automated support/clearance gates, and physical traversal checklist are in
+[the greybox brief](MARSHWARD_CAUSEWAY_GREYBOX.md). Use normal character
+confirmation, do not load/save Chronicle, and do not infer connected travel
+or gameplay progression from this map. The Fenwatch smoke test below remains
+independent and unchanged.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

@@ -1,15 +1,17 @@
 # Beyond Fenwatch: Draft Level Plan
 
-Status: design proposal, not accepted gameplay or saved content (2026-11-01).
-Fenwatch in `L_Embermere_Prototype` remains the only playable level. No travel,
-new quest, enemy, reward, or save behavior is implied by this document.
+Status: expansion roadmap with a standalone Causeway greybox (2026-11-01).
+Fenwatch remains the established gameplay zone. The separate
+`L_MarshwardCauseway_Greybox` now supports a normal-picker traversal review;
+it is not connected travel or finished content. No new quest, enemy, reward,
+or save behavior is implied by this document.
 
 ## World Progression
 
 | Stage | Working Level | Player Promise | First Build Slice |
 | --- | --- | --- | --- |
 | 1 | Fenwatch (existing) | Warm hub, service loop, first Marsh Prowlers, ancient ruins | Preserve the accepted map and routes. |
-| 2 | Marshward Causeway | Leave the safe road for a readable marsh crossing; choose when to take cover or retreat | Separate greybox map with a loop, one landmark, and safe return path. |
+| 2 | Marshward Causeway | Leave the safe road for a readable marsh crossing; choose when to take cover or retreat | Standalone loop greybox and three Blender kit meshes built; physical walk/camera review next. |
 | 3 | Oldstone Hollow | Follow the ruin language into a compact, more vertical ancient site | Separate greybox map with two elevation changes and a visible exit. |
 
 The names are working titles. Marshward Causeway should grow naturally from
@@ -58,4 +60,6 @@ render alone does not authorize placement or gameplay authority.
 3. Obtain normal-camera PIE review and explicit travel/save contracts before
    linking maps or adding persistent quest state.
 
-These are proposed gates, not completed verification.
+The first two gates have a bounded greybox implementation. See
+`Docs/MARSHWARD_CAUSEWAY_GREYBOX.md` for the exact layout, ownership,
+verification, and remaining player checks. Connected travel remains future work.

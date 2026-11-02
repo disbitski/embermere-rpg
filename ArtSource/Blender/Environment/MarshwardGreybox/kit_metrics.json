@@ -1,0 +1,32 @@
+{
+  "SM_MarshwardSpan_Greybox": {
+    "triangles": 12,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "dimensions_cm": [
+      600.0,
+      500.0,
+      60.0
+    ]
+  },
+  "SM_MarshwardRamp_Greybox": {
+    "triangles": 12,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "dimensions_cm": [
+      600.0,
+      500.0,
+      160.0
+    ]
+  },
+  "SM_MarshwardWaymarker_Greybox": {
+    "triangles": 36,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "dimensions_cm": [
+      180.0,
+      140.0,
+      520.0
+    ]
+  }
+}

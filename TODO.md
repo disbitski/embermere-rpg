@@ -6,14 +6,26 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 1 Causeway greybox: `/Game/Maps/L_MarshwardCauseway_Greybox`
+  is now a separate second-level traversal study with arrival/ruin islands,
+  a raised crossing, two ramps, and a lower return loop. Blender MCP built
+  three project-owned kit meshes; 22 exact static placements and one normal
+  PlayerStart were saved. No enemies, quests, services, travel, save schema,
+  startup configuration, or Fenwatch content changed. **133/133** native
+  tests, Fenwatch's fresh **31-package** gate and **16** live suites, and a
+  separate fresh Causeway package validator passed. Causeway live traces
+  passed **579 support / 1,104 clearance** rays and a solid control; normal
+  picker/Human Warrior PIE started/stopped. Physical traversal/camera feel
+  remains open. See `Docs/MARSHWARD_CAUSEWAY_GREYBOX.md`.
 - November 1 handoff: no production code or saved content changed. Fresh
   Unreal MCP discovery listed **133** Embermere tests; Unreal-owned Slate
   showed `L_Embermere_Prototype` All Saved and PIE stopped. Blender MCP scene
   inspection was reachable. The protected save and keeper material kept their
   recorded SHA256 hashes. This is a read-only readiness check, **not** a new
   133-test run or package-validation pass. A draft two-level expansion and
-  Blender asset candidates are in `Docs/FUTURE_LEVELS_PLAN.md`; neither level
-  exists yet. See `Docs/DAILY_BUILD_2026-11-01.md`.
+  Blender asset candidates were drafted in `Docs/FUTURE_LEVELS_PLAN.md`;
+  the later Causeway implementation is recorded above. See
+  `Docs/DAILY_BUILD_2026-11-01.md`.
 - October 31 covered Tab targeting: `Embermere.Input.CoveredTargetCycle`
   first failed because Tab selected a nearer hostile through a registered
   solid wall instead of a clear hostile. The corrected started-world fixture
@@ -2268,6 +2280,12 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- Physically walk the standalone Marshward Causeway greybox loop and review
+  camera clearance, ramp joins, route readability, and the ruin silhouette.
+  Keep Fenwatch unchanged and do not connect travel/persistence yet. Use the
+  feedback to choose one route refinement or briefed Blender kit extension;
+  avoid dressing the whole level before traversal is accepted. See
+  `Docs/MARSHWARD_CAUSEWAY_GREYBOX.md` for the exact checks.
 - During a voluntary ruin-pillar approach, keep a hostile within Tab's
   forward cone but behind solid cover. Tab should skip that hostile and
   select a clear alternate when one exists; after moving to a clear line,

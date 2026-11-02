@@ -3983,6 +3983,18 @@ restores normal cycling. Xcode 26.1.1 linked; 133 native tests, 31 saved-
 package validators, and 16 live-world suites passed. Physical pillar-side
 Tab and target-ring feel remain for a player to check.
 
+## November 1: Beyond The Village
+
+Marshward Causeway now exists as a separate traversal greybox: arrival island,
+raised crossing, broken ruin silhouette, and a lower return loop. Blender MCP
+built a three-piece span/ramp/waymarker kit with explicit pivots and authored
+collision. Fresh saved-package validation, 579 support rays and 1,104
+clearance rays passed. All 133 native tests and Fenwatch's existing package
+and live-world gates remained green, with the original village map unchanged.
+Normal character creation reached the new map's HUD; physical walking and
+camera feel remain the next review. This is a second place to explore, not
+connected travel, a new quest, or a change to the saved journey.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

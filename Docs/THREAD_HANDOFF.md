@@ -45,6 +45,19 @@ this snapshot. A new task should read files in this order:
 
 ## November 1 Handoff
 
+Later November 1 implementation: the separate
+`/Game/Maps/L_MarshwardCauseway_Greybox` now contains a traversal loop with
+three Blender-authored kit meshes, 22 exact static placements, and one
+PlayerStart. Fresh import and saved-package gates passed; live traces passed
+579 support / 1,104 clearance rays and a solid control. All 133 native tests,
+Fenwatch's 31-package aggregate, and its 16 live suites passed. Normal
+picker/Human Warrior PIE started/stopped. Fenwatch and protected hashes stayed
+unchanged. No travel, enemies, quest, service, or save behavior was added.
+Physical walking and camera feel remain unverified. The editor may be left
+on the clean Causeway map for review; startup maps remain Fenwatch. See
+`Docs/MARSHWARD_CAUSEWAY_GREYBOX.md` for gates and next work.
+
+Earlier design-only pass:
 No gameplay or content changed. First-class Unreal MCP freshly discovered
 **133** tests, Unreal-owned Slate showed Fenwatch All Saved outside PIE, and
 Blender MCP scene inspection was reachable. The protected save and keeper
