@@ -6,6 +6,14 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 1 handoff: no production code or saved content changed. Fresh
+  Unreal MCP discovery listed **133** Embermere tests; Unreal-owned Slate
+  showed `L_Embermere_Prototype` All Saved and PIE stopped. Blender MCP scene
+  inspection was reachable. The protected save and keeper material kept their
+  recorded SHA256 hashes. This is a read-only readiness check, **not** a new
+  133-test run or package-validation pass. A draft two-level expansion and
+  Blender asset candidates are in `Docs/FUTURE_LEVELS_PLAN.md`; neither level
+  exists yet. See `Docs/DAILY_BUILD_2026-11-01.md`.
 - October 31 covered Tab targeting: `Embermere.Input.CoveredTargetCycle`
   first failed because Tab selected a nearer hostile through a registered
   solid wall instead of a clear hostile. The corrected started-world fixture

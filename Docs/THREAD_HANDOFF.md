@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-10-31
+Last updated: 2026-11-01
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -14,6 +14,9 @@ This is the durable context artifact for continuing Embermere in a fresh Codex
 task. It records the decisions, working systems, editor setup, asset constraints,
 verification workflow, hard-earned Unreal lessons, and immediate next work that
 would otherwise be trapped in the original long conversation.
+
+For expansion work, start with the provisional `Docs/FUTURE_LEVELS_PLAN.md`
+and keep new maps and art distinct from Fenwatch's accepted content.
 
 For day-to-day priorities, `TODO.md` remains authoritative and more current than
 this snapshot. A new task should read files in this order:
@@ -39,6 +42,16 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 1 Handoff
+
+No gameplay or content changed. First-class Unreal MCP freshly discovered
+**133** tests, Unreal-owned Slate showed Fenwatch All Saved outside PIE, and
+Blender MCP scene inspection was reachable. The protected save and keeper
+material hashes stayed exact. This was not a new full automation/package
+validation run. `Docs/FUTURE_LEVELS_PLAN.md` proposes Marshward Causeway and
+Oldstone Hollow as separate future levels, with Blender kit candidates and
+explicit route/travel/save gates. See `Docs/DAILY_BUILD_2026-11-01.md`.
 
 ## October 31 Handoff
 
