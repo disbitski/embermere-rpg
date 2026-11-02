@@ -1,0 +1,31 @@
+{
+  "SM_MarshwardPeatBerm_01": {
+    "dimensions_cm": [
+      1800.0,
+      1000.0,
+      180.0
+    ],
+    "triangles": 96,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "materials": [
+      "M_MarshwardPeat",
+      "M_MarshwardMoss",
+      "M_MarshwardEarth"
+    ]
+  },
+  "SM_MarshwardReedClump_01": {
+    "dimensions_cm": [
+      260.0,
+      220.0,
+      210.0
+    ],
+    "triangles": 616,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "materials": [
+      "M_MarshwardReedGreen",
+      "M_MarshwardReedSeed"
+    ]
+  }
+}

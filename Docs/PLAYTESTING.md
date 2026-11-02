@@ -12,6 +12,13 @@ confirmation, do not load/save Chronicle, and do not infer connected travel
 or gameplay progression from this map. The Fenwatch smoke test below remains
 independent and unchanged.
 
+The first Causeway terrain pass adds six low colliding berms and eight
+non-colliding reed clumps. Check that the crossing and broad return path
+remain visually open, not just collision-clear. The visible-bounds gate
+protects full-width corridors plus 75 cm; six berm support controls supplement
+the original loop rays. Physical walking/camera feel remain player checks.
+See `MARSHWARD_MARSH_TERRAIN.md`.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

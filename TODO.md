@@ -6,6 +6,18 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 2 Causeway terrain: Blender MCP added a 96-triangle peat berm
+  with one authored convex hull and a 616-triangle no-collision reed clump.
+  Six berms and eight reed clumps flank the loop; the original 22 greybox
+  placements, route, PlayerStart and Fenwatch are unchanged. Visible bounds
+  clear every full-width walking corridor plus 75 cm. Seven host corridor
+  tests and **133/133** native tests passed. Fresh import, Fenwatch's
+  **31-package** aggregate and Causeway package checks passed with exact
+  markers and no Python errors. The clean final session passed all **16**
+  Fenwatch suites, **579 support / 1,104 clearance** Causeway rays, six berm
+  support controls and normal picker/Human Warrior PIE startup/stop.
+  Physical traversal remains open. See `Docs/DAILY_BUILD_2026-11-02.md`
+  and `Docs/MARSHWARD_MARSH_TERRAIN.md`.
 - November 1 Causeway greybox: `/Game/Maps/L_MarshwardCauseway_Greybox`
   is now a separate second-level traversal study with arrival/ruin islands,
   a raised crossing, two ramps, and a lower return loop. Blender MCP built
@@ -2280,6 +2292,10 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
+- Review Causeway's first marsh terrain from arrival, crossing and return
+  views. Continue with a briefed bank-profile variation or grounded original
+  rock kit, retaining route geometry and full-width corridor buffers. No
+  travel, water gameplay, quests or persistence changes are implied by art.
 - Physically walk the standalone Marshward Causeway greybox loop and review
   camera clearance, ramp joins, route readability, and the ruin silhouette.
   Keep Fenwatch unchanged and do not connect travel/persistence yet. Use the

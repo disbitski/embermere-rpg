@@ -7,6 +7,15 @@ characters while retaining Fab assets for broad coverage and specialist art.
 
 ## Decision
 
+### Causeway Marsh Assets
+
+The Causeway terrain set uses closed original meshes with explicit collision:
+a 96-triangle peat berm with one UCX hull and a 616-triangle reed clump with
+no collision. Source, FBX, metrics, preview and `.blend` live under
+`ArtSource/Blender/Environment/MarshwardMarsh`. Fresh imports own packages;
+initialized-editor placement owns the map. Visible-bounds exclusion protects
+full-width corridors as well as collision. See `Docs/MARSHWARD_MARSH_TERRAIN.md`.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process

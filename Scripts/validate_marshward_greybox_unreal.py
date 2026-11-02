@@ -1,6 +1,7 @@
 """Persisted package contract; run in a fresh process independently of build."""
 
 import json
+import runpy
 from pathlib import Path
 import unreal
 
@@ -43,7 +44,7 @@ def main():
         path = DEST + '/SM_Marshward' + kind + '_Greybox'
         expected[label] = (pos, (1,1,1), yaw, path + '.' + path.rsplit('/',1)[1])
     meshes = [a for a in actors if isinstance(a, unreal.StaticMeshActor)]
-    assert len(meshes) == len(expected) == 22
+    assert len(expected) == 22 and len(meshes) == 36
     for label,(pos,scale,yaw,path) in expected.items():
         actor = by_label['Marshward_' + label]
         assert 'EmbermereMarshwardGreybox' in [str(t) for t in actor.tags]
@@ -63,8 +64,9 @@ def main():
     assert abs(starts[0].get_actor_rotation().yaw-90)<0.1
     forbidden = ['Quest','Enemy','Vendor','Trainer','RestService','Save','Trigger']
     assert not any(any(word in a.get_class().get_name() for word in forbidden) for a in actors)
+    runpy.run_path(str(ROOT/'Scripts/validate_marshward_marsh_unreal.py'))['validate_dressing'](actors)
     assert not unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()
-    unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 3 meshes, 22 exact placements, standalone map, no gameplay authority')
+    unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 5 meshes, 22 original plus 14 terrain/art placements, standalone map, no quest/service/save authority')
 
 
 if __name__ == '__main__':

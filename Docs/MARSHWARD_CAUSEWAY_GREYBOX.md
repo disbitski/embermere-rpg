@@ -65,6 +65,14 @@ passed; its map file SHA256 stayed
 
 ## Remaining Player Review
 
+The November 2 terrain pass adds six low berms and eight reed clumps outside
+full-width walking corridors plus 75 cm. The original 22 placements and route
+are unchanged; total static placements are now 36. The validator covers all
+five meshes and both placement groups. See `Docs/MARSHWARD_MARSH_TERRAIN.md`.
+To recreate the map, build the original greybox kit/map first, then import
+and place the separate marsh assets; keep commandlet import and initialized
+editor placement separate.
+
 Open the greybox explicitly through File > Open Level; startup maps are
 unchanged. Start PIE, confirm a character, close Inventory, and walk the
 crossing, ruin island, east ramp, and lower return path. Check ramp joins,

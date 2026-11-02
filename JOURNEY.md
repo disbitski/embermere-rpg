@@ -3995,6 +3995,16 @@ Normal character creation reached the new map's HUD; physical walking and
 camera feel remain the next review. This is a second place to explore, not
 connected travel, a new quest, or a change to the saved journey.
 
+## November 2: Marsh Ground Beside The Road
+
+Blender MCP built the first original peat berm and reed clump for Causeway.
+Six berms and eight clumps give the basin a marsh silhouette while the walking
+loop stays unchanged. Visible-bounds checks protect its full width plus a
+buffer, rather than trusting non-colliding foliage alone. Seven host checks,
+133 native tests, fresh saved-package gates, and live route/berm traces passed.
+Fenwatch and the protected saved journey remain untouched. Physical walking,
+camera feel and water gameplay are still separate, unfinished checks.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

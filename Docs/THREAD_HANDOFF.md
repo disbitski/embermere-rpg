@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-01
+Last updated: 2026-11-02
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,20 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 2 Handoff
+
+Causeway now has six original Blender peat berms and eight reed clumps,
+bringing its static count to 36 while preserving the original 22 placements
+and route. Berms use one convex hull each; reeds have no collision. New
+visible bounds stay outside full walking corridors plus 75 cm. Seven host
+regressions, 133 native tests, fresh Fenwatch 31-package and Causeway package
+gates, all 16 Fenwatch live suites, and Causeway's 579 support / 1,104
+clearance rays plus six berm controls passed. Normal PIE reached the Human
+Warrior HUD and stopped. Fenwatch and protected hashes stayed unchanged.
+Causeway remains clean outside PIE for review. No water, travel, enemy,
+quest or persistence behavior was added. See `Docs/DAILY_BUILD_2026-11-02.md`
+and `Docs/MARSHWARD_MARSH_TERRAIN.md`.
 
 ## November 1 Handoff
 
