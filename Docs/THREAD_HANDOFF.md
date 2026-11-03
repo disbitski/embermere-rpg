@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-02
+Last updated: 2026-11-03
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,19 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 3 Handoff
+
+Causeway's west-far and east bank mesh references now use one original
+Blender asymmetric peat-shelf asset (2600 x 900 x 240 cm, 66 triangles,
+one UV, one convex hull, three reused materials). All transforms, original
+22 placements, route and PlayerStart remain intact; total static count is
+still 36. Ten host regressions, all 133 native tests, fresh Fenwatch
+31-package and Causeway package gates, all 16 Fenwatch live suites, and
+Causeway's 579 support / 1,104 clearance rays plus six terrain controls passed.
+Clean normal PIE reached Human Warrior HUD and stopped. Fenwatch/protected
+hashes stayed exact. No gameplay, travel or persistence changes were made.
+See `Docs/DAILY_BUILD_2026-11-03.md` and `Docs/MARSHWARD_PEAT_SHELF.md`.
 
 ## November 2 Handoff
 

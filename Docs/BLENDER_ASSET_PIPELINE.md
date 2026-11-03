@@ -16,6 +16,12 @@ no collision. Source, FBX, metrics, preview and `.blend` live under
 initialized-editor placement owns the map. Visible-bounds exclusion protects
 full-width corridors as well as collision. See `Docs/MARSHWARD_MARSH_TERRAIN.md`.
 
+The asymmetric peat shelf is a separate 66-triangle mesh with one convex hull,
+one UV channel and three reused terrain materials. Its independent builder
+does not rebuild/resave the accepted berm or reed source. The initialized
+editor replaces only two existing mesh references; no new actors are added.
+See `Docs/MARSHWARD_PEAT_SHELF.md` for the exact ownership contract.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process

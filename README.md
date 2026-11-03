@@ -180,8 +180,8 @@ The repo currently contains the C++ gameplay scaffold for:
   Blender span/ramp/waymarker kit, a raised crossing and a lower return loop;
   no connected travel or new quest/save behavior yet (see
   [the greybox brief](Docs/MARSHWARD_CAUSEWAY_GREYBOX.md))
-- original low-poly Causeway peat berms and reed clumps beside the walking
-  loop, with authored terrain collision and full-width visible clearance
+- original low-poly Causeway peat berms, asymmetric shelves and reed clumps
+  beside the walking loop, with authored terrain collision and visible clearance
   checks (see [marsh terrain](Docs/MARSHWARD_MARSH_TERRAIN.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five

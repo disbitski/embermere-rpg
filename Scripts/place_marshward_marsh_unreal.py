@@ -19,9 +19,10 @@ def main():
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     existing = {a.get_actor_label():a for a in subsystem.get_all_level_actors()}
     assert all('Marshward_'+row[0] not in existing for row in data['placements']), 'Refusing duplicate placement'
+    meshes = {kind:unreal.load_asset(DEST+'/SM_Marshward'+kind+'_01') for kind in {row[1] for row in data['placements']}}
+    assert all(meshes.values()), 'Import all terrain variants before placement'
     for label,kind,pos,yaw,scale in data['placements']:
-        mesh = unreal.load_asset(DEST+'/SM_Marshward'+kind+'_01')
-        assert mesh
+        mesh = meshes[kind]
         rotation = unreal.Rotator()
         rotation.yaw = yaw
         actor = subsystem.spawn_actor_from_class(unreal.StaticMeshActor,unreal.Vector(*pos),rotation)
@@ -31,11 +32,11 @@ def main():
         actor.set_folder_path('MarshwardGreybox/MarshTerrain')
         component = actor.get_component_by_class(unreal.StaticMeshComponent)
         assert component.set_static_mesh(mesh)
-        component.set_collision_profile_name('BlockAll' if kind=='PeatBerm' else 'NoCollision')
+        component.set_collision_profile_name('BlockAll' if kind in ('PeatBerm','PeatShelf') else 'NoCollision')
     validator = runpy.run_path(str(ROOT/'Scripts/validate_marshward_marsh_unreal.py'))
     validator['validate_dressing'](list(subsystem.get_all_level_actors()))
     assert unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level()
-    unreal.log('EMBERMERE_MARSHWARD_MARSH_PLACEMENT_SUCCESS: 6 berms, 8 reed clumps, full walking corridors protected')
+    unreal.log('EMBERMERE_MARSHWARD_MARSH_PLACEMENT_SUCCESS: 4 berms, 2 shelves, 8 reed clumps, full walking corridors protected')
 
 
 if __name__ == '__main__':

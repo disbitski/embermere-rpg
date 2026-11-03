@@ -56,3 +56,13 @@ Human Warrior HUD and stopped. Physical walking/camera feel remain open.
 Logs: `/tmp/embermere-nov02-marsh-import.log`,
 `/tmp/embermere-nov02-fenwatch-31-packages.log`, and
 `/tmp/embermere-nov02-causeway-packages.log`.
+
+## Asymmetric Outer Banks
+
+The November 3 shelf replaces the west-far and east bank mesh references
+without moving actors or adding placements. The current set is four round
+berms, two 66-triangle asymmetric shelves and eight reeds. The shelf reuses
+the terrain materials and one convex hull; full corridor widths and the
+75 cm buffer remain fixed. See `Docs/MARSHWARD_PEAT_SHELF.md` for dimensions
+and verification. Rebuilds must import both original marsh meshes and the
+shelf before terrain placement; the helper preflights all mesh dependencies.

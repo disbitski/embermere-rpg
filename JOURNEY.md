@@ -4005,6 +4005,16 @@ buffer, rather than trusting non-colliding foliage alone. Seven host checks,
 Fenwatch and the protected saved journey remain untouched. Physical walking,
 camera feel and water gameplay are still separate, unfinished checks.
 
+## November 3: A Different Bank Silhouette
+
+Fresh overview evidence showed the same round mound repeated around Causeway.
+Blender MCP built a tapered, asymmetric peat shelf and the editor substituted
+it for two outer bank meshes without moving actors or changing the route.
+The map still has 36 static placements. Ten host checks, 133 native tests,
+fresh package validation and live route/terrain controls passed. Materials,
+Fenwatch and the protected journey stayed unchanged; physical traversal and
+camera feel remain separate player checks.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

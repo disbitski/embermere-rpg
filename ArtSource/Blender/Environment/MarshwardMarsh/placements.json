@@ -3,10 +3,10 @@
   "buffer_cm": 75,
   "placements": [
     ["BermWestNear", "PeatBerm", [-2100,2400,-120], 10, [1,1,1]],
-    ["BermWestFar", "PeatBerm", [-2200,4400,-120], -10, [1,1,1]],
+    ["BermWestFar", "PeatShelf", [-2200,4400,-120], -10, [1,1,1]],
     ["BermInnerNear", "PeatBerm", [1250,2400,-120], 0, [0.65,0.85,0.8]],
     ["BermInnerFar", "PeatBerm", [1250,4200,-120], 0, [0.65,0.85,1]],
-    ["BermEast", "PeatBerm", [4400,3600,-120], 90, [1,1,1]],
+    ["BermEast", "PeatShelf", [4400,3600,-120], 90, [1,1,1]],
     ["BermNorth", "PeatBerm", [0,8200,-120], 0, [1.4,1,1.5]],
     ["ReedsWestNear", "ReedClump", [-650,1800,-120], 0, [1,1,1]],
     ["ReedsWestMid", "ReedClump", [-650,3200,-120], 35, [1,1,1]],

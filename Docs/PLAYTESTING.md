@@ -19,6 +19,11 @@ protects full-width corridors plus 75 cm; six berm support controls supplement
 the original loop rays. Physical walking/camera feel remain player checks.
 See `MARSHWARD_MARSH_TERRAIN.md`.
 
+Two outer banks now use an asymmetric shelf without any transform or count
+change. Check its longer silhouette stays outside both walking corridors;
+all six terrain support controls still run, including the two shelves. The
+current saved-package gate covers six meshes. See `MARSHWARD_PEAT_SHELF.md`.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

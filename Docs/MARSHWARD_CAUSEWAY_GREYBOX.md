@@ -68,7 +68,9 @@ passed; its map file SHA256 stayed
 The November 2 terrain pass adds six low berms and eight reed clumps outside
 full-width walking corridors plus 75 cm. The original 22 placements and route
 are unchanged; total static placements are now 36. The validator covers all
-five meshes and both placement groups. See `Docs/MARSHWARD_MARSH_TERRAIN.md`.
+six current meshes and both placement groups. Two outer banks now use the
+November 3 asymmetric shelf; no actor count or transform changed. See
+`Docs/MARSHWARD_MARSH_TERRAIN.md` and `Docs/MARSHWARD_PEAT_SHELF.md`.
 To recreate the map, build the original greybox kit/map first, then import
 and place the separate marsh assets; keep commandlet import and initialized
 editor placement separate.

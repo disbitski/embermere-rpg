@@ -12,6 +12,8 @@ DEST = '/Game/Art/Embermere/Environment/MarshwardMarsh'
 
 def validate_dressing(actors):
     metrics = json.loads((SOURCE/'mesh_metrics.json').read_text())
+    metrics.update(json.loads((SOURCE/'shelf_metrics.json').read_text()))
+    assert len(metrics)==3
     for name,spec in metrics.items():
         mesh = unreal.load_asset(DEST+'/'+name)
         assert mesh and mesh.get_num_triangles(0) == spec['triangles']
@@ -28,10 +30,12 @@ def validate_dressing(actors):
             assert slot.material_interface.get_path_name()==DEST+'/'+material+'.'+material
         agg = mesh.get_editor_property('body_setup').get_editor_property('agg_geom')
         for field in ['box_elems','convex_elems','sphere_elems','sphyl_elems']:
-            assert len(agg.get_editor_property(field))==(1 if 'PeatBerm' in name and field=='convex_elems' else 0)
+            assert len(agg.get_editor_property(field))==(1 if ('PeatBerm' in name or 'PeatShelf' in name) and field=='convex_elems' else 0)
     data = json.loads((SOURCE/'placements.json').read_text())
     route = json.loads((ROOT/'ArtSource/Blender/Environment/MarshwardGreybox/layout.json').read_text())['route']
     assert len(data['corridor_half_widths_cm'])==len(route)-1
+    assert data['corridor_half_widths_cm']==[600,250,250,400,400,250,300,600,600]
+    assert data['buffer_cm']==75
     overlaps = runpy.run_path(str(ROOT/'Scripts/marshward_route_clearance.py'))['overlaps_corridor']
     owned = {a.get_actor_label():a for a in actors if 'EmbermereMarshwardMarsh' in [str(t) for t in a.tags]}
     assert len(owned)==len(data['placements'])==14
@@ -47,14 +51,15 @@ def validate_dressing(actors):
         component = actor.get_component_by_class(unreal.StaticMeshComponent)
         name = 'SM_Marshward'+kind+'_01'
         assert component.static_mesh.get_path_name()==DEST+'/'+name+'.'+name
-        expected_profile = 'BlockAll' if kind=='PeatBerm' else 'NoCollision'
+        solid = kind in ('PeatBerm','PeatShelf')
+        expected_profile = 'BlockAll' if solid else 'NoCollision'
         assert str(component.get_collision_profile_name())==expected_profile
-        expected_enabled = unreal.CollisionEnabled.QUERY_AND_PHYSICS if kind=='PeatBerm' else unreal.CollisionEnabled.NO_COLLISION
+        expected_enabled = unreal.CollisionEnabled.QUERY_AND_PHYSICS if solid else unreal.CollisionEnabled.NO_COLLISION
         assert component.get_collision_enabled()==expected_enabled
         center,extent = actor.get_actor_bounds(False)
         for start,end,width in zip(route,route[1:],data['corridor_half_widths_cm']):
             assert not overlaps((center.x,center.y),(extent.x,extent.y),start,end,width,data['buffer_cm']), label+' intrudes on route'
-    unreal.log('EMBERMERE_MARSHWARD_MARSH_PACKAGE_SUCCESS: 2 meshes, 6 colliding berms, 8 noncolliding reeds, full-width corridors plus 75 cm clear')
+    unreal.log('EMBERMERE_MARSHWARD_MARSH_PACKAGE_SUCCESS: 3 meshes, 4 berms, 2 shelves, 8 noncolliding reeds, full-width corridors plus 75 cm clear')
 
 
 def main():

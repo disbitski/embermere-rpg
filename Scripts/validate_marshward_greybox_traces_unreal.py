@@ -44,13 +44,13 @@ def main():
     dressing = json.loads(Path('/Users/wizard/Documents/Unreal Game/ArtSource/Blender/Environment/MarshwardMarsh/placements.json').read_text())
     berm_hits = 0
     for label,kind,pos,yaw,scale in dressing['placements']:
-        if kind != 'PeatBerm':
+        if kind not in ('PeatBerm','PeatShelf'):
             continue
         hit = trace((pos[0],pos[1],pos[2]+500),(pos[0],pos[1],pos[2]-10))
         assert hit and hit.to_dict()['hit_actor'].get_actor_label()=='Marshward_'+label
         berm_hits += 1
     assert berm_hits==6
-    unreal.log('EMBERMERE_MARSHWARD_TERRAIN_TRACES_SUCCESS: 6 solid berm support controls')
+    unreal.log('EMBERMERE_MARSHWARD_TERRAIN_TRACES_SUCCESS: 6 solid terrain support controls including 2 shelves')
     unreal.log('EMBERMERE_MARSHWARD_TRACES_SUCCESS: {} support rays, {} clearance rays, positive marker control'.format(supports,clearance))
 
 

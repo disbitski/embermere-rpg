@@ -6,6 +6,18 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 3 Causeway bank variant: Blender MCP built an asymmetric
+  2600 x 900 x 240 cm peat shelf, 66 triangles, one UV channel, one authored
+  convex hull and three reused terrain materials. Only the west-far/east
+  bank mesh references changed; all transforms, original 22 placements,
+  route, PlayerStart and total 36 static placements remain intact. The kit
+  now has six meshes. Ten host regressions and **133/133** native tests passed.
+  Fresh import, Fenwatch's **31-package** aggregate and Causeway packages
+  passed with exact markers, exit zero and no Python errors. All **16**
+  Fenwatch live suites, **579 support / 1,104 clearance** Causeway rays and
+  six terrain controls passed after clean relaunch. Normal picker/Human
+  Warrior PIE stopped cleanly. See `Docs/DAILY_BUILD_2026-11-03.md` and
+  `Docs/MARSHWARD_PEAT_SHELF.md`. Physical traversal remains unverified.
 - November 2 Causeway terrain: Blender MCP added a 96-triangle peat berm
   with one authored convex hull and a 616-triangle no-collision reed clump.
   Six berms and eight reed clumps flank the loop; the original 22 greybox
@@ -2292,9 +2304,9 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
-- Review Causeway's first marsh terrain from arrival, crossing and return
-  views. Continue with a briefed bank-profile variation or grounded original
-  rock kit, retaining route geometry and full-width corridor buffers. No
+- Review Causeway's varied banks from arrival, crossing and return views.
+  Continue with a briefed grounded original rock kit, retaining route
+  geometry and full-width corridor buffers. No
   travel, water gameplay, quests or persistence changes are implied by art.
 - Physically walk the standalone Marshward Causeway greybox loop and review
   camera clearance, ramp joins, route readability, and the ruin silhouette.

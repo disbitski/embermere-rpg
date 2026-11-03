@@ -12,6 +12,7 @@ class CorridorTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment'
         data = json.loads((root/'MarshwardMarsh/placements.json').read_text())
         metrics = json.loads((root/'MarshwardMarsh/mesh_metrics.json').read_text())
+        metrics.update(json.loads((root/'MarshwardMarsh/shelf_metrics.json').read_text()))
         route = json.loads((root/'MarshwardGreybox/layout.json').read_text())['route']
         for label,kind,pos,yaw,scale in data['placements']:
             size = metrics['SM_Marshward'+kind+'_01']['dimensions_cm']
@@ -20,6 +21,26 @@ class CorridorTests(unittest.TestCase):
             extent = (x*cosine+y*sine,x*sine+y*cosine)
             for start,end,width in zip(route,route[1:],data['corridor_half_widths_cm']):
                 self.assertFalse(overlaps_corridor(pos,extent,start,end,width,data['buffer_cm']),label)
+
+    def test_corridor_contract_cannot_shrink(self):
+        path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/placements.json'
+        data = json.loads(path.read_text())
+        self.assertEqual(data['corridor_half_widths_cm'],[600,250,250,400,400,250,300,600,600])
+        self.assertEqual(data['buffer_cm'],75)
+
+    def test_only_two_outer_roles_use_the_shelf(self):
+        path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/placements.json'
+        rows = json.loads(path.read_text())['placements']
+        self.assertEqual([r[0] for r in rows if r[1]=='PeatShelf'],['BermWestFar','BermEast'])
+        self.assertEqual(sum(r[1]=='PeatBerm' for r in rows),4)
+        self.assertEqual(sum(r[1]=='ReedClump' for r in rows),8)
+
+    def test_shelf_matches_the_written_brief(self):
+        path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/shelf_metrics.json'
+        data = json.loads(path.read_text())['SM_MarshwardPeatShelf_01']
+        self.assertEqual(data['dimensions_cm'],[2600,900,240])
+        self.assertEqual((data['triangles'],data['uv_channels'],data['non_manifold_edges']),(66,1,0))
+        self.assertEqual(data['materials'],['M_MarshwardPeat','M_MarshwardMoss','M_MarshwardEarth'])
 
     def test_visible_geometry_blocks_even_without_collision(self):
         self.assertTrue(overlaps_corridor((300,1000),(100,80),(0,0),(0,2000),250,75))

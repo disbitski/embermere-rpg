@@ -66,7 +66,7 @@ def main():
     assert not any(any(word in a.get_class().get_name() for word in forbidden) for a in actors)
     runpy.run_path(str(ROOT/'Scripts/validate_marshward_marsh_unreal.py'))['validate_dressing'](actors)
     assert not unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()
-    unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 5 meshes, 22 original plus 14 terrain/art placements, standalone map, no quest/service/save authority')
+    unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 6 meshes, 22 original plus 14 terrain/art placements, standalone map, no quest/service/save authority')
 
 
 if __name__ == '__main__':

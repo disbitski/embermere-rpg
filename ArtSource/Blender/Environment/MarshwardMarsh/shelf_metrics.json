@@ -1,0 +1,17 @@
+{
+  "SM_MarshwardPeatShelf_01": {
+    "dimensions_cm": [
+      2600.0,
+      900.0,
+      240.0
+    ],
+    "triangles": 66,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "materials": [
+      "M_MarshwardPeat",
+      "M_MarshwardMoss",
+      "M_MarshwardEarth"
+    ]
+  }
+}
