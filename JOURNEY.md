@@ -4015,6 +4015,16 @@ fresh package validation and live route/terrain controls passed. Materials,
 Fenwatch and the protected journey stayed unchanged; physical traversal and
 camera feel remain separate player checks.
 
+## November 4: Stones Beside The Crossing
+
+Blender MCP built an original three-stone rock cluster with one hull per
+stone. Four grounded placements add low accents outside the Causeway route;
+the preceding 36 placements stay unchanged. Full-width corridor protection,
+twelve stone controls and twelve underlying-ground probes passed alongside
+133 native tests and fresh package validation. The editor reached the normal
+Human Warrior HUD, but physical walking/camera feel remain player checks.
+Fenwatch and the saved journey stayed untouched.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -66,3 +66,13 @@ the terrain materials and one convex hull; full corridor widths and the
 75 cm buffer remain fixed. See `Docs/MARSHWARD_PEAT_SHELF.md` for dimensions
 and verification. Rebuilds must import both original marsh meshes and the
 shelf before terrain placement; the helper preflights all mesh dependencies.
+
+## Grounded Rock Accents
+
+Four original rock-cluster actors were added outside the corridors without
+altering the preceding 36 placements. The current map has 40 static actors
+and seven unique meshes. Each 144-triangle cluster has three closed stones,
+one UV channel and one convex hull per stone. Ground probes verify the basin
+under all twelve authored stone centers, alongside unfiltered route rays.
+See `Docs/MARSHWARD_ROCK_CLUSTER.md` for ownership and evidence. Import the
+rock cluster before using the complete terrain placement helper in a rebuild.

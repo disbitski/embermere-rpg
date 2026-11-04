@@ -6,6 +6,18 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 4 Causeway rocks: Blender MCP built a 460 x 340 x 260 cm,
+  144-triangle three-stone cluster with one UV channel and three authored
+  convex hulls. Four grounded placements bring the map to **40** static
+  actors and **seven** meshes; all prior 36 placements, route and PlayerStart
+  remain unchanged. New bounds retain full-width corridors plus 75 cm.
+  **13** host regressions and **133/133** native tests passed. Fresh import,
+  Fenwatch's **31-package** and Causeway gates passed with exact markers,
+  exit zero and no Python errors. The clean final session passed **16**
+  Fenwatch suites, **579 support / 1,104 clearance** Causeway rays, six bank
+  controls and **12 stone / 12 underlying-ground** controls. Normal picker/
+  Human Warrior PIE stopped cleanly. See `Docs/DAILY_BUILD_2026-11-04.md`
+  and `Docs/MARSHWARD_ROCK_CLUSTER.md`. Physical traversal remains open.
 - November 3 Causeway bank variant: Blender MCP built an asymmetric
   2600 x 900 x 240 cm peat shelf, 66 triangles, one UV channel, one authored
   convex hull and three reused terrain materials. Only the west-far/east
@@ -2304,10 +2316,10 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
-- Review Causeway's varied banks from arrival, crossing and return views.
-  Continue with a briefed grounded original rock kit, retaining route
-  geometry and full-width corridor buffers. No
-  travel, water gameplay, quests or persistence changes are implied by art.
+- Review Causeway's banks and rock clusters from arrival, crossing and return
+  views. Continue with a project-owned wet peat/mud material study, preserving
+  support geometry, route readability and full-width buffers. No water
+  gameplay, travel, quests or persistence changes are implied by materials.
 - Physically walk the standalone Marshward Causeway greybox loop and review
   camera clearance, ramp joins, route readability, and the ruin silhouette.
   Keep Fenwatch unchanged and do not connect travel/persistence yet. Use the

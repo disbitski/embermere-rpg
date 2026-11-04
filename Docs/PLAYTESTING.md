@@ -22,7 +22,12 @@ See `MARSHWARD_MARSH_TERRAIN.md`.
 Two outer banks now use an asymmetric shelf without any transform or count
 change. Check its longer silhouette stays outside both walking corridors;
 all six terrain support controls still run, including the two shelves. The
-current saved-package gate covers six meshes. See `MARSHWARD_PEAT_SHELF.md`.
+current saved-package gate covers seven meshes. See `MARSHWARD_PEAT_SHELF.md`.
+
+Four original rock clusters bring the static count to 40 without moving
+earlier art. Review their grounding and route visibility from both directions.
+Automated checks cover all twelve stones and underlying basin supports;
+physical camera feel is still unverified. See `MARSHWARD_ROCK_CLUSTER.md`.
 
 ## Before Pressing Play
 

@@ -1,6 +1,6 @@
 # Beyond Fenwatch: Draft Level Plan
 
-Status: expansion roadmap with a standalone Causeway greybox (2026-11-03).
+Status: expansion roadmap with a standalone Causeway greybox (2026-11-04).
 Fenwatch remains the established gameplay zone. The separate
 `L_MarshwardCauseway_Greybox` now supports a normal-picker traversal review;
 it is not connected travel or finished content. No new quest, enemy, reward,
@@ -11,7 +11,7 @@ or save behavior is implied by this document.
 | Stage | Working Level | Player Promise | First Build Slice |
 | --- | --- | --- | --- |
 | 1 | Fenwatch (existing) | Warm hub, service loop, first Marsh Prowlers, ancient ruins | Preserve the accepted map and routes. |
-| 2 | Marshward Causeway | Leave the safe road for a readable marsh crossing; choose when to take cover or retreat | Standalone loop, Blender greybox kit, peat berms/shelves and reeds built; physical walk/camera review next. |
+| 2 | Marshward Causeway | Leave the safe road for a readable marsh crossing; choose when to take cover or retreat | Standalone loop, Blender kit, peat banks, reeds and rock clusters built; physical walk/camera review next. |
 | 3 | Oldstone Hollow | Follow the ruin language into a compact, more vertical ancient site | Separate greybox map with two elevation changes and a visible exit. |
 
 The names are working titles. Marshward Causeway should grow naturally from

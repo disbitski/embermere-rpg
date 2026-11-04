@@ -15,6 +15,10 @@
     ["ReedsInnerFar", "ReedClump", [600,4000,-120], -15, [1,1,1]],
     ["ReedsInnerEast", "ReedClump", [1850,3000,-120], 0, [1,1,1]],
     ["ReedsEastNear", "ReedClump", [3550,1700,-120], 0, [1,1,1]],
-    ["ReedsEastFar", "ReedClump", [3550,5200,-120], 20, [1,1,1]]
+    ["ReedsEastFar", "ReedClump", [3550,5200,-120], 20, [1,1,1]],
+    ["RocksWestNear", "RockCluster", [-1200,1500,-120], 20, [1,1,1]],
+    ["RocksInnerSouth", "RockCluster", [1700,1700,-120], -25, [1,1,1]],
+    ["RocksNorthwest", "RockCluster", [-1800,7100,-120], 10, [1,1,1]],
+    ["RocksOuterEast", "RockCluster", [3850,700,-120], -15, [1,1,1]]
   ]
 }

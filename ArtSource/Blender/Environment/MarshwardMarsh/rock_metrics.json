@@ -1,0 +1,34 @@
+{
+  "SM_MarshwardRockCluster_01": {
+    "dimensions_cm": [
+      460.0,
+      340.0,
+      260.0
+    ],
+    "triangles": 144,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "collision_hulls": 3,
+    "materials": [
+      "M_MarshwardMarshStone",
+      "M_MarshwardMoss"
+    ],
+    "stone_centers_cm": [
+      [
+        -88.86363636363636,
+        -15.866666666666665,
+        0.0
+      ],
+      [
+        109.77272727272727,
+        -70.26666666666667,
+        0.0
+      ],
+      [
+        83.63636363636363,
+        92.93333333333332,
+        0.0
+      ]
+    ]
+  }
+}

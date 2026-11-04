@@ -22,6 +22,12 @@ does not rebuild/resave the accepted berm or reed source. The initialized
 editor replaces only two existing mesh references; no new actors are added.
 See `Docs/MARSHWARD_PEAT_SHELF.md` for the exact ownership contract.
 
+The original marsh rock cluster adds one 144-triangle mesh with three closed
+stones and three authored convex hulls. It introduces one stone material and
+reuses the saved moss material. All bases share local Z=0; live probes verify
+the basin floor beneath every stone in four placements. Source, metrics,
+preview and FBX live with the marsh kit. See `Docs/MARSHWARD_ROCK_CLUSTER.md`.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process

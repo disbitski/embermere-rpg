@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-03
+Last updated: 2026-11-04
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,19 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 4 Handoff
+
+Causeway now includes four original Blender rock clusters (460 x 340 x 260 cm,
+144 triangles, one UV, three hulls, two materials). All prior 36 placements,
+route and PlayerStart are unchanged; current count is 40 static actors and
+seven meshes. Full-width corridors plus 75 cm remain protected. Thirteen host
+checks, 133 native tests, fresh Fenwatch 31-package/Causeway gates, all 16
+Fenwatch live suites and Causeway's 579 support / 1104 clearance rays passed.
+Twelve rock and twelve underlying-ground controls supplement the six bank
+controls; only ground diagnostics ignore their own cluster. Clean normal
+PIE reached Human Warrior HUD and stopped. Fenwatch/protected hashes stayed
+exact. See `Docs/DAILY_BUILD_2026-11-04.md` and `Docs/MARSHWARD_ROCK_CLUSTER.md`.
 
 ## November 3 Handoff
 

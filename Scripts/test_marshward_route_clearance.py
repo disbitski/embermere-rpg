@@ -13,6 +13,7 @@ class CorridorTests(unittest.TestCase):
         data = json.loads((root/'MarshwardMarsh/placements.json').read_text())
         metrics = json.loads((root/'MarshwardMarsh/mesh_metrics.json').read_text())
         metrics.update(json.loads((root/'MarshwardMarsh/shelf_metrics.json').read_text()))
+        metrics.update(json.loads((root/'MarshwardMarsh/rock_metrics.json').read_text()))
         route = json.loads((root/'MarshwardGreybox/layout.json').read_text())['route']
         for label,kind,pos,yaw,scale in data['placements']:
             size = metrics['SM_Marshward'+kind+'_01']['dimensions_cm']
@@ -44,6 +45,32 @@ class CorridorTests(unittest.TestCase):
 
     def test_visible_geometry_blocks_even_without_collision(self):
         self.assertTrue(overlaps_corridor((300,1000),(100,80),(0,0),(0,2000),250,75))
+
+    def test_rock_cluster_matches_brief(self):
+        path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/rock_metrics.json'
+        data = json.loads(path.read_text())['SM_MarshwardRockCluster_01']
+        self.assertEqual(data['dimensions_cm'],[460,340,260])
+        self.assertEqual((data['triangles'],data['uv_channels'],data['non_manifold_edges'],data['collision_hulls']),(144,1,0,3))
+        self.assertEqual(data['materials'],['M_MarshwardMarshStone','M_MarshwardMoss'])
+
+    def test_rock_roles_are_sparse_and_grounded(self):
+        path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/placements.json'
+        rows = json.loads(path.read_text())['placements']
+        rocks = [row for row in rows if row[1]=='RockCluster']
+        self.assertEqual(len(rows),18)
+        self.assertEqual([r[0] for r in rocks],['RocksWestNear','RocksInnerSouth','RocksNorthwest','RocksOuterEast'])
+        for row in rocks:
+            self.assertEqual(row[2][2],-120)
+            self.assertEqual(row[4],[1,1,1])
+
+    def test_each_stone_has_flat_grounded_center(self):
+        path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/rock_metrics.json'
+        centers = json.loads(path.read_text())['SM_MarshwardRockCluster_01']['stone_centers_cm']
+        self.assertEqual(len(centers),3)
+        for x,y,z in centers:
+            self.assertEqual(z,0)
+            self.assertLess(abs(x),230)
+            self.assertLess(abs(y),170)
 
     def test_margin_touch_is_rejected(self):
         self.assertTrue(overlaps_corridor((425,1000),(100,80),(0,0),(0,2000),250,75))
