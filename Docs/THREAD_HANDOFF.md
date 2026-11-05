@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-04
+Last updated: 2026-11-05
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,20 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 5 Handoff
+
+Causeway's basin catch alone now uses a separate project-owned opaque wet-
+peat material. The ten-node graph shares one computational value-noise level
+between color and roughness; no displacement, water or physics authority is
+added. All 40 placements, seven meshes, route materials and Blender sources
+remain unchanged. Five isolated negative controls, 13 host checks, 133 native
+tests, fresh separate Causeway/Fenwatch package gates, all 16 Fenwatch live
+suites and the complete Causeway route/terrain/rock controls passed. Normal
+Human Warrior PIE stopped; the clean editor remains on Causeway outside PIE
+with 133 freshly discoverable tests. Protected hashes stayed exact. Physical
+traversal and camera contrast remain unverified. See `Docs/MARSHWARD_WET_PEAT.md`
+and `Docs/DAILY_BUILD_2026-11-05.md`.
 
 ## November 4 Handoff
 

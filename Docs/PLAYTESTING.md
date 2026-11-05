@@ -29,6 +29,13 @@ earlier art. Review their grounding and route visibility from both directions.
 Automated checks cover all twelve stones and underlying basin supports;
 physical camera feel is still unverified. See `MARSHWARD_ROCK_CLUSTER.md`.
 
+The basin now uses a separate mottled wet-peat material. Check that the pale
+crossing and return route remain easy to distinguish from the darker basin
+from both directions. The floor remains solid and dry in gameplay; do not
+infer water, slippery movement or hazards from its surface. Material graph
+and basin-only assignment checks do not prove physical camera contrast.
+See `MARSHWARD_WET_PEAT.md`.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

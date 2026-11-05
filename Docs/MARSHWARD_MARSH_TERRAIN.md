@@ -76,3 +76,13 @@ one UV channel and one convex hull per stone. Ground probes verify the basin
 under all twelve authored stone centers, alongside unfiltered route rays.
 See `Docs/MARSHWARD_ROCK_CLUSTER.md` for ownership and evidence. Import the
 rock cluster before using the complete terrain placement helper in a rebuild.
+
+## Basin Surface Study
+
+The basin catch actor now uses a separate opaque wet-peat material with
+world-space mottling and restrained roughness variation. Only its slot-zero
+component override changes; all walking-surface materials, original Blender
+materials, geometry, collision and placements stay intact. This is not water
+or a friction change. See `Docs/MARSHWARD_WET_PEAT.md`. In a rebuild, create
+the new material separately and apply it after the original map and dressing
+are complete, using `Scripts/apply_marshward_wet_peat_unreal.py` in the editor.

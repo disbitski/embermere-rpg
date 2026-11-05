@@ -1,6 +1,6 @@
 # Beyond Fenwatch: Draft Level Plan
 
-Status: expansion roadmap with a standalone Causeway greybox (2026-11-04).
+Status: expansion roadmap with a standalone Causeway greybox (2026-11-05).
 Fenwatch remains the established gameplay zone. The separate
 `L_MarshwardCauseway_Greybox` now supports a normal-picker traversal review;
 it is not connected travel or finished content. No new quest, enemy, reward,

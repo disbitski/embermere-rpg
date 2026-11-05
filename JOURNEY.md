@@ -4025,6 +4025,17 @@ twelve stone controls and twelve underlying-ground probes passed alongside
 Human Warrior HUD, but physical walking/camera feel remain player checks.
 Fenwatch and the saved journey stayed untouched.
 
+## November 5: Peat Beneath The Route
+
+Fresh arrival evidence showed the basin still read as a uniform greybox
+surface. A separate project-owned wet-peat material now adds broad mottling
+and modest roughness variation to that actor alone; the pale crossing and
+return route, all geometry/collision and Blender sources remain unchanged.
+Fresh saved-graph/assignment gates and five negative controls passed, along
+with 13 host checks, 133 native tests and the independent Fenwatch/Causeway
+package and live-route gates. Normal Human Warrior PIE stopped cleanly.
+This is a surface study, not water gameplay or physical traversal acceptance.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

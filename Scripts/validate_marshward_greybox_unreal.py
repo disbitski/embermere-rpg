@@ -65,6 +65,7 @@ def main():
     forbidden = ['Quest','Enemy','Vendor','Trainer','RestService','Save','Trigger']
     assert not any(any(word in a.get_class().get_name() for word in forbidden) for a in actors)
     runpy.run_path(str(ROOT/'Scripts/validate_marshward_marsh_unreal.py'))['validate_dressing'](actors)
+    runpy.run_path(str(ROOT/'Scripts/validate_marshward_wet_peat_unreal.py'))['validate_material'](actors)
     assert not unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()
     unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 7 meshes, 22 original plus 18 terrain/art placements, standalone map, no quest/service/save authority')
 

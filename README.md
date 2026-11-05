@@ -183,6 +183,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - original low-poly Causeway peat berms, asymmetric shelves, reeds and
   rock clusters beside the walking loop, with authored collision and visible clearance
   checks (see [marsh terrain](Docs/MARSHWARD_MARSH_TERRAIN.md))
+- a project-owned wet-peat material study on the Causeway basin only,
+  preserving the pale walking surfaces and all support/collision geometry
+  (see [wet peat](Docs/MARSHWARD_WET_PEAT.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved

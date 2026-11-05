@@ -6,6 +6,21 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 5 Causeway basin surface: new project-owned `M_MarshwardWetPeat`
+  supplies world-space mottling and restrained roughness on **only** the
+  basin catch actor. All 40 placements, seven meshes, route materials,
+  collision, PlayerStart and Blender sources remain unchanged. Five isolated
+  negative controls prove rejection of bad roughness, broken links,
+  tessellation, route leakage and a missing basin assignment. Fresh material
+  creation, separate Causeway and Fenwatch **31-package** gates exited zero
+  with exact markers and no Python errors. **13** host and **133/133** native
+  tests passed without failures/warnings/skips. The final clean session
+  passed all **16** Fenwatch suites and Causeway's **579 support / 1104
+  clearance** rays, six bank and twelve stone/twelve ground controls.
+  Normal picker/Human Warrior PIE stopped; Causeway is All Saved outside PIE
+  with **133** fresh tests. Protected hashes/Fenwatch stayed exact. Physical
+  traversal and camera contrast remain open. See `Docs/MARSHWARD_WET_PEAT.md`
+  and `Docs/DAILY_BUILD_2026-11-05.md`.
 - November 4 Causeway rocks: Blender MCP built a 460 x 340 x 260 cm,
   144-triangle three-stone cluster with one UV channel and three authored
   convex hulls. Four grounded placements bring the map to **40** static
@@ -2316,10 +2331,10 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
-- Review Causeway's banks and rock clusters from arrival, crossing and return
-  views. Continue with a project-owned wet peat/mud material study, preserving
-  support geometry, route readability and full-width buffers. No water
-  gameplay, travel, quests or persistence changes are implied by materials.
+- Review Causeway's bank/basin joins from fresh arrival and return views.
+  Brief one original bank-edge transition module only where it softens an
+  observed off-route seam; preserve support geometry, route materials and
+  full-width buffers. Do not add water, travel, quests or persistence.
 - Physically walk the standalone Marshward Causeway greybox loop and review
   camera clearance, ramp joins, route readability, and the ruin silhouette.
   Keep Fenwatch unchanged and do not connect travel/persistence yet. Use the

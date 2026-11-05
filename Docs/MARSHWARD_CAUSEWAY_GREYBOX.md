@@ -72,6 +72,9 @@ grounded rock clusters were added on November 4 without moving prior art.
 The validator now covers seven meshes and 40 static placements. See
 `Docs/MARSHWARD_MARSH_TERRAIN.md`, `Docs/MARSHWARD_PEAT_SHELF.md` and
 `Docs/MARSHWARD_ROCK_CLUSTER.md`.
+The basin alone uses a wet-peat surface study; the route's pale materials
+and solid catch-floor geometry remain unchanged. See
+`Docs/MARSHWARD_WET_PEAT.md` for the saved-graph and assignment gates.
 To recreate the map, build the original greybox kit/map first, then import
 and place the separate marsh assets; keep commandlet import and initialized
 editor placement separate.

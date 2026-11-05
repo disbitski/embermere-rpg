@@ -2,6 +2,18 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Discover Material Pins And Guard Real Flags
+
+UE 5.8's Noise position pin has an origin-qualified display name, and a
+unary Saturate pin is not necessarily named `Input`. Query
+`get_material_expression_input_names` before connecting; require a true
+connection result and inspect the saved links independently. This build's
+Python `MaterialProperty` does not expose `MP_DISPLACEMENT`; reject enabled
+material tessellation and world-position-offset wiring instead of querying
+an absent enum. Exit zero with `LogPython: Error` is still a rejected run.
+Restore an unsaved component override after a failed assignment preflight;
+never save the map merely to clear unintended state.
+
 ## Target Acquisition Needs A Registered Cover Control
 
 On October 31 a started-world Tab fixture exposed that nearest-first target
