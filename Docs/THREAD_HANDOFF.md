@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-05
+Last updated: 2026-11-06
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,21 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 6 Handoff
+
+Causeway now has one original decorative bank-edge apron beside the east
+shelf: 1000 x 360 x 70 cm, 46 triangles, one UV channel, three reused
+materials and no collision. All prior 40 placements, walking support,
+PlayerStart and basin-only wet peat are unchanged; current count is 41
+static actors/eight meshes. Sixteen host checks, 133 native tests, fresh
+import and separate Fenwatch/Causeway package gates passed. The clean final
+editor passed all 16 Fenwatch suites, the complete Causeway route/bank/rock
+controls, nine unfiltered apron-to-basin rays and two existing-shelf join
+controls. Normal Human Warrior PIE stopped; Causeway remains All Saved
+outside PIE with 133 fresh tests. Protected hashes stayed exact. Physical
+walking/camera feel remain open. See `Docs/MARSHWARD_BANK_EDGE.md` and
+`Docs/DAILY_BUILD_2026-11-06.md`.
 
 ## November 5 Handoff
 

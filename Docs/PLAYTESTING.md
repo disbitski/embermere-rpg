@@ -22,7 +22,7 @@ See `MARSHWARD_MARSH_TERRAIN.md`.
 Two outer banks now use an asymmetric shelf without any transform or count
 change. Check its longer silhouette stays outside both walking corridors;
 all six terrain support controls still run, including the two shelves. The
-current saved-package gate covers seven meshes. See `MARSHWARD_PEAT_SHELF.md`.
+saved shelf contract remains unchanged. See `MARSHWARD_PEAT_SHELF.md`.
 
 Four original rock clusters bring the static count to 40 without moving
 earlier art. Review their grounding and route visibility from both directions.
@@ -35,6 +35,13 @@ from both directions. The floor remains solid and dry in gameplay; do not
 infer water, slippery movement or hazards from its surface. Material graph
 and basin-only assignment checks do not prove physical camera contrast.
 See `MARSHWARD_WET_PEAT.md`.
+
+One low bank-edge apron softens the east shelf's base join, bringing the map
+to 41 static actors/eight meshes without moving existing art. Review it from
+the eastern return; it must remain beyond the full-width buffer and should
+not suggest a new walking route. It is decorative/NoCollision, not support;
+automated rays still hit only the basin and existing shelf beneath it.
+Physical walking/camera feel remain open. See `MARSHWARD_BANK_EDGE.md`.
 
 ## Before Pressing Play
 

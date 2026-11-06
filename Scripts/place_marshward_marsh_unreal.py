@@ -36,7 +36,7 @@ def main():
     validator = runpy.run_path(str(ROOT/'Scripts/validate_marshward_marsh_unreal.py'))
     validator['validate_dressing'](list(subsystem.get_all_level_actors()))
     assert unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level()
-    unreal.log('EMBERMERE_MARSHWARD_MARSH_PLACEMENT_SUCCESS: 4 berms, 2 shelves, 8 reeds, 4 rock clusters, full walking corridors protected')
+    unreal.log('EMBERMERE_MARSHWARD_MARSH_PLACEMENT_SUCCESS: 4 berms, 2 shelves, 8 reeds, 4 rock clusters, 1 decorative bank edge, full walking corridors protected')
 
 
 if __name__ == '__main__':

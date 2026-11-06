@@ -70,8 +70,8 @@ shelf before terrain placement; the helper preflights all mesh dependencies.
 ## Grounded Rock Accents
 
 Four original rock-cluster actors were added outside the corridors without
-altering the preceding 36 placements. The current map has 40 static actors
-and seven unique meshes. Each 144-triangle cluster has three closed stones,
+altering the preceding 36 placements. That pass brought the map to 40 static
+actors and seven unique meshes. Each 144-triangle cluster has three closed stones,
 one UV channel and one convex hull per stone. Ground probes verify the basin
 under all twelve authored stone centers, alongside unfiltered route rays.
 See `Docs/MARSHWARD_ROCK_CLUSTER.md` for ownership and evidence. Import the
@@ -86,3 +86,14 @@ materials, geometry, collision and placements stay intact. This is not water
 or a friction change. See `Docs/MARSHWARD_WET_PEAT.md`. In a rebuild, create
 the new material separately and apply it after the original map and dressing
 are complete, using `Scripts/apply_marshward_wet_peat_unreal.py` in the editor.
+
+## Decorative Bank Join
+
+One original 46-triangle apron softens the east shelf/basin join outside the
+walking buffer. It is closed geometry with one UV channel, three reused
+terrain materials and no collision; the basin and shelf remain its only
+underlying support. All prior 40 placements are unchanged. The map now has
+41 static actors/eight meshes. Nine unfiltered basin probes and two existing-
+shelf join controls supplement the complete route tests. See
+`Docs/MARSHWARD_BANK_EDGE.md`. Import the apron before a complete dressing
+rebuild; its dedicated placement script adds only that actor to an existing map.

@@ -28,6 +28,12 @@ reuses the saved moss material. All bases share local Z=0; live probes verify
 the basin floor beneath every stone in four placements. Source, metrics,
 preview and FBX live with the marsh kit. See `Docs/MARSHWARD_ROCK_CLUSTER.md`.
 
+The bank-edge apron is a separate closed 46-triangle mesh, one UV channel,
+three reused terrain materials and no authored collision. Its independent
+Blender scene/source preserves accepted assets. One NoCollision placement
+outside the walking corridor relies entirely on existing basin/shelf support;
+live controls ignore no actors. See `Docs/MARSHWARD_BANK_EDGE.md`.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process

@@ -14,8 +14,10 @@ def validate_dressing(actors):
     metrics = json.loads((SOURCE/'mesh_metrics.json').read_text())
     metrics.update(json.loads((SOURCE/'shelf_metrics.json').read_text()))
     metrics.update(json.loads((SOURCE/'rock_metrics.json').read_text()))
+    metrics.update(json.loads((SOURCE/'bank_edge_metrics.json').read_text()))
     hull_counts = {'SM_MarshwardPeatBerm_01':1,'SM_MarshwardPeatShelf_01':1,
-                   'SM_MarshwardReedClump_01':0,'SM_MarshwardRockCluster_01':3}
+                   'SM_MarshwardReedClump_01':0,'SM_MarshwardRockCluster_01':3,
+                   'SM_MarshwardBankEdge_01':0}
     assert set(metrics)==set(hull_counts)
     for name,spec in metrics.items():
         mesh = unreal.load_asset(DEST+'/'+name)
@@ -41,7 +43,7 @@ def validate_dressing(actors):
     assert data['buffer_cm']==75
     overlaps = runpy.run_path(str(ROOT/'Scripts/marshward_route_clearance.py'))['overlaps_corridor']
     owned = {a.get_actor_label():a for a in actors if 'EmbermereMarshwardMarsh' in [str(t) for t in a.tags]}
-    assert len(owned)==len(data['placements'])==18
+    assert len(owned)==len(data['placements'])==19
     for label,kind,pos,yaw,scale in data['placements']:
         actor = owned['Marshward_'+label]
         assert isinstance(actor,unreal.StaticMeshActor)
@@ -62,7 +64,7 @@ def validate_dressing(actors):
         center,extent = actor.get_actor_bounds(False)
         for start,end,width in zip(route,route[1:],data['corridor_half_widths_cm']):
             assert not overlaps((center.x,center.y),(extent.x,extent.y),start,end,width,data['buffer_cm']), label+' intrudes on route'
-    unreal.log('EMBERMERE_MARSHWARD_MARSH_PACKAGE_SUCCESS: 4 meshes, 4 berms, 2 shelves, 8 reeds, 4 rock clusters, full-width corridors plus 75 cm clear')
+    unreal.log('EMBERMERE_MARSHWARD_MARSH_PACKAGE_SUCCESS: 5 meshes, 4 berms, 2 shelves, 8 reeds, 4 rock clusters, 1 decorative bank edge, full-width corridors plus 75 cm clear')
 
 
 def main():

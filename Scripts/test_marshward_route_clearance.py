@@ -14,6 +14,7 @@ class CorridorTests(unittest.TestCase):
         metrics = json.loads((root/'MarshwardMarsh/mesh_metrics.json').read_text())
         metrics.update(json.loads((root/'MarshwardMarsh/shelf_metrics.json').read_text()))
         metrics.update(json.loads((root/'MarshwardMarsh/rock_metrics.json').read_text()))
+        metrics.update(json.loads((root/'MarshwardMarsh/bank_edge_metrics.json').read_text()))
         route = json.loads((root/'MarshwardGreybox/layout.json').read_text())['route']
         for label,kind,pos,yaw,scale in data['placements']:
             size = metrics['SM_Marshward'+kind+'_01']['dimensions_cm']
@@ -57,7 +58,7 @@ class CorridorTests(unittest.TestCase):
         path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/placements.json'
         rows = json.loads(path.read_text())['placements']
         rocks = [row for row in rows if row[1]=='RockCluster']
-        self.assertEqual(len(rows),18)
+        self.assertEqual(len(rows),19)
         self.assertEqual([r[0] for r in rocks],['RocksWestNear','RocksInnerSouth','RocksNorthwest','RocksOuterEast'])
         for row in rocks:
             self.assertEqual(row[2][2],-120)
@@ -71,6 +72,25 @@ class CorridorTests(unittest.TestCase):
             self.assertEqual(z,0)
             self.assertLess(abs(x),230)
             self.assertLess(abs(y),170)
+
+    def test_bank_edge_matches_brief_without_collision(self):
+        path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/bank_edge_metrics.json'
+        data = json.loads(path.read_text())['SM_MarshwardBankEdge_01']
+        self.assertEqual(data['dimensions_cm'],[1000,360,70])
+        self.assertEqual((data['triangles'],data['uv_channels'],data['non_manifold_edges'],data['collision_hulls']),(46,1,0,0))
+        self.assertEqual(data['materials'],['M_MarshwardPeat','M_MarshwardMoss','M_MarshwardEarth'])
+
+    def test_single_east_apron_has_fixed_off_route_role(self):
+        path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/placements.json'
+        rows = json.loads(path.read_text())['placements']
+        self.assertEqual([row for row in rows if row[1]=='BankEdge'],
+                         [['BankEdgeEast','BankEdge',[3910,3100,-120],90,[1,1,1]]])
+
+    def test_apron_probes_have_basin_and_shelf_controls(self):
+        path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/bank_edge_metrics.json'
+        data = json.loads(path.read_text())['SM_MarshwardBankEdge_01']
+        self.assertEqual(data['ground_samples_cm'],[[x,y,0] for x in (-250,0,250) for y in (-100,-40,0)])
+        self.assertEqual(data['join_samples_cm'],[[0,140,0],[250,140,0]])
 
     def test_margin_touch_is_rejected(self):
         self.assertTrue(overlaps_corridor((425,1000),(100,80),(0,0),(0,2000),250,75))

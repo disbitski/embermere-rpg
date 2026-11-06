@@ -4036,6 +4036,17 @@ with 13 host checks, 133 native tests and the independent Fenwatch/Causeway
 package and live-route gates. Normal Human Warrior PIE stopped cleanly.
 This is a surface study, not water gameplay or physical traversal acceptance.
 
+## November 6: A Softer Bank Join
+
+A return-side viewport showed a straight join between the east peat shelf
+and basin. Blender MCP built a small tapered bank-edge apron using the
+existing terrain materials. One placement stays outside the walking buffer
+and has no collision; the original basin and shelf keep support authority.
+All prior 40 placements and the wet-peat study remain unchanged. Sixteen
+host tests, 133 native tests, fresh import/package gates and live route/
+grounding controls passed, including nine basin and two shelf-join probes.
+Normal Human Warrior PIE stopped cleanly; physical traversal remains open.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

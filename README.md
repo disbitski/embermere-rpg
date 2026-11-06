@@ -180,8 +180,8 @@ The repo currently contains the C++ gameplay scaffold for:
   Blender span/ramp/waymarker kit, a raised crossing and a lower return loop;
   no connected travel or new quest/save behavior yet (see
   [the greybox brief](Docs/MARSHWARD_CAUSEWAY_GREYBOX.md))
-- original low-poly Causeway peat berms, asymmetric shelves, reeds and
-  rock clusters beside the walking loop, with authored collision and visible clearance
+- original low-poly Causeway peat berms, asymmetric shelves, a bank-edge
+  apron, reeds and rock clusters beside the walking loop, with deliberate collision and visible clearance
   checks (see [marsh terrain](Docs/MARSHWARD_MARSH_TERRAIN.md))
 - a project-owned wet-peat material study on the Causeway basin only,
   preserving the pale walking surfaces and all support/collision geometry

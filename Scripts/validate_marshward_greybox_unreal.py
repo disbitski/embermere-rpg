@@ -44,7 +44,7 @@ def main():
         path = DEST + '/SM_Marshward' + kind + '_Greybox'
         expected[label] = (pos, (1,1,1), yaw, path + '.' + path.rsplit('/',1)[1])
     meshes = [a for a in actors if isinstance(a, unreal.StaticMeshActor)]
-    assert len(expected) == 22 and len(meshes) == 40
+    assert len(expected) == 22 and len(meshes) == 41
     for label,(pos,scale,yaw,path) in expected.items():
         actor = by_label['Marshward_' + label]
         assert 'EmbermereMarshwardGreybox' in [str(t) for t in actor.tags]
@@ -67,7 +67,7 @@ def main():
     runpy.run_path(str(ROOT/'Scripts/validate_marshward_marsh_unreal.py'))['validate_dressing'](actors)
     runpy.run_path(str(ROOT/'Scripts/validate_marshward_wet_peat_unreal.py'))['validate_material'](actors)
     assert not unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()
-    unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 7 meshes, 22 original plus 18 terrain/art placements, standalone map, no quest/service/save authority')
+    unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 8 meshes, 22 original plus 19 terrain/art placements, standalone map, no quest/service/save authority')
 
 
 if __name__ == '__main__':

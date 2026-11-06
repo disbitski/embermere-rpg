@@ -71,6 +71,26 @@ def main():
             assert abs(support.to_dict()['impact_point'].z-pos[2])<.5
             ground_hits += 1
     assert rock_hits==ground_hits==12
+    edge = actors['Marshward_BankEdgeEast']
+    component = edge.get_component_by_class(unreal.StaticMeshComponent)
+    assert component.get_collision_enabled()==unreal.CollisionEnabled.NO_COLLISION
+    samples = json.loads(Path('/Users/wizard/Documents/Unreal Game/ArtSource/Blender/Environment/MarshwardMarsh/bank_edge_metrics.json').read_text())['SM_MarshwardBankEdge_01']
+    pos,angle = edge.get_actor_location(),math.radians(edge.get_actor_rotation().yaw)
+    edge_ground = edge_join = 0
+    for field,expected in [('ground_samples_cm','Marshward_BasinCatch'),('join_samples_cm','Marshward_BermEast')]:
+        for lx,ly,_ in samples[field]:
+            # Classic FBX local-Y mirroring, with no ignored actors in either control.
+            x = pos.x+lx*math.cos(angle)+ly*math.sin(angle)
+            y = pos.y+lx*math.sin(angle)-ly*math.cos(angle)
+            hit = trace((x,y,pos.z+400),(x,y,pos.z-20))
+            assert hit and hit.to_dict()['hit_actor'].get_actor_label()==expected, (field,x,y)
+            if field=='ground_samples_cm':
+                assert abs(hit.to_dict()['impact_point'].z-pos.z)<.5
+                edge_ground += 1
+            else:
+                edge_join += 1
+    assert edge_ground==9 and edge_join==2
+    unreal.log('EMBERMERE_MARSHWARD_BANK_EDGE_TRACES_SUCCESS: 9 unfiltered basin supports, 2 existing-shelf join controls, decorative apron has no collision')
     unreal.log('EMBERMERE_MARSHWARD_ROCK_TRACES_SUCCESS: 12 stone controls, 12 underlying basin supports; only support diagnostics ignore own cluster')
     unreal.log('EMBERMERE_MARSHWARD_TERRAIN_TRACES_SUCCESS: 6 solid terrain support controls including 2 shelves')
     unreal.log('EMBERMERE_MARSHWARD_TRACES_SUCCESS: {} support rays, {} clearance rays, positive marker control'.format(supports,clearance))

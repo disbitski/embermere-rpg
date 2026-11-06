@@ -1,0 +1,77 @@
+{
+  "SM_MarshwardBankEdge_01": {
+    "dimensions_cm": [
+      1000.0,
+      360.0,
+      70.0
+    ],
+    "triangles": 46,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "collision_hulls": 0,
+    "materials": [
+      "M_MarshwardPeat",
+      "M_MarshwardMoss",
+      "M_MarshwardEarth"
+    ],
+    "ground_samples_cm": [
+      [
+        -250,
+        -100,
+        0
+      ],
+      [
+        -250,
+        -40,
+        0
+      ],
+      [
+        -250,
+        0,
+        0
+      ],
+      [
+        0,
+        -100,
+        0
+      ],
+      [
+        0,
+        -40,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        250,
+        -100,
+        0
+      ],
+      [
+        250,
+        -40,
+        0
+      ],
+      [
+        250,
+        0,
+        0
+      ]
+    ],
+    "join_samples_cm": [
+      [
+        0,
+        140,
+        0
+      ],
+      [
+        250,
+        140,
+        0
+      ]
+    ]
+  }
+}
