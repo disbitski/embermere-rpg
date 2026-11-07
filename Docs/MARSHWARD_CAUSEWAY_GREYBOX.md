@@ -78,6 +78,10 @@ and solid catch-floor geometry remain unchanged. See
 A single decorative bank-edge apron now brings the current gate to eight
 meshes and 41 static placements. All prior actors stay unchanged; the apron
 is NoCollision and outside the route. See `Docs/MARSHWARD_BANK_EDGE.md`.
+Arrival review left content unchanged and added nine positive landmark
+sightlines plus three arrival-ground controls to the initialized suite.
+See `Docs/MARSHWARD_ARRIVAL_REVIEW.md` for the three inspected editor poses,
+coverage limits and remaining physical acceptance.
 To recreate the map, build the original greybox kit/map first, then import
 and place the separate marsh assets; keep commandlet import and initialized
 editor placement separate.

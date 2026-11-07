@@ -4047,6 +4047,17 @@ host tests, 133 native tests, fresh import/package gates and live route/
 grounding controls passed, including nine basin and two shelf-join probes.
 Normal Human Warrior PIE stopped cleanly; physical traversal remains open.
 
+## November 7: Keeping A Clear Arrival
+
+Center and offset arrival views showed the pale crossing and broken ruin
+silhouette clearly, so the accepted composition stayed untouched. A small
+read-only guard now protects nine positive landmark sightlines and three
+arrival-ground supports alongside the complete loop checks. One fixture
+assumption about a coplanar island/return join and an early collision probe
+were corrected without changing geometry or weakening tolerances. Fresh
+Causeway package/live checks and normal Human Warrior PIE passed. Both maps
+and the saved journey remain unchanged; physical camera feel stays open.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

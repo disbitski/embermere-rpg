@@ -43,6 +43,13 @@ not suggest a new walking route. It is decorative/NoCollision, not support;
 automated rays still hit only the basin and existing shelf beneath it.
 Physical walking/camera feel remain open. See `MARSHWARD_BANK_EDGE.md`.
 
+Arrival review retained the accepted composition without moving art. The
+live suite now includes nine positive landmark sightlines and three arrival-
+ground controls from center and +/-500 cm editor poses. These collision rays
+cannot detect NoCollision art occlusion or prove painted readability. Walk
+and turn the camera physically to accept the composition; see
+`MARSHWARD_ARRIVAL_REVIEW.md` for the exact views and honest review evidence.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

@@ -2,6 +2,7 @@
 
 import json
 import math
+import runpy
 from pathlib import Path
 import unreal
 
@@ -90,6 +91,7 @@ def main():
             else:
                 edge_join += 1
     assert edge_ground==9 and edge_join==2
+    runpy.run_path(str(Path(__file__).with_name('validate_marshward_arrival_vista_unreal.py')),run_name='__main__')
     unreal.log('EMBERMERE_MARSHWARD_BANK_EDGE_TRACES_SUCCESS: 9 unfiltered basin supports, 2 existing-shelf join controls, decorative apron has no collision')
     unreal.log('EMBERMERE_MARSHWARD_ROCK_TRACES_SUCCESS: 12 stone controls, 12 underlying basin supports; only support diagnostics ignore own cluster')
     unreal.log('EMBERMERE_MARSHWARD_TERRAIN_TRACES_SUCCESS: 6 solid terrain support controls including 2 shelves')

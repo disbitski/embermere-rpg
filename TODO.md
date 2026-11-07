@@ -6,6 +6,19 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 7 Causeway arrival review: center and +/-500 cm normal-height
+  editor views showed a clear crossing/ruin composition; no content retune
+  was warranted. New read-only arrival validation protects **nine positive
+  landmark sightlines / three arrival-ground supports**, integrated into the
+  full Causeway live suite. All **579 support / 1104 clearance** rays and
+  existing bank/rock/apron controls passed in a clean final session, with no
+  Python errors. Fresh eight-mesh/41-placement Causeway package validation
+  exited zero with exact markers; **16** host checks passed. Normal Human
+  Warrior PIE stopped; **133** native tests were freshly discovered, not
+  rerun. November 6 full native/Fenwatch evidence remains authoritative.
+  Both maps and protected hashes stayed unchanged; Causeway is All Saved
+  outside PIE. Physical traversal/camera feel remain open. See
+  `Docs/MARSHWARD_ARRIVAL_REVIEW.md` and `Docs/DAILY_BUILD_2026-11-07.md`.
 - November 6 Causeway bank edge: Blender MCP built a closed 1000 x 360 x
   70 cm, **46-triangle** apron with one UV channel, zero non-manifold edges,
   three reused materials and **no collision**. One east-shelf toe placement
@@ -2345,11 +2358,11 @@ targeting, rewards, AI, quests, or persistence.
 
 ## Next Work
 
-- Review Causeway's arrival-area composition with the accepted kit from
-  fresh normal-height views. Refine only an evidenced framing/grounding
-  issue, preserving spawn, the forward ruin vista, all walking support and
-  full-width buffers. Avoid adding density merely to fill the basin; keep
-  water, travel, quests and persistence outside this presentation work.
+- Review the integrated Causeway loop from both directions: crossing,
+  ruin island, east return and arrival. Use fresh normal-height views and
+  voluntary walking feedback; refine only a concrete issue, otherwise retain
+  an honest review record. Preserve the new arrival guard, all support and
+  full-width buffers. No water, travel, quest or persistence changes.
 - Physically walk the standalone Marshward Causeway greybox loop and review
   camera clearance, ramp joins, route readability, and the ruin silhouette.
   Keep Fenwatch unchanged and do not connect travel/persistence yet. Use the

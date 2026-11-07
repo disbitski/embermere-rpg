@@ -2,6 +2,18 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Separate Map Loading From Live Collision Review
+
+On November 7 an immediate Causeway load-and-trace submission hit ground at
+Z=0 where the accepted arrival ramp should be higher. The identical live
+suite passed afterward with no content changes, consistent with collision
+registration timing. Load in one editor submission, allow an editor-frame
+boundary, then run the unmodified support/clearance gates. Do not weaken
+height tolerances or move accepted geometry to accommodate the early probe.
+The same review also found that X=500,Y=-450 lies on the original coplanar
+arrival-island/south-return join; either exact saved actor is a valid Z=0
+support there, not arbitrary world ground.
+
 ## Discover Material Pins And Guard Real Flags
 
 UE 5.8's Noise position pin has an origin-qualified display name, and a

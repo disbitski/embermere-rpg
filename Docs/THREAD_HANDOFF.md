@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-06
+Last updated: 2026-11-07
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,20 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 7 Handoff
+
+Arrival review found no evidenced reason to move/add art. A read-only
+initialized-world guard now requires nine positive ruin-landmark sightlines
+and three arrival-ground supports from center and +/-500 cm editor poses.
+It runs with the complete Causeway collision suite; all live controls,
+16 host checks and fresh eight-mesh/41-placement package validation passed.
+Normal Human Warrior PIE stopped in a clean session with no Python errors.
+Discovery listed 133 tests; native/Fenwatch full gates were not rerun, so
+November 6 remains their authoritative evidence. Both maps and protected
+hashes stayed exact. Causeway is All Saved outside PIE; physical movement
+and camera acceptance remain open. See `Docs/MARSHWARD_ARRIVAL_REVIEW.md`
+and `Docs/DAILY_BUILD_2026-11-07.md`.
 
 ## November 6 Handoff
 
