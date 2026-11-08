@@ -50,6 +50,13 @@ cannot detect NoCollision art occlusion or prove painted readability. Walk
 and turn the camera physically to accept the composition; see
 `MARSHWARD_ARRIVAL_REVIEW.md` for the exact views and honest review evidence.
 
+The integrated static review also covers the crossing, ruin reverse/east
+ramp, both return directions and southern connector without changing art.
+On a first-visit physical walk, check whether the same-color south/east
+platforms make the turn direction understandable, then reverse the loop.
+Also check camera room beside the original shoulder marker and moving ramp
+joins. Static views do not close these gates. See `MARSHWARD_LOOP_REVIEW.md`.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

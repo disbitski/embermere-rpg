@@ -82,6 +82,9 @@ Arrival review left content unchanged and added nine positive landmark
 sightlines plus three arrival-ground controls to the initialized suite.
 See `Docs/MARSHWARD_ARRIVAL_REVIEW.md` for the three inspected editor poses,
 coverage limits and remaining physical acceptance.
+The integrated eight-view review is in `Docs/MARSHWARD_LOOP_REVIEW.md`.
+It retained the scene unchanged and leaves south-turn wayfinding, moving
+camera clearance and both-direction physical walking explicitly unverified.
 To recreate the map, build the original greybox kit/map first, then import
 and place the separate marsh assets; keep commandlet import and initialized
 editor placement separate.

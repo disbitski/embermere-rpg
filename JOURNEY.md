@@ -4058,6 +4058,16 @@ were corrected without changing geometry or weakening tolerances. Fresh
 Causeway package/live checks and normal Human Warrior PIE passed. Both maps
 and the saved journey remain unchanged; physical camera feel stays open.
 
+## November 8: Looking Back Around The Loop
+
+Eight normal-height editor views looked north and south on the crossing and
+return, back from the ruin, toward its east ramp, and along both directions
+of the southern connector. The accepted scene stayed unchanged. The central
+lanes remain open, while the same-color southern turn still needs a real
+first-visit navigation check. Existing live collision controls and normal
+PIE startup/stop passed; this review does not claim a physical walk or moving-
+camera acceptance. Exact poses and limits are recorded in the loop review.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
