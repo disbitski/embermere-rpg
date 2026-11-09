@@ -1,0 +1,56 @@
+{
+  "SM_MarshwardFoundation_01": {
+    "dimensions_cm": [
+      600.0,
+      260.0,
+      150.0
+    ],
+    "triangles": 180,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "collision_hulls": 3,
+    "materials": [
+      "M_MarshwardMarshStone",
+      "M_MarshwardMoss"
+    ],
+    "block_centers_cm": [
+      [
+        -204.0,
+        0,
+        0
+      ],
+      [
+        -1.0,
+        -12,
+        0
+      ],
+      [
+        203.0,
+        4,
+        0
+      ]
+    ],
+    "block_heights_cm": [
+      150,
+      128,
+      140
+    ],
+    "ground_samples_cm": [
+      [
+        -204.0,
+        -150,
+        0
+      ],
+      [
+        -1.0,
+        -142,
+        0
+      ],
+      [
+        203.0,
+        -134,
+        0
+      ]
+    ]
+  }
+}

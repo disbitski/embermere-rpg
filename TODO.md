@@ -6,6 +6,22 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 9 foundation **source only**: Blender MCP built a 600 x 260 x
+  150 cm, 180-triangle three-block course, one UV, zero non-manifold edges,
+  three hulls and two reused materials. Source/FBX/preview/metrics and a
+  separate proposed-placement manifest are retained; nothing is installed
+  in the map. Existing 16 host checks plus three source/bounds checks,
+  133/133 native tests, fresh Fenwatch 31-package and all 16 Fenwatch live
+  suites passed. Fresh FBX import passed, but its local `.uasset` is not
+  accepted/staged pending independent persisted-package checks. An unsaved
+  placement fixture falsely compared temporary Transform repr addresses;
+  its actors were rolled back without saving. The subsequent close stalled
+  on the save-changes prompt, blocking MCP. User action requested: Don't Save
+  that Causeway map. No process kill/desktop control. Saved Causeway remains
+  41 placements/eight meshes with unchanged hash/contracts. Finish safe
+  shutdown, fresh mesh validation and placement/package/live/PIE proof before
+  map adoption; physical acceptance remains open. See
+  `Docs/MARSHWARD_FOUNDATION_STONES.md` and `Docs/DAILY_BUILD_2026-11-09.md`.
 - November 8 integrated Causeway review: eight fresh crossing/ruin/return/
   connector editor views found no evidenced blocking/framing reason to edit
   content. The same-color southern turn remains a first-visit navigation

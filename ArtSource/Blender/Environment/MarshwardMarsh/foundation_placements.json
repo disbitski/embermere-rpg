@@ -1,0 +1,6 @@
+{
+  "placements": [
+    ["FoundationWest", "Foundation", [-1020,7120,120], 0, [1,1,1]],
+    ["FoundationEast", "Foundation", [1020,7120,120], 0, [1,1,1]]
+  ]
+}

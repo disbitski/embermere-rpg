@@ -34,6 +34,14 @@ Blender scene/source preserves accepted assets. One NoCollision placement
 outside the walking corridor relies entirely on existing basin/shelf support;
 live controls ignore no actors. See `Docs/MARSHWARD_BANK_EDGE.md`.
 
+### Foundation Source
+
+The foundation-course source is a separate 180-triangle, three-hull asset
+with one UV and two reused materials. It is not installed in Causeway yet;
+the imported local package awaits fresh persisted validation and placement
+acceptance. Keep its proposed placement manifest separate from installed
+dressing counts. See `Docs/MARSHWARD_FOUNDATION_STONES.md`.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process

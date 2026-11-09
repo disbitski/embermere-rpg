@@ -4068,6 +4068,17 @@ first-visit navigation check. Existing live collision controls and normal
 PIE startup/stop passed; this review does not claim a physical walk or moving-
 camera acceptance. Exact poses and limits are recorded in the loop review.
 
+## November 9: Foundation Stone Source
+
+Fresh ruin views informed a small three-block foundation-course brief.
+Blender MCP built and previewed the original source, reusing existing stone
+and moss. Source and proposed-bounds checks, fresh FBX import, native tests
+and independent Fenwatch gates passed. The asset is not installed: an unsaved
+placement fixture compared transient struct addresses and rolled back, then
+the editor's save prompt blocked MCP during closing. The user was asked to
+discard that unsaved attempt. Both map files and the saved journey remain
+unchanged; persisted-package, placement, live-route and PIE adoption are pending.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

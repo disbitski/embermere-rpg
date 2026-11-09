@@ -57,6 +57,13 @@ platforms make the turn direction understandable, then reverse the loop.
 Also check camera room beside the original shoulder marker and moving ramp
 joins. Static views do not close these gates. See `MARSHWARD_LOOP_REVIEW.md`.
 
+## Foundation Source Candidate
+
+The original foundation-course Blender source is not installed in Causeway.
+Its two positions remain a separate proposal; keep the accepted 41-placement
+map expectation until persisted-package, live and PIE adoption passes. See
+`MARSHWARD_FOUNDATION_STONES.md` for the pending editor prompt and gates.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

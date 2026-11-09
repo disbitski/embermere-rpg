@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-08
+Last updated: 2026-11-09
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,22 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 9 Handoff
+
+Foundation source is built, not installed: 600 x 260 x 150 cm, 180 triangles,
+one UV, three hulls, reused stone/moss. Three source/planned-bounds tests plus
+16 existing corridor checks passed. Fresh FBX import, 133 native tests,
+Fenwatch's 31-package gate and all 16 Fenwatch live suites passed. No C++
+changed. Local imported `.uasset` remains untracked pending independent
+persisted validation. A placement fixture falsely compared temporary struct
+addresses; it rolled back without saving. Editor close then stalled on the
+save-changes prompt and blocked MCP; user was asked to choose Don't Save.
+Both maps/protected hashes remain unchanged, and installed Causeway contracts
+still require 41 placements/eight meshes. No fresh Causeway package/live/PIE
+or clean final editor acceptance is claimed. Finish that pending adoption
+only after safe shutdown/relaunch and numeric preservation checks. See
+`Docs/MARSHWARD_FOUNDATION_STONES.md` and `Docs/DAILY_BUILD_2026-11-09.md`.
 
 ## November 8 Handoff
 
