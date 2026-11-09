@@ -4073,11 +4073,15 @@ camera acceptance. Exact poses and limits are recorded in the loop review.
 Fresh ruin views informed a small three-block foundation-course brief.
 Blender MCP built and previewed the original source, reusing existing stone
 and moss. Source and proposed-bounds checks, fresh FBX import, native tests
-and independent Fenwatch gates passed. The asset is not installed: an unsaved
-placement fixture compared transient struct addresses and rolled back, then
-the editor's save prompt blocked MCP during closing. The user was asked to
-discard that unsaved attempt. Both map files and the saved journey remain
-unchanged; persisted-package, placement, live-route and PIE adoption are pending.
+and independent Fenwatch gates passed. An unsaved placement fixture compared
+transient struct addresses and rolled back; the editor's save prompt then
+blocked MCP. After the user discarded that attempt, numeric preservation
+checks allowed two shoulder placements without changing the prior 41 actors.
+Fresh mesh/map gates and full live checks passed, including six block and
+six adjacent-footing probes. Causeway is now 43 static placements/nine meshes,
+clean outside PIE. Synthetic confirmation did not advance the small floating
+picker, so only startup/teardown is accepted, not physical walking or a new
+HUD check. Fenwatch and the protected saved journey remain unchanged.
 
 ## Principles
 

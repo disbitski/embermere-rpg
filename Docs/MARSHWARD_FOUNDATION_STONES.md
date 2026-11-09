@@ -18,7 +18,7 @@ per block. Reuse only `M_MarshwardMarshStone` and `M_MarshwardMoss` without
 editing either material. Keep independent Blender source, FBX, metrics and
 preview beside the accepted marsh kit.
 
-Proposed placement, not yet saved: `Marshward_FoundationWest` at (-1020,7120,120) and
+Saved placements: `Marshward_FoundationWest` at (-1020,7120,120) and
 `Marshward_FoundationEast` at (1020,7120,120), yaw0, unit scale, BlockAll.
 Use the existing marsh tag/folder. Bounds lie at X=-1320..-720 and
 720..1320, Y=6990..7250: wholly on the original ruin island, beyond the
@@ -27,7 +27,7 @@ support the pillars. No other actor moves or changes mesh/material/profile.
 The original island retains walking support; full-width corridors plus
 75 cm, PlayerStart, arrival landmark rays and basin-only wet peat stay fixed.
 
-After separately verified adoption, the map would become 43 static placements/nine meshes, retaining all preceding
+The map has 43 static placements/nine meshes, retaining all preceding
 41 actors and original 22 greybox placements. No C++, lighting, material,
 water, boundary, combat, quest, service, travel or save change is authorized.
 Fenwatch and protected user files remain untouched.
@@ -50,15 +50,15 @@ and static editor views do not prove physical traversal or camera feel.
 Blender MCP built the briefed 600 x 260 x 150 cm course at 180 triangles,
 one UV channel, zero non-manifold edges and three authored hulls. The preview
 was inspected. Both existing materials were reused without changes. Source,
-FBX, metrics, preview and a separate proposed-placement manifest are retained;
-the installed dressing manifest and all accepted package/live contracts stay
-unchanged at 41 static placements/eight meshes.
+FBX, metrics, preview and a separate foundation-role manifest are retained.
+The installed manifest now includes the same two roles, and the host tests
+require both manifests to agree.
 
 Fresh classic-FBX import passed exact dimension/triangle/UV/hull/material
-checks and exited zero without Python errors. Its local Unreal package is
-not included in this source checkpoint: fresh persisted-package verification
-and successful placement are still required. Sixteen existing host corridor
-checks plus three new source/proposed-bounds checks passed. All 133 native
+checks and exited zero without Python errors. The initial source checkpoint
+excluded the local Unreal package until independent persisted verification.
+Sixteen existing host corridor checks plus three source/bounds checks passed.
+All 133 native
 tests passed without failures/warnings/skips; Fenwatch's independent fresh
 31-package gate and all 16 initialized-world suites also passed.
 
@@ -70,12 +70,49 @@ The saved Causeway map retained its exact pre-work hash. Future placement
 must compare numeric transform/material/profile values, not struct reprs.
 
 The editor close then stalled on a save-changes prompt; MCP requests stopped
-responding. The user was asked to choose Don't Save for that rolled-back map.
-No desktop-control substitute or process kill was used. Full Causeway package/
-live adoption, clean PIE, final clean editor state and physical camera review
-remain pending. Do not infer that the foundation stones are present in the map.
+responding. The user chose Don't Save for that rolled-back map, allowing a
+verified clean shutdown. No desktop-control substitute or process kill was used.
 
 Evidence: `/tmp/embermere-nov09-foundation-import.log`,
 `/tmp/embermere-nov09-fenwatch-31-packages.log`,
 `/tmp/embermere-nov09-native-editor.log`, and the explicitly rejected
 `/tmp/embermere-nov09-rejected-placement-editor.log`.
+
+## Adopted And Verified: 2026-11-09
+
+Independent GUI-down mesh verification exited zero with its exact persisted
+dimension/triangle/UV/hull/material marker and no dirty package or Python
+error. The corrected placement helper compares numeric transforms and stable
+paths/profiles/tags/folders, checks signature stability before spawning, and
+verified every preceding actor unchanged before saving only the map. Two new
+host regressions cover temporary-address exclusion and real property drift:
+**21 host checks** now pass across the three focused test modules.
+
+A second fresh GUI-down gate passed the complete **nine-mesh / 43-placement**
+saved map, full-width corridors plus 75 cm and unchanged basin-only wet peat,
+true exit zero, no Python errors. The clean final editor session passed all
+**16 Fenwatch suites**, Causeway's **579 support / 1104 clearance** rays,
+marker, six banks, twelve stone/twelve underlying-ground controls, nine basin/
+two shelf joins, nine landmark/three arrival-ground controls, and the new
+**six block / six adjacent ruin-island support** controls. No new ray ignores
+actors; the adjacent supports do not claim hidden underside contact.
+
+Viewport-only review at (0,5700,360), pitch-5/yaw90; (1850,5850,750),
+pitch-18/yaw130; arrival (0,-450,260), pitch-5/yaw90; and east-ramp approach
+(1100,6400,360), pitch-8/yaw0 retained open approaches and the pillar/lintel
+silhouette. Roll0/FOV90 throughout. No other actor or lighting was retuned.
+Floating PIE reached the Human Warrior picker and stopped cleanly. Synthetic
+confirmation did not advance that picker in this small-window session, so
+this is not character-HUD or physical walking/camera acceptance.
+
+Causeway is All Saved outside PIE on real MCP8123, dirty packages empty,
+133 tests freshly discoverable, no Python errors in the final session. The
+earlier 133/133 native and separate Fenwatch 31-package evidence remains valid;
+no C++ changed. Fenwatch and protected save/keeper hashes stay exact.
+Accepted Causeway SHA256:
+`6c13740b2519476c5002310466506613b72d6da4d6afad76a5d4885db9275234`.
+
+Accepted additional logs: `/tmp/embermere-nov09-foundation-persisted.log`,
+`/tmp/embermere-nov09-foundation-placement-editor.log`,
+`/tmp/embermere-nov09-causeway-foundation-packages.log`, and
+`/tmp/embermere-nov09-foundation-final-editor.log`.

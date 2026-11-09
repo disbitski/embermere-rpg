@@ -2663,3 +2663,18 @@ move the customer out of range, attempt the same action through the open HUD,
 and return nearby. Assert exact currency/progression and unrelated inventory/
 quest state at every rejection, plus mismatched-owner and unpossessed cases.
 That test proves the service boundary, not physical movement or painted UI.
+
+## Compare Property Values, Not Struct Addresses
+
+Unreal Python's Transform repr includes a temporary struct address. Two reads
+of an unchanged actor can stringify differently. Preserve numeric location,
+rotation and scale plus stable mesh/material paths, collision policy, tags and
+folder instead. Check the signature twice before spawning anything; host
+fixtures should reject real property drift without calling Transform repr.
+
+The first Causeway foundation placement rolled back because of this fixture
+error. Closing its dirty-but-rolled-back map then blocked MCP on the save
+prompt; the user discarded only that known unsaved attempt. Do not kill the
+editor or save unrelated content to clear a prompt. After recovery, separate
+fresh persisted-package checks from initialized placement/physics and require
+a clean final live/PIE session. A rejected attempt is not acceptance evidence.

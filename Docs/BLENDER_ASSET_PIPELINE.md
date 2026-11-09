@@ -34,13 +34,14 @@ Blender scene/source preserves accepted assets. One NoCollision placement
 outside the walking corridor relies entirely on existing basin/shelf support;
 live controls ignore no actors. See `Docs/MARSHWARD_BANK_EDGE.md`.
 
-### Foundation Source
+### Foundation Courses
 
-The foundation-course source is a separate 180-triangle, three-hull asset
-with one UV and two reused materials. It is not installed in Causeway yet;
-the imported local package awaits fresh persisted validation and placement
-acceptance. Keep its proposed placement manifest separate from installed
-dressing counts. See `Docs/MARSHWARD_FOUNDATION_STONES.md`.
+The foundation course is a separate 180-triangle, three-hull asset with one
+UV and two reused materials. Two northern-shoulder placements bring Causeway
+to 43 static actors/nine meshes; all prior 41 actors are retained. Fresh
+persisted mesh/map gates and six solid-block/six adjacent-footing controls
+passed. The dedicated foundation-role manifest must agree with installed
+dressing. See `Docs/MARSHWARD_FOUNDATION_STONES.md`.
 
 ### Skeletal Material Preparation
 

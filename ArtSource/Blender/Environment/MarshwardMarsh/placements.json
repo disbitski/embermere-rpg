@@ -20,6 +20,8 @@
     ["RocksInnerSouth", "RockCluster", [1700,1700,-120], -25, [1,1,1]],
     ["RocksNorthwest", "RockCluster", [-1800,7100,-120], 10, [1,1,1]],
     ["RocksOuterEast", "RockCluster", [3850,700,-120], -15, [1,1,1]],
-    ["BankEdgeEast", "BankEdge", [3910,3100,-120], 90, [1,1,1]]
+    ["BankEdgeEast", "BankEdge", [3910,3100,-120], 90, [1,1,1]],
+    ["FoundationWest", "Foundation", [-1020,7120,120], 0, [1,1,1]],
+    ["FoundationEast", "Foundation", [1020,7120,120], 0, [1,1,1]]
   ]
 }

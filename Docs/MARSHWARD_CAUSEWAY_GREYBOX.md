@@ -85,6 +85,11 @@ coverage limits and remaining physical acceptance.
 The integrated eight-view review is in `Docs/MARSHWARD_LOOP_REVIEW.md`.
 It retained the scene unchanged and leaves south-turn wayfinding, moving
 camera clearance and both-direction physical walking explicitly unverified.
+Two original foundation courses subsequently brought the map to nine meshes
+and 43 static placements without moving any preceding actor. They occupy
+the northern ruin shoulders, not the central route or ramp approach. Fresh
+mesh/map gates and six solid-block/six adjacent-footing controls passed;
+physical traversal remains separate. See `Docs/MARSHWARD_FOUNDATION_STONES.md`.
 To recreate the map, build the original greybox kit/map first, then import
 and place the separate marsh assets; keep commandlet import and initialized
 editor placement separate.

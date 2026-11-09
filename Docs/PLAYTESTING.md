@@ -57,12 +57,16 @@ platforms make the turn direction understandable, then reverse the loop.
 Also check camera room beside the original shoulder marker and moving ramp
 joins. Static views do not close these gates. See `MARSHWARD_LOOP_REVIEW.md`.
 
-## Foundation Source Candidate
+## Foundation Courses
 
-The original foundation-course Blender source is not installed in Causeway.
-Its two positions remain a separate proposal; keep the accepted 41-placement
-map expectation until persisted-package, live and PIE adoption passes. See
-`MARSHWARD_FOUNDATION_STONES.md` for the pending editor prompt and gates.
+Two original foundation courses now occupy the northern ruin shoulders,
+bringing Causeway to 43 static placements/nine meshes while preserving all
+prior actors. Six block hits and six adjacent ruin-island supports augment
+the complete loop/arrival gates. Check their grounding and unobstructed
+approaches during a real walk. The latest synthetic confirmation did not
+advance the small floating picker; only picker startup/teardown was accepted,
+not a new character-HUD or physical traversal proof. See
+`MARSHWARD_FOUNDATION_STONES.md`.
 
 ## Before Pressing Play
 

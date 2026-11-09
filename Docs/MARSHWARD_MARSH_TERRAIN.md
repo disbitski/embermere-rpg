@@ -97,3 +97,14 @@ underlying support. All prior 40 placements are unchanged. The map now has
 shelf join controls supplement the complete route tests. See
 `Docs/MARSHWARD_BANK_EDGE.md`. Import the apron before a complete dressing
 rebuild; its dedicated placement script adds only that actor to an existing map.
+
+## Ruin Foundation Courses
+
+Two original three-block courses now sit on the northern ruin shoulders,
+beyond the full-width protected approach. Each is 180 triangles, one UV and
+three convex hulls, reusing existing stone/moss. All prior 41 actors stay
+unchanged; the map has 43 static placements/nine meshes. Six solid-block
+and six adjacent ruin-island supports supplement every prior live control.
+Import the foundation mesh before a complete dressing rebuild; the dedicated
+placement helper checks numeric preservation before saving only its two new
+actors. See `Docs/MARSHWARD_FOUNDATION_STONES.md`.

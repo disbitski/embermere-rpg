@@ -91,7 +91,27 @@ def main():
             else:
                 edge_join += 1
     assert edge_ground==9 and edge_join==2
+    foundation = json.loads(Path('/Users/wizard/Documents/Unreal Game/ArtSource/Blender/Environment/MarshwardMarsh/foundation_metrics.json').read_text())['SM_MarshwardFoundation_01']
+    foundation_hits = footing_hits = 0
+    for label,kind,pos,yaw,scale in dressing['placements']:
+        if kind!='Foundation':
+            continue
+        assert yaw==0 and scale==[1,1,1]
+        for (lx,ly,_),height in zip(foundation['block_centers_cm'],foundation['block_heights_cm']):
+            x,y = pos[0]+lx,pos[1]-ly
+            hit = trace((x,y,pos[2]+300),(x,y,pos[2]-10))
+            assert hit and hit.to_dict()['hit_actor']==actors['Marshward_'+label]
+            assert abs(hit.to_dict()['impact_point'].z-(pos[2]+height))<.5
+            foundation_hits += 1
+        for lx,ly,_ in foundation['ground_samples_cm']:
+            x,y = pos[0]+lx,pos[1]-ly
+            hit = trace((x,y,pos[2]+40),(x,y,pos[2]-20))
+            assert hit and hit.to_dict()['hit_actor']==actors['Marshward_RuinIsland']
+            assert abs(hit.to_dict()['impact_point'].z-pos[2])<.5
+            footing_hits += 1
+    assert foundation_hits==footing_hits==6
     runpy.run_path(str(Path(__file__).with_name('validate_marshward_arrival_vista_unreal.py')),run_name='__main__')
+    unreal.log('EMBERMERE_MARSHWARD_FOUNDATION_TRACES_SUCCESS: 6 solid block controls, 6 adjacent ruin-island supports at Z120, no ignored actors')
     unreal.log('EMBERMERE_MARSHWARD_BANK_EDGE_TRACES_SUCCESS: 9 unfiltered basin supports, 2 existing-shelf join controls, decorative apron has no collision')
     unreal.log('EMBERMERE_MARSHWARD_ROCK_TRACES_SUCCESS: 12 stone controls, 12 underlying basin supports; only support diagnostics ignore own cluster')
     unreal.log('EMBERMERE_MARSHWARD_TERRAIN_TRACES_SUCCESS: 6 solid terrain support controls including 2 shelves')

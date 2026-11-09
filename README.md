@@ -186,9 +186,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - a project-owned wet-peat material study on the Causeway basin only,
   preserving the pale walking surfaces and all support/collision geometry
   (see [wet peat](Docs/MARSHWARD_WET_PEAT.md))
-- original Blender foundation-course source with chamfered stone/moss blocks;
-  Unreal map adoption is still pending, not part of the installed Causeway
-  count (see [foundation stones](Docs/MARSHWARD_FOUNDATION_STONES.md))
+- two original Blender foundation courses on the Causeway ruin shoulders,
+  with three purposeful collision hulls per course and protected walking
+  approaches (see [foundation stones](Docs/MARSHWARD_FOUNDATION_STONES.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved

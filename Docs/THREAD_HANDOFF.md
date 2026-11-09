@@ -45,18 +45,20 @@ this snapshot. A new task should read files in this order:
 
 ## November 9 Handoff
 
-Foundation source is built, not installed: 600 x 260 x 150 cm, 180 triangles,
-one UV, three hulls, reused stone/moss. Three source/planned-bounds tests plus
-16 existing corridor checks passed. Fresh FBX import, 133 native tests,
-Fenwatch's 31-package gate and all 16 Fenwatch live suites passed. No C++
-changed. Local imported `.uasset` remains untracked pending independent
-persisted validation. A placement fixture falsely compared temporary struct
-addresses; it rolled back without saving. Editor close then stalled on the
-save-changes prompt and blocked MCP; user was asked to choose Don't Save.
-Both maps/protected hashes remain unchanged, and installed Causeway contracts
-still require 41 placements/eight meshes. No fresh Causeway package/live/PIE
-or clean final editor acceptance is claimed. Finish that pending adoption
-only after safe shutdown/relaunch and numeric preservation checks. See
+Two original foundation courses are now installed on the northern ruin
+shoulders: 600 x 260 x 150 cm, 180 triangles, one UV, three hulls, reused
+stone/moss. All prior 41 actors remain unchanged; Causeway has 43 static
+placements/nine meshes. The user discarded the earlier rolled-back attempt,
+and numeric preservation checks now have two regressions. Twenty-one host
+checks, independent fresh mesh and complete Causeway package gates passed.
+The final clean editor passed all 16 Fenwatch suites and full Causeway live
+controls, including six block/six adjacent footing probes. Earlier 133/133
+native and Fenwatch 31-package evidence remains valid; no C++ changed.
+Floating PIE reached the Human Warrior picker and stopped, but synthetic
+confirmation did not advance it; no new HUD or physical traversal claim.
+Causeway is All Saved outside PIE on real MCP8123 with 133 discoverable
+tests, no dirty packages or Python errors. Fenwatch/protected hashes remain
+exact; Causeway's intentional new hash is in the foundation contract. See
 `Docs/MARSHWARD_FOUNDATION_STONES.md` and `Docs/DAILY_BUILD_2026-11-09.md`.
 
 ## November 8 Handoff

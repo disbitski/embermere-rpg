@@ -1,4 +1,4 @@
-"""Foundation source and proposed bounds, independent of saved map adoption."""
+"""Foundation source, adopted roles and full-width corridor bounds."""
 
 import json
 from pathlib import Path
@@ -23,6 +23,7 @@ class FoundationSourceTests(unittest.TestCase):
         self.assertEqual(rows,[['FoundationWest','Foundation',[-1020,7120,120],0,[1,1,1]],
                                ['FoundationEast','Foundation',[1020,7120,120],0,[1,1,1]]])
         dressing = json.loads((ROOT/'MarshwardMarsh/placements.json').read_text())
+        self.assertEqual(rows,[row for row in dressing['placements'] if row[1]=='Foundation'])
         self.assertEqual(dressing['corridor_half_widths_cm'],[600,250,250,400,400,250,300,600,600])
         self.assertEqual(dressing['buffer_cm'],75)
         route = json.loads((ROOT/'MarshwardGreybox/layout.json').read_text())['route']
