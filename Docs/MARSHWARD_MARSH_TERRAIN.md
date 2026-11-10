@@ -108,3 +108,13 @@ and six adjacent ruin-island supports supplement every prior live control.
 Import the foundation mesh before a complete dressing rebuild; the dedicated
 placement helper checks numeric preservation before saving only its two new
 actors. See `Docs/MARSHWARD_FOUNDATION_STONES.md`.
+
+## Fallen Masonry
+
+One original two-fragment broken-beam scatter sits between the west marker
+and foundation, outside all protected walking buffers. It has88 triangles,
+one UV,two authored hulls and reused stone/moss; all preceding43 actors stay
+unchanged. Current Causeway is44 static placements/ten meshes. Two fragment
+hits and two adjacent island supports augment every earlier live control.
+Import it before a full dressing rebuild. See `Docs/MARSHWARD_FALLEN_MASONRY.md`
+for the brief, exact placement and separate physical acceptance limits.

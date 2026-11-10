@@ -90,6 +90,11 @@ and 43 static placements without moving any preceding actor. They occupy
 the northern ruin shoulders, not the central route or ramp approach. Fresh
 mesh/map gates and six solid-block/six adjacent-footing controls passed;
 physical traversal remains separate. See `Docs/MARSHWARD_FOUNDATION_STONES.md`.
+One sparse fallen-masonry scatter subsequently brings the installed gate to
+ten meshes/44 static placements. It stays on the west shoulder, preserving
+the prior43 actors, original22, all routes and landmarks. Fresh package/live
+gates and normal picker/Human Warrior PIE passed; physical walking remains
+open. See `Docs/MARSHWARD_FALLEN_MASONRY.md`.
 To recreate the map, build the original greybox kit/map first, then import
 and place the separate marsh assets; keep commandlet import and initialized
 editor placement separate.

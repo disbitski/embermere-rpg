@@ -4083,6 +4083,19 @@ clean outside PIE. Synthetic confirmation did not advance the small floating
 picker, so only startup/teardown is accepted, not physical walking or a new
 HUD check. Fenwatch and the protected saved journey remain unchanged.
 
+## November 10: Broken Stone Beside The Ruin
+
+A fresh shoulder view informed one original fallen-masonry scatter, distinct
+from the straight foundation courses. Blender MCP built two grounded beam
+fragments with reused stone/moss and one hull per fragment. One off-route
+placement preserves every preceding actor and the full walking loop.
+Fresh import/package gates,24 host checks and full initialized-world routes
+passed. A camera-jump frame omitted valid geometry; a settled actual-camera
+recapture restored it without a scene change. Normal picker confirmation
+reached Human Warrior HUD and stopped cleanly. Causeway has44 static actors/
+ten meshes; physical walking and camera feel remain unverified. Fenwatch and
+the protected saved journey are untouched.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

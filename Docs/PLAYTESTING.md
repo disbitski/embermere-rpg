@@ -63,10 +63,19 @@ Two original foundation courses now occupy the northern ruin shoulders,
 bringing Causeway to 43 static placements/nine meshes while preserving all
 prior actors. Six block hits and six adjacent ruin-island supports augment
 the complete loop/arrival gates. Check their grounding and unobstructed
-approaches during a real walk. The latest synthetic confirmation did not
-advance the small floating picker; only picker startup/teardown was accepted,
-not a new character-HUD or physical traversal proof. See
+approaches during a real walk. The November9 small floating picker did not
+advance through synthetic confirmation; November10's1280x754 session did
+reach Human Warrior HUD. Neither is physical traversal acceptance. See
 `MARSHWARD_FOUNDATION_STONES.md`.
+
+## Fallen Masonry
+
+One two-fragment scatter on the west ruin shoulder brings the static count
+to44/ten meshes. Check its grounded silhouette and camera room between the
+marker and foundation without leaving the intended route merely to prove a
+gate. The automatic full-width and fragment/adjacent-support checks passed;
+physical two-direction walking, moving-camera clearance and south-turn
+wayfinding remain open. See `MARSHWARD_FALLEN_MASONRY.md`.
 
 ## Before Pressing Play
 

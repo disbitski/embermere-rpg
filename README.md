@@ -189,6 +189,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - two original Blender foundation courses on the Causeway ruin shoulders,
   with three purposeful collision hulls per course and protected walking
   approaches (see [foundation stones](Docs/MARSHWARD_FOUNDATION_STONES.md))
+- one original two-fragment fallen-masonry scatter on the west ruin shoulder,
+  with separate collision hulls and preserved routes/landmarks
+  (see [fallen masonry](Docs/MARSHWARD_FALLEN_MASONRY.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved

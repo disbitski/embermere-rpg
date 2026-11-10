@@ -2678,3 +2678,12 @@ prompt; the user discarded only that known unsaved attempt. Do not kill the
 editor or save unrelated content to clear a prompt. After recovery, separate
 fresh persisted-package checks from initialized placement/physics and require
 a clean final live/PIE session. A rejected attempt is not acceptance evidence.
+
+## Settle A Viewport Before Judging Missing Geometry
+
+A Causeway camera-jump capture omitted existing bridge, marker and lintel
+geometry even though unchanged packages and positive collision controls
+retained those actors. Setting the actual editor camera, allowing a tool/frame
+boundary and recapturing restored the unmodified scene. Reject that incomplete
+render frame rather than moving/rebuilding valid content. This observation
+does not diagnose the renderer's internal cause or prove moving-camera feel.

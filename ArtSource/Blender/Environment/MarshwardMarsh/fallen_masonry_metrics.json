@@ -1,0 +1,45 @@
+{
+  "SM_MarshwardFallenMasonry_01": {
+    "dimensions_cm": [
+      500.0,
+      300.0,
+      140.0
+    ],
+    "triangles": 88,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "collision_hulls": 2,
+    "materials": [
+      "M_MarshwardMarshStone",
+      "M_MarshwardMoss"
+    ],
+    "fragment_centers_cm": [
+      [
+        -88.80162666999135,
+        -58.57958941106417,
+        0.0
+      ],
+      [
+        168.25593856421017,
+        73.71437168936507,
+        0.0
+      ]
+    ],
+    "fragment_heights_cm": [
+      128.38093802976078,
+      84.92892823507252
+    ],
+    "ground_samples_cm": [
+      [
+        -88.80162666999135,
+        -167.63919481339056,
+        0.0
+      ],
+      [
+        168.25593856421017,
+        -25.818858630051064,
+        0.0
+      ]
+    ]
+  }
+}

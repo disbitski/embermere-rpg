@@ -6,6 +6,21 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 10 fallen masonry: one original Blender two-fragment scatter
+  (500 x 300 x 140 cm,88 triangles,one UV,two hulls,reused stone/moss) is
+  saved on the west ruin shoulder. All prior43 actors, route, PlayerStart,
+  buffers and wet peat remain unchanged; Causeway is **44 placements/ten
+  meshes**. **24 host checks**, fresh import, separate Fenwatch31-package
+  and Causeway package gates passed, exit zero/no Python errors. The clean
+  final session passed all16 Fenwatch suites, full579 support/1104 clearance
+  and existing Causeway controls, plus **two fragment/two adjacent footing**
+  rays. Settled shoulder/arrival/ramp views were inspected; an incomplete
+  camera-jump frame was rejected and recaptured without a content edit.
+  Normal1280x754 floating PIE reached Human Warrior HP100/100/Mana50/50 and
+  stopped via Slate; no physical walk/camera claim. Discovery133 only;
+  November9 full-native evidence remains valid. Causeway is All Saved outside
+  PIE on real MCP8123,dirty[],no Python errors; protected hashes unchanged.
+  See `Docs/MARSHWARD_FALLEN_MASONRY.md` and `Docs/DAILY_BUILD_2026-11-10.md`.
 - November 9 foundation adoption complete: two original 180-triangle,
   three-hull Blender foundation courses are saved on the northern ruin
   shoulders. Causeway is **43 placements/nine meshes**; all prior 41 actors,

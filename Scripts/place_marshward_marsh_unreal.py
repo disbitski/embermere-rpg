@@ -32,11 +32,11 @@ def main():
         actor.set_folder_path('MarshwardGreybox/MarshTerrain')
         component = actor.get_component_by_class(unreal.StaticMeshComponent)
         assert component.set_static_mesh(mesh)
-        component.set_collision_profile_name('BlockAll' if kind in ('PeatBerm','PeatShelf','RockCluster','Foundation') else 'NoCollision')
+        component.set_collision_profile_name('BlockAll' if kind in ('PeatBerm','PeatShelf','RockCluster','Foundation','FallenMasonry') else 'NoCollision')
     validator = runpy.run_path(str(ROOT/'Scripts/validate_marshward_marsh_unreal.py'))
     validator['validate_dressing'](list(subsystem.get_all_level_actors()))
     assert unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level()
-    unreal.log('EMBERMERE_MARSHWARD_MARSH_PLACEMENT_SUCCESS: 4 berms, 2 shelves, 8 reeds, 4 rock clusters, 1 decorative bank edge, 2 foundation courses, full walking corridors protected')
+    unreal.log('EMBERMERE_MARSHWARD_MARSH_PLACEMENT_SUCCESS: 4 berms, 2 shelves, 8 reeds, 4 rock clusters, 1 decorative bank edge, 2 foundation courses, 1 fallen-masonry scatter, full walking corridors protected')
 
 
 if __name__ == '__main__':

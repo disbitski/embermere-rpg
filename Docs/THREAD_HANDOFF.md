@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-09
+Last updated: 2026-11-10
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,23 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 10 Handoff
+
+One original 88-triangle fallen-masonry scatter now occupies the west ruin
+shoulder, with two convex hulls, one UV and reused stone/moss. All prior43
+actors remain unchanged; Causeway is44 static placements/ten meshes. Fresh
+import, Fenwatch31-package and Causeway package gates passed exit zero/no
+Python errors;24 focused host checks passed. The final clean editor passed
+all16 Fenwatch suites, complete Causeway controls and two fragment/two
+adjacent-footing probes. A settled recapture rejected an incomplete camera-
+jump frame without changing valid content. Normal1280x754 floating PIE
+confirmed Human Warrior HP100/100/Mana50/50 through Slate and stopped.
+Fresh discovery lists133, not another full native run; November9's full
+run remains authoritative. Map is All Saved outside PIE on real MCP8123,
+dirty[],no Python errors. Fenwatch/protected hashes remain exact. Physical
+walking/camera acceptance is still open. See `Docs/MARSHWARD_FALLEN_MASONRY.md`
+and `Docs/DAILY_BUILD_2026-11-10.md`.
 
 ## November 9 Handoff
 

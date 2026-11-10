@@ -43,6 +43,15 @@ persisted mesh/map gates and six solid-block/six adjacent-footing controls
 passed. The dedicated foundation-role manifest must agree with installed
 dressing. See `Docs/MARSHWARD_FOUNDATION_STONES.md`.
 
+### Fallen Masonry
+
+The fallen-masonry scatter is an independent 88-triangle, two-hull mesh with
+one UV and reused stone/moss, not a rebuilt foundation source. One grounded
+west-shoulder actor brings Causeway to44 static placements/ten meshes while
+preserving all prior43 actors. Source preview, fresh classic-FBX import,
+persisted package gates and two fragment/two adjacent-footing probes passed.
+See `Docs/MARSHWARD_FALLEN_MASONRY.md`.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process
