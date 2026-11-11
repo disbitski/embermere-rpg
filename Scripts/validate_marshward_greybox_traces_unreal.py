@@ -129,7 +129,25 @@ def main():
         assert abs(hit.to_dict()['impact_point'].z-pos[2])<.5
         masonry_ground += 1
     assert fragment_hits==masonry_ground==2
+    reeds = json.loads(Path('/Users/wizard/Documents/Unreal Game/ArtSource/Blender/Environment/MarshwardMarsh/tall_reeds_metrics.json').read_text())['SM_MarshwardTallReeds_01']
+    reed_supports = 0
+    rows = [row for row in dressing['placements'] if row[1]=='TallReeds']
+    assert len(rows)==2 and len(reeds['base_samples_cm'])==3
+    for label,kind,pos,yaw,scale in rows:
+        component = actors['Marshward_'+label].get_component_by_class(unreal.StaticMeshComponent)
+        assert component.get_collision_enabled()==unreal.CollisionEnabled.NO_COLLISION
+        assert scale==[1,1,1]
+        angle = math.radians(yaw)
+        for lx,ly,_ in reeds['base_samples_cm']:
+            x = pos[0]+lx*math.cos(angle)+ly*math.sin(angle)
+            y = pos[1]+lx*math.sin(angle)-ly*math.cos(angle)
+            hit = trace((x,y,pos[2]+400),(x,y,pos[2]-20))
+            assert hit and hit.to_dict()['hit_actor']==actors['Marshward_BasinCatch']
+            assert abs(hit.to_dict()['impact_point'].z-pos[2])<.5
+            reed_supports += 1
+    assert reed_supports==6
     runpy.run_path(str(Path(__file__).with_name('validate_marshward_arrival_vista_unreal.py')),run_name='__main__')
+    unreal.log('EMBERMERE_MARSHWARD_TALL_REEDS_TRACES_SUCCESS: 6 unfiltered basin supports, 2 NoCollision clumps, no new support authority')
     unreal.log('EMBERMERE_MARSHWARD_MASONRY_TRACES_SUCCESS: 2 solid fragment controls, 2 adjacent ruin-island supports at Z120, no ignored actors')
     unreal.log('EMBERMERE_MARSHWARD_FOUNDATION_TRACES_SUCCESS: 6 solid block controls, 6 adjacent ruin-island supports at Z120, no ignored actors')
     unreal.log('EMBERMERE_MARSHWARD_BANK_EDGE_TRACES_SUCCESS: 9 unfiltered basin supports, 2 existing-shelf join controls, decorative apron has no collision')

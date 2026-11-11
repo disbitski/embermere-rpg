@@ -17,6 +17,7 @@ class CorridorTests(unittest.TestCase):
         metrics.update(json.loads((root/'MarshwardMarsh/bank_edge_metrics.json').read_text()))
         metrics.update(json.loads((root/'MarshwardMarsh/foundation_metrics.json').read_text()))
         metrics.update(json.loads((root/'MarshwardMarsh/fallen_masonry_metrics.json').read_text()))
+        metrics.update(json.loads((root/'MarshwardMarsh/tall_reeds_metrics.json').read_text()))
         route = json.loads((root/'MarshwardGreybox/layout.json').read_text())['route']
         for label,kind,pos,yaw,scale in data['placements']:
             size = metrics['SM_Marshward'+kind+'_01']['dimensions_cm']
@@ -37,7 +38,8 @@ class CorridorTests(unittest.TestCase):
         rows = json.loads(path.read_text())['placements']
         self.assertEqual([r[0] for r in rows if r[1]=='PeatShelf'],['BermWestFar','BermEast'])
         self.assertEqual(sum(r[1]=='PeatBerm' for r in rows),4)
-        self.assertEqual(sum(r[1]=='ReedClump' for r in rows),8)
+        self.assertEqual(sum(r[1]=='ReedClump' for r in rows),6)
+        self.assertEqual(sum(r[1]=='TallReeds' for r in rows),2)
 
     def test_shelf_matches_the_written_brief(self):
         path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/shelf_metrics.json'

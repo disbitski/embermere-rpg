@@ -77,6 +77,14 @@ gate. The automatic full-width and fragment/adjacent-support checks passed;
 physical two-direction walking, moving-camera clearance and south-turn
 wayfinding remain open. See `MARSHWARD_FALLEN_MASONRY.md`.
 
+## Sparse Reeds
+
+Two eastern clumps now use a taller three-stem/six-leaf variant; six original
+clumps remain, without adding actors. Check that the sparse silhouette and
+return marker remain separate while turning/moving in both directions. All
+visible bounds and six base-to-basin probes passed, but NoCollision physics
+does not certify foliage readability. See `MARSHWARD_TALL_REEDS.md`.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

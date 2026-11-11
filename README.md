@@ -192,6 +192,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - one original two-fragment fallen-masonry scatter on the west ruin shoulder,
   with separate collision hulls and preserved routes/landmarks
   (see [fallen masonry](Docs/MARSHWARD_FALLEN_MASONRY.md))
+- a taller three-stem reed variant on two existing eastern clumps, retaining
+  the same actor count, no collision and full walking buffers
+  (see [sparse reeds](Docs/MARSHWARD_TALL_REEDS.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved

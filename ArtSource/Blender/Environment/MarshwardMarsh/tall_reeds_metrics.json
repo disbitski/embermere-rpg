@@ -1,0 +1,36 @@
+{
+  "SM_MarshwardTallReeds_01": {
+    "dimensions_cm": [
+      220.0,
+      180.0,
+      300.0
+    ],
+    "triangles": 264,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "collision_hulls": 0,
+    "materials": [
+      "M_MarshwardReedGreen",
+      "M_MarshwardReedSeed"
+    ],
+    "stem_count": 3,
+    "leaf_count": 6,
+    "base_samples_cm": [
+      [
+        -71.27015379975708,
+        -17.936453793233156,
+        0.0
+      ],
+      [
+        65.1778026517341,
+        44.545073626213245,
+        0.0
+      ],
+      [
+        8.324487463612769,
+        -57.69742578742632,
+        0.0
+      ]
+    ]
+  }
+}

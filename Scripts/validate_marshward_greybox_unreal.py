@@ -67,7 +67,7 @@ def main():
     runpy.run_path(str(ROOT/'Scripts/validate_marshward_marsh_unreal.py'))['validate_dressing'](actors)
     runpy.run_path(str(ROOT/'Scripts/validate_marshward_wet_peat_unreal.py'))['validate_material'](actors)
     assert not unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()
-    unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 10 meshes, 22 original plus 22 terrain/art placements, standalone map, no quest/service/save authority')
+    unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 11 meshes, 22 original plus 22 terrain/art placements, standalone map, no quest/service/save authority')
 
 
 if __name__ == '__main__':

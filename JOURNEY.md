@@ -4096,6 +4096,17 @@ reached Human Warrior HUD and stopped cleanly. Causeway has44 static actors/
 ten meshes; physical walking and camera feel remain unverified. Fenwatch and
 the protected saved journey are untouched.
 
+## November 11: Space Between The Reeds
+
+Fresh eastern-return views showed repeated compact reed silhouettes. Blender
+MCP built a taller three-stem variant, and only two existing clumps changed
+mesh paths. No new actors or materials were added. The narrower footprint
+preserves full walking buffers; native probes still hit the original basin
+at all six stem bases. Fresh package/live checks and 27 host tests passed,
+with settled eastern and arrival review plus normal Human Warrior PIE.
+Causeway remains 44 static placements with eleven kit meshes. Physical
+walking, moving-camera clearance and wayfinding remain user checks.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -95,6 +95,10 @@ ten meshes/44 static placements. It stays on the west shoulder, preserving
 the prior43 actors, original22, all routes and landmarks. Fresh package/live
 gates and normal picker/Human Warrior PIE passed; physical walking remains
 open. See `Docs/MARSHWARD_FALLEN_MASONRY.md`.
+Two eastern reed mesh substitutions then retained all 44 static placements
+while bringing the kit to eleven meshes. The new variant is taller and
+sparser, NoCollision, and outside the unchanged full-width buffers. See
+`Docs/MARSHWARD_TALL_REEDS.md`; native traces do not prove visual occlusion.
 To recreate the map, build the original greybox kit/map first, then import
 and place the separate marsh assets; keep commandlet import and initialized
 editor placement separate.

@@ -6,6 +6,21 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 11 sparse reeds: Blender MCP built a 220 x 180 x 300 cm,
+  264-triangle, three-stem/six-leaf NoCollision variant with reused materials.
+  Only two eastern mesh references changed; all other actor properties and
+  44 static placements are retained. Current Causeway has eleven kit meshes,
+  six original reed clumps and two variants. **27 host checks**, fresh import,
+  separate Fenwatch 31-package and Causeway gates passed, exit zero/no Python
+  errors. The final clean session passed all 16 Fenwatch suites, full 579
+  support/1104 clearance and every earlier Causeway control, plus **six reed
+  base-to-basin probes**. Settled eastern and three arrival views retained
+  route/landmark readability. Normal 1280x754 picker/Human Warrior PIE
+  confirmed HP100/100/Mana50/50 via Slate and stopped. Discovery 133 only;
+  November 9 full-native evidence remains valid. Causeway is All Saved outside
+  PIE on real MCP8123, dirty [], no Python errors; protected hashes unchanged.
+  Physical walking/camera checks remain open. See `Docs/MARSHWARD_TALL_REEDS.md`
+  and `Docs/DAILY_BUILD_2026-11-11.md`.
 - November 10 fallen masonry: one original Blender two-fragment scatter
   (500 x 300 x 140 cm,88 triangles,one UV,two hulls,reused stone/moss) is
   saved on the west ruin shoulder. All prior43 actors, route, PlayerStart,

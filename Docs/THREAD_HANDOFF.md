@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-10
+Last updated: 2026-11-11
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,22 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 11 Handoff
+
+Two eastern reed mesh references now use a taller sparse Blender variant:
+220 x 180 x 300 cm, 264 triangles, three stems/six leaves, one UV, no hulls,
+reused materials. All other actor properties and 44 static placements are
+retained; Causeway has eleven kit meshes. Twenty-seven host checks, fresh
+import, Fenwatch 31-package and Causeway package gates passed, exit zero/no
+Python errors. The final clean session passed all 16 Fenwatch suites and
+complete Causeway controls plus six unfiltered base-to-basin probes. Settled
+eastern/three arrival views and normal picker/Human Warrior PIE passed;
+physical walking/camera acceptance remains open. Discovery lists 133, not a
+new full native run; November 9 remains authoritative. Causeway is All Saved
+outside PIE on MCP8123, dirty [], no Python errors. Fenwatch/protected hashes
+remain exact. See `Docs/MARSHWARD_TALL_REEDS.md` and
+`Docs/DAILY_BUILD_2026-11-11.md`.
 
 ## November 10 Handoff
 

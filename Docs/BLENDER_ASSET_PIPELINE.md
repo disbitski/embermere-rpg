@@ -52,6 +52,15 @@ preserving all prior43 actors. Source preview, fresh classic-FBX import,
 persisted package gates and two fragment/two adjacent-footing probes passed.
 See `Docs/MARSHWARD_FALLEN_MASONRY.md`.
 
+### Sparse Reed Variant
+
+The tall-reed variant uses an independent Blender scene/source and reuses
+both existing reed materials. It has three stems/six leaves, 264 triangles,
+one UV and no hulls. Only two eastern mesh references changed; all other
+properties and 44 static placements were retained. Fresh package gates and
+six unfiltered base-to-basin probes passed. NoCollision art still needs
+settled visual review beyond native rays. See `Docs/MARSHWARD_TALL_REEDS.md`.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process

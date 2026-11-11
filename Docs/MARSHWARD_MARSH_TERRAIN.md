@@ -118,3 +118,12 @@ unchanged. Current Causeway is44 static placements/ten meshes. Two fragment
 hits and two adjacent island supports augment every earlier live control.
 Import it before a full dressing rebuild. See `Docs/MARSHWARD_FALLEN_MASONRY.md`
 for the brief, exact placement and separate physical acceptance limits.
+
+## Sparse Eastern Reeds
+
+The two eastern reed actors now use a taller, narrower three-stem variant
+with six leaves and no collision. Six original clumps remain; total reed
+actors stay eight and total static placements stay 44. The kit now has eleven
+meshes. All transforms, profiles and support geometry are preserved; only
+two mesh paths changed. Fresh import/package checks, six base-to-basin rays
+and settled eastern/arrival review passed. See `Docs/MARSHWARD_TALL_REEDS.md`.
