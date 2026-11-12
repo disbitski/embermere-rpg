@@ -1,0 +1,36 @@
+{
+  "SM_MarshwardLowScrub_01": {
+    "dimensions_cm": [
+      240.0,
+      180.0,
+      95.0
+    ],
+    "triangles": 540,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "collision_hulls": 0,
+    "materials": [
+      "M_MarshwardReedGreen",
+      "M_MarshwardEarth"
+    ],
+    "stem_count": 3,
+    "leaf_count": 18,
+    "base_samples_cm": [
+      [
+        -51.9288305451172,
+        -40.215488221966574,
+        0.0
+      ],
+      [
+        -3.062011700570975,
+        11.369238912227498,
+        0.0
+      ],
+      [
+        49.87704204768743,
+        -35.05701550854717,
+        0.0
+      ]
+    ]
+  }
+}

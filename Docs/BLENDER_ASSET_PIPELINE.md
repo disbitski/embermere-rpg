@@ -61,6 +61,16 @@ properties and 44 static placements were retained. Fresh package gates and
 six unfiltered base-to-basin probes passed. NoCollision art still needs
 settled visual review beyond native rays. See `Docs/MARSHWARD_TALL_REEDS.md`.
 
+### Low Marsh Scrub
+
+The independent low scrub source uses three grounded branching stems and
+18 broad leaves:240x180x95 cm,540tri,one UV,zero non-manifold edges,no hulls.
+Reed-green/earth materials are reused unchanged. One NoCollision off-route
+placement preserves all prior44 actors; current Causeway is45 placements/
+twelve meshes. Fresh mesh/map gates and three unfiltered basin supports
+passed; foliage visibility still needs settled viewport and physical review.
+See `Docs/MARSHWARD_LOW_SCRUB.md`.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process

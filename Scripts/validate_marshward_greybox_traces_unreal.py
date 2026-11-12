@@ -146,7 +146,22 @@ def main():
             assert abs(hit.to_dict()['impact_point'].z-pos[2])<.5
             reed_supports += 1
     assert reed_supports==6
+    scrub = json.loads(Path('/Users/wizard/Documents/Unreal Game/ArtSource/Blender/Environment/MarshwardMarsh/low_scrub_metrics.json').read_text())['SM_MarshwardLowScrub_01']
+    rows = [row for row in dressing['placements'] if row[1]=='LowScrub']
+    assert rows==[['ScrubEast','LowScrub',[3550,2450,-120],0,[1,1,1]]]
+    component = actors['Marshward_ScrubEast'].get_component_by_class(unreal.StaticMeshComponent)
+    assert component.get_collision_enabled()==unreal.CollisionEnabled.NO_COLLISION
+    assert len(scrub['base_samples_cm'])==3
+    scrub_supports = 0
+    for lx,ly,_ in scrub['base_samples_cm']:
+        x,y = 3550+lx,2450-ly
+        hit = trace((x,y,100),(x,y,-140))
+        assert hit and hit.to_dict()['hit_actor']==actors['Marshward_BasinCatch']
+        assert abs(hit.to_dict()['impact_point'].z+120)<.5
+        scrub_supports += 1
+    assert scrub_supports==3
     runpy.run_path(str(Path(__file__).with_name('validate_marshward_arrival_vista_unreal.py')),run_name='__main__')
+    unreal.log('EMBERMERE_MARSHWARD_LOW_SCRUB_TRACES_SUCCESS: 3 unfiltered basin supports, 1 NoCollision clump, no new support authority')
     unreal.log('EMBERMERE_MARSHWARD_TALL_REEDS_TRACES_SUCCESS: 6 unfiltered basin supports, 2 NoCollision clumps, no new support authority')
     unreal.log('EMBERMERE_MARSHWARD_MASONRY_TRACES_SUCCESS: 2 solid fragment controls, 2 adjacent ruin-island supports at Z120, no ignored actors')
     unreal.log('EMBERMERE_MARSHWARD_FOUNDATION_TRACES_SUCCESS: 6 solid block controls, 6 adjacent ruin-island supports at Z120, no ignored actors')

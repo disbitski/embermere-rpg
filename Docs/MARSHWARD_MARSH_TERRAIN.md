@@ -1,5 +1,15 @@
 # Marshward Marsh Terrain
 
+## Low Scrub Accent
+
+One original 540-triangle broad-leaf scrub occupies the outer east shoulder,
+NoCollision and beyond the fixed full-width walking buffer. All prior44
+actors are retained; current Causeway is45 static placements/twelve kit
+meshes,including six original reeds and two tall variants. Fresh source,
+package and live checks passed,including three original-basin support rays.
+No existing source/material or support geometry changed. Physical foliage
+readability remains separate; see `Docs/MARSHWARD_LOW_SCRUB.md`.
+
 ## First Terrain Pass
 
 Extend the standalone Causeway greybox without changing its original 22

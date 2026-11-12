@@ -18,6 +18,7 @@ class CorridorTests(unittest.TestCase):
         metrics.update(json.loads((root/'MarshwardMarsh/foundation_metrics.json').read_text()))
         metrics.update(json.loads((root/'MarshwardMarsh/fallen_masonry_metrics.json').read_text()))
         metrics.update(json.loads((root/'MarshwardMarsh/tall_reeds_metrics.json').read_text()))
+        metrics.update(json.loads((root/'MarshwardMarsh/low_scrub_metrics.json').read_text()))
         route = json.loads((root/'MarshwardGreybox/layout.json').read_text())['route']
         for label,kind,pos,yaw,scale in data['placements']:
             size = metrics['SM_Marshward'+kind+'_01']['dimensions_cm']
@@ -62,7 +63,7 @@ class CorridorTests(unittest.TestCase):
         path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/placements.json'
         rows = json.loads(path.read_text())['placements']
         rocks = [row for row in rows if row[1]=='RockCluster']
-        self.assertEqual(len(rows),22)
+        self.assertEqual(len(rows),23)
         self.assertEqual([r[0] for r in rocks],['RocksWestNear','RocksInnerSouth','RocksNorthwest','RocksOuterEast'])
         for row in rocks:
             self.assertEqual(row[2][2],-120)

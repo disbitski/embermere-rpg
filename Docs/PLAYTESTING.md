@@ -85,6 +85,16 @@ return marker remain separate while turning/moving in both directions. All
 visible bounds and six base-to-basin probes passed, but NoCollision physics
 does not certify foliage readability. See `MARSHWARD_TALL_REEDS.md`.
 
+## Low Marsh Scrub
+
+One low broad-leaf clump on the outer east shoulder brings Causeway to45
+static placements/twelve kit meshes without moving prior art. During a real
+walk,check that it stays separate from the route,bank apron and markers while
+turning the camera. Full-width visible bounds and three unfiltered original-
+basin supports passed; NoCollision is not visual-occlusion proof. See
+`MARSHWARD_LOW_SCRUB.md`. Two-direction walking and south-turn wayfinding
+remain open; do not load the protected Chronicle slot to create a check.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

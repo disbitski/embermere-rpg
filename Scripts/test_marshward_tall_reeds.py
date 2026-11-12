@@ -23,7 +23,7 @@ class TallReedsTests(unittest.TestCase):
 
     def test_only_east_roles_change_without_new_placements(self):
         rows = json.loads((ROOT/'placements.json').read_text())['placements']
-        self.assertEqual(len(rows),22)
+        self.assertEqual(len(rows),23)
         self.assertEqual([row for row in rows if row[1]=='TallReeds'],[
             ['ReedsEastNear','TallReeds',[3550,1700,-120],0,[1,1,1]],
             ['ReedsEastFar','TallReeds',[3550,5200,-120],20,[1,1,1]]])

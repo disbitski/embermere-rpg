@@ -4107,6 +4107,18 @@ with settled eastern and arrival review plus normal Human Warrior PIE.
 Causeway remains 44 static placements with eleven kit meshes. Physical
 walking, moving-camera clearance and wayfinding remain user checks.
 
+## November 12: A Low Shape Beside The Reeds
+
+A settled east-shoulder view informed one restrained scrub accent between
+the tall reeds and bank apron. Blender MCP built three branching stems and
+broad leaves with existing green/earth materials. One non-colliding clump
+preserves every prior actor and full walking buffer; the basin keeps all
+support authority. Thirty host checks,fresh import/package gates,all16
+Fenwatch suites and the complete Causeway controls passed,including three
+new base-to-basin probes. Settled shoulder/arrival review and normal Human
+Warrior PIE passed. Causeway is45 placements/twelve meshes; physical walking,
+moving-camera room and first-visit wayfinding remain open.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

@@ -99,6 +99,11 @@ Two eastern reed mesh substitutions then retained all 44 static placements
 while bringing the kit to eleven meshes. The new variant is taller and
 sparser, NoCollision, and outside the unchanged full-width buffers. See
 `Docs/MARSHWARD_TALL_REEDS.md`; native traces do not prove visual occlusion.
+One low NoCollision broad-leaf scrub then brings the current map to45 static
+placements/twelve kit meshes while retaining all previous44 actors. It sits
+outside the eastern return buffer and separate from the bank apron. Fresh
+package/live checks and three original-basin supports passed; physical
+walking/camera acceptance remains open. See `Docs/MARSHWARD_LOW_SCRUB.md`.
 To recreate the map, build the original greybox kit/map first, then import
 and place the separate marsh assets; keep commandlet import and initialized
 editor placement separate.

@@ -6,6 +6,19 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 12 low scrub: one original Blender 240x180x95 cm,540-triangle,
+  three-stem/18-leaf NoCollision clump with reused materials now occupies
+  the outer east shoulder. All prior44 actors are retained; Causeway is
+  **45 placements/twelve kit meshes**,original22 plus23 dressing. **30 host
+  checks**,fresh import,separate Fenwatch31-package and Causeway gates passed,
+  exit zero/no Python errors. Final clean editor passed all16 Fenwatch suites,
+  full579 support/1104 clearance and all earlier Causeway controls,plus
+  **three unfiltered scrub-base-to-basin probes**. Settled shoulder/three
+  arrival views and normal1280x754 picker/Human Warrior PIE passed and stopped.
+  Discovery133 only; November9 full-native evidence remains authoritative.
+  Causeway is All Saved outside PIE on real MCP8123,dirty[],no Python errors;
+  protected hashes unchanged. Physical walking/camera/wayfinding remain open.
+  See `Docs/MARSHWARD_LOW_SCRUB.md` and `Docs/DAILY_BUILD_2026-11-12.md`.
 - November 11 sparse reeds: Blender MCP built a 220 x 180 x 300 cm,
   264-triangle, three-stem/six-leaf NoCollision variant with reused materials.
   Only two eastern mesh references changed; all other actor properties and

@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-11
+Last updated: 2026-11-12
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,21 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 12 Handoff
+
+One original low scrub now sits outside the eastern return buffer:240x180x95
+cm,540tri,three stems/18 leaves,one UV,no hulls,reused green/earth materials.
+All preceding44 actors remain unchanged; Causeway is45 static placements/
+twelve kit meshes. Thirty host checks,fresh import,Fenwatch31-package and
+Causeway package gates passed,true exit zero/no Python errors. Final clean
+editor passed all16 Fenwatch suites,complete Causeway controls and three
+unfiltered base-to-basin probes. Settled shoulder/three arrival views and
+normal picker/Human Warrior PIE passed; physical walking/camera acceptance
+remains open. Discovery133 only; November9 full-native evidence remains
+authoritative. Causeway is All Saved outside PIE on MCP8123,dirty[],no Python
+errors. Protected hashes/Fenwatch remain exact. See `Docs/MARSHWARD_LOW_SCRUB.md`
+and `Docs/DAILY_BUILD_2026-11-12.md`.
 
 ## November 11 Handoff
 
