@@ -42,9 +42,13 @@ def main():
         expected[label] = (pos, tuple(x/100 for x in dimensions), 0, '/Engine/BasicShapes/Cube.Cube')
     for label, kind, pos, yaw in layout['kit']:
         path = DEST + '/SM_Marshward' + kind + '_Greybox'
+        if kind=='Waymarker':
+            path = '/Game/Art/Embermere/Environment/MarshwardWaymarker/SM_MarshwardWaymarker_01'
         expected[label] = (pos, (1,1,1), yaw, path + '.' + path.rsplit('/',1)[1])
     meshes = [a for a in actors if isinstance(a, unreal.StaticMeshActor)]
     assert len(expected) == 22 and len(meshes) == 45
+    installed = {a.get_component_by_class(unreal.StaticMeshComponent).static_mesh.get_path_name() for a in meshes}
+    assert '/Engine/BasicShapes/Cube.Cube' in installed and len(installed)==13
     for label,(pos,scale,yaw,path) in expected.items():
         actor = by_label['Marshward_' + label]
         assert 'EmbermereMarshwardGreybox' in [str(t) for t in actor.tags]
@@ -58,6 +62,8 @@ def main():
         assert component.static_mesh.get_path_name() == path
         assert str(component.get_collision_profile_name()) == 'BlockAll'
         assert component.get_collision_enabled() == unreal.CollisionEnabled.QUERY_AND_PHYSICS
+        if label in ('ArrivalMarker','RuinMarker','ReturnMarker'):
+            assert list(component.get_materials())==[slot.material_interface for slot in component.static_mesh.get_editor_property('static_materials')]
     starts = [a for a in actors if isinstance(a,unreal.PlayerStart)]
     assert len(starts)==1
     close_vector(starts[0].get_actor_location(),(0,0,100))
@@ -65,9 +71,12 @@ def main():
     forbidden = ['Quest','Enemy','Vendor','Trainer','RestService','Save','Trigger']
     assert not any(any(word in a.get_class().get_name() for word in forbidden) for a in actors)
     runpy.run_path(str(ROOT/'Scripts/validate_marshward_marsh_unreal.py'))['validate_dressing'](actors)
+    marker = runpy.run_path(str(ROOT/'Scripts/validate_marshward_waymarker_unreal.py'))
+    marker['validate_mesh']()
+    marker['marker_roles']()
     runpy.run_path(str(ROOT/'Scripts/validate_marshward_wet_peat_unreal.py'))['validate_material'](actors)
     assert not unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()
-    unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 12 meshes, 22 original plus 23 terrain/art placements, standalone map, no quest/service/save authority')
+    unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 13 validated mesh packages including retained greybox marker, 12 installed mesh types, 22 original roles plus 23 terrain/art placements, standalone map, no quest/service/save authority')
 
 
 if __name__ == '__main__':

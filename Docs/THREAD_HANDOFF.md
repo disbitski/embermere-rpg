@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-12
+Last updated: 2026-11-13
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,23 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 13 Handoff
+
+Three marker mesh references now use a352-triangle chamfered stone variant
+with exact original bounds,body box/center/rotation,one UV and reused warm
+material. All other properties of45 actors remain fixed. Gate counts are13
+validated packages including the retained original marker,12 installed mesh
+types,45 placements.34 host checks,four isolated negative controls,fresh
+import,Fenwatch31-package and Causeway package gates passed,true exit zero/no
+Python errors. Final clean editor passed all16 Fenwatch suites,complete
+Causeway guards and six body/six decorative-clear rays. Settled three arrival,
+return and ruin views plus normal Human Warrior PIE passed; physical walking/
+camera/wayfinding remain open. Discovery133 only; November9 full-native run
+remains authoritative. Causeway All Saved outside PIE on real MCP8123,dirty[],
+no Python errors; protected hashes/Fenwatch unchanged. KBoxElem fields need
+get_editor_property; compare saved FBX rotation,not assumed zero. See
+`Docs/MARSHWARD_WAYMARKER.md` and `Docs/DAILY_BUILD_2026-11-13.md`.
 
 ## November 12 Handoff
 

@@ -71,6 +71,16 @@ twelve meshes. Fresh mesh/map gates and three unfiltered basin supports
 passed; foliage visibility still needs settled viewport and physical review.
 See `Docs/MARSHWARD_LOW_SCRUB.md`.
 
+### Carved Waymarkers
+
+The352-triangle carved marker is a separate original source/package,not an
+overwrite of the greybox marker. Exact180x140x520 bounds and one120x100x440
+body box atZ220 match the saved baseline,including imported rotation. Only
+three existing mesh references changed; all45 actor transforms/profiles/
+material paths remain intact. One warm material is reused. Fresh package
+and four isolated negative controls protect parity; six body/six decorative-
+clear rays protect live collision. See `Docs/MARSHWARD_WAYMARKER.md`.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process

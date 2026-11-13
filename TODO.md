@@ -6,6 +6,21 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 13 carved waymarkers: original Blender352-triangle stone detail
+  replaces only three existing marker mesh paths. Exact180x140x520 bounds,
+  one120x100x440 box atZ220 with saved rotation,one UV,reused warm material;
+  all other properties of45 actors retained. Current gate:13 validated mesh
+  packages,12 installed types,45 placements; original marker remains saved.
+  **34 host checks**,four isolated negative controls,fresh import,separate
+  Fenwatch31-package and Causeway gates passed,true exit zero/no Python errors.
+  Final clean editor passed all16 Fenwatch suites,full579 support/1104
+  clearance,all earlier Causeway guards and **six exact body/six decorative-
+  clear marker rays**. Settled arrival/return/ruin views and normal1280x754
+  Human Warrior picker/PIE passed,then stopped. Discovery133 only; November9
+  full-native evidence remains authoritative. Causeway All Saved outside PIE,
+  real MCP8123,dirty[],no Python errors; protected hashes unchanged. Physical
+  walking/camera/wayfinding remain open. See `Docs/MARSHWARD_WAYMARKER.md`
+  and `Docs/DAILY_BUILD_2026-11-13.md`.
 - November 12 low scrub: one original Blender 240x180x95 cm,540-triangle,
   three-stem/18-leaf NoCollision clump with reused materials now occupies
   the outer east shoulder. All prior44 actors are retained; Causeway is

@@ -27,6 +27,14 @@ future destination but do not imply an exit, dungeon, or quest.
 - `SM_MarshwardWaymarker_Greybox`: 180 x 140 x 520 total, base pivot,
   one UBX main-body box. Cap and directional inset remain decorative.
 
+The original marker asset remains unchanged and validated. The three saved
+Waymarker roles now explicitly use the separately validated carved variant,
+with exact bounds and body-box parity. All actor transforms/profiles/material
+paths and the original layout manifest stay fixed. Current gate validates13
+mesh packages including the retained original marker,with12 installed imported
+mesh types and45 static placements. See `Docs/MARSHWARD_WAYMARKER.md` for
+the deliberate role-path contract,negative controls and live collision gates.
+
 Each mesh has one UV channel, triangulated closed geometry and zero
 non-manifold edges. A single project-owned stone material serves the span
 and ramp; the marker uses a contrasting warm material. These are blockout

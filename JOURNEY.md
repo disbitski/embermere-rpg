@@ -4119,6 +4119,17 @@ new base-to-basin probes. Settled shoulder/arrival review and normal Human
 Warrior PIE passed. Causeway is45 placements/twelve meshes; physical walking,
 moving-camera room and first-visit wayfinding remain open.
 
+## November 13: Stone Detail Without A New Obstacle
+
+Fresh marker views informed a chamfered stone source with paired-face relief.
+Blender MCP retained the original silhouette and exact purposeful body box.
+The single warm material stayed unchanged; only the three existing mesh
+references changed.34 host checks,four isolated negative controls,fresh
+import/package gates and full initialized-world checks passed,including six
+exact body entries and six decorative-clear rays. Settled arrival/return/
+ruin views and normal Human Warrior PIE passed. All45 placements and walking
+geometry remain fixed; physical camera feel and wayfinding remain user checks.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

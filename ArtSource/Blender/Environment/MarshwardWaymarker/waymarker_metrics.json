@@ -1,0 +1,49 @@
+{
+  "SM_MarshwardWaymarker_01": {
+    "dimensions_cm": [
+      180.0,
+      140.0,
+      520.0
+    ],
+    "triangles": 352,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "bounds_min_cm": [
+      -90.0,
+      -70.0,
+      0.0
+    ],
+    "bounds_max_cm": [
+      90.0,
+      70.0,
+      520.0
+    ],
+    "pivot_cm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "materials": [
+      "M_MarshwardGreyboxMarker"
+    ],
+    "collision_boxes": [
+      {
+        "dimensions_cm": [
+          120,
+          100,
+          440
+        ],
+        "center_cm": [
+          0,
+          0,
+          220
+        ],
+        "rotation_deg": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  }
+}

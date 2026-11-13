@@ -95,6 +95,15 @@ basin supports passed; NoCollision is not visual-occlusion proof. See
 `MARSHWARD_LOW_SCRUB.md`. Two-direction walking and south-turn wayfinding
 remain open; do not load the protected Chronicle slot to create a check.
 
+## Carved Waymarkers
+
+The three existing markers now use chamfered stone/paired-face relief,with
+exact original bounds and body collision. During a physical loop check their
+warm silhouette,relief readability and camera room from both directions.
+No new marker or instruction was added; southern-turn wayfinding remains an
+open question. Saved parity and six body/six decorative-clear rays passed,
+but do not certify moving-camera feel. See `MARSHWARD_WAYMARKER.md`.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

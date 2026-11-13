@@ -2,6 +2,16 @@
 
 This file captures project-specific Unreal lessons we want Codex and future-us to remember before making similar changes again.
 
+## Inspect Saved Collision Fields Through Editor Reflection
+
+KBoxElem can expose no Python attributes for center/rotation/extents while
+still supporting `get_editor_property` for those editor-only fields. Use
+that reflected API for numeric parity,not Struct reprs. Classic FBX imported
+the source-zero marker boxes with approximately -180 yaw; compare the new
+saved rotation modulo360 against the retained saved baseline,not assumed
+source-zero. Negative controls must reject real changes in size,center,
+rotation and material without saving their transient edits.
+
 ## Separate Map Loading From Live Collision Review
 
 On November 7 an immediate Causeway load-and-trace submission hit ground at

@@ -198,6 +198,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - one original low broad-leaf scrub on the outer eastern shoulder,with
   reused materials,no collision and preserved walking buffers
   (see [low marsh scrub](Docs/MARSHWARD_LOW_SCRUB.md))
+- carved stone visuals on the three existing Causeway waymarkers,with exact
+  original bounds/collision and no added marker or walking-layout change
+  (see [carved waymarkers](Docs/MARSHWARD_WAYMARKER.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved
