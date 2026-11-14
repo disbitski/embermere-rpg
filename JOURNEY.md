@@ -4130,6 +4130,16 @@ exact body entries and six decorative-clear rays. Settled arrival/return/
 ruin views and normal Human Warrior PIE passed. All45 placements and walking
 geometry remain fixed; physical camera feel and wayfinding remain user checks.
 
+## November 14: Keeping The Return Open
+
+Nine settled eastern-return views covered both shoulders,approaches and
+turns. No concrete blocking issue justified another terrain piece. The scene
+stayed unchanged while a read-only guard added sampled near-edge platform,
+adjacent basin and longitudinal clearance checks. All38 host tests,complete
+Causeway controls and normal Human Warrior PIE passed. Both maps retain
+their hashes. The southern turn still needs an uncoached first-visit walk;
+static review and geometric samples do not replace moving-camera feedback.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

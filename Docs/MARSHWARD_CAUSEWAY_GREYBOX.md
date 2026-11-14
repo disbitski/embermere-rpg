@@ -112,6 +112,12 @@ placements/twelve kit meshes while retaining all previous44 actors. It sits
 outside the eastern return buffer and separate from the bank apron. Fresh
 package/live checks and three original-basin supports passed; physical
 walking/camera acceptance remains open. See `Docs/MARSHWARD_LOW_SCRUB.md`.
+The later eastern-return review retained all content again and added15
+near-edge/center platform supports,10 adjacent basin supports within the
+existing buffer and24 sampled clearance rays without replacing original
+checks. Nine shoulder/turn poses and coverage limits are in
+`Docs/MARSHWARD_RETURN_SHOULDERS.md`; sampled rays are not physical camera
+or full-width sweep acceptance.
 To recreate the map, build the original greybox kit/map first, then import
 and place the separate marsh assets; keep commandlet import and initialized
 editor placement separate.

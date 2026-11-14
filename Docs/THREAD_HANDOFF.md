@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-13
+Last updated: 2026-11-14
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,21 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 14 Handoff
+
+Eastern-return shoulder/turn review inspected nine settled static views and
+retained content unchanged. New read-only sampled guard requires15 exact
+EastReturn supports,10 BasinCatch supports and24 clear longitudinal rays,
+without actor ignores or mutations.38 host checks,complete Causeway579
+support/1104 clearance plus all previous guards and normal Human Warrior
+PIE passed/stopped. Fresh133 discovery only; no new package/native/Fenwatch
+run. November13 package/Fenwatch and November9 full-native evidence remain
+authoritative. Same initialized editor is All Saved outside PIE on Causeway,
+dirty[],real MCP8123,no review Python errors. Both maps/protected hashes are
+unchanged;45 placements/12 installed types/13 validated packages. Physical
+walking,camera room and first-visit turn recognition remain open. See
+`Docs/MARSHWARD_RETURN_SHOULDERS.md` and `Docs/DAILY_BUILD_2026-11-14.md`.
 
 ## November 13 Handoff
 

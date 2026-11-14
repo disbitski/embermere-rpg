@@ -6,6 +6,19 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 14 eastern-return review: nine fresh static shoulder/turn views
+  found no concrete reason to retune terrain. All45 placements,12 installed
+  types/13 validated packages,support,buffers and both map hashes are fixed.
+  New read-only guard supplements the complete suite with **15 platform/
+  10 basin supports and24 sampled clearance rays**; it does not certify
+  exhaustive width or moving-camera feel. **38 host checks**,full579 support/
+  1104 clearance plus all earlier Causeway controls and normal1280x754 Human
+  Warrior picker/PIE passed and stopped. Discovery133 only; no new native,
+  Fenwatch suite or fresh package run. November13 package/Fenwatch and
+  November9 full-native evidence remain authoritative. Same settled editor,
+  Causeway All Saved outside PIE,real MCP8123,dirty[],no review Python errors;
+  protected hashes unchanged. Physical walking/wayfinding/camera remain open.
+  See `Docs/MARSHWARD_RETURN_SHOULDERS.md` and `Docs/DAILY_BUILD_2026-11-14.md`.
 - November 13 carved waymarkers: original Blender352-triangle stone detail
   replaces only three existing marker mesh paths. Exact180x140x520 bounds,
   one120x100x440 box atZ220 with saved rotation,one UV,reused warm material;

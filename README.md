@@ -201,6 +201,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - carved stone visuals on the three existing Causeway waymarkers,with exact
   original bounds/collision and no added marker or walking-layout change
   (see [carved waymarkers](Docs/MARSHWARD_WAYMARKER.md))
+- read-only sampled return-shoulder support/clearance guards alongside the
+  full Causeway loop checks,with physical walking and wayfinding still open
+  (see [return review](Docs/MARSHWARD_RETURN_SHOULDERS.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved

@@ -104,6 +104,16 @@ No new marker or instruction was added; southern-turn wayfinding remains an
 open question. Saved parity and six body/six decorative-clear rays passed,
 but do not certify moving-camera feel. See `MARSHWARD_WAYMARKER.md`.
 
+## Return Shoulders
+
+The eastern-return static review retained terrain unchanged. New sampled
+near-edge/platform and basin-height guards passed alongside the full loop
+suite; they do not prove exhaustive width or moving-camera clearance. On a
+real walk,check both directions,original route-edge depth,ramp joins and
+first-visit southern-turn recognition. Do not infer an off-route climb or
+walking surface from the decorative apron. Exact review poses and limits:
+`MARSHWARD_RETURN_SHOULDERS.md`.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.
