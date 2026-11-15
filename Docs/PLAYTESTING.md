@@ -114,6 +114,16 @@ first-visit southern-turn recognition. Do not infer an off-route climb or
 walking surface from the decorative apron. Exact review poses and limits:
 `MARSHWARD_RETURN_SHOULDERS.md`.
 
+## Integrated Loop Follow-Up
+
+The refreshed integrated review with carved markers and current foliage
+retained all content. Eight static crossing/ruin/ramp/connector/arrival views
+and the complete Causeway suite passed; the latest PIE attempt stopped at
+the picker,not HUD. During a real loop,check the close return-marker camera
+room,reverse ramp joins and uncoached southern-turn recognition. Neither
+static views nor native collision samples close these gates. Exact evidence:
+`MARSHWARD_LOOP_REVIEW.md`, integrated review dated2026-11-15.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

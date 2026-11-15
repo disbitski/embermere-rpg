@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-14
+Last updated: 2026-11-15
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,21 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 15 Handoff
+
+Integrated eight-view crossing/ruin/ramp/return-marker/connector/arrival
+review retained all content unchanged.38 host checks and full Causeway579
+support/1104 clearance plus every earlier guard passed with fresh markers.
+Normal1280x754 PIE reached Human Warrior picker and stopped; synthetic
+confirmation did not advance,so no new HUD/physical-walk claim. Discovery133
+only,no restart/build/import/package/native/Fenwatch rerun. November13
+package/Fenwatch and November9 full-native evidence remain authoritative.
+Causeway is All Saved outside PIE on real MCP8123,dirty[],no review Python
+errors. Both maps/protected hashes and45 placements/12 installed types/13
+validated packages are unchanged. Physical walking,turn recognition,ramp
+feel and close-marker camera room remain open. See
+`Docs/MARSHWARD_LOOP_REVIEW.md` and `Docs/DAILY_BUILD_2026-11-15.md`.
 
 ## November 14 Handoff
 

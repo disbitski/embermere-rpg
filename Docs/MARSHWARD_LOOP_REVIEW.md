@@ -56,6 +56,68 @@ remains `f781f2922a2749b824cbcdc27d371947ef1a63ad7c9e20da45da40e7d820dab6`,
 All Saved outside PIE on real MCP8123. No source, asset, collision, material,
 startup-map, quest, combat, inventory, service or save owner changed.
 
+## Integrated Review: 2026-11-15
+
+Revisit the loop with the carved markers,foundation courses,fallen masonry,
+taller reeds and low scrub now installed. No voluntary physical traversal
+feedback was supplied. Preserve all45 static placements,12 installed mesh
+types/13 validated packages,original22 roles,PlayerStart,walking supports,
+full-width corridors plus75 cm,basin-only wet peat,materials and lighting.
+This review changes documentation only,not content or regression behavior.
+
+Eight fresh viewport-only captures used settled actual editor cameras with
+the identical explicit capture transform,roll0 and confirmed FOV90. These
+are static normal-height editor poses,not a continuous player-camera walk.
+
+| View | Position | Pitch / Yaw | Observation |
+| --- | --- | --- | --- |
+| Crossing reverse | (0,2800,360) | -5 / -90 | Pale deck meets the arrival island; carved arrival marker remains separate from the center approach. |
+| Crossing north | (0,3900,360) | -5 / 90 | Pillars and broken lintel frame the destination; existing cover and shoulder stonework leave the approach open. |
+| Ruin reverse | (0,6200,360) | -5 / -90 | Raised crossing leads back toward the arrival marker; banks and reeds remain beside the deck. |
+| Ruin toward ramp | (850,6400,360) | -8 / 0 | The ramp joins the lower return; warm return marker stays to the side of the connection. |
+| Ramp reverse approach | (2400,6400,260) | -3 / 180 | Ramp rises toward the ruin; foundation courses and cover remain outside the clear approach. |
+| Return marker approach | (2700,4700,260) | -5 / 90 | Close marker occupies part of the side view while the ramp remains visible; moving-camera comfort is not established by this still. |
+| Connector toward arrival | (1700,0,260) | -5 / 180 | Same-color connected ground leads toward the arrival marker and crossing entrance; turn recognition remains a player question. |
+| Arrival toward crossing | (250,500,260) | -5 / 90 | Offset approach retains the pale crossing and forward ruin silhouette,with banks/reeds beside rather than across it. |
+
+No concrete blocking,grounding or framing defect in these stills warrants
+moving art,adding density or changing support geometry. Retain the scene.
+The shoulder marker can dominate a close static view; this is a targeted
+camera-room question,not evidence to move its accepted bounds/collision.
+The plain platform edges and same-color southern turn remain blockout
+limitations,not permission for a speculative marker or apparently walkable
+decorative surface across the120 cm basin drop.
+
+### Refreshed Evidence
+
+All38 focused host checks passed. The existing settled editor passed the
+complete Causeway suite with fresh November15 markers:579 support/1104
+clearance,positive marker,six banks,twelve stone/twelve underlying-ground,
+nine basin/two apron joins,six foundation/six adjacent-footing,two masonry/
+two adjacent-footing,nine landmark/three arrival-ground,six tall-reed/three
+scrub,six marker-body/six decorative-clear,and15 platform/10 basin/24 sampled
+return-clearance controls. No tolerance changed. Only the pre-existing rock
+underlying-ground diagnostics ignore their own cluster. Neither collision
+rays nor these stills certify NoCollision foliage visibility while moving.
+
+Normal1280x754 floating PIE reached the Human Warrior picker and stopped.
+A synthetic Slate click returned success but did not advance the observed
+picker; do not claim a new HUD,character-confirmation or physical walk check.
+The accepted November14 HUD evidence remains separate. No creation fix or
+forced gameplay state was attempted. Fresh native discovery lists133 tests,
+not another full native run. Blender MCP inspection was healthy on
+MarshwardWaymarker; no model or source changed.
+
+No restart,build,import,package commandlet or Fenwatch live rerun was needed.
+November13 fresh Causeway/Fenwatch package and all16 Fenwatch live evidence
+remain authoritative; November9 retains the full133/133 native run.
+Snapshot `/tmp/embermere-nov15-integrated-review-editor.log` contains fresh
+complete-suite markers,`INTEGRATED_REVIEW_FINAL_DIRTY []` and the correct
+Causeway world,with no November15 review Python errors. Causeway remains
+All Saved outside PIE on real MCP8123. Both maps and protected user files
+retain their hashes; Causeway remains
+`84b82b523129ccf31d089c57e4847e1451e7eb83aa70245c053ae134173d2edb`.
+
 ## Physical Gates
 
 Walk the whole loop in both directions, including a first-visit approach to

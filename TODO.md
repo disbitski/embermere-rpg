@@ -6,6 +6,18 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 15 integrated loop review: eight fresh static crossing,ruin,
+  ramp,marker,connector and offset-arrival views found no concrete content
+  retune. All45 placements,12 installed types/13 validated packages and
+  both map hashes remain fixed. **38 host checks** and complete579 support/
+  1104 clearance plus all earlier Causeway guards passed. Normal1280x754
+  PIE reached Human Warrior picker and stopped; synthetic confirmation did
+  not advance,so no new HUD or physical-walk claim. Discovery133 only;
+  November13 package/Fenwatch and November9 full-native evidence remain
+  authoritative. Same editor,Causeway All Saved outside PIE,dirty[],real
+  MCP8123,no review Python errors; protected hashes unchanged. Physical
+  two-direction walking,turn recognition,ramp/marker camera room stay open.
+  See `Docs/MARSHWARD_LOOP_REVIEW.md` and `Docs/DAILY_BUILD_2026-11-15.md`.
 - November 14 eastern-return review: nine fresh static shoulder/turn views
   found no concrete reason to retune terrain. All45 placements,12 installed
   types/13 validated packages,support,buffers and both map hashes are fixed.

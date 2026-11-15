@@ -4140,6 +4140,16 @@ Causeway controls and normal Human Warrior PIE passed. Both maps retain
 their hashes. The southern turn still needs an uncoached first-visit walk;
 static review and geometric samples do not replace moving-camera feedback.
 
+## November 15: Reviewing The Loop As A Whole
+
+Eight fresh static views revisited crossing,ruin,ramp,return marker,southern
+connector and arrival with the newer art installed. No concrete defect
+justified moving art or changing support geometry.38 host checks and the
+complete Causeway live suite passed. Normal floating PIE reached the picker
+and stopped; synthetic confirmation did not advance,so no new HUD or walk
+claim. Both maps remain unchanged. First-visit turn recognition,moving ramp
+feel and close-marker camera room still need an actual player walk.
+
 ## Principles
 
 - Make the first slice playable before making it huge.
