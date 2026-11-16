@@ -1,0 +1,71 @@
+{
+  "SM_MarshwardRockyBank_01": {
+    "dimensions_cm": [
+      2200.0,
+      400.0,
+      650.0
+    ],
+    "triangles": 68,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "collision_hulls": 1,
+    "materials": [
+      "M_MarshwardMarshStone",
+      "M_MarshwardMoss"
+    ],
+    "pivot_cm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "crest_samples_cm": [
+      [
+        -650,
+        0,
+        420
+      ],
+      [
+        -100,
+        0,
+        650
+      ],
+      [
+        400,
+        0,
+        540
+      ]
+    ],
+    "ground_samples_cm": [
+      [
+        -650,
+        -230,
+        0
+      ],
+      [
+        -650,
+        230,
+        0
+      ],
+      [
+        -100,
+        -230,
+        0
+      ],
+      [
+        -100,
+        230,
+        0
+      ],
+      [
+        400,
+        -230,
+        0
+      ],
+      [
+        400,
+        230,
+        0
+      ]
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-15
+Last updated: 2026-11-16
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,23 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 16 Handoff
+
+One independent68-triangle rocky ridge now occupies the distant west basin
+at(-3850,3300,-120),yaw90,unit BlockAll,with one UV/convex hull and reused
+stone/moss. All prior45 actor properties retained; current Causeway46 static
+placements/13 installed types/14 validated mesh packages.42 host checks,
+fresh import,separate Fenwatch31-package/Causeway package gates,all16 final
+Fenwatch suites and full Causeway579/1104 plus three crest/six adjacent basin
+controls passed. An earlier package launch lacked explicit process-down
+proof; only the fully GUI-down repeat is accepted. Settled approach/arrival/
+ruin/return views and normal Human Warrior HUD/PIE passed and stopped.
+Discovery133 only; November9 full-native evidence remains authoritative.
+Causeway All Saved outside PIE,dirty[],real MCP8123,no Python errors;
+Fenwatch/protected hashes unchanged. Physical walking,camera room and
+wayfinding remain open; the ridge is not a finished boundary. See
+`Docs/MARSHWARD_ROCKY_BANK.md` and `Docs/DAILY_BUILD_2026-11-16.md`.
 
 ## November 15 Handoff
 

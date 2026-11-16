@@ -6,6 +6,20 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 16 rocky bank: one independent Blender68-triangle tapered ridge
+  with one UV/convex hull and reused stone/moss now sits behind the western
+  peat banks. Only one actor added; all prior45 properties,original22,
+  support,buffers,PlayerStart and basin-only wet peat retained. Causeway is
+  **46 placements/13 installed types/14 validated mesh packages**. **42 host
+  checks**,fresh import,separate Fenwatch31-package and Causeway gates passed,
+  true exit zero/no Python errors. Final clean editor passed all16 Fenwatch
+  suites,complete579 support/1104 clearance/all earlier guards plus **three
+  crest/six adjacent basin** controls. Settled approach/arrival/ruin/return
+  views and normal1280x754 Human Warrior HUD/PIE passed and stopped. Fresh133
+  discovery only; November9 full-native evidence retained. Causeway All
+  Saved outside PIE,dirty[],real MCP8123; Fenwatch/protected hashes exact.
+  Physical walking/camera/wayfinding stay open. See
+  `Docs/MARSHWARD_ROCKY_BANK.md` and `Docs/DAILY_BUILD_2026-11-16.md`.
 - November 15 integrated loop review: eight fresh static crossing,ruin,
   ramp,marker,connector and offset-arrival views found no concrete content
   retune. All45 placements,12 installed types/13 validated packages and

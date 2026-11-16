@@ -4150,6 +4150,18 @@ and stopped; synthetic confirmation did not advance,so no new HUD or walk
 claim. Both maps remain unchanged. First-visit turn recognition,moving ramp
 feel and close-marker camera room still need an actual player walk.
 
+## November 16: A Rocky Shape Beyond The Peat
+
+Fresh western views informed one tapered distant ridge rather than more
+small rocks near the path. Blender MCP built a closed68-triangle source
+with reused stone/moss and one purposeful hull. Only one western actor was
+added; all45 preceding properties and the full walking loop remain intact.
+42 host checks,fresh import/package gates,all16 Fenwatch live suites and
+complete Causeway controls passed,including three crest/six adjacent basin
+probes. Settled approach/arrival/ruin/return stills and normal Human Warrior
+PIE passed and stopped. This adds a backdrop,not a finished map boundary;
+physical walking,camera room and wayfinding remain player checks.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

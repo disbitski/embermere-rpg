@@ -124,6 +124,16 @@ room,reverse ramp joins and uncoached southern-turn recognition. Neither
 static views nor native collision samples close these gates. Exact evidence:
 `MARSHWARD_LOOP_REVIEW.md`, integrated review dated2026-11-15.
 
+## Distant Rocky Bank
+
+One tapered rocky ridge now sits behind the western peat banks,leaving all
+preceding actor properties and the walking loop intact. Check its backdrop
+role from the crossing and arrival without treating it as another route or
+a finished boundary. Automatic bounds,three crest/six adjacent-ground and
+full route checks passed; physical walking/camera feel remain open. See
+`MARSHWARD_ROCKY_BANK.md`. Causeway now has46 static placements/13 installed
+imported types; Fenwatch counts remain separate.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

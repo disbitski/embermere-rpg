@@ -30,10 +30,16 @@ future destination but do not imply an exit, dungeon, or quest.
 The original marker asset remains unchanged and validated. The three saved
 Waymarker roles now explicitly use the separately validated carved variant,
 with exact bounds and body-box parity. All actor transforms/profiles/material
-paths and the original layout manifest stay fixed. Current gate validates13
+paths and the original layout manifest stay fixed. That adoption validated13
 mesh packages including the retained original marker,with12 installed imported
 mesh types and45 static placements. See `Docs/MARSHWARD_WAYMARKER.md` for
 the deliberate role-path contract,negative controls and live collision gates.
+
+The later distant rocky-bank addition brings the current gate to14 validated
+mesh packages,13 installed imported types and46 static placements. The marker
+parity contract remains unchanged; every preceding45 actor property stays
+fixed. See `Docs/MARSHWARD_ROCKY_BANK.md` for the isolated western backdrop,
+full-width exclusion and three crest/six adjacent-ground controls.
 
 Each mesh has one UV channel, triangulated closed geometry and zero
 non-manifold edges. A single project-owned stone material serves the span

@@ -1,5 +1,15 @@
 # Marshward Marsh Terrain
 
+## Distant Rocky Bank
+
+One independent68-triangle tapered ridge sits behind the western peat banks,
+reusing stone/moss with one convex hull and no walking-layout change. All
+prior45 actor properties remain intact; current Causeway is46 placements,
+13 installed imported types/14 validated packages including the retained old
+marker. New three crest/six adjacent-ground probes supplement every earlier
+route guard. This is off-route presentation,not a finished boundary; see
+`Docs/MARSHWARD_ROCKY_BANK.md`.
+
 ## Low Scrub Accent
 
 One original 540-triangle broad-leaf scrub occupies the outer east shoulder,

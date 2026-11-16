@@ -81,6 +81,15 @@ material paths remain intact. One warm material is reused. Fresh package
 and four isolated negative controls protect parity; six body/six decorative-
 clear rays protect live collision. See `Docs/MARSHWARD_WAYMARKER.md`.
 
+### Distant Rocky Bank
+
+The68-triangle tapered western ridge is an independent source/FBX/package,
+2200x400x650 cm,one UV and one authored convex hull. Existing stone/moss
+materials remain unchanged. One off-route actor preserves all prior45
+properties; current Causeway46 placements/13 installed imported types and14
+validated packages. Source/import/package/live proofs are in
+`Docs/MARSHWARD_ROCKY_BANK.md`; this is not a finished playable boundary.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process

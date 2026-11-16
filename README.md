@@ -204,6 +204,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - read-only sampled return-shoulder support/clearance guards alongside the
   full Causeway loop checks,with physical walking and wayfinding still open
   (see [return review](Docs/MARSHWARD_RETURN_SHOULDERS.md))
+- one original tapered rocky-bank backdrop behind the western peat banks,
+  with reused stone/moss,one convex hull and the walking loop unchanged
+  (see [distant rocky bank](Docs/MARSHWARD_ROCKY_BANK.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved

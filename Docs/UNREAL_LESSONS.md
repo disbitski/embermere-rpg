@@ -72,6 +72,12 @@ the user.
 
 ## Mac Commandlet Console Teardown Can Hang After Success
 
+Releasing MCP8123 does not prove the real editor process has exited. A
+graceful Slate close can release the port while process teardown continues.
+Gate the next commandlet or launcher on both process-down and port-free
+results; do not merely print those checks and launch regardless. Repeat
+validation after a proven shutdown if that prerequisite was missed.
+
 On October 29 a GUI-down `UnrealEditor -ExecutePythonScript` package run
 emitted all 31 exact success markers, then stayed in
 `FMacConsoleOutputDevice::DestroyConsole` after `QUIT_EDITOR`. Its exit was
