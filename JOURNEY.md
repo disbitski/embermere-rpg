@@ -4162,6 +4162,17 @@ probes. Settled approach/arrival/ruin/return stills and normal Human Warrior
 PIE passed and stopped. This adds a backdrop,not a finished map boundary;
 physical walking,camera room and wayfinding remain player checks.
 
+## November 17: Broken Timber Beside The Crossing
+
+A fresh deck-side view informed one compact scatter between the inner banks.
+Blender MCP built three separate fractured timbers with existing timber/moss,
+one UV and no collision. Only one basin actor was added; all46 preceding
+properties and the walking loop remain intact.46 host checks,fresh import/
+package gates,all16 Fenwatch live suites and complete Causeway controls passed,
+including three unfiltered original-basin probes. Deck/return/arrival stills
+and normal Human Warrior PIE passed and stopped. The short pieces are debris,
+not another bridge; physical walking,camera room and wayfinding remain open.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

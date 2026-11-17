@@ -134,6 +134,16 @@ full route checks passed; physical walking/camera feel remain open. See
 `MARSHWARD_ROCKY_BANK.md`. Causeway now has46 static placements/13 installed
 imported types; Fenwatch counts remain separate.
 
+## Fallen Timber
+
+One small three-piece broken-timber scatter now occupies the inner basin,
+NoCollision and well away from both paths. Check from both walking directions
+that it reads as debris rather than another crossing. Saved bounds/material
+and three unfiltered basin-support controls passed with the full route suite;
+static views do not replace physical wayfinding/camera acceptance. See
+`MARSHWARD_TIMBER_DEBRIS.md`. Causeway47 static placements/14 installed types;
+Fenwatch and the protected Chronicle slot remain separate and unchanged.
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

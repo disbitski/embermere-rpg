@@ -1,0 +1,40 @@
+{
+  "SM_MarshwardTimberDebris_01": {
+    "dimensions_cm": [
+      380.0,
+      260.0,
+      30.0
+    ],
+    "triangles": 84,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "closed_pieces": 3,
+    "collision_hulls": 0,
+    "materials": [
+      "M_EmbermereTimber",
+      "M_MarshwardMoss"
+    ],
+    "pivot_cm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "base_samples_cm": [
+      [
+        -10.69729559358027,
+        -95.15876083486951,
+        0.0
+      ],
+      [
+        53.594651470957935,
+        -9.471182851760762,
+        0.0
+      ],
+      [
+        103.59949918782098,
+        90.49765812853279,
+        0.0
+      ]
+    ]
+  }
+}

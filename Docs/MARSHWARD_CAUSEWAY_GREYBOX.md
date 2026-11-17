@@ -35,11 +35,17 @@ mesh packages including the retained original marker,with12 installed imported
 mesh types and45 static placements. See `Docs/MARSHWARD_WAYMARKER.md` for
 the deliberate role-path contract,negative controls and live collision gates.
 
-The later distant rocky-bank addition brings the current gate to14 validated
+The later distant rocky-bank addition brought the gate to14 validated
 mesh packages,13 installed imported types and46 static placements. The marker
 parity contract remains unchanged; every preceding45 actor property stays
 fixed. See `Docs/MARSHWARD_ROCKY_BANK.md` for the isolated western backdrop,
 full-width exclusion and three crest/six adjacent-ground controls.
+
+The decorative fallen-timber addition brings the current gate to15 validated
+mesh packages,14 installed imported types and47 static placements. All prior
+46 actor properties and original walking supports stay fixed. The single
+NoCollision scatter has no support role and does not connect paths; see
+`Docs/MARSHWARD_TIMBER_DEBRIS.md` for exact bounds/material/grounding checks.
 
 Each mesh has one UV channel, triangulated closed geometry and zero
 non-manifold edges. A single project-owned stone material serves the span

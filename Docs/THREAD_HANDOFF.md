@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-16
+Last updated: 2026-11-17
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,22 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 17 Handoff
+
+One original84-triangle three-piece timber scatter now sits on the inner
+basin at(1200,3300,-120),yaw0,unit NoCollision. One UV,no hulls,reused
+PrototypeVillage timber/marsh moss. Every preceding46 actor property and
+original support/buffer/landmark remains intact; current Causeway47 placements/
+14 installed types/15 validated packages.46 host checks,fresh classic-FBX,
+separate Fenwatch31-package/Causeway gates,all16 final Fenwatch live suites
+and full Causeway579/1104 plus three new unfiltered original-basin supports
+passed. Settled deck/return/arrival views and normal Human Warrior HUD/PIE
+passed and stopped. Discovery133 only; November9 full-native evidence remains
+authoritative. Causeway All Saved outside PIE,dirty[],real MCP8123,no Python
+errors; Fenwatch/protected hashes/reused timber bytes exact. Physical walking,
+camera and wayfinding stay open; fragments are not a new crossing. See
+`Docs/MARSHWARD_TIMBER_DEBRIS.md` and `Docs/DAILY_BUILD_2026-11-17.md`.
 
 ## November 16 Handoff
 

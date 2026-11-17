@@ -207,6 +207,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - one original tapered rocky-bank backdrop behind the western peat banks,
   with reused stone/moss,one convex hull and the walking loop unchanged
   (see [distant rocky bank](Docs/MARSHWARD_ROCKY_BANK.md))
+- one original three-piece fallen-timber scatter on the inner basin floor,
+  with reused materials,no collision and no new crossing or support role
+  (see [fallen timber](Docs/MARSHWARD_TIMBER_DEBRIS.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved

@@ -19,11 +19,12 @@ class RockyBankTests(unittest.TestCase):
         self.assertEqual(spec['crest_samples_cm'],[[-650,0,420],[-100,0,650],[400,0,540]])
         self.assertEqual(spec['ground_samples_cm'],[[x,y,0] for x in (-650,-100,400) for y in (-230,230)])
 
-    def test_only_one_appended_role_preserves_preceding_rows(self):
+    def test_one_rocky_bank_role_preserves_preceding_rows(self):
         rows = json.loads((ROOT/'MarshwardMarsh/placements.json').read_text())['placements']
-        self.assertEqual(len(rows),24)
-        self.assertEqual(rows[-1],['RockyBankWest','RockyBank',[-3850,3300,-120],90,[1,1,1]])
-        before = json.dumps(rows[:-1],separators=(',',':')).encode()
+        self.assertEqual(len(rows),25)
+        self.assertEqual([row for row in rows if row[1]=='RockyBank'],
+                         [['RockyBankWest','RockyBank',[-3850,3300,-120],90,[1,1,1]]])
+        before = json.dumps(rows[:23],separators=(',',':')).encode()
         self.assertEqual(hashlib.sha256(before).hexdigest(),'aa422519d6fb9f53a8b9820c696b939395d80d4592a4be51926e682ca6b00ec2')
 
     def test_bounds_ground_and_existing_bank_separation(self):

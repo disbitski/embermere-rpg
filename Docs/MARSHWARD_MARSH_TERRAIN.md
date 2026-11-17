@@ -1,5 +1,15 @@
 # Marshward Marsh Terrain
 
+## Decorative Fallen Timber
+
+One original84-triangle three-piece scatter sits on the inner basin floor,
+NoCollision and separate from both routes. Existing timber/moss materials
+and all preceding46 actor properties remain unchanged. Current Causeway is
+47 placements/14 installed imported types/15 validated packages including
+the retained old marker. Three unfiltered original-basin controls supplement
+all earlier guards; this is debris,not another crossing. See
+`Docs/MARSHWARD_TIMBER_DEBRIS.md`.
+
 ## Distant Rocky Bank
 
 One independent68-triangle tapered ridge sits behind the western peat banks,

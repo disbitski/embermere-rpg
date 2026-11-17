@@ -90,6 +90,15 @@ properties; current Causeway46 placements/13 installed imported types and14
 validated packages. Source/import/package/live proofs are in
 `Docs/MARSHWARD_ROCKY_BANK.md`; this is not a finished playable boundary.
 
+### Fallen Timber
+
+The independent84-triangle debris source has three closed broken timbers,
+one UV,no hulls and a base-center pivot. Exact saved PrototypeVillage timber
+and marsh moss paths are reused without edits. One NoCollision basin scatter
+retains all preceding46 actor properties; current Causeway47 placements/
+14 installed types/15 validated packages. Source/import/package/live proof
+is in `Docs/MARSHWARD_TIMBER_DEBRIS.md`; no walking support is added.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process

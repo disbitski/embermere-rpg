@@ -6,6 +6,20 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 17 fallen timber: one independent Blender84-triangle scatter
+  with three closed pieces,one UV,no hulls and reused timber/moss sits on
+  the inner basin,NoCollision. Prior46 actor properties,original22 roles,
+  support,buffers,PlayerStart and wet peat retained. Causeway **47 placements/
+  14 installed types/15 validated mesh packages**. **46 host checks**,fresh
+  import,separate Fenwatch31-package and Causeway gates passed,true exit zero/
+  no Python errors. Final clean editor passed all16 Fenwatch suites,complete
+  579 support/1104 clearance/all earlier guards plus **three unfiltered
+  debris-base basin** supports. Deck/return/arrival views and normal1280x754
+  Human Warrior HUD/PIE passed and stopped. Discovery133 only; November9
+  full-native evidence retained. Causeway All Saved outside PIE,dirty[],real
+  MCP8123; Fenwatch/protected hashes and timber material unchanged. Physical
+  walking/camera/wayfinding stay open. See `Docs/MARSHWARD_TIMBER_DEBRIS.md`
+  and `Docs/DAILY_BUILD_2026-11-17.md`.
 - November 16 rocky bank: one independent Blender68-triangle tapered ridge
   with one UV/convex hull and reused stone/moss now sits behind the western
   peat banks. Only one actor added; all prior45 properties,original22,
