@@ -4173,6 +4173,16 @@ including three unfiltered original-basin probes. Deck/return/arrival stills
 and normal Human Warrior PIE passed and stopped. The short pieces are debris,
 not another bridge; physical walking,camera room and wayfinding remain open.
 
+## November 18: Two Posts Below The Crossing
+
+The inner south basin gained two chipped, mismatched timber posts with moss
+at their feet. The pair stands apart from the pale deck, not as a bridge,
+route marker or place to interact. Blender MCP produced an independent
+120-triangle mesh and Unreal reused the existing timber and moss. All
+previous actors and the walking loop stayed fixed. The package, footing,
+route and normal PIE checks passed; physical camera and wayfinding remain
+separate player checks.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

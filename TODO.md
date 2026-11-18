@@ -6,6 +6,18 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 18 mooring posts: one independent 120-triangle Blender pair, one
+  UV, no hulls, reused timber/moss. One NoCollision actor on the inner south
+  basin retains all preceding 47 properties, original 22 roles, support,
+  buffers and basin-only wet peat. Causeway **48 placements / 15 installed
+  types / 16 validated packages**. **50 host checks**, fresh classic-FBX,
+  separate Fenwatch 31-package and Causeway gates passed. Final editor
+  passed all 16 Fenwatch suites, Causeway 579 support / 1,104 clearance and
+  prior controls plus two unfiltered post-foot basin hits. Three settled
+  views and normal Human Warrior PIE passed and stopped. Discovery 133
+  only. Causeway All Saved outside PIE; Fenwatch/protected hashes unchanged.
+  Physical walk/camera/wayfinding remain open. See
+  `Docs/MARSHWARD_MOORING_POSTS.md` and `Docs/DAILY_BUILD_2026-11-18.md`.
 - November 17 fallen timber: one independent Blender84-triangle scatter
   with three closed pieces,one UV,no hulls and reused timber/moss sits on
   the inner basin,NoCollision. Prior46 actor properties,original22 roles,

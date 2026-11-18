@@ -144,6 +144,14 @@ static views do not replace physical wayfinding/camera acceptance. See
 `MARSHWARD_TIMBER_DEBRIS.md`. Causeway47 static placements/14 installed types;
 Fenwatch and the protected Chronicle slot remain separate and unchanged.
 
+## Mooring Posts
+
+Look across the inner south basin from the crossing and east return. The two
+freestanding posts should read as abandoned dressing, not a turn marker,
+dock or interaction point. Neither post occupies the walking loop. Package
+bounds checks and two basin-footing rays are not a moving-camera test.
+See [Mooring Posts](MARSHWARD_MOORING_POSTS.md).
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

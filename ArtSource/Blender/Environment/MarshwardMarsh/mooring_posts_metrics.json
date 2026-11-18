@@ -1,0 +1,35 @@
+{
+  "SM_MarshwardMooringPosts_01": {
+    "dimensions_cm": [
+      280.0,
+      190.0,
+      235.0
+    ],
+    "triangles": 120,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "closed_pieces": 2,
+    "collision_hulls": 0,
+    "materials": [
+      "M_EmbermereTimber",
+      "M_MarshwardMoss"
+    ],
+    "pivot_cm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "base_samples_cm": [
+      [
+        -95.96708917055814,
+        -63.862876254180605,
+        0.0
+      ],
+      [
+        97.05047809650877,
+        59.414715719063544,
+        0.0
+      ]
+    ]
+  }
+}

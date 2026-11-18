@@ -41,11 +41,17 @@ parity contract remains unchanged; every preceding45 actor property stays
 fixed. See `Docs/MARSHWARD_ROCKY_BANK.md` for the isolated western backdrop,
 full-width exclusion and three crest/six adjacent-ground controls.
 
-The decorative fallen-timber addition brings the current gate to15 validated
+The decorative fallen-timber addition brought the gate to15 validated
 mesh packages,14 installed imported types and47 static placements. All prior
 46 actor properties and original walking supports stay fixed. The single
 NoCollision scatter has no support role and does not connect paths; see
 `Docs/MARSHWARD_TIMBER_DEBRIS.md` for exact bounds/material/grounding checks.
+
+The current gate covers 16 validated mesh packages, 15 installed imported
+types and 48 static placements after adding one NoCollision pair of mooring
+posts to the inner south basin. All previous 47 actors retain their properties.
+The posts are decorative; the basin remains the only ground beneath them.
+See `Docs/MARSHWARD_MOORING_POSTS.md`.
 
 Each mesh has one UV channel, triangulated closed geometry and zero
 non-manifold edges. A single project-owned stone material serves the span

@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-17
+Last updated: 2026-11-18
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,20 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 18 Handoff
+
+One original Blender mooring-post pair sits at (900,1750,-120), yaw 0, unit
+scale, NoCollision. The 120-triangle mesh has one UV channel, no hulls and
+unchanged reused timber/moss. All prior 47 static actor properties and
+walking support/buffers remain intact. 50 host checks, fresh import, separate
+Fenwatch 31-package/Causeway gates, all 16 Fenwatch live suites, and complete
+Causeway checks plus two post-foot basin probes passed. Cross-deck, return
+and arrival stills and normal Human Warrior PIE passed. Causeway has 48
+placements / 15 installed imported types / 16 validated packages and is
+All Saved, outside PIE, with no dirty packages. No protected bytes changed.
+Physical walking and camera acceptance remain open. See
+`Docs/MARSHWARD_MOORING_POSTS.md` and `Docs/DAILY_BUILD_2026-11-18.md`.
 
 ## November 17 Handoff
 

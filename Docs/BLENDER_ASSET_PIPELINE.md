@@ -99,6 +99,14 @@ retains all preceding46 actor properties; current Causeway47 placements/
 14 installed types/15 validated packages. Source/import/package/live proof
 is in `Docs/MARSHWARD_TIMBER_DEBRIS.md`; no walking support is added.
 
+### Mooring Posts
+
+The isolated Blender MCP builder exports a 120-triangle post pair with one
+UV channel, a base-center pivot and no hulls. Use factory startup with the
+headless transport so the source is independent of the active Blender file.
+The classic FBX import assigns the existing PrototypeVillage timber and
+marsh moss; neither package is resaved. See `Docs/MARSHWARD_MOORING_POSTS.md`.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process

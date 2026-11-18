@@ -28,9 +28,10 @@ class TimberDebrisTests(unittest.TestCase):
 
     def test_only_one_appended_role_preserves_all_prior_rows(self):
         rows = json.loads((ROOT/'MarshwardMarsh/placements.json').read_text())['placements']
-        self.assertEqual(len(rows),25)
-        self.assertEqual(rows[-1],['TimberDebrisInner','TimberDebris',[1200,3300,-120],0,[1,1,1]])
-        self.assertEqual(hashlib.sha256(json.dumps(rows[:-1],separators=(',',':')).encode()).hexdigest(),
+        self.assertEqual(len(rows),26)
+        self.assertEqual([row for row in rows if row[1]=='TimberDebris'],
+                         [['TimberDebrisInner','TimberDebris',[1200,3300,-120],0,[1,1,1]]])
+        self.assertEqual(hashlib.sha256(json.dumps(rows[:24],separators=(',',':')).encode()).hexdigest(),
                          '7b765b46c28ee14c813435ead466feb52f631a8224f9a8db3002e8e99a40d2b0')
 
     def test_visible_bounds_leave_banks_and_full_corridors_separate(self):

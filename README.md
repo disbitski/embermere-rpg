@@ -210,6 +210,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - one original three-piece fallen-timber scatter on the inner basin floor,
   with reused materials,no collision and no new crossing or support role
   (see [fallen timber](Docs/MARSHWARD_TIMBER_DEBRIS.md))
+- a pair of original weathered mooring posts on the inner south basin,
+  with reused timber and moss, no collision, and no new path or interaction
+  (see [mooring posts](Docs/MARSHWARD_MOORING_POSTS.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved
