@@ -152,6 +152,14 @@ dock or interaction point. Neither post occupies the walking loop. Package
 bounds checks and two basin-footing rays are not a moving-camera test.
 See [Mooring Posts](MARSHWARD_MOORING_POSTS.md).
 
+## Western Tree
+
+From the raised crossing, look west between the peat banks. A single
+leafless tree sits in front of the rocky ridge. Check it from both walking
+directions while keeping the deck and ruin in view. It should read as
+distant scenery rather than an obstacle or invitation to leave the deck.
+See [Marshward Dead Tree](MARSHWARD_DEAD_TREE.md).
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

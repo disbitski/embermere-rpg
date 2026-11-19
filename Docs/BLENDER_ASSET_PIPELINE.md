@@ -107,6 +107,14 @@ headless transport so the source is independent of the active Blender file.
 The classic FBX import assigns the existing PrototypeVillage timber and
 marsh moss; neither package is resaved. See `Docs/MARSHWARD_MOORING_POSTS.md`.
 
+### Dead Marsh Tree
+
+The independent dead-tree source uses open-face branch joins, one UV and
+no hulls. The builder verifies one connected manifold component and rejects
+overlaps between triangles that do not share a vertex. The single Unreal
+placement guards the full crown bounds, not only the trunk, and probes the
+offset foot against the existing basin. See `Docs/MARSHWARD_DEAD_TREE.md`.
+
 ### Skeletal Material Preparation
 
 The Fenwatch rig import scripts now require a fresh Unreal `-NullRHI` process

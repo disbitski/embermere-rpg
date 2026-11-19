@@ -213,6 +213,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - a pair of original weathered mooring posts on the inner south basin,
   with reused timber and moss, no collision, and no new path or interaction
   (see [mooring posts](Docs/MARSHWARD_MOORING_POSTS.md))
+- an original leafless tree between the west peat banks, with no collision
+  and the whole crown clear of the walking routes
+  (see [Marshward dead tree](Docs/MARSHWARD_DEAD_TREE.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved

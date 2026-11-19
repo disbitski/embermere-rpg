@@ -30,9 +30,9 @@ class MooringPostsTests(unittest.TestCase):
 
     def test_only_one_new_role_keeps_all_25_prior_placements(self):
         rows = json.loads((SOURCE/'placements.json').read_text())['placements']
-        self.assertEqual(len(rows), 26)
-        self.assertEqual(rows[-1], ['MooringPostsInnerSouth','MooringPosts',[900,1750,-120],0,[1,1,1]])
-        self.assertEqual(sum(row[1]=='MooringPosts' for row in rows), 1)
+        self.assertEqual(len(rows), 27)
+        self.assertEqual([row for row in rows if row[1]=='MooringPosts'],
+                         [['MooringPostsInnerSouth','MooringPosts',[900,1750,-120],0,[1,1,1]]])
         before = json.dumps(rows[:25], separators=(',',':')).encode()
         self.assertEqual(hashlib.sha256(before).hexdigest(),
                          '79cdf3ab199fbc90278b9760eb7e05d84f39e06d0180b91aedf3eafaed92a850')

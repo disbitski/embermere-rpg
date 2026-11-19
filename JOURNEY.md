@@ -4183,6 +4183,14 @@ previous actors and the walking loop stayed fixed. The package, footing,
 route and normal PIE checks passed; physical camera and wayfinding remain
 separate player checks.
 
+## November 19: A Western Snag
+
+Two crossing views found a break between the west peat banks. One leafless
+tree now sits against the rocky ridge. The original Blender mesh joins each
+branch into the trunk, with no collision and no change to the walking loop.
+The saved package, full crown bounds, basin beneath the foot and normal PIE
+were verified. Physical navigation and moving-camera feel remain open.
+
 ## Principles
 
 - Make the first slice playable before making it huge.

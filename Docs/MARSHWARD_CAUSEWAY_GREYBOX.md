@@ -47,11 +47,17 @@ mesh packages,14 installed imported types and47 static placements. All prior
 NoCollision scatter has no support role and does not connect paths; see
 `Docs/MARSHWARD_TIMBER_DEBRIS.md` for exact bounds/material/grounding checks.
 
-The current gate covers 16 validated mesh packages, 15 installed imported
+The mooring-post addition brought the gate to 16 validated mesh packages, 15 installed imported
 types and 48 static placements after adding one NoCollision pair of mooring
 posts to the inner south basin. All previous 47 actors retain their properties.
 The posts are decorative; the basin remains the only ground beneath them.
 See `Docs/MARSHWARD_MOORING_POSTS.md`.
+
+The current gate covers 17 validated mesh packages, 16 installed imported
+types and 49 static placements. The NoCollision dead tree fits between the
+west peat banks: the full crown clears the walking buffer, and the trunk
+foot is over the original basin. All preceding 48 actors are unchanged.
+See `Docs/MARSHWARD_DEAD_TREE.md`.
 
 Each mesh has one UV channel, triangulated closed geometry and zero
 non-manifold edges. A single project-owned stone material serves the span

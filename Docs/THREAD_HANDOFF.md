@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-18
+Last updated: 2026-11-19
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,18 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 19 Handoff
+
+The western basin has one independent Blender dead tree: 720x500x800 cm,
+260 triangles, one manifold component, one UV, and no hulls. Its single
+NoCollision actor at (-2850,3350,-120) stays off the routes and away from
+existing dressing. All 48 preceding placements and their properties, the
+full buffers, support and basin-only wet peat remain intact. 54 host checks,
+fresh import and saved-package gates, all 16 Fenwatch live suites, full
+Causeway plus the trunk-foot basin ray, and normal Human Warrior PIE passed.
+Causeway is All Saved outside PIE. See `Docs/MARSHWARD_DEAD_TREE.md` and
+`Docs/DAILY_BUILD_2026-11-19.md`; physical walking and camera feel remain open.
 
 ## November 18 Handoff
 

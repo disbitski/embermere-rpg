@@ -6,6 +6,17 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 19 dead tree: original 260-triangle closed Blender snag, one UV,
+  no hulls, reused earth/timber/moss. One NoCollision western basin actor
+  clear of the full walking buffers; all preceding 48 properties retained.
+  Causeway **49 placements / 16 installed types / 17 validated packages**.
+  **54 host checks**, fresh FBX, separate Fenwatch 31-package/Causeway package
+  gates, all 16 Fenwatch suites and full Causeway 579/1,104 plus a new
+  unfiltered trunk-foot basin probe passed. Two crossing views, three arrival
+  views and normal Human Warrior PIE passed and stopped; 133 native tests
+  discovered only. All Saved outside PIE; protected files, Fenwatch and
+  reused materials unchanged. See `Docs/MARSHWARD_DEAD_TREE.md` and
+  `Docs/DAILY_BUILD_2026-11-19.md`. Physical camera and walking remain open.
 - November 18 mooring posts: one independent 120-triangle Blender pair, one
   UV, no hulls, reused timber/moss. One NoCollision actor on the inner south
   basin retains all preceding 47 properties, original 22 roles, support,

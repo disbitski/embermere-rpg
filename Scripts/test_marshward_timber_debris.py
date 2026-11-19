@@ -28,7 +28,7 @@ class TimberDebrisTests(unittest.TestCase):
 
     def test_only_one_appended_role_preserves_all_prior_rows(self):
         rows = json.loads((ROOT/'MarshwardMarsh/placements.json').read_text())['placements']
-        self.assertEqual(len(rows),26)
+        self.assertEqual(len(rows),27)
         self.assertEqual([row for row in rows if row[1]=='TimberDebris'],
                          [['TimberDebrisInner','TimberDebris',[1200,3300,-120],0,[1,1,1]]])
         self.assertEqual(hashlib.sha256(json.dumps(rows[:24],separators=(',',':')).encode()).hexdigest(),
