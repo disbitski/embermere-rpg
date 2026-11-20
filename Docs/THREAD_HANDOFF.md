@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-19
+Last updated: 2026-11-20
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,16 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 20 Handoff
+
+The western tree has one separate nearby peat-and-sedge tussock at
+(-2290,3480,-120), yaw 0. Its 240x170x72 cm bounds leave 80 cm from
+the crown AABB; all prior 49 actors and the walking loop are unchanged.
+58 host checks, separate package gates, live suites and normal PIE passed.
+Causeway is All Saved outside PIE. See `Docs/MARSHWARD_WEST_TUSSOCK.md`
+and `Docs/DAILY_BUILD_2026-11-20.md` for verification and remaining physical
+camera and wayfinding checks.
 
 ## November 19 Handoff
 

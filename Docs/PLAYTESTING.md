@@ -160,6 +160,11 @@ directions while keeping the deck and ruin in view. It should read as
 distant scenery rather than an obstacle or invitation to leave the deck.
 See [Marshward Dead Tree](MARSHWARD_DEAD_TREE.md).
 
+The small sedge clump on its crossing side should read as part of the peat,
+not a trail marker. From the deck in both directions, check that it stays
+low in the scene and that the tree and ruin still read separately. See
+[Western Marsh Tussock](MARSHWARD_WEST_TUSSOCK.md).
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

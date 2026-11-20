@@ -23,15 +23,17 @@ def validate_dressing(actors):
     metrics.update(json.loads((SOURCE/'timber_debris_metrics.json').read_text()))
     metrics.update(json.loads((SOURCE/'mooring_posts_metrics.json').read_text()))
     metrics.update(json.loads((SOURCE/'dead_tree_metrics.json').read_text()))
+    metrics.update(json.loads((SOURCE/'west_tussock_metrics.json').read_text()))
     hull_counts = {'SM_MarshwardPeatBerm_01':1,'SM_MarshwardPeatShelf_01':1,
                    'SM_MarshwardReedClump_01':0,'SM_MarshwardRockCluster_01':3,
                    'SM_MarshwardBankEdge_01':0,'SM_MarshwardFoundation_01':3,
                    'SM_MarshwardFallenMasonry_01':2,'SM_MarshwardTallReeds_01':0,
                    'SM_MarshwardLowScrub_01':0,'SM_MarshwardRockyBank_01':1,
                    'SM_MarshwardTimberDebris_01':0,'SM_MarshwardMooringPosts_01':0,
-                   'SM_MarshwardDeadTree_01':0}
+                   'SM_MarshwardDeadTree_01':0,'SM_MarshwardWestTussock_01':0}
     timber_reusers = {'SM_MarshwardTimberDebris_01','SM_MarshwardMooringPosts_01','SM_MarshwardDeadTree_01'}
-    visual_origin_z = {'SM_MarshwardMooringPosts_01':117.5,'SM_MarshwardDeadTree_01':400}
+    visual_origin_z = {'SM_MarshwardMooringPosts_01':117.5,'SM_MarshwardDeadTree_01':400,
+                       'SM_MarshwardWestTussock_01':36}
     assert set(metrics)==set(hull_counts)
     for name,spec in metrics.items():
         mesh = unreal.load_asset(DEST+'/'+name)
@@ -73,7 +75,7 @@ def validate_dressing(actors):
     assert data['buffer_cm']==75
     overlaps = runpy.run_path(str(ROOT/'Scripts/marshward_route_clearance.py'))['overlaps_corridor']
     owned = {a.get_actor_label():a for a in actors if 'EmbermereMarshwardMarsh' in [str(t) for t in a.tags]}
-    assert len(owned)==len(data['placements'])==27
+    assert len(owned)==len(data['placements'])==28
     for label,kind,pos,yaw,scale in data['placements']:
         actor = owned['Marshward_'+label]
         assert isinstance(actor,unreal.StaticMeshActor)
@@ -91,18 +93,18 @@ def validate_dressing(actors):
         assert str(component.get_collision_profile_name())==expected_profile
         expected_enabled = unreal.CollisionEnabled.QUERY_AND_PHYSICS if solid else unreal.CollisionEnabled.NO_COLLISION
         assert component.get_collision_enabled()==expected_enabled
-        if kind in ('Foundation','FallenMasonry','TallReeds','LowScrub','RockyBank','TimberDebris','MooringPosts','DeadTree'):
+        if kind in ('Foundation','FallenMasonry','TallReeds','LowScrub','RockyBank','TimberDebris','MooringPosts','DeadTree','WestTussock'):
             assert list(component.get_materials())==[slot.material_interface for slot in component.static_mesh.get_editor_property('static_materials')]
         center,extent = actor.get_actor_bounds(False)
         for start,end,width in zip(route,route[1:],data['corridor_half_widths_cm']):
             assert not overlaps((center.x,center.y),(extent.x,extent.y),start,end,width,data['buffer_cm']), label+' intrudes on route'
-        if kind in ('MooringPosts','DeadTree'):
+        if kind in ('MooringPosts','DeadTree','WestTussock'):
             for other in owned.values():
                 if other != actor:
                     other_center,other_extent = other.get_actor_bounds(False)
                     assert (abs(center.x-other_center.x)>extent.x+other_extent.x or
                             abs(center.y-other_center.y)>extent.y+other_extent.y), other.get_actor_label()
-    unreal.log('EMBERMERE_MARSHWARD_MARSH_PACKAGE_SUCCESS: 13 meshes, 4 berms, 2 shelves, 6 original reeds, 2 tall sparse reeds, 4 rock clusters, 1 decorative bank edge, 2 foundation courses, 1 fallen-masonry scatter, 1 low scrub, 1 distant rocky bank, 1 decorative timber scatter, 1 decorative mooring-post pair, 1 decorative dead tree, full-width corridors plus 75 cm clear')
+    unreal.log('EMBERMERE_MARSHWARD_MARSH_PACKAGE_SUCCESS: 14 meshes, 4 berms, 2 shelves, 6 original reeds, 2 tall sparse reeds, 4 rock clusters, 1 decorative bank edge, 2 foundation courses, 1 fallen-masonry scatter, 1 low scrub, 1 distant rocky bank, 1 decorative timber scatter, 1 decorative mooring-post pair, 1 decorative dead tree, 1 decorative west tussock, full-width corridors plus 75 cm clear')
 
 
 def main():

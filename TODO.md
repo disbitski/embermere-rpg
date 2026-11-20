@@ -6,6 +6,16 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 20 western tussock: one low 304-triangle Blender peat cushion
+  with nine blades, reused materials and no collision, separated from the
+  tree and banks. All 49 preceding actor properties retained. Causeway
+  **50 placements / 17 installed types / 18 validated packages**. **58 host
+  checks**, fresh import and separate Fenwatch/Causeway package gates, all
+  16 Fenwatch live suites and complete Causeway 579/1,104 plus three new
+  original-basin footing rays passed. Four settled views and normal Human
+  Warrior PIE passed and stopped. Discovery 133 only; All Saved outside PIE.
+  Fenwatch and protected files unchanged. Physical walk/camera remain open.
+  See `Docs/MARSHWARD_WEST_TUSSOCK.md` and `Docs/DAILY_BUILD_2026-11-20.md`.
 - November 19 dead tree: original 260-triangle closed Blender snag, one UV,
   no hulls, reused earth/timber/moss. One NoCollision western basin actor
   clear of the full walking buffers; all preceding 48 properties retained.

@@ -216,6 +216,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - an original leafless tree between the west peat banks, with no collision
   and the whole crown clear of the walking routes
   (see [Marshward dead tree](Docs/MARSHWARD_DEAD_TREE.md))
+- one low sedge tussock near the western tree, grounded on the original
+  basin and clear of the tree and walking loop
+  (see [western marsh tussock](Docs/MARSHWARD_WEST_TUSSOCK.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved

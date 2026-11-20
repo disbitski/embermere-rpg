@@ -1,0 +1,41 @@
+{
+  "SM_MarshwardWestTussock_01": {
+    "dimensions_cm": [
+      240.0,
+      170.0,
+      72.0
+    ],
+    "triangles": 304,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "closed_pieces": 10,
+    "collision_hulls": 0,
+    "materials": [
+      "M_MarshwardPeat",
+      "M_MarshwardMoss",
+      "M_MarshwardReedGreen"
+    ],
+    "pivot_cm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "foot_samples_cm": [
+      [
+        -79.13336412400609,
+        -26.41568416119447,
+        0.0
+      ],
+      [
+        -8.014305508289631,
+        28.871155263971744,
+        0.0
+      ],
+      [
+        72.95200737729527,
+        -23.22605880974257,
+        0.0
+      ]
+    ]
+  }
+}

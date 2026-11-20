@@ -28,6 +28,7 @@
     ["RockyBankWest", "RockyBank", [-3850,3300,-120], 90, [1,1,1]],
     ["TimberDebrisInner", "TimberDebris", [1200,3300,-120], 0, [1,1,1]],
     ["MooringPostsInnerSouth", "MooringPosts", [900,1750,-120], 0, [1,1,1]],
-    ["DeadTreeWest", "DeadTree", [-2850,3350,-120], 0, [1,1,1]]
+    ["DeadTreeWest", "DeadTree", [-2850,3350,-120], 0, [1,1,1]],
+    ["WestTussock", "WestTussock", [-2290,3480,-120], 0, [1,1,1]]
   ]
 }

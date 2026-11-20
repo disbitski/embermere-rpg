@@ -53,11 +53,16 @@ posts to the inner south basin. All previous 47 actors retain their properties.
 The posts are decorative; the basin remains the only ground beneath them.
 See `Docs/MARSHWARD_MOORING_POSTS.md`.
 
-The current gate covers 17 validated mesh packages, 16 installed imported
+The western tree raised the gate to 17 validated mesh packages, 16 installed imported
 types and 49 static placements. The NoCollision dead tree fits between the
 west peat banks: the full crown clears the walking buffer, and the trunk
 foot is over the original basin. All preceding 48 actors are unchanged.
 See `Docs/MARSHWARD_DEAD_TREE.md`.
+
+The current gate covers 18 validated mesh packages, 17 installed imported
+types and 50 static placements, including one NoCollision peat tussock on
+the crossing side of the western tree. The tree and all preceding actors
+retain their properties. See `Docs/MARSHWARD_WEST_TUSSOCK.md`.
 
 Each mesh has one UV channel, triangulated closed geometry and zero
 non-manifold edges. A single project-owned stone material serves the span
