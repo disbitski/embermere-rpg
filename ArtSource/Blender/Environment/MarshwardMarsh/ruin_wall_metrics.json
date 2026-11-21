@@ -1,0 +1,105 @@
+{
+  "SM_MarshwardRuinWall_01": {
+    "dimensions_cm": [
+      900.0,
+      220.0,
+      420.0
+    ],
+    "triangles": 540,
+    "uv_channels": 1,
+    "non_manifold_edges": 0,
+    "stone_count": 9,
+    "collision_hulls": 3,
+    "materials": [
+      "M_MarshwardMarshStone",
+      "M_MarshwardMoss"
+    ],
+    "pivot_cm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "cores_cm": [
+      [
+        -425,
+        423,
+        82,
+        0,
+        122
+      ],
+      [
+        -317,
+        312,
+        70,
+        122,
+        244
+      ],
+      [
+        -152,
+        178,
+        57,
+        244,
+        333
+      ]
+    ],
+    "crest_samples_cm": [
+      [
+        -390,
+        0,
+        122
+      ],
+      [
+        -230,
+        0,
+        244
+      ],
+      [
+        0,
+        0,
+        333
+      ]
+    ],
+    "ground_samples_cm": [
+      [
+        -390,
+        -160,
+        0
+      ],
+      [
+        -390,
+        160,
+        0
+      ],
+      [
+        0,
+        -160,
+        0
+      ],
+      [
+        0,
+        160,
+        0
+      ],
+      [
+        390,
+        -160,
+        0
+      ],
+      [
+        390,
+        160,
+        0
+      ]
+    ],
+    "air_samples_cm": [
+      [
+        -390,
+        210
+      ],
+      [
+        390,
+        210
+      ]
+    ]
+  }
+}

@@ -219,6 +219,9 @@ The repo currently contains the C++ gameplay scaffold for:
 - one low sedge tussock near the western tree, grounded on the original
   basin and clear of the tree and walking loop
   (see [western marsh tussock](Docs/MARSHWARD_WEST_TUSSOCK.md))
+- one detached ruin-wall fragment on the northeast basin, clear of the
+  broken lintel sightline and east ramp
+  (see [Marshward ruin wall](Docs/MARSHWARD_RUIN_WALL.md))
 - the first original rigged enemy, `SK_EmbermereMarshProwler_01`, with
   deterministic Blender source, 7,464 triangles, 26 authored bones, five
   swamp-fantasy materials, six imported animations, three validated saved

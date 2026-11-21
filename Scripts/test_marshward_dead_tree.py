@@ -31,7 +31,7 @@ class DeadTreeTests(unittest.TestCase):
 
     def test_only_one_appended_role_keeps_all_prior_dressing_rows(self):
         rows = self.data['placements']
-        self.assertEqual(len(rows), 28)
+        self.assertEqual(len(rows), 29)
         self.assertEqual(self.tree, ['DeadTreeWest','DeadTree',[-2850,3350,-120],0,[1,1,1]])
         before = json.dumps(rows[:26], separators=(',',':')).encode()
         self.assertEqual(hashlib.sha256(before).hexdigest(),

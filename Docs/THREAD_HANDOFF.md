@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-20
+Last updated: 2026-11-21
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,17 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## November 21 Handoff
+
+One BlockAll ruin-wall fragment stands at (1900,7600,-120), outside the
+island and protected corridors. Nine chamfered stones and three inset
+cores reuse marsh stone and moss. All prior 50 actors are unchanged.
+Host tests, fresh package checks, Fenwatch and Causeway live suites and
+normal PIE passed. Arrival, crossing and east return stills retain the
+main opening and descent. Causeway is All Saved outside PIE. See
+`Docs/MARSHWARD_RUIN_WALL.md` and `Docs/DAILY_BUILD_2026-11-21.md`; physical
+walking and camera checks remain open.
 
 ## November 20 Handoff
 

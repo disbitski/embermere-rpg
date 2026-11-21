@@ -6,6 +6,15 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 21 ruin wall: one 540-triangle detached Blender fragment with
+  nine stones, one UV, three inset simple hulls and existing stone/moss.
+  All prior 50 actor properties and walking buffers remain fixed. Causeway
+  **51 placements / 18 installed types / 19 validated packages**. **62 host
+  checks**, fresh FBX and separate package gates, 16 Fenwatch live suites
+  and full Causeway 579/1,104 plus 3 crest / 6 basin / 2 open shoulder
+  rays passed. Seven settled views and Human Warrior PIE passed. All Saved
+  outside PIE; 133 native tests discovered only. Protected files unchanged.
+  See `Docs/MARSHWARD_RUIN_WALL.md` and `Docs/DAILY_BUILD_2026-11-21.md`.
 - November 20 western tussock: one low 304-triangle Blender peat cushion
   with nine blades, reused materials and no collision, separated from the
   tree and banks. All 49 preceding actor properties retained. Causeway

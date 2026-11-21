@@ -165,6 +165,14 @@ not a trail marker. From the deck in both directions, check that it stays
 low in the scene and that the tree and ruin still read separately. See
 [Western Marsh Tussock](MARSHWARD_WEST_TUSSOCK.md).
 
+## Detached Ruin Wall
+
+On the north approach, check that the two pillars and broken lintel still
+define the main ruin. The low stone fragment sits out on the northeast
+basin. From the ruin and east return it should read as separate masonry,
+not a gate or an invitation to leave the loop. See
+[Marshward Ruin Wall](MARSHWARD_RUIN_WALL.md).
+
 ## Before Pressing Play
 
 1. Open `/Game/Maps/L_Embermere_Prototype`.

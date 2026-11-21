@@ -32,11 +32,11 @@ def main():
         actor.set_folder_path('MarshwardGreybox/MarshTerrain')
         component = actor.get_component_by_class(unreal.StaticMeshComponent)
         assert component.set_static_mesh(mesh)
-        component.set_collision_profile_name('BlockAll' if kind in ('PeatBerm','PeatShelf','RockCluster','Foundation','FallenMasonry','RockyBank') else 'NoCollision')
+        component.set_collision_profile_name('BlockAll' if kind in ('PeatBerm','PeatShelf','RockCluster','Foundation','FallenMasonry','RockyBank','RuinWall') else 'NoCollision')
     validator = runpy.run_path(str(ROOT/'Scripts/validate_marshward_marsh_unreal.py'))
     validator['validate_dressing'](list(subsystem.get_all_level_actors()))
     assert unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level()
-    unreal.log('EMBERMERE_MARSHWARD_MARSH_PLACEMENT_SUCCESS: 4 berms, 2 shelves, 6 original reeds, 2 tall sparse reeds, 4 rock clusters, 1 decorative bank edge, 2 foundation courses, 1 fallen-masonry scatter, 1 low scrub, 1 distant rocky bank, 1 decorative timber scatter, 1 decorative mooring-post pair, 1 decorative dead tree, 1 decorative west tussock, full walking corridors protected')
+    unreal.log('EMBERMERE_MARSHWARD_MARSH_PLACEMENT_SUCCESS: 4 berms, 2 shelves, 6 original reeds, 2 tall sparse reeds, 4 rock clusters, 1 decorative bank edge, 2 foundation courses, 1 fallen-masonry scatter, 1 low scrub, 1 distant rocky bank, 1 decorative timber scatter, 1 decorative mooring-post pair, 1 decorative dead tree, 1 decorative west tussock, 1 detached ruin wall, full walking corridors protected')
 
 
 if __name__ == '__main__':
