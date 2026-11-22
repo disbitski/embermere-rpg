@@ -6,6 +6,13 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 22 Causeway budget: read-only inventory of **51 placements**,
+  **9,370 placed LOD0 triangles / 89 sections**, 11 assigned materials, and
+  **20 box / 32 convex** simple shapes on 37 collision-enabled actors.
+  Four fixed-pose CSV probes and one viewport capture control did not
+  produce usable RHI draw or primitive counts. No optimization or content
+  change. **65 host checks** and the full Causeway 579/1,104 route suite
+  plus existing controls passed. See `Docs/MARSHWARD_BUDGET_AUDIT.md`.
 - November 21 ruin wall: one 540-triangle detached Blender fragment with
   nine stones, one UV, three inset simple hulls and existing stone/moss.
   All prior 50 actor properties and walking buffers remain fixed. Causeway

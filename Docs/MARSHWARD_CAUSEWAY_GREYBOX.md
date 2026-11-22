@@ -70,6 +70,10 @@ northeast basin, clear of the main ruin opening and east descent. Its
 three collision cores stay outside the walking buffers and preserve
 every previously placed actor. See `Docs/MARSHWARD_RUIN_WALL.md`.
 
+The [render and collision baseline](MARSHWARD_BUDGET_AUDIT.md) measures these
+51 placements without modifying them. It separates loaded mesh geometry,
+materials and body setup from the editor's frame counters.
+
 Each mesh has one UV channel, triangulated closed geometry and zero
 non-manifold edges. A single project-owned stone material serves the span
 and ramp; the marker uses a contrasting warm material. These are blockout

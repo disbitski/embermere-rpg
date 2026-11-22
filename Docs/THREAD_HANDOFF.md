@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-21
+Last updated: 2026-11-22
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,17 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## Causeway Budget Baseline
+
+The unchanged Causeway has 51 static placements, 9,370 placed Unreal LOD0
+triangles, 89 render sections, 11 effective materials, and 52 simple collision
+shapes on enabled actors. The [budget audit](MARSHWARD_BUDGET_AUDIT.md)
+separates placed and unique counts, excludes the retained unplaced marker
+from installed totals, and records why the editor's zero-valued RHI counters
+were rejected. Do not treat these inventory numbers as frame cost. No art or
+collision was changed. The physical route, camera, and wayfinding checks
+remain open.
 
 ## November 21 Handoff
 
