@@ -34,7 +34,7 @@ class WestTussockTests(unittest.TestCase):
 
     def test_only_one_new_role_keeps_all_prior_dressing_rows(self):
         rows = self.data['placements']
-        self.assertEqual(len(rows),29)
+        self.assertEqual(len(rows),30)
         self.assertEqual(self.tussock,['WestTussock','WestTussock',[-2290,3480,-120],0,[1,1,1]])
         before = json.dumps(rows[:27],separators=(',',':')).encode()
         self.assertEqual(hashlib.sha256(before).hexdigest(),

@@ -46,9 +46,9 @@ def main():
             path = '/Game/Art/Embermere/Environment/MarshwardWaymarker/SM_MarshwardWaymarker_01'
         expected[label] = (pos, (1,1,1), yaw, path + '.' + path.rsplit('/',1)[1])
     meshes = [a for a in actors if isinstance(a, unreal.StaticMeshActor)]
-    assert len(expected) == 22 and len(meshes) == 51
+    assert len(expected) == 22 and len(meshes) == 52
     installed = {a.get_component_by_class(unreal.StaticMeshComponent).static_mesh.get_path_name() for a in meshes}
-    assert '/Engine/BasicShapes/Cube.Cube' in installed and len(installed)==19
+    assert '/Engine/BasicShapes/Cube.Cube' in installed and len(installed)==20
     for label,(pos,scale,yaw,path) in expected.items():
         actor = by_label['Marshward_' + label]
         assert 'EmbermereMarshwardGreybox' in [str(t) for t in actor.tags]
@@ -76,7 +76,7 @@ def main():
     marker['marker_roles']()
     runpy.run_path(str(ROOT/'Scripts/validate_marshward_wet_peat_unreal.py'))['validate_material'](actors)
     assert not unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()
-    unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 19 validated mesh packages including retained greybox marker, 18 installed mesh types, 22 original roles plus 29 terrain/art placements, standalone map, no quest/service/save authority')
+    unreal.log('EMBERMERE_MARSHWARD_PACKAGE_SUCCESS: 20 validated mesh packages including retained greybox marker, 19 installed imported mesh types, 22 original roles plus 30 terrain/art placements, standalone map, no quest/service/save authority')
 
 
 if __name__ == '__main__':

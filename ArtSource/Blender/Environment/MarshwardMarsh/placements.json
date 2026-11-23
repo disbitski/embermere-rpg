@@ -30,6 +30,7 @@
     ["MooringPostsInnerSouth", "MooringPosts", [900,1750,-120], 0, [1,1,1]],
     ["DeadTreeWest", "DeadTree", [-2850,3350,-120], 0, [1,1,1]],
     ["WestTussock", "WestTussock", [-2290,3480,-120], 0, [1,1,1]],
-    ["RuinWallNortheast", "RuinWall", [1900,7600,-120], 0, [1,1,1]]
+    ["RuinWallNortheast", "RuinWall", [1900,7600,-120], 0, [1,1,1]],
+    ["StillPoolWest", "StillPool", [-1320,3340,-118], 0, [1,1,1]]
   ]
 }

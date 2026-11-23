@@ -169,6 +169,7 @@ def main():
     runpy.run_path(str(Path(__file__).with_name('validate_marshward_dead_tree_traces_unreal.py')),run_name='__main__')
     runpy.run_path(str(Path(__file__).with_name('validate_marshward_west_tussock_traces_unreal.py')),run_name='__main__')
     runpy.run_path(str(Path(__file__).with_name('validate_marshward_ruin_wall_traces_unreal.py')),run_name='__main__')
+    runpy.run_path(str(Path(__file__).with_name('validate_marshward_still_pool_unreal.py')),run_name='__main__')
     unreal.log('EMBERMERE_MARSHWARD_LOW_SCRUB_TRACES_SUCCESS: 3 unfiltered basin supports, 1 NoCollision clump, no new support authority')
     unreal.log('EMBERMERE_MARSHWARD_TALL_REEDS_TRACES_SUCCESS: 6 unfiltered basin supports, 2 NoCollision clumps, no new support authority')
     unreal.log('EMBERMERE_MARSHWARD_MASONRY_TRACES_SUCCESS: 2 solid fragment controls, 2 adjacent ruin-island supports at Z120, no ignored actors')

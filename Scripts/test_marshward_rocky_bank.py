@@ -21,7 +21,7 @@ class RockyBankTests(unittest.TestCase):
 
     def test_one_rocky_bank_role_preserves_preceding_rows(self):
         rows = json.loads((ROOT/'MarshwardMarsh/placements.json').read_text())['placements']
-        self.assertEqual(len(rows),29)
+        self.assertEqual(len(rows),30)
         self.assertEqual([row for row in rows if row[1]=='RockyBank'],
                          [['RockyBankWest','RockyBank',[-3850,3300,-120],90,[1,1,1]]])
         before = json.dumps(rows[:23],separators=(',',':')).encode()

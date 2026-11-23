@@ -64,7 +64,7 @@ types and 50 static placements, including one NoCollision peat tussock on
 the crossing side of the western tree. The tree and all preceding actors
 retain their properties. See `Docs/MARSHWARD_WEST_TUSSOCK.md`.
 
-The current gate covers 19 validated mesh packages, 18 installed imported
+The ruin-wall gate covered 19 validated mesh packages, 18 installed imported
 types and 51 static placements. One detached wall fragment stands on the
 northeast basin, clear of the main ruin opening and east descent. Its
 three collision cores stay outside the walking buffers and preserve
@@ -73,6 +73,11 @@ every previously placed actor. See `Docs/MARSHWARD_RUIN_WALL.md`.
 The [render and collision baseline](MARSHWARD_BUDGET_AUDIT.md) measures these
 51 placements without modifying them. It separates loaded mesh geometry,
 materials and body setup from the editor's frame counters.
+
+The [west basin still pool](MARSHWARD_STILL_POOL.md) adds one visual-only
+surface while retaining the original wet-peat catch and walking collision.
+The current gate covers 20 validated mesh packages, 19 installed imported
+mesh types and 52 static placements.
 
 Each mesh has one UV channel, triangulated closed geometry and zero
 non-manifold edges. A single project-owned stone material serves the span

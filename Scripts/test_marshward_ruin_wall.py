@@ -29,9 +29,9 @@ class RuinWallTests(unittest.TestCase):
 
     def test_one_new_role_preserves_every_previous_dressing_row(self):
         rows = self.data['placements']
-        self.assertEqual(len(rows),29)
-        self.assertEqual(rows[-1],['RuinWallNortheast','RuinWall',[1900,7600,-120],0,[1,1,1]])
-        self.assertEqual(self.wall,rows[-1])
+        self.assertEqual(len(rows),30)
+        self.assertEqual(rows[28],['RuinWallNortheast','RuinWall',[1900,7600,-120],0,[1,1,1]])
+        self.assertEqual(self.wall,rows[28])
         before = json.dumps(rows[:28],separators=(',',':')).encode()
         self.assertEqual(hashlib.sha256(before).hexdigest(),
                          '0a0e4c85935fda20903c15bed4dded454ad641e4487e381f4852ad314c6cdcc9')

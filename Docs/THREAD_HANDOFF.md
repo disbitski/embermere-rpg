@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-22
+Last updated: 2026-11-23
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -43,9 +43,19 @@ this snapshot. A new task should read files in this order:
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
 
+## West Basin Still Pool
+
+One strictly visual, flat pool stands 2 cm above the original solid basin
+catch, off the west side of the crossing. All 51 earlier placements remain
+unchanged. The independent Blender mesh and opaque vertex-color material
+preserve the existing wet-peat basin assignment, route support, landmark
+sightlines and absence of swimming, hazards, travel or interaction.
+See the [pool brief and verification](MARSHWARD_STILL_POOL.md) for the
+saved-map and live contracts and the visible near-edge follow-up.
+
 ## Causeway Budget Baseline
 
-The unchanged Causeway has 51 static placements, 9,370 placed Unreal LOD0
+Before the pool, Causeway had 51 static placements, 9,370 placed Unreal LOD0
 triangles, 89 render sections, 11 effective materials, and 52 simple collision
 shapes on enabled actors. The [budget audit](MARSHWARD_BUDGET_AUDIT.md)
 separates placed and unique counts, excludes the retained unplaced marker

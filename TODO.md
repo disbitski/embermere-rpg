@@ -6,6 +6,13 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 23 still pool: one 96-triangle Blender surface with a muddy
+  vertex-color rim, Z=-118 above the original Z=-120 basin and outside all
+  walking buffers. **52 static placements / 19 installed imported meshes /
+  20 validated mesh packages**. **69 host checks**, fresh classic FBX and
+  Causeway package gate, full 579/1,104 live route suite and five original
+  basin first-hits passed. No collision, overlap, nav or gameplay authority
+  added. See `Docs/MARSHWARD_STILL_POOL.md` for the remaining visible edge.
 - November 22 Causeway budget: read-only inventory of **51 placements**,
   **9,370 placed LOD0 triangles / 89 sections**, 11 assigned materials, and
   **20 box / 32 convex** simple shapes on 37 collision-enabled actors.
