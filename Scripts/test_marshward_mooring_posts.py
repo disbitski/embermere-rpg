@@ -30,7 +30,7 @@ class MooringPostsTests(unittest.TestCase):
 
     def test_only_one_new_role_keeps_all_25_prior_placements(self):
         rows = json.loads((SOURCE/'placements.json').read_text())['placements']
-        self.assertEqual(len(rows), 30)
+        self.assertEqual(len(rows), 31)
         self.assertEqual([row for row in rows if row[1]=='MooringPosts'],
                          [['MooringPostsInnerSouth','MooringPosts',[900,1750,-120],0,[1,1,1]]])
         before = json.dumps(rows[:25], separators=(',',':')).encode()

@@ -30,7 +30,7 @@ class WaymarkerTests(unittest.TestCase):
             ['RuinMarker','Waymarker',[-950,6400,120],0],
             ['ReturnMarker','Waymarker',[3000,5300,0],90]])
         dressing = json.loads((ROOT/'MarshwardMarsh/placements.json').read_text())
-        self.assertEqual(len(dressing['placements']),30)
+        self.assertEqual(len(dressing['placements']),31)
         self.assertEqual(dressing['corridor_half_widths_cm'],[600,250,250,400,400,250,300,600,600])
         self.assertEqual(dressing['buffer_cm'],75)
 

@@ -6,6 +6,12 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 24 pool shore: one 92-triangle tapered mud strip softens the
+  crossing-facing edge without moving the pool or changing the basin.
+  **53 placements / 20 installed imported mesh types / 21 validated mesh
+  packages**. **72 host checks**, fresh import and package gate, live
+  579/1,104 route suite and 12 additional basin first hits passed.
+  See `Docs/MARSHWARD_POOL_SHORE.md` for the views and remaining physical checks.
 - November 23 still pool: one 96-triangle Blender surface with a muddy
   vertex-color rim, Z=-118 above the original Z=-120 basin and outside all
   walking buffers. **52 static placements / 19 installed imported meshes /

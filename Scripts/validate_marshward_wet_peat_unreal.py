@@ -10,8 +10,7 @@ DEST = '/Game/Art/Embermere/Environment/MarshwardMarsh'
 NAME = 'M_MarshwardWetPeat'
 
 
-def validate_material(actors):
-    mat = unreal.load_asset(DEST+'/'+NAME)
+def validate_graph(mat):
     assert isinstance(mat, unreal.Material), 'Missing wet peat material'
     assert mat.get_editor_property('blend_mode') == unreal.BlendMode.BLEND_OPAQUE
     assert mat.get_editor_property('material_domain') == unreal.MaterialDomain.MD_SURFACE
@@ -50,6 +49,11 @@ def validate_material(actors):
     for prop in ['MP_NORMAL','MP_WORLD_POSITION_OFFSET','MP_OPACITY',
                  'MP_OPACITY_MASK','MP_EMISSIVE_COLOR']:
         assert not lib.get_material_property_input_node(mat,getattr(unreal.MaterialProperty,prop))
+
+
+def validate_material(actors):
+    mat = unreal.load_asset(DEST+'/'+NAME)
+    validate_graph(mat)
     owners = []
     layout = json.loads((ROOT/'ArtSource/Blender/Environment/MarshwardGreybox/layout.json').read_text())
     materials = {label:family for label,_,_,family in layout['blocks']}

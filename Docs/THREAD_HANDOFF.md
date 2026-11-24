@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-23
+Last updated: 2026-11-24
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -43,6 +43,14 @@ this snapshot. A new task should read files in this order:
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
 
+## West Basin Pool Shore
+
+One tapered visual mud strip softens the crossing-facing rim. Only the
+pool and shore's exact saved roles may overlap; the waterline, basin-only
+wet peat, all 52 preceding roles and their collision are unchanged.
+Saved package, full route and 12 added crest/toe support checks passed.
+See the [shore brief and evidence](MARSHWARD_POOL_SHORE.md).
+
 ## West Basin Still Pool
 
 One strictly visual, flat pool stands 2 cm above the original solid basin
@@ -51,7 +59,7 @@ unchanged. The independent Blender mesh and opaque vertex-color material
 preserve the existing wet-peat basin assignment, route support, landmark
 sightlines and absence of swimming, hazards, travel or interaction.
 See the [pool brief and verification](MARSHWARD_STILL_POOL.md) for the
-saved-map and live contracts and the visible near-edge follow-up.
+saved-map and live contracts for the pool itself.
 
 ## Causeway Budget Baseline
 

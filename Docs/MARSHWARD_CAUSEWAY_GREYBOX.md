@@ -76,8 +76,9 @@ materials and body setup from the editor's frame counters.
 
 The [west basin still pool](MARSHWARD_STILL_POOL.md) adds one visual-only
 surface while retaining the original wet-peat catch and walking collision.
-The current gate covers 20 validated mesh packages, 19 installed imported
-mesh types and 52 static placements.
+The subsequent [visual shore strip](MARSHWARD_POOL_SHORE.md) softens only
+the crossing-facing edge. The current gate covers 21 validated mesh
+packages, 20 installed imported mesh types and 53 static placements.
 
 Each mesh has one UV channel, triangulated closed geometry and zero
 non-manifold edges. A single project-owned stone material serves the span

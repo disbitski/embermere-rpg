@@ -15,13 +15,14 @@ SOURCE = ROOT/'MarshwardMarsh'
 class StillPoolTests(unittest.TestCase):
     def setUp(self):
         self.rows = json.loads((SOURCE/'placements.json').read_text())['placements']
+        self.pool = self.rows[29]
         self.layout = json.loads((ROOT/'MarshwardGreybox/layout.json').read_text())
         self.spec = json.loads((SOURCE/'still_pool_metrics.json').read_text())['SM_MarshwardStillPool_01']
 
     def test_only_one_addition_keeps_the_prior_29_placements(self):
-        self.assertEqual(len(self.rows), 30)
-        self.assertEqual(self.rows[-1], ['StillPoolWest','StillPool',[-1320,3340,-118],0,[1,1,1]])
-        self.assertEqual([row for row in self.rows if row[1] == 'StillPool'], self.rows[-1:])
+        self.assertEqual(len(self.rows), 31)
+        self.assertEqual(self.pool, ['StillPoolWest','StillPool',[-1320,3340,-118],0,[1,1,1]])
+        self.assertEqual([row for row in self.rows if row[1] == 'StillPool'], [self.pool])
         before = json.dumps(self.rows[:29], separators=(',', ':')).encode()
         self.assertEqual(hashlib.sha256(before).hexdigest(),
                          'b1e8a1c61b2153d2e504a6a1ece31fc46fc1d8e03debba7e1f0134118341fce0')
@@ -35,7 +36,7 @@ class StillPoolTests(unittest.TestCase):
                          [96,1,0,0])
         basin, = [b for b in self.layout['blocks'] if b[0] == 'BasinCatch']
         basin_top = basin[1][2]+basin[2][2]/2
-        waterline = self.rows[-1][2][2]
+        waterline = self.pool[2][2]
         self.assertEqual(waterline-basin_top, 2)
         self.assertLess(waterline-self.spec['dimensions_cm'][2], basin_top)
         self.assertLess(waterline, min(p[2] for p in self.layout['route']))
@@ -44,8 +45,8 @@ class StillPoolTests(unittest.TestCase):
         specs = {}
         for path in SOURCE.glob('*metrics.json'):
             specs.update(json.loads(path.read_text()))
-        px,py,_ = self.rows[-1][2]
-        for label,kind,(x,y,_),yaw,(sx,sy,_) in self.rows[:-1]:
+        px,py,_ = self.pool[2]
+        for label,kind,(x,y,_),yaw,(sx,sy,_) in self.rows[:29]:
             width,depth,_ = specs['SM_Marshward'+kind+'_01']['dimensions_cm']
             c,s = (abs(f(math.radians(yaw))) for f in (math.cos,math.sin))
             gap_x = abs(px-x)-420-(width*sx*c+depth*sy*s)/2

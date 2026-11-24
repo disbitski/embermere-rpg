@@ -26,12 +26,18 @@ class CorridorTests(unittest.TestCase):
         metrics.update(json.loads((root/'MarshwardMarsh/west_tussock_metrics.json').read_text()))
         metrics.update(json.loads((root/'MarshwardMarsh/ruin_wall_metrics.json').read_text()))
         metrics.update(json.loads((root/'MarshwardMarsh/still_pool_metrics.json').read_text()))
+        metrics.update(json.loads((root/'MarshwardMarsh/pool_shore_metrics.json').read_text()))
         route = json.loads((root/'MarshwardGreybox/layout.json').read_text())['route']
         for label,kind,pos,yaw,scale in data['placements']:
-            size = metrics['SM_Marshward'+kind+'_01']['dimensions_cm']
+            spec = metrics['SM_Marshward'+kind+'_01']
+            size = spec['dimensions_cm']
             x,y = size[0]*scale[0]/2,size[1]*scale[1]/2
             sine,cosine = abs(math.sin(math.radians(yaw))),abs(math.cos(math.radians(yaw)))
             extent = (x*cosine+y*sine,x*sine+y*cosine)
+            if kind == 'PoolShore':
+                self.assertEqual((yaw,scale),(0,[1,1,1]))
+                x_mid,y_mid = [sum(pair)/2 for pair in spec['bounds_cm'][:2]]
+                pos = (pos[0]+x_mid,pos[1]-y_mid)
             for start,end,width in zip(route,route[1:],data['corridor_half_widths_cm']):
                 self.assertFalse(overlaps_corridor(pos,extent,start,end,width,data['buffer_cm']),label)
 
@@ -70,7 +76,7 @@ class CorridorTests(unittest.TestCase):
         path = Path(__file__).resolve().parents[1]/'ArtSource/Blender/Environment/MarshwardMarsh/placements.json'
         rows = json.loads(path.read_text())['placements']
         rocks = [row for row in rows if row[1]=='RockCluster']
-        self.assertEqual(len(rows),30)
+        self.assertEqual(len(rows),31)
         self.assertEqual([r[0] for r in rocks],['RocksWestNear','RocksInnerSouth','RocksNorthwest','RocksOuterEast'])
         for row in rocks:
             self.assertEqual(row[2][2],-120)

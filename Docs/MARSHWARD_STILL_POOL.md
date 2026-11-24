@@ -39,8 +39,9 @@ Before/after editor views from arrival `(0,-450,260)`, west-facing crossing
 poses. From the crossing the blue-green surface reads separately from the
 peat. At arrival and return it stays low in the background, leaving the
 crossing and ruin markers clear. A short dark line remains visible at the
-near pool edge in the crossing view; any shoreline dressing should address
-that transition without moving the pool or changing the basin floor.
+near pool edge in that initial crossing view. The
+[shore strip](MARSHWARD_POOL_SHORE.md) addresses this without moving the
+pool or changing the basin floor.
 
 The original 51 static placements were compared before and after staging.
 Only the pool was added. It uses `NoCollision` with overlaps, shadow casting

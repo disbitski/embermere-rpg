@@ -26,7 +26,7 @@ class LowScrubTests(unittest.TestCase):
 
     def test_only_one_off_route_role(self):
         data = json.loads((ROOT/'MarshwardMarsh/placements.json').read_text())
-        self.assertEqual(len(data['placements']),30)
+        self.assertEqual(len(data['placements']),31)
         self.assertEqual([r for r in data['placements'] if r[1]=='LowScrub'],
                          [['ScrubEast','LowScrub',[3550,2450,-120],0,[1,1,1]]])
         self.assertEqual(data['corridor_half_widths_cm'],[600,250,250,400,400,250,300,600,600])
