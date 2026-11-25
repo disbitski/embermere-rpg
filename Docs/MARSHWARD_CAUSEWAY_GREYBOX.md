@@ -80,6 +80,10 @@ The subsequent [visual shore strip](MARSHWARD_POOL_SHORE.md) softens only
 the crossing-facing edge. The current gate covers 21 validated mesh
 packages, 20 installed imported mesh types and 53 static placements.
 
+The [distant-vista review](MARSHWARD_DISTANT_VISTA.md) retains this
+composition unchanged; no Oldstone Hollow backdrop or onward route
+has been installed.
+
 Each mesh has one UV channel, triangulated closed geometry and zero
 non-manifold edges. A single project-owned stone material serves the span
 and ramp; the marker uses a contrasting warm material. These are blockout

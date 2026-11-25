@@ -41,6 +41,11 @@ overlook. The overlook should reveal the exit and the next mystery without
 requiring a large dungeon or new traversal system. This remains a layout
 study until the Causeway's route, camera, and return flow are playtested.
 
+The [Causeway distant-vista study](MARSHWARD_DISTANT_VISTA.md) retains
+the existing gateway and separate northeast fragment. It records the
+unfinished north horizon and existing-art reuse options without placing
+a third-zone landmark or promising connected travel.
+
 ## Blender Asset Candidates
 
 Blender MCP is available for original-art work on lighter days. Prioritize one

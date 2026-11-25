@@ -6,6 +6,13 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 25 distant-vista study: six settled arrival/crossing/ruin/return
+  views and existing-art reuse review retained the current gateway and
+  off-axis fragment. **No new backdrop or content change**; Oldstone Hollow
+  is not a visible third destination. All **72 host checks** and the full
+  live **579/1,104** Causeway suite passed; inventory stays at 53 placements.
+  See `Docs/MARSHWARD_DISTANT_VISTA.md`; first-visit route interpretation
+  and moving-camera checks remain open.
 - November 24 pool shore: one 92-triangle tapered mud strip softens the
   crossing-facing edge without moving the pool or changing the basin.
   **53 placements / 20 installed imported mesh types / 21 validated mesh

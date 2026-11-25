@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-24
+Last updated: 2026-11-25
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,15 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## Distant Vista Decision
+
+The [six-view distant-vista study](MARSHWARD_DISTANT_VISTA.md) retains
+the current gateway and northeast wall. Existing low kit pieces do not
+justify a separate remote destination without a later scale and
+wayfinding review. No candidate was placed, no asset or map changed,
+and Oldstone Hollow remains a future concept. Host and initialized
+Causeway checks were refreshed; physical route interpretation is open.
 
 ## West Basin Pool Shore
 
