@@ -84,6 +84,11 @@ The [distant-vista review](MARSHWARD_DISTANT_VISTA.md) retains this
 composition unchanged; no Oldstone Hollow backdrop or onward route
 has been installed.
 
+The [lighting and material audit](MARSHWARD_LIGHTING_REVIEW.md) retains
+the existing sun/skylight setup and measures effective material ownership
+without changing or saving the map. Static readability and physical
+moving-camera contrast remain separate acceptance gates.
+
 Each mesh has one UV channel, triangulated closed geometry and zero
 non-manifold edges. A single project-owned stone material serves the span
 and ramp; the marker uses a contrasting warm material. These are blockout

@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-25
+Last updated: 2026-11-26
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,17 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## Lighting And Material Audit
+
+The [six-view lighting review](MARSHWARD_LIGHTING_REVIEW.md) retained the
+current sun, skylight and atmosphere without content changes. The read-only
+audit reports 2 lights, 13 effective Material assets and 91 actor-slot owners,
+and reuses exact wet-peat/pool/shore graph and ownership guards. All 75 host
+checks and the full initialized Causeway suite passed. Physical contrast,
+moving-camera exposure and wayfinding remain open; the dark unfinished
+horizon is not a diagnosed lighting fault. PIE reached the Human Warrior
+picker and stopped, without a new HUD claim.
 
 ## Distant Vista Decision
 
