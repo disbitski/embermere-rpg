@@ -9,8 +9,9 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 - November 26 lighting review: six settled route views retained the current
   lighting without map or asset changes. A new read-only audit reports
   **2 lights / 13 effective materials / 91 owner slots** and reuses exact
-  wet-peat/pool/shore ownership checks. **75 host tests** and the complete
-  live **579/1,104** Causeway suite passed. PIE reached the Human Warrior
+  wet-peat/pool/shore ownership checks. Boolean slot IDs now reject with a
+  test-first guard while real integer slots remain valid. **77 host tests**
+  and the complete live **579/1,104** Causeway suite passed. PIE reached the Human Warrior
   picker and stopped; no new HUD or physical-walk acceptance. See
   `Docs/MARSHWARD_LIGHTING_REVIEW.md`; moving-camera contrast remains open.
 - November 25 distant-vista study: six settled arrival/crossing/ruin/return

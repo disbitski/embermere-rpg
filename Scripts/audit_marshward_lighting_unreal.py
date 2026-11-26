@@ -11,8 +11,9 @@ MAP = '/Game/Maps/L_MarshwardCauseway_Greybox'
 def material_owners(assignments):
     owners, seen = {}, set()
     for label, slot, path in assignments:
-        if not label or not path or not isinstance(slot, int) or slot < 0:
-            raise ValueError('Expected a named owner, nonnegative slot and material path')
+        # bool subclasses int but is not a material slot identifier.
+        if not label or not path or type(slot) is not int or slot < 0:
+            raise ValueError('Expected a named owner, nonnegative integer slot and material path')
         identity = (label, slot)
         if identity in seen:
             raise ValueError('Duplicate owner slot: '+str(identity))

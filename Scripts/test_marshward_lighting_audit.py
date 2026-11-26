@@ -20,6 +20,18 @@ class LightingAuditTests(unittest.TestCase):
             with self.subTest(row=row), self.assertRaises(ValueError):
                 material_owners([row])
 
+    def test_boolean_slots_are_rejected_but_integer_zero_and_one_remain_valid(self):
+        self.assertEqual(material_owners([('Basin', 0, '/peat'), ('Bank', 1, '/moss')]),
+                         {'/moss': [['Bank', 1]], '/peat': [['Basin', 0]]})
+        for slot in (False, True):
+            with self.subTest(slot=slot), self.assertRaises(ValueError):
+                material_owners([('Basin', slot, '/peat')])
+
+    def test_non_integer_slots_are_rejected_without_coercion(self):
+        for slot in (0.0, 1.0, '0', '1', None):
+            with self.subTest(slot=slot), self.assertRaises(ValueError):
+                material_owners([('Basin', slot, '/peat')])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -48,9 +48,11 @@ this snapshot. A new task should read files in this order:
 The [six-view lighting review](MARSHWARD_LIGHTING_REVIEW.md) retained the
 current sun, skylight and atmosphere without content changes. The read-only
 audit reports 2 lights, 13 effective Material assets and 91 actor-slot owners,
-and reuses exact wet-peat/pool/shore graph and ownership guards. All 75 host
-checks and the full initialized Causeway suite passed. Physical contrast,
-moving-camera exposure and wayfinding remain open; the dark unfinished
+and reuses exact wet-peat/pool/shore graph and ownership guards. Slot IDs now
+reject booleans without coercion, with a red/green regression and preserved
+integer behavior. All 77 host checks and the full initialized Causeway suite
+passed. Physical contrast, moving-camera exposure and wayfinding remain
+open; the dark unfinished
 horizon is not a diagnosed lighting fault. PIE reached the Human Warrior
 picker and stopped, without a new HUD claim.
 

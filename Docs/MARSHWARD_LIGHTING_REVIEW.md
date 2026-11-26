@@ -38,6 +38,10 @@ The read-only `Scripts/audit_marshward_lighting_unreal.py` reports the loaded
 world's light components and effective actor material slots, including
 overrides. It refuses a different map, a running game world, dirty packages,
 ambiguous labels, missing materials and duplicate owner-slot identities.
+Slot identifiers must be nonnegative built-in integers: booleans, floats,
+strings and null values are rejected without coercion. Integer slots 0 and
+1 remain valid; Python's boolean/integer relationship must not merge their
+identities with invalid boolean input.
 
 | Owner | Component | Mobility | Raw intensity | Other saved settings |
 | --- | --- | --- | --- | --- |
@@ -58,9 +62,12 @@ retain their existing assignments. No material is reauthored or resaved.
 
 ## Verification And Limits
 
-All 75 focused host tests passed, including three new ownership-report
-regressions for deterministic grouping, distinct slots and rejected duplicate
-or missing ownership. The updated audit passed in the initialized editor:
+All 77 focused host tests passed, including five ownership-report regressions
+for deterministic grouping, distinct slots, duplicate/missing ownership and
+strict slot types. The boolean rejection regression first failed for both
+False and True against the old integer predicate, then passed with the strict
+type check. Float, string and null rejection and valid integer output remain
+covered. The updated audit passed in the initialized editor:
 
 ```text
 EMBERMERE_MARSHWARD_LIGHTING_AUDIT_SUCCESS: 2 lights, 13 effective materials, 91 owner slots, exact wet-peat/pool/shore ownership, no dirty packages
