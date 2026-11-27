@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-26
+Last updated: 2026-11-27
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,17 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## Asset Quality Evidence
+
+The [source/import quality audit](MARSHWARD_ASSET_QUALITY.md) compares 21
+declared exports from 18 isolated Blender files against loaded mesh packages,
+including the retained old marker. UV counts, finite source UV range, applied
+transforms, local bounds/pivots, material slots/paths, triangle and simple-shape
+counts match. No asset, map or source was changed. All 80 host tests and the
+full Causeway route suite passed. One render LOD per mesh is retained without
+measured need for more; UV packing and physical camera checks
+are not certified by this audit. Picker-only floating PIE started/stopped.
 
 ## Lighting And Material Audit
 

@@ -7,6 +7,14 @@ characters while retaining Fab assets for broad coverage and specialist art.
 
 ## Decision
 
+### Source/Import Quality
+
+The [Causeway asset-quality audit](MARSHWARD_ASSET_QUALITY.md) reads declared
+exports from retained Blender files in a separate headless process, then
+compares the loaded Unreal mesh packages without resaving either side. It
+checks local bounds with the classic-FBX Y reflection, not dimensions alone,
+and keeps donor objects separate from each source's exported asset ownership.
+
 ### Causeway Marsh Assets
 
 The Causeway terrain set uses closed original meshes with explicit collision:

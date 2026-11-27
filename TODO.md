@@ -6,6 +6,13 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 27 asset quality: isolated Blender inspection of **18 source files /
+  21 exports** matches the loaded packages' UVs, local bounds/pivots, triangles,
+  material slots/paths and authored collision counts. All have one LOD;
+  no measured defect justified an asset retune. **80 host checks** and the
+  complete live **579/1,104** route suite passed. Maps/sources unchanged;
+  picker-only PIE stopped. See `Docs/MARSHWARD_ASSET_QUALITY.md` for the
+  reproducible audits and limits on UV/layout, collision and physical proof.
 - November 26 lighting review: six settled route views retained the current
   lighting without map or asset changes. A new read-only audit reports
   **2 lights / 13 effective materials / 91 owner slots** and reuses exact
