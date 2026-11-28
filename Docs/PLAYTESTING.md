@@ -12,6 +12,15 @@ confirmation, do not load/save Chronicle, and do not infer connected travel
 or gameplay progression from this map. The Fenwatch smoke test below remains
 independent and unchanged.
 
+The current 53-placement loop was reviewed in nine static views in both
+directions without a content retune. During an uncoached first walk, note
+where the southern junction appears to lead before comparing it with the
+intended loop; then reverse the route and check the marker-side camera room
+and both ramp joins. NoCollision foliage, the pool and the shore must remain
+visually beside the walking route. The full-width placement and sampled live
+collision gates passed, but do not certify those moving-camera/wayfinding
+questions. See the November 28 section in `MARSHWARD_LOOP_REVIEW.md`.
+
 The first Causeway terrain pass adds six low colliding berms and eight
 non-colliding reed clumps. Check that the crossing and broad return path
 remain visually open, not just collision-clear. The visible-bounds gate

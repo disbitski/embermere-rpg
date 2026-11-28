@@ -1,6 +1,6 @@
 # Embermere New-Thread Handoff
 
-Last updated: 2026-11-27
+Last updated: 2026-11-28
 
 Repository baseline: public `main`; inspect `git log -1` for the current pushed
 handoff commit rather than relying on a self-referential hash in this file.
@@ -42,6 +42,16 @@ this snapshot. A new task should read files in this order:
 19. `Docs/MARSH_PROWLER_ART_BRIEF.md` when creature work is active
 20. `Docs/GROUNDING_AND_TERRAIN_PASS.md` for environment contact/readability
 21. `JOURNEY.md` when historical detail is useful
+
+## Current Loop Review
+
+The [November 28 nine-view review](MARSHWARD_LOOP_REVIEW.md) retains all 53
+placements and current art. The full-width placement contract passed in the
+initialized editor, followed separately by all 579 support / 1,104 clearance
+rays and existing controls. All 80 host checks passed; picker-only floating
+PIE stopped cleanly. This is not fresh-process package or physical walking
+proof. Southern-turn recognition, ramp joins and marker-side moving-camera
+room remain user gates. Both maps and protected files are unchanged.
 
 ## Asset Quality Evidence
 

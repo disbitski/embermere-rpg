@@ -6,6 +6,14 @@ For a fresh Codex task or context reset, read Start Here first, then [Docs/THREA
 
 ## Start Here
 
+- November 28 loop review: **nine settled views** cover arrival, crossing
+  both ways, ruin reverse/east descent, eastern return both ways and the
+  southern connector. No evidenced content retune; **53 placements unchanged**.
+  **80 host checks**, initialized full-width placement contract and full
+  **579/1,104** live route suite passed. Picker-only PIE stopped cleanly;
+  physical turn recognition and moving-camera room remain open. See the
+  November 28 section in `Docs/MARSHWARD_LOOP_REVIEW.md` for exact evidence
+  and the distinction from fresh-process package validation.
 - November 27 asset quality: isolated Blender inspection of **18 source files /
   21 exports** matches the loaded packages' UVs, local bounds/pivots, triangles,
   material slots/paths and authored collision counts. All have one LOD;

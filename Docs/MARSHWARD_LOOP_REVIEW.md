@@ -4,9 +4,10 @@
 
 This is an integrated static-view review of the crossing, ruin island,
 eastern return and southern connector, not another arrival-only check or
-a physical walk. Keep the accepted 41 static placements/eight meshes,
-PlayerStart, support/collision, full-width buffers, basin-only wet peat and
-arrival sightline guard intact. No new content, lighting or gameplay change
+a physical walk. Counts below belong to their dated reviews; the current
+November 28 scene has 53 static placements and 20 installed imported mesh
+types. Keep PlayerStart, support/collision, full-width buffers, basin-only wet
+peat and arrival sightline guard intact. No new content, lighting or gameplay change
 is warranted merely to fill open space.
 
 ## Views: 2026-11-08
@@ -117,6 +118,78 @@ Causeway world,with no November15 review Python errors. Causeway remains
 All Saved outside PIE on real MCP8123. Both maps and protected user files
 retain their hashes; Causeway remains
 `84b82b523129ccf31d089c57e4847e1451e7eb83aa70245c053ae134173d2edb`.
+
+## Integrated Review: 2026-11-28
+
+Revisit the accepted 53-placement scene with the pool/shore, timber, mooring
+posts, western tree/tussock, rocky bank and detached ruin wall now present.
+No voluntary physical walking, camera or first-visit turn feedback was supplied.
+The review retains all actors, sources, mesh/material references, collision,
+lighting, support geometry, PlayerStart and startup/save behavior unchanged.
+
+Nine fresh viewport-only captures used the actual editor camera, numeric
+readback and a settle boundary before the identical explicit capture pose.
+All have roll 0 and confirmed FOV 90; coordinates are centimeters. These are
+static editor views, not a continuous two-direction player-camera walk.
+Editor sprites and grids are not gameplay HUD evidence.
+
+| View | Position | Pitch / Yaw | Observation |
+| --- | --- | --- | --- |
+| Arrival north | (0,-450,260) | -5 / 90 | Pale crossing leads to the broken gateway; the near warm marker remains off the central approach. |
+| Crossing north | (0,3300,360) | -5 / 90 | Two pillars and lintel frame an open landing; low shoulder stonework and reeds remain beside it. |
+| Crossing south | (0,3300,360) | -5 / -90 | Arrival island and marker remain distinct return references; side rocks and posts do not cross the deck. |
+| Ruin reverse | (0,6100,360) | -5 / -90 | The crossing remains open toward arrival; the off-route pool, banks and timber are visually separate in this still. |
+| Ruin to east descent | (1100,6400,360) | -8 / 0 | Pale ramp joins the lower platform; the warm marker stays beside the connection. |
+| East return north | (2700,3600,260) | -5 / 90 | Shoulder marker, ramp and ruin remain visible without an intervening prop in the central lane. |
+| East return south | (2700,3600,260) | -5 / -90 | Broad lane remains open past outer scrub/reeds and inner rocks; the southern turn still lacks a distinct material break. |
+| South connector west | (1700,0,260) | -5 / 180 | Connected ground leads toward the arrival marker and crossing ramp, with the western tree/bank beyond. |
+| South connector east | (100,0,260) | -5 / 0 | Same-color ground joins the return platform; the still does not establish intuitive first-visit turn recognition. |
+
+No concrete blocking or framing defect in these stills warrants moving art,
+adding density, retuning lights or changing marker placement. The dark horizon
+remains unfinished art, not a new destination or a diagnosed lighting fault.
+Physical review should establish whether the plain southern junction is
+understandable without coaching and whether the shoulder marker and ramp
+joins leave comfortable camera room during movement. Do not infer acceptance
+or add a speculative marker from the static review alone.
+
+### Refreshed Full-Width Evidence
+
+All 80 focused host checks passed without new tests or relaxed rules. The
+existing complete validator passed in the initialized editor: 22 original
+roles plus 31 dressing actors, 53 static placements and 21 validated imported
+mesh packages including the retained marker. It rechecks original transforms,
+mesh/profile ownership, all 31 dressing bounds against the nine route segments,
+exact half-widths 600/250/250/400/400/250/300/600/600 cm and the fixed 75 cm
+buffer. The pool/shore pair retains its exact existing overlap exception;
+no generalized overlap waiver or corridor shrink was introduced.
+
+Although the existing validator emits its package success markers, this was
+an initialized-editor contract run, **not a new GUI-down persisted-package
+gate**. Its map load completed in one submission; live collision checks ran
+later after editor-frame/tool boundaries. The fresh November 24 Causeway
+package evidence remains separate and authoritative.
+
+The full live suite passed 579 support / 1,104 clearance rays, positive marker
+control and every earlier asset guard, including the nine positive arrival
+landmarks, sampled return shoulders, wall, pool and shore. Only the existing
+rock underlying-ground diagnostics ignore their own cluster; other route and
+art probes ignore no actors. These samples are not exhaustive player-volume,
+moving-camera or NoCollision foliage-occlusion proof.
+
+The refreshed inventory is unchanged: 9,558 placed LOD0 triangles, 91 sections,
+13 effective materials, 37 BlockAll / 16 NoCollision actors, and 20 placed
+boxes / 32 convex hulls. These counts do not establish frame cost. No restart,
+build, import, source reauthoring, new native run or Fenwatch rerun was needed.
+November 27's source-quality evidence remains separate, not a repeated audit.
+
+Normal floating PIE reached the Human Warrior picker in the current
+640 x 394 Slate preview window and stopped. No character confirmation,
+HUD, painted player-camera or physical-walk check is claimed from that run.
+Causeway returned All Saved outside PIE with no dirty packages or November 28
+Python errors. Both maps and protected save/keeper files retained their hashes;
+Causeway remains `f45b70257346b9dfae5989f8e52b2ff973ddc0d08f62a2c94902117793c12976`.
+The session log snapshot is `/tmp/embermere-nov28-loop-review-editor.log`.
 
 ## Physical Gates
 
